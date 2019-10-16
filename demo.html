@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  
+  <div>
+    <script type="module" src="widgets/button/index.js"></script>
+    <h2>buttons</h2>
+    <div style="padding: 15px;border: 1px solid #333;">
+      <blocks-button>普通按钮</blocks-button>
+      <blocks-button type="primary">primary</blocks-button>
+      <blocks-button type="danger">danger</blocks-button>
+      <blocks-button type="link">link</blocks-button>
+      <blocks-button disabled>无效按钮</blocks-button>
+      <blocks-button size="large">large</blocks-button>
+      <blocks-button size="small">small</blocks-button>
+    </div>
+    <div style="padding: 15px;background:#333;">
+      <blocks-button outline>default outline</blocks-button>
+      <blocks-button type="primary" outline>primary outline</blocks-button>
+      <blocks-button type="danger" outline>danger outline</blocks-button>
+    </div>
+  </div>
+
+
+  <div>
+    <script type="module" src="widgets/button-group/index.js"></script>
+    <h2>button-group</h2>
+    <div style="padding: 15px;border: 1px solid #333;">
+      <blocks-button-group class="blocks-button-group">
+        <blocks-button>First</blocks-button>
+        <blocks-button>First</blocks-button>
+        <blocks-button>Second</blocks-button>
+      </blocks-button-group>
+    </div>
+  </div>  
+
+
+  <div style="padding: 15px;border: 1px solid #333;">
+    <script type="module" src="widgets/dialog/index.js"></script>
+    <h2>Dialog</h2>
+
+    <blocks-dialog
+      id="dialog1"
+      closeable
+      title="Title attr">
+      <div style="width:400px;">
+        这里是对话框的内容。
+      </div>
+    </blocks-dialog>
+
+    <blocks-dialog
+      id="dialog2"
+      closeable
+      title="忽略的title">
+      <span slot="header">
+        slot 自定义对话框标题
+      </span>
+      <div style="width:400px;">
+        这里是对话框的内容。
+      </div>
+    </blocks-dialog>
+
+    <blocks-dialog
+      id="dialog3"
+      closeable
+      title="页脚 slot">
+      <div style="width:400px;">
+        这里是对话框的内容。
+      </div>
+
+      <div slot="footer">
+        <blocks-button onclick="document.getElementById('dialog3').open = false">
+          关闭
+        </blocks-button>
+      </div>
+    </blocks-dialog>
+
+    <blocks-dialog
+      id="dialog4"
+      closeable>
+
+      <div slot="header">
+        header 焦点测试：
+        <input type="text" value="header slot">
+      </div>
+
+      <div style="width:400px;">
+        <input value="default slot" />
+      </div>
+
+      <div slot="footer">
+        <input type="text" value="footer slot">
+      </div>
+    </blocks-dialog>
+
+    <blocks-button onclick="document.getElementById('dialog1').open = true">打开1</blocks-button>
+    <blocks-button onclick="document.getElementById('dialog2').open = true">打开2</blocks-button>
+    <blocks-button onclick="document.getElementById('dialog3').open = true">打开3</blocks-button>
+    <blocks-button onclick="document.getElementById('dialog4').open = true">打开4</blocks-button>
+  </div>
+
+
+  <div style="padding: 15px;border: 1px solid #333;">
+    <script type="module" src="widgets/checkbox/index.js"></script>
+    <h2>Checkbox</h2>
+
+    <blocks-checkbox indeterminate></blocks-checkbox>
+    <blocks-checkbox checked></blocks-checkbox>
+
+    <blocks-checkbox label="label attr"></blocks-checkbox>
+
+    <blocks-checkbox label="label attr">
+      <span slot="label" style="color:#099;">label slot</span>
+    </blocks-checkbox>
+
+    <blocks-checkbox
+      style="height:25px;"
+      label="label attr"></blocks-checkbox>
+
+    <blocks-checkbox
+      disabled
+      label="disabled"></blocks-radio>      
+  </div>  
+
+
+  <div style="padding: 15px;border: 1px solid #333;">
+    <script type="module" src="widgets/radio/index.js"></script>
+    <h2>Radio</h2>
+
+    <blocks-radio
+      name="radio"
+      indeterminate></blocks-radio>
+    <blocks-radio
+      name="radio"
+      checked></blocks-radio>
+
+    <blocks-radio
+      name="radio"
+      label="label attr"></blocks-radio>
+
+    <blocks-radio
+      name="radio"
+      label="label attr">
+      <span slot="label" style="color:#099;">label slot</span>
+    </blocks-radio>
+
+
+    <blocks-radio
+      name="radio"
+      style="height:25px;"
+      label="label attr"></blocks-radio>
+
+    <blocks-radio
+      name="radio"
+      disabled
+      label="disabled"></blocks-radio>
+  </div>  
+
+
+  <div style="padding: 15px;border: 1px solid #333;">
+    <script type="module" src="widgets/switch/index.js"></script>
+    <h2>Switch</h2>
+
+    <blocks-switch></blocks-switch>
+    <blocks-switch checked></blocks-switch>
+    <blocks-switch disabled></blocks-switch>
+    <blocks-switch checked disabled></blocks-switch>
+
+    <blocks-switch size="small"></blocks-switch>
+    <blocks-switch size="small" checked></blocks-switch>
+    <blocks-switch size="small" disabled></blocks-switch>
+    <blocks-switch size="small" checked disabled></blocks-switch>
+  </div>  
+
+
+  <div style="padding: 15px;border: 1px solid #333;">
+    <script type="module" src="widgets/slider/index.js"></script>
+    <h2>Slider</h2>
+
+    <blocks-slider style="width:100px;"></blocks-slider>
+    <blocks-slider checked></blocks-slider>
+    <blocks-slider disabled></blocks-slider>
+    <blocks-slider checked disabled></blocks-slider>
+
+    <blocks-slider vertical checked></blocks-slider>
+    <blocks-slider vertical disabled></blocks-slider>
+    <blocks-slider vertical checked disabled></blocks-slider>
+  </div>  
+
+</body>
+</html>
