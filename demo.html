@@ -40,6 +40,27 @@
     </div>
   </div>  
 
+  <div style="padding: 15px;border: 1px solid #333;">
+    <script type="module" src="widgets/popup/index.js"></script>
+    <h2>Popup</h2>
+
+    <blocks-popup id="popup1" arrow anchorx="100" anchory="400" anchorwidth="400" anchorside="top" anchoralign="start">
+      <div style="width:400px;height:200px;">
+        这里是 Popup 的内容。
+      </div>
+    </blocks-popup>
+
+    <blocks-popup id="popup2" arrow>
+      <div style="width:400px;height: 200px;border:1px solid #ccc;">
+        <input value="default slot" />
+        <input value="default slot" />
+      </div>
+    </blocks-popup>
+
+    <blocks-button onclick="document.getElementById('popup1').open = !document.getElementById('popup1').hasAttribute('open')">开/关 Popup1</blocks-button>
+    <blocks-button onclick="document.getElementById('popup2').open = !document.getElementById('popup2').hasAttribute('open')">开/关 Popup2</blocks-button>
+  </div>
+
 
   <div style="padding: 15px;border: 1px solid #333;">
     <script type="module" src="widgets/dialog/index.js"></script>
