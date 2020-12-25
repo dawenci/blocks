@@ -29,6 +29,7 @@ template.innerHTML = `
       font-size: 14px;
       text-align: center;
       transition: color .2s, border-color .2s;
+      user-select: none;
     }
 
     /* background */
