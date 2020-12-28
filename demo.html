@@ -44,21 +44,27 @@
     <script type="module" src="widgets/popup/index.js"></script>
     <h2>Popup</h2>
 
-    <blocks-popup id="popup1" arrow anchorx="100" anchory="400" anchorwidth="400" anchorside="top" anchoralign="start">
-      <div style="width:400px;height:200px;">
-        这里是 Popup 的内容。
+    <blocks-popup class="popup1">
+      <div style="padding:50px;">
+        默认居中
       </div>
     </blocks-popup>
+    <div>
+      <blocks-button onclick="document.querySelector('.popup1').open = !document.querySelector('.popup1').hasAttribute('open')">
+        默认居中
+      </blocks-button>
+    </div>
 
-    <blocks-popup id="popup2" arrow>
-      <div style="width:400px;height: 200px;border:1px solid #ccc;">
-        <input value="default slot" />
-        <input value="default slot" />
+    <blocks-popup class="popup2" arrow origin="top-start" anchor=".anchor-popup2">
+      <div style="padding:50px;">
+        origin=top-start
       </div>
     </blocks-popup>
-
-    <blocks-button onclick="document.getElementById('popup1').open = !document.getElementById('popup1').hasAttribute('open')">开/关 Popup1</blocks-button>
-    <blocks-button onclick="document.getElementById('popup2').open = !document.getElementById('popup2').hasAttribute('open')">开/关 Popup2</blocks-button>
+    <div>
+      <blocks-button class="anchor-popup2" onclick="document.querySelector('.popup2').open = !document.querySelector('.popup2').hasAttribute('open')">
+        origin=top-start
+      </blocks-button>
+    </div>
   </div>
 
 
