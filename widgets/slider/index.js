@@ -148,13 +148,36 @@ template.innerHTML = `
 
 class BlocksSlider extends HTMLElement {
   static get observedAttributes() {
-    return [ 'max', 'min', 'step', 'range', 'vertical', 'disabled', 'size' ]
+    return [ 'value', 'max', 'min', 'step', 'range', 'vertical', 'disabled', 'size' ]
   }
 
   constructor() {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
-    shadowRoot.appendChild(template.content.cloneNode(true))
+
+    const fragment = template.content.cloneNode(true)
+    shadowRoot.appendChild(fragment)
+    this.slider = shadowRoot.querySelector('.slider')
+  }
+
+  get value() {
+    const attrValue = this.getAttribute('value')
+    if (this.range) {
+      if (/\[\s*\d+(\s*\,\s*\d+)\s*\]/.test(attrValue.trim())) {
+        return JSON.parse(attrValue)
+      }
+      else {
+        return [0, 0]
+      }
+    } 
+    else {
+      const value = parseInt(attrValue, 10)
+      return value == value ? value : 0
+    }
+  }
+
+  set value(value) {
+    this.setAttribute('value', value)
   }
 
   get disabled() {
@@ -196,73 +219,104 @@ class BlocksSlider extends HTMLElement {
     }
   }
 
-  _getSize() {
-    const track = this.shadowRoot.querySelector('.track')
-    return parseFloat(window.getComputedStyle(track)
-      .getPropertyValue(this.vertical ? 'height' : 'width'))
+  _getTrackSize() {
+    const track = this.slider.querySelector('.track')
+    return parseFloat(getComputedStyle(track).getPropertyValue(this.vertical ? 'height' : 'width'))
   }
 
   _updateButton() {
-    // TODO
+    if (this.range) {
+      this.slider.querySelectorAll('.button').forEach(button => button.style.display = 'block')
+    }
+    else {
+      this.slider.querySelector('.button').style.display = 'none'
+    }
   }
 
   connectedCallback() {
     this.setAttribute('role', 'slider')
     this.setAttribute('tabindex', '0')
 
-    let pointStart = null
-    let positionStart = null
-    let button = null
+    this.constructor.observedAttributes.forEach(attr => {
+      this._upgradeProperty(attr)
+    })
 
-    this._onMove = (e) => {
-      const size = this._getSize()
-      const offset = this.vertical
-        ? pointStart - e.pageY
-        : e.pageX - pointStart
-      let position = positionStart + offset
-      
-      if (position < 0) {
-        position = 0
-      }
-      else if (position > (size - 14)) {
-        position = size - 14
-      }
+    this._updateButton()
 
-      const axis = this.vertical ? 'bottom' : 'left'
-      button.style[axis] = `${position}px`
+    {
+      let pointStart = null
+      let positionStart = null
+      let button = null
+
+      const setPosition = (value) => {
+        const trackSize = this._getTrackSize()
+        if (value < 0) {
+          value = 0
+        }
+        else if (value > (trackSize - 14)) {
+          value = trackSize - 14
+        }
+        const axis = this.vertical ? 'bottom' : 'left'
+        button.style[axis] = `${value}px`
+      }
+  
+      const move = (e) => {
+        const offset = this.vertical ? pointStart - e.pageY : e.pageX - pointStart
+        let position = positionStart + offset
+        setPosition(position)
+      }
+  
+      const up = () => {
+        window.removeEventListener('mousemove', move)
+        window.removeEventListener('mouseup', up)
+        button.classList.remove('active')
+        positionStart = null
+        pointStart = null
+        button = null
+      }
+  
+      this.slider.onmousedown = (e) => {
+        if (this.disabled) {
+          e.preventDefault()
+          e.stopPropagation()
+          return
+        }
+
+        // 点击轨道，则先将滑块（第二个）移动过去，再记录移动初始信息
+        if (e.target.classList.contains('track')) {
+          button = this.slider.querySelectorAll('.button')[1]
+          button.classList.add('active')
+
+          const rect = this.slider.querySelector('.track').getBoundingClientRect()
+          pointStart = this.vertical ? e.pageY : e.pageX
+
+          if (this.vertical) {
+            positionStart = this._getTrackSize() - (this.vertical ? e.clientY - rect.y : e.clientX - rect.x) - 7
+          }
+          else {
+            positionStart = (this.vertical ? e.clientY - rect.y : e.clientX - rect.x) - 7
+          }
+          setPosition(positionStart)
+
+          window.addEventListener('mousemove', move)
+          window.addEventListener('mouseup', up)
+        }
+  
+        // 点击的是滑块，记录移动初始信息
+        else if (e.target.classList.contains('button')) {
+          button = e.target
+          button.classList.add('active')
+          pointStart = this.vertical ? e.pageY : e.pageX
+          positionStart = parseFloat(button.style[this.vertical ? 'bottom' : 'left']) || 0
+          window.addEventListener('mousemove', move)
+          window.addEventListener('mouseup', up)
+        }
+      }
     }
-
-    this._onEnd = (e) => {
-      window.removeEventListener('mousemove', this._onMove)
-      window.removeEventListener('mouseup', this._onEnd)
-      button.classList.remove('active')
-      positionStart = null
-      pointStart = null
-      button = null
-    }
-
-    this._onStart = (e) => {
-      if (this.disabled) {
-        e.preventDefault()
-        e.stopPropagation()
-        return
-      }
-
-      if (e.target.classList.contains('button')) {
-        button = e.target
-        button.classList.add('active')
-        positionStart = parseFloat(button.style[this.vertical ? 'bottom' : 'left']) || 0
-        pointStart = this.vertical ? e.pageY : e.pageX
-        window.addEventListener('mousemove', this._onMove)
-        window.addEventListener('mouseup', this._onEnd)
-      }
-    }
-
-    this.shadowRoot.addEventListener('mousedown', this._onStart)
   }
 
   disconnectedCallback() {
-    this.shadowRoot.removeEventListener('mousedown', this._onStart)
+    this.slider.onmousedown = null
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -276,6 +330,18 @@ class BlocksSlider extends HTMLElement {
     }
     if (name === 'range') {
       this._updateButton()
+    }
+  }
+
+  // https://developers.google.com/web/fundamentals/web-components/best-practices#lazy-properties
+  // 属性可能在 prototype 还没有链接到该实例前就设置了，
+  // 在用户使用一些框架加载组件时，可能回出现这种情况，
+  // 因此需要进行属性升级，确保 setter 逻辑能工作，
+  _upgradeProperty(prop) {
+    if (this.hasOwnProperty(prop)) {
+      const value = this[prop]
+      delete this[prop]
+      this[prop] = value
     }
   }
 }
