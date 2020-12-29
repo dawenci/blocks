@@ -53,7 +53,8 @@ template.innerHTML = `
 
     opacity:0;
     transform:scale(0.5);
-    transition: .16s cubic-bezier(.645, .045, .355, 1);    
+    transition: transform .16s cubic-bezier(.645, .045, .355, 1),
+      opacity .16s cubic-bezier(.645, .045, .355, 1);
   }
   :host([open]) #dialog {
     opacity:1;
@@ -77,6 +78,8 @@ template.innerHTML = `
     position: relative;
     padding: 10px 15px;
     line-height: 1.428571429;
+    cursor: move;
+    user-select: none;
   }
   .no-header header {
     display: none;
@@ -174,18 +177,20 @@ template.innerHTML = `
 
   #close:hover,
   #close:focus {
-    background-color: rgba(0,0,0,.05);
+    background-color: rgba(0,0,0,.3);
+    outline: 0 none;
+  }
+  #close:active {
+    background-color: rgba(0,0,0,.5);
     outline: 0 none;
   }
   #close:hover::before,
-  #close:hover::after {
-    background-color: rgba(0,0,0,.4);
+  #close:hover::after,
+  #close:active::before,
+  #close:active::after {
+    background-color: rgba(255,255,255,.8);
   }
 
-  #close:active {
-    background-color: rgba(0,0,0,.1);
-    outline: 0 none;
-  }
   :host(:not([closeable])) #close {
     display:none;
   }
@@ -407,10 +412,41 @@ class BlocksDialog extends HTMLElement {
   connectedCallback() {
     this._renderHeader()
     this._renderFooter()
+
+    // 拖拽 header 移动
+    {
+      const dialog = this.dialog
+      let offsetX = 0
+      let offsetY = 0
+
+      const isHeader = (e) => {
+        return dialog.querySelector('header').contains(e.target)
+      }
+  
+      const move = (e) => {
+        dialog.style.left = (e.pageX - offsetX) + 'px'
+        dialog.style.top = (e.pageY - offsetY) + 'px'
+      }
+  
+      const up = () => {
+        removeEventListener('mousemove', move)
+        removeEventListener('mouseup', up)
+      }
+  
+      dialog.onmousedown = (e) => {
+        if (!isHeader(e)) return
+        const marginLeft = parseFloat(window.getComputedStyle(dialog).marginLeft || '0')
+        const marginTop = parseFloat(window.getComputedStyle(dialog).marginTop || '0')
+        offsetX = (e.pageX - dialog.offsetLeft + marginLeft)
+        offsetY = (e.pageY - dialog.offsetTop + marginTop)
+        addEventListener('mousemove', move)
+        addEventListener('mouseup', up)
+      }
+    }
   }
 
   disconnectedCallback() {
-    this.onmousewheel = null
+    this.dialog.onmousedown = null
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
