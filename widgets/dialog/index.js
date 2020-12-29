@@ -31,7 +31,7 @@ template.innerHTML = `
     z-index:0;
     background: rgba(0,0,0,.3);
     opacity:0;
-    transition: opacity .2;
+    transition: opacity .16;
   }
   :host([open]) #mask {
     opacity:1;
@@ -53,7 +53,7 @@ template.innerHTML = `
 
     opacity:0;
     transform:scale(0.5);
-    transition: .2s cubic-bezier(.645, .045, .355, 1);    
+    transition: .16s cubic-bezier(.645, .045, .355, 1);    
   }
   :host([open]) #dialog {
     opacity:1;
@@ -218,9 +218,28 @@ template.innerHTML = `
   </div>
 `
 
+function getBodyScrollBarWidth() {
+  const outer = document.createElement('div')
+  const inner = outer.cloneNode()
+  outer.style.cssText = 'visibility: hidden;overflow:scroll;position: absolute;top: 0;left: 0;width: 100px;'
+  inner.style.cssText = 'width: 100%;'
+  outer.appendChild(inner)
+  document.body.appendChild(outer)
+  return outer.offsetWidth - inner.offsetWidth
+}
+
+function getBodyPaddingRight() {
+  return parseInt(getComputedStyle(document.body).paddingRight, 10)
+}
+
 class BlocksDialog extends HTMLElement {
   static get observedAttributes() {
-    return [ 'open', 'title', 'closeable' ]
+    return [
+      'open',
+      'title',
+      'closeable',
+      ''
+    ]
   }
 
   constructor() {
@@ -313,6 +332,32 @@ class BlocksDialog extends HTMLElement {
     }
   }
 
+  _lockScroll() {
+    if (!this.isScrollLocked) {
+      this.bodyPaddingRight = document.body.style.paddingRight
+      this.bodyOverflowY = document.body.style.overflowY
+      this.computedBodyPaddingRight = parseInt(getComputedStyle(document.body).paddingRight, 10)
+    }
+
+    const scrollBarWidth = getBodyScrollBarWidth()
+    let bodyHasOverflow = document.documentElement.clientHeight < document.body.scrollHeight;
+    let bodyOverflowY = getComputedStyle(document.body).overflowY
+    if (scrollBarWidth > 0 && (bodyHasOverflow || bodyOverflowY === 'scroll') && !this.isScrollLocked) {
+      document.body.style.paddingRight = this.computedBodyPaddingRight + scrollBarWidth + 'px'
+    }
+
+    document.body.style.overflowY = 'hidden'
+    this.isScrollLocked = true
+  }
+
+  _unlockScroll() {
+    if (this.isScrollLocked) {
+      document.body.style.paddingRight = this.bodyPaddingRight
+      document.body.style.overflowY = this.bodyOverflowY
+      this.isScrollLocked = false
+    }
+  }
+
   _hostChild(selector) {
     return this.querySelector(selector)
   }
@@ -365,10 +410,18 @@ class BlocksDialog extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this.onmousewheel = null
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (name == 'open' && this.shadowRoot) {
+      if (this.open) {
+        this._lockScroll()
+      }
+      else {
+        this._unlockScroll()
+      }
+
       if (newValue !== null) this._focus()
       else this._blur()
     }
