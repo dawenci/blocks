@@ -40,30 +40,39 @@ template.innerHTML = `
     cursor: pointer;
     border-color: ${$borderColorBase};
   }
+
+  /* hover 框线高亮 */
   :host(:hover) .checkbox,
   :host(:focus) .checkbox {
     border-color: ${$colorPrimary};
   }
 
-  :host([indeterminate]) .checkbox,
-  :host([checked]) .checkbox {
+  /* 选中状态、不确定状态，框线、背景高亮 */
+  :host([checked]) .checkbox,
+  :host .checkbox[indeterminate],
+  :host .checkbox[indeterminate] {
     border-color: ${$colorPrimary};
     background-color: ${$colorPrimary};
   }
-  :host([indeterminate]:hover) .checkbox,
-  :host([indeterminate]:focus) .checkbox,
+
+  /* 选中状态、不确定状态，hover、foucs 高光高亮 */
+  :host(:hover) .checkbox[indeterminate],
+  :host(:focus) .checkbox[indeterminate],
   :host([checked]:hover) .checkbox,
   :host([checked]:focus) .checkbox {
     border-color: ${$colorPrimaryLight};
     background-color: ${$colorPrimaryLight};
   }
-  :host([indeterminate]) .checkbox:active,
+
+  /* 激活状态，加深高亮 */
+  :host .checkbox[indeterminate]:active,
   :host([checked]) .checkbox:active {
     border-color: ${$colorPrimaryDark};
     background-color: ${$colorPrimaryDark};
   }
 
-  :host([indeterminate]) .checkbox::before {
+  /* 不确定状态，内部渲染横杠 */
+  :host .checkbox[indeterminate]::before {
     content: "";
     position: absolute;
     display: block;
@@ -75,6 +84,7 @@ template.innerHTML = `
     top: 5px;
   }
   
+  /* 选中状态，内部渲染对勾 */
   :host([checked]) .checkbox::before {
     box-sizing: content-box;
     content: "";
@@ -124,14 +134,18 @@ template.innerHTML = `
 `
 
 class BlocksCheckbox extends HTMLElement {
+  _indeterminate = false
+
   static get observedAttributes() {
-    return [ 'name', 'value', 'label', 'checked', 'disabled', 'indeterminate' ]
+    return [ 'name', 'value', 'label', 'checked', 'disabled' ]
   }
 
   constructor() {
     super()
+
     const shadowRoot = this.attachShadow({mode: 'open'})
-    shadowRoot.appendChild(template.content.cloneNode(true))
+    const fragment = template.content.cloneNode(true)
+    shadowRoot.appendChild(fragment)
 
     this.shadowRoot.addEventListener('click', (e) => {
       if (this.disabled) {
@@ -139,6 +153,7 @@ class BlocksCheckbox extends HTMLElement {
         e.stopPropagation()
         return
       }
+      this.indeterminate = false
       this.checked = !this.checked
     })
   }
@@ -179,16 +194,27 @@ class BlocksCheckbox extends HTMLElement {
   }
 
   get indeterminate() {
-    return this.hasAttribute('indeterminate')
+    return this._indeterminate
   }
 
   set indeterminate(v) {
     if (v) {
       this.checked = false
-      this.setAttribute('indeterminate', '')
+      this._indeterminate = true
     }
     else {
-      this.removeAttribute('indeterminate')
+      this._indeterminate = false
+    }
+    this._renderIndeterminate()
+  }
+
+  _renderIndeterminate() {
+    const checkbox = this.shadowRoot.querySelector('.checkbox')
+    if (this.indeterminate) {
+      checkbox.setAttribute('indeterminate', '')
+    }
+    else {
+      checkbox.removeAttribute('indeterminate')
     }
   }
 
