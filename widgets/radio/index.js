@@ -117,12 +117,7 @@ class BlocksRadio extends HTMLElement {
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
 
-    this.shadowRoot.addEventListener('click', (e) => {
-      if (this.disabled) {
-        e.preventDefault()
-        e.stopPropagation()
-        return
-      }
+    const check = () => {
       if (!this.checked) {
         document.getElementsByName(this.name)
           .forEach(el => {
@@ -131,6 +126,22 @@ class BlocksRadio extends HTMLElement {
             }
           })
         this.checked = true
+      }
+    }
+
+    this.shadowRoot.addEventListener('click', (e) => {
+      if (this.disabled) {
+        e.preventDefault()
+        e.stopPropagation()
+        return
+      }
+      check()
+    })
+
+    this.addEventListener('keyup', (e) => {
+      if (this.disabled) return
+      if (e.key === 'Enter' || e.key === ' ') {
+        check()
       }
     })
   }

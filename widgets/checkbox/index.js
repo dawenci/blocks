@@ -156,6 +156,13 @@ class BlocksCheckbox extends HTMLElement {
       this.indeterminate = false
       this.checked = !this.checked
     })
+
+    this.addEventListener('keyup', (e) => {
+      if (this.disabled) return
+      if (e.key === 'Enter' || e.key === ' ') {
+        this.checked = !this.checked
+      }
+    })
   }
 
   get label() {
@@ -232,7 +239,8 @@ class BlocksCheckbox extends HTMLElement {
     this._renderLabel()
   }
 
-  disconnectedCallback() {}
+  disconnectedCallback() {
+  }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (this.disabled) {

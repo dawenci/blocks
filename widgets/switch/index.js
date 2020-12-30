@@ -115,6 +115,13 @@ class BlocksSwitch extends HTMLElement {
       }
       this.checked = !this.checked
     })
+
+    this.addEventListener('keyup', (e) => {
+      if (this.disabled) return
+      if (e.key === 'Enter' || e.key === ' ') {
+        this.checked = !this.checked
+      }
+    })
   }
 
   get disabled() {
