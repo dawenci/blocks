@@ -2,7 +2,8 @@ export const $fontFamily = `-apple-system,BlinkMacSystemFont,'Segoe UI','PingFan
 
 // widget 高度
 export const $heightBase = '32px'
-export const $heightSmall = '24px'
+export const $heightMini = '24px'
+export const $heightSmall = '28px'
 export const $heightLarge = '40px'
 
 // 字号

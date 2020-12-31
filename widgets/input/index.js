@@ -5,6 +5,10 @@ import {
   $transitionDuration,
   $borderColorBase,
   $borderColorDisabled,
+  $heightBase,
+  $heightMini,
+  $heightSmall,
+  $heightLarge,
 } from '../theme/var.js'
 
 import '../popup/index.js'
@@ -20,30 +24,48 @@ const TEMPLATE_CSS = `<style>
 :host {
   overflow: hidden;
   display: inline-block;
-  height: 32px;
-  line-height: 28px;
-  border: 1px solid #ddd;
   user-select: none;
+  cursor: default;
+}
+
+.container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  height: ${$heightBase};
   border: 1px solid ${$borderColorBase};
   background-color: #fff;
   border-radius: ${$radiusBase};
-  cursor: default;
+  font-size: 14px;
 }
-.container {
-  height: 100%;
+:host([size="mini"]) .container {
+  height: ${$heightMini};
+  font-size: 12px;
 }
+:host([size="small"]) .container {
+  height: ${$heightSmall};
+}
+:host([size="large"]) .container {
+  height: ${$heightLarge};
+  font-size: 16px;
+}
+:host(:focus-within) .container {
+  border-color: ${$colorPrimary};
+}
+
 input {
-  padding: 0 5px;
+  font-size: inherit;
+  padding: 0 9px;
   border: 0 none;
+  line-height: 1;
   background: transparent;
 }
+
 input:focus {
   outline: 0 none;
 }
 
-:host(:focus-within) {
-  border-color: ${$colorPrimary};
-}
 </style>`
 
 const TEMPLATE_HTML = `
@@ -60,6 +82,19 @@ class BlocksInput extends HTMLElement {
   static get observedAttributes() {
     return [
       'value',
+      'type',
+      'step',
+      'size',
+      'readonly',
+      'placeholder',
+      'name',
+      'multiple',
+      'min',
+      'max',
+      'minlength',
+      'maxlength',
+      'autofocus',
+      'autocomplete',
     ]
   }
 
@@ -91,6 +126,102 @@ class BlocksInput extends HTMLElement {
     this.input.value = value
   }
 
+  get type() {
+    return this.input.type
+  }
+
+  set type(value) {
+    this.input.type = value
+  }
+
+  get step() {
+    return this.input.step
+  }
+
+  set step(value) {
+    this.input.step = value
+  }
+
+  get size() {
+    return this.getAttribute('size')
+  }
+
+  set size(value) {
+    this.setAttribute('size', value)
+  }
+
+  get readonly() {
+    return this.input.readonly
+  }
+
+  set readonly(value) {
+    this.input.readonly = value
+  }
+
+  get placeholder() {
+    return this.input.placeholder
+  }
+
+  set placeholder(value) {
+    this.input.placeholder = value
+  }
+
+  get name() {
+    return this.input.name
+  }
+
+  set name(value) { 
+    this.input.name = value
+  }
+
+  get min() {
+    return this.input.min
+  }
+
+  set min(value) {
+    this.input.min = value
+  }
+
+  get max() {
+    return this.input.max
+  }
+
+  set max(value) {
+    this.input.max = value
+  }
+
+  get minlength() {
+    return this.input.minlength
+  }
+
+  set minlength(value) {
+    this.input.minlength = value
+  }
+
+  get maxlength() {
+    return this.input.maxlength
+  }
+
+  set maxlength(value) {
+    this.input.maxlength = value
+  }
+
+  get autofocus() {
+    return this.input.autofocus
+  }
+
+  set autofocus(value) {
+    this.input.autofocus = value
+  }
+
+  get autocomplete() {
+    return this.input.autocomplete
+  }
+
+  set autocomplete(value) {
+    this.input.autocomplete = value
+  }
+
   connectedCallback() {
     this.constructor.observedAttributes.forEach(attr => {
       this._upgradeProperty(attr)
@@ -105,10 +236,24 @@ class BlocksInput extends HTMLElement {
   // }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (['value'].includes(name)) {
+    if ([
+      'value',
+      'type',
+      'step',
+      'size',
+      'readonly',
+      'placeholder',
+      'name',
+      'multiple',
+      'min',
+      'max',
+      'minlength',
+      'maxlength',
+      'autofocus',
+      'autocomplete',
+    ].includes(name)) {
       this.input.setAttribute(name, newValue)
     }
-
     this.render()
   }
 
