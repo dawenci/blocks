@@ -5,7 +5,7 @@ import {
   $transitionDuration,
 } from '../theme/var.js'
 
-import { Depth, ViewMode } from './data.js'
+import { Depth } from './data.js'
 import { normalizeDepth, normalizeMinDepth, normalizeViewDepth, toggleClass, toggleAttr, range, getClosestDate, getFirstDate, getLastDate, getLastDateOfPrevMonth, getFirstDateOfNextMonth } from './helpers.js'
 
 const TEMPLATE_CSS = `<style>
@@ -360,10 +360,6 @@ class BlocksDatePanel extends HTMLElement {
     return Depth
   }
 
-  static get ViewMode() {
-    return ViewMode
-  }
-
   static get observedAttributes() {
     return [
       // 选择值的深度
@@ -430,9 +426,7 @@ class BlocksDatePanel extends HTMLElement {
     this.decade = [+(String(this.year).slice(0, -1) + '0'), +(String(this.year).slice(0, -1) + '9')]
     // 面板视图深度层级
     this.viewDepth = this.startdepth
-    // 视图模式（日期面板、tag 列表）
-    this.viewMode = ViewMode.Panel
-
+    
     panel.onclick = (e) => {
       const target = e.target
       if (this.elements.prevPrev.contains(target)) {
@@ -610,10 +604,12 @@ class BlocksDatePanel extends HTMLElement {
     if (this.multiple && Array.isArray(value)) {
       this._value = value
       this.render()
+      this.dispatchEvent(new CustomEvent('input', { detail: { value } }))
     }
     else if (value instanceof Date) {
       this._value = value
       this.render()
+      this.dispatchEvent(new CustomEvent('input', { detail: { value } }))
     }
   }
 
@@ -732,14 +728,6 @@ class BlocksDatePanel extends HTMLElement {
     return `${this.year}-${this.month + 1}`
   }
 
-  get tags() {
-    return this._tags || []
-  }
-
-  set tags(value) {
-    this._tags = value
-  }
-
   // 是否已经选够最大数量的值
   get limitReached() {
     if (!this.multiple || !this.max) return false
@@ -834,37 +822,6 @@ class BlocksDatePanel extends HTMLElement {
     if (this.viewDepth === 'decade') return this.yearList
     if (this.viewDepth === 'year') return this.monthList
     return this.dateList
-  }
-
-  // 当前 depth 下的 tag 列表
-  get tagList() {
-    let list
-    if (this.viewDepth === 'decade') {
-      list = this.tags.filter(t => t.year >= this.decade[0] && t.year <= this.decade[1])
-    }
-    else if (this.viewDepth === 'year') {
-      list = this.tags.filter(t => t.year === this.year)
-    }
-    else {
-      list = this.tags.filter(t => t.month === this.month && t.year === this.year)
-    }
-    list.sort((a, b) => {
-      const d1 = new Date(a.year, a.month == null ? 0 : a.month, a.date == null ? 1 : a.date)
-      const d2 = new Date(b.year, b.month == null ? 0 : b.month, b.date == null ? 1 : b.date)
-      return d1.getTime() - d2.getTime()
-    })
-    return list
-  }
-
-  // tag 对应的日期格式化
-  printTagDate(event) {
-    if (event.date != null) {
-      return `${event.month + 1}月${event.date}日`
-    }
-    if (event.month != null) {
-      return `${event.month + 1}月`
-    }
-    return `${event.year}年`
   }
 
   // 是否当前面板对应的月
@@ -971,27 +928,6 @@ class BlocksDatePanel extends HTMLElement {
     this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
   }
 
-  // 点击 tag 列表行
-  onClickListItem(tag) {
-    const dateList = tag.date != null
-      ? this.dateList
-      : tag.month != null
-        ? this.monthList
-        : this.yearList
-    const date = dateList.find((t) => t.date === tag.date && t.month === tag.month && t.year === tag.year)
-    if (!date) return
-    if (this.depth === Depth.Month && tag.date != null) {
-      console.log('select date')
-      return this.selectDate(date)
-    }
-    if (this.depth === Depth.Year && tag.month != null) {
-      return this.selectMonth(date)
-    }
-    if (this.depth === Depth.Decade) {
-      return this.selectYear(date)
-    }
-  }
-
   // 通知外部 v-model 更新
   changeValue(value) {
     if (Array.isArray(value) && this.max) {
@@ -1001,7 +937,6 @@ class BlocksDatePanel extends HTMLElement {
       }
     }
     this.value = value
-    this.dispatchEvent(new CustomEvent('input', { detail: { value } }))
   }
 
   // 选择、添加某一天作为值
@@ -1164,13 +1099,7 @@ class BlocksDatePanel extends HTMLElement {
       }
     }
   }
-
-  // 切换 panel、list 模式
-  onSwitchMode() {
-    this.viewMode = this.viewMode === ViewMode.Panel ? ViewMode.List : ViewMode.Panel
-    this.dispatchEvent(new CustomEvent('mode-change', { detail: { viewMode: this.viewMode } }))
-  }
-  
+ 
   connectedCallback() {
     this.constructor.observedAttributes.forEach(attr => {
       this._upgradeProperty(attr)

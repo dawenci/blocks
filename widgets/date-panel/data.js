@@ -10,8 +10,3 @@ export const DepthValue = Object.freeze({
   [Depth.Year]: 1,
   [Depth.Month]: 2,
 })
-
-export const ViewMode = Object.freeze({
-  Panel: 'panel',
-  List: 'list',
-})
