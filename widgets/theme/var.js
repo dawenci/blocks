@@ -37,3 +37,5 @@ export const $colorFontBase = '#314659'
 // 边框
 export const $borderColorBase = 'rgb(217, 217, 217)'
 export const $borderColorDisabled = '#d9d9d9'
+
+export const $transitionDuration = '.16s'
