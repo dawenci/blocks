@@ -390,8 +390,6 @@ class BlocksDatePanel extends HTMLElement {
   constructor() {
     super()
 
-    window.aaa = this
-
     this.attachShadow({
       mode: 'open',
       // 代理焦点，
