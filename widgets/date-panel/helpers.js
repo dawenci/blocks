@@ -53,6 +53,10 @@ export function toggleAttr(el, attrName, flag) {
   }
 }
 
+/**
+ * 规范化选择深度取值
+ * 确保返回为 'decade', 'year', 'month' 之一
+ */
 export function normalizeDepth(depth) {
   if (!depth) return Depth.Month
   if (depth !== Depth.Month && depth !== Depth.Year && depth !== Depth.Decade) {
@@ -61,20 +65,26 @@ export function normalizeDepth(depth) {
   return depth
 }
 
-export function normalizeMinDepth(minDepth, depth) {
-  if (!minDepth) return Depth.Decade
-  return DepthValue[depth] < DepthValue[minDepth]
+/**
+ * 规范最小的深度取值
+ */
+export function normalizeMinDepth(min, depth) {
+  if (!min) return Depth.Century
+  return DepthValue[depth] < DepthValue[min]
     ? depth
-    : minDepth
+    : min
 }
 
-export function normalizeViewDepth(viewDepth, minDepth, depth) {
-  if (!viewDepth) return depth
-  if (DepthValue[viewDepth] < DepthValue[minDepth]) {
-    viewDepth = minDepth
+/**
+ * 规范面板深度取值
+ */
+export function normalizeViewDepth(view, min, depth) {
+  if (!view) return depth
+  if (DepthValue[view] < DepthValue[min]) {
+    view = min
   }
-  if (DepthValue[viewDepth] > DepthValue[depth]) {
-    viewDepth = depth
+  if (DepthValue[view] > DepthValue[depth]) {
+    view = depth
   }
-  return viewDepth
+  return view
 }

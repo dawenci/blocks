@@ -189,7 +189,8 @@ const TEMPLATE_CSS = `<style>
 }
 
 .body-year .button-list,
-.body-decade .button-list {
+.body-decade .button-list,
+.body-century .button-list {
   height: 220px;
 }
 
@@ -212,20 +213,28 @@ const TEMPLATE_CSS = `<style>
   outline: 0 none;
 }
 
-/* 7 * 5 */
+/* 7 col * 5 row */
 .body-month .button-item {
   width: 28px;
   height: 28px;
   line-height: 28px;  
 }
 
-/* 4 * 3 */
-.body-year .button-item,
-.body-decade .button-item {
-  width: 50px;
-  height: 68px;
-  line-height: 68px;
+/* 3 col * 4 row */
+.body-year .button-item {
+  width: 68px;
+  height: 50px;
+  line-height: 50px;
 }
+
+/* 2 col * 5 row */
+.body-century .button-item,
+.body-decade .button-item {
+  width: 103px;
+  height: 40px;
+  line-height: 40px;
+}
+
 
 .button-item.button-item--otherMonth,
 .button-item[disabled] {
@@ -443,6 +452,8 @@ class BlocksDatePanel extends HTMLElement {
       else if (target.classList.contains('button-item')) {
         this.onClickItem({
           label: target.dataset.label,
+          century: +target.dataset.century,
+          decade: +target.dataset.decade,
           year: +target.dataset.year,
           month: +target.dataset.month,
           date: +target.dataset.date,
@@ -454,23 +465,10 @@ class BlocksDatePanel extends HTMLElement {
 
   setPanelDate(date) {
     const panelYear = date.getFullYear()
-
-    this.panelDecade = [+(String(panelYear).slice(0, -1) + '0'), +(String(panelYear).slice(0, -1) + '9')]
-
-    if (this.viewDepth === Depth.Month) {
-      this.panelYear = panelYear
-      this.panelMonth = date.getMonth()
-    }
-
-    else if (this.viewDepth === Depth.Year) {
-      this.panelYear = panelYear
-      this.panelMonth = undefined
-    }
-
-    else {
-      this.panelYear = undefined
-      this.panelMonth = undefined
-    }
+    this.panelCentury = Math.floor(panelYear / 100)
+    this.panelDecade = [Depth.Century].includes(this.viewDepth) ? undefined : Math.floor(panelYear / 10)
+    this.panelYear = [Depth.Century, Depth.Decade].includes(this.viewDepth) ? undefined : panelYear
+    this.panelMonth = [Depth.Century, Depth.Decade, Depth.Year].includes(this.viewDepth) ? undefined : date.getMonth()
   }
 
   renderHeaderButtons() {
@@ -515,7 +513,7 @@ class BlocksDatePanel extends HTMLElement {
   }
 
   renderItems() {
-    ;['body-decade', 'body-year', 'body-month'].forEach(klass => {
+    ;['body-century', 'body-decade', 'body-year', 'body-month'].forEach(klass => {
       this.elements.content.classList.remove(klass)
     })
     const contentPanelClass = `body-${this.viewDepth}`
@@ -529,6 +527,9 @@ class BlocksDatePanel extends HTMLElement {
     }
     else if (this.viewDepth === Depth.Decade) {
       this.renderYearItems()
+    }
+    else if (this.viewDepth === Depth.Century) {
+      this.renderDecadeItems()
     }
   }
 
@@ -563,6 +564,26 @@ class BlocksDatePanel extends HTMLElement {
     el.title = title
   }
 
+  renderDecadeItems() {
+    if (!this.decadeList.length) return
+    this.ensureItemCount(10).forEach((el, i) => {
+      const item = this.decadeList[i]
+      toggleClass(el, 'button-item--otherMonth', false)
+      toggleClass(el, 'button-item--today', false)
+      toggleClass(el, 'button-item--active', false)
+      toggleClass(el, 'button-item--childActive', this.isChildActive(item))
+      toggleAttr(el, 'disabled', false)
+      el.dataset.century = item.century
+      el.dataset.decade = item.decade
+      el.dataset.year = null
+      el.dataset.month = null
+      el.dataset.date = null
+      el.dataset.label = item.label
+      el.innerHTML = item.label
+      this.renderBadge(el, item)
+    })
+  }
+
   renderYearItems() {
     if (!this.yearList.length) return
     this.ensureItemCount(10).forEach((el, i) => {
@@ -572,6 +593,8 @@ class BlocksDatePanel extends HTMLElement {
       toggleClass(el, 'button-item--active', false)
       toggleClass(el, 'button-item--childActive', this.isChildActive(item))
       toggleAttr(el, 'disabled', false)
+      el.dataset.century = item.century
+      el.dataset.decade = item.decade
       el.dataset.year = item.year
       el.dataset.month = null
       el.dataset.date = null
@@ -590,6 +613,8 @@ class BlocksDatePanel extends HTMLElement {
       toggleClass(el, 'button-item--active', false)
       toggleClass(el, 'button-item--childActive', this.isChildActive(item))
       toggleAttr(el, 'disabled', false)
+      el.dataset.century = item.century
+      el.dataset.decade = item.decade
       el.dataset.year = item.year
       el.dataset.month = item.month
       el.dataset.date = null
@@ -608,6 +633,8 @@ class BlocksDatePanel extends HTMLElement {
       toggleClass(el, 'button-item--active', this.isActive(item))
       toggleClass(el, 'button-item--childActive', false)
       toggleAttr(el, 'disabled', !this.isActive(item) && this.isDisabled(item))
+      el.dataset.century = item.century
+      el.dataset.decade = item.decade
       el.dataset.year = item.year
       el.dataset.month = item.month
       el.dataset.date = item.date
@@ -625,12 +652,22 @@ class BlocksDatePanel extends HTMLElement {
     this.renderItems()
   }
 
+  get panelCentury() {
+    return this._panelCentury ?? Math.floor(this.panelYear / 100)
+  }
+
+  set panelCentury(value) {
+    if (this._panelCentury === value) return
+    this._panelCentury = value
+    this.render()
+  }
+
   get panelDecade() {
-    return this._panelDecade ?? [+(String(this.panelYear).slice(0, -1) + '0'), +(String(this.panelYear).slice(0, -1) + '9')]
+    return this._panelDecade ?? Math.floor(this.panelYear / 10)
   }
 
   set panelDecade(value) {
-    if (value && value[0] === this.panelDecade[0] && value[1] === this.panelDecade[1]) return
+    if (this._panelDecade === value) return
     this._panelDecade = value
     this.render()
   }
@@ -749,10 +786,14 @@ class BlocksDatePanel extends HTMLElement {
   }
 
   get title() {
-    if (this.viewDepth === 'decade') {
-      return `${this.panelDecade[0]}-${this.panelDecade[1]}`
+    if (this.viewDepth === Depth.Century) {
+      return `${this.panelCentury * 100} 至 ${this.panelCentury * 100 + 99}`
     }
-    if (this.viewDepth === 'year') {
+    if (this.viewDepth === Depth.Decade) {
+      const [from, to] = this.getDecadeRange(this.panelDecade)
+      return `${from} 至 ${to}`
+    }
+    if (this.viewDepth === Depth.Year) {
       return `${this.panelYear}`
     }
     return `${this.panelYear}-${this.panelMonth + 1}`
@@ -795,7 +836,14 @@ class BlocksDatePanel extends HTMLElement {
     const lastDate = getLastDate(this.panelYear, this.panelMonth)
     // 该月的所有日
     const dateRange = range(1, lastDate.getDate())
-      .map(date => ({ label: date, year: this.panelYear, month: this.panelMonth, date }))
+      .map(date => ({
+        label: date,
+        century: this.panelCentury,
+        decade: this.panelDecade,
+        year: this.panelYear,
+        month: this.panelMonth,
+        date
+      }))
 
     // 该月第一天在星期中的序号，如果不是从配置的 startWeekOn 开始，则在前面补上个月的日期
     const firstDateIndex = firstDate.getDay()
@@ -810,6 +858,8 @@ class BlocksDatePanel extends HTMLElement {
       while (n--) {
         dateRange.unshift({
           label: date,
+          century: Math.floor(prevYear / 100),
+          decade: Math.floor(prevYear / 10),
           year: prevYear,
           month: prevMonth,
           date: date
@@ -827,6 +877,8 @@ class BlocksDatePanel extends HTMLElement {
     while (dateRange.length < 42) {
       dateRange.push({
         label: date,
+        century: Math.floor(nextYear / 100),
+        decade: Math.floor(nextYear / 10),
         year: nextYear,
         month: nextMonth,
         date: date,
@@ -839,19 +891,51 @@ class BlocksDatePanel extends HTMLElement {
 
   // 月份列表（固定 1 - 12 月）
   get monthList() {
-    return range(0, 11).map(month => ({ label: month + 1, year: this.panelYear, month }))
+    return range(0, 11).map(month => ({
+      label: month + 1,
+      century: this.panelCentury,
+      decade: this.panelDecade,
+      year: this.panelYear,
+      month
+    }))
   }
 
   // 年份列表（10 年一组）
   get yearList() {
-    return range(...this.panelDecade).map(year => ({ label: year, year }))
+    const [from, to] = this.getDecadeRange(this.panelDecade)
+    return range(from, to).map(year => ({
+      label: year,
+      century: this.panelCentury,
+      decade: this.panelDecade,
+      year,
+    }))
   }
 
-  // 选项列表
-  get optionList() {
-    if (this.viewDepth === 'decade') return this.yearList
-    if (this.viewDepth === 'year') return this.monthList
-    return this.dateList
+  // 年代列表
+  get decadeList() {
+    const decadeFrom = this.panelCentury * 10
+    const decadeTo = decadeFrom + 9
+    const list = []
+    for (let decade = decadeFrom; decade <= decadeTo; decade += 1) {
+      list.push({
+        label: `${decade * 10}-${decade * 10 + 9}`,
+        century: this.panelCentury,
+        decade
+      })
+    }
+    return list
+  }
+
+  getDecadeRange(decade) {
+    let from = decade * 10
+    const to = from + 9
+    return [from, to]
+  }
+
+  getCenturyRange(century) {
+    let from = century * 100
+    const to = from + 90
+    return [from, to]
   }
 
   // 是否当前面板对应的月
@@ -868,13 +952,16 @@ class BlocksDatePanel extends HTMLElement {
   getBadges(item) {
     let badges
     if (this.viewDepth === Depth.Month) {
-      badges = this.badges.filter(t => item.date === t.date && item.month === t.month && t.year === item.year)
+      badges = this.badges.filter(b => item.date === b.date && item.month === b.month && b.year === item.year)
     }
     if (this.viewDepth === Depth.Year) {
-      badges = this.badges.filter(t => item.month === t.month && t.year === item.year)
+      badges = this.badges.filter(b => item.month === b.month && b.year === item.year)
     }
     if (this.viewDepth === Depth.Decade) {
-      badges = this.badges.filter(t => t.year === item.year)
+      badges = this.badges.filter(b => b.year === item.year)
+    }
+    if (this.viewDepth === Depth.Century) {
+      badges = this.badges.filter(b => b.year >= item.decade * 10 && b.year <= item.decade * 10 + 9)
     }
     if (!badges.length) return null
     return badges
@@ -882,11 +969,11 @@ class BlocksDatePanel extends HTMLElement {
 
   // 当前选项是否选中
   isActive(item) {
-    const isActive = this.depth === 'month'
+    const isActive = this.depth === Depth.Month
       ? t => t.getFullYear() === item.year && t.getMonth() === item.month && t.getDate() === item.date
-      : this.depth === 'year'
+      : this.depth === Depth.Year
         ? t => t.getFullYear() === item.year && t.getMonth() === item.month
-        : this.depth === 'decade'
+        : this.depth === Depth.Decade
           ? t => t.getFullYear() === item.year
           : () => false
 
@@ -901,6 +988,9 @@ class BlocksDatePanel extends HTMLElement {
     }
     if (this.viewDepth === Depth.Decade) {
       return this.getValues().some(t => t.getFullYear() === item.year)
+    }
+    if (this.viewDepth === Depth.Century) {
+      return this.getValues().some(t => Math.floor(t.getFullYear() / 10) === item.decade)
     }
     return false
   }
@@ -946,15 +1036,21 @@ class BlocksDatePanel extends HTMLElement {
       return this.selectYear(item)
     }
 
-    // 当前非处于最深的视图层次，则往下钻入下一级视图（年代->年，或年->月）
+    // 当前非处于最深的视图层次，则往下钻入下一级视图（世纪 -> 年代, 年代 -> 年，或年 -> 月）
     if (this.viewDepth === Depth.Year) {
       this.panelMonth = item.month
       this.viewDepth = Depth.Month
       this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
       return
     }
-    this.viewDepth = Depth.Year
-    this.panelYear = item.year
+    if (this.viewDepth === Depth.Decade) {
+      this.viewDepth = Depth.Year
+      this.panelYear = item.year
+      this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
+      return
+    }
+    this.viewDepth = Depth.Decade
+    this.panelDecade = item.decade
     this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
   }
 
@@ -969,6 +1065,13 @@ class BlocksDatePanel extends HTMLElement {
     this.value = value
   }
 
+  makeDate(year, month, date) {
+    const d = new Date(Date.UTC(year, month ?? 0, date ?? 1))
+    // 确保 1900 前的年份能正确设置
+    d.setUTCFullYear(year)
+    return d
+  }
+
   // 选择、添加某一天作为值
   selectDate(item) {
     if (this.multiple) {
@@ -978,13 +1081,13 @@ class BlocksDatePanel extends HTMLElement {
         if (index !== -1) values.splice(index, 1)
       }
       else {
-        values.push(new Date(item.year, item.month, item.date))
+        values.push(this.makeDate(item.year, item.month, item.date))
       }
       this.changeValue(values)
     }
     else {
       if (this.isActive(item)) return
-      this.changeValue(new Date(item.year, item.month, item.date))
+      this.changeValue(this.makeDate(item.year, item.month, item.date))
     }
   }
 
@@ -997,13 +1100,13 @@ class BlocksDatePanel extends HTMLElement {
         if (index !== -1) values.splice(index, 1)
       }
       else {
-        values.push(new Date(item.year, item.month, 1))
+        values.push(this.makeDate(item.year, item.month, 1))
       }
       this.changeValue(values)
     }
     else {
       if (this.isActive(item)) return
-      this.changeValue(new Date(item.year, item.month, 1))
+      this.changeValue(this.makeDate(item.year, item.month, 1))
     }
   }
 
@@ -1016,13 +1119,13 @@ class BlocksDatePanel extends HTMLElement {
         if (index !== -1) values.splice(index, 1)
       }
       else {
-        values.push(new Date(item.year, 0, 1))
+        values.push(this.makeDate(item.year, 0, 1))
       }
       this.changeValue(values)
     }
     else {
       if (this.isActive(item)) return
-      this.changeValue(new Date(item.year, 0, 1))
+      this.changeValue(this.makeDate(item.year, 0, 1))
     }
   }
 
@@ -1035,7 +1138,7 @@ class BlocksDatePanel extends HTMLElement {
       this.panelYear--
       this.panelMonth = 11
     }
-    this.dispatchEvent(new CustomEvent('prev-month', { detail: { year: this.panelYear, month: this.panelMonth } }))
+    this.dispatchEvent(new CustomEvent('prev-month', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear, month: this.panelMonth } }))
   }
 
   // 显示下个月的选项
@@ -1047,85 +1150,109 @@ class BlocksDatePanel extends HTMLElement {
       this.panelYear++
       this.panelMonth = 0
     }
-    this.dispatchEvent(new CustomEvent('next-month', { detail: { year: this.panelYear, month: this.panelMonth } }))
+    this.dispatchEvent(new CustomEvent('next-month', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear, month: this.panelMonth } }))
   }
 
   // 显示上一年的选项
   showPrevYear() {
     this.panelYear--
-    this.dispatchEvent(new CustomEvent('prev-year', { detail: { year: this.panelYear, month: this.panelMonth } }))
+    this.dispatchEvent(new CustomEvent('prev-year', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear } }))
   }
 
   // 显示下一年的选项
   showNextYear() {
     this.panelYear++
-    this.dispatchEvent(new CustomEvent('next-year', { detail: { year: this.panelYear, month: this.panelMonth } }))
+    this.dispatchEvent(new CustomEvent('next-year', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear } }))
   }
 
   // 显示上个年代（十年）的选项
   showPrevDecade() {
-    this.panelDecade = this.panelDecade.map(n => n - 10)
-    this.dispatchEvent(new CustomEvent('prev-decade', { detail: { year: this.panelYear, month: this.panelMonth } }))
+    this.panelDecade--
+    this.dispatchEvent(new CustomEvent('prev-decade', { detail: { century: this.panelCentury, decade: this.panelDecade } }))
   }
 
   // 显示下个年代（十年）的选项
   showNextDecade() {
-    this.panelDecade = this.panelDecade.map(n => n + 10)
-    this.dispatchEvent(new CustomEvent('next-decade', { detail: { year: this.panelYear, month: this.panelMonth } }))
+    this.panelDecade++
+    this.dispatchEvent(new CustomEvent('next-decade', { detail: { century: this.panelCentury, decade: this.panelDecade } }))
+  }
+
+  // 显示上一个世纪的选项
+  showPrevCentury() {
+    this.panelCentury--
+    this.dispatchEvent(new CustomEvent('prev-century', { detail: { century: this.panelCentury } }))
+  }
+
+  // 显示下一个世纪的选项
+  showNextCentury() {
+    this.panelCentury++
+    this.dispatchEvent(new CustomEvent('next-century', { detail: { century: this.panelCentury }}))
   }
 
   // 点击 prev 按钮
   onPrev() {
-    if (this.viewDepth === 'month') {
+    if (this.viewDepth === Depth.Month) {
       this.showPrevMonth()
     }
-    else if (this.viewDepth === 'year') {
+    else if (this.viewDepth === Depth.Year) {
       this.showPrevYear()
     }
-    else {
+    else if (this.viewDepth === Depth.Decade) {
       this.showPrevDecade()
+    }
+    else {
+      this.showPrevCentury()
     }
   }
 
   // 点击双重 prev 按钮
   onPrevPrev() {
-    if (this.viewDepth === 'month') {
+    if (this.viewDepth === Depth.Month) {
       this.showPrevYear()
     }
   }
 
   // 点击 next 按钮
   onNext() {
-    if (this.viewDepth === 'month') {
+    if (this.viewDepth === Depth.Month) {
       this.showNextMonth()
     }
-    else if (this.viewDepth === 'year') {
+    else if (this.viewDepth === Depth.Year) {
       this.showNextYear()
     }
-    else {
+    else if (this.viewDepth === Depth.Decade) {
       this.showNextDecade()
+    }
+    else {
+      this.showNextCentury()
     }
   }
 
   // 点击双重 next 按钮
   onNextNext() {
-    if (this.viewDepth === 'month') {
+    if (this.viewDepth === Depth.Month) {
       this.showNextYear()
     }
   }
 
-  // 点击 title，切换到上级视图（月 -> 年，年 -> 十年）
+  // 点击 title，切换到上级视图（月 -> 年，年 -> 年代, 年代 -> 世纪）
   onSwitchDepth() {
     switch (this.viewDepth) {
       case Depth.Month: {
         this.viewDepth = normalizeViewDepth(Depth.Year, this.mindepth, this.depth)
-        this.setPanelDate(new Date(this.panelYear, this.panelMonth))
+        this.setPanelDate(this.makeDate(this.panelYear, 0))
         this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
         break
       }
       case Depth.Year: {
         this.viewDepth = normalizeViewDepth(Depth.Decade, this.mindepth, this.depth)
-        this.setPanelDate(new Date(this.panelYear, 0))
+        this.setPanelDate(this.makeDate(this.panelYear, 0))
+        this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
+        break
+      }
+      case Depth.Decade: {
+        this.viewDepth = normalizeViewDepth(Depth.Century, this.mindepth, this.depth)
+        this.setPanelDate(this.makeDate(this.panelDecade * 10, 0))
         this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
         break
       }
