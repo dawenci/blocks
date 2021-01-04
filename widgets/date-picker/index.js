@@ -28,7 +28,7 @@ const TEMPLATE_CSS = `<style>
 </style>`
 
 const TEMPLATE_HTML = `
-<blocks-input class="date-picker-input" />
+<blocks-input class="date-picker-input" readonly />
 <blocks-popup class="date-picker-popup" origin="top-start" arrow>
   <blocks-date-panel class="date-picker-panel" />
 </blocks-popup>
