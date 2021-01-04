@@ -386,8 +386,8 @@ class BlocksDatePanel extends HTMLElement {
       // 校验（depth 末级）选项是否可用
       // (data: { year: number, month?: number, date?: number }) => boolean
       'disableMethod',
-      // 是否多选模式
-      'multiple',
+      // 选择模式，支持 single, multiple, range
+      'mode',
       // 多选模式的话，最多能选择多少个值
       'max',
       // 是否使用 loading 遮罩
@@ -697,16 +697,27 @@ class BlocksDatePanel extends HTMLElement {
   }
 
   set value(value) {
-    if (this.multiple && Array.isArray(value)) {
+    if (this.multiple) {
+      if (!value) value = []
+      if (this.max && value.length > this.max) {
+        console.error('选择的日期值超过最大数量限制')
+        return
+      }
       this._value = value
-      this.render()
-      this.dispatchEvent(new CustomEvent('input', { detail: { value } }))
+      
     }
-    else if (value instanceof Date) {
+    else if (this.range) {
+      if (!value) value = []
+      value = value.slice()
+      value.sort((a, b) => a.getTime() - b.getTime())
       this._value = value
-      this.render()
-      this.dispatchEvent(new CustomEvent('input', { detail: { value } }))
     }
+    else {
+      this._value = value
+    }
+
+    this.render()
+    this.dispatchEvent(new CustomEvent('input', { detail: { value } }))
   }
 
   get depth() {
@@ -752,17 +763,27 @@ class BlocksDatePanel extends HTMLElement {
     this.setAttribute('max', Math.trunc(value))
   }
 
-  get multiple() {
-    return this.hasAttribute('multiple')
+  get mode() {
+    const mode = this.getAttribute('mode')
+    return ['single', 'multiple', 'range'].includes(mode) ? mode : 'single'
   }
 
-  set multiple(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('multiple')
+  set mode(value) {
+    value = ['single', 'multiple', 'range'].includes(value) ? value : 'single'
+    if (value === 'single') {
+      this.removeAttribute('mode')
     }
     else {
-      this.setAttribute('multiple', '')
+      this.setAttribute('mode', value)  
     }
+  }
+
+  get multiple() {
+    return this.mode === 'multiple'
+  }
+
+  get range() {
+    return this.mode === 'range'
   }
 
   get badges() {
@@ -975,9 +996,43 @@ class BlocksDatePanel extends HTMLElement {
         ? t => t.getFullYear() === item.year && t.getMonth() === item.month
         : this.depth === Depth.Decade
           ? t => t.getFullYear() === item.year
-          : () => false
+          : () => false  
 
-    return this.getValues().some(isActive)
+    if (this.mode === 'single' || this.mode === 'multiple') {
+      return this.getValues().some(isActive)
+    }
+
+    // range mode
+    if (this._rangeStart) {
+      return isActive(this._rangeStart)
+    }
+    if (this.value && this.value.length) {
+      let inRange
+      if (this.depth === Depth.Month) {
+        inRange = (t1, t2) => {
+          const t1Time = this.makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime()
+          const t2Time = this.makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime()
+          const itemTime = this.makeDate(item.year, item.month, item.date).getTime()
+          return t1Time <= itemTime && t2Time >= itemTime
+        }
+      }
+      else if (this.depth === Depth.Year) {
+        inRange = (t1, t2) => {
+          const t1Time = this.makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime()
+          const t2Time = this.makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime()
+          const itemTime = this.makeDate(item.year, item.month, 1).getTime()
+          return t1Time <= itemTime && t2Time >= itemTime
+        }
+      }
+      else if (this.depth === Depth.Decade) {
+        inRange = (t1, t2) => {
+          return t1.getFullYear() <= item.year && t2.getFullYear() >= item.year
+        }
+      }
+      return inRange(this.value[0], this.value[1])
+    }
+
+    return false
   }
 
   // 是否有子结点选中（年下的月、日，月下的日等等）
@@ -997,7 +1052,7 @@ class BlocksDatePanel extends HTMLElement {
 
   // 获取当前选中的值数组（非多选也转换成数组）
   getValues() {
-    return this.multiple ? (this.value ?? []).slice() : this.value ? [this.value] : []
+    return this.multiple || this.range ? (this.value ?? []).slice() : this.value ? [this.value] : []
   }
 
   // 当前选项是否渲染成禁用，仅作用于末级 depth
@@ -1054,19 +1109,8 @@ class BlocksDatePanel extends HTMLElement {
     this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
   }
 
-  // 通知外部 v-model 更新
-  changeValue(value) {
-    if (Array.isArray(value) && this.max) {
-      if (value.length > this.max) {
-        console.error('选择的日期值超过最大数量限制')
-        return
-      }
-    }
-    this.value = value
-  }
-
   makeDate(year, month, date) {
-    const d = new Date(Date.UTC(year, month ?? 0, date ?? 1))
+    const d = new Date(Date.UTC(year, month ?? 0, date ?? 1, 0, 0, 0, 0))
     // 确保 1900 前的年份能正确设置
     d.setUTCFullYear(year)
     return d
@@ -1074,58 +1118,103 @@ class BlocksDatePanel extends HTMLElement {
 
   // 选择、添加某一天作为值
   selectDate(item) {
-    if (this.multiple) {
+    const date = this.makeDate(item.year, item.month, item.date)
+
+    // 区间模式
+    if (this.range) {
+      if (!this._rangeStart) {
+        this._rangeStart = date
+        this.value = []
+        return
+      }
+      const value = [this._rangeStart, date]
+      this._rangeStart = null
+      this.value = value
+    }
+
+    // （离散）多选模式
+    else if (this.multiple) {
       const values = this.getValues()
       if (this.isActive(item)) {
         const index = values.findIndex(t => t.getDate() === item.date && t.getMonth() === item.month && t.getFullYear() === item.year)
         if (index !== -1) values.splice(index, 1)
       }
       else {
-        values.push(this.makeDate(item.year, item.month, item.date))
+        values.push(date)
       }
-      this.changeValue(values)
+      this.value = values
     }
+
+    // 单选模式
     else {
       if (this.isActive(item)) return
-      this.changeValue(this.makeDate(item.year, item.month, item.date))
+      this.value = date
     }
   }
 
   // 选择、添加某一月作为值
   selectMonth(item) {
-    if (this.multiple) {
+    const date = this.makeDate(item.year, item.month, 1)
+    // 区间模式
+    if (this.range) {
+      if (!this._rangeStart) {
+        this._rangeStart = date
+        this.value = []
+        return
+      }
+      const value = [this._rangeStart, date]
+      this._rangeStart = null
+      this.value = value
+    }
+    // （离散）多选模式
+    else if (this.multiple) {
       const values = this.getValues()
       if (this.isActive(item)) {
         const index = values.findIndex(t => t.getMonth() === item.month && t.getFullYear() === item.year)
         if (index !== -1) values.splice(index, 1)
       }
       else {
-        values.push(this.makeDate(item.year, item.month, 1))
+        values.push(date)
       }
-      this.changeValue(values)
+      this.value = values
     }
+    // 单选模式
     else {
       if (this.isActive(item)) return
-      this.changeValue(this.makeDate(item.year, item.month, 1))
+      this.value = date
     }
   }
 
   // 选择、添加某一年作为值
   selectYear(item) {
-    if (this.multiple) {
+    const date = this.makeDate(item.year, 0, 1)
+    // 区间模式
+    if (this.range) {
+      if (!this._rangeStart) {
+        this._rangeStart = date
+        this.value = []
+        return
+      }
+      const value = [this._rangeStart, date]
+      this._rangeStart = null
+      this.value = value
+    }
+    // （离散）多选模式
+    else if (this.multiple) {
       const values = this.getValues()
       if (this.isActive(item)) {
         const index = values.findIndex(t => t.getFullYear() === item.year)
         if (index !== -1) values.splice(index, 1)
       }
       else {
-        values.push(this.makeDate(item.year, 0, 1))
+        values.push(date)
       }
-      this.changeValue(values)
+      this.value = values
     }
+    // 单选模式
     else {
       if (this.isActive(item)) return
-      this.changeValue(this.makeDate(item.year, 0, 1))
+      this.value = date
     }
   }
 
