@@ -794,9 +794,9 @@ class BlocksDatePanel extends HTMLElement {
       return `${from} 至 ${to}`
     }
     if (this.viewDepth === Depth.Year) {
-      return `${this.panelYear}`
+      return `${this.panelYear} 年`
     }
-    return `${this.panelYear}-${this.panelMonth + 1}`
+    return `${this.panelYear} 年 ${this.panelMonth + 1} 月`
   }
 
   // 是否已经选够最大数量的值
