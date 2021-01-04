@@ -51,11 +51,11 @@ const TEMPLATE_CSS = `<style>
   cursor: default;
 }
 
-.button {
+.header-button {
   flex: 0 0 28px;
   overflow: hidden;
-  display: block;
   position: relative;
+  display: block;
   width: 28px;
   height: 100%;
   margin: 0;
@@ -65,10 +65,11 @@ const TEMPLATE_CSS = `<style>
   text-align: center;
   font-size: 0;
   outline: 0;
+  transition: ${$transitionDuration} all;
 }
 
-.button::before,
-.button::after {
+.header-button::before,
+.header-button::after {
   display: block;
   position: absolute;
   top: 0;
@@ -85,40 +86,40 @@ const TEMPLATE_CSS = `<style>
   border-color: #666;
 }
 
-.button:hover::before,
-.button:hover::after,
-.button:active::before,
-.button:active::after,
-.button:focus::before,
-.button:focus::after {
+.header-button:hover::before,
+.header-button:hover::after,
+.header-button:active::before,
+.header-button:active::after,
+.header-button:focus::before,
+.header-button:focus::after {
   border-color: ${$colorPrimary};
 }
 
-.button.button-prevPrev::before,
-.button.button-prevPrev::after {
+.header-button.button-prevPrev::before,
+.header-button.button-prevPrev::after {
   border-bottom-width: 1px;
   border-left-width: 1px;
 }
-.button.button-prevPrev::after {
+.header-button.button-prevPrev::after {
   left: 8px;
 }
 
-.button.button-prev::before {
+.header-button.button-prev::before {
   border-bottom-width: 1px;
   border-left-width: 1px;
 }
 
-.button.button-next::before {
+.header-button.button-next::before {
   border-top-width: 1px;
   border-right-width: 1px;
 }
 
-.button.button-nextNext::before,
-.button.button-nextNext::after {
+.header-button.button-nextNext::before,
+.header-button.button-nextNext::after {
   border-top-width: 1px;
   border-right-width: 1px;
 }
-.button.button-nextNext::after {
+.header-button.button-nextNext::after {
   right: 8px;
 }
  
@@ -331,13 +332,13 @@ const TEMPLATE_CSS = `<style>
 const TEMPLATE_HTML = `
 <div class="container" tabindex="-1">
   <header class="header">
-    <button class="button button-prevPrev"></button>
-    <button class="button button-prev"></button>
+    <button class="header-button button-prevPrev"></button>
+    <button class="header-button button-prev"></button>
     <div class="header-content">
       <button class="header-title"></button>
     </div>
-    <button class="button button-next"></button>
-    <button class="button button-nextNext"></button>
+    <button class="header-button button-next"></button>
+    <button class="header-button button-nextNext"></button>
   </header>
 
   <div class="body">
@@ -416,14 +417,11 @@ class BlocksDatePanel extends HTMLElement {
       loading: panel.querySelector('.body-loading')
     }
 
-    // 当前组件面板对应的年
-    this.year = (this.closestDate ?? new Date()).getFullYear()
-    // 当前组件面板对应的月
-    this.month = (this.closestDate ?? new Date()).getMonth()
-    // 当前组件面板对应的年代（十年）
-    this.decade = [+(String(this.year).slice(0, -1) + '0'), +(String(this.year).slice(0, -1) + '9')]
     // 面板视图深度层级
     this.viewDepth = this.startdepth
+
+    // 设置面板起始视图状态
+    this.setPanelDate(this.closestDate ?? new Date())
     
     panel.onclick = (e) => {
       const target = e.target
@@ -451,6 +449,38 @@ class BlocksDatePanel extends HTMLElement {
         })
       }
       this.focus()
+    }
+  }
+
+  setPanelDate(date) {
+    const panelYear = date.getFullYear()
+
+    this.panelDecade = [+(String(panelYear).slice(0, -1) + '0'), +(String(panelYear).slice(0, -1) + '9')]
+
+    if (this.viewDepth === Depth.Month) {
+      this.panelYear = panelYear
+      this.panelMonth = date.getMonth()
+    }
+
+    else if (this.viewDepth === Depth.Year) {
+      this.panelYear = panelYear
+      this.panelMonth = undefined
+    }
+
+    else {
+      this.panelYear = undefined
+      this.panelMonth = undefined
+    }
+  }
+
+  renderHeaderButtons() {
+    if (this.viewDepth === Depth.Month) {
+      this.elements.prevPrev.style.cssText = ''
+      this.elements.nextNext.style.cssText = ''
+    }
+    else {
+      this.elements.prevPrev.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
+      this.elements.nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
     }
   }
 
@@ -588,11 +618,42 @@ class BlocksDatePanel extends HTMLElement {
   }
 
   render() {
+    this.renderHeaderButtons()
     this.renderTitle()
     this.renderWeekHeader()
     this.renderLoading()
     this.renderItems()
-  }  
+  }
+
+  get panelDecade() {
+    return this._panelDecade ?? [+(String(this.panelYear).slice(0, -1) + '0'), +(String(this.panelYear).slice(0, -1) + '9')]
+  }
+
+  set panelDecade(value) {
+    if (value && value[0] === this.panelDecade[0] && value[1] === this.panelDecade[1]) return
+    this._panelDecade = value
+    this.render()
+  }
+
+  get panelYear() {
+    return this._panelYear
+  }
+
+  set panelYear(value) {
+    if (this._panelYear === value) return
+    this._panelYear = value
+    this.render()
+  }
+
+  get panelMonth() {
+    return this._panelMonth
+  }
+
+  set panelMonth(value) {
+    if (this._panelMonth === value) return
+    this._panelMonth = value
+    this.render()
+  }
 
   get value() {
     return this._value
@@ -667,35 +728,6 @@ class BlocksDatePanel extends HTMLElement {
     }
   }
 
-  get year() {
-    return this._year
-  }
-
-  set year(value) {
-    if (this._year === value) return
-    this._year = value
-    this.render()
-  }
-
-  get month() {
-    return this._month
-  }
-
-  set month(value) {
-    if (this._month === value) return
-    this._month = value
-    this.render()
-  }
-
-  get decade() {
-    return this._decade ?? [+(String(this.year).slice(0, -1) + '0'), +(String(this.year).slice(0, -1) + '9')]
-  }
-
-  set decade(value) {
-    this._decade = value
-    this.render()
-  }
-
   get badges() {
     return this._badges ?? []
   }
@@ -718,12 +750,12 @@ class BlocksDatePanel extends HTMLElement {
 
   get title() {
     if (this.viewDepth === 'decade') {
-      return `${this.decade[0]}-${this.decade[1]}`
+      return `${this.panelDecade[0]}-${this.panelDecade[1]}`
     }
     if (this.viewDepth === 'year') {
-      return `${this.year}`
+      return `${this.panelYear}`
     }
-    return `${this.year}-${this.month + 1}`
+    return `${this.panelYear}-${this.panelMonth + 1}`
   }
 
   // 是否已经选够最大数量的值
@@ -755,21 +787,21 @@ class BlocksDatePanel extends HTMLElement {
 
   // 日期列表（按月动态生成）
   get dateList() {
-    if (this.year == null || this.month == null) return []
+    if (this.panelYear == null || this.panelMonth == null) return []
 
     // 该月的第一天
-    const firstDate = getFirstDate(this.year, this.month)
+    const firstDate = getFirstDate(this.panelYear, this.panelMonth)
     // 该月的最后一天
-    const lastDate = getLastDate(this.year, this.month)
+    const lastDate = getLastDate(this.panelYear, this.panelMonth)
     // 该月的所有日
     const dateRange = range(1, lastDate.getDate())
-      .map(date => ({ label: date, year: this.year, month: this.month, date }))
+      .map(date => ({ label: date, year: this.panelYear, month: this.panelMonth, date }))
 
     // 该月第一天在星期中的序号，如果不是从配置的 startWeekOn 开始，则在前面补上个月的日期
     const firstDateIndex = firstDate.getDay()
     if (firstDateIndex !== this.startWeekOn) {
       // 上个月最后一天
-      const prevLastDate = getLastDateOfPrevMonth(this.year, this.month)
+      const prevLastDate = getLastDateOfPrevMonth(this.panelYear, this.panelMonth)
       const prevYear = prevLastDate.getFullYear()
       const prevMonth = prevLastDate.getMonth()
       let date = prevLastDate.getDate()
@@ -788,7 +820,7 @@ class BlocksDatePanel extends HTMLElement {
 
     // 2. 末尾用下个月的日期填满，总共是 6 * 7 = 42 天
     // 下个月第一天
-    const nextFirstDate = getFirstDateOfNextMonth(this.year, this.month)
+    const nextFirstDate = getFirstDateOfNextMonth(this.panelYear, this.panelMonth)
     const nextYear = nextFirstDate.getFullYear()
     const nextMonth = nextFirstDate.getMonth()
     let date = nextFirstDate.getDate()
@@ -807,12 +839,12 @@ class BlocksDatePanel extends HTMLElement {
 
   // 月份列表（固定 1 - 12 月）
   get monthList() {
-    return range(0, 11).map(month => ({ label: month + 1, year: this.year, month }))
+    return range(0, 11).map(month => ({ label: month + 1, year: this.panelYear, month }))
   }
 
   // 年份列表（10 年一组）
   get yearList() {
-    return range(...this.decade).map(year => ({ label: year, year }))
+    return range(...this.panelDecade).map(year => ({ label: year, year }))
   }
 
   // 选项列表
@@ -824,7 +856,7 @@ class BlocksDatePanel extends HTMLElement {
 
   // 是否当前面板对应的月
   isCurrentMonth(item) {
-    return item.month === this.month
+    return item.month === this.panelMonth
   }
 
   // 当前选项是否是今天
@@ -916,13 +948,13 @@ class BlocksDatePanel extends HTMLElement {
 
     // 当前非处于最深的视图层次，则往下钻入下一级视图（年代->年，或年->月）
     if (this.viewDepth === Depth.Year) {
-      this.month = item.month
+      this.panelMonth = item.month
       this.viewDepth = Depth.Month
       this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
       return
     }
     this.viewDepth = Depth.Year
-    this.year = item.year
+    this.panelYear = item.year
     this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
   }
 
@@ -996,50 +1028,50 @@ class BlocksDatePanel extends HTMLElement {
 
   // 显示上个月的选项
   showPrevMonth() {
-    if (this.month > 0) {
-      this.month--
+    if (this.panelMonth > 0) {
+      this.panelMonth--
     }
     else {
-      this.year--
-      this.month = 11
+      this.panelYear--
+      this.panelMonth = 11
     }
-    this.dispatchEvent(new CustomEvent('prev-month', { detail: { year: this.year, month: this.month } }))
+    this.dispatchEvent(new CustomEvent('prev-month', { detail: { year: this.panelYear, month: this.panelMonth } }))
   }
 
   // 显示下个月的选项
   showNextMonth() {
-    if (this.month < 11) {
-      this.month++
+    if (this.panelMonth < 11) {
+      this.panelMonth++
     }
     else {
-      this.year++
-      this.month = 0
+      this.panelYear++
+      this.panelMonth = 0
     }
-    this.dispatchEvent(new CustomEvent('next-month', { detail: { year: this.year, month: this.month } }))
+    this.dispatchEvent(new CustomEvent('next-month', { detail: { year: this.panelYear, month: this.panelMonth } }))
   }
 
   // 显示上一年的选项
   showPrevYear() {
-    this.year--
-    this.dispatchEvent(new CustomEvent('prev-year', { detail: { year: this.year, month: this.month } }))
+    this.panelYear--
+    this.dispatchEvent(new CustomEvent('prev-year', { detail: { year: this.panelYear, month: this.panelMonth } }))
   }
 
   // 显示下一年的选项
   showNextYear() {
-    this.year++
-    this.dispatchEvent(new CustomEvent('next-year', { detail: { year: this.year, month: this.month } }))
+    this.panelYear++
+    this.dispatchEvent(new CustomEvent('next-year', { detail: { year: this.panelYear, month: this.panelMonth } }))
   }
 
   // 显示上个年代（十年）的选项
   showPrevDecade() {
-    this.decade = this.decade.map(n => n - 10)
-    this.dispatchEvent(new CustomEvent('prev-decade', { detail: { year: this.year, month: this.month } }))
+    this.panelDecade = this.panelDecade.map(n => n - 10)
+    this.dispatchEvent(new CustomEvent('prev-decade', { detail: { year: this.panelYear, month: this.panelMonth } }))
   }
 
   // 显示下个年代（十年）的选项
   showNextDecade() {
-    this.decade = this.decade.map(n => n + 10)
-    this.dispatchEvent(new CustomEvent('next-decade', { detail: { year: this.year, month: this.month } }))
+    this.panelDecade = this.panelDecade.map(n => n + 10)
+    this.dispatchEvent(new CustomEvent('next-decade', { detail: { year: this.panelYear, month: this.panelMonth } }))
   }
 
   // 点击 prev 按钮
@@ -1085,13 +1117,15 @@ class BlocksDatePanel extends HTMLElement {
   // 点击 title，切换到上级视图（月 -> 年，年 -> 十年）
   onSwitchDepth() {
     switch (this.viewDepth) {
-      case 'month': {
+      case Depth.Month: {
         this.viewDepth = normalizeViewDepth(Depth.Year, this.mindepth, this.depth)
+        this.setPanelDate(new Date(this.panelYear, this.panelMonth))
         this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
         break
       }
-      case 'year': {
+      case Depth.Year: {
         this.viewDepth = normalizeViewDepth(Depth.Decade, this.mindepth, this.depth)
+        this.setPanelDate(new Date(this.panelYear, 0))
         this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
         break
       }
