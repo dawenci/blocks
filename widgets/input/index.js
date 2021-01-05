@@ -11,6 +11,7 @@ import {
   $heightLarge,
 } from '../theme/var.js'
 
+import { getIconSvg } from '../theme/icon.js'
 import '../popup/index.js'
 import '../date-panel/index.js'
 
@@ -55,6 +56,7 @@ const TEMPLATE_CSS = `<style>
 }
 
 input {
+  flex: 1 1 100%;
   font-size: inherit;
   padding: 0 9px;
   border: 0 none;
@@ -64,6 +66,74 @@ input {
 
 input:focus {
   outline: 0 none;
+}
+
+.prefix-icon, .suffix-icon {
+  flex: 0 0 auto;
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: #aaa;
+}
+.prefix-icon {
+  margin-left: 6px;
+}
+.suffix-icon {
+  margin-right: 6px;
+}
+.prefix-icon svg,
+.suffix-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.clearable {
+  flex: 0 0 auto;
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+  margin: 0 6px 0 0;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  background-color: transparent;
+  opacity: 0;
+  transform: rotate(45deg);
+  transition: all ${$transitionDuration};
+}
+.clearable::before,
+.clearable::after {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  background: #ddd;
+  margin: auto;
+}
+.clearable::before {
+  width: 8px;
+}
+.clearable::after {
+  height: 8px;
+}
+.clearable:hover {
+  border-color: #aaa;
+}
+.clearable:hover .clearable::before,
+.clearable:hover .clearable::after {
+  background-color: #aaa;
+}
+.clearable:focus {
+  outline: 0 none;
+}
+.container:hover .clearable {
+  opacity: 1;
 }
 
 </style>`
@@ -82,6 +152,9 @@ class BlocksInput extends HTMLElement {
   static get observedAttributes() {
     return [
       'value',
+      'prefix-icon',
+      'suffix-icon',
+      'clearable',
       'type',
       'step',
       'size',
@@ -111,11 +184,71 @@ class BlocksInput extends HTMLElement {
     })
 
     const fragment = template.content.cloneNode(true)
+    this.container = fragment.querySelector('.container')
     this.input = fragment.querySelector('input')
     this.shadowRoot.appendChild(fragment)
   }
 
   render() {
+    const prefixIcon = getIconSvg(this.prefixIcon)
+    if (prefixIcon) {
+      if (this.prefixEl) {
+        this.container.removeChild(this.prefixEl)
+      }
+      this.prefixEl = this.container.insertBefore(document.createElement('span'), this.input)
+      this.prefixEl.className = 'prefix-icon'
+      this.prefixEl.appendChild(prefixIcon)
+    }
+
+    const suffixIcon = getIconSvg(this.suffixIcon)
+    if (suffixIcon) {
+      if (this.suffixEl) {
+        this.container.removeChild(this.suffixEl)
+      }
+      this.suffixEl = this.container.appendChild(document.createElement('span'))
+      this.suffixEl.className = 'suffix-icon'
+      this.suffixEl.appendChild(suffixIcon)
+    }
+
+    if (this.clearable) {
+      if (!this.clearableEl) {
+        this.clearableEl = document.createElement('button')
+        this.clearableEl.className = 'clearable'
+        this.clearableEl.onclick = this.clearValue.bind(this)
+      }
+      this.container.appendChild(this.clearableEl)
+    }
+  }
+
+  get prefixIcon() {
+    return this.getAttribute('prefix-icon')
+  }
+
+  set prefixIcon(value) {
+    this.setAttribute('prefix-icon', value)
+    this.render()
+  }
+
+  get suffixIcon() {
+    return this.getAttribute('suffix-icon')
+  }
+
+  set suffixIcon(value) {
+    this.setAttribute('suffix-icon', value)
+    this.render()
+  }
+
+  get clearable() {
+    return this.hasAttribute('clearable')
+  }
+
+  set clearable(value) {
+    if (value === null || value === false) {
+      this.removeAttribute('clearable')
+    }
+    else {
+      this.setAttribute('clearable', '')
+    }
   }
 
   get value() {
@@ -220,6 +353,10 @@ class BlocksInput extends HTMLElement {
 
   set autocomplete(value) {
     this.input.autocomplete = value
+  }
+
+  clearValue() {
+    this.input.value = null
   }
 
   connectedCallback() {
