@@ -8,6 +8,7 @@ import {
   $borderColorBase,
   $borderColorDisabled,
   $backgroundColorDisabled,
+  $transitionDuration,
 } from '../theme/var.js'
 
 function hexToRgb(hex) {
@@ -36,7 +37,7 @@ template.innerHTML = `
     display: inline-block;
     align-items: center;
     text-align: center;
-    transition: color .2s, border-color .2s;
+    transition: color ${$transitionDuration}, border-color ${$transitionDuration};
     font-size: 0;
     width: 118px;
     height: auto;

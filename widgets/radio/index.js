@@ -8,6 +8,7 @@ import {
   $borderColorBase,
   $borderColorDisabled,
   $backgroundColorDisabled,
+  $transitionDuration,
 } from '../theme/var.js'
 
 const template = document.createElement('template')
@@ -24,7 +25,7 @@ template.innerHTML = `
     display: inline-flex;
     align-items: center;
     text-align: center;
-    transition: color .2s, border-color .2s;
+    transition: color ${$transitionDuration}, border-color ${$transitionDuration};
     font-size: 0;
   }
 
@@ -72,7 +73,7 @@ template.innerHTML = `
     bottom: 0;
     left: 0;
     margin: auto;
-    transition: transform .15s ease-in .05s;
+    transition: transform ${$transitionDuration} ease-in .05s;
     background-color: #fff;
   }
 

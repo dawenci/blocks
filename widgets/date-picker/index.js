@@ -1,13 +1,12 @@
-import {
-  $radiusBase,
-  $colorPrimary,
-  $colorWarn,
-  $transitionDuration,
-} from '../theme/var.js'
+import {} from '../theme/var.js'
 
+
+import dateIcon from '../theme/svg/date.svg.js'
 import '../popup/index.js'
 import '../input/index.js'
 import '../date-panel/index.js'
+
+window.dateIcon = dateIcon
 
 let idSeed = Date.now()
 
@@ -28,7 +27,7 @@ const TEMPLATE_CSS = `<style>
 </style>`
 
 const TEMPLATE_HTML = `
-<blocks-input class="date-picker-input" readonly />
+<blocks-input prefix-icon="date" class="date-picker-input" readonly />
 <blocks-popup class="date-picker-popup" origin="top-start" arrow>
   <blocks-date-panel class="date-picker-panel" />
 </blocks-popup>
@@ -48,6 +47,7 @@ class BlocksDatePicker extends HTMLElement {
       'multiple',
       'max',
       'loading',
+      'clearable',
       'startWeekOn',
     ]
   }
@@ -97,6 +97,14 @@ class BlocksDatePicker extends HTMLElement {
 
   set value(value) {
     this.panel.value = value
+  }
+
+  get clearable() {
+    return this.input.clearable
+  }
+
+  set clearable(value) {
+    this.input.clearable = value
   }
 
   get depth() {
@@ -172,6 +180,9 @@ class BlocksDatePicker extends HTMLElement {
   // }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    if (['clearable'].includes(name)) {
+      this.input.setAttribute(name, newValue)
+    }
     if (['depth', 'mindepth', 'startdepth', 'multiple', 'max', 'loading', 'startWeekOn'].includes(name)) {
       this.panel.setAttribute(name, newValue)
     }

@@ -1,6 +1,7 @@
 import '../button/index.js'
 import {
   $radiusBase,
+  $transitionDuration,
 } from '../theme/var.js'
 
 
@@ -78,7 +79,7 @@ const TEMPLATE_CSS = `<style>
   border-radius: ${$radiusBase};
   transform-origin: center center;
   transition-property: transform, opacity;
-  transition-duration: .16s;
+  transition-duration: ${$transitionDuration};
   transition-timing-function: cubic-bezier(.645, .045, .355, 1);
   opacity: 0;
   transform: scale(0);

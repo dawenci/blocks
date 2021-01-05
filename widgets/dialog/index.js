@@ -2,6 +2,7 @@ import '../button/index.js'
 import {
   $fontFamily,
   $radiusBase,
+  $transitionDuration,
 } from '../theme/var.js'
 
 const template = document.createElement('template')
@@ -31,7 +32,7 @@ template.innerHTML = `
     z-index:0;
     background: rgba(0,0,0,.3);
     opacity:0;
-    transition: opacity .16;
+    transition: opacity ${$transitionDuration};
   }
   :host([open]) #mask {
     opacity:1;
@@ -53,8 +54,8 @@ template.innerHTML = `
 
     opacity:0;
     transform:scale(0.5);
-    transition: transform .16s cubic-bezier(.645, .045, .355, 1),
-      opacity .16s cubic-bezier(.645, .045, .355, 1);
+    transition: transform ${$transitionDuration} cubic-bezier(.645, .045, .355, 1),
+      opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
   }
   :host([open]) #dialog {
     opacity:1;
