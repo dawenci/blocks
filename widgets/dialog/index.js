@@ -29,10 +29,9 @@ template.innerHTML = `
     top:0;
     right:0;
     bottom:0;
-    z-index:0;
+    z-index:100;
     background: rgba(0,0,0,.3);
     opacity:0;
-    transition: opacity ${$transitionDuration};
   }
   :host([open]) #mask {
     opacity:1;
@@ -41,7 +40,7 @@ template.innerHTML = `
   /* 对话框 */
   #dialog {
     position:relative;
-    z-index: 1;
+    z-index: 100;
     box-sizing: border-box;
     display:inline-flex;
     flex-flow: column nowrap;
@@ -53,7 +52,7 @@ template.innerHTML = `
     background-color: #fff;
 
     opacity:0;
-    transform:scale(0.5);
+    transform: scale(0.5);
     transition: transform ${$transitionDuration} cubic-bezier(.645, .045, .355, 1),
       opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
   }
