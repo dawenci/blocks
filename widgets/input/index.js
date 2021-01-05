@@ -187,6 +187,19 @@ class BlocksInput extends HTMLElement {
     this.container = fragment.querySelector('.container')
     this.input = fragment.querySelector('input')
     this.shadowRoot.appendChild(fragment)
+
+    this.container.onclick = (e) => {
+      const target = e.target
+      if (target.classList.contains('prefix-icon')) {
+        this.dispatchEvent(new CustomEvent('click-prefix-icon', { bubbles: true, composed: true, cancelable: true }))
+      }
+      else if (target.classList.contains('suffix-icon')) {
+        this.dispatchEvent(new CustomEvent('click-suffix-icon', { bubbles: true, composed: true, cancelable: true }))
+      }
+      else if (target.classList.contains('clearable')) {
+        this.dispatchEvent(new CustomEvent('click-clear', { bubbles: true, composed: true, cancelable: true }))
+      }
+    }
   }
 
   render() {
