@@ -402,7 +402,11 @@ class BlocksPopup extends HTMLElement {
         return parseInt(attrValue,10)
       }
     }
-    return document.body.scrollWidth / 2
+
+    // 默认相对于 body 定位
+    const anchorElement = document.body
+    const rect = anchorElement.getBoundingClientRect()
+    return [rect.x, rect.x + rect.width ]
   }
 
   set x(n) {
@@ -433,7 +437,11 @@ class BlocksPopup extends HTMLElement {
         return parseInt(attrValue,10)
       }
     }
-    return document.body.scrollHeight / 2
+
+    // 默认相对于 body 定位
+    const anchorElement = document.body
+    const rect = anchorElement.getBoundingClientRect()
+    return [rect.y, rect.y + rect.height ]
   }
 
   set y(n) {
