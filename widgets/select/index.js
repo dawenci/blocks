@@ -1,14 +1,18 @@
-import './optgroup.js'
-import './option.js'
-
+import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property.js'
 import {
   $radiusBase
 } from '../theme/var.js'
-
+import './optgroup.js'
+import './option.js'
 import '../popup/index.js'
 import '../input/index.js'
 import '../theme/svg/up.svg.js'
 import '../theme/svg/down.svg.js'
+
+const getMultiple = boolGetter('multiple')
+const setMultiple = boolSetter('multiple')
+const getMultipleMode = enumGetter('multiple-mode', ['single', 'tag'])
+const setMultipleMode = enumSetter('multiple-mode', ['single', 'tag'])
 
 let idSeed = Date.now()
 
@@ -45,15 +49,12 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 class BlocksSelect extends HTMLElement {
   static get observedAttributes() {
     return [
-      'depth',
-      'mindepth',
-      'startdepth',
-      'disableMethod',
+      // 是否多选
       'multiple',
-      'max',
-      'loading',
+      // 多选结果显示模式，可选 single 或 tag
+      'multiple-mode',
+      // 结果是否可以清空
       'clearable',
-      'startWeekOn',
     ]
   }
 
@@ -109,6 +110,22 @@ class BlocksSelect extends HTMLElement {
 
   get options() {
     return this.list.querySelectorAll('blocks-option')
+  }
+
+  get multiple() {
+    return getMultiple(this)
+  }
+
+  set multiple(value) {
+    setMultiple(this, value)
+  }
+
+  get multipleMode() {
+    return getMultipleMode(this)
+  }
+
+  set multipleMode(value) {
+    setMultipleMode(this, value)
   }
 
   get text() {

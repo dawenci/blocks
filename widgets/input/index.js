@@ -1,7 +1,7 @@
 import {
   $radiusBase,
   $colorPrimary,
-  $colorWarn,
+  $colorWarning,
   $transitionDuration,
   $borderColorBase,
   $borderColorDisabled,

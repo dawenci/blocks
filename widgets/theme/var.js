@@ -25,14 +25,17 @@ export const $colorDanger = '#ff4d4f'
 export const $colorDangerLight = '#ff7875'
 export const $colorDangerDark = '#d9363e'
 
-export const $colorDisabled = 'rgba(0,0,0,0.25)'
+export const $colorWarning = '#ffb84d'
+export const $colorWarningLight = '#ffc772'
+export const $colorWarningDark = '#ffa61f'
 
-export const $colorWarn = '#ffb84d'
 export const $colorSuccess = '#45c55b'
+export const $colorSuccessLight = '#56ce6b'
+export const $colorSuccessDark = '#39b54e'
 
+export const $colorDisabled = 'rgba(0,0,0,0.25)'
 export const $backgroundColorDisabled = '#f5f5f5'
 
-// 
 export const $colorFontBase = '#314659'
 
 // 边框

@@ -6,28 +6,88 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
 </head>
+
+<style>
+  .section {
+    border: 1px solid #ddd;
+    margin: 15px;
+    padding: 15px;
+    background: #fff;
+  }
+
+  .block {
+    border-top: 1px dashed #ddd;
+    padding: 15px 0;
+  }  
+
+  .dark {
+    background: #333;
+    color: #fff;
+  }
+
+  .section h2 {}
+
+  .section h3 {
+
+  }
+</style>
 <body>
 
-  <div>
+  <div class="section">
+    <script type="module" src="widgets/tag/index.js"></script>
+    <h2>tag</h2>
+
+    <div class="block">
+      <h3>尺寸</h3>
+      <blocks-tag size="mini">mini</blocks-tag>
+      <blocks-tag size="small">small</blocks-tag>
+      <blocks-tag>default</blocks-tag>
+      <blocks-tag size="large">large</blocks-tag>
+    </div>
+
+    <div class="block">
+      <h3>关闭</h3>
+      <blocks-tag closable>可关闭</blocks-tag>
+    </div>
+
+    <div class="block">
+      <h3>主题</h3>
+      <div style="margin-bottom:15px;">
+        <blocks-tag closable type="primary">primary</blocks-tag>
+        <blocks-tag closable type="danger">danger</blocks-tag>
+        <blocks-tag closable type="warning">warning</blocks-tag>
+        <blocks-tag closable type="success">success</blocks-tag>
+      </div>
+      <div>
+        <blocks-tag closable type="primary" outline>primary outline</blocks-tag>
+        <blocks-tag closable type="danger" outline>danger outline</blocks-tag>
+        <blocks-tag closable type="warning" outline>warning outline</blocks-tag>
+        <blocks-tag closable type="success" outline>success outline</blocks-tag>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
     <script type="module" src="widgets/theme/svg/date.svg.js"></script>
     <script type="module" src="widgets/input/index.js"></script>
     <h2>input</h2>
 
-    <div style="padding: 15px;border: 1px solid #333;background:#f0f0f0;">
-      尺寸:
+    <div class="block">
+      <h3>尺寸</h3>
+      
       <blocks-input size="mini" value="mini"></blocks-input>
       <blocks-input size="small" value="small"></blocks-input>
       <blocks-input value="default"></blocks-input>
       <blocks-input size="large" value="large"></blocks-input>
     </div>
 
-    <div style="padding: 15px;border: 1px solid #333;background:#f0f0f0;">
-      清空：
+    <div class="block">
+      <h3>清空</h3>
       <blocks-input clearable value="clearable"></blocks-input>
     </div>
 
-    <div style="padding: 15px;border: 1px solid #333;background:#f0f0f0;">
-      图标：
+    <div class="block">
+      <h3>图标</h3>
       <blocks-input prefix-icon="date" value="prefix icon"></blocks-input>
       <blocks-input suffix-icon="date" value="suffix icon"></blocks-input>
       <blocks-input prefix-icon="date" suffix-icon="date" clearable value="icon & clearable"></blocks-input>
@@ -35,20 +95,40 @@
   </div>
 
 
-  <div>
+  <div class="section">
     <script type="module" src="widgets/select/index.js"></script>
     <h2>select</h2>
-    <div style="padding: 15px;border: 1px solid #333;background:#f0f0f0;">
+
+    <div class="block">
+      <h3>group</h3>
       <blocks-select>
-        <blocks-optgroup label="Group">
+        <blocks-optgroup label="Group A">
           <blocks-option value="A">选项A</blocks-option>
           <blocks-option disabled label="label B" value="B">选项B</blocks-option>
         </blocks-optgroup>
-        <blocks-option value="C" disabled>选项C</blocks-option>
-        <blocks-option label="label D" value="D">选项D</blocks-option>
+
+        <blocks-optgroup label="Group B">
+          <blocks-option value="C" disabled>选项C</blocks-option>
+          <blocks-option label="label D" value="D">选项D</blocks-option>
+        </blocks-optgroup>
       </blocks-select>
+    </div>
 
+    <div class="block">
+      <h3>disabled</h3>
+      <blocks-select>
+        <blocks-optgroup label="group disabled" disabled>
+          <blocks-option value="A">选项A</blocks-option>
+          <blocks-option value="B">选项B</blocks-option>
+        </blocks-optgroup>
 
+        <blocks-option value="C" disabled>选项C</blocks-option>
+        <blocks-option value="D">选项D</blocks-option>
+      </blocks-select>
+    </div>
+
+    <div class="block">
+      <h3>clearable</h3>
       <blocks-select clearable>
         <blocks-optgroup label="Group">
           <blocks-option value="A">选项A</blocks-option>
@@ -60,46 +140,86 @@
     </div>
   </div>
 
-   <div>
+   <div class="section">
     <script type="module" src="widgets/date-panel/index.js"></script>
     <h2>date panel</h2>
-    <div style="padding: 15px;border: 1px solid #333;background:#f0f0f0;">
+
+    <div class="block">
       <blocks-date-panel mode="range" max="3"></blocks-date-panel>
     </div>
   </div>
 
-  <div>
+  <div class="section">
     <script type="module" src="widgets/date-picker/index.js"></script>
     <h2>date picker</h2>
-    <div style="padding: 15px;border: 1px solid #333;background:#f0f0f0;">
+    <div class="block">
       <blocks-date-picker clearable></blocks-date-picker>
     </div>
   </div>
 
-  <div>
+  <div class="section">
     <script type="module" src="widgets/button/index.js"></script>
     <h2>buttons</h2>
-    <div style="padding: 15px;border: 1px solid #333;">
-      <blocks-button>普通按钮</blocks-button>
+    <div class="block">
+      <h3>尺寸</h3>
+      <blocks-button size="mini">mini</blocks-button>  
+      <blocks-button size="small">small</blocks-button>  
+      <blocks-button>default</blocks-button>  
+      <blocks-button size="large">large</blocks-button>
+    </div>
+
+    <div class="block">
+      <h3>主题</h3>
+      <blocks-button>default</blocks-button>  
       <blocks-button type="primary">primary</blocks-button>
       <blocks-button type="danger">danger</blocks-button>
+      <blocks-button type="warning">warning</blocks-button>
+      <blocks-button type="success">success</blocks-button>
       <blocks-button type="link">link</blocks-button>
-      <blocks-button disabled>无效按钮</blocks-button>
-      <blocks-button size="large">large</blocks-button>
-      <blocks-button size="small">small</blocks-button>
     </div>
-    <div style="padding: 15px;background:#333;">
+
+    <div class="block">
+      <h3>outline</h3>
       <blocks-button outline>default outline</blocks-button>
       <blocks-button type="primary" outline>primary outline</blocks-button>
       <blocks-button type="danger" outline>danger outline</blocks-button>
+      <blocks-button type="warning" outline>warning outline</blocks-button>
+      <blocks-button type="success" outline>success outline</blocks-button>
+    </div>
+
+    <div class="block">
+      <h3>disabled</h3>
+      <blocks-button disabled>default</blocks-button>
+      <blocks-button type="primary" disabled>primary</blocks-button>
+      <blocks-button type="danger" disabled>danger</blocks-button>
+      <blocks-button type="warning" disabled>warning</blocks-button>
+      <blocks-button type="success" disabled>success</blocks-button>
+    </div>
+
+    <div class="block">
+      <h3>outline disalbed</h3>
+      <blocks-button outline disabled>default outline</blocks-button>
+      <blocks-button type="primary" outline disabled>primary outline</blocks-button>
+      <blocks-button type="danger" outline disabled>danger outline</blocks-button>
+      <blocks-button type="warning" outline disabled>warning outline</blocks-button>
+      <blocks-button type="success" outline disabled>success outline</blocks-button>
+    </div>
+
+    <div class="block">
+      <h3>icon</h3>
+      <blocks-button prefix-icon="date" suffix-icon="date">default</blocks-button>
+      <blocks-button prefix-icon="date" suffix-icon="date" type="primary">primary</blocks-button>
+      <blocks-button prefix-icon="date" suffix-icon="date" type="danger">danger</blocks-button>
+      <blocks-button prefix-icon="date" suffix-icon="date" type="warning">warning</blocks-button>
+      <blocks-button prefix-icon="date" suffix-icon="date" type="success">success</blocks-button>
     </div>
   </div>
 
 
-  <div>
+  <div class="section">
     <script type="module" src="widgets/button-group/index.js"></script>
     <h2>button-group</h2>
-    <div style="padding: 15px;border: 1px solid #333;">
+    <div class="block">
       <blocks-button-group class="blocks-button-group">
         <blocks-button>First</blocks-button>
         <blocks-button>First</blocks-button>
@@ -108,7 +228,7 @@
     </div>
   </div>  
 
-  <div style="padding: 15px;border: 1px solid #333;">
+  <div class="section">
     <script type="module" src="widgets/popup/index.js"></script>
     <h2>Popup</h2>
 
@@ -136,7 +256,7 @@
   </div>
 
 
-  <div style="padding: 15px;border: 1px solid #333;">
+  <div class="section">
     <script type="module" src="widgets/dialog/index.js"></script>
     <h2>Dialog</h2>
 
@@ -207,7 +327,7 @@
   </div>
 
 
-  <div style="padding: 15px;border: 1px solid #333;">
+  <div class="section">
     <script type="module" src="widgets/checkbox/index.js"></script>
     <h2>Checkbox</h2>
 
@@ -230,7 +350,7 @@
   </div>  
 
 
-  <div style="padding: 15px;border: 1px solid #333;">
+  <div class="section">
     <script type="module" src="widgets/radio/index.js"></script>
     <h2>Radio</h2>
 
@@ -264,7 +384,7 @@
   </div>  
 
 
-  <div style="padding: 15px;border: 1px solid #333;">
+  <div class="section">
     <script type="module" src="widgets/switch/index.js"></script>
     <h2>Switch</h2>
 
@@ -280,7 +400,7 @@
   </div>  
 
 
-  <div style="padding: 15px;border: 1px solid #333;">
+  <div class="section">
     <script type="module" src="widgets/slider/index.js"></script>
     <h2>Slider</h2>
 

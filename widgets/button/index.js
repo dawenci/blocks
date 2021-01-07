@@ -1,149 +1,267 @@
 import {
   $fontFamily,
-  $radiusSmall,
   $colorPrimary,
   $colorPrimaryLight,
   $colorPrimaryDark,
+  $colorDanger,
+  $colorDangerLight,
+  $colorDangerDark,
+  $colorSuccess,
+  $colorSuccessLight,
+  $colorSuccessDark,
+  $colorWarning,
+  $colorWarningLight,
+  $colorWarningDark,
   $colorDisabled,
-  $borderColorBase,
+
   $borderColorDisabled,
   $backgroundColorDisabled,
   $transitionDuration,
+  $colorFontBase,
+  $borderColorBase,
+
+  $radiusBase,
+
+  $heightMini,
+  $heightBase,
+  $heightSmall,
+  $heightLarge,
 } from '../theme/var.js'
+
+import { getIconSvg } from '../theme/icon.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
-  <style>
-    :host {
-      font-family: ${$fontFamily};
-      all: initial;
-      contain: content;
-      box-sizing: border-box;
-      display: inline-block;
-      height: 32px;
-      line-height: 30px;
-      padding: 0 15px;
-      border-radius: 3px;
-      border-width: 1px;
-      border-style: solid;
-      cursor: pointer;
-      font-size: 14px;
-      text-align: center;
-      transition: color ${$transitionDuration}, border-color ${$transitionDuration};
-      user-select: none;
-    }
+<style>
+  :host {
+    display: inline-block;
+  }
 
-    /* background */
-    :host { background-color: #fff; }
-    :host([type="primary"]) { background-color: #1890ff; }
-    :host([type="danger"]) { background-color: #ff4d4f; }
-    :host([type="danger"]:hover),
-    :host([type="danger"]:focus) { background-color: #ff7875; }
-    :host([type="primary"]:hover),
-    :host([type="primary"]:focus) { background-color: #40a9ff; }
-    :host([type="primary"]:active) { background-color: #096dd9; }
-    :host([type="danger"]:active) { background-color: #d9363e; }
+  :host([disabled]) {
+    outline: 0 none;
+    cursor: not-allowed;
+  }
 
-    :host([type="link"]),
-    :host([outline]),
-    :host([outline]:hover),
-    :host([outline]:focus),
-    :host([outline]:active),
-    :host([type="link"]:hover),
-    :host([type="link"]:active) { background-color: transparent; }
+  :host(:focus) {
+    outline: 0 none;
+  }    
 
-    :host([disabled]) {
-      background-color: ${$backgroundColorDisabled};
-    }
+  :host([hidden]) {
+    display: none;
+  }
 
-    /* border-color */
-    :host { border-color: rgba(217, 217, 217); }
-    :host(:hover),
-    :host(:focus),
-    :host([type="primary"]) { border-color: #1890ff; }
-    :host(:active),
-    :host([type="primary"]:active) { border-color: #096dd9; }
-    :host([type="primary"]:hover),
-    :host([type="primary"]:focus) { border-color: #40a9ff; }
-    :host([type="danger"]) { border-color: #ff4d4f; }
-    :host([type="danger"]:hover),
-    :host([type="danger"]:focus) { border-color: #ff7875; }
-    :host([type="danger"]:active) { border-color: #d9363e; }
-    :host([type="link"]),
-    :host([type="link"]:hover),
-    :host([type="link"]:focus),
-    :host([type="link"]:active) { border-color: transition; }
-    :host([disabled]) {
-      border-color: ${$borderColorDisabled};
-    }
+  .container {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-family: ${$fontFamily};
+    box-sizing: border-box;
+    border-radius: ${$radiusBase};
+    border-width: 1px;
+    border-style: solid;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: center;
+    transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+    user-select: none;
+  }
+
+  .prefix-icon, .suffix-icon {
+    flex: 0 0 auto;
+    display: block;
+    position: relative;
+    box-sizing: border-box;
+    width: 16px;
+    height: 16px;
+    fill: #fff;
+    transition: transform ${$transitionDuration};
+  }
+  .prefix-icon {
+    margin-left: 6px;
+  }
+  .suffix-icon {
+    margin-right: 6px;
+  }
+  .prefix-icon svg,
+  .suffix-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .label {
+    display: block;
+    box-sizing: border-box;
+    flex: 1 1 100%;
+  }
+
+  
+  /* background */
+  :host .container,
+  :host(:hover) .container,
+  :host(:active) .container { background-color: #fff; }
+
+  :host([type="primary"]) .container { background-color: ${$colorPrimary}; }
+  :host([type="primary"]:hover) .container,
+  :host([type="primary"]:focus) .container { background-color: ${$colorPrimaryLight}; }
+  :host([type="primary"]:active) .container { background-color: ${$colorPrimaryDark}; }
+
+  :host([type="danger"]) .container { background-color: ${$colorDanger}; }
+  :host([type="danger"]:hover) .container,
+  :host([type="danger"]:focus) .container { background-color: ${$colorDangerLight}; }
+  :host([type="danger"]:active) .container { background-color: ${$colorDangerDark}; }
+
+  :host([type="success"]) .container { background-color: ${$colorSuccess}; }
+  :host([type="success"]:hover) .container,
+  :host([type="success"]:focus) .container { background-color: ${$colorSuccessLight}; }
+  :host([type="success"]:active) .container { background-color: ${$colorSuccessDark}; }
+
+  :host([type="warning"]) .container { background-color: ${$colorWarning}; }
+  :host([type="warning"]:hover) .container,
+  :host([type="warning"]:focus) .container { background-color: ${$colorWarningLight}; }
+  :host([type="warning"]:active) .container { background-color: ${$colorWarningDark}; }
+
+  :host([disabled]) .container,
+  :host([disabled]:hover) .container,
+  :host([disabled]:focus) .container,
+  :host([disabled]:active) .container { background-color: ${$backgroundColorDisabled}; }
+
+  :host([outline]) .container,
+  :host([outline]:hover) .container,
+  :host([outline]:focus) .container,
+  :host([outline]:active) .container { background-color: transparent; }
+
+  :host([type="link"]),
+  :host([type="link"]:hover) .container,
+  :host([type="link"]:focus) .container,
+  :host([type="link"]:active) .container { background-color: transparent; }
 
 
-    /* color */
-    :host { color: #314659; }
+  /* border-color */
+  :host .container { border-color: ${$borderColorBase}; }
+  :host(:hover) .container,
+  :host(:focus) .container { border-color: ${$colorPrimaryLight}; }
+  :host(:active) .container { border-color: ${$colorPrimaryDark}; }
 
-    :host(:hover),
-    :host(:focus),
-    :host([outline]:hover),
-    :host([outline]:focus),
-    :host([type="primary"][outline]),
-    :host([type="link"]) { color: #1890ff; }
+  :host([type="primary"]) .container { border-color: ${$colorPrimary}; }
+  :host([type="primary"]:hover) .container,
+  :host([type="primary"]:focus) .container { border-color: ${$colorPrimaryLight}; }
+  :host([type="primary"]:active) .container {border-color: ${$colorPrimaryDark}; }
 
-    :host([type="primary"][outline]:hover),
-    :host([type="primary"][outline]:focus),
-    :host([type="link"]:hover) { color: #40a9ff; }
+  :host([type="danger"]) .container { border-color: ${$colorDanger}; }
+  :host([type="danger"]:hover) .container,
+  :host([type="danger"]:focus) .container { border-color: ${$colorDangerLight}; }
+  :host([type="danger"]:active) .container { border-color: ${$colorDangerDark}; }
 
-    :host(:active),
-    :host([outline]:active),
-    :host([type="primary"][outline]:active),
-    :host([type="link"]:active) { color: #096dd9; }
+  :host([type="warning"]) .container { border-color: ${$colorWarning}; }
+  :host([type="warning"]:hover) .container,
+  :host([type="warning"]:focus) .container { border-color: ${$colorWarningLight}; }
+  :host([type="warning"]:active) .container { border-color: ${$colorWarningDark}; }
 
-    :host([outline]),
-    :host([type="primary"]),
-    :host([type="primary"]:hover),
-    :host([type="primary"]:focus),
-    :host([type="primary"]:active),
-    :host([type="danger"]),
-    :host([type="danger"]:hover),
-    :host([type="danger"]:focus),
-    :host([type="danger"]:active) { color: #fff; }
-    :host([type="danger"][outline]) { color: #ff4d4f; }
-    :host([type="danger"][outline]:hover),
-    :host([type="danger"][outline]:focus) { color: #ff7875; }
-    :host([type="danger"][outline]:active) { color: #d9363e; }
+  :host([type="success"]) .container { border-color: ${$colorSuccess}; }
+  :host([type="success"]:hover) .container,
+  :host([type="success"]:focus) .container { border-color: ${$colorSuccessLight}; }
+  :host([type="success"]:active) .container { border-color: ${$colorSuccessDark}; }
+  
+  :host([disabled]) .container,
+  :host([disabled]:hover) .container,
+  :host([disabled]:focus) .container,
+  :host([disabled]:active) .container { border-color: ${$borderColorDisabled}; }
 
-    :host([disabled]) {
-      color: ${$colorDisabled};
-    }
+  :host([type="link"]) .container,
+  :host([type="link"]:hover) .container,
+  :host([type="link"]:focus) .container,
+  :host([type="link"]:active) .container { border-color: transparent; }
 
-    :host([disabled]) {
-      outline: 0 none;
-      cursor: not-allowed;
-    }
 
-    :host([size="large"]) {
-      height: 40px;
-      line-height: 38px;
-      padding-left: 15px;
-      padding-right: 15px;
-      font-size: 16px;
-    }
+  /* color */
+  :host .container { color: ${$colorFontBase}; }
+  :host(:hover) .container,
+  :host(:focus) .container { color: ${$colorPrimaryLight}; }
+  :host(:active) .container { color: ${$colorPrimaryDark}; }
 
-    :host([size="small"]) {
-      height: 24px;
-      line-height: 22px;
-      padding-left: 8px;
-      padding-right: 8px;
-    }
+  :host([type="primary"]) .container,
+  :host([type="primary"]:hover) .container,
+  :host([type="primary"]:focus) .container,
+  :host([type="primary"]:active) .container,
+  :host([type="danger"]) .container,
+  :host([type="danger"]:hover) .container,
+  :host([type="danger"]:focus) .container,
+  :host([type="danger"]:active) .container,
+  :host([type="warning"]) .container,
+  :host([type="warning"]:hover) .container,
+  :host([type="warning"]:focus) .container,
+  :host([type="warning"]:active) .container,
+  :host([type="success"]) .container,
+  :host([type="success"]:hover) .container,
+  :host([type="success"]:focus) .container,
+  :host([type="success"]:active) .container { color: #fff; }
 
-    :host(:focus) {
-      outline: 0 none;
-    }    
+  :host([type="primary"][outline]) .container { color: ${$colorPrimary}; }
+  :host([type="primary"][outline]:hover) .container,
+  :host([type="primary"][outline]:focus) .container { color: ${$colorPrimaryLight}; }
+  :host([type="primary"][outline]:active) .container { color: ${$colorPrimaryDark}; }
 
-    :host([hidden]) {
-      display: none;
-    }
-  </style>
-  <slot></slot>
+  :host([type="danger"][outline]) .container { color: ${$colorDanger}; }
+  :host([type="danger"][outline]:hover) .container,
+  :host([type="danger"][outline]:focus) .container { color: ${$colorDangerLight}; }
+  :host([type="danger"][outline]:active) .container { color: ${$colorDangerDark}; }
+
+  :host([type="warning"][outline]) .container { color: ${$colorWarning}; }
+  :host([type="warning"][outline]:hover) .container,
+  :host([type="warning"][outline]:focus) .container { color: ${$colorWarningLight}; }
+  :host([type="warning"][outline]:active) .container { color: ${$colorWarningDark}; }
+
+  :host([type="success"][outline]) .container { color: ${$colorSuccess}; }
+  :host([type="success"][outline]:hover) .container,
+  :host([type="success"][outline]:focus) .container { color: ${$colorSuccessLight}; }
+  :host([type="success"][outline]:active) .container { color: ${$colorSuccessDark}; }
+
+  :host([type="link"]) .container { color: ${$colorPrimary}; }
+  :host([type="link"]:hover) .container,
+  :host([type="link"]:focus) .container { color: ${$colorPrimaryLight}; }
+  :host([type="link"]:active) .container { color: ${$colorPrimaryDark}; }
+
+  :host([disabled]) .container,
+  :host([disabled]:hover) .container,
+  :host([disabled]:focus) .container,
+  :host([disabled]:active) .container,
+  :host([disabled][outline]) .container,
+  :host([disabled][outline]:hover) .container,
+  :host([disabled][outline]:focus) .container,
+  :host([disabled][outline]:active) .container { color: ${$colorDisabled}; }
+  
+
+  /* size */
+  :host .container {
+    height: ${$heightBase};
+    line-height: calc(${$heightBase} - 2px);
+    padding: 0 ${parseInt($heightBase, 10) / 4}px;
+    font-size: 14px;
+  }
+  :host([size="mini"]) .container {
+    height: ${$heightMini};
+    line-height: calc(${$heightMini} - 2px);
+    padding: 0 ${parseInt($heightMini, 10) / 4}px;
+    font-size: 12px;
+  }
+  :host([size="small"]) .container {
+    height: ${$heightSmall};
+    line-height: calc(${$heightSmall} - 2px);
+    padding: 0 ${parseInt($heightSmall, 10) / 4}px;
+    font-size: 12px;
+  }
+  :host([size="large"]) .container {
+    height: ${$heightLarge};
+    line-height: calc(${$heightLarge} - 2px);
+    padding: 0 ${parseInt($heightLarge, 10) / 4}px;
+    font-size: 16px;
+  }
+</style>
+<div class="container">
+  <span class="label"><slot></slot></span>
+</div>
 `
 
 class BlocksButton extends HTMLElement {
@@ -154,8 +272,8 @@ class BlocksButton extends HTMLElement {
   constructor() {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
-
     shadowRoot.appendChild(template.content.cloneNode(true))
+    this.label = shadowRoot.querySelector('.label')
 
     this.addEventListener('keydown', (e) => {
       if (e.keyCode === 32 || e.keyCode === 13) {
@@ -180,6 +298,48 @@ class BlocksButton extends HTMLElement {
     })
   }
 
+  get prefixIcon() {
+    return this.getAttribute('prefix-icon')
+  }
+
+  set prefixIcon(value) {
+    this.setAttribute('prefix-icon', value)
+    this.render()
+  }
+
+  get suffixIcon() {
+    return this.getAttribute('suffix-icon')
+  }
+
+  set suffixIcon(value) {
+    this.setAttribute('suffix-icon', value)
+    this.render()
+  }
+
+  render() {
+    const prefixIcon = getIconSvg(this.prefixIcon)
+    if (prefixIcon) {
+      if (this.prefixEl) {
+        this.shadowRoot.querySelector('.container').removeChild(this.prefixEl)
+      }
+      this.prefixEl = this.shadowRoot.querySelector('.container').insertBefore(document.createElement('span'), this.label)
+      this.prefixEl.className = 'prefix-icon'
+      this.prefixEl.setAttribute('part', 'prefix')
+      this.prefixEl.appendChild(prefixIcon)
+    }
+
+    const suffixIcon = getIconSvg(this.suffixIcon)
+    if (suffixIcon) {
+      if (this.suffixEl) {
+        this.shadowRoot.querySelector('.container').removeChild(this.suffixEl)
+      }
+      this.suffixEl = this.shadowRoot.querySelector('.container').appendChild(document.createElement('span'))
+      this.suffixEl.className = 'suffix-icon'
+      this.suffixEl.setAttribute('part', 'suffix')
+      this.suffixEl.appendChild(suffixIcon)
+    }
+  }
+
   connectedCallback() {
     this.setAttribute('role', 'button')
     this.setAttribute('tabindex', '0')
@@ -188,6 +348,8 @@ class BlocksButton extends HTMLElement {
       characterData: true,
       subtree: true
     })
+
+    this.render()
   }
 
   disconnectedCallback() {
@@ -206,6 +368,8 @@ class BlocksButton extends HTMLElement {
       this.setAttribute('tabindex', '0')
       this.setAttribute('aria-disabled', 'false')
     }
+
+    this.render()
   }
 
   get disabled() {

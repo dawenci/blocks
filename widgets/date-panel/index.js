@@ -1,7 +1,7 @@
 import {
   $radiusBase,
   $colorPrimary,
-  $colorWarn,
+  $colorWarning,
   $transitionDuration,
 } from '../theme/var.js'
 
@@ -268,7 +268,7 @@ const TEMPLATE_CSS = `<style>
   overflow: hidden;
   width: 6px;
   height: 6px;
-  background: ${$colorWarn};
+  background: ${$colorWarning};
   border: 1px solid #fff;
   border-radius: 50%;
   top: 3px;
