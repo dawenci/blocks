@@ -56,13 +56,13 @@ template.innerHTML = `
     justify-content: center;
     align-items: center;
     width: 100%;
+    height: 100%;
     font-family: ${$fontFamily};
     box-sizing: border-box;
     border-radius: ${$radiusBase};
     border-width: 1px;
     border-style: solid;
     cursor: pointer;
-    font-size: 14px;
     text-align: center;
     transition: color ${$transitionDuration}, border-color ${$transitionDuration};
     user-select: none;
@@ -75,25 +75,22 @@ template.innerHTML = `
     box-sizing: border-box;
     width: 16px;
     height: 16px;
-    fill: #fff;
     transition: transform ${$transitionDuration};
-  }
-  .prefix-icon {
-    margin-left: 6px;
-  }
-  .suffix-icon {
-    margin-right: 6px;
   }
   .prefix-icon svg,
   .suffix-icon svg {
+    display: block;
     width: 100%;
     height: 100%;
   }
 
   .label {
-    display: block;
-    box-sizing: border-box;
     flex: 1 1 100%;
+    display: block;
+    height: 16px;
+    line-height: 16px;
+    box-sizing: border-box;
+    white-space: nowrap;
   }
 
   
@@ -176,10 +173,10 @@ template.innerHTML = `
 
 
   /* color */
-  :host .container { color: ${$colorFontBase}; }
+  :host .container { fill: ${$colorFontBase}; color: ${$colorFontBase}; }
   :host(:hover) .container,
-  :host(:focus) .container { color: ${$colorPrimaryLight}; }
-  :host(:active) .container { color: ${$colorPrimaryDark}; }
+  :host(:focus) .container { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
+  :host(:active) .container { fill: ${$colorPrimaryDark}; color: ${$colorPrimaryDark}; }
 
   :host([type="primary"]) .container,
   :host([type="primary"]:hover) .container,
@@ -196,32 +193,32 @@ template.innerHTML = `
   :host([type="success"]) .container,
   :host([type="success"]:hover) .container,
   :host([type="success"]:focus) .container,
-  :host([type="success"]:active) .container { color: #fff; }
+  :host([type="success"]:active) .container { fill: #fff; color: #fff; }
 
-  :host([type="primary"][outline]) .container { color: ${$colorPrimary}; }
+  :host([type="primary"][outline]) .container { fill: ${$colorPrimary}; color: ${$colorPrimary}; }
   :host([type="primary"][outline]:hover) .container,
-  :host([type="primary"][outline]:focus) .container { color: ${$colorPrimaryLight}; }
-  :host([type="primary"][outline]:active) .container { color: ${$colorPrimaryDark}; }
+  :host([type="primary"][outline]:focus) .container { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
+  :host([type="primary"][outline]:active) .container { fill: ${$colorPrimaryDark}; color: ${$colorPrimaryDark}; }
 
-  :host([type="danger"][outline]) .container { color: ${$colorDanger}; }
+  :host([type="danger"][outline]) .container { fill: ${$colorDanger}; color: ${$colorDanger}; }
   :host([type="danger"][outline]:hover) .container,
-  :host([type="danger"][outline]:focus) .container { color: ${$colorDangerLight}; }
-  :host([type="danger"][outline]:active) .container { color: ${$colorDangerDark}; }
+  :host([type="danger"][outline]:focus) .container { fill: ${$colorDangerLight}; color: ${$colorDangerLight}; }
+  :host([type="danger"][outline]:active) .container { fill: ${$colorDangerDark}; color: ${$colorDangerDark}; }
 
-  :host([type="warning"][outline]) .container { color: ${$colorWarning}; }
+  :host([type="warning"][outline]) .container { fill: ${$colorWarning}; color: ${$colorWarning}; }
   :host([type="warning"][outline]:hover) .container,
-  :host([type="warning"][outline]:focus) .container { color: ${$colorWarningLight}; }
-  :host([type="warning"][outline]:active) .container { color: ${$colorWarningDark}; }
+  :host([type="warning"][outline]:focus) .container { fill: ${$colorWarningLight}; color: ${$colorWarningLight}; }
+  :host([type="warning"][outline]:active) .container { fill: ${$colorWarningDark}; color: ${$colorWarningDark}; }
 
-  :host([type="success"][outline]) .container { color: ${$colorSuccess}; }
+  :host([type="success"][outline]) .container { fill: ${$colorSuccess}; color: ${$colorSuccess}; }
   :host([type="success"][outline]:hover) .container,
-  :host([type="success"][outline]:focus) .container { color: ${$colorSuccessLight}; }
-  :host([type="success"][outline]:active) .container { color: ${$colorSuccessDark}; }
+  :host([type="success"][outline]:focus) .container { fill: ${$colorSuccessLight}; color: ${$colorSuccessLight}; }
+  :host([type="success"][outline]:active) .container { fill: ${$colorSuccessDark}; color: ${$colorSuccessDark}; }
 
-  :host([type="link"]) .container { color: ${$colorPrimary}; }
+  :host([type="link"]) .container { fill: ${$colorPrimary}; color: ${$colorPrimary}; }
   :host([type="link"]:hover) .container,
-  :host([type="link"]:focus) .container { color: ${$colorPrimaryLight}; }
-  :host([type="link"]:active) .container { color: ${$colorPrimaryDark}; }
+  :host([type="link"]:focus) .container { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
+  :host([type="link"]:active) .container { fill: ${$colorPrimaryDark}; color: ${$colorPrimaryDark}; }
 
   :host([disabled]) .container,
   :host([disabled]:hover) .container,
@@ -230,34 +227,41 @@ template.innerHTML = `
   :host([disabled][outline]) .container,
   :host([disabled][outline]:hover) .container,
   :host([disabled][outline]:focus) .container,
-  :host([disabled][outline]:active) .container { color: ${$colorDisabled}; }
-  
+  :host([disabled][outline]:active) .container { fill: ${$colorDisabled}; color: ${$colorDisabled}; }
+
 
   /* size */
-  :host .container {
+  :host {
     height: ${$heightBase};
-    line-height: calc(${$heightBase} - 2px);
-    padding: 0 ${parseInt($heightBase, 10) / 4}px;
     font-size: 14px;
   }
-  :host([size="mini"]) .container {
+  :host .label { margin: 0 7px; }
+  :host .prefix-icon { margin-left: 7px; }
+  :host .suffix-icon { margin-right: 7px; }
+
+  :host([size="mini"]) {
     height: ${$heightMini};
-    line-height: calc(${$heightMini} - 2px);
-    padding: 0 ${parseInt($heightMini, 10) / 4}px;
     font-size: 12px;
   }
-  :host([size="small"]) .container {
+  :host([size="mini"]) .label { margin: 0 4px; }
+  :host([size="mini"]) .prefix-icon { margin-left: 4px; }
+  :host([size="mini"]) .suffix-icon { margin-right: 4px; }
+
+  :host([size="small"]) {
     height: ${$heightSmall};
-    line-height: calc(${$heightSmall} - 2px);
-    padding: 0 ${parseInt($heightSmall, 10) / 4}px;
     font-size: 12px;
   }
-  :host([size="large"]) .container {
+  :host([size="small"]) .label { margin: 0 6px; }
+  :host([size="small"]) .prefix-icon { margin-left: 6px; }
+  :host([size="small"]) .suffix-icon { margin-right: 6px; }
+  
+  :host([size="large"]) {
     height: ${$heightLarge};
-    line-height: calc(${$heightLarge} - 2px);
-    padding: 0 ${parseInt($heightLarge, 10) / 4}px;
     font-size: 16px;
   }
+  :host([size="large"]) .label { margin: 0 10px; }
+  :host([size="large"]) .prefix-icon { margin-left: 10px; }
+  :host([size="large"]) .suffix-icon { margin-right: 10px; }
 </style>
 <div class="container">
   <span class="label"><slot></slot></span>
