@@ -37,11 +37,10 @@ const TEMPLATE_CSS = `<style>
   border-radius: ${$radiusBase};
 }
 
-:host .label {
+.label {
   flex: 1 1 100%;
 }
-:host .close {
-  display: none;
+.close {
   flex: 0 0 auto;
   position: relative;
   width: 16px;
@@ -52,23 +51,14 @@ const TEMPLATE_CSS = `<style>
   background: transparent;
   transform: rotate(45deg);
   border-radius: 50%;
+  border-width: 1px;
+  border-style: solid;
 }
-:host .close:focus {
+.close:focus {
   outline: 0 none;
 }
-:host([closable]) .close {
-  display: block;
-}
-:host([closable]) .close:hover {
-  display: block;
-  border: 1px solid #ccc;
-}
-:host([closable]) .close:hover::before,
-:host([closable]) .close:hover::after {
-  background: #ccc;
-}
-:host .close::before,
-:host .close::after {
+.close::before,
+.close::after {
   position: absolute;
   top: 0;
   right: 0;
@@ -79,14 +69,14 @@ const TEMPLATE_CSS = `<style>
   width: 2px;
   height: 2px;
   margin: auto;
-  background: #ddd;
 }
-:host .close::before {
+.close::before {
   width: 8px;
 }
-:host .close::after {
+.close::after {
   height: 8px;
 }
+
 
 /* background */
 :host,
@@ -136,6 +126,44 @@ const TEMPLATE_CSS = `<style>
 :host([type="danger"][outline]) { color: ${$colorDanger} }
 :host([type="warning"][outline]) { color: ${$colorWarning} }
 :host([type="success"][outline])  { color: ${$colorSuccess} }
+
+
+/* close color */
+.close::before,
+.close::after { background: #ddd; }
+.close:hover { border-color: #ccc; }
+.close:hover::before,
+.close:hover::after { background: #ccc; }
+
+:host([type="primary"]) .close::before,
+:host([type="primary"]) .close::after,
+:host([type="danger"]) .close::before,
+:host([type="danger"]) .close::after,
+:host([type="warning"]) .close::before,
+:host([type="warning"]) .close::after,
+:host([type="success"]) .close::before,
+:host([type="success"]) .close::after { background-color: #fff; }
+:host([type="primary"]) .close:hover,
+:host([type="danger"]) .close:hover,
+:host([type="warning"]) .close:hover,
+:host([type="success"]) .close:hover { border-color: #fff; }
+
+:host([type="primary"][outline]) .close::before,
+:host([type="primary"][outline]) .close::after { background-color: ${$colorPrimary} }
+:host([type="primary"][outline]) .close:hover { border-color: ${$colorPrimary} }
+
+:host([type="danger"][outline]) .close::before,
+:host([type="danger"][outline]) .close::after { background-color: ${$colorDanger} }
+:host([type="danger"][outline]) .close:hover { border-color: ${$colorDanger} }
+
+:host([type="warning"][outline]) .close::before,
+:host([type="warning"][outline]) .close::after { background-color: ${$colorWarning} }
+:host([type="warning"][outline]) .close:hover { border-color: ${$colorWarning} }
+
+:host([type="success"][outline]) .close::before,
+:host([type="success"][outline]) .close::after { background-color: ${$colorSuccess} }
+:host([type="success"][outline]) .close:hover { border-color: ${$colorSuccess} }
+
 
 /* size */
 :host {
