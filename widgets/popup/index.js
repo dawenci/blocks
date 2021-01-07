@@ -75,6 +75,7 @@ const TEMPLATE_CSS = `<style>
   position:relative;
   box-sizing: border-box;
   display:inline-block;
+  width: 100%;
   background-color: #fff;
   border-radius: ${$radiusBase};
   transform-origin: center center;
