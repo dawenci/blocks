@@ -25,6 +25,9 @@ const TEMPLATE_CSS = `<style>
   user-select: none;
   cursor: default;
 }
+.dropdown::part(suffix) {
+  transform: rotate(180deg);
+}
 </style>`
 
 const TEMPLATE_HTML = `
@@ -78,7 +81,7 @@ class BlocksSelect extends HTMLElement {
     this.input.onfocus = this.input.onfocus = e => {
       this.popup.style.minWidth = `${this.input.offsetWidth}px`
       this.popup.open = true
-      this.input.suffixIcon = 'up'
+      this.input.classList.add('dropdown')
     }
 
     this.input.addEventListener('click-clear', e => {
@@ -98,7 +101,7 @@ class BlocksSelect extends HTMLElement {
         this.select(option)
         if (!this.multiple) {
           this.popup.open = false
-          this.input.suffixIcon = 'down'
+          this.input.classList.remove('dropdown')
         }
       }
       this.render()
@@ -184,7 +187,7 @@ class BlocksSelect extends HTMLElement {
       this._onClickOutside = (e) => {
         if (this.popup.open && !this.contains(e.target) && !this.popup.contains(e.target)) {
           this.popup.open = false
-          this.input.suffixIcon = 'down'
+          this.input.classList.remove('dropdown')
         }
       }
     }

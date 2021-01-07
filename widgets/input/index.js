@@ -72,9 +72,11 @@ input:focus {
 .prefix-icon, .suffix-icon {
   flex: 0 0 auto;
   display: block;
-  width: 18px;
-  height: 18px;
+  position: relative;
+  width: 16px;
+  height: 16px;
   fill: #aaa;
+  transition: transform ${$transitionDuration};
 }
 .prefix-icon {
   margin-left: 6px;
@@ -152,7 +154,7 @@ input:focus {
 
 const TEMPLATE_HTML = `
 <div class="container">
-  <input class="input" />
+  <input class="input" part="input" />
 </div>
 `
 
@@ -222,6 +224,7 @@ class BlocksInput extends HTMLElement {
       }
       this.prefixEl = this.container.insertBefore(document.createElement('span'), this.input)
       this.prefixEl.className = 'prefix-icon'
+      this.prefixEl.setAttribute('part', 'prefix')
       this.prefixEl.appendChild(prefixIcon)
     }
 
@@ -232,6 +235,7 @@ class BlocksInput extends HTMLElement {
       }
       this.suffixEl = this.container.appendChild(document.createElement('span'))
       this.suffixEl.className = 'suffix-icon'
+      this.suffixEl.setAttribute('part', 'suffix')
       this.suffixEl.appendChild(suffixIcon)
     }
 
@@ -239,6 +243,7 @@ class BlocksInput extends HTMLElement {
       if (!this.clearableEl) {
         this.clearableEl = document.createElement('button')
         this.clearableEl.className = 'clearable'
+        this.clearableEl.setAttribute('part', 'clearable')
         this.clearableEl.onclick = this.clearValue.bind(this)
       }
       if (this.suffixIcon) {
