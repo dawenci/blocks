@@ -93,12 +93,8 @@ class BlocksSelect extends HTMLElement {
       if (target.tagName === 'BLOCKS-OPTION') {
         if (target.disabled) return
         if (target.parentElement.tagName === 'BLOCKS-OPTGROUP' && target.parentElement.disabled) return
-        const option = {
-          value: target.value,
-          label: target.label,
-          text: target.textContent,
-        }
-        this.select(option)
+
+        this.value = target.value
         if (!this.multiple) {
           this.popup.open = false
           this.input.classList.remove('dropdown')
@@ -106,15 +102,6 @@ class BlocksSelect extends HTMLElement {
       }
       this.render()
     })    
-  }
-
-  select({ value, label, text }) {
-    this.value = value
-    this.text = label || text || value
-    this.list.querySelectorAll('blocks-option')
-      .forEach(el => {
-        el.selected = el.value === value
-      })
   }
 
   render() {
@@ -143,13 +130,13 @@ class BlocksSelect extends HTMLElement {
       if (!selected && el.selected) selected = el
     })
 
-    if (selected) {
+    value = selected ? value : ''
+    const text = selected?.label ?? selected?.textContent ?? value
+
+    this.text = text
+    if (this.value !== value) {
       this.setAttribute('value', value)
-      this.text = selected.label || selected.textContent
-    }
-    else {
-      this.removeAttribute('value')
-      this.text = ''
+      this.dispatchEvent(new CustomEvent('change'))
     }
   }
 
