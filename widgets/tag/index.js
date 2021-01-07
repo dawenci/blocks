@@ -1,6 +1,7 @@
 import { boolGetter, boolSetter } from '../core/property.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
 import {
+  $fontFamily,
   $borderColorBase,
   $heightBase,
   $heightMini,
@@ -19,33 +20,48 @@ import {
   $colorWarning,
   $colorWarningLight,
   $colorWarningDark,
+  $transitionDuration,
 } from '../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
-:host, :host * {
-  box-sizing: border-box;
-}
 :host {
-  display: inline-flex;
+  display: inline-block;
+}
+
+.container {
+  display: flex;
   flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-  white-space: nowrap;
+  width: 100%;
+  height: 100%;
+  font-family: ${$fontFamily};
+  box-sizing: border-box;
+  border-radius: ${$radiusBase};
   border-width: 1px;
   border-style: solid;
-  border-radius: ${$radiusBase};
+  cursor: pointer;
+  text-align: center;
+  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+  user-select: none;
 }
 
 .label {
   flex: 1 1 100%;
+  display: block;
+  height: 16px;
+  line-height: 16px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
+
 .close {
   flex: 0 0 auto;
   position: relative;
+  box-sizing: border-box;
   width: 16px;
   height: 16px;
-  margin: 0 0 0 6px;
+  margin: 0 6px 0 -2px;
   padding: 0;
   border: 1px solid transparent;
   background: transparent;
@@ -53,6 +69,7 @@ const TEMPLATE_CSS = `<style>
   border-radius: 50%;
   border-width: 1px;
   border-style: solid;
+  transition: transform ${$transitionDuration};
 }
 .close:focus {
   outline: 0 none;
@@ -79,42 +96,20 @@ const TEMPLATE_CSS = `<style>
 
 
 /* background */
-:host,
-:host(:hover),
-:host(:active) { background-color: #fff; }
-
-:host([type="primary"]) { background-color: ${$colorPrimary}; }
-:host([type="primary"]:hover),
-:host([type="primary"]:focus) { background-color: ${$colorPrimaryLight}; }
-:host([type="primary"]:active) { background-color: ${$colorPrimaryDark}; }
-
-:host([type="danger"]) { background-color: ${$colorDanger}; }
-:host([type="danger"]:hover),
-:host([type="danger"]:focus) { background-color: ${$colorDangerLight}; }
-:host([type="danger"]:active) { background-color: ${$colorDangerDark}; }
-
-:host([type="success"]) { background-color: ${$colorSuccess}; }
-:host([type="success"]:hover),
-:host([type="success"]:focus) { background-color: ${$colorSuccessLight}; }
-:host([type="success"]:active) { background-color: ${$colorSuccessDark}; }
-
-:host([type="warning"]) { background-color: ${$colorWarning}; }
-:host([type="warning"]:hover),
-:host([type="warning"]:focus) { background-color: ${$colorWarningLight}; }
-:host([type="warning"]:active) { background-color: ${$colorWarningDark}; }
-
-:host([outline]),
-:host([outline]:hover),
-:host([outline]:focus),
-:host([outline]:active) { background-color: transparent; }
+:host .container { background-color: #fff; }
+:host([type="primary"]) .container { background-color: ${$colorPrimary}; }
+:host([type="danger"]) .container { background-color: ${$colorDanger}; }
+:host([type="success"]) .container { background-color: ${$colorSuccess}; }
+:host([type="warning"]) .container { background-color: ${$colorWarning}; }
+:host([outline]) .container { background-color: transparent; }
 
 
 /* border-color */
-:host { border-color: ${$borderColorBase}; }
-:host([type="primary"]) { border-color: ${$colorPrimary}; }
-:host([type="danger"]) { border-color: ${$colorDanger}; }
-:host([type="warning"]) { border-color: ${$colorWarning}; }
-:host([type="success"]) { border-color: ${$colorSuccess}; }
+:host .container { border-color: ${$borderColorBase}; }
+:host([type="primary"]) .container { border-color: ${$colorPrimary}; }
+:host([type="danger"]) .container { border-color: ${$colorDanger}; }
+:host([type="warning"]) .container { border-color: ${$colorWarning}; }
+:host([type="success"]) .container { border-color: ${$colorSuccess}; }
 
 
 /* color */
@@ -168,31 +163,33 @@ const TEMPLATE_CSS = `<style>
 /* size */
 :host {
   height: ${$heightBase};
-  line-height: calc(${$heightBase} - 2px);
-  padding: 0 ${parseInt($heightBase, 10) / 4}px;
   font-size: 14px;
 }
+:host .label { margin: 0 7px; }
+
 :host([size="mini"]) {
   height: ${$heightMini};
-  line-height: calc(${$heightMini} - 2px);
-  padding: 0 ${parseInt($heightMini, 10) / 4}px;
   font-size: 12px;
 }
+:host([size="mini"]) .label { margin: 0 4px; }
+
 :host([size="small"]) {
   height: ${$heightSmall};
-  line-height: calc(${$heightSmall} - 2px);
-  padding: 0 ${parseInt($heightSmall, 10) / 4}px;
   font-size: 12px;
 }
+:host([size="small"]) .label { margin: 0 6px; }
+
 :host([size="large"]) {
   height: ${$heightLarge};
-  line-height: calc(${$heightLarge} - 2px);
   font-size: 16px;
-  padding: 0 ${parseInt($heightLarge, 10) / 4}px;
 }
+:host([size="large"]) .label { margin: 0 10px; }
 </style>`
 
-const TEMPLATE_HTML = `<span class="label"><slot></slot></span>`
+const TEMPLATE_HTML = `
+<div class="container">
+  <span class="label"><slot></slot></span>
+</div>`
 
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
@@ -235,12 +232,12 @@ class BlocksTag extends HTMLElement {
   render() {
     if (this.closable) {
       if (!this.shadowRoot.querySelector('.close')) {
-        const button = this.shadowRoot.appendChild(document.createElement('button'))
+        const button = this.shadowRoot.querySelector('.container').appendChild(document.createElement('button'))
         button.className = 'close'
       }
     }
     else {
-      const button = this.shadowRoot.querySelector('.close')
+      const button = this.shadowRoot.querySelector('.container').querySelector('.close')
       if (button) {
         button.parentElement.removeChild(button)
       }

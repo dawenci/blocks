@@ -262,6 +262,31 @@ template.innerHTML = `
   :host([size="large"]) .label { margin: 0 10px; }
   :host([size="large"]) .prefix-icon { margin-left: 10px; }
   :host([size="large"]) .suffix-icon { margin-right: 10px; }
+
+
+  /* button group */
+  :host-context(blocks-button-group) {
+    position: relative;
+    vertical-align: top;
+  }
+  :host-context(blocks-button-group):host(:hover),
+  :host-context(blocks-button-group):host(:focus) {
+    z-index: 1;
+  }
+  :host-context(blocks-button-group):host(:not(:first-of-type)) {
+    margin-left: -1px;
+  }
+  :host-context(blocks-button-group) .container {
+    border-radius: 0;
+  }
+  :host-context(blocks-button-group):host(:first-of-type) .container {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+  }
+  :host-context(blocks-button-group):host(:last-of-type) .container {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }  
 </style>
 <div class="container">
   <span class="label"><slot></slot></span>
