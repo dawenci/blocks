@@ -34,6 +34,7 @@ const TEMPLATE_CSS = `<style>
   flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
+  position: relative;
   height: ${$heightBase};
   border: 1px solid ${$borderColorBase};
   background-color: #fff;
@@ -102,6 +103,21 @@ input:focus {
   transform: rotate(45deg);
   transition: all ${$transitionDuration};
 }
+.container:hover .clearable {
+  opacity: 1;
+}
+:host([clearable]) .container:hover .suffix-icon {
+  visibility: hidden;
+}
+:host([suffix-icon]) .clearable {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  bottom: 0;
+  left: auto;
+  margin: auto;
+}
+
 .clearable::before,
 .clearable::after {
   display: block;
@@ -125,17 +141,13 @@ input:focus {
 .clearable:hover {
   border-color: #aaa;
 }
-.clearable:hover .clearable::before,
-.clearable:hover .clearable::after {
+.clearable:hover::before,
+.clearable:hover::after {
   background-color: #aaa;
 }
 .clearable:focus {
   outline: 0 none;
 }
-.container:hover .clearable {
-  opacity: 1;
-}
-
 </style>`
 
 const TEMPLATE_HTML = `
@@ -229,7 +241,12 @@ class BlocksInput extends HTMLElement {
         this.clearableEl.className = 'clearable'
         this.clearableEl.onclick = this.clearValue.bind(this)
       }
-      this.container.appendChild(this.clearableEl)
+      if (this.suffixIcon) {
+        this.container.insertBefore(this.clearableEl, this.suffixEl)
+      }
+      else {
+        this.container.appendChild(this.clearableEl)
+      }
     }
   }
 
