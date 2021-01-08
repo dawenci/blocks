@@ -1,12 +1,7 @@
 import {} from '../theme/var.js'
-
-
-import dateIcon from '../theme/svg/date.svg.js'
 import '../popup/index.js'
 import '../input/index.js'
 import '../date-panel/index.js'
-
-window.dateIcon = dateIcon
 
 let idSeed = Date.now()
 
