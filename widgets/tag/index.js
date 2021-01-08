@@ -9,17 +9,9 @@ import {
   $heightLarge,
   $radiusBase,
   $colorPrimary,
-  $colorPrimaryLight,
-  $colorPrimaryDark,
   $colorDanger,
-  $colorDangerLight,
-  $colorDangerDark,
   $colorSuccess,
-  $colorSuccessLight,
-  $colorSuccessDark,
   $colorWarning,
-  $colorWarningLight,
-  $colorWarningDark,
   $transitionDuration,
 } from '../theme/var.js'
 

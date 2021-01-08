@@ -100,6 +100,26 @@
     <h2>select</h2>
 
     <div class="block">
+      <h3>default</h3>
+      <blocks-select>
+        <blocks-option value="A">选项A</blocks-option>
+        <blocks-option value="B">选项B</blocks-option>
+        <blocks-option value="C">选项C</blocks-option>
+        <blocks-option value="D">选项D</blocks-option>
+      </blocks-select>
+    </div>
+
+    <div class="block">
+      <h3>clearable</h3>
+      <blocks-select clearable>
+        <blocks-option value="A">选项A</blocks-option>
+        <blocks-option disabled label="label B" value="B">选项B</blocks-option>
+        <blocks-option value="C" disabled>选项C</blocks-option>
+        <blocks-option label="label D" value="D">选项D</blocks-option>
+      </blocks-select>
+    </div>
+
+    <div class="block">
       <h3>group</h3>
       <blocks-select>
         <blocks-optgroup label="Group A">
@@ -124,18 +144,6 @@
 
         <blocks-option value="C" disabled>选项C</blocks-option>
         <blocks-option value="D">选项D</blocks-option>
-      </blocks-select>
-    </div>
-
-    <div class="block">
-      <h3>clearable</h3>
-      <blocks-select clearable>
-        <blocks-optgroup label="Group">
-          <blocks-option value="A">选项A</blocks-option>
-          <blocks-option disabled label="label B" value="B">选项B</blocks-option>
-        </blocks-optgroup>
-        <blocks-option value="C" disabled>选项C</blocks-option>
-        <blocks-option label="label D" value="D">选项D</blocks-option>
       </blocks-select>
     </div>
   </div>
