@@ -1,5 +1,10 @@
 const template = document.createElement('template')
 template.innerHTML = `
+  <style>
+  :host {
+    white-space: nowrap;
+  }
+  </style>
   <slot></slot>
 `
 
