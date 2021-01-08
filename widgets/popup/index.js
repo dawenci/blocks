@@ -1,8 +1,23 @@
-import '../button/index.js'
 import {
   $radiusBase,
   $transitionDuration,
 } from '../theme/var.js'
+
+// 获取最近的共同祖先结点
+const commonAncestor = (el1, el2) => {
+  const path = []
+  let el = el1
+  while (el) {
+    path.push(el)
+    el = el.parentElement
+  }
+  el = el2
+  while (el) {
+    if (path.includes(el)) return el
+    el = el.parentElement
+  }
+  return null
+}
 
 
 // 等腰直角三角形，根据高求腰（矩形的边）
@@ -357,6 +372,14 @@ class BlocksPopup extends HTMLElement {
     }
   }
 
+  get appendToBody() {
+    return this._getBool('append-to-body')
+  }
+
+  set appendToBody(value) {
+    this._setBool('append-to-body', value)
+  }
+
   get open() {  
     return this._getBool('open')
   }
@@ -386,16 +409,8 @@ class BlocksPopup extends HTMLElement {
   // Popup 的锚定原点位于页面上的 position x 轴座标（或座标范围）
   // 传入的如果是个数字，则代表座标点，传入的是个数组，则代表是个座标范围
   get x() {
-    if (this.anchor) {
-      const anchorElement = document.querySelector(this.anchor)
-      if (anchorElement) {
-        const rect = anchorElement.getBoundingClientRect()
-        return [rect.x, rect.x + rect.width ]
-      }
-    }
-
-    const attrValue = this.getAttribute('x')
-    if (attrValue != null) {
+    if (!this.anchor && this.getAttribute('x') != null) {
+      const attrValue = this.getAttribute('x')
       if (/\[\s*\d+(\s*\,\s*\d+)\s*\]/.test(attrValue.trim())) {
         return JSON.parse(attrValue)
       }
@@ -405,7 +420,7 @@ class BlocksPopup extends HTMLElement {
     }
 
     // 默认相对于 body 定位
-    const anchorElement = document.body
+    const anchorElement = document.querySelector(this.anchor) ?? document.body
     const rect = anchorElement.getBoundingClientRect()
     return [rect.x, rect.x + rect.width ]
   }
@@ -421,16 +436,8 @@ class BlocksPopup extends HTMLElement {
 
   // Popup 的锚定原点位于页面上的 position y 轴
   get y() {
-    if (this.anchor) {
-      const anchorElement = document.querySelector(this.anchor)
-      if (anchorElement) {
-        const rect = anchorElement.getBoundingClientRect()
-        return [rect.y, rect.y + rect.height ]
-      }
-    }
-
-    const attrValue = this.getAttribute('y')
-    if (attrValue != null) {
+    if (!this.anchor && this.getAttribute('y') != null) {
+      const attrValue = this.getAttribute('y')
       if (/\[\s*\d+(\s*\,\s*\d+)\s*\]/.test(attrValue.trim())) {
         return JSON.parse(attrValue)
       }
@@ -440,7 +447,7 @@ class BlocksPopup extends HTMLElement {
     }
 
     // 默认相对于 body 定位
-    const anchorElement = document.body
+    const anchorElement = document.querySelector(this.anchor) ?? document.body    
     const rect = anchorElement.getBoundingClientRect()
     return [rect.y, rect.y + rect.height ]
   }
@@ -479,7 +486,7 @@ class BlocksPopup extends HTMLElement {
   }
 
   connectedCallback() {
-    if (this.parentElement !== document.body) {
+    if (this.appendToBody && this.parentElement !== document.body) {
       document.body.appendChild(this)
     }
 
@@ -592,8 +599,8 @@ class BlocksPopup extends HTMLElement {
     const popupWidth = popup.offsetWidth
     const popupHeight = popup.offsetHeight
     
-    const containerWidth = document.body.scrollWidth
-    const containerHeight = document.body.scrollHeight
+    const layoutWidth = document.body.scrollWidth
+    const layoutHeight = document.body.scrollHeight
     const scrollTop = document.documentElement.scrollTop + document.body.scrollTop
     const scrollLeft = document.documentElement.scrollLeft + document.body.scrollLeft
     const arrowSize = this.arrow ? ARROW_SIZE : 0    
@@ -628,7 +635,7 @@ class BlocksPopup extends HTMLElement {
       originY = 'top'
       shadowY = 'bottom'
       // 如果 popup 溢出视口，则检查翻转吸附在 y 的上方是否更好，如果是，则翻转
-      if (this.autoflip && (top + popupHeight > containerHeight)) {
+      if (this.autoflip && (top + popupHeight > layoutHeight)) {
         const flipTop = y1 - arrowSize - popupHeight
         if (flipTop > 0) {
           top = flipTop
@@ -643,7 +650,7 @@ class BlocksPopup extends HTMLElement {
       shadowX = 'left'
       if (this.autoflip && (left < 0)) {
         const flipLeft = x1 + arrowSize
-        if (flipLeft + popupWidth < containerWidth) {
+        if (flipLeft + popupWidth < layoutWidth) {
           left = flipLeft
           horizontalFlip()
         }
@@ -657,7 +664,7 @@ class BlocksPopup extends HTMLElement {
       // 如果 popup 溢出视口，则检查翻转吸附在目标的下边是否更好，如果是，则翻转
       if (this.autoflip && (top < 0)) {
         const flipTop = y1 + arrowSize
-        if (flipTop + popupHeight < containerHeight) {
+        if (flipTop + popupHeight < layoutHeight) {
           top = flipTop
           verticalFlip()
         }
@@ -668,7 +675,7 @@ class BlocksPopup extends HTMLElement {
       left = x2 + arrowSize
       originX = 'left'
       shadowX = 'right'
-      if (this.autoflip && (left + popupWidth > containerWidth)) {
+      if (this.autoflip && (left + popupWidth > layoutWidth)) {
         const flipLeft = x1 - arrowSize - popupWidth
         if (flipLeft > 0) {
           left = flipLeft
@@ -694,7 +701,7 @@ class BlocksPopup extends HTMLElement {
         originX = 'left'
         shadowX = 'right'
         // 如果与 popup 的右侧溢出视口，则检查向左侧渲染是否更好，是则翻转成右对齐
-        if (this.autoflip && (x1 + popupWidth > containerWidth) && (x2 - popupWidth > 0)) {
+        if (this.autoflip && (x1 + popupWidth > layoutWidth) && (x2 - popupWidth > 0)) {
           left = x2 - popupWidth
           horizontalFlip()
         }
@@ -705,7 +712,7 @@ class BlocksPopup extends HTMLElement {
         originX = 'right'
         shadowX = 'left'
         // 如果与 popup 的左侧溢出视口，则检查向右侧渲染是否更好，是则翻转
-        if (this.autoflip && (left < 0) && (x1 + popupWidth < containerWidth)) {
+        if (this.autoflip && (left < 0) && (x1 + popupWidth < layoutWidth)) {
           left = x1
           horizontalFlip()
         }
@@ -725,7 +732,7 @@ class BlocksPopup extends HTMLElement {
         originY = 'top'
         shadowY = 'bottom'
         // 如果与 popup 的下方溢出视口，则检查向上渲染是否更好，是则翻转
-        if (this.autoflip && (y1 + popupHeight > containerHeight) && (y2 - popupHeight > 0)) {
+        if (this.autoflip && (y1 + popupHeight > layoutHeight) && (y2 - popupHeight > 0)) {
           top = y2 - popupHeight
           verticalFlip()
         }
@@ -736,7 +743,7 @@ class BlocksPopup extends HTMLElement {
         originY = 'bottom'
         shadowY = 'top'
         // 如果与 popup 的上方溢出视口，则检查向下渲染是否更好，是则翻转
-        if (this.autoflip && (top < 0) && (y1 + popupHeight < containerHeight)) {
+        if (this.autoflip && (top < 0) && (y1 + popupHeight < layoutHeight)) {
           top = y1 + popupHeight
           verticalFlip()
         }
