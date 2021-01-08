@@ -11,7 +11,7 @@ import {
   $heightLarge,
 } from '../theme/var.js'
 
-import { getIconSvg } from '../theme/icon.js'
+import { getIconSvg } from '../icon/index.js'
 import '../popup/index.js'
 import '../date-panel/index.js'
 

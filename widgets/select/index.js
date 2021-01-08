@@ -6,8 +6,6 @@ import './optgroup.js'
 import './option.js'
 import '../popup/index.js'
 import '../input/index.js'
-import '../theme/svg/up.svg.js'
-import '../theme/svg/down.svg.js'
 
 const getMultiple = boolGetter('multiple')
 const setMultiple = boolSetter('multiple')

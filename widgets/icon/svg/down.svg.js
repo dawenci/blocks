@@ -1,4 +1,4 @@
-import { getIconSvg, register } from '../icon.js'
+import { getIconSvg, register } from '../store.js'
 
 const data =
 `<?xml version="1.0" standalone="no"?>

@@ -28,7 +28,7 @@ import {
   $heightLarge,
 } from '../theme/var.js'
 
-import { getIconSvg } from '../theme/icon.js'
+import { getIconSvg } from '../icon/index.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
