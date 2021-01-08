@@ -19,38 +19,55 @@
       <h1>组件文档</h1>
     </header>
 
+
     <section class="section">
       <h2>tag 组件</h2>
 
-      <div class="block">
+      <div class="case">
         <h3>尺寸设置</h3>
+        <p>可通过 size 设置尺寸，可选值: `mini`, `small`, `large`</p>
 
         <div data-role="html">
-          <script type="module" src="../widgets/tag/index.js"></script>
+          <script type="module" src="/widgets/tag/index.js"></script>
+
           <blocks-tag size="mini">mini</blocks-tag>
           <blocks-tag size="small">small</blocks-tag>
           <blocks-tag>default</blocks-tag>
           <blocks-tag size="large">large</blocks-tag>
         </div>
       </div>
-  
-      <div class="block">
+
+
+      <div class="case">
         <h3>关闭按钮</h3>
+        <p>设置 `closable` 属性，则启用关闭按钮，点击会触发 `close` 的 DOM 自定义事件</p>
         <div data-role="html">
-          <script type="module" src="../widgets/tag/index.js"></script>
-          <blocks-tag closable>可关闭</blocks-tag>
+          <script type="module" src="/widgets/tag/index.js"></script>
+
+          <blocks-tag onclose="alert('点击了关闭')" closable>可关闭</blocks-tag>
         </div>
       </div>
-  
-      <div class="block">
+
+
+      <div class="case">
         <h3>主题</h3>
-        <div style="margin-bottom:15px;">
+
+        <p>`type` 可以设定主题类别，支持 `primary`, `danger`, `warning`, `success`</p>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/tag/index.js"></script>
+
           <blocks-tag closable type="primary">primary</blocks-tag>
           <blocks-tag closable type="danger">danger</blocks-tag>
           <blocks-tag closable type="warning">warning</blocks-tag>
           <blocks-tag closable type="success">success</blocks-tag>
         </div>
-        <div>
+
+        <p>支持 `outline` 变种样式</p>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/tag/index.js"></script>
+
           <blocks-tag closable type="primary" outline>primary outline</blocks-tag>
           <blocks-tag closable type="danger" outline>danger outline</blocks-tag>
           <blocks-tag closable type="warning" outline>warning outline</blocks-tag>
@@ -58,174 +75,256 @@
         </div>
       </div>
     </section>
-  
+
+
     <section class="section">
-      <script type="module" src="../widgets/input/index.js"></script>
       <h2>input</h2>
-  
-      <div class="block">
+
+      <div class="case">
         <h3>尺寸</h3>
-        
-        <blocks-input size="mini" value="mini"></blocks-input>
-        <blocks-input size="small" value="small"></blocks-input>
-        <blocks-input value="default"></blocks-input>
-        <blocks-input size="large" value="large"></blocks-input>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/input/index.js"></script>
+
+          <blocks-input size="mini" value="mini"></blocks-input>
+          <blocks-input size="small" value="small"></blocks-input>
+          <blocks-input value="default"></blocks-input>
+          <blocks-input size="large" value="large"></blocks-input>
+        </div>
       </div>
-  
-      <div class="block">
-        <h3>清空</h3>
-        <blocks-input clearable value="clearable"></blocks-input>
+
+      <div class="case">
+        <h3>可清空</h3>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/input/index.js"></script>
+
+          <blocks-input clearable value="clearable"></blocks-input>
+        </div>
       </div>
-  
-      <div class="block">
+
+      <div class="case">
         <h3>图标</h3>
-        <blocks-input prefix-icon="date" value="prefix icon"></blocks-input>
-        <blocks-input suffix-icon="date" value="suffix icon"></blocks-input>
-        <blocks-input prefix-icon="date" suffix-icon="date" clearable value="icon & clearable"></blocks-input>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/input/index.js"></script>
+
+          <blocks-input prefix-icon="date" value="prefix icon"></blocks-input>
+          <blocks-input suffix-icon="date" value="suffix icon"></blocks-input>
+          <blocks-input prefix-icon="date" suffix-icon="date" clearable value="icon & clearable"></blocks-input>
+        </div>
       </div>
     </section>
-  
-  
+
+
     <section class="section">
-      <script type="module" src="../widgets/select/index.js"></script>
       <h2>select</h2>
-  
-      <div class="block">
-        <h3>default</h3>
-        <blocks-select>
-          <blocks-option value="A">选项A</blocks-option>
-          <blocks-option value="B">选项B</blocks-option>
-          <blocks-option value="C">选项C</blocks-option>
-          <blocks-option value="D">选项D</blocks-option>
-        </blocks-select>
-      </div>
-  
-      <div class="block">
-        <h3>clearable</h3>
-        <blocks-select clearable>
-          <blocks-option value="A">选项A</blocks-option>
-          <blocks-option disabled label="label B" value="B">选项B</blocks-option>
-          <blocks-option value="C" disabled>选项C</blocks-option>
-          <blocks-option label="label D" value="D">选项D</blocks-option>
-        </blocks-select>
-      </div>
-  
-      <div class="block">
-        <h3>group</h3>
-        <blocks-select>
-          <blocks-optgroup label="Group A">
-            <blocks-option value="A">选项A</blocks-option>
-            <blocks-option disabled label="label B" value="B">选项B</blocks-option>
-          </blocks-optgroup>
-  
-          <blocks-optgroup label="Group B">
-            <blocks-option value="C" disabled>选项C</blocks-option>
-            <blocks-option label="label D" value="D">选项D</blocks-option>
-          </blocks-optgroup>
-        </blocks-select>
-      </div>
-  
-      <div class="block">
-        <h3>disabled</h3>
-        <blocks-select>
-          <blocks-optgroup label="group disabled" disabled>
+
+      <div class="case">
+        <h3>基础选择</h3>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/select/index.js"></script>
+
+          <blocks-select>
             <blocks-option value="A">选项A</blocks-option>
             <blocks-option value="B">选项B</blocks-option>
-          </blocks-optgroup>
-  
-          <blocks-option value="C" disabled>选项C</blocks-option>
-          <blocks-option value="D">选项D</blocks-option>
-        </blocks-select>
+            <blocks-option value="C">选项C</blocks-option>
+            <blocks-option value="D">选项D</blocks-option>
+          </blocks-select>
+        </div>
+      </div>
+
+
+      <div class="case">
+        <h3>可清除</h3>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/select/index.js"></script>
+
+          <blocks-select clearable>
+            <blocks-option value="A">选项A</blocks-option>
+            <blocks-option disabled label="label B" value="B">选项B</blocks-option>
+            <blocks-option value="C" disabled>选项C</blocks-option>
+            <blocks-option label="label D" value="D">选项D</blocks-option>
+          </blocks-select>
+        </div>
+      </div>
+
+
+      <div class="case">
+        <h3>选项分组</h3>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/select/index.js"></script>
+
+          <blocks-select>
+            <blocks-optgroup label="Group A">
+              <blocks-option value="A">选项A</blocks-option>
+              <blocks-option disabled label="label B" value="B">选项B</blocks-option>
+            </blocks-optgroup>
+
+            <blocks-optgroup label="Group B">
+              <blocks-option value="C" disabled>选项C</blocks-option>
+              <blocks-option label="label D" value="D">选项D</blocks-option>
+            </blocks-optgroup>
+          </blocks-select>
+        </div>
+      </div>
+
+
+      <div class="case">
+        <h3>不可用状态</h3>
+
+        <p>每个 option 可以单独设置 disabled, 也可以整个 group 设置 disabled</p>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/select/index.js"></script>
+
+          <blocks-select>
+            <blocks-optgroup label="group disabled" disabled>
+              <blocks-option value="A">选项A</blocks-option>
+              <blocks-option value="B">选项B</blocks-option>
+            </blocks-optgroup>
+
+            <blocks-option value="C" disabled>选项C</blocks-option>
+            <blocks-option value="D">选项D</blocks-option>
+          </blocks-select>
+        </div>
       </div>
     </section>
-  
+
+
      <section class="section">
-      <script type="module" src="../widgets/date-panel/index.js"></script>
-      <h2>date panel</h2>
-  
-      <div class="block">
-        <blocks-date-panel mode="range" max="3"></blocks-date-panel>
+      <h2>date-panel</h2>
+
+      <div class="case">
+        <h3>日期面板</h3>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/date-panel/index.js"></script>
+
+          <blocks-date-panel mode="range" max="3"></blocks-date-panel>
+        </div>
       </div>
     </section>
-  
+
+
     <section class="section">
-      <script type="module" src="../widgets/date-picker/index.js"></script>
-      <h2>date picker</h2>
-      <div class="block">
-        <blocks-date-picker clearable></blocks-date-picker>
+      <h2>date-picker</h2>
+
+      <div class="case">
+        <h3>日期选择</h3>
+        <div data-role="html">
+          <script type="module" src="/widgets/date-picker/index.js"></script>
+
+          <blocks-date-picker clearable></blocks-date-picker>
+        </div>
       </div>
     </section>
-  
+
+
     <section class="section">
-      <script type="module" src="../widgets/button/index.js"></script>
-      <h2>buttons</h2>
-      <div class="block">
+      <h2>button</h2>
+
+      <div class="case">
         <h3>尺寸</h3>
-        <blocks-button size="mini">尺寸 mini</blocks-button>  
-        <blocks-button size="small">尺寸 small</blocks-button>  
-        <blocks-button>尺寸 default</blocks-button>  
-        <blocks-button size="large">尺寸 large</blocks-button>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/button/index.js"></script>
+
+          <blocks-button size="mini">尺寸 mini</blocks-button>
+          <blocks-button size="small">尺寸 small</blocks-button>
+          <blocks-button>尺寸 default</blocks-button>
+          <blocks-button size="large">尺寸 large</blocks-button>
+        </div>
       </div>
-  
-      <div class="block">
+
+      <div class="case">
         <h3>主题</h3>
-        <blocks-button>主题 default</blocks-button>  
-        <blocks-button type="primary">主题 primary</blocks-button>
-        <blocks-button type="danger">主题 danger</blocks-button>
-        <blocks-button type="warning">主题 warning</blocks-button>
-        <blocks-button type="success">主题 success</blocks-button>
-        <blocks-button type="link">主题 link</blocks-button>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/button/index.js"></script>
+
+          <blocks-button>主题 default</blocks-button>
+          <blocks-button type="primary">主题 primary</blocks-button>
+          <blocks-button type="danger">主题 danger</blocks-button>
+          <blocks-button type="warning">主题 warning</blocks-button>
+          <blocks-button type="success">主题 success</blocks-button>
+          <blocks-button type="link">主题 link</blocks-button>
+        </div>
       </div>
-  
-      <div class="block">
-        <h3>outline</h3>
-        <blocks-button outline>风格 default outline</blocks-button>
-        <blocks-button type="primary" outline>风格 primary outline</blocks-button>
-        <blocks-button type="danger" outline>风格 danger outline</blocks-button>
-        <blocks-button type="warning" outline>风格 warning outline</blocks-button>
-        <blocks-button type="success" outline>风格 success outline</blocks-button>
+
+      <div class="case">
+        <h3>outline 主题</h3>
+
+        <div data-role="html">
+          <script type="module" src="/widgets/button/index.js"></script>
+
+          <blocks-button outline>风格 default outline</blocks-button>
+          <blocks-button type="primary" outline>风格 primary outline</blocks-button>
+          <blocks-button type="danger" outline>风格 danger outline</blocks-button>
+          <blocks-button type="warning" outline>风格 warning outline</blocks-button>
+          <blocks-button type="success" outline>风格 success outline</blocks-button>
+        </div>
       </div>
-  
-      <div class="block">
-        <h3>disabled</h3>
-        <blocks-button disabled>default</blocks-button>
-        <blocks-button type="primary" disabled>primary</blocks-button>
-        <blocks-button type="danger" disabled>danger</blocks-button>
-        <blocks-button type="warning" disabled>warning</blocks-button>
-        <blocks-button type="success" disabled>success</blocks-button>
+
+      <div class="case">
+        <h3>不可用状态</h3>
+
+        <h4>默认</h4>
+        <div data-role="html">
+          <script type="module" src="/widgets/button/index.js"></script>
+
+          <blocks-button disabled>default</blocks-button>
+          <blocks-button type="primary" disabled>primary</blocks-button>
+          <blocks-button type="danger" disabled>danger</blocks-button>
+          <blocks-button type="warning" disabled>warning</blocks-button>
+          <blocks-button type="success" disabled>success</blocks-button>
+        </div>
+
+        <h4>outline 时</h4>
+        <div data-role="html">
+          <script type="module" src="/widgets/button/index.js"></script>
+          
+          <blocks-button outline disabled>default outline</blocks-button>
+          <blocks-button type="primary" outline disabled>primary outline</blocks-button>
+          <blocks-button type="danger" outline disabled>danger outline</blocks-button>
+          <blocks-button type="warning" outline disabled>warning outline</blocks-button>
+          <blocks-button type="success" outline disabled>success outline</blocks-button>
+        </div>
       </div>
-  
-      <div class="block">
-        <h3>outline disalbed</h3>
-        <blocks-button outline disabled>default outline</blocks-button>
-        <blocks-button type="primary" outline disabled>primary outline</blocks-button>
-        <blocks-button type="danger" outline disabled>danger outline</blocks-button>
-        <blocks-button type="warning" outline disabled>warning outline</blocks-button>
-        <blocks-button type="success" outline disabled>success outline</blocks-button>
-      </div>
-  
-      <div class="block">
+
+
+      <div class="case">
         <h3>icon</h3>
-        <div style="margin-bottom:10px;">
-          <h4>color</h4>
+
+        <h4>color</h4>
+        <div data-role="html">
+          <script type="module" src="/widgets/button/index.js"></script>
+          
           <blocks-button prefix-icon="date" suffix-icon="date">default</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" type="primary">primary</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" type="danger">danger</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" type="warning">warning</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" type="success">success</blocks-button>
         </div>
-  
-        <div style="margin-bottom:10px;">
-          <h4>outline</h4>
+
+        <h4>outline</h4>
+        <div data-role="html">
+          <script type="module" src="/widgets/button/index.js"></script>
+
           <blocks-button prefix-icon="date" suffix-icon="date" outline>default</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" outline type="primary">primary</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" outline type="danger">danger</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" outline type="warning">warning</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" outline type="success">success</blocks-button>
         </div>
-  
-        <div style="margin-bottom:10px;">
-          <h4>size</h4>
+
+        <h4>size</h4>
+        <div data-role="html">
+          <script type="module" src="/widgets/button/index.js"></script>
+
           <blocks-button prefix-icon="date" suffix-icon="date" size="mini">mini</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" size="small">small</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date">default</blocks-button>
@@ -233,64 +332,64 @@
         </div>
       </div>
     </section>
-  
-  
+
+
     <section class="section">
-      <script type="module" src="../widgets/button-group/index.js"></script>
+      <script type="module" src="/widgets/button-group/index.js"></script>
       <h2>button-group</h2>
-      <div class="block">
+      <div class="case">
         <blocks-button-group>
           <blocks-button size="mini">First</blocks-button>
           <blocks-button size="mini">Second</blocks-button>
           <blocks-button size="mini">Third</blocks-button>
         </blocks-button-group>
-  
+
         <blocks-button-group>
           <blocks-button size="small">First</blocks-button>
           <blocks-button size="small">Second</blocks-button>
           <blocks-button size="small">Third</blocks-button>
         </blocks-button-group>
-  
+
         <blocks-button-group>
           <blocks-button>First</blocks-button>
           <blocks-button>Second</blocks-button>
           <blocks-button>Third</blocks-button>
         </blocks-button-group>
-  
+
         <blocks-button-group>
           <blocks-button size="large">First</blocks-button>
           <blocks-button size="large">Second</blocks-button>
           <blocks-button size="large">Third</blocks-button>
-        </blocks-button-group> 
-        
+        </blocks-button-group>
+
         <blocks-button-group>
           <blocks-button prefix-icon="date" size="large">First</blocks-button>
           <blocks-button suffix-icon="date" size="large">Second</blocks-button>
           <blocks-button size="large">Third</blocks-button>
-        </blocks-button-group> 
-  
+        </blocks-button-group>
+
         <blocks-button-group>
           <blocks-button type="primary" prefix-icon="date" size="large">First</blocks-button>
           <blocks-button type="primary" suffix-icon="date" size="large">Second</blocks-button>
           <blocks-button type="primary" size="large">Third</blocks-button>
-        </blocks-button-group> 
-  
+        </blocks-button-group>
+
         <blocks-button-group>
           <blocks-button type="primary" outline prefix-icon="date" size="large">First</blocks-button>
           <blocks-button type="primary" outline suffix-icon="date" size="large">Second</blocks-button>
           <blocks-button type="primary" outline size="large">Third</blocks-button>
-        </blocks-button-group> 
+        </blocks-button-group>
       </div>
-  
-      <div class="block">
-        
+
+      <div class="case">
+
       </div>
-    </section>  
-  
+    </section>
+
     <section class="section">
-      <script type="module" src="../widgets/popup/index.js"></script>
+      <script type="module" src="/widgets/popup/index.js"></script>
       <h2>Popup</h2>
-  
+
       <blocks-popup class="popup1">
         <div style="padding:50px;">
           默认居中
@@ -301,7 +400,7 @@
           默认居中
         </blocks-button>
       </div>
-  
+
       <blocks-popup class="popup2" arrow origin="left-start" anchor=".anchor-popup2">
         <div style="padding:50px;">
           origin=top-start
@@ -313,12 +412,12 @@
         </blocks-button>
       </div>
     </section>
-  
-  
+
+
     <section class="section">
-      <script type="module" src="../widgets/dialog/index.js"></script>
+      <script type="module" src="/widgets/dialog/index.js"></script>
       <h2>Dialog</h2>
-  
+
       <blocks-dialog
         id="dialog1"
         closeable
@@ -333,7 +432,7 @@
           这里是对话框的内容。<br>
         </div>
       </blocks-dialog>
-  
+
       <blocks-dialog
         id="dialog2"
         closeable
@@ -345,7 +444,7 @@
           这里是对话框的内容。
         </div>
       </blocks-dialog>
-  
+
       <blocks-dialog
         id="dialog3"
         closeable
@@ -353,128 +452,128 @@
         <div style="width:400px;">
           这里是对话框的内容。
         </div>
-  
+
         <div slot="footer">
           <blocks-button onclick="document.getElementById('dialog3').open = false">
             关闭
           </blocks-button>
         </div>
       </blocks-dialog>
-  
+
       <blocks-dialog
         id="dialog4"
         closeable>
-  
+
         <div slot="header">
           header 焦点测试：
           <input type="text" value="header slot">
         </div>
-  
+
         <div style="width:400px;">
           <input value="default slot" />
         </div>
-  
+
         <div slot="footer">
           <input type="text" value="footer slot">
         </div>
       </blocks-dialog>
-  
+
       <blocks-button onclick="document.getElementById('dialog1').open = true">打开1</blocks-button>
       <blocks-button onclick="document.getElementById('dialog2').open = true">打开2</blocks-button>
       <blocks-button onclick="document.getElementById('dialog3').open = true">打开3</blocks-button>
       <blocks-button onclick="document.getElementById('dialog4').open = true">打开4</blocks-button>
     </section>
-  
-  
+
+
     <section class="section">
-      <script type="module" src="../widgets/checkbox/index.js"></script>
+      <script type="module" src="/widgets/checkbox/index.js"></script>
       <h2>Checkbox</h2>
-  
+
       <blocks-checkbox></blocks-checkbox>
       <blocks-checkbox checked></blocks-checkbox>
-  
+
       <blocks-checkbox label="label attr"></blocks-checkbox>
-  
+
       <blocks-checkbox label="label attr">
         <span slot="label" style="color:#099;">label slot</span>
       </blocks-checkbox>
-  
+
       <blocks-checkbox
         style="height:25px;"
         label="label attr"></blocks-checkbox>
-  
+
       <blocks-checkbox
         disabled
-        label="disabled"></blocks-radio>      
-    </section>  
-  
-  
+        label="disabled"></blocks-radio>
+    </section>
+
+
     <section class="section">
-      <script type="module" src="../widgets/radio/index.js"></script>
+      <script type="module" src="/widgets/radio/index.js"></script>
       <h2>Radio</h2>
-  
+
       <blocks-radio
         name="radio"
         indeterminate></blocks-radio>
       <blocks-radio
         name="radio"
         checked></blocks-radio>
-  
+
       <blocks-radio
         name="radio"
         label="label attr"></blocks-radio>
-  
+
       <blocks-radio
         name="radio"
         label="label attr">
         <span slot="label" style="color:#099;">label slot</span>
       </blocks-radio>
-  
-  
+
+
       <blocks-radio
         name="radio"
         style="height:25px;"
         label="label attr"></blocks-radio>
-  
+
       <blocks-radio
         name="radio"
         disabled
         label="disabled"></blocks-radio>
-    </section>  
-  
-  
+    </section>
+
+
     <section class="section">
-      <script type="module" src="../widgets/switch/index.js"></script>
+      <script type="module" src="/widgets/switch/index.js"></script>
       <h2>Switch</h2>
-  
+
       <blocks-switch></blocks-switch>
       <blocks-switch checked></blocks-switch>
       <blocks-switch disabled></blocks-switch>
       <blocks-switch checked disabled></blocks-switch>
-  
+
       <blocks-switch size="small"></blocks-switch>
       <blocks-switch size="small" checked></blocks-switch>
       <blocks-switch size="small" disabled></blocks-switch>
       <blocks-switch size="small" checked disabled></blocks-switch>
-    </section>  
-  
-  
+    </section>
+
+
     <section class="section">
-      <script type="module" src="../widgets/slider/index.js"></script>
+      <script type="module" src="/widgets/slider/index.js"></script>
       <h2>Slider</h2>
-  
+
       <blocks-slider style="width:100px;"></blocks-slider>
       <blocks-slider></blocks-slider>
       <blocks-slider disabled></blocks-slider>
       <blocks-slider range></blocks-slider>
       <blocks-slider range disabled></blocks-slider>
-  
+
       <blocks-slider vertical style="height:200px;"></blocks-slider>
       <blocks-slider vertical></blocks-slider>
       <blocks-slider vertical disabled></blocks-slider>
       <blocks-slider vertical range></blocks-slider>
       <blocks-slider vertical range disabled></blocks-slider>
-    </section> 
+    </section>
 
 
   </article>

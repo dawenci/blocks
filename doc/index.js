@@ -23,6 +23,18 @@ const removeLeadingSpaces = (str) => {
   }).join('\n')
 }
 
+const insertAfter = (newElement, element) => {
+  const parent = element.parentElement
+  const next = element.nextElementSibling
+  if (next) {
+    parent.insertBefore(newElement, next)
+  }
+  else {
+    parent.appendChild(newElement)
+  }
+  return newElement
+}
+
 
 window.onload = () => {
   const aside = document.querySelector('aside')
@@ -45,35 +57,42 @@ window.onload = () => {
 
   // 从页面中提取 html，作为 demo code 打印在页面中
   forEach(sections, section => {
-    const blocks = section.querySelectorAll('.block')
+    const blocks = section.querySelectorAll('.case')
     forEach(blocks, block => {
-      const printArea = block.appendChild(document.createElement('div'))
-      printArea.className = 'demo-block-code'
+      forEach(block.querySelectorAll('[data-role]'), source => {
+        const role = source.dataset.role
+        const rawCode = source.innerHTML
+        const title = source.dataset.title
+        // 插入到 source 后面
+        const printPart = insertAfter(document.createElement('div'), source)
+        printPart.className = 'print-area'
 
-      forEach(block.querySelectorAll('[data-role="html"], [data-role="script"], [data-role="style"]'), source => {
-        const printPart = printArea.appendChild(document.createElement('div'))
-        printPart.className = 'part'
-
-        if (source.dataset.role === 'html') {
-          printPart.innerHTML = '<h3>HTML</h3><pre data-role="html-code"><code class="html"></code></pre>'
+        if (role === 'html') {
+          printPart.innerHTML = `<h3 class="print-title">${title ?? '对应的 HTML'}</h3><pre data-role="html-code"><code class="html"></code></pre>`
           const printCode = printPart.querySelector('[data-role="html-code"] code')
-          const code = removeLeadingSpaces(source.innerHTML)
+          const code = removeLeadingSpaces(rawCode)
           printCode.textContent = code
           hljs.highlightBlock(printCode)
         }
-        else if (source.dataset.role === 'script') {
-          printPart.innerHTML = '<h3>JavaScript</h3><pre data-role="script-code"><code class="javascript"></code></pre>'
+        else if (role === 'script') {
+          printPart.innerHTML = `<h3 class="print-title">${title ?? '对应的 JavaScript'}</h3><pre data-role="script-code"><code class="javascript"></code></pre>`
           const printCode = printPart.querySelector('[data-role="script-code"] code')
-          const code = removeLeadingSpaces(source.innerHTML)
+          const code = removeLeadingSpaces(rawCode)
+          printCode.textContent = code
+          hljs.highlightBlock(printCode)
+        }
+        else if (role === 'style') {
+          printPart.innerHTML = `<h3 class="print-title">${title ?? '对应的 CSS'}</h3><pre data-role="style-code"><code class="css"></code></pre>`
+          const printCode = printPart.querySelector('[data-role="style-code"] code')
+          const code = removeLeadingSpaces(rawCode)
           printCode.textContent = code
           hljs.highlightBlock(printCode)
         }
         else {
-          printPart.innerHTML = '<h3>CSS</h3><pre data-role="style-code"><code class="css"></code></pre>'
-          const printCode = printPart.querySelector('[data-role="style-code"] code')
-          const code = removeLeadingSpaces(source.innerHTML)
+          printPart.innerHTML = `<h3 class="print-title">${title ?? '对应的 代码'}</h3><pre data-role="${role}"><code class="${role}"></code></pre>`
+          const printCode = printPart.querySelector('[data-role] code')
+          const code = removeLeadingSpaces(rawCode)
           printCode.textContent = code
-          hljs.highlightBlock(printCode)
         }
       })
     })
