@@ -2,28 +2,7 @@ import {
   $radiusBase,
   $transitionDuration,
 } from '../theme/var.js'
-
-// 获取最近的共同祖先结点
-const commonAncestor = (el1, el2) => {
-  const path = []
-  let el = el1
-  while (el) {
-    path.push(el)
-    el = el.parentElement
-  }
-  el = el2
-  while (el) {
-    if (path.includes(el)) return el
-    el = el.parentElement
-  }
-  return null
-}
-
-
-// 等腰直角三角形，根据高求腰（矩形的边）
-function getArrowRectSize(height) {
-  return Math.round(height * Math.SQRT2)
-}
+import { boolGetter, boolSetter, enumGetter } from '../core/property.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 6
@@ -57,6 +36,20 @@ const PopupOrigin = {
   // 左上角，箭头朝左
   LeftStart: 'left-start',
 }
+
+const openGetter = boolGetter('open')
+const openSetter = boolSetter('open')
+const appendToBodyGetter = boolGetter('append-to-body')
+const appendToBodySetter = boolSetter('append-to-body')
+const autoflipGetter = boolGetter('autoflip')
+const autoflipSetter = boolSetter('autoflip')
+const restorefocusGetter = boolGetter('restorefocus')
+const restorefocusSetter = boolSetter('restorefocus')
+const arrowGetter = boolGetter('arrow')
+const arrowSetter = boolSetter('arrow')
+const originGetter = enumGetter('origin', Object.values(PopupOrigin))
+const originSetter = enumGetter('origin', Object.values(PopupOrigin))
+
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -296,12 +289,11 @@ class BlocksPopup extends HTMLElement {
     return [
       // Popup 是否展示
       'open',
-      // Popup 的 x 座标，支持数组指定起末范围，这样在不同的定位方式时，会分别使用起末位置
-      'x',
-      // Popup 的 y 座标，支持数组指定起末范围，这样在不同的定位方式时，会分别使用起末位置
-      'y',
-      // Popup 锚定的其他元素 selector，锚定体现为对目标元素边沿的吸附
+      // Popup 锚定的布局框，可以是其他元素 selector，锚定体现为对目标元素边沿的吸附，也可以是点座标、两个点的座标
+      // 取值如：`'body'`, `'[10,10,100,100]'`, `[100,100]` 等等
       'anchor',
+      // 是否将节点插入到 document.body 中
+      'append-to-body',
       // Popup 是否显示箭头
       'arrow',
       // 自动翻转功能，Popup 在 x 或 y 轴上溢出文档时，自动翻转显示
@@ -372,29 +364,21 @@ class BlocksPopup extends HTMLElement {
     }
   }
 
-  get appendToBody() {
-    return this._getBool('append-to-body')
-  }
-
-  set appendToBody(value) {
-    this._setBool('append-to-body', value)
-  }
-
-  get open() {  
-    return this._getBool('open')
+  get open() {
+    return openGetter(this)
   }
 
   // 设置 open 属性为 null 或 false，表示关闭，其他任意指表示打开
   set open(value) {
-    this._setBool('open', value)
+    openSetter(this, value)
   }
 
   get origin() {
-    return this.getAttribute('origin') || PopupOrigin.Center
+    return originGetter(this)
   }
 
   set origin(value) {
-    this.setAttribute('origin', value)
+    originSetter(this, value)
   }
 
   // 吸附到的元素 selector，设置了该属性且对应的元素存在，则忽略 x、y 属性
@@ -406,83 +390,267 @@ class BlocksPopup extends HTMLElement {
     this.setAttribute('anchor', value)
   }
 
-  // Popup 的锚定原点位于页面上的 position x 轴座标（或座标范围）
-  // 传入的如果是个数字，则代表座标点，传入的是个数组，则代表是个座标范围
-  get x() {
-    if (!this.anchor && this.getAttribute('x') != null) {
-      const attrValue = this.getAttribute('x')
-      if (/\[\s*\d+(\s*\,\s*\d+)\s*\]/.test(attrValue.trim())) {
-        return JSON.parse(attrValue)
-      }
-      if (/\d+/.test(attrValue.trim())) {
-        return parseInt(attrValue,10)
-      }
-    }
-
-    // 默认相对于 body 定位
-    const anchorElement = document.querySelector(this.anchor) ?? document.body
-    const rect = anchorElement.getBoundingClientRect()
-    return [rect.x, rect.x + rect.width ]
+  get appendToBody() {
+    return appendToBodyGetter(this)
   }
 
-  set x(n) {
-    if (Array.isArray(n)) {
-      this.setAttribute('x', JSON.stringify(n))
-    }
-    else {
-      this.setAttribute('x', n)
-    }
-  }
-
-  // Popup 的锚定原点位于页面上的 position y 轴
-  get y() {
-    if (!this.anchor && this.getAttribute('y') != null) {
-      const attrValue = this.getAttribute('y')
-      if (/\[\s*\d+(\s*\,\s*\d+)\s*\]/.test(attrValue.trim())) {
-        return JSON.parse(attrValue)
-      }
-      if (/\d+/.test(attrValue.trim())) {
-        return parseInt(attrValue,10)
-      }
-    }
-
-    // 默认相对于 body 定位
-    const anchorElement = document.querySelector(this.anchor) ?? document.body    
-    const rect = anchorElement.getBoundingClientRect()
-    return [rect.y, rect.y + rect.height ]
-  }
-
-  set y(n) {
-    if (Array.isArray(n)) {
-      this.setAttribute('y', JSON.stringify(n))
-    }
-    else {
-      this.setAttribute('y', n)
-    }
+  set appendToBody(value) {
+    appendToBodySetter(value)
   }
 
   get arrow() {
-    return this._getBool('arrow')
+    return arrowGetter(this)
   }
 
   set arrow(value) {
-    this._setBool('arrow', value)
+    arrowSetter(this, value)
   }
 
   get autoflip() {
-    return this._getBool('autoflip')
+    return autoflipGetter(this)
   }
 
   set autoflip(value) {
-    this._setBool('autoflip', value)
+    autoflipSetter(this, value)
   }
 
   get restorefocus() {
-    return this._getBool('restorefocus')
+    return restorefocusGetter(this)
   }
 
   set restorefocus(value) {
-    this._setBool('restorefocus', value)
+    restorefocusSetter(this, value)
+  }
+
+  // Popup 相对一个矩形框进行布局，可以吸附在框的四条边，也可以吸附在框的中心点
+  // layoutFrame 返回这个矩形框的四条边的相对于 viewport 的定位数值
+  get layoutFrame() {
+    let x1
+    let x2
+    let y1
+    let y2
+    let layoutAnchor
+    const anchor = this.getAttribute('anchor')?.trim?.()
+    if (!anchor) {
+      layoutAnchor = this.offsetParent
+    }
+    // [x1, y1, x2, y2]
+    else if (/\[\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\]/.test(anchor)) {
+      [x1, y1, x2, y2] = JSON.parse(anchor)
+    }
+    // [x1, y1]
+    else if (/\[\s*\d+\s*,\s*\d+\s*\]/.test(anchor)) {
+      [x1, y1] = JSON.parse(anchor)
+      x2 = x1
+      y2 = y1
+    }
+    else {
+      layoutAnchor = document.querySelector(anchor)
+    }
+
+    if (layoutAnchor) {
+      const rect = layoutAnchor.getBoundingClientRect()
+      y1 = Math.floor(rect.top)
+      x1 = Math.floor(rect.left)
+      y2 = y1 + rect.height
+      x2 = x1 + rect.width
+    }
+    else {
+      const { top, left } = this.offsetParent.getBoundingClientRect()
+      x1 += left
+      x2 += left
+      y1 += top
+      y2 += top
+    }
+
+    return { x1, y1, x2, y2 }
+  }  
+
+  updatePosition() {
+    if (!this.open) return
+
+    const popup = this.popup
+    const popupWidth = popup.offsetWidth
+    const popupHeight = popup.offsetHeight
+
+    // 定位的相对元素
+    const layoutParent = this.offsetParent
+    const { scrollTop, scrollLeft } = layoutParent
+    const { scrollWidth: layoutWidth, scrollHeight: layoutHeight } = layoutParent
+    const { top: layoutOffsetTop, left: layoutOffsetLeft } = layoutParent.getBoundingClientRect()
+
+    // 锚定位置点
+    // x1 最左取值，x2 最右取值
+    // y1 最上取值，y2 最下取值
+    const { x1, y1, x2, y2 } = this.layoutFrame
+
+    let top
+    let left
+    let shadowX
+    let shadowY
+    let originX
+    let originY
+
+    const verticalFlip = () => {
+      shadowY = ({ top: 'bottom', bottom: 'top', center: 'center' })[shadowY]
+      originY = ({ top: 'bottom', bottom: 'top', center: 'center' })[originY]
+    }
+
+    const horizontalFlip = () => {
+      shadowX = ({ left: 'right', right: 'left' })[shadowX]
+      originX = ({ left: 'right', right: 'left' })[originX]
+    }
+
+    const arrowSize = this.arrow ? ARROW_SIZE : 0
+
+    // 配置 Popup 定位起始边（如果启用了箭头，也是箭头所在边）
+    // 1. 起始边为上边，往下方展开 Popup
+    if (this.origin.startsWith('top')) {
+      top = y2 + arrowSize
+      originY = 'top'
+      shadowY = 'bottom'
+      // 如果 popup 溢出视口，则检查翻转吸附在 y 的上方是否更好，如果是，则翻转
+      if (this.autoflip && (top + popupHeight > layoutHeight)) {
+        const flipTop = y1 - arrowSize - popupHeight
+        if (flipTop > 0) {
+          top = flipTop
+          verticalFlip()
+        }
+      }
+    }
+    // 2. 起始边为右边，往左方展开 Popup
+    else if (this.origin.startsWith('right')) {
+      left = x1 - arrowSize - popupWidth
+      originX = 'right'
+      shadowX = 'left'
+      if (this.autoflip && (left < 0)) {
+        const flipLeft = x2 + arrowSize
+        if (flipLeft + popupWidth < layoutWidth) {
+          left = flipLeft
+          horizontalFlip()
+        }
+      }
+    }
+    // 3. 起始边为下边，往上方展开
+    else if (this.origin.startsWith('bottom')) {
+      top = y1 - arrowSize - popupHeight
+      originY = 'bottom'
+      shadowY = 'top'
+      // 如果 popup 溢出视口，则检查翻转吸附在目标的下边是否更好，如果是，则翻转
+      if (this.autoflip && (top < 0)) {
+        const flipTop = y2 + arrowSize
+        if (flipTop + popupHeight < layoutHeight) {
+          top = flipTop
+          verticalFlip()
+        }
+      }
+    }
+    // 4. 起始边为左边，往右方展开 Popup
+    else if (this.origin.startsWith('left')) {
+      left = x2 + arrowSize
+      originX = 'left'
+      shadowX = 'right'
+      if (this.autoflip && (left + popupWidth > layoutWidth)) {
+        console.log('flip')
+        const flipLeft = x1 - arrowSize - popupWidth
+        if (flipLeft > 0) {
+          left = flipLeft
+          horizontalFlip()
+        }
+      }
+    }
+    // 5. 无起始边，从中心往外展开 Popup
+    else {
+      top = (y1 + (y2 - y1) / 2) - (popupHeight / 2)
+      left = (x1 + (x2 - x1) / 2) - (popupWidth / 2)
+      originX = 'center'
+      originY = 'center'
+      shadowX = 'center'
+      shadowY = 'center'
+    }
+
+    // 配置 Popup 在起始边上的原点位置（如果启用了箭头，也是箭头在起始边上的位置）
+    if (this._isVertical()) {
+      if (this.origin.endsWith('start')) {
+        // 与起始边左侧对齐
+        left = x1
+        originX = 'left'
+        shadowX = 'right'
+        // 如果与 popup 的右侧溢出视口，则检查向左侧渲染是否更好，是则翻转成右对齐
+        if (this.autoflip && (x1 + popupWidth > layoutWidth) && (x2 - popupWidth > 0)) {
+          left = x2 - popupWidth
+          horizontalFlip()
+        }
+      }
+      else if (this.origin.endsWith('end')) {
+        // 与起始边右侧对齐
+        left = x2 - popupWidth
+        originX = 'right'
+        shadowX = 'left'
+        // 如果与 popup 的左侧溢出视口，则检查向右侧渲染是否更好，是则翻转
+        if (this.autoflip && (left < 0) && (x1 + popupWidth < layoutWidth)) {
+          left = x1
+          horizontalFlip()
+        }
+      }
+      else if (this.origin.endsWith('center')) {
+        // 与起始边中对齐，不翻转
+        left = (x1 + (x2 - x1) / 2) - (popupWidth / 2)
+        originX = 'center'
+        shadowX = 'center'
+      }
+    }
+
+    else if (this._isHorizontal()) {
+      if (this.origin.endsWith('start')) {
+        // 默认与起始边顶部对齐
+        top = y1
+        originY = 'top'
+        shadowY = 'bottom'
+        // 如果与 popup 的下方溢出视口，则检查向上渲染是否更好，是则翻转
+        if (this.autoflip && (y1 + popupHeight > layoutHeight) && (y2 - popupHeight > 0)) {
+          top = y2 - popupHeight
+          verticalFlip()
+        }
+      }
+      else if (this.origin.endsWith('end')) {
+        // 默认与起始边底部对齐
+        top = y2 - popupHeight
+        originY = 'bottom'
+        shadowY = 'top'
+        // 如果与 popup 的上方溢出视口，则检查向下渲染是否更好，是则翻转
+        if (this.autoflip && (top < 0) && (y1 + popupHeight < layoutHeight)) {
+          top = y1 + popupHeight
+          verticalFlip()
+        }
+      }
+      else if (this.origin.endsWith('center')) {
+        // 与起始边中对齐，不翻转
+        top = (y1 + (y2 - y1) / 2) - (popupHeight / 2)
+        originY = 'center'
+        shadowY = 'center'
+      }
+    }
+
+    this.style.top = `${top + scrollTop - layoutOffsetTop}px`
+    this.style.left = `${left + scrollLeft - layoutOffsetLeft}px`
+    this._setOrigin(originY, originX)
+  }
+
+  initAnchorEvent() {
+    if (this._refreshPosition) return
+    this._refreshPosition = () => this.open && this.anchor && this.updatePosition()
+    // 使用捕获的方式，以保证内部元素滚动也能触发
+    window.addEventListener('scroll', this._refreshPosition, true)
+    window.addEventListener('touchstart', this._refreshPosition)
+    window.addEventListener('click', this._refreshPosition)
+  }
+
+  destroyAnchorEvent() {
+    this._refreshPosition = null
+    window.removeEventListener('scroll', this._refreshPosition, true)
+    window.removeEventListener('touchstart', this._refreshPosition)
+    window.removeEventListener('click', this._refreshPosition)
   }
 
   connectedCallback() {
@@ -506,10 +674,13 @@ class BlocksPopup extends HTMLElement {
       })
     }
     this.shadowRoot.addEventListener('keydown', this._onKeydown)
+
+    this.initAnchorEvent()
   }
 
   disconnectedCallback() {
     this.shadowRoot.removeEventListener('keydown', this._onKeydown)
+    this.destroyAnchorEvent()
   }
 
   // adoptedCallback() {
@@ -520,7 +691,14 @@ class BlocksPopup extends HTMLElement {
       case 'open': {
         this._updateVisible()
         break
-      }      
+      }
+      case 'append-to-body': {
+        if (this.appendToBody && this.parentElement !== document.body) {
+          document.body.appendChild(this)
+        }
+        this.updatePosition()
+        break
+      }
       default: {
         this.updatePosition()
         break
@@ -531,7 +709,7 @@ class BlocksPopup extends HTMLElement {
   // 执行过渡前的准备工作，确保动画正常
   _prepareForAnimate() {
     this.popup.style.display = ''
-  }  
+  }
 
   _animateOpen() {
     // 强制执行动画
@@ -544,7 +722,7 @@ class BlocksPopup extends HTMLElement {
     // 强制执行动画
     this.popup.offsetHeight
     this.popup.style.opacity = '0'
-    this.popup.style.transform = 'scale(0)' 
+    this.popup.style.transform = 'scale(0)'
   }
 
   _updateVisible() {
@@ -592,175 +770,6 @@ class BlocksPopup extends HTMLElement {
     }
   }
 
-  updatePosition() {
-    if (!this.open) return
-
-    const popup = this.popup
-    const popupWidth = popup.offsetWidth
-    const popupHeight = popup.offsetHeight
-    
-    const layoutWidth = document.body.scrollWidth
-    const layoutHeight = document.body.scrollHeight
-    const scrollTop = document.documentElement.scrollTop + document.body.scrollTop
-    const scrollLeft = document.documentElement.scrollLeft + document.body.scrollLeft
-    const arrowSize = this.arrow ? ARROW_SIZE : 0    
-
-    // 锚定位置点
-    // x1 最左取值，x2 最右取值
-    // y1 最上取值，y2 最下取值
-    const [x1, x2] = Array.isArray(this.x) ? this.x : [this.x, this.x]
-    const [y1, y2] = Array.isArray(this.y) ? this.y : [this.y, this.y]
-
-    let top
-    let left
-    let shadowX
-    let shadowY
-    let originX
-    let originY
-
-    const verticalFlip = () => {
-      shadowY = ({ Top: 'bottom', Bottom: 'top', Center: 'center' })[shadowY]
-      originY = ({ Top: 'bottom', Bottom: 'top', Center: 'center' })[originY]
-    }
-
-    const horizontalFlip = () => {
-      shadowX = ({ Left: 'right', Right: 'left' })[shadowX]
-      originX = ({ Left: 'right', Right: 'left' })[originX]
-    }
-
-    // 配置 Popup 定位起始边（如果启用了箭头，也是箭头所在边）
-    // 1. 起始边为上边，往下方展开 Popup
-    if (this.origin.startsWith('top')) {
-      top = y2 + arrowSize
-      originY = 'top'
-      shadowY = 'bottom'
-      // 如果 popup 溢出视口，则检查翻转吸附在 y 的上方是否更好，如果是，则翻转
-      if (this.autoflip && (top + popupHeight > layoutHeight)) {
-        const flipTop = y1 - arrowSize - popupHeight
-        if (flipTop > 0) {
-          top = flipTop
-          verticalFlip()
-        }
-      }
-    }
-    // 2. 起始边为右边，往左方展开 Popup
-    else if (this.origin.startsWith('right')) {
-      left = x1 - arrowSize - popupWidth
-      originX = 'right'
-      shadowX = 'left'
-      if (this.autoflip && (left < 0)) {
-        const flipLeft = x1 + arrowSize
-        if (flipLeft + popupWidth < layoutWidth) {
-          left = flipLeft
-          horizontalFlip()
-        }
-      }
-    }    
-    // 3. 起始边为下边，往上方展开
-    else if (this.origin.startsWith('bottom')) {
-      top = y1 - arrowSize - popupHeight
-      originY = 'bottom'
-      shadowY = 'top'
-      // 如果 popup 溢出视口，则检查翻转吸附在目标的下边是否更好，如果是，则翻转
-      if (this.autoflip && (top < 0)) {
-        const flipTop = y1 + arrowSize
-        if (flipTop + popupHeight < layoutHeight) {
-          top = flipTop
-          verticalFlip()
-        }
-      }
-    }
-    // 4. 起始边为左边，往右方展开 Popup
-    else if (this.origin.startsWith('left')) {
-      left = x2 + arrowSize
-      originX = 'left'
-      shadowX = 'right'
-      if (this.autoflip && (left + popupWidth > layoutWidth)) {
-        const flipLeft = x1 - arrowSize - popupWidth
-        if (flipLeft > 0) {
-          left = flipLeft
-          horizontalFlip()
-        }
-      }
-    }
-    // 5. 无起始边，从中心往外展开 Popup
-    else {
-      top = (y1 + (y2 - y1) / 2) - (popupHeight / 2)
-      left = (x1 + (x2 - x1) / 2) - (popupWidth / 2)
-      originX = 'center'
-      originY = 'center'
-      shadowX = 'center'
-      shadowY = 'center'
-    }
-
-    // 配置 Popup 在起始边上的原点位置（如果启用了箭头，也是箭头在起始边上的位置）
-    if (this._isVertical()) {
-      if (this.origin.endsWith('start')) {
-        // 与起始边左侧对齐
-        left = x1
-        originX = 'left'
-        shadowX = 'right'
-        // 如果与 popup 的右侧溢出视口，则检查向左侧渲染是否更好，是则翻转成右对齐
-        if (this.autoflip && (x1 + popupWidth > layoutWidth) && (x2 - popupWidth > 0)) {
-          left = x2 - popupWidth
-          horizontalFlip()
-        }
-      }
-      else if (this.origin.endsWith('end')) {
-        // 与起始边右侧对齐
-        left = x2 - popupWidth
-        originX = 'right'
-        shadowX = 'left'
-        // 如果与 popup 的左侧溢出视口，则检查向右侧渲染是否更好，是则翻转
-        if (this.autoflip && (left < 0) && (x1 + popupWidth < layoutWidth)) {
-          left = x1
-          horizontalFlip()
-        }
-      }      
-      else if (this.origin.endsWith('center')) {
-        // 与起始边中对齐，不翻转
-        left = (x1 + (x2 - x1) / 2) - (popupWidth / 2)
-        originX = 'center'
-        shadowX = 'center'
-      }
-    }
-
-    else if (this._isHorizontal()) {
-      if (this.origin.endsWith('start')) {
-        // 默认与起始边顶部对齐
-        top = y1
-        originY = 'top'
-        shadowY = 'bottom'
-        // 如果与 popup 的下方溢出视口，则检查向上渲染是否更好，是则翻转
-        if (this.autoflip && (y1 + popupHeight > layoutHeight) && (y2 - popupHeight > 0)) {
-          top = y2 - popupHeight
-          verticalFlip()
-        }
-      }
-      else if (this.origin.endsWith('end')) {
-        // 默认与起始边底部对齐
-        top = y2 - popupHeight
-        originY = 'bottom'
-        shadowY = 'top'
-        // 如果与 popup 的上方溢出视口，则检查向下渲染是否更好，是则翻转
-        if (this.autoflip && (top < 0) && (y1 + popupHeight < layoutHeight)) {
-          top = y1 + popupHeight
-          verticalFlip()
-        }
-      }
-      else if (this.origin.endsWith('center')) {
-        // 与起始边中对齐，不翻转
-        top = (y1 + (y2 - y1) / 2) - (popupHeight / 2)
-        originY = 'center'
-        shadowY = 'center'
-      }
-    }
-
-    this.style.top = `${top + scrollTop}px`
-    this.style.left = `${left + scrollLeft}px`     
-    this._setOrigin(originY, originX)
-  }
-
   _focus() {
     if (this.restorefocus && !this._prevFocus) {
       this._prevFocus = document.activeElement
@@ -794,43 +803,6 @@ class BlocksPopup extends HTMLElement {
     this.popup.style.transformOrigin = `${y} ${x}`
   }
 
-  // _getNumber(attrName) {
-  //   const attrValue = this.getAttribute(attrName)
-  //   if (attrValue == null) return null
-  //   const n = parseInt(attrValue, 10)
-  //   return n == n ? Math.floor(n) : null
-  // }
-
-  // _setNumber(attrName, value) {
-  //   if (typeof value === 'number') {
-  //     value = Math.round(value)
-  //   }
-  //   else if (typeof value === 'string') {
-  //     value = Math.round(parseInt(value, 10))
-  //   }
-  //   else {
-  //     value = null
-  //   }
-  //   // null, NaN
-  //   if (value == null || value !== value) {
-  //     this.removeAttribute(attrName)
-  //     return
-  //   }
-  //   this.setAttribute(attrName, '' + value)
-  // }
-
-  _getBool(attrName) {
-    return this.hasAttribute(attrName)
-  }
-
-  _setBool(attrName, value) {
-    if (value === null || value === false) {
-      this.removeAttribute(attrName)
-    } else {
-      this.setAttribute(attrName, '')
-    }
-  }
-
   // 启用鼠标交互
   _enableEvents() {
     this.popup.style.pointerEvents = ''
@@ -856,4 +828,9 @@ class BlocksPopup extends HTMLElement {
 
 if (!customElements.get('blocks-popup')) {
   customElements.define('blocks-popup', BlocksPopup)
+}
+
+// 等腰直角三角形，根据高求腰（矩形的边）
+function getArrowRectSize(height) {
+  return Math.round(height * Math.SQRT2)
 }

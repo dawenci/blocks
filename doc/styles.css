@@ -75,3 +75,9 @@ article h4 { font-size: 16px }
   margin: 0;
   font-size: 16px;
 }
+
+
+.note {
+  padding: 15px;
+  background-color: #fafafa;
+}
