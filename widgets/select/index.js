@@ -34,7 +34,7 @@ const TEMPLATE_CSS = `<style>
 
 const TEMPLATE_HTML = `
 <blocks-input suffix-icon="down" class="date-picker-input" readonly></blocks-input>
-<blocks-popup class="date-picker-popup" origin="top-start" arrow>
+<blocks-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
   <div class="option-list" style="overflow:hidden;border-radius:${$radiusBase};"></div>
 </blocks-popup>
 <slot style="display:none;"></slot>

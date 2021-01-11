@@ -23,7 +23,7 @@ const TEMPLATE_CSS = `<style>
 
 const TEMPLATE_HTML = `
 <blocks-input suffix-icon="date" class="date-picker-input" readonly />
-<blocks-popup class="date-picker-popup" origin="top-start" arrow>
+<blocks-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
   <blocks-date-panel class="date-picker-panel" />
 </blocks-popup>
 `

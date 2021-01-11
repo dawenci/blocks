@@ -432,7 +432,7 @@ class BlocksPopup extends HTMLElement {
     let layoutAnchor
     const anchor = this.getAttribute('anchor')?.trim?.()
     if (!anchor) {
-      layoutAnchor = this.offsetParent
+      layoutAnchor = getOffsetParent(this)
     }
     // [x1, y1, x2, y2]
     else if (/\[\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\]/.test(anchor)) {
@@ -456,7 +456,7 @@ class BlocksPopup extends HTMLElement {
       x2 = x1 + rect.width
     }
     else {
-      const { top, left } = this.offsetParent.getBoundingClientRect()
+      const { top, left } = getOffsetParent(this)?.getBoundingClientRect?.()
       x1 += left
       x2 += left
       y1 += top
@@ -474,7 +474,9 @@ class BlocksPopup extends HTMLElement {
     const popupHeight = popup.offsetHeight
 
     // 定位的相对元素
-    const layoutParent = this.offsetParent
+    const layoutParent = getOffsetParent(this)
+    if (!layoutParent) return
+
     const { scrollTop, scrollLeft } = layoutParent
     const { scrollWidth: layoutWidth, scrollHeight: layoutHeight } = layoutParent
     const { top: layoutOffsetTop, left: layoutOffsetLeft } = layoutParent.getBoundingClientRect()
@@ -833,4 +835,13 @@ if (!customElements.get('blocks-popup')) {
 // 等腰直角三角形，根据高求腰（矩形的边）
 function getArrowRectSize(height) {
   return Math.round(height * Math.SQRT2)
+}
+
+function getOffsetParent(popup) {
+  let el = popup
+  while (el) {
+    if (el.offsetParent) return el.offsetParent
+    el = el.parentElement
+  }
+  return null
 }
