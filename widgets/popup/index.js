@@ -2,7 +2,7 @@ import {
   $radiusBase,
   $transitionDuration,
 } from '../theme/var.js'
-import { boolGetter, boolSetter, enumGetter } from '../core/property.js'
+import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 6
@@ -48,7 +48,7 @@ const restorefocusSetter = boolSetter('restorefocus')
 const arrowGetter = boolGetter('arrow')
 const arrowSetter = boolSetter('arrow')
 const originGetter = enumGetter('origin', Object.values(PopupOrigin))
-const originSetter = enumGetter('origin', Object.values(PopupOrigin))
+const originSetter = enumSetter('origin', Object.values(PopupOrigin))
 
 
 const TEMPLATE_CSS = `<style>
