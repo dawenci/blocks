@@ -4,6 +4,7 @@ import {
   $radiusBase,
   $transitionDuration,
 } from '../theme/var.js'
+import { boolGetter, boolSetter } from '../core/property.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -237,6 +238,9 @@ function getBodyPaddingRight() {
   return parseInt(getComputedStyle(document.body).paddingRight, 10)
 }
 
+const appendToBodyGetter = boolGetter('append-to-body')
+const appendToBodySetter = boolSetter('append-to-body')
+
 class BlocksDialog extends HTMLElement {
   static get observedAttributes() {
     return [
@@ -337,6 +341,14 @@ class BlocksDialog extends HTMLElement {
     }
   }
 
+  get appendToBody() {
+    return appendToBodyGetter(this)
+  }
+
+  set appendToBody(value) {
+    appendToBodySetter(value)
+  }
+
   _lockScroll() {
     if (!this.isScrollLocked) {
       this.bodyPaddingRight = document.body.style.paddingRight
@@ -410,6 +422,10 @@ class BlocksDialog extends HTMLElement {
   }
 
   connectedCallback() {
+    if (this.appendToBody && this.parentElement !== document.body) {
+      document.body.appendChild(this)
+    }
+
     this._renderHeader()
     this._renderFooter()
 
