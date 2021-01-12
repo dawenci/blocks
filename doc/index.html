@@ -21,6 +21,93 @@
 
 
     <section class="section">
+      <h2>select-result</h2>
+
+      <div class="case">
+        <div data-role="html" data-title="依赖引入">
+          <script type="module" src="/widgets/select-result/index.js"></script>
+        </div>
+      </div>
+
+      <div class="case">
+        <h3>默认</h3>
+        
+        <div data-role="html">
+          <blocks-select-result
+            multiple
+            multiple-mode="tag"
+            tag-clearable
+            searchable
+            clearable
+            class="select-result1">
+          </blocks-select-result>
+
+          <blocks-select-result
+            size="mini"
+            multiple
+            multiple-mode="tag"
+            tag-clearable
+            searchable
+            clearable
+            class="select-result2">
+          </blocks-select-result>
+
+          <blocks-select-result
+            size="small"
+            multiple
+            multiple-mode="tag"
+            tag-clearable
+            searchable
+            clearable
+            class="select-result3">
+          </blocks-select-result>
+
+          <blocks-select-result
+            size="large"
+            multiple
+            multiple-mode="tag"
+            tag-clearable
+            searchable
+            clearable
+            class="select-result4">
+          </blocks-select-result>
+
+          <blocks-select-result
+            multiple
+            multiple-mode="plain"
+            tag-clearable
+            searchable
+            clearable
+            class="select-result5">
+          </blocks-select-result>
+
+          <blocks-select-result
+            multiple
+            multiple-mode="plain"
+            tag-clearable
+            searchable
+            clearable
+            prefix-icon="date"
+            suffix-icon="date"
+            class="select-result6">
+          </blocks-select-result>
+
+          <script>
+            const result1 = document.querySelector('.select-result1')
+            const result2 = document.querySelector('.select-result2')
+            const result3 = document.querySelector('.select-result3')
+            const result4 = document.querySelector('.select-result4')
+            const result5 = document.querySelector('.select-result5')
+            const result6 = document.querySelector('.select-result6')
+            result1.value = result2.value = result3.value = result4.value = result5.value= result6.value = [{ label: 'AAA', value: 'AAA' }, { label: 'BBB', value: 'BBB' }]
+          </script>
+        </div>
+      </div>
+
+    </section>
+
+
+    <section class="section">
       <h2>tag</h2>
 
       <div class="case">
@@ -72,36 +159,6 @@
           <blocks-tag closable type="success" outline>success outline</blocks-tag>
         </div>
       </div>
-    </section>
-
-
-    <section class="section">
-      <h2>select-result</h2>
-
-      <div class="case">
-        <div data-role="html" data-title="依赖引入">
-          <script type="module" src="/widgets/select-result/index.js"></script>
-        </div>
-      </div>
-
-      <div class="case">
-        <h3>默认</h3>
-        
-        <div data-role="html">
-          <blocks-select-result
-            multiple
-            tag-clearable
-            searchable
-            clearable
-            class="select-result1"></blocks-select-result>
-
-          <script>
-            const result1 = document.querySelector('.select-result1')
-            result1.data = [{ label: 'AAA', value: 'AAA' }, { label: 'BBB', value: 'BBB' }]
-          </script>
-        </div>
-      </div>
-
     </section>
 
 

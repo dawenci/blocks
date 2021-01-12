@@ -1,22 +1,20 @@
-import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property.js'
-import {
-  $radiusBase
-} from '../theme/var.js'
 import './optgroup.js'
 import './option.js'
 import '../popup/index.js'
 import '../input/index.js'
+import '../select-result/index.js'
 
-const getMultiple = boolGetter('multiple')
-const setMultiple = boolSetter('multiple')
-const getMultipleMode = enumGetter('multiple-mode', ['single', 'tag'])
-const setMultipleMode = enumSetter('multiple-mode', ['single', 'tag'])
+import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property.js'
+import {
+  $radiusBase
+} from '../theme/var.js'
 
 let idSeed = Date.now()
 
 const TEMPLATE_CSS = `<style>
 :host, :host * {
   box-sizing: border-box;
+  width: 120px;
 }
 :host(:focus) {
   outline: 0 none;
@@ -30,10 +28,13 @@ const TEMPLATE_CSS = `<style>
 .dropdown::part(suffix) {
   transform: rotate(180deg);
 }
+blocks-select-result {
+  width: 100%;
+}
 </style>`
 
 const TEMPLATE_HTML = `
-<blocks-input suffix-icon="down" class="date-picker-input" readonly></blocks-input>
+<blocks-select-result suffix-icon="down" class="date-picker-input" readonly></blocks-select-result>
 <blocks-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
   <div class="option-list" style="overflow:hidden;border-radius:${$radiusBase};"></div>
 </blocks-popup>
@@ -49,7 +50,7 @@ class BlocksSelect extends HTMLElement {
     return [
       // 是否多选
       'multiple',
-      // 多选结果显示模式，可选 single 或 tag
+      // 多选结果显示模式，可选 plain 或 tag
       'multiple-mode',
       // 结果是否可以清空
       'clearable',
@@ -69,7 +70,7 @@ class BlocksSelect extends HTMLElement {
     })
 
     const fragment = template.content.cloneNode(true)
-    this.input = fragment.querySelector('blocks-input')
+    this.input = fragment.querySelector('blocks-select-result')
     this.popup = fragment.querySelector('.date-picker-popup')
     this.list = fragment.querySelector('.option-list')
     this.optionSlot = fragment.querySelector('slot')
@@ -111,19 +112,19 @@ class BlocksSelect extends HTMLElement {
   }
 
   get multiple() {
-    return getMultiple(this)
+    return this.input.multiple
   }
 
   set multiple(value) {
-    setMultiple(this, value)
+    this.input.multiple = value
   }
 
   get multipleMode() {
-    return getMultipleMode(this)
+    return this.input.multipleMode
   }
 
   set multipleMode(value) {
-    setMultipleMode(this, value)
+    this.input.multipleMode = value
   }
 
   get text() {
@@ -148,7 +149,8 @@ class BlocksSelect extends HTMLElement {
     value = selected ? value : ''
     const text = selected?.label ?? selected?.textContent ?? value
 
-    this.text = text
+    this.input.value = {label: text, value: value}
+    // this.text = text
     if (this.value !== value) {
       this.setAttribute('value', value)
       this.dispatchEvent(new CustomEvent('change'))
@@ -229,7 +231,7 @@ class BlocksSelect extends HTMLElement {
   // }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (['clearable'].includes(name)) {
+    if (['clearable', 'multiple', 'multiple-mode'].includes(name)) {
       this.input.setAttribute(name, newValue)
     }
     this.render()
