@@ -36,7 +36,7 @@ blocks-select-result {
 const TEMPLATE_HTML = `
 <blocks-select-result suffix-icon="down" class="date-picker-input" readonly></blocks-select-result>
 <blocks-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
-  <div class="option-list" style="overflow:hidden;border-radius:${$radiusBase};"></div>
+  <div class="option-list" style="overflow:hidden;min-height:20px;border-radius:${$radiusBase};"></div>
 </blocks-popup>
 <slot style="display:none;"></slot>
 `
@@ -326,9 +326,6 @@ class BlocksSelect extends HTMLElement {
           const copy = el.cloneNode(true)
           if (copy.id) delete copy.id
           this._list.appendChild(copy)
-          if (isOption(el)) {
-
-          }
         }
       })
   }

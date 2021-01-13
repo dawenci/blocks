@@ -39,6 +39,8 @@ const PopupOrigin = {
 
 const openGetter = boolGetter('open')
 const openSetter = boolSetter('open')
+const autofocusGetter = boolGetter('autofocus')
+const autofocusSetter = boolSetter('autofocus')
 const appendToBodyGetter = boolGetter('append-to-body')
 const appendToBodySetter = boolSetter('append-to-body')
 const autoflipGetter = boolGetter('autoflip')
@@ -296,6 +298,8 @@ class BlocksPopup extends HTMLElement {
       'append-to-body',
       // Popup 是否显示箭头
       'arrow',
+      // 打开时是否自动聚焦
+      'autofocus',
       // 自动翻转功能，Popup 在 x 或 y 轴上溢出文档时，自动翻转显示
       'autoflip',
       // 失去焦点时，是否恢复获得焦点前的焦点
@@ -351,7 +355,7 @@ class BlocksPopup extends HTMLElement {
       }
       this._enableEvents()
       if (this.open) {
-        this._focus()
+        if (this.autofocus) this._focus()
         this.dispatchEvent(new CustomEvent('open'))
         // 动画过程可能锚定点移动，动画结束后，更新下位置
         this.updatePosition()
@@ -404,6 +408,14 @@ class BlocksPopup extends HTMLElement {
 
   set arrow(value) {
     arrowSetter(this, value)
+  }
+
+  get autofocus() {
+    return autofocusGetter(this)
+  }
+
+  set autofocus(value) {
+    autofocusSetter(this, value)
   }
 
   get autoflip() {
