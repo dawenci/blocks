@@ -42,6 +42,18 @@ window.onload = () => {
 
   const sections = article.querySelectorAll('section')
 
+
+  ;(() => {
+    const hash = decodeURIComponent(location.hash.slice(1))
+    const section = Array.prototype.find.call(sections, section => {
+      const heading = section.querySelector('h2')
+      return heading && heading.textContent === hash
+    })
+    if (section) article.scrollTop = section.offsetTop
+  })()
+  
+
+
   // 导航
   map(sections, section => {
     const heading = section.querySelector('h2')
@@ -51,6 +63,7 @@ window.onload = () => {
   
     navItem.onclick = (e) => {
       article.scrollTop = section.offsetTop
+      history.pushState({}, navItem.textContent, `#${encodeURIComponent(navItem.textContent)}`)
     }
   })
 
