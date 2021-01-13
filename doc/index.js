@@ -1,5 +1,4 @@
-const forEach = (list, fn) => Array.prototype.forEach.call(list, fn)
-const map = (list, fn) => Array.prototype.map.call(list, fn)
+import { map, forEach } from '../widgets/core/utils.js'
 
 // html 由于缩进，每行前面有固定的空格，使用该方法移除掉每行的开头 count 个空格
 // 删除的数量，以第一行的为准

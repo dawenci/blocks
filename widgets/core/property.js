@@ -5,10 +5,14 @@ export function boolGetter(attr) {
 export function boolSetter(attr) {
   return (element, value) => {
     if (value === null || value === false) {
-      element.removeAttribute(attr)
+      if (element.hasAttribute(attr)) {
+        element.removeAttribute(attr)
+      }
     }
     else {
-      element.setAttribute(attr, '')
+      if (!element.hasAttribute(attr)) {
+        element.setAttribute(attr, '')
+      }
     }
   }
 }
@@ -22,6 +26,7 @@ export function numGetter(attr) {
 
 export function numSetter(attr) {
   return (element, value) => {
+    if (element.getAttribute(attr) === value) return
     element.setAttribute(attr, value)
   }
 }
@@ -36,6 +41,7 @@ export function enumGetter(attr, values) {
 
 export function enumSetter(attr, values) {
   return (element, value) => {
+    if (element.getAttribute(attr) === value) return
     if (values.includes(value)) {
       element.setAttribute(attr, value)
     }

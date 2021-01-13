@@ -1,6 +1,12 @@
+import { boolGetter, boolSetter } from '../core/property.js'
 import {
   $colorPrimary, $colorPrimaryLight,
 } from '../theme/var.js'
+
+const selectedGetter = boolGetter('selected')
+const selectedSetter = boolSetter('selected')
+const disabledGetter = boolGetter('disabled')
+const disabledSetter = boolSetter('disabled')
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -80,30 +86,25 @@ class BlocksOption extends HTMLElement {
   }
 
   get disabled() {
-    return this.hasAttribute('disabled')
+    return disabledGetter(this)
   }
 
   set disabled(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('disabled')
-    }
-    else {
-      this.setAttribute('disabled', '')
-    }
+    disabledSetter(this, value)
   }
 
   get selected() {
-    return this.hasAttribute('selected')
+    return selectedGetter(this)
   }
 
   set selected(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('selected')
-    }
-    else {
-      this.setAttribute('selected', '')
-    }
-    this.dispatchEvent(new CustomEvent('select', { bubbles: true, cancelable: true, composed: true }))
+    selectedSetter(this, value)
+  }
+
+  silentSelected(value) {
+    this._silent = true
+    selectedSetter(this, value)
+    this._silent = false
   }
 
   render() {
@@ -120,6 +121,12 @@ class BlocksOption extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'selected' && newValue !== oldValue) {
+      const eventType = newValue === null ? 'deselect' : 'select'
+      if (!this._silent) {
+        this.dispatchEvent(new CustomEvent(eventType, { bubbles: true, cancelable: true, composed: true }))
+      }
+    }
     this.render()
   }
 

@@ -52,8 +52,10 @@ const TEMPLATE_CSS = `<style>
 .value {
   flex: 1 1 100%;
   display: flex;
-  flex-flow: row nowrap;
+  min-height: 18px;
+  flex-flow: row wrap;
   align-items: center;
+  overflow: hidden;
   position: relative;
   font-size: 14px;
   white-space: nowrap;
@@ -61,6 +63,9 @@ const TEMPLATE_CSS = `<style>
 
 blocks-tag {
   flex: 0 0 auto;
+}
+blocks-tag:focus {
+  outline: 0 none;
 }
 
 .multiple-plain strong {
@@ -101,7 +106,7 @@ blocks-tag {
   visibility: hidden;
 }
 .multiple-tag .search {
-  flex: 1 1 100%;
+  flex: 1 1 auto;
   min-width: 32px;
 }
 .multiple-tag blocks-tag+.search {
@@ -198,53 +203,44 @@ blocks-tag {
 
 /* size */
 .widget {
-  height: ${$heightBase};
-}
-blocks-tag+blocks-tag {
-  margin-left: 4px;
+  min-height: ${$heightBase};
 }
 .value {
-  margin: 0 4px;
   text-align: left;
+  margin: 1px;
+}
+.value-text {
+  margin: 0 4px;
+}
+blocks-tag {
+  margin: 2px;
 }
 
 :host([size="mini"]) .widget {
-  height: ${$heightMini};
+  min-height: ${$heightMini};
 }
-:host([size="mini"]) .widget blocks-tag {
+:host([size="mini"]) blocks-tag {
   height: 18px;
-}
-:host([size="mini"]) blocks-tag+blocks-tag {
-  margin-left: 2px;
-}
-:host([size="mini"]) .value {
-  margin: 0 2px;
+  margin: 2px;
 }
 
 :host([size="small"]) .widget {
-  height: ${$heightSmall};
+  min-height: ${$heightSmall};
 }
-:host([size="small"]) .widget blocks-tag {
+:host([size="small"]) blocks-tag {
   height: 20px;
-}
-:host([size="small"]) blocks-tag+blocks-tag {
-  margin-left: 3px;
-}
-:host([size="small"]) .value {
-  margin: 0 3px;
+  margin: 2px;
 }
 
 :host([size="large"]) .widget {
-  height: ${$heightLarge};
-}
-:host([size="large"]) .widget blocks-tag {
-  height: 28px;
-}
-:host([size="large"]) blocks-tag+blocks-tag {
-  margin-left: 5px;
+  min-height: ${$heightLarge};
 }
 :host([size="large"]) .value {
-  margin: 0 5px;
+  margin: 3px;
+}
+:host([size="large"]) blocks-tag {
+  height: 28px;
+  margin: 2px;
 }
 
 </style>`
@@ -269,9 +265,9 @@ class BlocksSelectResult extends HTMLElement {
     shadowRoot.appendChild(template.content.cloneNode(true))
 
     this._widget = shadowRoot.querySelector('.widget')
-    this._result = shadowRoot.querySelector('.value')
+    this._valuePrint = shadowRoot.querySelector('.value')
 
-    this._widget.onchange = e => {
+    this._widget.oninput = e => {
       const value = e.target.value
       this.dispatchEvent(new CustomEvent('search', {
         bubbles: true, composed: true, cancelable: true, detail: { value }
@@ -372,6 +368,10 @@ class BlocksSelectResult extends HTMLElement {
     this.render()
   }
 
+  get label() {
+    return this._valuePrint.textContent
+  }
+
   get value() {
     return this._value || (this.multiple ? [] : null)
   }
@@ -410,14 +410,17 @@ class BlocksSelectResult extends HTMLElement {
 
   renderSingle() {
     if (this.searchable) {
-      const search = this._result.appendChild(document.createElement('input'))
+      const search = this._valuePrint.appendChild(document.createElement('input'))
       search.className = 'search'
       search.setAttribute('tabindex', '-1')
       // 使 placeholder-show 伪类生效
       search.setAttribute('placeholder', ' ')
     }
     const label = this.formatMethod(this.value)
-    this._result.textContent = label
+    const value = this._valuePrint.appendChild(document.createElement('div'))
+    value.className = 'value-text'
+    value.textContent = label
+    this._valuePrint.appendChild(value)
   }
 
   renderMultipleTag() {
@@ -434,11 +437,11 @@ class BlocksSelectResult extends HTMLElement {
         tag.setAttribute('closable', '')
       }
 
-      this._result.appendChild(tag)
+      this._valuePrint.appendChild(tag)
     })
 
     if (this.searchable) {
-      const search = this._result.appendChild(document.createElement('input'))
+      const search = this._valuePrint.appendChild(document.createElement('input'))
       search.className = 'search'
       search.setAttribute('tabindex', '-1')
       // 使 placeholder-show 伪类生效
@@ -448,7 +451,7 @@ class BlocksSelectResult extends HTMLElement {
 
   renderMultiplePlain() {
     if (this.searchable) {
-      const search = this._result.appendChild(document.createElement('input'))
+      const search = this._valuePrint.appendChild(document.createElement('input'))
       search.className = 'search'
       search.setAttribute('tabindex', '-1')
       // 使 placeholder-show 伪类生效
@@ -456,7 +459,7 @@ class BlocksSelectResult extends HTMLElement {
     }
 
     if (this.value.length) {
-      const value = this._result.appendChild(document.createElement('div'))
+      const value = this._valuePrint.appendChild(document.createElement('div'))
       value.className = 'value-text'
 
       const label = this.formatMethod(this.value[0])
@@ -466,7 +469,6 @@ class BlocksSelectResult extends HTMLElement {
       else {
         const strong = document.createElement('strong')
         strong.textContent = label
-        strong.example
         const span = document.createElement('span')
         span.textContent = `等${this.value.length}项`
         strong.className = span.className = 'plain'
@@ -531,9 +533,9 @@ class BlocksSelectResult extends HTMLElement {
   render() {
     // 清空
     Array.prototype.forEach.call(this._widget.children, el => {
-      if (el !== this._result) this._widget.removeChild(el)
+      if (el !== this._valuePrint) this._widget.removeChild(el)
     })
-    this._result.innerHTML = ''
+    this._valuePrint.innerHTML = ''
 
     this.renderClass()
 
@@ -577,6 +579,8 @@ class BlocksSelectResult extends HTMLElement {
       this._widget.setAttribute('tabindex', '0')
       this.setAttribute('aria-disabled', 'false')
     }
+
+    this.render()
   }
 }
 
