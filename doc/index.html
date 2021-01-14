@@ -19,6 +19,29 @@
       <h1>组件文档</h1>
     </header>
 
+    <section class="section">
+      <h2>countdown</h2>
+
+      <div class="case">
+        <div data-role="html" data-title="依赖引入">
+          <script type="module" src="/widgets/countdown/index.js"></script>
+        </div>
+      </div>
+
+      <div class="case">
+        <h3>默认</h3>
+        
+        <div data-role="html">
+          <blocks-countdown class="countdown1" format="D 天 H 小时 m 分钟 s 秒">
+          </blocks-countdown>
+
+          <script>
+            document.querySelector('.countdown1').value = Date.now() + 3010011020
+          </script>
+        </div>
+      </div>
+    </section>
+
 
     <section class="section">
       <h2>select-result</h2>
