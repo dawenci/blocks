@@ -1,3 +1,6 @@
+import { upgradeProperty } from '../core/upgradeProperty.js'
+import { boolGetter, boolSetter, numGetter, numSetter } from '../core/property.js';
+import { makeRgbaColor } from '../core/utils.js';
 import {
   $fontFamily,
   $radiusSmall,
@@ -11,17 +14,11 @@ import {
   $transitionDuration,
 } from '../theme/var.js'
 
-function hexToRgb(hex) {
-  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? [
-    parseInt(result[1], 16),
-    parseInt(result[2], 16),
-    parseInt(result[3], 16)
-   ] : [0,0,0]
-}
-function hexToRgba(hex, opacity) {
-  return `rgba(${hexToRgb(hex).concat([opacity]).join(',')})`
-}
+const [minGetter, maxGetter] = ['min', 'max'].map(prop => numGetter(prop))
+const [minSetter, maxSetter] = ['min', 'max'].map(prop => numSetter(prop))
+const [disabledGetter, rangeGetter, verticalGetter] = ['disabled', 'range', 'vertical'].map(prop => boolGetter(prop))
+const [disabledSetter, rangeSetter, verticalSetter] = ['disabled', 'range', 'vertical'].map(prop => boolSetter(prop))
+
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -127,7 +124,7 @@ template.innerHTML = `
     z-index: 2;
     border-color: ${$colorPrimary};
     outline: 0 none;
-    box-shadow: 0 0 2px 2px ${hexToRgba($colorPrimary, .5)};
+    box-shadow: 0 0 2px 2px ${makeRgbaColor($colorPrimary, .5)};
   }
 
   :host([disabled]) .slider .button,
@@ -162,62 +159,69 @@ class BlocksSlider extends HTMLElement {
   }
 
   get value() {
-    const attrValue = this.getAttribute('value')
-    if (this.range) {
-      if (/\[\s*\d+(\s*\,\s*\d+)\s*\]/.test(attrValue.trim())) {
-        return JSON.parse(attrValue)
-      }
-      else {
-        return [0, 0]
-      }
-    } 
-    else {
+    const attrValue = this.getAttribute('value')?.trim?.()
+    if (!this.range) {
       const value = parseInt(attrValue, 10)
       return value == value ? value : 0
     }
+    return /\d+\,?\d+/.test(attrValue)
+      ? attrValue.split(',').map(n => parseInt(n, 10))
+      : [0, 0]
   }
 
   set value(value) {
+    if (!this.range) {
+      if (!this._isValidNumber(value)) return
+    }
+    else if (!Array.isArray(value) || value.length !== 2 || value.some(n => !this._isValidNumber(n))) return
     this.setAttribute('value', value)
   }
 
+  get min() {
+    return minGetter(this)
+  }
+
+  set min(value) {
+    minSetter(this, value)
+  }
+
+  get max() {
+    return maxGetter(this)
+  }
+
+  set max(value) {
+    maxSetter(this, value)
+  }
+
   get disabled() {
-    return this.getAttribute('disabled') !== null
+    return disabledGetter(this)
   }
 
   set disabled(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('disabled')
-    } 
-    else {
-      this.setAttribute('disabled', '')
-    }
+    disabledSetter(this, value)
   }
 
   get range() {
-    return this.getAttribute('range') !== null
+    return rangeGetter(this)
   }
 
   set range(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('range')
-    } 
-    else {
-      this.setAttribute('range', '')
-    }
+    rangeSetter(this, value)
   }
 
   get vertical() {
-    return this.getAttribute('vertical') !== null
+    return verticalGetter(this)
   }
 
   set vertical(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('vertical')
-    } 
-    else {
-      this.setAttribute('vertical', '')
-    }
+    verticalSetter(this, value)
+  }
+
+  _isValidNumber(n) {
+    return typeof n === 'number'
+      && n === n
+      && n >= this.min
+      && n <= this.max
   }
 
   _getTrackSize() {
@@ -239,7 +243,7 @@ class BlocksSlider extends HTMLElement {
     this.setAttribute('tabindex', '0')
 
     this.constructor.observedAttributes.forEach(attr => {
-      this._upgradeProperty(attr)
+      upgradeProperty(this, attr)
     })
 
     this._updateButton()
@@ -331,18 +335,6 @@ class BlocksSlider extends HTMLElement {
     }
     if (name === 'range') {
       this._updateButton()
-    }
-  }
-
-  // https://developers.google.com/web/fundamentals/web-components/best-practices#lazy-properties
-  // 属性可能在 prototype 还没有链接到该实例前就设置了，
-  // 在用户使用一些框架加载组件时，可能回出现这种情况，
-  // 因此需要进行属性升级，确保 setter 逻辑能工作，
-  _upgradeProperty(prop) {
-    if (this.hasOwnProperty(prop)) {
-      const value = this[prop]
-      delete this[prop]
-      this[prop] = value
     }
   }
 }

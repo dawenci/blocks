@@ -1,3 +1,5 @@
+import { upgradeProperty } from "../core/upgradeProperty"
+
 const TEMPLATE_CSS = `<style>
 :host {
   display: block;
@@ -78,7 +80,7 @@ class BlocksOptGroup extends HTMLElement {
 
   connectedCallback() {
     this.constructor.observedAttributes.forEach(attr => {
-      this._upgradeProperty(attr)
+      upgradeProperty(this, attr)
     })
     this.render()
   }
@@ -88,14 +90,6 @@ class BlocksOptGroup extends HTMLElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     this.render()
-  }
-
-  _upgradeProperty(prop) {
-    if (this.hasOwnProperty(prop)) {
-      const value = this[prop]
-      delete this[prop]
-      this[prop] = value
-    }
   }
 }
 

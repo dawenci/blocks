@@ -1,4 +1,5 @@
 import { boolGetter, boolSetter } from '../core/property.js'
+import { upgradeProperty } from '../core/upgradeProperty.js'
 import {
   $colorPrimary, $colorPrimaryLight,
 } from '../theme/var.js'
@@ -112,7 +113,7 @@ class BlocksOption extends HTMLElement {
 
   connectedCallback() {
     this.constructor.observedAttributes.forEach(attr => {
-      this._upgradeProperty(attr)
+      upgradeProperty(this, attr)
     })
     this.render()
   }
@@ -128,14 +129,6 @@ class BlocksOption extends HTMLElement {
       }
     }
     this.render()
-  }
-
-  _upgradeProperty(prop) {
-    if (this.hasOwnProperty(prop)) {
-      const value = this[prop]
-      delete this[prop]
-      this[prop] = value
-    }
   }
 }
 
