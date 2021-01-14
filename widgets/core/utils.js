@@ -34,7 +34,7 @@ function pad(ch, n, str, isRight) {
   while ((count--) > 0) {
     pad += ch[0]
   }
-  str = dir === isRight ? str + pad : pad + str
+  str = isRight ? str + pad : pad + str
   return str
 }
 
