@@ -101,22 +101,110 @@ class BlocksCountdown extends HTMLElement {
         s = Math.floor(ms / 1000)
         ms %= 1000
       }
-      // TODO, month, year
     }
     else {
       this.dispatchEvent(new CustomEvent('finish', { bubbles: true, composed: true, cancelable: true }))
     }
 
-    let content = this.format
-    content = content.replace(/D+/, d)
-    content = content.replace(/H+/, this.padHour(h))
-    content = content.replace(/m+/, this.padMin(m))
-    content = content.replace(/s+/, this.padSec(s))
-    content = content.replace(/SSS/, ms)
+    const parseFormat = (str) => {
+      const parts = []
 
-    if (this._widget.textContent !== content) {
-      this._widget.textContent = content
+      const len = str.length
+      let i = 0
+      let text = ''
+
+      const makePart = (text, klass) => ({ text, klass })
+
+      const pushText = () => {
+        if (text) {
+          parts.push(makePart(text, 'text'))
+          text = ''
+        }
+      }
+
+      let hasDay
+      let hasHour
+      let hasMinute
+      let hasSecond
+      let hasMillisecond
+      const eatDay = () => {
+        pushText()
+        parts.push(makePart(d, 'day'))
+        i += 1
+      }
+
+      // 时分秒支持前导 0
+      const eatHMS = (klass) => {
+        pushText()
+        const char = klass === 'hour' ? 'H' : klass === 'minute' ? 'm' : 's'
+        const value = klass === 'hour' ? h : klass === 'minute' ? m : s
+        if (str[i + 1] === char) {
+          parts.push(makePart(padLeft('0', 2, value), klass))
+          i += 2
+        }
+        else {
+          parts.push(makePart(value, klass))
+          i += 1
+        }
+      }
+
+      const eatMs = () => {
+        pushText()
+        parts.push(makePart(ms, 'millisecond'))
+        i += 3
+      }
+
+      const eatText = () => {
+        text += str[i]
+        i += 1
+      }
+
+      while (i < len) {
+        const ch = str[i]
+        if (ch === 'D' && !hasDay) {
+          hasDay = true
+          eatDay()
+        }
+        else if (ch === 'H' && !hasHour) {
+          hasHour = true
+          eatHMS('hour')
+        }
+        else if (ch === 'm' && !hasMinute) {
+          hasMinute = true
+          eatHMS('minute')
+        }
+        else if (ch === 's' && !hasSecond) {
+          hasSecond = true
+          eatHMS('second')
+        }
+        else if (str.substr(i, 3) === 'SSS' && !hasMillisecond) {
+          hasMillisecond = true
+          eatMs('millisecond')
+        }
+        else {
+          eatText()
+        }
+      }
+      pushText()
+      return parts
     }
+
+    const parts = parseFormat(this.format)
+
+    // 内容没更新
+    if (this._widget.textContent === parts.map(part => part.text).join('')) return
+
+    // 生成（优先重用） DOM 渲染
+    const children = this._widget.children
+    if (children.length > parts.length) {
+      let len = children.length - parts.length
+      while (len--) this._widget.removeChild(this._widget.lastElementChild)
+    }
+    parts.forEach((part, index) => {
+      let el = children[index] ?? this._widget.appendChild(document.createElement('span'))
+      el.setAttribute('part', part.klass)
+      el.textContent = part.text
+    })
   }
 
   _loop() {
@@ -124,6 +212,10 @@ class BlocksCountdown extends HTMLElement {
       this.render()
       this._loop()
     })
+  }
+
+  _stopLoop() {
+    cancelAnimationFrame(this._timer)
   }
 
   connectedCallback() {
@@ -134,7 +226,7 @@ class BlocksCountdown extends HTMLElement {
   }
 
   disconnectedCallback() {
-    cancelAnimationFrame(this._timer)
+    this._stopLoop()
   }
 
   adoptedCallback() {}
