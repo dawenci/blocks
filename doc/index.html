@@ -23,16 +23,19 @@
       <h2>countdown</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/countdown/index.js"></script>
         </div>
       </div>
 
       <div class="case">
         <h3>默认</h3>
-        
-        <div data-role="html">
-          <blocks-countdown class="countdown1" format="D 天 H 小时 m 分钟 s 秒">
+
+        <p>value 表示截止时间戳</p>
+        <p>format 为输出格式化代码，支持 `D`（天）, `H`（时）, `HH`（时，自动补零）, `m`（分）, `mm`（分，自动补零）, `s`（秒）, `ss`（秒，自动补零）, `SSS`（毫秒）</p>
+
+        <div data-codesource="html">
+          <blocks-countdown class="countdown1" format="D 天 HH 小时 mm 分钟 ss 秒">
           </blocks-countdown>
 
           <script>
@@ -47,7 +50,7 @@
       <h2>select-result</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/select-result/index.js"></script>
         </div>
       </div>
@@ -55,7 +58,7 @@
       <div class="case">
         <h3>默认</h3>
         
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-select-result
             multiple
             multiple-mode="tag"
@@ -134,7 +137,7 @@
       <h2>tag</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/tag/index.js"></script>
         </div>
       </div>
@@ -143,7 +146,7 @@
         <h3>尺寸设置</h3>
         <p>可通过 size 设置尺寸，可选值: `mini`, `small`, `large`</p>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-tag size="mini">mini</blocks-tag>
           <blocks-tag size="small">small</blocks-tag>
           <blocks-tag>default</blocks-tag>
@@ -155,7 +158,7 @@
       <div class="case">
         <h3>关闭按钮</h3>
         <p>设置 `closable` 属性，则启用关闭按钮，点击会触发 `close` 的 DOM 自定义事件</p>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-tag onclose="alert('点击了关闭')" closable>可关闭</blocks-tag>
         </div>
       </div>
@@ -166,7 +169,7 @@
 
         <p>`type` 可以设定主题类别，支持 `primary`, `danger`, `warning`, `success`</p>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-tag closable type="primary">primary</blocks-tag>
           <blocks-tag closable type="danger">danger</blocks-tag>
           <blocks-tag closable type="warning">warning</blocks-tag>
@@ -175,7 +178,7 @@
 
         <p>支持 `outline` 变种样式</p>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-tag closable type="primary" outline>primary outline</blocks-tag>
           <blocks-tag closable type="danger" outline>danger outline</blocks-tag>
           <blocks-tag closable type="warning" outline>warning outline</blocks-tag>
@@ -189,7 +192,7 @@
       <h2>input</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/input/index.js"></script>
         </div>
       </div>
@@ -197,7 +200,7 @@
       <div class="case">
         <h3>尺寸</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <script type="module" src="/widgets/input/index.js"></script>
 
           <blocks-input size="mini" value="mini"></blocks-input>
@@ -210,7 +213,7 @@
       <div class="case">
         <h3>可清空</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <script type="module" src="/widgets/input/index.js"></script>
 
           <blocks-input clearable value="clearable"></blocks-input>
@@ -220,7 +223,7 @@
       <div class="case">
         <h3>图标</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <script type="module" src="/widgets/input/index.js"></script>
 
           <blocks-input prefix-icon="date" value="prefix icon"></blocks-input>
@@ -235,7 +238,7 @@
       <h2>select</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/select/index.js"></script>
         </div>
       </div>
@@ -243,7 +246,7 @@
       <div class="case">
         <h3>基础选择</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-select>
             <blocks-option value="A">选项A</blocks-option>
             <blocks-option value="B">选项B</blocks-option>
@@ -257,7 +260,7 @@
       <div class="case">
         <h3>可清除</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <script type="module" src="/widgets/select/index.js"></script>
 
           <blocks-select clearable>
@@ -272,7 +275,7 @@
       <div class="case">
         <h3>选项分组</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <script type="module" src="/widgets/select/index.js"></script>
 
           <blocks-select>
@@ -293,7 +296,7 @@
       <div class="case">
         <h3>多选</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <script type="module" src="/widgets/select/index.js"></script>
 
           <blocks-select
@@ -323,7 +326,7 @@
 
         <p>每个 option 可以单独设置 disabled, 也可以整个 group 设置 disabled</p>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <script type="module" src="/widgets/select/index.js"></script>
 
           <blocks-select>
@@ -341,7 +344,7 @@
       <div class="case">
         <h3>可筛选</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-select searchable>
             <blocks-option value="A">选项A</blocks-option>
             <blocks-option value="B">选项B</blocks-option>
@@ -372,7 +375,7 @@
       <h2>date-panel</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/date-panel/index.js"></script>
         </div>
       </div>
@@ -380,7 +383,7 @@
       <div class="case">
         <h3>日期面板</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-date-panel mode="range" max="3"></blocks-date-panel>
         </div>
       </div>
@@ -391,14 +394,14 @@
       <h2>date-picker</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/date-picker/index.js"></script>
         </div>
       </div>
 
       <div class="case">
         <h3>日期选择</h3>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-date-picker clearable></blocks-date-picker>
         </div>
       </div>
@@ -409,7 +412,7 @@
       <h2>button</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/button/index.js"></script>
         </div>
       </div>
@@ -417,7 +420,7 @@
       <div class="case">
         <h3>尺寸</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-button size="mini">尺寸 mini</blocks-button>
           <blocks-button size="small">尺寸 small</blocks-button>
           <blocks-button>尺寸 default</blocks-button>
@@ -427,7 +430,7 @@
 
       <div class="case">
         <h3>主题</h3>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-button>主题 default</blocks-button>
           <blocks-button type="primary">主题 primary</blocks-button>
           <blocks-button type="danger">主题 danger</blocks-button>
@@ -440,7 +443,7 @@
       <div class="case">
         <h3>outline 主题</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-button outline>风格 default outline</blocks-button>
           <blocks-button type="primary" outline>风格 primary outline</blocks-button>
           <blocks-button type="danger" outline>风格 danger outline</blocks-button>
@@ -453,7 +456,7 @@
         <h3>不可用状态</h3>
 
         <h4>默认</h4>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-button disabled>default</blocks-button>
           <blocks-button type="primary" disabled>primary</blocks-button>
           <blocks-button type="danger" disabled>danger</blocks-button>
@@ -462,7 +465,7 @@
         </div>
 
         <h4>outline 时</h4>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-button outline disabled>default outline</blocks-button>
           <blocks-button type="primary" outline disabled>primary outline</blocks-button>
           <blocks-button type="danger" outline disabled>danger outline</blocks-button>
@@ -476,7 +479,7 @@
         <h3>icon</h3>
 
         <h4>color</h4>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-button prefix-icon="date" suffix-icon="date">default</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" type="primary">primary</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" type="danger">danger</blocks-button>
@@ -485,7 +488,7 @@
         </div>
 
         <h4>outline</h4>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-button prefix-icon="date" suffix-icon="date" outline>default</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" outline type="primary">primary</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" outline type="danger">danger</blocks-button>
@@ -494,7 +497,7 @@
         </div>
 
         <h4>size</h4>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-button prefix-icon="date" suffix-icon="date" size="mini">mini</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date" size="small">small</blocks-button>
           <blocks-button prefix-icon="date" suffix-icon="date">default</blocks-button>
@@ -508,7 +511,7 @@
       <h2>button-group</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/button-group/index.js"></script>
         </div>
       </div>
@@ -563,7 +566,7 @@
       <h2>Popup</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/popup/index.js"></script>
         </div>
       </div>
@@ -573,7 +576,7 @@
 
         <p>默认以中心点为原点，相对于 offsetParent 的中心点进行定位</p>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <div style="position:relative;width:200px;height:100px;border:1px solid #ccc;">
             <blocks-popup class="popup-default1">默认居中</blocks-popup>
           </div>
@@ -590,7 +593,7 @@
 
         <p>通过 `anchor` 属性，传入需要吸附的目标元素 selector，可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <div style="width:400px;height:100px;padding:15px;border:1px solid #ccc;">
             <div class="popup-anchor1" style="width:100px;height:100px;background:#000;color:#fff;">anchor</div>
 
@@ -611,7 +614,7 @@
 
         <p>通过 `anchor` 属性，传入需要吸附的目标位置座标点、或两个座标点框定的区域，可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <div style="position:relative;width:200px;height:150px;border:1px solid #ccc;">
             <div style="width:50px;height:50px;background:#000;color:#fff;">50,50</div>
 
@@ -634,7 +637,7 @@
         <p class="note">注意：如果将 popup 作为其他组件的一部分，并在 popup 里面使用 slot 的话，因为 DOM 的移动，会导致 slot 失效，popup 无法展示通过 slot 置入的内容。</p>
 
 
-        <div data-role="html">
+        <div data-codesource="html">
           <div style="position:relative;width:300px;height:100px;border:1px solid #ccc;">
             <div class="popup-append-to-body-anchor" style="width:50px;height:50px;background:#000;color:#fff;">anchor</div>
 
@@ -660,7 +663,7 @@
 
         <p>通过 `autoflip` 属性，启用自动翻转功能，在 offsetParent 不足以容纳 popup 时，尝试翻转方向显示。</p>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <div style="position:relative;width:250px;height:180px;border:1px solid #ccc;">
             <div
               class="popup-autoflip1-anchor"
@@ -685,7 +688,7 @@
       <h2>Dialog</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/dialog/index.js"></script>
         </div>
       </div>
@@ -693,7 +696,7 @@
       <div class="case">
         <h3>默认</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-dialog
             id="dialog1"
             closeable
@@ -715,7 +718,7 @@
 
       <div class="case">
         <h3>header slot</h3>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-dialog
             id="dialog2"
             closeable
@@ -733,7 +736,7 @@
 
       <div class="case">
         <h3>footer slot</h3>
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-dialog
             id="dialog3"
             closeable
@@ -756,7 +759,7 @@
       <div class="case">
         <h3>限制焦点</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-dialog
             id="dialog4"
             closeable>
@@ -781,7 +784,7 @@
       <div class="case">
         <h3>插入到 body</h3>
 
-        <div data-role="html">
+        <div data-codesource="html">
           <blocks-dialog
             id="dialog5"
             append-to-body
@@ -799,7 +802,7 @@
       <h2>Checkbox</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/checkbox/index.js"></script>
         </div>
       </div>
@@ -827,7 +830,7 @@
       <h2>Radio</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/radio/index.js"></script>
         </div>
       </div>
@@ -866,7 +869,7 @@
       <h2>Switch</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/switch/index.js"></script>
         </div>
       </div>
@@ -887,7 +890,7 @@
       <h2>Slider</h2>
 
       <div class="case">
-        <div data-role="html" data-title="依赖引入">
+        <div data-codesource="html" data-title="依赖引入">
           <script type="module" src="/widgets/slider/index.js"></script>
         </div>
       </div>
