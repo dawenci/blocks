@@ -309,6 +309,10 @@ class BlocksDialog extends HTMLElement {
 
     shadowRoot.addEventListener('click', onClick)
     shadowRoot.addEventListener('keydown', onKeyDown)
+
+    this.dialog.addEventListener('slotchange', e => {
+      this.render()
+    })
   }
 
   get open() {  
@@ -347,6 +351,11 @@ class BlocksDialog extends HTMLElement {
 
   set appendToBody(value) {
     appendToBodySetter(value)
+  }
+  
+  render() {
+    this._renderHeader()
+    this._renderFooter()
   }
 
   _lockScroll() {
