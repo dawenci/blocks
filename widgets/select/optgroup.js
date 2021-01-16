@@ -1,4 +1,4 @@
-import { upgradeProperty } from "../core/upgradeProperty"
+import { upgradeProperty } from "../core/upgradeProperty.js"
 
 const TEMPLATE_CSS = `<style>
 :host {
