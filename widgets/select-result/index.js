@@ -3,7 +3,7 @@ import '../tag/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
 import { $borderColorBase, $heightBase, $radiusBase, $colorPrimary, $transitionDuration, $heightMini, $heightSmall, $heightLarge } from '../theme/var.js'
-import { getIconSvg } from '../icon/index.js'
+import { getRegisteredSvgIcon } from '../../icon/index.js'
 
 const multipleGetter = boolGetter('multiple')
 const multipleSetter = boolSetter('multiple')
@@ -493,7 +493,7 @@ class BlocksSelectResult extends HTMLElement {
   }
 
   renderIcon() {
-    const prefixIcon = getIconSvg(this.prefixIcon)
+    const prefixIcon = getRegisteredSvgIcon(this.prefixIcon)
     if (prefixIcon) {
       let el = this._widget.querySelector('.prefix-icon') ?? this._widget.insertBefore(document.createElement('span'), this._widget.firstElementChild)
       el.innerHTML = ''
@@ -506,7 +506,7 @@ class BlocksSelectResult extends HTMLElement {
       if (el) this._widget.removeChild(el)
     }
 
-    const suffixIcon = getIconSvg(this.suffixIcon)
+    const suffixIcon = getRegisteredSvgIcon(this.suffixIcon)
     if (suffixIcon) {
       let el = this._widget.querySelector('.suffix-icon')
       if (!el) {

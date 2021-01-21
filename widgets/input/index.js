@@ -11,7 +11,7 @@ import {
   $heightLarge,
 } from '../theme/var.js'
 
-import { getIconSvg } from '../icon/index.js'
+import { getRegisteredSvgIcon } from '../../icon/index.js'
 import '../popup/index.js'
 import '../date-panel/index.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
@@ -218,7 +218,7 @@ class BlocksInput extends HTMLElement {
   }
 
   render() {
-    const prefixIcon = getIconSvg(this.prefixIcon)
+    const prefixIcon = getRegisteredSvgIcon(this.prefixIcon)
     if (prefixIcon) {
       if (this.prefixEl) {
         this.container.removeChild(this.prefixEl)
@@ -229,7 +229,7 @@ class BlocksInput extends HTMLElement {
       this.prefixEl.appendChild(prefixIcon)
     }
 
-    const suffixIcon = getIconSvg(this.suffixIcon)
+    const suffixIcon = getRegisteredSvgIcon(this.suffixIcon)
     if (suffixIcon) {
       if (this.suffixEl) {
         this.container.removeChild(this.suffixEl)

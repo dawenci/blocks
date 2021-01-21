@@ -28,7 +28,7 @@ import {
   $heightLarge,
 } from '../theme/var.js'
 
-import { getIconSvg } from '../icon/index.js'
+import { getRegisteredSvgIcon } from '../../icon/index.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -369,7 +369,7 @@ class BlocksButton extends HTMLElement {
   }
 
   render() {
-    const prefixIcon = getIconSvg(this.prefixIcon)
+    const prefixIcon = getRegisteredSvgIcon(this.prefixIcon)
     if (prefixIcon) {
       if (this.prefixEl) {
         this._widget.removeChild(this.prefixEl)
@@ -380,7 +380,7 @@ class BlocksButton extends HTMLElement {
       this.prefixEl.appendChild(prefixIcon)
     }
 
-    const suffixIcon = getIconSvg(this.suffixIcon)
+    const suffixIcon = getRegisteredSvgIcon(this.suffixIcon)
     if (suffixIcon) {
       if (this.suffixEl) {
         this._widget.removeChild(this.suffixEl)
