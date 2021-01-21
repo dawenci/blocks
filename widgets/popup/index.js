@@ -341,7 +341,7 @@ class BlocksPopup extends HTMLElement {
 
     // 过渡进行中时
     this.popup.ontransitionrun = (ev) => {
-      if (ev.propertyName !== 'opacity') {
+      if (ev.target !== this.popup || ev.propertyName !== 'opacity') {
         return
       }
     }
@@ -351,7 +351,7 @@ class BlocksPopup extends HTMLElement {
 
     // 过渡结束时
     this.popup.ontransitionend = (ev) => {
-      if (ev.propertyName !== 'opacity') {
+      if (ev.target !== this.popup || ev.propertyName !== 'opacity') {
         return
       }
       this._enableEvents()
