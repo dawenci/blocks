@@ -16,6 +16,15 @@ const TEMPLATE_CSS = `<style>
   user-select: none;
   cursor: default;
 }
+.widget {
+  width: 100%;
+  height: 100%;
+}
+.widget svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 </style>`
 
 const TEMPLATE_HTML = `<div class="widget"></div>`
@@ -28,6 +37,9 @@ class BlocksIcon extends HTMLElement {
   static get observedAttributes() {
     return [
       'value',
+      'width',
+      'height',
+      'fill',
     ]
   }
 
@@ -50,8 +62,16 @@ class BlocksIcon extends HTMLElement {
 
   render() {
     if (this._widget.firstElementChild) this._widget.removeChild(this._widget.firstElementChild)
-    let icon = getRegisteredSvgIcon(this.value) ?? parseSvg(this.value)
-    if (icon) this._widget.appendChild(icon)    
+    const attrs = {}
+    if (this.fill) attrs.fill = this.fill
+    if (this.width) attrs.width = this.width
+    if (this.height) attrs.height = this.height
+    if (!attrs.width && !attrs.height) {
+      attrs.width = attrs.height = 32
+    }
+
+    let icon = getRegisteredSvgIcon(this.value, attrs) ?? parseSvg(this.value, attrs)
+    if (icon) this._widget.appendChild(icon)
   }
 
   get value() {
@@ -60,6 +80,30 @@ class BlocksIcon extends HTMLElement {
 
   set value(value) {
     this.setAttribute('value', value)
+  }
+
+  get width() {
+    return this.getAttribute('width')
+  }
+
+  set width(value) {
+    return this.setAttribute('width', value)
+  }
+
+  get height() {
+    return this.getAttribute('height')
+  }
+
+  set height(value) {
+    return this.setAttribute('height', value)
+  }
+
+  get fill() {
+    return this.getAttribute('fill')
+  }
+
+  set fill(value) {
+    return this.setAttribute('fill', value)
   }
 
   connectedCallback() {
