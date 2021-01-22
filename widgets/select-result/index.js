@@ -417,10 +417,15 @@ class BlocksSelectResult extends HTMLElement {
       search.setAttribute('placeholder', ' ')
     }
     const label = this.formatMethod(this.value)
-    const value = this._valuePrint.appendChild(document.createElement('div'))
-    value.className = 'value-text'
-    value.textContent = label
-    this._valuePrint.appendChild(value)
+    if (label) {
+      const valueText = this._valuePrint.querySelector('.value-text') ?? this._valuePrint.appendChild(document.createElement('div'))
+      valueText.className = 'value-text'
+      valueText.textContent = label
+    }
+    else {
+      const valueText = this._valuePrint.querySelector('.value-text')
+      if (valueText) this._valuePrint.removeChild(valueText)
+    }
   }
 
   renderMultipleTag() {
