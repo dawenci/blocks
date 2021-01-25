@@ -40,6 +40,8 @@ const PopupOrigin = {
 
 const openGetter = boolGetter('open')
 const openSetter = boolSetter('open')
+const insetGetter = boolGetter('inset')
+const insetSetter = boolSetter('inset')
 const autofocusGetter = boolGetter('autofocus')
 const autofocusSetter = boolSetter('autofocus')
 const appendToBodyGetter = boolGetter('append-to-body')
@@ -292,10 +294,15 @@ class BlocksPopup extends HTMLElement {
     return [
       // Popup 是否展示
       'open',
-      // Popup 锚定的布局框，可以是其他元素 selector，锚定体现为对目标元素边沿的吸附，也可以是点座标、两个点的座标
-      // 取值如：`'body'`, `'[10,10,100,100]'`, `[100,100]` 等等
+      // Popup 锚定的布局框，是一个矩形区域
+      // Popup 吸附在该矩形的四条边中的某一条的外侧（设置 inset 后在内测）
+      // 支持传入一个 `[x, y]` 形式的坐标像素值，这是长宽为 0 的矩形的特例，
+      // 支持标准的 `[x1, y1, x2, y2]` 形式的两个坐标点用于左上角、 右下角，
+      // 支持传入其他元素的 css selector，表示以该元素的布局矩形为准，
       'anchor',
-      // 是否将节点插入到 document.body 中
+      // 在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染）
+      'inset',
+      // 是否将节点插入到 document.body 中（通常用于确保 z-index 不会被遮挡）
       'append-to-body',
       // Popup 是否显示箭头
       'arrow',
@@ -384,6 +391,14 @@ class BlocksPopup extends HTMLElement {
 
   set origin(value) {
     originSetter(this, value)
+  }
+
+  get inset() {
+    return insetGetter(this)
+  }
+
+  set inset(value) {
+    insetSetter(this, value)
   }
 
   // 吸附到的元素 selector，设置了该属性且对应的元素存在，则忽略 x、y 属性
@@ -520,60 +535,67 @@ class BlocksPopup extends HTMLElement {
 
     // 配置 Popup 定位起始边（如果启用了箭头，也是箭头所在边）
     // 1. 起始边为上边，往下方展开 Popup
-    if (this.origin.startsWith('top')) {
-      top = y2 + arrowSize
+    // 吸附在 layoutFrame 的下边，如果启用 inset，则吸附在 layoutFrame 的上边
+    if (this.origin.startsWith('top')) {      
+      top = (this.inset ? y1 : y2) + arrowSize
       originY = 'top'
       shadowY = 'bottom'
       // 如果 popup 溢出视口，则检查翻转吸附在 y 的上方是否更好，如果是，则翻转
       if (this.autoflip && (top + popupHeight > layoutHeight)) {
-        const flipTop = y1 - arrowSize - popupHeight
+        const flipTop = (this.inset ? y2 : y1) - arrowSize - popupHeight
         if (flipTop > 0) {
           top = flipTop
           verticalFlip()
         }
       }
     }
+
     // 2. 起始边为右边，往左方展开 Popup
+    // 吸附在 layoutFrame 的左边，如果启用 inset 则吸附在 layoutFrame 的右边
     else if (this.origin.startsWith('right')) {
-      left = x1 - arrowSize - popupWidth
+      left = (this.inset ? x1 : x2) - arrowSize - popupWidth
       originX = 'right'
       shadowX = 'left'
       if (this.autoflip && (left < 0)) {
-        const flipLeft = x2 + arrowSize
+        const flipLeft = (this.inset ? x1 : x2) + arrowSize
         if (flipLeft + popupWidth < layoutWidth) {
           left = flipLeft
           horizontalFlip()
         }
       }
     }
+
     // 3. 起始边为下边，往上方展开
+    // 吸附在 layoutFrame 的上边，如果启用 inset 则吸附在 layoutFrame 的下边
     else if (this.origin.startsWith('bottom')) {
-      top = y1 - arrowSize - popupHeight
+      top = (this.inset ? y2 : y1) - arrowSize - popupHeight
       originY = 'bottom'
       shadowY = 'top'
       // 如果 popup 溢出视口，则检查翻转吸附在目标的下边是否更好，如果是，则翻转
       if (this.autoflip && (top < 0)) {
-        const flipTop = y2 + arrowSize
+        const flipTop = (this.inset ? y1 : y2) + arrowSize
         if (flipTop + popupHeight < layoutHeight) {
           top = flipTop
           verticalFlip()
         }
       }
     }
+
     // 4. 起始边为左边，往右方展开 Popup
+    // 吸附在 layoutFrame 的右边，如果启用 inset 则吸附在 layoutFrame 的左边
     else if (this.origin.startsWith('left')) {
-      left = x2 + arrowSize
+      left = (this.inset ? x1 : x2) + arrowSize
       originX = 'left'
       shadowX = 'right'
       if (this.autoflip && (left + popupWidth > layoutWidth)) {
-        console.log('flip')
-        const flipLeft = x1 - arrowSize - popupWidth
+        const flipLeft = (this.inset ? x2 : x1) - arrowSize - popupWidth
         if (flipLeft > 0) {
           left = flipLeft
           horizontalFlip()
         }
       }
     }
+
     // 5. 无起始边，从中心往外展开 Popup
     else {
       top = (y1 + (y2 - y1) / 2) - (popupHeight / 2)
@@ -597,6 +619,7 @@ class BlocksPopup extends HTMLElement {
           horizontalFlip()
         }
       }
+
       else if (this.origin.endsWith('end')) {
         // 与起始边右侧对齐
         left = x2 - popupWidth
@@ -608,6 +631,7 @@ class BlocksPopup extends HTMLElement {
           horizontalFlip()
         }
       }
+
       else if (this.origin.endsWith('center')) {
         // 与起始边中对齐，不翻转
         left = (x1 + (x2 - x1) / 2) - (popupWidth / 2)
@@ -628,6 +652,7 @@ class BlocksPopup extends HTMLElement {
           verticalFlip()
         }
       }
+
       else if (this.origin.endsWith('end')) {
         // 默认与起始边底部对齐
         top = y2 - popupHeight
@@ -639,6 +664,7 @@ class BlocksPopup extends HTMLElement {
           verticalFlip()
         }
       }
+
       else if (this.origin.endsWith('center')) {
         // 与起始边中对齐，不翻转
         top = (y1 + (y2 - y1) / 2) - (popupHeight / 2)

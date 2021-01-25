@@ -734,6 +734,48 @@
       </div>
 
       <div class="case">
+        <h3>吸附座标区域</h3>
+
+        <p>通过 `anchor` 属性，传入需要吸附的目标位置座标点、或两个座标点框定的区域，可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
+
+        <div data-codesource="html">
+          <div style="position:relative;width:200px;height:150px;border:1px solid #ccc;">
+            <div style="width:50px;height:50px;background:#000;color:#fff;">50,50</div>
+
+            <blocks-popup class="popup-anchor1" origin="left-start" anchor="[50,50]">
+              <div style="padding:15px;">座标：[50,50]</div>
+            </blocks-popup>
+          </div>
+
+          <blocks-button onclick="document.querySelector('.popup-anchor1').open = !document.querySelector('.popup-anchor1').hasAttribute('open')">
+            开关
+          </blocks-button>
+        </div>
+      </div>      
+
+
+      <div class="case">
+        <h3>渲染在 anchor 内部</h3>
+
+        <p>通过 `inset` 属性，让 Popup 在布局区域的内测渲染。</p>
+
+        <div data-codesource="html">
+          <div style="position:relative;width:200px;height:150px;border:1px solid #ccc;">
+            <div style="width:50px;height:50px;background:#000;color:#fff;">50,50</div>
+
+            <blocks-popup class="popup-anchor-inset1" origin="left-start" anchor="[0,0,50,50]" inset arrow>
+              <div style="padding:15px;">座标：[50,50]</div>
+            </blocks-popup>
+          </div>
+
+          <blocks-button onclick="document.querySelector('.popup-anchor-inset1').open = !document.querySelector('.popup-anchor-inset1').hasAttribute('open')">
+            开关
+          </blocks-button>
+        </div>
+      </div>      
+
+
+      <div class="case">
         <h3>吸附其他元素</h3>
 
         <p>通过 `anchor` 属性，传入需要吸附的目标元素 selector，可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
@@ -748,27 +790,6 @@
           </div>
 
           <blocks-button onclick="document.querySelector('.popup2').open = !document.querySelector('.popup2').hasAttribute('open')">
-            开关
-          </blocks-button>
-        </div>
-      </div>
-
-
-      <div class="case">
-        <h3>吸附座标区域</h3>
-
-        <p>通过 `anchor` 属性，传入需要吸附的目标位置座标点、或两个座标点框定的区域，可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
-
-        <div data-codesource="html">
-          <div style="position:relative;width:200px;height:150px;border:1px solid #ccc;">
-            <div style="width:50px;height:50px;background:#000;color:#fff;">50,50</div>
-
-            <blocks-popup class="popup3" origin="left-start" anchor="[50,50]">
-              <div style="padding:15px;">座标：[50,50]</div>
-            </blocks-popup>
-          </div>
-
-          <blocks-button onclick="document.querySelector('.popup3').open = !document.querySelector('.popup3').hasAttribute('open')">
             开关
           </blocks-button>
         </div>
