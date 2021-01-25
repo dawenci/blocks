@@ -763,7 +763,7 @@
           <div style="position:relative;width:200px;height:150px;border:1px solid #ccc;">
             <div style="width:50px;height:50px;background:#000;color:#fff;">50,50</div>
 
-            <blocks-popup class="popup-anchor-inset1" origin="left-start" anchor="[0,0,50,50]" inset arrow>
+            <blocks-popup class="popup-anchor-inset1" origin="left-start" anchor="[0,0,50,50]" inset>
               <div style="padding:15px;">座标：[50,50]</div>
             </blocks-popup>
           </div>
@@ -782,14 +782,14 @@
 
         <div data-codesource="html">
           <div style="width:400px;height:100px;padding:15px;border:1px solid #ccc;">
-            <div class="popup-anchor1" style="width:100px;height:100px;background:#000;color:#fff;">anchor</div>
+            <div class="popup-selector1-anchor" style="width:100px;height:100px;background:#000;color:#fff;">anchor</div>
 
-            <blocks-popup class="popup2" arrow origin="left-start" anchor=".popup-anchor1">
+            <blocks-popup class="popup-selector1" arrow origin="left-start" anchor=".popup-selector1-anchor">
               <div style="padding:15px;">左上角吸附于 anchor 右侧</div>
             </blocks-popup>
           </div>
 
-          <blocks-button onclick="document.querySelector('.popup2').open = !document.querySelector('.popup2').hasAttribute('open')">
+          <blocks-button onclick="document.querySelector('.popup-selector1').open = !document.querySelector('.popup-selector1').hasAttribute('open')">
             开关
           </blocks-button>
         </div>

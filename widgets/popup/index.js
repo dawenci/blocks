@@ -103,7 +103,7 @@ const TEMPLATE_CSS = `<style>
   opacity: 1;
   transform: scale(1);
   /* 非 focus 时，shadow 无方向 */
-  box-shadow: 0px 0 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0 3px rgba(0, 0, 0, 0.2);
 }
 
 
@@ -111,39 +111,39 @@ const TEMPLATE_CSS = `<style>
 :host(:focus-within) #popup,
 #popup:focus-within {
   outline: 0 none;
-  box-shadow: 0px 0 3px rgba(0, 0, 0, 0.2), 0px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0 3px rgba(0, 0, 0, 0.15), 0px 0 5px rgba(0, 0, 0, 0.15);
 }
 :host(:focus-within) #popup.origin-bottom-right,
 #popup:focus-within.origin-bottom-right {
-  box-shadow: -1px -1px 3px -1px rgba(0, 0, 0, 0.1), -2px -2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.05);
+  box-shadow: -1px -1px 3px -1px rgba(0, 0, 0, 0.1), -2px -2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
 }
 :host(:focus-within) #popup.origin-bottom-left,
 #popup:focus-within.origin-bottom-left {
-  box-shadow: 1px -1px 3px -1px rgba(0, 0, 0, 0.1), 2px -2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 1px -1px 3px -1px rgba(0, 0, 0, 0.1), 2px -2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
 }
 :host(:focus-within) #popup.origin-top-right,
 #popup:focus-within.origin-top-right {
-  box-shadow: -1px 1px 3px -1px rgba(0, 0, 0, 0.1), -2px 2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.05);
+  box-shadow: -1px 1px 3px -1px rgba(0, 0, 0, 0.1), -2px 2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
 }
 :host(:focus-within) #popup.origin-top-left,
 #popup:focus-within.origin-top-left {
-  box-shadow: 1px 1px 3px -1px rgba(0, 0, 0, 0.1), 2px 2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 1px 1px 3px -1px rgba(0, 0, 0, 0.1), 2px 2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
 }
 :host(:focus-within) #popup.origin-bottom-center,
 #popup:focus-within.origin-bottom-center {
-  box-shadow: 0px -1px 3px -1px rgba(0, 0, 0, 0.1), 0px -2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px -1px 3px -1px rgba(0, 0, 0, 0.1), 0px -2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
 }
 :host(:focus-within) #popup.origin-top-center,
 #popup:focus-within.origin-top-center {
-  box-shadow: 0px 1px 3px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 1px 3px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
 }
 :host(:focus-within) #popup.origin-center-left,
 #popup:focus-within.origin-center-left {
-  box-shadow: 1px 0px 3px -1px rgba(0, 0, 0, 0.1), 2px 0px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 1px 0px 3px -1px rgba(0, 0, 0, 0.1), 2px 0px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
 }
 :host(:focus-within) #popup.origin-center-right,
 #popup:focus-within.origin-center-right {
-  box-shadow: -1px 0px 3px -1px rgba(0, 0, 0, 0.1), -2px 0px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.05);
+  box-shadow: -1px 0px 3px -1px rgba(0, 0, 0, 0.1), -2px 0px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
 }
 
 #arrow {
