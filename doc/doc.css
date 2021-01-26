@@ -50,16 +50,49 @@ article h4 { font-size: 16px }
 
 .print-area {
   margin: 30px 0;
-  padding: 30px;
-  background-color: #f0f0f0;
+  padding: 20px;
+  background-color: #444;
+  color: #eee;
 }
 
 .print-area .print-title {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .note {
   padding: 15px;
   background-color: #fafafa;
+}
+
+
+/* scrollbar 宽度 */
+::-webkit-scrollbar {
+  background: transparent;
+  background: rgba(0, 0, 0, .075);
+}
+::-webkit-scrollbar:horizontal {
+  width: 100%;
+  height: 12px;
+}
+::-webkit-scrollbar:vertical {
+  width: 12px;
+  height: 100%;
+}
+/* scrollbar 轨道（滑动槽） */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* scrollbar 滑块 */
+::-webkit-scrollbar-thumb {
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(0, 0, 0, .2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
 }
