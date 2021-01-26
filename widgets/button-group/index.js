@@ -5,6 +5,7 @@ template.innerHTML = `
   <style>
   :host {
     white-space: nowrap;
+    font-size: 0;
   }
   </style>
   <slot></slot>
