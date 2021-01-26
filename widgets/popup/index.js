@@ -140,7 +140,6 @@ const TEMPLATE_CSS = `<style>
 #arrow {
   display: block;
   position: absolute;
-  z-index: -1;
   width: ${getArrowRectSize(ARROW_SIZE)}px;
   height: ${getArrowRectSize(ARROW_SIZE)}px;
   background-color: inherit;
