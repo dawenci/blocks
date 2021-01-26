@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>dialog</title>
+  <link rel="stylesheet" href="./doc.css">
+  <link rel="stylesheet" href="./highlight/default.min.css">
+  <link rel="stylesheet" href="./highlight/monokai-sublime.css">
+  <script type="module" src="./highlight/highlight.min.js"></script>
+  <script type="module" src="./doc.js"></script>
+</head>
+<body>
+  <aside>
+  </aside>
+  <article>
+    <header>
+      <h1>dialog</h1>
+    </header>
+
+    <section class="section">
+      <div class="case">
+        <div data-codesource="html" data-title="依赖引入">
+          <script type="module" src="/widgets/dialog/index.js"></script>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>默认</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-dialog
+            id="dialog1"
+            closeable
+            title="Title attr">
+            <div style="width:400px;height:100px;overflow:auto;">
+              这里是对话框的内容。<br>
+              这里是对话框的内容。<br>
+              这里是对话框的内容。<br>
+              这里是对话框的内容。<br>
+              这里是对话框的内容。<br>
+              这里是对话框的内容。<br>
+              这里是对话框的内容。<br>
+            </div>
+          </blocks-dialog>
+
+          <blocks-button onclick="document.getElementById('dialog1').open = true">打开1</blocks-button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>header slot</h2>
+
+      <div class="case">        
+        <div data-codesource="html">
+          <blocks-dialog
+            id="dialog2"
+            closeable
+            title="忽略的title">
+            <span slot="header">
+              slot 自定义对话框标题
+            </span>
+            <div style="width:400px;">
+              这里是对话框的内容。
+            </div>
+          </blocks-dialog>
+          <blocks-button onclick="document.getElementById('dialog2').open = true">打开2</blocks-button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>footer slot</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-dialog
+            id="dialog3"
+            closeable
+            title="页脚 slot">
+            <div style="width:400px;">
+              这里是对话框的内容。
+            </div>
+
+            <div slot="footer">
+              <blocks-button onclick="document.getElementById('dialog3').open = false">
+                关闭
+              </blocks-button>
+            </div>
+          </blocks-dialog>
+          <blocks-button onclick="document.getElementById('dialog3').open = true">打开3</blocks-button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>限制焦点</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-dialog
+            id="dialog4"
+            closeable>
+
+            <div slot="header">
+              header 焦点测试：
+              <input type="text" value="header slot">
+            </div>
+
+            <div style="width:400px;">
+              <input value="default slot" />
+            </div>
+
+            <div slot="footer">
+              <input type="text" value="footer slot">
+            </div>
+          </blocks-dialog>
+          <blocks-button onclick="document.getElementById('dialog4').open = true">打开4</blocks-button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>插入到 body</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-dialog
+            id="dialog5"
+            append-to-body
+            closeable>
+            parent 为 body
+          </blocks-dialog>
+          <blocks-button onclick="document.getElementById('dialog5').open = true">打开5</blocks-button>
+        </div>
+      </div>
+    </section>
+  </article>
+</body>
+</html>

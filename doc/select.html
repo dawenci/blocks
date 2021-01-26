@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="./doc.css">
+  <link rel="stylesheet" href="./highlight/default.min.css">
+  <link rel="stylesheet" href="./highlight/monokai-sublime.css">
+  <script type="module" src="./highlight/highlight.min.js"></script>
+  <script type="module" src="./doc.js"></script>
+</head>
+<body>
+  <article>
+    <header>
+      <h1>select</h1>
+    </header>
+
+    <section class="section">
+      <div class="case">
+        <div data-codesource="html" data-title="依赖引入">
+          <script type="module" src="/widgets/select/index.js"></script>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>默认</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-select>
+            <blocks-option value="A">选项A</blocks-option>
+            <blocks-option value="B">选项B</blocks-option>
+            <blocks-option value="C">选项C</blocks-option>
+            <blocks-option value="D">选项D</blocks-option>
+          </blocks-select>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>可清除</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-select clearable>
+            <blocks-option value="A">选项A</blocks-option>
+            <blocks-option value="B">选项B</blocks-option>
+            <blocks-option value="C">选项C</blocks-option>
+            <blocks-option value="D">选项D</blocks-option>
+          </blocks-select>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>选项分组</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-select>
+            <blocks-optgroup label="Group A">
+              <blocks-option value="A">选项A</blocks-option>
+              <blocks-option value="B">选项B</blocks-option>
+            </blocks-optgroup>
+
+            <blocks-optgroup label="Group B">
+              <blocks-option value="C">选项C</blocks-option>
+              <blocks-option value="D">选项D</blocks-option>
+            </blocks-optgroup>
+          </blocks-select>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>多选</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-select
+            multiple
+            multiple-mode="tag"
+            clearable
+            tag-clearable>
+            <blocks-optgroup label="Group A">
+              <blocks-option value="A">选项A</blocks-option>
+              <blocks-option value="B">选项B</blocks-option>
+            </blocks-optgroup>
+
+            <blocks-optgroup label="Group B">
+              <blocks-option value="C" disabled>选项C</blocks-option>
+              <blocks-option value="D">选项D</blocks-option>
+              <blocks-option value="E">选项E</blocks-option>
+              <blocks-option value="F">选项F</blocks-option>
+              <blocks-option value="G">选项G</blocks-option>
+            </blocks-optgroup>
+          </blocks-select>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>不可用状态</h2>
+
+      <p>每个 option 可以单独设置 disabled, 也可以整个 group 设置 disabled</p>
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-select>
+            <blocks-optgroup label="group disabled" disabled>
+              <blocks-option value="A">选项A</blocks-option>
+              <blocks-option value="B">选项B</blocks-option>
+            </blocks-optgroup>
+
+            <blocks-option value="C" disabled>选项C</blocks-option>
+            <blocks-option value="D">选项D</blocks-option>
+          </blocks-select>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>可筛选</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-select searchable>
+            <blocks-option value="A">选项A</blocks-option>
+            <blocks-option value="B">选项B</blocks-option>
+            <blocks-option value="C">选项C</blocks-option>
+            <blocks-option value="D">选项D</blocks-option>
+          </blocks-select>
+
+          <blocks-select
+            multiple
+            multiple-mode="tag"
+            clearable
+            searchable>
+            <blocks-optgroup label="Group A">
+              <blocks-option value="A">选项A</blocks-option>
+              <blocks-option value="B">选项B</blocks-option>
+            </blocks-optgroup>
+            <blocks-optgroup label="Group B">
+              <blocks-option value="C">选项C</blocks-option>
+              <blocks-option value="D">选项D</blocks-option>
+            </blocks-optgroup>
+          </blocks-select>
+        </div>
+      </div>
+    </section>
+  </article>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="./doc.css">
+  <link rel="stylesheet" href="./highlight/default.min.css">
+  <link rel="stylesheet" href="./highlight/monokai-sublime.css">
+  <script type="module" src="./highlight/highlight.min.js"></script>
+  <script type="module" src="./doc.js"></script>
+</head>
+<body>
+  <aside>
+  </aside>
+  <article>
+    <header>
+      <h1>Modal</h1>
+    </header>
+
+    <section class="section">
+      <h2>confirm</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-button class="confirm-1">打开</blocks-button>
+          <script type="module">
+            import { confirm } from '/widgets/modal/index.js'
+            document.querySelector('.confirm-1').onclick = () => {
+              confirm('这里是需要确认的消息内容')
+            }
+          </script>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>confirm 按钮回调/Promise</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-button class="confirm-2">打开（回调例子）</blocks-button>
+          <blocks-button class="confirm-3">打开（Promise例子）</blocks-button>
+          <script type="module">
+            import { confirm } from '/widgets/modal/index.js'
+            document.querySelector('.confirm-2').onclick = () => {
+              confirm('这里是需要确认的消息内容', {
+                cancel: true,
+                oncancel() { confirm('点击了取消') },
+                onconfirm() { confirm('点击了确认') },
+              })
+            }
+            document.querySelector('.confirm-3').onclick = () => {
+              confirm('这里是需要确认的消息内容', { cancel: true })
+              .then(() => {
+                confirm('点击了确认')
+              })
+              .catch(() => {
+                confirm('点击了取消')
+              })
+            }
+          </script>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>confirm 富文本</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-button class="confirm-4">打开</blocks-button>
+          <script type="module">
+            import { confirm } from '/widgets/modal/index.js'
+            document.querySelector('.confirm-4').onclick = () => {
+              confirm('<span style="color:#f80;">这里是富文本内容</span>', { richMode: true })
+            }
+          </script>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>prompt 富文本</h2>
+
+      <div class="case">        
+        <div data-codesource="html">
+          <blocks-button class="prompt-1">打开</blocks-button>
+          <blocks-input class="prompt-1-value"></blocks-input>
+
+          <script type="module">
+            import { prompt } from '/widgets/modal/index.js'
+            document.querySelector('.prompt-1').onclick = () => {
+              prompt('请输入:', {
+                onconfirm(value) {
+                  document.querySelector('.prompt-1-value').value = value
+                }
+              })
+            }
+          </script>
+        </div>
+      </div>
+    </section>
+  </article>
+</body>
+</html>

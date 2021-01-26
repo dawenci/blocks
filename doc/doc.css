@@ -13,14 +13,6 @@ body {
   background: #f0f0f0;
 }
 
-aside {
-  flex: 0 0 150px;
-  overflow: auto;
-  box-sizing: border-box;
-  padding: 15px 0;
-  height: 100%;
-}
-
 article {
   flex: 1 1 100%;
   overflow: auto;
@@ -28,26 +20,17 @@ article {
   height: 100%;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0,0,0,.1);
-}
-
-aside > div {
-  padding: 5px 15px;
-  line-height: 1.5;
-  cursor: pointer;
-  font-size: 14px;
-  text-align: right;
-}
-
-aside > div:hover {
-  background-color: rgba(0,0,0,.1);
+  border: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;  
 }
 
 article header {
   padding: 40px 40px 0;
 }
-
 article header h1 { margin: 0; }
-
 article h1 { font-size: 48px }
 article h2 { font-size: 36px }
 article h3 { font-size: 24px }
@@ -61,7 +44,7 @@ article h4 { font-size: 16px }
   background: #fff;
 }
 
-.case {
+.case:not(:first-child) {
   border-top: 1px dashed #ddd;
   padding: 15px 0;
 }  

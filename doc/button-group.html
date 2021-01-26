@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>button-group</title>
+  <link rel="stylesheet" href="./doc.css">
+  <link rel="stylesheet" href="./highlight/default.min.css">
+  <link rel="stylesheet" href="./highlight/monokai-sublime.css">
+  <script type="module" src="./highlight/highlight.min.js"></script>
+  <script type="module" src="./doc.js"></script>
+</head>
+<body>
+  <article>
+    <header>
+      <h1>button-group</h1>
+    </header>
+
+    <section class="section">
+      <div class="case">
+        <div data-codesource="html" data-title="依赖引入">
+          <script type="module" src="/widgets/button-group/index.js"></script>
+        </div>
+      </div>      
+    </section>
+
+    <section class="section">
+      <div class="case">
+        <blocks-button-group>
+          <blocks-button size="mini">First</blocks-button>
+          <blocks-button size="mini">Second</blocks-button>
+          <blocks-button size="mini">Third</blocks-button>
+        </blocks-button-group>
+
+        <blocks-button-group>
+          <blocks-button size="small">First</blocks-button>
+          <blocks-button size="small">Second</blocks-button>
+          <blocks-button size="small">Third</blocks-button>
+        </blocks-button-group>
+
+        <blocks-button-group>
+          <blocks-button>First</blocks-button>
+          <blocks-button>Second</blocks-button>
+          <blocks-button>Third</blocks-button>
+        </blocks-button-group>
+
+        <blocks-button-group>
+          <blocks-button size="large">First</blocks-button>
+          <blocks-button size="large">Second</blocks-button>
+          <blocks-button size="large">Third</blocks-button>
+        </blocks-button-group>
+
+        <blocks-button-group>
+          <blocks-button prefix-icon="date" size="large">First</blocks-button>
+          <blocks-button suffix-icon="date" size="large">Second</blocks-button>
+          <blocks-button size="large">Third</blocks-button>
+        </blocks-button-group>
+
+        <blocks-button-group>
+          <blocks-button type="primary" prefix-icon="date" size="large">First</blocks-button>
+          <blocks-button type="primary" suffix-icon="date" size="large">Second</blocks-button>
+          <blocks-button type="primary" size="large">Third</blocks-button>
+        </blocks-button-group>
+
+        <blocks-button-group>
+          <blocks-button type="primary" outline prefix-icon="date" size="large">First</blocks-button>
+          <blocks-button type="primary" outline suffix-icon="date" size="large">Second</blocks-button>
+          <blocks-button type="primary" outline size="large">Third</blocks-button>
+        </blocks-button-group>
+      </div>
+    </section>
+    
+  </article>
+</body>
+</html>

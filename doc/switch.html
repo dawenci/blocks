@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>switch</title>
+  <link rel="stylesheet" href="./doc.css">
+  <link rel="stylesheet" href="./highlight/default.min.css">
+  <link rel="stylesheet" href="./highlight/monokai-sublime.css">
+  <script type="module" src="./highlight/highlight.min.js"></script>
+  <script type="module" src="./doc.js"></script>
+</head>
+<body>
+  <article>
+    <header>
+      <h1>switch</h1>
+    </header>
+
+    <section class="section">
+      <div class="case">
+        <div data-codesource="html" data-title="依赖引入">
+          <script type="module" src="/widgets/switch/index.js"></script>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>默认</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-switch></blocks-switch>
+          <blocks-switch checked></blocks-switch>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>尺寸</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-switch size="small"></blocks-switch>
+          <blocks-switch size="small" checked></blocks-switch>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>不可用状态</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <blocks-switch disabled></blocks-switch>
+          <blocks-switch checked disabled></blocks-switch>
+        </div>
+      </div>
+    </section>
+    
+  </article>
+</body>
+</html>
