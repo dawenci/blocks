@@ -4,10 +4,31 @@ import { forEach } from '../widgets/core/utils.js'
 // html 由于缩进，每行前面有固定的空格，使用该方法移除掉每行的开头 count 个空格
 // 删除的数量，以第一行的为准
 const removeLeadingSpaces = (str) => {
-  const lines = str.split(/\n\r?/)
-    .filter(line => !!line.trim())
+  let lines = []
+  let rawLines = str.split(/\n\r?/)
+
+  // 移除末尾空行
+  let flag = false
+  rawLines.reverse().forEach(line => {
+    if (flag || line.trim()) {
+      flag = true
+      lines.push(line)
+    }
+  })
+  // 移除开头空行
+  flag = false
+  rawLines = lines
+  lines = []
+  rawLines.reverse().forEach(line => {
+    if (flag || line.trim()) {
+      flag = true
+      lines.push(line)
+    }
+  })
+
   if (!lines.length) return ''
 
+  // 所有行移除掉不必要的缩进
   const firstLine = lines[0]
   let spaceCount = 0
   for (; spaceCount < firstLine.length; spaceCount += 1) {
