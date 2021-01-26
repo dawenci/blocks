@@ -4,6 +4,7 @@ import {
 } from '../theme/var.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
+import { setRole } from '../core/accessibility.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 6
@@ -70,16 +71,8 @@ const TEMPLATE_CSS = `<style>
    https://developers.google.com/web/updates/2016/06/css-containment
    */
   contain: none;
-
-  /* 关闭状态 */
-  pointer-events: none;
 }
 
-:host([open]) {
-  pointer-events: auto;
-}
-
-/* 焦点状态显示阴影 */
 :host(:focus) {
   outline: 0 none;
 }
@@ -272,8 +265,9 @@ const TEMPLATE_CSS = `<style>
 </style>`
 
 const TEMPLATE_HTML = `
-<div id="popup" role="popup" tabindex="-1">
+<div id="popup" role="popup">
   <i id="arrow"></i>
+  sdlfsdf
   <slot></slot>
 </div>
 `
@@ -318,50 +312,44 @@ class BlocksPopup extends HTMLElement {
   constructor() {
     super()
 
-    this.attachShadow({
-      mode: 'open',
-      // 代理焦点，
-      // 1. 点击 shadow DOM 内某个不可聚焦的区域，则第一个可聚焦区域将成为焦点
-      // 2. 当 shadow DOM 内的节点获得焦点时，除了聚焦的元素外，:focus 还会应用到宿主
-      // 3. 自己的 slot 中的元素聚焦，宿主不会获得焦点，但是 :focus-within 生效
-      delegatesFocus: true
-    })
+    this.attachShadow({ mode: 'open' })
 
     const fragment = template.content.cloneNode(true)
     this.shadowRoot.appendChild(fragment)
 
-    this.popup = this.shadowRoot.getElementById('popup')
-    this.popupArrow = this.shadowRoot.getElementById('arrow')
+    this._popup = this.shadowRoot.getElementById('popup')
+    this._popupArrow = this.shadowRoot.getElementById('arrow')
 
-    // TODO，避免 Tab 键导致焦点跑出去 popup 外面
-    this.popup.onkeydown = (e) => {
+    // 避免 Tab 键导致焦点跑出去 popup 外面
+    this._popup.onkeydown = e => {
+      // 让 Tab 键只能在 popup 内部的控件之间切换
       if (e.key !== 'Tab') return
+      if (!this.contains(document.activeElement) || document.activeElement === this) {
+        this.focus()
+      }
     }
 
     // 过渡开始时
-    this.popup.ontransitionstart = (ev) => {
-      if (ev.propertyName !== 'opacity') {
-        return
-      }
+    this._popup.ontransitionstart = (ev) => {
+      if (ev.target !== this._popup || ev.propertyName !== 'opacity') return
       this._disableEvents()
     }
 
     // 过渡进行中时
-    this.popup.ontransitionrun = (ev) => {
-      if (ev.target !== this.popup || ev.propertyName !== 'opacity') {
-        return
-      }
+    this._popup.ontransitionrun = (ev) => {
+      if (ev.target !== this._popup || ev.propertyName !== 'opacity') return
     }
 
     // 过渡取消时
-    this.popup.onontransitioncancel = () => {}
+    this._popup.onontransitioncancel = () => {
+      if (ev.target !== this._popup || ev.propertyName !== 'opacity') return
+    }
 
     // 过渡结束时
-    this.popup.ontransitionend = (ev) => {
-      if (ev.target !== this.popup || ev.propertyName !== 'opacity') {
-        return
-      }
+    this._popup.ontransitionend = (ev) => {
+      if (ev.target !== this._popup || ev.propertyName !== 'opacity') return
       this._enableEvents()
+
       if (this.open) {
         if (this.autofocus) this._focus()
         this.dispatchEvent(new CustomEvent('open'))
@@ -370,7 +358,7 @@ class BlocksPopup extends HTMLElement {
       }
       else {
         this._blur()
-        this.popup.style.display = 'none'
+        this._popup.style.display = 'none'
         this.dispatchEvent(new CustomEvent('close'))
       }
     }
@@ -497,7 +485,7 @@ class BlocksPopup extends HTMLElement {
   updatePosition() {
     if (!this.open) return
 
-    const popup = this.popup
+    const popup = this._popup
     const popupWidth = popup.offsetWidth
     const popupHeight = popup.offsetHeight
 
@@ -695,6 +683,12 @@ class BlocksPopup extends HTMLElement {
   }
 
   connectedCallback() {
+    setRole(this, 'popup')
+
+    // 将 tabindex 设置在 host 上，
+    // 因为 tabindex 在 popup 上的话，鼠标点击 slot 里面的内容时会反复 blur
+    this.setAttribute('tabindex', '-1')
+
     if (this.appendToBody && this.parentElement !== document.body) {
       document.body.appendChild(this)
     }
@@ -708,7 +702,7 @@ class BlocksPopup extends HTMLElement {
       if (e.key !== 'Tab') return
       requestAnimationFrame(() => {
         if (!this.contains(deepActiveElement())) {
-          this.popup.focus()
+          this._popup.focus()
         }
       })
     }
@@ -747,21 +741,21 @@ class BlocksPopup extends HTMLElement {
 
   // 执行过渡前的准备工作，确保动画正常
   _prepareForAnimate() {
-    this.popup.style.display = ''
+    this._popup.style.display = ''
   }
 
   _animateOpen() {
     // 强制执行动画
-    this.popup.offsetHeight
-    this.popup.style.opacity = ''
-    this.popup.style.transform = ''
+    this._popup.offsetHeight
+    this._popup.style.opacity = ''
+    this._popup.style.transform = ''
   }
 
   _animateClose() {
     // 强制执行动画
-    this.popup.offsetHeight
-    this.popup.style.opacity = '0'
-    this.popup.style.transform = 'scale(0)'
+    this._popup.offsetHeight
+    this._popup.style.opacity = '0'
+    this._popup.style.transform = 'scale(0)'
   }
 
   _updateVisible() {
@@ -787,25 +781,25 @@ class BlocksPopup extends HTMLElement {
 
   _updateClass() {
     if (this._isHorizontal()) {
-      this.popup.classList.add('horizontal')
-      this.popup.classList.remove('vertical')
+      this._popup.classList.add('horizontal')
+      this._popup.classList.remove('vertical')
     }
     else if (this._isVertical()) {
-      this.popup.classList.remove('horizontal')
-      this.popup.classList.add('vertical')
+      this._popup.classList.remove('horizontal')
+      this._popup.classList.add('vertical')
     }
     else {
-      this.popup.classList.remove('horizontal')
-      this.popup.classList.remove('vertical')
+      this._popup.classList.remove('horizontal')
+      this._popup.classList.remove('vertical')
     }
   }
 
   _updateArrow() {
     if (this.arrow) {
-      this.popupArrow.style.display = ''
+      this._popupArrow.style.display = ''
     }
     else {
-      this.popupArrow.style.display = 'none'
+      this._popupArrow.style.display = 'none'
     }
   }
 
@@ -813,11 +807,11 @@ class BlocksPopup extends HTMLElement {
     if (this.restorefocus && !this._prevFocus) {
       this._prevFocus = document.activeElement
     }
-    this.popup.focus()
+    this.focus()
   }
 
   _blur() {
-    this.popup.blur()
+    this.blur()
     if (this._prevFocus) {
       if (this.restorefocus && typeof this._prevFocus.focus) {
         this._prevFocus.focus()
@@ -828,28 +822,28 @@ class BlocksPopup extends HTMLElement {
 
   // 设置原点 class
   _setOriginClass(value) {
-    [...this.popup.classList.values()].forEach(className => {
+    [...this._popup.classList.values()].forEach(className => {
       if (className !== value && className.startsWith('origin-')) {
-        this.popup.classList.remove(className)
+        this._popup.classList.remove(className)
       }
     })
-    this.popup.classList.add(value)
+    this._popup.classList.add(value)
   }
 
   // 设置 css 变换原点
   _setOrigin(y, x) {
     this._setOriginClass(`origin-${y}-${x}`)
-    this.popup.style.transformOrigin = `${y} ${x}`
+    this._popup.style.transformOrigin = `${y} ${x}`
   }
 
   // 启用鼠标交互
   _enableEvents() {
-    this.popup.style.pointerEvents = ''
+    this._popup.style.pointerEvents = ''
   }
 
   // 禁用鼠标交互
   _disableEvents() {
-    this.popup.style.pointerEvents = 'none'
+    this._popup.style.pointerEvents = 'none'
   }
 }
 

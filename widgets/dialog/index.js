@@ -5,22 +5,27 @@ import {
   $transitionDuration,
 } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../core/property.js'
+import { setRole } from '../core/accessibility.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
   :host {
     font-family: ${$fontFamily};
-    position:fixed;
+    position:absolute;
     display:flex;
     left:0;
     top:0;
-    right:0;
-    bottom:0;
+    right:auto;
+    bottom:auto;
     z-index:-1;
   }
   :host([open]) {
     z-index:10;
+  }
+
+  :host(:focus) {
+    outline: 0 none;
   }
 
   /* 遮罩 */
@@ -53,17 +58,18 @@ template.innerHTML = `
     background-color: #fff;
 
     opacity:0;
-    transform: scale(0.5);
+    transform: scale(0);
     transition: transform ${$transitionDuration} cubic-bezier(.645, .045, .355, 1),
       opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
   }
+
   :host([open]) #dialog {
     opacity:1;
     transform:scale(1);
   }
 
   /* 焦点状态显示阴影 */
-  #dialog:focus-within {
+  :host(:focus-within) #dialog, #dialog:focus-within {
     outline: 0 none;
     box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
       0px 24px 38px 3px rgba(0, 0, 0, 0.14),
@@ -203,7 +209,6 @@ template.innerHTML = `
   }
   </style>
 
-  <div id="mask"></div>
   <div id="dialog" role="dialog" tabindex="-1">
     <header>  
       <slot name="header">
@@ -238,6 +243,10 @@ function getBodyPaddingRight() {
   return parseInt(getComputedStyle(document.body).paddingRight, 10)
 }
 
+const openGetter = boolGetter('open')
+const openSetter = boolSetter('open')
+const closeableGetter = boolGetter('closeable')
+const closeableSetter = boolSetter('closeable')
 const appendToBodyGetter = boolGetter('append-to-body')
 const appendToBodySetter = boolSetter('append-to-body')
 
@@ -253,96 +262,108 @@ class BlocksDialog extends HTMLElement {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
+    const shadowRoot = this.attachShadow({ mode: 'open' })
 
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this.dialog = shadowRoot.getElementById('dialog')
+
+    this._dialog = shadowRoot.getElementById('dialog')
+    this._mask = document.createElement('div')
+    this._mask.style.cssText = `
+      display: none;
+      position:absolute;
+      left:0;
+      top:0;
+      right:0;
+      bottom:0;
+      z-index:10;
+      background: rgba(0,0,0,.3);
+      opacity:0;
+      transition: opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
+    `
 
     this.remove = false
 
-    const onClick = (e) => {
+    this._dialog.onclick = e => {
       const target = e.target
       if (target.id === 'close') {
         this.open = false
         return
       }
-      // 点击 slot 里，非控件时，焦点会变成 body，将焦点转移回来对话框
-      if (!this.contains(document.activeElement)) {
-        this.dialog.focus()
-      }
     }
 
-    const onKeyDown = (e) => {
+    this._mask.onclick = e => {
+      this._focus()
+    }
+
+    this._dialog.onkeydown = e => {
       // 让 Tab 键只能在 dialog 内部的控件之间切换
-      if (e.key !== 'Tab' || document.activeElement === this.dialog) return
+      if (e.key !== 'Tab') return
       if (!this.contains(document.activeElement) || document.activeElement === this) {
-        this.dialog.focus()
+        this.focus()
       }
     }
 
-    const onShow = (ev) => {
-      if (ev.propertyName === 'transform' && this.open) {
+    // 过渡开始
+    this._dialog.ontransitionstart = ev => {
+      if (ev.target !== this._dialog || ev.propertyName !== 'opacity') return
+      this._disableEvents()
+    }
+
+    // 过渡进行
+    this._dialog.ontransitionrun = ev => {}
+
+    // 过渡取消
+    this._dialog.onontransitioncancel = ev => {}
+
+    // 过渡结束
+    this._dialog.ontransitionend = ev => {
+      if (ev.target !== this._dialog || ev.propertyName !== 'opacity') return
+      this._enableEvents()
+
+      if (this.open) {
         this._focus()
         this.dispatchEvent(new CustomEvent('open'))
       }
-    }
-    const onHide = (ev) => {
-      if (ev.propertyName === 'transform' && !this.open) {
+      else {
         this._blur()
+        this._dialog.style.display = 'none'
+        this._mask.style.display = 'none'
+
         if (this.remove) {
-          document.body.removeChild(this)
+          this.parentElement && this.parentElement.removeChild(this)
         }
         this.dispatchEvent(new CustomEvent('close'))
       }
     }
 
-    const onTransitionEnd = (ev) => {
-      if (ev.propertyName !== 'transform') {
-        return
-      }
-      if (this.open) onShow(ev)
-      else onHide(ev)
-    }
-
-    this.dialog.addEventListener('transitioncancel', onTransitionEnd)
-    this.dialog.addEventListener('transitionend', onTransitionEnd)
-
-    shadowRoot.addEventListener('click', onClick)
-    shadowRoot.addEventListener('keydown', onKeyDown)
-
-    this.dialog.addEventListener('slotchange', e => {
+    this._dialog.addEventListener('slotchange', e => {
       this.render()
     })
   }
 
-  get open() {  
-    return this.getAttribute('open') !== null
+  get open() {
+    return openGetter(this)
   }
+
   set open(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('open')
-    } else {
-      this.setAttribute('open', '')
-    }
+    openSetter(this, value)
   }
 
   get title() {
     return this.getAttribute('title')
   }
+
   set title(value) {
     this.setAttribute('title', value)
     this._renderHeader()
   }
 
   get closeable() {
-    return this.getAttribute('closeable') !== null
+    return closeableGetter(this)
   }
+
   set closeable(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('closeable')
-    } else {
-      this.setAttribute('closeable', '')
-    }
+    closeableSetter(this, value)
   }
 
   get appendToBody() {
@@ -356,6 +377,52 @@ class BlocksDialog extends HTMLElement {
   render() {
     this._renderHeader()
     this._renderFooter()
+  }
+
+  // 执行过渡前的准备工作，确保动画正常
+  _prepareForAnimate() {
+    this._dialog.style.display = ''
+    this._mask.style.display = ''
+  }
+
+  // 启用鼠标交互
+  _enableEvents() {
+    this._dialog.style.pointerEvents = ''
+  }
+
+  // 禁用鼠标交互
+  _disableEvents() {
+    this._dialog.style.pointerEvents = 'none'
+  }
+
+  _updateVisible() {
+    this._prepareForAnimate()
+    if (this.open) {
+      this._lockScroll()
+      this._animateOpen()
+    }
+    else {
+      this._unlockScroll()
+      this._animateClose()
+    }
+  }
+
+  _animateOpen() {
+    // 强制执行动画
+    this._dialog.offsetHeight
+    this._dialog.style.opacity = ''
+    this._dialog.style.transform = ''
+    this._mask.offsetHeight
+    this._mask.style.opacity = ''
+  }
+
+  _animateClose() {
+    // 强制执行动画
+    this._dialog.offsetHeight
+    this._dialog.style.opacity = '0'
+    this._dialog.style.transform = 'scale(0)'
+    this._mask.offsetHeight
+    this._mask.style.opacity = '0'
   }
 
   _lockScroll() {
@@ -394,24 +461,24 @@ class BlocksDialog extends HTMLElement {
 
   _renderHeader() {
     if (this._hostChild('[slot="header"]')) {
-      this.dialog.classList.remove('no-header')
+      this._dialog.classList.remove('no-header')
     }
     else if (this.title) {
-      this.dialog.classList.remove('no-header')
+      this._dialog.classList.remove('no-header')
       const title = this._shadowChild('h1')
       title.innerText = this.title
     }
     else {
-      this.dialog.classList.add('no-header')
+      this._dialog.classList.add('no-header')
     }
   }
 
   _renderFooter() {
     if (this.querySelector('[slot="footer"]')) {
-      this.dialog.classList.remove('no-footer')
+      this._dialog.classList.remove('no-footer')
     }
     else {
-      this.dialog.classList.add('no-footer')
+      this._dialog.classList.add('no-footer')
     }
   }
 
@@ -419,11 +486,11 @@ class BlocksDialog extends HTMLElement {
     if (!this._prevFocus) {
       this._prevFocus = document.activeElement
     }
-    this.dialog.focus()
+    this.focus()
   }
 
   _blur() {
-    this.dialog.blur()
+    this.blur()
     if (this._prevFocus) {
       this._prevFocus.focus()
       this._prevFocus = undefined
@@ -431,39 +498,50 @@ class BlocksDialog extends HTMLElement {
   }
 
   connectedCallback() {
-    if (this.appendToBody && this.parentElement !== document.body) {
+    setRole(this, 'dialog')
+
+    // 将 tabindex 设置在 host 上，
+    // 因为 tabindex 在 popup 上的话，鼠标点击 slot 里面的内容时会反复 blur
+    this.setAttribute('tabindex', '-1')
+
+    if (this.parentElement !== document.body) {
       document.body.appendChild(this)
     }
+    this.parentElement.insertBefore(this._mask, this)
 
     this._renderHeader()
     this._renderFooter()
 
     // 拖拽 header 移动
     {
-      const dialog = this.dialog
-      let offsetX = 0
-      let offsetY = 0
+      const dialog = this._dialog
+      let startX
+      let startY
+      let startPageX
+      let startPageY
 
       const isHeader = (e) => {
         return dialog.querySelector('header').contains(e.target)
       }
   
       const move = (e) => {
-        dialog.style.left = (e.pageX - offsetX) + 'px'
-        dialog.style.top = (e.pageY - offsetY) + 'px'
+        this.style.left = startX + (e.pageX - startPageX) + 'px'
+        this.style.top = startY + (e.pageY - startPageY) + 'px'
       }
-  
+
       const up = () => {
         removeEventListener('mousemove', move)
         removeEventListener('mouseup', up)
       }
-  
+
       dialog.onmousedown = (e) => {
         if (!isHeader(e)) return
-        const marginLeft = parseFloat(window.getComputedStyle(dialog).marginLeft || '0')
-        const marginTop = parseFloat(window.getComputedStyle(dialog).marginTop || '0')
-        offsetX = (e.pageX - dialog.offsetLeft + marginLeft)
-        offsetY = (e.pageY - dialog.offsetTop + marginTop)
+        startPageX = e.pageX
+        startPageY = e.pageY
+        const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0')
+        const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0')
+        startX = this.offsetLeft - marginLeft
+        startY = this.offsetTop - marginTop
         addEventListener('mousemove', move)
         addEventListener('mouseup', up)
       }
@@ -471,20 +549,15 @@ class BlocksDialog extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.dialog.onmousedown = null
+    this._dialog.onmousedown = null
+    if (this._mask && this._mask.parentElement) {
+      this._mask.parentElement.removeChild(this._mask)
+    }
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (name == 'open' && this.shadowRoot) {
-      if (this.open) {
-        this._lockScroll()
-      }
-      else {
-        this._unlockScroll()
-      }
-
-      if (newValue !== null) this._focus()
-      else this._blur()
+      this._updateVisible()
     }
   }
 }
