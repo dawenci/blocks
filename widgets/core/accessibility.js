@@ -16,7 +16,7 @@ export function setTabindex(element, value) {
     element.removeAttribute('tabindex')
   }
   else {
-    element.setAttribute('aria-disabled', 'true')
+    element.setAttribute('tabindex', typeof value === 'number' ? value : '0')
   }
 }
 

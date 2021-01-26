@@ -239,7 +239,7 @@ class BlocksCheckbox extends HTMLElement {
   connectedCallback() {
     setRole(this, 'checkbox')
     setDisabled(this, this.disabled)
-    setTabindex(this, !this.tabIndex)
+    setTabindex(this, !this.disabled)
 
     this._renderLabel()
   }
@@ -251,7 +251,7 @@ class BlocksCheckbox extends HTMLElement {
     if (name === 'disabled') {
       updateDisabled(this)
       setDisabled(this, this.disabled)
-      setTabindex(this, !this.tabIndex)
+      setTabindex(this, !this.disabled)
     }
   }
 }

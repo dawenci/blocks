@@ -203,7 +203,7 @@ class BlocksRadio extends HTMLElement {
   connectedCallback() {
     setRole(this, 'radio')
     setDisabled(this, this.disabled)
-    setTabindex(this, !this.tabIndex)
+    setTabindex(this, !this.disabled)
 
     this._renderLabel()
   }
@@ -215,7 +215,7 @@ class BlocksRadio extends HTMLElement {
     if (name === 'disabled') {
       updateDisabled(this)
       setDisabled(this, this.disabled)
-      setTabindex(this, !this.tabIndex)
+      setTabindex(this, !this.disabled)
     } 
   }
 }
