@@ -38,14 +38,13 @@ article h4 { font-size: 16px }
 
 
 .section {
-  border-top: 1px solid #ddd;
+  border-top: 1px dashed #ddd;
   margin: 40px 0;
   padding: 40px 40px;
   background: #fff;
 }
 
 .case:not(:first-child) {
-  border-top: 1px dashed #ddd;
   padding: 15px 0;
 }  
 

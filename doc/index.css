@@ -35,6 +35,10 @@ aside {
   padding: 0;  
 }
 
+aside > h1 {
+  padding: 0 15px;
+  text-align: right;
+}
 aside > div {
   padding: 5px 15px;
   line-height: 1.5;
