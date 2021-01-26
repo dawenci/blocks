@@ -1,3 +1,4 @@
+import { setDisabled, setRole, setTabindex, updateDisabled } from '../core/accessibility.js'
 import {
   $fontFamily,
   $radiusSmall,
@@ -117,9 +118,11 @@ template.innerHTML = `
 
   :host([disabled]) {
     color: ${$colorDisabled};
-    outline: 0 none;
   }
-  :host([disabled]) .checkbox {
+  :host([disabled]) .checkbox,
+  :host([disabled]:hover) .checkbox,
+  :host([disabled]:active) .checkbox,
+  :host([disabled]:focus) .checkbox {
     border-color: ${$borderColorDisabled};
     background-color: ${$backgroundColorDisabled};
   }
@@ -234,8 +237,9 @@ class BlocksCheckbox extends HTMLElement {
   }
 
   connectedCallback() {
-    this.setAttribute('role', 'checkbox')
-    this.setAttribute('tabindex', '0')
+    setRole(this, 'checkbox')
+    setDisabled(this, this.disabled)
+    setTabindex(this, !this.tabIndex)
 
     this._renderLabel()
   }
@@ -244,13 +248,10 @@ class BlocksCheckbox extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (this.disabled) {
-      this.removeAttribute('tabindex')
-      this.setAttribute('aria-disabled', 'true')
-    }
-    else {
-      this.setAttribute('tabindex', '0')
-      this.setAttribute('aria-disabled', 'false')
+    if (name === 'disabled') {
+      updateDisabled(this)
+      setDisabled(this, this.disabled)
+      setTabindex(this, !this.tabIndex)
     }
   }
 }

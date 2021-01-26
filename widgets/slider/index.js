@@ -1,6 +1,6 @@
 import { upgradeProperty } from '../core/upgradeProperty.js'
 import { boolGetter, boolSetter, numGetter, numSetter } from '../core/property.js';
-import { makeRgbaColor } from '../core/utils.js';
+import { forEach, makeRgbaColor } from '../core/utils.js';
 import {
   $fontFamily,
   $radiusSmall,
@@ -13,6 +13,7 @@ import {
   $backgroundColorDisabled,
   $transitionDuration,
 } from '../theme/var.js'
+import { setDisabled, setRole } from '../core/accessibility.js';
 
 const [minGetter, maxGetter] = ['min', 'max'].map(prop => numGetter(prop))
 const [minSetter, maxSetter] = ['min', 'max'].map(prop => numSetter(prop))
@@ -238,9 +239,24 @@ class BlocksSlider extends HTMLElement {
     }
   }
 
+  _updateTabindex() {
+    const buttons = this.shadowRoot.querySelectorAll('.button')
+    if (this.disabled) {
+      forEach(buttons, button => {
+        button.removeAttribute('tabindex')
+      })
+    }
+    else {
+      forEach(buttons, button => {
+        button.setAttribute('tabindex', '0')
+      })
+    }
+  }
+
   connectedCallback() {
-    this.setAttribute('role', 'slider')
-    this.setAttribute('tabindex', '0')
+    setRole(this, 'slider')
+    setDisabled(this, this.disabled)
+    this._updateTabindex()
 
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
@@ -324,15 +340,12 @@ class BlocksSlider extends HTMLElement {
     this.slider.onmousedown = null
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (this.disabled) {
-      this.removeAttribute('tabindex')
-      this.setAttribute('aria-disabled', 'true')
+  attributeChangedCallback(name, oldValue, newValue) {    
+    if (name === 'disabled') {
+      setDisabled(this, this.disabled)
+      this._updateTabindex()
     }
-    else {
-      this.setAttribute('tabindex', '0')
-      this.setAttribute('aria-disabled', 'false')
-    }
+    
     if (name === 'range') {
       this._updateButton()
     }

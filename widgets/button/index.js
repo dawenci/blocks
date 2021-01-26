@@ -29,6 +29,7 @@ import {
 } from '../theme/var.js'
 
 import { getRegisteredSvgIcon } from '../../icon/index.js'
+import { setDisabled, setRole, setTabindex } from '../core/accessibility.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -393,10 +394,9 @@ class BlocksButton extends HTMLElement {
   }
 
   connectedCallback() {
-    this.setAttribute('role', 'button')
-    if (!this.disabled) {
-      this._widget.setAttribute('tabindex', '0')
-    }
+    setRole(this, 'button')
+    setDisabled(this, this.disabled)
+    setTabindex(this, !this.tabIndex)
     
     this._observer.observe(this, {
       childList: true,
@@ -414,16 +414,10 @@ class BlocksButton extends HTMLElement {
   adoptedCallback() {}
 
   attributeChangedCallback(attrName, oldVal, newVal) {
-    // only is called for the disabled attribute due to observedAttributes
-    if (this.disabled) {
-      this._widget.removeAttribute('tabindex')
-      this.setAttribute('aria-disabled', 'true')
+    if (attrName === 'disabled') {
+      setDisabled(this, this.disabled)
+      setTabindex(this, !this.tabIndex)
     }
-    else {
-      this._widget.setAttribute('tabindex', '0')
-      this.setAttribute('aria-disabled', 'false')
-    }
-
     this.render()
   }
 }

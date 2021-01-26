@@ -15,6 +15,7 @@ import { getRegisteredSvgIcon } from '../../icon/index.js'
 import '../popup/index.js'
 import '../date-panel/index.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
+import { setDisabled, setRole } from '../core/accessibility.js'
 
 const TEMPLATE_CSS = `<style>
 :host, :host * {
@@ -396,6 +397,9 @@ class BlocksInput extends HTMLElement {
   }
 
   connectedCallback() {
+    setRole(this, 'input')
+    setDisabled(this, this.disabled)
+
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
@@ -427,6 +431,11 @@ class BlocksInput extends HTMLElement {
     ].includes(name)) {
       this.input.setAttribute(name, newValue)
     }
+
+    if (name === 'disabled') {
+      setDisabled(this, this.disabled)
+    }
+
     this.render()
   }
 

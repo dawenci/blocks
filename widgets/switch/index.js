@@ -1,3 +1,4 @@
+import { setDisabled, setRole, setTabindex } from '../core/accessibility.js'
 import {
   $fontFamily,
   $radiusSmall,
@@ -152,21 +153,18 @@ class BlocksSwitch extends HTMLElement {
   }
 
   connectedCallback() {
-    this.setAttribute('role', 'switch')
-    this.setAttribute('tabindex', '0')
+    setRole(this, 'switch')
+    setDisabled(this, this.disabled)
+    setTabindex(this, !this.disabled)
   }
 
   disconnectedCallback() {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (this.disabled) {
-      this.removeAttribute('tabindex')
-      this.setAttribute('aria-disabled', 'true')
-    }
-    else {
-      this.setAttribute('tabindex', '0')
-      this.setAttribute('aria-disabled', 'false')
+    if (name === 'disabled') {
+      setDisabled(this, this.disabled)
+      setTabindex(this, !this.disabled)
     }
   }
 }

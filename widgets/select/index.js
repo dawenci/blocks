@@ -10,6 +10,7 @@ import {
 } from '../theme/var.js'
 import { every, filter, find, forEach, map, property, propertyEq } from '../core/utils.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
+import { setDisabled, setRole } from '../core/accessibility.js'
 
 let idSeed = Date.now()
 
@@ -226,31 +227,6 @@ class BlocksSelect extends HTMLElement {
     })
   }
 
-  // get value() {
-  //   return this.multiple
-  //     ? this._result.value.map(item => item.value)
-  //     : this._result.value?.value
-  // }
-
-  // set value(value) {
-  //   if (!this.multiple) {
-  //     const selected = find(this.options, propertyEq('value', value))
-  //     this._result.value = selected ? { value, label: selected.label ?? selected.textContent } : null
-  //     if (this.value !== value) {
-  //       this.dispatchEvent(new CustomEvent('change', { bubbles: true, composed: true, cancelable: true }))
-  //     }
-  //   }
-  //   else {
-  //     if (!Array.isArray(value)) return
-  //     const selected = filter(this.options, el => value.includes(el.value))
-  //     const values = selected.map(el => ({ value: el.value, label: el.label ?? el.textContent }))
-  //     this._result.value = values
-  //     this.dispatchEvent(new CustomEvent('change', { bubbles: true, composed: true, cancelable: true }))
-  //   }
-
-  //   this.render()
-  // }
-
   get clearable() {
     return this._result.clearable
   }
@@ -293,6 +269,9 @@ class BlocksSelect extends HTMLElement {
   }
 
   connectedCallback() {
+    setRole(this, 'select')
+    setDisabled(this, this.disabled)
+
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
@@ -342,6 +321,11 @@ class BlocksSelect extends HTMLElement {
     if (['clearable', 'tag-clearable', 'multiple', 'multiple-mode', 'searchable'].includes(name)) {
       this._result.setAttribute(name, newValue)
     }
+
+    if (name === 'disabled') {
+      setDisabled(this, this.disabled)
+    }
+
     this.render()
   }
 
