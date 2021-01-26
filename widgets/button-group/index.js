@@ -1,3 +1,5 @@
+import '../button/index.js'
+
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
