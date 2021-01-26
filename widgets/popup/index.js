@@ -260,12 +260,23 @@ const TEMPLATE_CSS = `<style>
   bottom: 0;
 }
 
+#first, #last, #first:focus, #last:focus {
+  overflow: hidden;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0 none;
+}
 </style>`
 
 const TEMPLATE_HTML = `
 <div id="popup">
+  <button id="first"></button>
   <i id="arrow"></i>
   <slot></slot>
+  <button id="last"></button>
 </div>
 `
 
@@ -316,6 +327,8 @@ class BlocksPopup extends HTMLElement {
 
     this._popup = this.shadowRoot.getElementById('popup')
     this._popupArrow = this.shadowRoot.getElementById('arrow')
+    this._firstFocusable = this.shadowRoot.querySelector('#first')
+    this._lastFocusable = this.shadowRoot.querySelector('#last')
 
     // 过渡开始时
     this._popup.ontransitionstart = (ev) => {
@@ -352,17 +365,18 @@ class BlocksPopup extends HTMLElement {
     }
 
     // 避免 Tab 键导致焦点跑出去 popup 外面
-    this.addEventListener('keydown', e => {
-      // 让 Tab 键只能在 popup 内部的控件之间切换
-      if (e.key === 'Tab') {
-        if (!this.contains(document.activeElement) || document.activeElement === this) {
-          this.focus()
+    {
+      this._firstFocusable.onkeydown = e => {
+        if (e.key === 'Tab' && e.shiftKey) {
+          this._lastFocusable.focus()
         }
       }
-      if (e.key === 'Escape') {
-        this.open = false
+      this._lastFocusable.onkeydown = e => {
+        if (e.key === 'Tab' && !e.shiftKey) {
+          this._firstFocusable.focus()
+        }
       }
-    })    
+    }
   }
 
   get open() {

@@ -7,6 +7,7 @@ import {
 import { boolGetter, boolSetter } from '../core/property.js'
 import { setRole } from '../core/accessibility.js'
 import { dispatchEvent } from '../core/event.js'
+import { filter, find } from '../core/utils.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -207,9 +208,20 @@ template.innerHTML = `
   .no-header.no-footer #close {
     top: 30px;
   }
+
+  #first, #last, #first:focus, #last:focus {
+    overflow: hidden;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0 none;
+  }
   </style>
 
   <div id="dialog">
+    <button id="first"></button>
     <header>  
       <slot name="header">
         <h1></h1>
@@ -226,6 +238,7 @@ template.innerHTML = `
     </footer>
 
     <button id="close"></button>
+    <button id="last"></button>
   </div>
 `
 
@@ -277,6 +290,9 @@ class BlocksDialog extends HTMLElement {
       transition: opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
     `
 
+    this._firstFocusable = shadowRoot.querySelector('#first')
+    this._lastFocusable = shadowRoot.querySelector('#last')
+
     this.remove = false
 
     this._dialog.onclick = e => {
@@ -289,25 +305,31 @@ class BlocksDialog extends HTMLElement {
 
     // 避免点击 mask 的时候，dialog blur
     // 注：mousedown 到 mouseup 之间，dialog 会发生 blur
-    const onMaskMousedown = e => {
-      this._focus()
-      const onBlur = e => {
-        this._focus()
-      }
-      this.addEventListener('blur', onBlur)
-      this._mask.onmouseup = e => {
-        this._mask.onmouseup = null
-        this.removeEventListener('blur', onBlur)
-      }
-    }
-    this._mask.addEventListener('mousedown', onMaskMousedown)
-
-
-    this._dialog.onkeydown = e => {
-      // 让 Tab 键只能在 dialog 内部的控件之间切换
-      if (e.key !== 'Tab') return
-      if (!this.contains(document.activeElement) || document.activeElement === this) {
+    {
+      this._refocus = e => {
         this.focus()
+        this.removeEventListener('blur', this._refocus)
+      }
+      this._mask.addEventListener('mousedown', e => {
+        this.focus()
+        this.addEventListener('blur', this._refocus)        
+      })
+      this._mask.addEventListener('mouseup', e => {
+        this.removeEventListener('blur', this._refocus)
+      })
+    }
+
+    // 避免 Tab 键导致焦点跑出去 dialog 外面
+    {
+      this._firstFocusable.onkeydown = e => {
+        if (e.key === 'Tab' && e.shiftKey) {
+          this._lastFocusable.focus()
+        }
+      }
+      this._lastFocusable.onkeydown = e => {
+        if (e.key === 'Tab' && !e.shiftKey) {
+          this._firstFocusable.focus()
+        }
       }
     }
 
@@ -582,7 +604,6 @@ class BlocksDialog extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this._dialog.onmousedown = null
     if (this._mask && this._mask.parentElement) {
       this._mask.parentElement.removeChild(this._mask)
     }
