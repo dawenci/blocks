@@ -69,10 +69,6 @@ template.innerHTML = `
     user-select: none;
   }
 
-  .widget:focus {
-    outline: 0 none;
-  }
-
   .prefix-icon, .suffix-icon {
     flex: 0 0 auto;
     display: block;
@@ -106,132 +102,132 @@ template.innerHTML = `
 
   :host([type="primary"]) .widget { background-color: ${$colorPrimary}; }
   :host([type="primary"]) .widget:hover,
-  :host([type="primary"]) .widget:focus { background-color: ${$colorPrimaryLight}; }
+  :host([type="primary"]:focus) .widget { background-color: ${$colorPrimaryLight}; }
   :host([type="primary"]) .widget:active { background-color: ${$colorPrimaryDark}; }
 
   :host([type="danger"]) .widget { background-color: ${$colorDanger}; }
   :host([type="danger"]) .widget:hover,
-  :host([type="danger"]) .widget:focus { background-color: ${$colorDangerLight}; }
+  :host([type="danger"]:focus) .widget { background-color: ${$colorDangerLight}; }
   :host([type="danger"]) .widget:active { background-color: ${$colorDangerDark}; }
 
   :host([type="success"]) .widget { background-color: ${$colorSuccess}; }
   :host([type="success"]) .widget:hover,
-  :host([type="success"]) .widget:focus { background-color: ${$colorSuccessLight}; }
+  :host([type="success"]:focus) .widget { background-color: ${$colorSuccessLight}; }
   :host([type="success"]) .widget:active { background-color: ${$colorSuccessDark}; }
 
   :host([type="warning"]) .widget { background-color: ${$colorWarning}; }
   :host([type="warning"]) .widget:hover,
-  :host([type="warning"]) .widget:focus { background-color: ${$colorWarningLight}; }
+  :host([type="warning"]:focus) .widget { background-color: ${$colorWarningLight}; }
   :host([type="warning"]) .widget:active { background-color: ${$colorWarningDark}; }
 
   :host([disabled]) .widget,
   :host([disabled]) .widget:hover,
-  :host([disabled]) .widget:focus,
+  :host([disabled]:focus) .widget,
   :host([disabled]) .widget:active { background-color: ${$backgroundColorDisabled}; }
 
   :host([outline]) .widget,
   :host([outline]) .widget:hover,
-  :host([outline]) .widget:focus,
+  :host([outline]:focus) .widget,
   :host([outline]) .widget:active { background-color: transparent; }
 
   :host([type="link"]),
   :host([type="link"]) .widget:hover,
-  :host([type="link"]) .widget:focus,
+  :host([type="link"]:focus) .widget,
   :host([type="link"]) .widget:active { background-color: transparent; }
 
 
   /* border-color */
   :host .widget { border-color: ${$borderColorBase}; }
   :host .widget:hover,
-  :host .widget:focus { border-color: ${$colorPrimaryLight}; }
+  :host(:focus) .widget { border-color: ${$colorPrimaryLight}; }
   :host .widget:active { border-color: ${$colorPrimaryDark}; }
 
   :host([type="primary"]) .widget { border-color: ${$colorPrimary}; }
   :host([type="primary"]) .widget:hover,
-  :host([type="primary"]) .widget:focus { border-color: ${$colorPrimaryLight}; }
+  :host([type="primary"]:focus) .widget { border-color: ${$colorPrimaryLight}; }
   :host([type="primary"]) .widget:active {border-color: ${$colorPrimaryDark}; }
 
   :host([type="danger"]) .widget { border-color: ${$colorDanger}; }
   :host([type="danger"]) .widget:hover,
-  :host([type="danger"]) .widget:focus { border-color: ${$colorDangerLight}; }
+  :host([type="danger"]:focus) .widget { border-color: ${$colorDangerLight}; }
   :host([type="danger"]) .widget:active { border-color: ${$colorDangerDark}; }
 
   :host([type="warning"]) .widget { border-color: ${$colorWarning}; }
   :host([type="warning"]) .widget:hover,
-  :host([type="warning"]) .widget:focus { border-color: ${$colorWarningLight}; }
+  :host([type="warning"]:focus) .widget { border-color: ${$colorWarningLight}; }
   :host([type="warning"]) .widget:active { border-color: ${$colorWarningDark}; }
 
   :host([type="success"]) .widget { border-color: ${$colorSuccess}; }
   :host([type="success"]) .widget:hover,
-  :host([type="success"]) .widget:focus { border-color: ${$colorSuccessLight}; }
+  :host([type="success"]:focus) .widget { border-color: ${$colorSuccessLight}; }
   :host([type="success"]) .widget:active { border-color: ${$colorSuccessDark}; }
   
   :host([disabled]) .widget,
   :host([disabled]) .widget:hover,
-  :host([disabled]) .widget:focus,
+  :host([disabled]:focus) .widget,
   :host([disabled]) .widget:active { border-color: ${$borderColorDisabled}; }
 
   :host([type="link"]) .widget,
   :host([type="link"]) .widget:hover,
-  :host([type="link"]) .widget:focus,
+  :host([type="link"]:focus) .widget,
   :host([type="link"]) .widget:active { border-color: transparent; }
 
 
   /* color */
   :host .widget { fill: ${$colorFontBase}; color: ${$colorFontBase}; }
   :host .widget:hover,
-  :host .widget:focus { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
+  :host(:focus) .widget { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
   :host .widget:active { fill: ${$colorPrimaryDark}; color: ${$colorPrimaryDark}; }
 
   :host([type="primary"]) .widget,
   :host([type="primary"]) .widget:hover,
-  :host([type="primary"]) .widget:focus,
+  :host([type="primary"]:focus) .widget,
   :host([type="primary"]) .widget:active,
   :host([type="danger"]) .widget,
   :host([type="danger"]) .widget:hover,
-  :host([type="danger"]) .widget:focus,
+  :host([type="danger"]:focus) .widget,
   :host([type="danger"]) .widget:active,
   :host([type="warning"]) .widget,
   :host([type="warning"]) .widget:hover,
-  :host([type="warning"]) .widget:focus,
+  :host([type="warning"]:focus) .widget,
   :host([type="warning"]) .widget:active,
   :host([type="success"]) .widget,
   :host([type="success"]) .widget:hover,
-  :host([type="success"]) .widget:focus,
+  :host([type="success"]:focus) .widget,
   :host([type="success"]) .widget:active { fill: #fff; color: #fff; }
 
   :host([type="primary"][outline]) .widget { fill: ${$colorPrimary}; color: ${$colorPrimary}; }
   :host([type="primary"][outline]) .widget:hover,
-  :host([type="primary"][outline]) .widget:focus { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
+  :host([type="primary"][outline]:focus) .widget { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
   :host([type="primary"][outline]) .widget:active { fill: ${$colorPrimaryDark}; color: ${$colorPrimaryDark}; }
 
   :host([type="danger"][outline]) .widget { fill: ${$colorDanger}; color: ${$colorDanger}; }
   :host([type="danger"][outline]) .widget:hover,
-  :host([type="danger"][outline]) .widget:focus { fill: ${$colorDangerLight}; color: ${$colorDangerLight}; }
+  :host([type="danger"][outline]:focus) .widget { fill: ${$colorDangerLight}; color: ${$colorDangerLight}; }
   :host([type="danger"][outline]) .widget:active { fill: ${$colorDangerDark}; color: ${$colorDangerDark}; }
 
   :host([type="warning"][outline]) .widget { fill: ${$colorWarning}; color: ${$colorWarning}; }
   :host([type="warning"][outline]) .widget:hover,
-  :host([type="warning"][outline]) .widget:focus { fill: ${$colorWarningLight}; color: ${$colorWarningLight}; }
+  :host([type="warning"][outline]:focus) .widget { fill: ${$colorWarningLight}; color: ${$colorWarningLight}; }
   :host([type="warning"][outline]) .widget:active { fill: ${$colorWarningDark}; color: ${$colorWarningDark}; }
 
   :host([type="success"][outline]) .widget { fill: ${$colorSuccess}; color: ${$colorSuccess}; }
   :host([type="success"][outline]) .widget:hover,
-  :host([type="success"][outline]) .widget:focus { fill: ${$colorSuccessLight}; color: ${$colorSuccessLight}; }
+  :host([type="success"][outline]:focus) .widget { fill: ${$colorSuccessLight}; color: ${$colorSuccessLight}; }
   :host([type="success"][outline]) .widget:active { fill: ${$colorSuccessDark}; color: ${$colorSuccessDark}; }
 
   :host([type="link"]) .widget { fill: ${$colorPrimary}; color: ${$colorPrimary}; }
   :host([type="link"]) .widget:hover,
-  :host([type="link"]) .widget:focus { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
+  :host([type="link"]:focus) .widget { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
   :host([type="link"]) .widget:active { fill: ${$colorPrimaryDark}; color: ${$colorPrimaryDark}; }
 
   :host([disabled]) .widget,
   :host([disabled]) .widget:hover,
-  :host([disabled]) .widget:focus,
+  :host([disabled]:focus) .widget,
   :host([disabled]) .widget:active,
   :host([disabled][outline]) .widget,
   :host([disabled][outline]) .widget:hover,
-  :host([disabled][outline]) .widget:focus,
+  :host([disabled][outline]:focus) .widget,
   :host([disabled][outline]) .widget:active { fill: ${$colorDisabled}; color: ${$colorDisabled}; }
 
 
@@ -396,7 +392,7 @@ class BlocksButton extends HTMLElement {
   connectedCallback() {
     setRole(this, 'button')
     setDisabled(this, this.disabled)
-    setTabindex(this, !this.tabIndex)
+    setTabindex(this, !this.disabled)
     
     this._observer.observe(this, {
       childList: true,
@@ -416,7 +412,7 @@ class BlocksButton extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {
     if (attrName === 'disabled') {
       setDisabled(this, this.disabled)
-      setTabindex(this, !this.tabIndex)
+      setTabindex(this, !this.disabled)
     }
     this.render()
   }
