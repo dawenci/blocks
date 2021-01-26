@@ -60,6 +60,7 @@ class BlocksIcon extends HTMLElement {
     this.shadowRoot.appendChild(fragment)
   }
 
+  // TODO，size
   render() {
     if (this._widget.firstElementChild) this._widget.removeChild(this._widget.firstElementChild)
     const attrs = {}
