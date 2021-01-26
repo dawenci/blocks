@@ -138,13 +138,29 @@ const TEMPLATE_CSS = `<style>
 }
 
 #arrow {
+  overflow: hidden;
   display: block;
   position: absolute;
+  width: 12px;
+  height: 6px;
+  margin: auto;
+}
+
+#arrow::after {
+  display: block;
+  position: absolute;
+  top: 2px;
+  right: 0;
+  bottom: auto;
+  left: 0;
+  margin: auto;
+  content: '';
   width: ${getArrowRectSize(ARROW_SIZE)}px;
   height: ${getArrowRectSize(ARROW_SIZE)}px;
-  background-color: inherit;
+  border-top: 1px solid rgba(0,0,0,.08);
+  border-right: 1px solid rgba(0,0,0,.08);
   transform: rotate(-45deg);
-  margin: auto;
+  background: #fff;
 }
 
 /* 阴影在四周 */
@@ -155,17 +171,15 @@ const TEMPLATE_CSS = `<style>
 /* 阴影在左上方 */
 /* 垂直模式，箭头指向下方，位置靠右 */
 .origin-bottom-right.vertical #arrow {
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  border-left: 1px solid rgba(0,0,0,.08);
-  bottom: -5px;
+  transform: rotate(180deg);
+  bottom: -6px;
   right: 10px;
 }
 /* 水平模式，箭头指向右方，位置靠下 */
 .origin-bottom-right.horizontal #arrow {
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  border-right: 1px solid rgba(0,0,0,.08);
+  transform: rotate(90deg);
   bottom: 10px;
-  right: -5px;
+  right: -9px;
 }
 
 /* 阴影在右上方 */
@@ -173,58 +187,49 @@ const TEMPLATE_CSS = `<style>
 .origin-bottom-left.vertical #arrow {}
 /* 未知原因 BUG, 上方多写一行才会生效 */
 .origin-bottom-left.vertical #arrow {
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  border-left: 1px solid rgba(0,0,0,.08);
-  bottom: -5px;
+  transform: rotate(180deg);
+  bottom: -6px;
   left: 10px;
 }
 /* 水平模式，箭头指向左方，位置靠下 */
 .origin-bottom-left.horizontal #arrow {
-  border-top: 1px solid rgba(0,0,0,.08);
-  border-left: 1px solid rgba(0,0,0,.08);
+  transform: rotate(-90deg);
   bottom: 10px;
-  left: -5px;
+  left: -9px;
 }
 
 /* 阴影在右下方 */
 /* 垂直模式，箭头指向上方，位置靠左 */
 .origin-top-left.vertical #arrow {
-  border-top: 1px solid rgba(0,0,0,.08);
-  border-right: 1px solid rgba(0,0,0,.08);
-  top: -5px;
+  top: -6px;
   left: 10px;
 }
 /* 水平模式，箭头指向左方，位置靠上 */
 .origin-top-left.horizontal #arrow {
-  border-top: 1px solid rgba(0,0,0,.08);
-  border-left: 1px solid rgba(0,0,0,.08);
+  transform: rotate(-90deg);
   top: 10px;
-  left: -5px;
+  left: -9px;
 }
 
 
 /* 阴影在左下方 */
 /* 垂直模式，箭头指向上方，位置靠右 */
 .origin-top-right.vertical #arrow {
-  border-top: 1px solid rgba(0,0,0,.08);
-  border-right: 1px solid rgba(0,0,0,.08);
-  top: -5px;
+  top: -6px;
   right: 10px;
 }
 /* 水平模式，箭头指向右方，位置靠上 */
 .origin-top-right.horizontal #arrow {
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  border-right: 1px solid rgba(0,0,0,.08);
+  transform: rotate(90deg);
   top: 10px;
-  right: -5px;
+  right: -9px;
 }
 
 /* 阴影在正上方 */
 /* 箭头指向下方，位置居中 */
 .origin-bottom-center.vertical #arrow {
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  border-left: 1px solid rgba(0,0,0,.08);
-  bottom: -5px;
+  transform: rotate(180deg);
+  bottom: -6px;
   left: 0;
   right: 0;
 }
@@ -232,19 +237,16 @@ const TEMPLATE_CSS = `<style>
 /* 阴影在正右方 */
 /* 箭头指向左方，位置居中 */
 .origin-center-left.horizontal #arrow {
-  border-top: 1px solid rgba(0,0,0,.08);
-  border-left: 1px solid rgba(0,0,0,.08);
+  transform: rotate(-90deg);
   top: 0;
   bottom: 0;
-  left: -5px;
+  left: -9px;
 }
 
 /* 阴影在正下方 */
 /* 箭头指向上方，位置居中 */
 .origin-top-center.vertical #arrow {
-  border-top: 1px solid rgba(0,0,0,.08);
-  border-right: 1px solid rgba(0,0,0,.08);
-  top: -5px;
+  top: -6px;
   left: 0;
   right: 0;
 }
@@ -252,9 +254,8 @@ const TEMPLATE_CSS = `<style>
 /* 阴影在正左方 */
 /* 箭头指向右方，位置居中 */
 .origin-center-right.horizontal #arrow {
-  border-bottom: 1px solid rgba(0,0,0,.08);
-  border-right: 1px solid rgba(0,0,0,.08);
-  right: -5px;
+  transform: rotate(90deg);
+  right: -9px;
   top: 0;
   bottom: 0;
 }

@@ -42,6 +42,25 @@
     </section>
 
     <section class="section">
+      <h2>箭头</h2>
+
+      <template data-codesource="html">
+        <div style="position:relative;width:200px;height:100px;border:1px solid #ccc;">
+          <blocks-popup origin="top-start" arrow class="popup-arrow1" anchor="[10,10]">
+            <div style="height:50px;">
+              显示箭头
+            </div>
+          </blocks-popup>
+        </div>
+
+        <blocks-button
+          onclick="document.querySelector('.popup-arrow1').open = !document.querySelector('.popup-arrow1').hasAttribute('open')">
+          开关
+        </blocks-button>
+      </template>
+    </section>
+
+    <section class="section">
       <h2>吸附座标区域</h2>
 
       <p>通过 `anchor` 属性，传入需要吸附的目标位置座标点、或两个座标点框定的区域，可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
