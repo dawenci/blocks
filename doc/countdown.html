@@ -43,12 +43,11 @@
             color: #888;
           }
         </style>
-        <blocks-countdown class="countdown1" format="D 天 HH 小时 mm 分钟 ss 秒">
-        </blocks-countdown>
+        <blocks-countdown class="countdown1" format="D 天 HH 小时 mm 分钟 ss 秒"></blocks-countdown>
+      </template>
 
-        <script>
-          document.querySelector('.countdown1').value = Date.now() + 3010011020
-        </script>
+      <template data-codesource="script">
+        document.querySelector('.countdown1').value = Date.now() + 3010011020
       </template>
     </section>
   </article>
