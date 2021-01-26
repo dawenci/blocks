@@ -5,6 +5,7 @@ import {
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
 import { setRole } from '../core/accessibility.js'
+import { dispatchEvent } from '../core/event.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 6
@@ -56,7 +57,6 @@ const arrowSetter = boolSetter('arrow')
 const originGetter = enumGetter('origin', Object.values(PopupOrigin))
 const originSetter = enumSetter('origin', Object.values(PopupOrigin))
 
-
 const TEMPLATE_CSS = `<style>
 :host {
   box-sizing: border-box;
@@ -66,6 +66,7 @@ const TEMPLATE_CSS = `<style>
    https://developers.google.com/web/updates/2016/06/css-containment
    */
   contain: none;
+  /* 由于非 display none，需要确保 open 之前不可点击 */
   pointer-events: none;
 }
 
@@ -82,19 +83,16 @@ const TEMPLATE_CSS = `<style>
   box-sizing: border-box;
   display:inline-block;
   width: 100%;
+  height: 100%;
   background-color: #fff;
   border-radius: ${$radiusBase};
   transform-origin: center center;
   transition-property: transform, opacity;
   transition-duration: ${$transitionDuration};
   transition-timing-function: cubic-bezier(.645, .045, .355, 1);
-  opacity: 0;
-  transform: scale(0);
 }
 
 :host([open]) #popup {
-  opacity: 1;
-  transform: scale(1);
   /* 非 focus 时，shadow 无方向 */
   box-shadow: 0px 0 3px rgba(0, 0, 0, 0.2);
 }
@@ -265,9 +263,8 @@ const TEMPLATE_CSS = `<style>
 </style>`
 
 const TEMPLATE_HTML = `
-<div id="popup" role="popup">
+<div id="popup">
   <i id="arrow"></i>
-  sdlfsdf
   <slot></slot>
 </div>
 `
@@ -320,15 +317,6 @@ class BlocksPopup extends HTMLElement {
     this._popup = this.shadowRoot.getElementById('popup')
     this._popupArrow = this.shadowRoot.getElementById('arrow')
 
-    // 避免 Tab 键导致焦点跑出去 popup 外面
-    this._popup.onkeydown = e => {
-      // 让 Tab 键只能在 popup 内部的控件之间切换
-      if (e.key !== 'Tab') return
-      if (!this.contains(document.activeElement) || document.activeElement === this) {
-        this.focus()
-      }
-    }
-
     // 过渡开始时
     this._popup.ontransitionstart = (ev) => {
       if (ev.target !== this._popup || ev.propertyName !== 'opacity') return
@@ -352,16 +340,29 @@ class BlocksPopup extends HTMLElement {
 
       if (this.open) {
         if (this.autofocus) this._focus()
-        this.dispatchEvent(new CustomEvent('open'))
+        dispatchEvent(this, 'open')
         // 动画过程可能锚定点移动，动画结束后，更新下位置
         this.updatePosition()
       }
       else {
         this._blur()
         this._popup.style.display = 'none'
-        this.dispatchEvent(new CustomEvent('close'))
+        dispatchEvent(this, 'close')
       }
     }
+
+    // 避免 Tab 键导致焦点跑出去 popup 外面
+    this.addEventListener('keydown', e => {
+      // 让 Tab 键只能在 popup 内部的控件之间切换
+      if (e.key === 'Tab') {
+        if (!this.contains(document.activeElement) || document.activeElement === this) {
+          this.focus()
+        }
+      }
+      if (e.key === 'Escape') {
+        this.open = false
+      }
+    })    
   }
 
   get open() {
@@ -697,34 +698,33 @@ class BlocksPopup extends HTMLElement {
       upgradeProperty(this, attr)
     })
 
-    // 让 Tab 键只能在 popup 内部的控件之间切换
-    this._onKeydown = (e) => {
-      if (e.key !== 'Tab') return
-      requestAnimationFrame(() => {
-        if (!this.contains(deepActiveElement())) {
-          this._popup.focus()
-        }
-      })
+    // 设置初始样式，确保动画生效
+    if (!this.open) {
+      this._popup.style.display = 'none'
+      this._popup.style.opacity = '0'
+      this._popup.style.transform = 'scale(0)'
     }
-    this.shadowRoot.addEventListener('keydown', this._onKeydown)
+    else {
+      this.updatePosition()
+    }
 
     this.initAnchorEvent()
   }
 
   disconnectedCallback() {
-    this.shadowRoot.removeEventListener('keydown', this._onKeydown)
     this.destroyAnchorEvent()
   }
 
   // adoptedCallback() {
   // }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    switch (name) {
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    switch (attrName) {
       case 'open': {
         this._updateVisible()
         break
       }
+ 
       case 'append-to-body': {
         if (this.appendToBody && this.parentElement !== document.body) {
           document.body.appendChild(this)
@@ -732,6 +732,7 @@ class BlocksPopup extends HTMLElement {
         this.updatePosition()
         break
       }
+
       default: {
         this.updatePosition()
         break
@@ -742,6 +743,7 @@ class BlocksPopup extends HTMLElement {
   // 执行过渡前的准备工作，确保动画正常
   _prepareForAnimate() {
     this._popup.style.display = ''
+    this._popup.offsetHeight
   }
 
   _animateOpen() {

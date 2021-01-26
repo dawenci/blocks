@@ -6,6 +6,7 @@ import {
 } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../core/property.js'
 import { setRole } from '../core/accessibility.js'
+import { dispatchEvent } from '../core/event.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -92,7 +93,7 @@ template.innerHTML = `
   }
   :host([closeable]) header {
     padding-right: 45px;
-  }  
+  }
 
   :host([closeable]) .no-header section {
     min-height: 38px;
@@ -208,7 +209,7 @@ template.innerHTML = `
   }
   </style>
 
-  <div id="dialog" role="dialog" tabindex="-1">
+  <div id="dialog">
     <header>  
       <slot name="header">
         <h1></h1>
@@ -236,10 +237,6 @@ function getBodyScrollBarWidth() {
   outer.appendChild(inner)
   document.body.appendChild(outer)
   return outer.offsetWidth - inner.offsetWidth
-}
-
-function getBodyPaddingRight() {
-  return parseInt(getComputedStyle(document.body).paddingRight, 10)
 }
 
 const openGetter = boolGetter('open')
@@ -290,9 +287,21 @@ class BlocksDialog extends HTMLElement {
       }
     }
 
-    this._mask.onclick = e => {
+    // 避免点击 mask 的时候，dialog blur
+    // 注：mousedown 到 mouseup 之间，dialog 会发生 blur
+    const onMaskMousedown = e => {
       this._focus()
+      const onBlur = e => {
+        this._focus()
+      }
+      this.addEventListener('blur', onBlur)
+      this._mask.onmouseup = e => {
+        this._mask.onmouseup = null
+        this.removeEventListener('blur', onBlur)
+      }
     }
+    this._mask.addEventListener('mousedown', onMaskMousedown)
+
 
     this._dialog.onkeydown = e => {
       // 让 Tab 键只能在 dialog 内部的控件之间切换
@@ -321,7 +330,7 @@ class BlocksDialog extends HTMLElement {
 
       if (this.open) {
         this._focus()
-        this.dispatchEvent(new CustomEvent('open'))
+        dispatchEvent(this, 'open')
       }
       else {
         this._blur()
@@ -331,7 +340,7 @@ class BlocksDialog extends HTMLElement {
         if (this.remove) {
           this.parentElement && this.parentElement.removeChild(this)
         }
-        this.dispatchEvent(new CustomEvent('close'))
+        dispatchEvent(this, 'close')
       }
     }
 
@@ -380,9 +389,9 @@ class BlocksDialog extends HTMLElement {
 
   // 执行过渡前的准备工作，确保动画正常
   _prepareForAnimate() {
-    this._dialog.style.display = 'flex'
-    this._dialog.offsetHeight
+    this._dialog.style.display = ''
     this._mask.style.display = ''
+    this._dialog.offsetHeight
     this._mask.offsetHeight
   }
 
@@ -521,6 +530,13 @@ class BlocksDialog extends HTMLElement {
     this._renderHeader()
     this._renderFooter()
 
+    // 设置初始样式，确保动画生效
+    if (!this.open) {
+      this._dialog.style.display = 'none'
+      this._dialog.style.opacity = '0'
+      this._dialog.style.transform = 'scale(0)'
+    }
+
     // 拖拽 header 移动
     {
       let startX
@@ -529,7 +545,16 @@ class BlocksDialog extends HTMLElement {
       let startPageY
 
       const isHeader = (e) => {
-        return this._dialog.querySelector('header').contains(e.target)
+        if (this._dialog.querySelector('header').contains(e.target)) return true
+        // maybe header slot
+        if (this.contains(e.target)) {
+          let el = e.target
+          while (el && el !== this) {
+            if (el.slot === 'header') return true
+            el = el.parentElement
+          }
+        }
+        return false
       }
   
       const move = (e) => {
