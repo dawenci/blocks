@@ -18,44 +18,36 @@
     </header>
 
     <section class="section">
-      <div class="case">
-        <div data-codesource="html" data-title="依赖引入">
-          <script type="module" src="/widgets/switch/index.js"></script>
-        </div>
+      <div data-codesource="html" data-title="依赖引入">
+        <script type="module" src="/widgets/switch/index.js"></script>
       </div>
     </section>
 
     <section class="section">
       <h2>默认</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-switch></blocks-switch>
-          <blocks-switch checked></blocks-switch>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-switch></blocks-switch>
+        <blocks-switch checked></blocks-switch>
+      </template>
     </section>
 
     <section class="section">
       <h2>尺寸</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-switch size="small"></blocks-switch>
-          <blocks-switch size="small" checked></blocks-switch>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-switch size="small"></blocks-switch>
+        <blocks-switch size="small" checked></blocks-switch>
+      </template>
     </section>
 
     <section class="section">
       <h2>不可用状态</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-switch disabled></blocks-switch>
-          <blocks-switch checked disabled></blocks-switch>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-switch disabled></blocks-switch>
+        <blocks-switch checked disabled></blocks-switch>
+      </template>
     </section>
     
   </article>

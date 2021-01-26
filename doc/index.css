@@ -45,6 +45,7 @@ aside > div {
   cursor: pointer;
   font-size: 14px;
   text-align: right;
+  user-select: none;
 }
 
 aside > div:hover {

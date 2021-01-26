@@ -18,37 +18,31 @@
     </header>
 
     <section class="section">
-      <div class="case">
-        <div data-codesource="html" data-title="依赖引入">
-          <script type="module" src="/widgets/tag/index.js"></script>
-        </div>
+      <div data-codesource="html" data-title="依赖引入">
+        <script type="module" src="/widgets/tag/index.js"></script>
       </div>
     </section>
 
     <section class="section">
       <h2>尺寸设置</h2>
 
-      <div class="case">
-        <p>可通过 size 设置尺寸，可选值: `mini`, `small`, `large`</p>
+      <p>可通过 size 设置尺寸，可选值: `mini`, `small`, `large`</p>
 
-        <div data-codesource="html">
-          <blocks-tag size="mini">mini</blocks-tag>
-          <blocks-tag size="small">small</blocks-tag>
-          <blocks-tag>default</blocks-tag>
-          <blocks-tag size="large">large</blocks-tag>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-tag size="mini">mini</blocks-tag>
+        <blocks-tag size="small">small</blocks-tag>
+        <blocks-tag>default</blocks-tag>
+        <blocks-tag size="large">large</blocks-tag>
+      </template>
     </section>
 
     <section class="section">
       <h2>关闭按钮</h2>
 
-      <div class="case">        
-        <p>设置 `closable` 属性，则启用关闭按钮，点击会触发 `close` 的 DOM 自定义事件</p>
-        <div data-codesource="html">
-          <blocks-tag onclose="alert('点击了关闭')" closable>可关闭</blocks-tag>
-        </div>
-      </div>
+      <p>设置 `closable` 属性，则启用关闭按钮，点击会触发 `close` 的 DOM 自定义事件</p>
+      <template data-codesource="html">
+        <blocks-tag onclose="alert('点击了关闭')" closable>可关闭</blocks-tag>
+      </template>
     </section>
 
     <section class="section">
@@ -56,25 +50,23 @@
 
       <h3>type</h3>
       <p>`type` 可以设定主题类别，支持 `primary`, `danger`, `warning`, `success`</p>
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-tag closable type="primary">primary</blocks-tag>
-          <blocks-tag closable type="danger">danger</blocks-tag>
-          <blocks-tag closable type="warning">warning</blocks-tag>
-          <blocks-tag closable type="success">success</blocks-tag>
-        </div>
-      </div>
+
+      <template data-codesource="html">
+        <blocks-tag closable type="primary">primary</blocks-tag>
+        <blocks-tag closable type="danger">danger</blocks-tag>
+        <blocks-tag closable type="warning">warning</blocks-tag>
+        <blocks-tag closable type="success">success</blocks-tag>
+      </template>
 
       <h3>outline</h3>
       <p>支持 `outline` 变种样式</p>
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-tag closable type="primary" outline>primary outline</blocks-tag>
-          <blocks-tag closable type="danger" outline>danger outline</blocks-tag>
-          <blocks-tag closable type="warning" outline>warning outline</blocks-tag>
-          <blocks-tag closable type="success" outline>success outline</blocks-tag>
-        </div>
-      </div>
+
+      <template data-codesource="html">
+        <blocks-tag closable type="primary" outline>primary outline</blocks-tag>
+        <blocks-tag closable type="danger" outline>danger outline</blocks-tag>
+        <blocks-tag closable type="warning" outline>warning outline</blocks-tag>
+        <blocks-tag closable type="success" outline>success outline</blocks-tag>
+      </template>
     </section>
   </article>
 </body>

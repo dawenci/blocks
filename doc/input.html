@@ -18,46 +18,38 @@
     </header>
    
     <section class="section">
-      <div class="case">
-        <div data-codesource="html" data-title="依赖引入">
-          <script type="module" src="/widgets/input/index.js"></script>
-        </div>
+      <div data-codesource="html" data-title="依赖引入">
+        <script type="module" src="/widgets/input/index.js"></script>
       </div>
     </section>
 
     <section class="section">
       <h2>尺寸</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-input size="mini" value="mini"></blocks-input>
-          <blocks-input size="small" value="small"></blocks-input>
-          <blocks-input value="default"></blocks-input>
-          <blocks-input size="large" value="large"></blocks-input>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-input size="mini" value="mini"></blocks-input>
+        <blocks-input size="small" value="small"></blocks-input>
+        <blocks-input value="default"></blocks-input>
+        <blocks-input size="large" value="large"></blocks-input>
+      </template>
     </section>
 
     <section class="section">
       <h2>可清空</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-input clearable value="clearable"></blocks-input>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-input clearable value="clearable"></blocks-input>
+      </template>
     </section>
 
     <section class="section">
       <h2>图标</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-input prefix-icon="date" value="prefix icon"></blocks-input>
-          <blocks-input suffix-icon="date" value="suffix icon"></blocks-input>
-          <blocks-input prefix-icon="date" suffix-icon="date" clearable value="icon & clearable"></blocks-input>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-input prefix-icon="date" value="prefix icon"></blocks-input>
+        <blocks-input suffix-icon="date" value="suffix icon"></blocks-input>
+        <blocks-input prefix-icon="date" suffix-icon="date" clearable value="icon & clearable"></blocks-input>
+      </template>
     </section>
   </article>
 </body>

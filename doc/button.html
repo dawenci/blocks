@@ -12,87 +12,73 @@
   <script type="module" src="./doc.js"></script>
 </head>
 <body>
-  <aside>
-  </aside>
   <article>
     <header>
       <h1>button</h1>
     </header>
 
     <section class="section">
-      <div class="case">
-        <div data-codesource="html" data-title="依赖引入">
-          <script type="module" src="/widgets/button/index.js"></script>
-        </div>
+      <div data-codesource="html" data-title="依赖引入">
+        <script type="module" src="/widgets/button/index.js"></script>
       </div>
     </section>
 
     <section class="section">
       <h2>尺寸</h2>
-      
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-button size="mini">尺寸 mini</blocks-button>
-          <blocks-button size="small">尺寸 small</blocks-button>
-          <blocks-button>尺寸 default</blocks-button>
-          <blocks-button size="large">尺寸 large</blocks-button>
-        </div>
-      </div>
+    
+      <template data-codesource="html">
+        <blocks-button size="mini">尺寸 mini</blocks-button>
+        <blocks-button size="small">尺寸 small</blocks-button>
+        <blocks-button>尺寸 default</blocks-button>
+        <blocks-button size="large">尺寸 large</blocks-button>
+      </template>
     </section>
 
     <section class="section">
       <h2>主题</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-button>主题 default</blocks-button>
-          <blocks-button type="primary">主题 primary</blocks-button>
-          <blocks-button type="danger">主题 danger</blocks-button>
-          <blocks-button type="warning">主题 warning</blocks-button>
-          <blocks-button type="success">主题 success</blocks-button>
-          <blocks-button type="link">主题 link</blocks-button>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-button>主题 default</blocks-button>
+        <blocks-button type="primary">主题 primary</blocks-button>
+        <blocks-button type="danger">主题 danger</blocks-button>
+        <blocks-button type="warning">主题 warning</blocks-button>
+        <blocks-button type="success">主题 success</blocks-button>
+        <blocks-button type="link">主题 link</blocks-button>
+      </template>
     </section>
 
     <section class="section">
       <h2>outline 主题</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-button outline>风格 default outline</blocks-button>
-          <blocks-button type="primary" outline>风格 primary outline</blocks-button>
-          <blocks-button type="danger" outline>风格 danger outline</blocks-button>
-          <blocks-button type="warning" outline>风格 warning outline</blocks-button>
-          <blocks-button type="success" outline>风格 success outline</blocks-button>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-button outline>风格 default outline</blocks-button>
+        <blocks-button type="primary" outline>风格 primary outline</blocks-button>
+        <blocks-button type="danger" outline>风格 danger outline</blocks-button>
+        <blocks-button type="warning" outline>风格 warning outline</blocks-button>
+        <blocks-button type="success" outline>风格 success outline</blocks-button>
+      </template>
     </section>
 
     <section class="section">
       <h2>不可用状态</h2>
 
       <h3>默认</h3>
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-button disabled>default</blocks-button>
-          <blocks-button type="primary" disabled>primary</blocks-button>
-          <blocks-button type="danger" disabled>danger</blocks-button>
-          <blocks-button type="warning" disabled>warning</blocks-button>
-          <blocks-button type="success" disabled>success</blocks-button>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-button disabled>default</blocks-button>
+        <blocks-button type="primary" disabled>primary</blocks-button>
+        <blocks-button type="danger" disabled>danger</blocks-button>
+        <blocks-button type="warning" disabled>warning</blocks-button>
+        <blocks-button type="success" disabled>success</blocks-button>
+      </template>
 
       <h3>outline 时</h3>
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-button outline disabled>default outline</blocks-button>
-          <blocks-button type="primary" outline disabled>primary outline</blocks-button>
-          <blocks-button type="danger" outline disabled>danger outline</blocks-button>
-          <blocks-button type="warning" outline disabled>warning outline</blocks-button>
-          <blocks-button type="success" outline disabled>success outline</blocks-button>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-button outline disabled>default outline</blocks-button>
+        <blocks-button type="primary" outline disabled>primary outline</blocks-button>
+        <blocks-button type="danger" outline disabled>danger outline</blocks-button>
+        <blocks-button type="warning" outline disabled>warning outline</blocks-button>
+        <blocks-button type="success" outline disabled>success outline</blocks-button>
+      </template>
     </section>
 
 
@@ -100,36 +86,31 @@
       <h2>icon</h2>
 
       <h3>color</h3>
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-button prefix-icon="date" suffix-icon="date">default</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" type="primary">primary</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" type="danger">danger</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" type="warning">warning</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" type="success">success</blocks-button>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-button prefix-icon="date" suffix-icon="date">default</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" type="primary">primary</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" type="danger">danger</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" type="warning">warning</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" type="success">success</blocks-button>
+      </template>
+
 
       <h3>outline</h3>
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-button prefix-icon="date" suffix-icon="date" outline>default</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" outline type="primary">primary</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" outline type="danger">danger</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" outline type="warning">warning</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" outline type="success">success</blocks-button>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-button prefix-icon="date" suffix-icon="date" outline>default</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" outline type="primary">primary</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" outline type="danger">danger</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" outline type="warning">warning</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" outline type="success">success</blocks-button>
+      </template>
       
       <h3>size</h3>
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-button prefix-icon="date" suffix-icon="date" size="mini">mini</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" size="small">small</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date">default</blocks-button>
-          <blocks-button prefix-icon="date" suffix-icon="date" size="large">large</blocks-button>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-button prefix-icon="date" suffix-icon="date" size="mini">mini</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" size="small">small</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date">default</blocks-button>
+        <blocks-button prefix-icon="date" suffix-icon="date" size="large">large</blocks-button>
+      </template>
     </section>
     
   </article>

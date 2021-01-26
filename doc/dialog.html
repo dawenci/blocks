@@ -20,88 +20,80 @@
     </header>
 
     <section class="section">
-      <div class="case">
-        <div data-codesource="html" data-title="依赖引入">
-          <script type="module" src="/widgets/dialog/index.js"></script>
-        </div>
+      <div data-codesource="html" data-title="依赖引入">
+        <script type="module" src="/widgets/dialog/index.js"></script>
       </div>
     </section>
 
     <section class="section">
       <h2>默认</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-dialog
-            id="dialog1"
-            closeable
-            title="Title attr">
-            <div style="width:400px;height:100px;overflow:auto;">
-              这里是对话框的内容。<br>
-              这里是对话框的内容。<br>
-              这里是对话框的内容。<br>
-              这里是对话框的内容。<br>
-              这里是对话框的内容。<br>
-              这里是对话框的内容。<br>
-              这里是对话框的内容。<br>
-            </div>
-          </blocks-dialog>
+      <template data-codesource="html">
+        <blocks-dialog
+          id="dialog1"
+          closeable
+          title="Title attr">
+          <div style="width:400px;height:100px;overflow:auto;">
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+          </div>
+        </blocks-dialog>
 
-          <blocks-button onclick="document.getElementById('dialog1').open = true">打开1</blocks-button>
-        </div>
-      </div>
+        <blocks-button onclick="document.getElementById('dialog1').open = true">打开1</blocks-button>
+      </template>
     </section>
 
     <section class="section">
       <h2>header slot</h2>
 
-      <div class="case">        
-        <div data-codesource="html">
-          <blocks-dialog
-            id="dialog2"
-            closeable
-            title="忽略的title">
-            <span slot="header">
-              slot 自定义对话框标题
-            </span>
-            <div style="width:400px;">
-              这里是对话框的内容。
-            </div>
-          </blocks-dialog>
-          <blocks-button onclick="document.getElementById('dialog2').open = true">打开2</blocks-button>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-dialog
+          id="dialog2"
+          closeable
+          title="忽略的title">
+          <span slot="header">
+            slot 自定义对话框标题
+          </span>
+          <div style="width:400px;">
+            这里是对话框的内容。
+          </div>
+        </blocks-dialog>
+        <blocks-button onclick="document.getElementById('dialog2').open = true">打开2</blocks-button>
+      </template>
     </section>
 
     <section class="section">
       <h2>footer slot</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-dialog
-            id="dialog3"
-            closeable
-            title="页脚 slot">
-            <div style="width:400px;">
-              这里是对话框的内容。
-            </div>
+      <template data-codesource="html">
+        <blocks-dialog
+          id="dialog3"
+          closeable
+          title="页脚 slot">
+          <div style="width:400px;">
+            这里是对话框的内容。
+          </div>
 
-            <div slot="footer">
-              <blocks-button onclick="document.getElementById('dialog3').open = false">
-                关闭
-              </blocks-button>
-            </div>
-          </blocks-dialog>
-          <blocks-button onclick="document.getElementById('dialog3').open = true">打开3</blocks-button>
-        </div>
-      </div>
+          <div slot="footer">
+            <blocks-button onclick="document.getElementById('dialog3').open = false">
+              关闭
+            </blocks-button>
+          </div>
+        </blocks-dialog>
+        <blocks-button onclick="document.getElementById('dialog3').open = true">打开3</blocks-button>
+      </template>
     </section>
 
     <section class="section">
       <h2>限制焦点</h2>
 
       <div class="case">
-        <div data-codesource="html">
+        <template data-codesource="html">
           <blocks-dialog
             id="dialog4"
             closeable>
@@ -121,21 +113,18 @@
           </blocks-dialog>
           <blocks-button onclick="document.getElementById('dialog4').open = true">打开4</blocks-button>
         </div>
-      </div>
+      </template>
     </section>
 
     <section class="section">
       <h2>插入到 body</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-dialog id="dialog5" append-to-body closeable>
-            parent 为 body
-          </blocks-dialog>
-
-          <blocks-button onclick="document.getElementById('dialog5').open = true">打开5</blocks-button>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-dialog id="dialog5" append-to-body closeable>
+          parent 为 body
+        </blocks-dialog>
+        <blocks-button onclick="document.getElementById('dialog5').open = true">打开5</blocks-button>
+      </template>
     </section>
   </article>
 </body>

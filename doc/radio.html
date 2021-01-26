@@ -28,35 +28,29 @@
     <section class="section">
       <h2>默认</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-radio name="default" label="radio1"></blocks-radio>
-          <blocks-radio name="default" checked label="radio2"></blocks-radio>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-radio name="default" label="radio1"></blocks-radio>
+        <blocks-radio name="default" checked label="radio2"></blocks-radio>
+      </template>
     </section>
 
     <section class="section">
       <h2>label slot</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-radio name="slot" label="label attr">
-            <span slot="label" style="color:#099;">label slot</span>
-          </blocks-radio>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-radio name="slot" label="label attr">
+          <span slot="label" style="color:#099;">label slot</span>
+        </blocks-radio>
+      </template>
     </section>
 
     <section class="section">
       <h2>不可用状态</h2>
 
-      <div class="case">
-        <div data-codesource="html">
-          <blocks-radio name="disabled" disabled label="disabled"></blocks-radio>
-          <blocks-radio name="disabled" disabled label="disabled" checked></blocks-radio>
-        </div>
-      </div>
+      <template data-codesource="html">
+        <blocks-radio name="disabled" disabled label="disabled"></blocks-radio>
+        <blocks-radio name="disabled" disabled label="disabled" checked></blocks-radio>
+      </template>
     </section>
    
   </article>
