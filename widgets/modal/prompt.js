@@ -17,6 +17,11 @@ export function prompt(text, options = {}) {
   const { dialog, promise } = modal(text, options)
 
   dialog.appendChild(input)
+  dialog.addEventListener('focus', () => {
+    requestAnimationFrame(() => {
+      input.focus()
+    })
+  })
 
   return promise
 }
