@@ -62,15 +62,15 @@ const TEMPLATE_CSS = `<style>
   box-sizing: border-box;
   position: absolute;
   z-index: 10;
-  top: 0;
-  left: 0;
-  right: auto;
-  bottom: auto;
-  margin: auto;
   /* TODO
    https://developers.google.com/web/updates/2016/06/css-containment
    */
   contain: none;
+  pointer-events: none;
+}
+
+:host([open]) {
+  pointer-events: auto;
 }
 
 :host(:focus) {

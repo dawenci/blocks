@@ -13,15 +13,14 @@ template.innerHTML = `
   :host {
     font-family: ${$fontFamily};
     position:absolute;
-    display:flex;
-    left:0;
-    top:0;
-    right:auto;
-    bottom:auto;
+    margin:auto;
     z-index:-1;
-  }
-  :host([open]) {
+    pointer-events: none;
     z-index:10;
+  }
+
+  :host([open]) {
+    pointer-events: auto;
   }
 
   :host(:focus) {
@@ -381,8 +380,10 @@ class BlocksDialog extends HTMLElement {
 
   // 执行过渡前的准备工作，确保动画正常
   _prepareForAnimate() {
-    this._dialog.style.display = ''
+    this._dialog.style.display = 'flex'
+    this._dialog.offsetHeight
     this._mask.style.display = ''
+    this._mask.offsetHeight
   }
 
   // 启用鼠标交互
@@ -412,6 +413,14 @@ class BlocksDialog extends HTMLElement {
     this._dialog.offsetHeight
     this._dialog.style.opacity = ''
     this._dialog.style.transform = ''
+
+    if (!this.style.left) {
+      this._dialog.style.left = (document.body.clientWidth - this._dialog.offsetWidth) / 2 + 'px'
+    }
+    if (!this.style.top) {
+      this._dialog.style.top = (document.body.clientHeight - this._dialog.offsetHeight) / 2 + 'px'
+    }
+
     this._mask.offsetHeight
     this._mask.style.opacity = ''
   }
@@ -514,14 +523,13 @@ class BlocksDialog extends HTMLElement {
 
     // 拖拽 header 移动
     {
-      const dialog = this._dialog
       let startX
       let startY
       let startPageX
       let startPageY
 
       const isHeader = (e) => {
-        return dialog.querySelector('header').contains(e.target)
+        return this._dialog.querySelector('header').contains(e.target)
       }
   
       const move = (e) => {
@@ -534,7 +542,7 @@ class BlocksDialog extends HTMLElement {
         removeEventListener('mouseup', up)
       }
 
-      dialog.onmousedown = (e) => {
+      this._dialog.onmousedown = (e) => {
         if (!isHeader(e)) return
         startPageX = e.pageX
         startPageY = e.pageY
