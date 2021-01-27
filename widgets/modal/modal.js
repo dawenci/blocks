@@ -14,6 +14,8 @@ export function modal(text, options = {}) {
   const dialog = document.body.appendChild(document.createElement('blocks-dialog'))
   const content = dialog.appendChild(document.createElement('div'))
   const promise = new Promise((resolve, reject) => {
+    dialog.setAttribute('capturefocus', '')
+
     // 消息内容区域
     if (text) {
       content.style.cssText = 'min-width:200px;padding:20px 0;'
