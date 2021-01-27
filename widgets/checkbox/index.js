@@ -1,4 +1,4 @@
-import { setDisabled, setRole, setTabindex, updateDisabled } from '../core/accessibility.js'
+import { setDisabled, setRole, setTabindex } from '../core/accessibility.js'
 import {
   $fontFamily,
   $radiusSmall,
@@ -126,6 +126,14 @@ template.innerHTML = `
     border-color: ${$borderColorDisabled};
     background-color: ${$backgroundColorDisabled};
   }
+
+  :host([disabled][checked]) .checkbox,
+  :host([disabled][checked]:hover) .checkbox,
+  :host([disabled][checked]:active) .checkbox,
+  :host([disabled][checked]:focus) .checkbox {
+    background-color: ${$borderColorDisabled};
+  }
+
   :host([disabled]) * {
     cursor: not-allowed;
   }
@@ -161,10 +169,12 @@ class BlocksCheckbox extends HTMLElement {
       this.checked = !this.checked
     })
 
-    this.addEventListener('keyup', (e) => {
+    this.addEventListener('keydown', (e) => {
       if (this.disabled) return
       if (e.key === 'Enter' || e.key === ' ') {
         this.checked = !this.checked
+        // 放置空格导致滚动
+        e.preventDefault()
       }
     })
   }
@@ -249,7 +259,6 @@ class BlocksCheckbox extends HTMLElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'disabled') {
-      updateDisabled(this)
       setDisabled(this, this.disabled)
       setTabindex(this, !this.disabled)
     }

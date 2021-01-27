@@ -1,4 +1,4 @@
-import { setDisabled, setRole, setTabindex, updateDisabled } from '../core/accessibility.js'
+import { setDisabled, setRole, setTabindex } from '../core/accessibility.js'
 import {
   $fontFamily,
   $radiusSmall,
@@ -100,6 +100,13 @@ template.innerHTML = `
     border-color: ${$borderColorDisabled};
     background-color: ${$backgroundColorDisabled};
   }
+
+  :host([disabled][checked]) .radio,
+  :host([disabled][checked]:hover) .radio,
+  :host([disabled][checked]:active) .radio {
+    background-color: ${$borderColorDisabled};
+  }
+
   :host([disabled]) * {
     cursor: not-allowed;
   }
@@ -142,10 +149,11 @@ class BlocksRadio extends HTMLElement {
       check()
     })
 
-    this.addEventListener('keyup', (e) => {
+    this.addEventListener('keydown', (e) => {
       if (this.disabled) return
       if (e.key === 'Enter' || e.key === ' ') {
         check()
+        e.preventDefault()
       }
     })
   }
@@ -213,7 +221,6 @@ class BlocksRadio extends HTMLElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'disabled') {
-      updateDisabled(this)
       setDisabled(this, this.disabled)
       setTabindex(this, !this.disabled)
     } 
