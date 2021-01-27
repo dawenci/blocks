@@ -221,7 +221,6 @@ template.innerHTML = `
   </style>
 
   <div id="dialog">
-    <button id="first"></button>
     <header>  
       <slot name="header">
         <h1></h1>
@@ -238,7 +237,6 @@ template.innerHTML = `
     </footer>
 
     <button id="close"></button>
-    <button id="last"></button>
   </div>
 `
 
@@ -256,16 +254,22 @@ const openGetter = boolGetter('open')
 const openSetter = boolSetter('open')
 const closeableGetter = boolGetter('closeable')
 const closeableSetter = boolSetter('closeable')
+const capturefocusGetter = boolGetter('capturefocus')
+const capturefocusSetter = boolSetter('capturefocus')
 const appendToBodyGetter = boolGetter('append-to-body')
 const appendToBodySetter = boolSetter('append-to-body')
 
 class BlocksDialog extends HTMLElement {
   static get observedAttributes() {
     return [
+      // 显示状态
       'open',
+      // 标题
       'title',
+      // 是否提供关闭按钮
       'closeable',
-      ''
+      // 捕获焦点，tab 键不会将焦点移出 Dialog
+      'capturefocus'
     ]
   }
 
@@ -289,9 +293,6 @@ class BlocksDialog extends HTMLElement {
       opacity:0;
       transition: opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
     `
-
-    this._firstFocusable = shadowRoot.querySelector('#first')
-    this._lastFocusable = shadowRoot.querySelector('#last')
 
     this.remove = false
 
@@ -317,20 +318,6 @@ class BlocksDialog extends HTMLElement {
       this._mask.addEventListener('mouseup', e => {
         this.removeEventListener('blur', this._refocus)
       })
-    }
-
-    // 避免 Tab 键导致焦点跑出去 dialog 外面
-    {
-      this._firstFocusable.onkeydown = e => {
-        if (e.key === 'Tab' && e.shiftKey) {
-          this._lastFocusable.focus()
-        }
-      }
-      this._lastFocusable.onkeydown = e => {
-        if (e.key === 'Tab' && !e.shiftKey) {
-          this._firstFocusable.focus()
-        }
-      }
     }
 
     // 过渡开始
@@ -369,6 +356,10 @@ class BlocksDialog extends HTMLElement {
     this._dialog.addEventListener('slotchange', e => {
       this.render()
     })
+
+    if (this.capturefocus) {
+      this._captureFocus()
+    }    
   }
 
   get open() {
@@ -394,6 +385,14 @@ class BlocksDialog extends HTMLElement {
 
   set closeable(value) {
     closeableSetter(this, value)
+  }
+
+  get capturefocus() {
+    return capturefocusGetter(this)
+  }
+
+  set capturefocus(value) {
+    capturefocusSetter(this, value)
   }
 
   get appendToBody() {
@@ -425,6 +424,34 @@ class BlocksDialog extends HTMLElement {
   // 禁用鼠标交互
   _disableEvents() {
     this._dialog.style.pointerEvents = 'none'
+  }
+
+  // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
+  _captureFocus() {
+    this._firstFocusable = this._dialog.querySelector('#first') || this._dialog.insertBefore(document.createElement('button'), this._dialog.firstChild)
+    this._lastFocusable = this._dialog.querySelector('#last') || this._dialog.appendChild(document.createElement('button'))
+    this._firstFocusable.id = 'first'
+    this._lastFocusable.id = 'last'
+    this._firstFocusable.onkeydown = e => {
+      if (e.key === 'Tab' && e.shiftKey) {
+        this._lastFocusable.focus()
+      }
+    }
+    this._lastFocusable.onkeydown = e => {
+      if (e.key === 'Tab' && !e.shiftKey) {
+        this._firstFocusable.focus()
+      }
+    }
+  }
+
+  // 停止强制捕获焦点
+  _stopCaptureFocus() {
+    if (this._firstFocusable && this._firstFocusable.parentElement) {
+      this._dialog.removeChild(this._firstFocusable)
+    }
+    if (this._firstFocusable && this._lastFocusable.parentElement) {
+      this._dialog.removeChild(this._lastFocusable)
+    }
   }
 
   _updateVisible() {
@@ -612,6 +639,15 @@ class BlocksDialog extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (name == 'open' && this.shadowRoot) {
       this._updateVisible()
+    }
+
+    if (name === 'capturefocus') {
+      if (this.capturefocus) {
+        this._captureFocus()
+      }
+      else {
+        this._stopCaptureFocus()
+      }
     }
   }
 }

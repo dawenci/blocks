@@ -46,6 +46,8 @@ const insetGetter = boolGetter('inset')
 const insetSetter = boolSetter('inset')
 const autofocusGetter = boolGetter('autofocus')
 const autofocusSetter = boolSetter('autofocus')
+const capturefocusGetter = boolGetter('capturefocus')
+const capturefocusSetter = boolSetter('capturefocus')
 const appendToBodyGetter = boolGetter('append-to-body')
 const appendToBodySetter = boolSetter('append-to-body')
 const autoflipGetter = boolGetter('autoflip')
@@ -261,6 +263,7 @@ const TEMPLATE_CSS = `<style>
 }
 
 #first, #last, #first:focus, #last:focus {
+  position: absolute;
   overflow: hidden;
   width: 0;
   height: 0;
@@ -308,12 +311,14 @@ class BlocksPopup extends HTMLElement {
       'append-to-body',
       // Popup 是否显示箭头
       'arrow',
-      // 打开时是否自动聚焦
-      'autofocus',
       // 自动翻转功能，Popup 在 x 或 y 轴上溢出文档时，自动翻转显示
       'autoflip',
+      // 打开时是否自动聚焦
+      'autofocus',      
       // 失去焦点时，是否恢复获得焦点前的焦点
       'restorefocus',
+      // 捕获焦点，tab 键不会将焦点移出 Popup
+      'capturefocus',
     ]
   }
 
@@ -327,8 +332,6 @@ class BlocksPopup extends HTMLElement {
 
     this._popup = this.shadowRoot.getElementById('popup')
     this._popupArrow = this.shadowRoot.getElementById('arrow')
-    this._firstFocusable = this.shadowRoot.querySelector('#first')
-    this._lastFocusable = this.shadowRoot.querySelector('#last')
 
     // 过渡开始时
     this._popup.ontransitionstart = (ev) => {
@@ -364,18 +367,8 @@ class BlocksPopup extends HTMLElement {
       }
     }
 
-    // 避免 Tab 键导致焦点跑出去 popup 外面
-    {
-      this._firstFocusable.onkeydown = e => {
-        if (e.key === 'Tab' && e.shiftKey) {
-          this._lastFocusable.focus()
-        }
-      }
-      this._lastFocusable.onkeydown = e => {
-        if (e.key === 'Tab' && !e.shiftKey) {
-          this._firstFocusable.focus()
-        }
-      }
+    if (this.capturefocus) {
+      this._captureFocus()
     }
   }
 
@@ -435,6 +428,14 @@ class BlocksPopup extends HTMLElement {
 
   set autofocus(value) {
     autofocusSetter(this, value)
+  }
+
+  get capturefocus() {
+    return capturefocusGetter(this)
+  }
+
+  set capturefocus(value) {
+    capturefocusSetter(this, value)
   }
 
   get autoflip() {
@@ -702,7 +703,7 @@ class BlocksPopup extends HTMLElement {
 
     // 将 tabindex 设置在 host 上，
     // 因为 tabindex 在 popup 上的话，鼠标点击 slot 里面的内容时会反复 blur
-    this.setAttribute('tabindex', '-1')
+    this.setAttribute('tabindex', '0')
 
     if (this.appendToBody && this.parentElement !== document.body) {
       document.body.appendChild(this)
@@ -747,10 +748,48 @@ class BlocksPopup extends HTMLElement {
         break
       }
 
+      case 'capturefocus': {
+        if (this.capturefocus) {
+          this._captureFocus()
+        }
+        else {
+          this._stopCaptureFocus()
+        }
+        break
+      }
+
       default: {
         this.updatePosition()
         break
       }
+    }
+  }
+
+  // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
+  _captureFocus() {
+    this._firstFocusable = this._popup.querySelector('#first') || this._popup.insertBefore(document.createElement('button'), this._popup.firstChild)
+    this._lastFocusable = this._popup.querySelector('#last') || this._popup.appendChild(document.createElement('button'))
+    this._firstFocusable.id = 'first'
+    this._lastFocusable.id = 'last'
+    this._firstFocusable.onkeydown = e => {
+      if (e.key === 'Tab' && e.shiftKey) {
+        this._lastFocusable.focus()
+      }
+    }
+    this._lastFocusable.onkeydown = e => {
+      if (e.key === 'Tab' && !e.shiftKey) {
+        this._firstFocusable.focus()
+      }
+    }
+  }
+
+  // 停止强制捕获焦点
+  _stopCaptureFocus() {
+    if (this._firstFocusable && this._firstFocusable.parentElement) {
+      this._popup.removeChild(this._firstFocusable)
+    }
+    if (this._firstFocusable && this._lastFocusable.parentElement) {
+      this._popup.removeChild(this._lastFocusable)
     }
   }
 

@@ -42,6 +42,33 @@
     </section>
 
     <section class="section">
+      <h2>限制焦点</h2>
+
+      <p>限制 tab 键只会让焦点在 popup 内部移动</p>
+
+      <template data-codesource="html">
+        <div style="position:relative;width:200px;height:100px;border:1px solid #ccc;">
+          <blocks-popup
+            capturefocus
+            class="popup-capturefocus1">
+            <input type="text">
+            <input type="text">
+          </blocks-popup>
+        </div>
+
+        <blocks-button
+          onclick="document.querySelector('.popup-capturefocus1').open = !document.querySelector('.popup-capturefocus1').hasAttribute('open')">
+          开关
+        </blocks-button>
+
+        <blocks-button
+          onclick="document.querySelector('.popup-capturefocus1').capturefocus = !document.querySelector('.popup-capturefocus1').capturefocus">
+          切换状态
+        </blocks-button>
+      </template>
+    </section>
+
+    <section class="section">
       <h2>箭头</h2>
 
       <template data-codesource="html">

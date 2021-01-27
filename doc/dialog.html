@@ -96,6 +96,7 @@
         <template data-codesource="html">
           <blocks-dialog
             id="dialog4"
+            capturefocus
             closeable>
 
             <div slot="header">
@@ -111,7 +112,9 @@
               <input type="text" value="footer slot">
             </div>
           </blocks-dialog>
+
           <blocks-button onclick="document.getElementById('dialog4').open = true">打开4</blocks-button>
+          <blocks-button onclick="document.getElementById('dialog4').capturefocus = !document.getElementById('dialog4').capturefocus">切换状态</blocks-button>
         </div>
       </template>
     </section>
