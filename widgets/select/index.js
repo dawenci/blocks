@@ -8,7 +8,7 @@ import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property
 import {
   $radiusBase
 } from '../theme/var.js'
-import { every, filter, find, forEach, map, property, propertyEq } from '../core/utils.js'
+import { every, find, forEach, findIndex } from '../core/utils.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
 import { setDisabled, setRole } from '../core/accessibility.js'
 
@@ -92,21 +92,38 @@ class BlocksSelect extends HTMLElement {
       this._result.classList.add('dropdown')
     }
 
+    // 
+    const selectOption = option => {
+      if (option.disabled) return
+      if (option.parentElement.tagName === 'BLOCKS-OPTGROUP' && option.parentElement.disabled) return
+      if (this.multiple) {
+        option.selected = !option.selected
+      }
+      else {
+        const selected = this._list.querySelector('[selected]')
+        if (selected && selected !== option) {
+          selected.selected = false
+        }
+        option.selected = true
+      }
+    }
+
     this._list.onclick = e => {
       const target = e.target
       if (target.tagName === 'BLOCKS-OPTION') {
-        if (target.disabled) return
-        if (target.parentElement.tagName === 'BLOCKS-OPTGROUP' && target.parentElement.disabled) return
-        if (this.multiple) {
-          target.selected = !target.selected
-        }
-        else {
-          const selected = this._list.querySelector('[selected]')
-          if (selected && selected !== target) {
-            selected.selected = false
-          }
-          target.selected = true
-        }
+        selectOption(target)
+        // if (target.disabled) return
+        // if (target.parentElement.tagName === 'BLOCKS-OPTGROUP' && target.parentElement.disabled) return
+        // if (this.multiple) {
+        //   target.selected = !target.selected
+        // }
+        // else {
+        //   const selected = this._list.querySelector('[selected]')
+        //   if (selected && selected !== target) {
+        //     selected.selected = false
+        //   }
+        //   target.selected = true
+        // }
       }
       this.render()
     }
@@ -163,6 +180,71 @@ class BlocksSelect extends HTMLElement {
       this.searchStr = e.detail.value
       this.filter()
     }
+
+    this._initKeymap()
+  }
+
+  _initKeymap() {
+    // 快捷键控制焦点移动
+    let currentFocusValue
+    const focusPrev = () => {
+      const all = this.options.filter(el => !el.disabled)
+      if (!all.length) return
+      const index = findIndex(all, item => item.value === currentFocusValue)
+      const prev = all[index - 1] ?? all[all.length - 1]
+      if (prev) {
+        prev.focus()
+        currentFocusValue = prev.value
+      }
+      console.log('prev', prev)
+    }
+
+    const focusNext = () => {
+      const all = this.options.filter(el => !el.disabled)
+      if (!all.length) return
+      const index = findIndex(all, item => item.value === currentFocusValue)
+      const next = all[index + 1] ?? all[0]
+      if (next) {
+        next.focus()
+        currentFocusValue = next.value
+      }
+      console.log('next', next)
+    }
+
+    // 在 result 上按 tab、上下方向键，foucs 第一个选项
+    this._result.onkeydown = e => {
+      if (e.key === 'Escape') {
+        this._popup.open = false
+        this._result.blur()
+        this._result.classList.remove('dropdown')
+      }
+      if ((e.key === 'Tab' && !e.shiftKey) || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        const first = this.options.find(el => !el.disabled)
+        if (first) {
+          currentFocusValue = first.value
+          first.focus()
+        }
+      }
+    }
+
+    // 在 list 上按 tab、shift + tab，上下方向键，上下移动焦点
+    this._popup.onkeydown = e => {
+      if (e.key === 'Escape') {
+        this._popup.open = false
+        this._result.classList.remove('dropdown')
+      }
+      else if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
+        focusNext()
+      }
+      else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
+        focusPrev()
+      }
+      else if (e.key === ' ' || e.key === 'Enter') {
+        const option = this.options.find(item => item.value === currentFocusValue)
+        if (option) selectOption(option)
+      }
+    }    
   }
 
   render() {
@@ -180,7 +262,7 @@ class BlocksSelect extends HTMLElement {
   }
 
   get options() {
-    return this._list.querySelectorAll('blocks-option')
+    return Array.prototype.slice.call(this._list.querySelectorAll('blocks-option'))
   }
 
   get multiple() {
@@ -304,6 +386,7 @@ class BlocksSelect extends HTMLElement {
       .forEach(el => {
         if (isOption(el) || isGroup(el)) {
           const copy = el.cloneNode(true)
+          copy.setAttribute('tabindex', '0')
           if (copy.id) delete copy.id
           this._list.appendChild(copy)
         }
@@ -327,23 +410,6 @@ class BlocksSelect extends HTMLElement {
     }
 
     this.render()
-  }
-
-  _focus() {
-    if (this.restorefocus && !this._prevFocus) {
-      this._prevFocus = document.activeElement
-    }
-    this._popup.focus()
-  }
-
-  _blur() {
-    this._popup.blur()
-    if (this._prevFocus) {
-      if (this.restorefocus && typeof this._prevFocus.focus) {
-        this._prevFocus.focus()
-      }
-      this._prevFocus = undefined
-    }
   }
 }
 

@@ -1,5 +1,6 @@
 import { boolGetter, boolSetter } from '../core/property.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
+import { makeRgbaColor } from '../core/utils.js'
 import {
   $colorPrimary, $colorPrimaryLight,
 } from '../theme/var.js'
@@ -22,7 +23,8 @@ const TEMPLATE_CSS = `<style>
   padding: 4px 10px 4px 2em;
 }
 :host(:focus) {
-  outline: 0 none;
+  outline: 1px solid ${makeRgbaColor($colorPrimary, .3)};
+  background: ${makeRgbaColor($colorPrimary, .1)};
 }
 :host([selected]) {
   background-color: ${$colorPrimary};
