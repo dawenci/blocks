@@ -69,7 +69,11 @@ template.innerHTML = `
     transform:scale(1);
   }
 
-  /* 焦点状态显示阴影 */
+  #dialog {
+    box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.1),
+      0px 24px 38px 3px rgba(0, 0, 0, 0.10),
+      0px 9px 46px 8px rgba(0, 0, 0, 0.10);
+  }
   :host(:focus-within) #dialog, #dialog:focus-within {
     outline: 0 none;
     box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
@@ -252,6 +256,8 @@ function getBodyScrollBarWidth() {
 
 const openGetter = boolGetter('open')
 const openSetter = boolSetter('open')
+const maskGetter = boolGetter('mask')
+const maskSetter = boolSetter('mask')
 const closeableGetter = boolGetter('closeable')
 const closeableSetter = boolSetter('closeable')
 const capturefocusGetter = boolGetter('capturefocus')
@@ -269,7 +275,9 @@ class BlocksDialog extends HTMLElement {
       // 是否提供关闭按钮
       'closeable',
       // 捕获焦点，tab 键不会将焦点移出 Dialog
-      'capturefocus'
+      'capturefocus',
+      // 显示遮罩
+      'mask',
     ]
   }
 
@@ -368,6 +376,14 @@ class BlocksDialog extends HTMLElement {
 
   set open(value) {
     openSetter(this, value)
+  }
+
+  get mask() {
+    return maskGetter(this)
+  }
+
+  set mask(value) {
+    maskSetter(this, value)
   }
 
   get title() {
@@ -488,6 +504,7 @@ class BlocksDialog extends HTMLElement {
     this._dialog.offsetHeight
     this._dialog.style.opacity = '0'
     this._dialog.style.transform = 'scale(0)'
+
     this._mask.offsetHeight
     this._mask.style.opacity = '0'
   }
@@ -574,7 +591,9 @@ class BlocksDialog extends HTMLElement {
     if (this.parentElement !== document.body) {
       document.body.appendChild(this)
     }
-    this.parentElement.insertBefore(this._mask, this)
+    if (this.mask) {
+      this.parentElement.insertBefore(this._mask, this)
+    }
 
     this._renderHeader()
     this._renderFooter()
@@ -639,6 +658,15 @@ class BlocksDialog extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (name == 'open' && this.shadowRoot) {
       this._updateVisible()
+    }
+
+    if (name === 'mask') {
+      if (this.mask) {
+        this.parentElement.insertBefore(this._mask, this)
+      }      
+      else if (this._mask.parentElement) {
+        this._mask.parentElement.removeChild(this._mask)
+      }
     }
 
     if (name === 'capturefocus') {
