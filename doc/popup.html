@@ -31,7 +31,9 @@
 
       <template data-codesource="html">
         <div style="position:relative;width:200px;height:100px;border:1px solid #ccc;">
-          <blocks-popup class="popup-default1">默认居中</blocks-popup>
+          <blocks-popup class="popup-default1">
+            <div style="padding:15px;">默认居中</div>
+          </blocks-popup>
         </div>
 
         <blocks-button
@@ -40,6 +42,25 @@
         </blocks-button>
       </template>
     </section>
+
+    <section class="section">
+      <h2>箭头</h2>
+
+      <template data-codesource="html">
+        <div style="position:relative;width:200px;height:150px;border:1px solid #ccc;">
+          <blocks-popup open origin="top-center" arrow class="popup-arrow1" anchor="[100,10]">
+            <div style="height:50px;padding:15px;">
+              显示箭头
+            </div>
+          </blocks-popup>
+        </div>
+
+        <blocks-button
+          onclick="document.querySelector('.popup-arrow1').open = !document.querySelector('.popup-arrow1').hasAttribute('open')">
+          开关
+        </blocks-button>
+      </template>
+    </section>    
 
     <section class="section">
       <h2>限制焦点</h2>
@@ -64,25 +85,6 @@
         <blocks-button
           onclick="document.querySelector('.popup-capturefocus1').capturefocus = !document.querySelector('.popup-capturefocus1').capturefocus">
           切换状态
-        </blocks-button>
-      </template>
-    </section>
-
-    <section class="section">
-      <h2>箭头</h2>
-
-      <template data-codesource="html">
-        <div style="position:relative;width:200px;height:100px;border:1px solid #ccc;">
-          <blocks-popup origin="top-start" arrow class="popup-arrow1" anchor="[10,10]">
-            <div style="height:50px;">
-              显示箭头
-            </div>
-          </blocks-popup>
-        </div>
-
-        <blocks-button
-          onclick="document.querySelector('.popup-arrow1').open = !document.querySelector('.popup-arrow1').hasAttribute('open')">
-          开关
         </blocks-button>
       </template>
     </section>

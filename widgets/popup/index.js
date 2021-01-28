@@ -93,65 +93,19 @@ const TEMPLATE_CSS = `<style>
   transition-duration: ${$transitionDuration};
   transition-timing-function: cubic-bezier(.645, .045, .355, 1);
 }
-
-:host([open]) #popup {
-  /* 非 focus 时，shadow 无方向 */
-  box-shadow: 0px 0 3px rgba(0, 0, 0, 0.2);
-}
-
-
-/* 焦点状态显示阴影 */
-:host(:focus-within) #popup,
-#popup:focus-within {
-  outline: 0 none;
-  box-shadow: 0px 0 3px rgba(0, 0, 0, 0.15), 0px 0 5px rgba(0, 0, 0, 0.15);
-}
-:host(:focus-within) #popup.origin-bottom-right,
-#popup:focus-within.origin-bottom-right {
-  box-shadow: -1px -1px 3px -1px rgba(0, 0, 0, 0.1), -2px -2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
-}
-:host(:focus-within) #popup.origin-bottom-left,
-#popup:focus-within.origin-bottom-left {
-  box-shadow: 1px -1px 3px -1px rgba(0, 0, 0, 0.1), 2px -2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
-}
-:host(:focus-within) #popup.origin-top-right,
-#popup:focus-within.origin-top-right {
-  box-shadow: -1px 1px 3px -1px rgba(0, 0, 0, 0.1), -2px 2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
-}
-:host(:focus-within) #popup.origin-top-left,
-#popup:focus-within.origin-top-left {
-  box-shadow: 1px 1px 3px -1px rgba(0, 0, 0, 0.1), 2px 2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
-}
-:host(:focus-within) #popup.origin-bottom-center,
-#popup:focus-within.origin-bottom-center {
-  box-shadow: 0px -1px 3px -1px rgba(0, 0, 0, 0.1), 0px -2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
-}
-:host(:focus-within) #popup.origin-top-center,
-#popup:focus-within.origin-top-center {
-  box-shadow: 0px 1px 3px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
-}
-:host(:focus-within) #popup.origin-center-left,
-#popup:focus-within.origin-center-left {
-  box-shadow: 1px 0px 3px -1px rgba(0, 0, 0, 0.1), 2px 0px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
-}
-:host(:focus-within) #popup.origin-center-right,
-#popup:focus-within.origin-center-right {
-  box-shadow: -1px 0px 3px -1px rgba(0, 0, 0, 0.1), -2px 0px 4px 1px rgba(0, 0, 0, 0.05), 0px 0 3px rgba(0, 0, 0, 0.15);
-}
-
 #arrow {
   overflow: hidden;
   display: block;
   position: absolute;
-  width: 12px;
-  height: 6px;
+  /* width, height 留出 5px 投影 */
+  width: 22px;
+  height: 9px;
   margin: auto;
 }
-
 #arrow::after {
   display: block;
   position: absolute;
-  top: 2px;
+  top: 5px;
   right: 0;
   bottom: auto;
   left: 0;
@@ -159,107 +113,153 @@ const TEMPLATE_CSS = `<style>
   content: '';
   width: ${getArrowRectSize(ARROW_SIZE)}px;
   height: ${getArrowRectSize(ARROW_SIZE)}px;
-  border-top: 1px solid rgba(0,0,0,.08);
-  border-right: 1px solid rgba(0,0,0,.08);
+  /*border-top: 1px solid rgba(0,0,0,.08);
+  border-right: 1px solid rgba(0,0,0,.08);*/
   transform: rotate(-45deg);
   background: #fff;
 }
+#arrow::after {
+  box-shadow: 0 0 5px rgb(0,0,0,0.06);
+}
 
-/* 阴影在四周 */
+/* 默认无方向阴影 */
+#popup {
+  box-shadow: 0 0 5px -4px rgb(0,0,0,0.12),
+    0 0 16px 0 rgb(0,0,0,0.08),
+    0 0 28px 8px rgb(0,0,0,0.05);
+}
+:host(:focus-within) #popup, #popup:focus-within {
+  outline: 0 none;
+  box-shadow: 0 0 5px -2px rgb(0,0,0,0.16),
+    0 0 16px 0 rgb(0,0,0,0.08),
+    0 0 28px 8px rgb(0,0,0,0.05);
+}
 .origin-center-center #arrow {
   display: none;
 }
 
-/* 阴影在左上方 */
-/* 垂直模式，箭头指向下方，位置靠右 */
-.origin-bottom-right.vertical #arrow {
-  transform: rotate(180deg);
-  bottom: -6px;
+/* 箭头指向上方，阴影向下 */
+#popup.origin-top-left.vertical,
+#popup.origin-top-center,
+#popup.origin-top-right.vertical {
+  box-shadow: 0 3px 6px -4px rgb(0,0,0,0.12),
+    0 6px 16px 0 rgb(0,0,0,0.08),
+    0 9px 28px 8px rgb(0,0,0,0.05);
+}
+:host(:focus-within) #popup.origin-top-left.vertical, #popup:focus-within.origin-top-left.vertical,
+:host(:focus-within) #popup.origin-top-center, #popup:focus-within.origin-top-center,
+:host(:focus-within) #popup.origin-top-right.vertical, #popup:focus-within.origin-top-right.vertical {
+  box-shadow: 0 3px 6px -2px rgb(0,0,0,0.16),
+    0 6px 16px 0 rgb(0,0,0,0.08),
+    0 9px 28px 8px rgb(0,0,0,0.05);
+}
+.origin-top-left.vertical #arrow {
+  top: -9px;
+  left: 10px;
+}
+.origin-top-center #arrow {
+  top: -9px;
+  left: 0;
+  right: 0;
+}
+.origin-top-right.vertical #arrow {
+  top: -9px;
   right: 10px;
 }
-/* 水平模式，箭头指向右方，位置靠下 */
-.origin-bottom-right.horizontal #arrow {
-  transform: rotate(90deg);
-  bottom: 10px;
-  right: -9px;
+/* 箭头指向下方，阴影向上 */
+#popup.origin-bottom-left,
+#popup.origin-bottom-center,
+#popup.origin-bottom-right {
+  box-shadow: 0 -3px 6px -4px rgb(0,0,0,0.12),
+    0 -6px 16px 0 rgb(0,0,0,0.08),
+    0 -9px 28px 8px rgb(0,0,0,0.05);
 }
-
-/* 阴影在右上方 */
-/* 垂直模式，箭头指向下方，位置靠左 */
+:host(:focus-within) #popup.origin-bottom-right, #popup:focus-within.origin-bottom-right,
+:host(:focus-within) #popup.origin-bottom-center, #popup:focus-within.origin-bottom-center,
+:host(:focus-within) #popup.origin-bottom-left, #popup:focus-within.origin-bottom-left {
+  box-shadow: 0 -3px 6px -2px rgb(0,0,0,0.16),
+    0 -6px 16px 0 rgb(0,0,0,0.08),
+    0 -9px 28px 8px rgb(0,0,0,0.05);
+}
 .origin-bottom-left.vertical #arrow {}
 /* 未知原因 BUG, 上方多写一行才会生效 */
 .origin-bottom-left.vertical #arrow {
   transform: rotate(180deg);
-  bottom: -6px;
+  bottom: -9px;
   left: 10px;
 }
-/* 水平模式，箭头指向左方，位置靠下 */
-.origin-bottom-left.horizontal #arrow {
-  transform: rotate(-90deg);
-  bottom: 10px;
-  left: -9px;
+.origin-bottom-center #arrow {
+  transform: rotate(180deg);
+  bottom: -9px;
+  left: 0;
+  right: 0;
 }
-
-/* 阴影在右下方 */
-/* 垂直模式，箭头指向上方，位置靠左 */
-.origin-top-left.vertical #arrow {
-  top: -6px;
-  left: 10px;
+.origin-bottom-right.vertical #arrow {
+  transform: rotate(180deg);
+  bottom: -9px;
+  right: 10px;
 }
-/* 水平模式，箭头指向左方，位置靠上 */
+/* 箭头指向左方，阴影向右 */
+#popup.origin-center-left,
+#popup.origin-top-left.horizontal,
+#popup.origin-bottom-left.horizontal {
+  box-shadow: 3px 0 6px -4px rgb(0,0,0,0.12),
+    6px 0 16px 0 rgb(0,0,0,0.08),
+    9px 0 28px 8px rgb(0,0,0,0.05);
+}
+:host(:focus-within) #popup.origin-center-left, #popup:focus-within.origin-center-left,
+:host(:focus-within) #popup.origin-top-left.horizontal, #popup:focus-within.origin-top-left.horizontal,
+:host(:focus-within) #popup.origin-bottom-left.horizontal, #popup:focus-within.origin-bottom-left.horizontal {
+  box-shadow: 3px 0 6px -2px rgb(0,0,0,0.16),
+    6px 0 16px 0 rgb(0,0,0,0.08),
+    9px 0 28px 8px rgb(0,0,0,0.05);
+}
 .origin-top-left.horizontal #arrow {
   transform: rotate(-90deg);
   top: 10px;
-  left: -9px;
+  left: -15px;
 }
-
-
-/* 阴影在左下方 */
-/* 垂直模式，箭头指向上方，位置靠右 */
-.origin-top-right.vertical #arrow {
-  top: -6px;
-  right: 10px;
-}
-/* 水平模式，箭头指向右方，位置靠上 */
-.origin-top-right.horizontal #arrow {
-  transform: rotate(90deg);
-  top: 10px;
-  right: -9px;
-}
-
-/* 阴影在正上方 */
-/* 箭头指向下方，位置居中 */
-.origin-bottom-center.vertical #arrow {
-  transform: rotate(180deg);
-  bottom: -6px;
-  left: 0;
-  right: 0;
-}
-
-/* 阴影在正右方 */
-/* 箭头指向左方，位置居中 */
-.origin-center-left.horizontal #arrow {
+.origin-center-left #arrow {
   transform: rotate(-90deg);
   top: 0;
   bottom: 0;
-  left: -9px;
+  left: -15px;
 }
-
-/* 阴影在正下方 */
-/* 箭头指向上方，位置居中 */
-.origin-top-center.vertical #arrow {
-  top: -6px;
-  left: 0;
-  right: 0;
+.origin-bottom-left.horizontal #arrow {
+  transform: rotate(-90deg);
+  bottom: 10px;
+  left: -15px;
 }
-
-/* 阴影在正左方 */
-/* 箭头指向右方，位置居中 */
-.origin-center-right.horizontal #arrow {
+/* 箭头指向右方，阴影向左 */
+#popup.origin-center-right,
+#popup.origin-top-right.horizontal,
+#popup.origin-bottom-right.horizontal {
+  box-shadow: -3px 0 6px -4px rgb(0,0,0,0.12),
+    -6px 0 16px 0 rgb(0,0,0,0.08),
+    -9px 0 28px 8px rgb(0,0,0,0.05);
+}
+:host(:focus-within) #popup.origin-center-right, #popup:focus-within.origin-center-right,
+:host(:focus-within) #popup.origin-top-right.horizontal, #popup:focus-within.origin-top-right.horizontal,
+:host(:focus-within) #popup.origin-bottom-right.horizontal, #popup:focus-within.origin-bottom-right.horizontal {
+  box-shadow: -3px 0 6px -2px rgb(0,0,0,0.16),
+    -6px 0 16px 0 rgb(0,0,0,0.08),
+    -9px 0 28px 8px rgb(0,0,0,0.05);
+}
+.origin-top-right.horizontal #arrow {
   transform: rotate(90deg);
-  right: -9px;
+  top: 10px;
+  right: -15px;
+}
+.origin-center-right #arrow {
+  transform: rotate(90deg);
+  right: -15px;
   top: 0;
   bottom: 0;
+}
+.origin-bottom-right.horizontal #arrow {
+  transform: rotate(90deg);
+  bottom: 10px;
+  right: -15px;
 }
 
 #first, #last, #first:focus, #last:focus {
@@ -276,10 +276,8 @@ const TEMPLATE_CSS = `<style>
 
 const TEMPLATE_HTML = `
 <div id="popup">
-  <button id="first"></button>
   <i id="arrow"></i>
   <slot></slot>
-  <button id="last"></button>
 </div>
 `
 
@@ -737,6 +735,11 @@ class BlocksPopup extends HTMLElement {
     switch (attrName) {
       case 'open': {
         this._updateVisible()
+        break
+      }
+
+      case 'arrow': {
+        this._updateArrow()
         break
       }
  
