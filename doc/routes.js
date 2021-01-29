@@ -11,6 +11,7 @@ export default [
   { title: 'input', url: 'input.html' },
   { title: 'loading', url: 'loading.html' },
   { title: 'modal', url: 'modal.html' },
+  { title: 'notification', url: 'notification.html' },
   { title: 'popup', url: 'popup.html' },
   { title: 'progress', url: 'progress.html' },
   { title: 'radio', url: 'radio.html' },

@@ -31,6 +31,21 @@ export function numSetter(attr) {
   }
 }
 
+export function intGetter(attr) {
+  return element => {
+    const value = parseInt(element.getAttribute(attr))
+    return value
+  }
+}
+
+export function intSetter(attr) {
+  return (element, value) => {
+    value = parseInt(value, 10)
+    if (parseInt(element.getAttribute(attr), 10) === value) return
+    element.setAttribute(attr, value)
+  } 
+}
+
 export function enumGetter(attr, values) {
   return (element) => {
     const value = element.getAttribute(attr)
