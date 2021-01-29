@@ -9,6 +9,7 @@ export default [
   { title: 'dialog', url: 'dialog.html' },
   { title: 'icon', url: 'icon.html' },
   { title: 'input', url: 'input.html' },
+  { title: 'loading', url: 'loading.html' },
   { title: 'modal', url: 'modal.html' },
   { title: 'popup', url: 'popup.html' },
   { title: 'progress', url: 'progress.html' },
