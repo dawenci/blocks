@@ -17,10 +17,32 @@
       <h1>loading</h1>
     </header>
 
+    <script type="module" src="/widgets/button/index.js"></script>
+
+    <section class="section">
+      <h2>默认</h2>
+
+      <div data-codesource="html">
+        <blocks-button id="default">消息</blocks-button>
+
+        <script type="module">
+          import { notify } from '/widgets/notification/index.js'
+          document.querySelector('#default').onclick = () => {
+            notify({
+              title: '消息通知',
+              content: '这里是消息内容',
+            })
+          }
+        </script>
+      </div>
+    </section>
+
+
     <section class="section">
       <script type="module" src="/widgets/button/index.js"></script>
+      <h2>类别</h2>
+
       <div data-codesource="html">
-        <blocks-button id="message">消息</blocks-button>
         <blocks-button id="success">成功</blocks-button>
         <blocks-button id="error">错误</blocks-button>
         <blocks-button id="info">信息</blocks-button>
@@ -28,14 +50,6 @@
 
         <script type="module">
           import { notify } from '/widgets/notification/index.js'
-          document.querySelector('#message').onclick = () => {
-            notify({
-              type: 'message',
-              title: '消息通知',
-              content: '这里是消息内容',
-              closeable: true,
-            })
-          }
           document.querySelector('#success').onclick = () => {
             notify({
               type: 'success',

@@ -1,7 +1,8 @@
+import { dispatchEvent } from '../core/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../core/property.js'
-import { $colorPrimary, $colorDanger, $colorSuccess, $colorWarning } from '../theme/var.js'
+import { $colorPrimary, $colorDanger, $colorSuccess, $colorWarning, $transitionDuration } from '../theme/var.js'
 
 const closeableGetter = boolGetter('closeable')
 const closeableSetter = boolSetter('closeable')
@@ -11,29 +12,30 @@ const durationGetter = intGetter('duration')
 const durationSetter = intSetter('duration')
 
 const TEMPLATE_CSS = `<style>
-:host, :host * {
-  box-sizing: border-box;
-}
 :host {
   display: block;
+  box-sizing: border-box;
   width: 350px;
   margin: 15px 28px;
   background: #fff;
   box-shadow: 0 0 5px -2px rgb(0,0,0,0.16),
     0 0 16px 0 rgb(0,0,0,0.08),
     0 0 28px 8px rgb(0,0,0,0.05);
+  transition: all ${$transitionDuration} ease-out;
 }
 #notification {
+  box-sizing: border-box;
   display: flex;
   flex-flow: row nowrap;  
   width: 100%;
+  padding: 15px;
   position: relative;
 }
 #icon {
   flex: 0 0 auto;
   width: 24px;
   height: 24px;
-  margin: 15px 0 15px 15px;
+  margin: 0 15px 0 0;
 }
 #icon:empty {
   display: none;
@@ -42,37 +44,42 @@ const TEMPLATE_CSS = `<style>
   flex: 1 1 100%;
 }
 #title {
-  margin: 15px;
   font-size: 16px;
-  margin-bottom: 10px;
 }
 #title:empty {
   display: none;
 }
 ::slotted(h1) {
   margin: 0;
-  font-size: 20px;
+  font-size: 16px;
 }
 #content {
-  margin: 15px;
   line-height: 24px;
+  font-size: 14px;
+}
+#title+#content {
+  margin-top: 8px;
 }
 #close {
+  flex: 0 0 auto;
   display: block;
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  bottom: auto;
-  left: auto;
-  width: 20px;
-  height: 20px;
-  margin: 0;
+  width: 18px;
+  height: 18px;
+  margin: 0 0 0 15px;
   padding: 0;
   border: 0 none;
   background: #fff;
+  fill: #aaa;
 }
 #close:hover {
-
+  fill: #888;
+}
+#close:focus {
+  outline: 0 none;
+}
+#close svg {
+  width: 100%;
+  height: 100%;
 }
 </style>`
 
@@ -105,6 +112,13 @@ class BlocksNotification extends HTMLElement {
     this._widget = shadowRoot.querySelector('#notification')
     this._icon = shadowRoot.querySelector('#icon')
     this._content = shadowRoot.querySelector('#content')
+
+    this._widget.onmouseenter = () => {
+      this._clearAutoClose()
+    }
+    this._widget.onmouseleave = () => {
+      this._setAutoClose()
+    }
   }
 
   get closeable() {
@@ -124,11 +138,21 @@ class BlocksNotification extends HTMLElement {
   }
 
   get duration() {
-    return durationGetter(this)
+    return durationGetter(this) || 10
   }
 
   set duration(value) {
     durationSetter(this, value)
+  }
+
+  close() {
+    this.ontransitionend = e => {
+      if (e.propertyName === 'opacity' && e.target === this) {
+        dispatchEvent(this, 'closed')
+        this.destroy()
+      }
+    }
+    this.style.cssText = `transform:translate(0,-100%);opacity:0`
   }
 
   render() {
@@ -148,8 +172,9 @@ class BlocksNotification extends HTMLElement {
       if (!this._close) {
         this._close = this._widget.appendChild(document.createElement('button'))
         this._close.id = 'close'
+        this._close.appendChild(getRegisteredSvgIcon('cross'))
         this._close.onclick = () => {
-          this.destroy()
+          this.close()
         }
       }
     }
@@ -160,11 +185,7 @@ class BlocksNotification extends HTMLElement {
       }
     }
 
-    if (this.duration) {
-      setTimeout(() => {
-        this.destroy()
-      }, this.duration * 1000)
-    }
+    this._setAutoClose()
   }
 
   destroy() {
@@ -184,6 +205,19 @@ class BlocksNotification extends HTMLElement {
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     this.render()
+  }
+
+  _clearAutoClose() {
+    clearTimeout(this._autoCloseTimer)
+  }
+
+  _setAutoClose() {
+    if (this.duration && this.duration > 0) {
+      this._clearAutoClose()
+      this._autoCloseTimer = setTimeout(() => {
+        this.close()
+      }, this.duration * 1000)
+    }
   }
 }
 
@@ -214,5 +248,11 @@ export function notify(options = {}) {
 
   el.innerHTML = content
 
+  el.style.cssText = `transform:translate(100%, 0);opacity:0;`
+
   cage().appendChild(el)
+  el.offsetHeight
+  el.style.cssText = `transform:translate(0, 0);opacity:1;`
+
+  return el
 }

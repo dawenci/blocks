@@ -5,5 +5,7 @@ import './svg/loading.svg.js'
 import './svg/success.svg.js'
 import './svg/error.svg.js'
 import './svg/info.svg.js'
+import './svg/check.svg.js'
+import './svg/cross.svg.js'
 
 export { registerSvgIcon, parseSvg, getRegisteredSvgIcon } from './store.js'
