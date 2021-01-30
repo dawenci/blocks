@@ -80,7 +80,7 @@ const TEMPLATE_CSS = `<style>
   outline: 0 none;
 }
 
-#popup {
+#layout {
   position:relative;
   box-sizing: border-box;
   display:inline-block;
@@ -123,12 +123,12 @@ const TEMPLATE_CSS = `<style>
 }
 
 /* 默认无方向阴影 */
-#popup {
+#layout {
   box-shadow: 0 0 5px -4px rgb(0,0,0,0.12),
     0 0 16px 0 rgb(0,0,0,0.08),
     0 0 28px 8px rgb(0,0,0,0.05);
 }
-:host(:focus-within) #popup, #popup:focus-within {
+:host(:focus-within) #layout, #layout:focus-within {
   outline: 0 none;
   box-shadow: 0 0 5px -2px rgb(0,0,0,0.16),
     0 0 16px 0 rgb(0,0,0,0.08),
@@ -139,16 +139,16 @@ const TEMPLATE_CSS = `<style>
 }
 
 /* 箭头指向上方，阴影向下 */
-#popup.origin-top-left.vertical,
-#popup.origin-top-center,
-#popup.origin-top-right.vertical {
+#layout.origin-top-left.vertical,
+#layout.origin-top-center,
+#layout.origin-top-right.vertical {
   box-shadow: 0 3px 6px -4px rgb(0,0,0,0.12),
     0 6px 16px 0 rgb(0,0,0,0.08),
     0 9px 28px 8px rgb(0,0,0,0.05);
 }
-:host(:focus-within) #popup.origin-top-left.vertical, #popup:focus-within.origin-top-left.vertical,
-:host(:focus-within) #popup.origin-top-center, #popup:focus-within.origin-top-center,
-:host(:focus-within) #popup.origin-top-right.vertical, #popup:focus-within.origin-top-right.vertical {
+:host(:focus-within) #layout.origin-top-left.vertical, #layout:focus-within.origin-top-left.vertical,
+:host(:focus-within) #layout.origin-top-center, #layout:focus-within.origin-top-center,
+:host(:focus-within) #layout.origin-top-right.vertical, #layout:focus-within.origin-top-right.vertical {
   box-shadow: 0 3px 6px -2px rgb(0,0,0,0.16),
     0 6px 16px 0 rgb(0,0,0,0.08),
     0 9px 28px 8px rgb(0,0,0,0.05);
@@ -167,16 +167,16 @@ const TEMPLATE_CSS = `<style>
   right: 10px;
 }
 /* 箭头指向下方，阴影向上 */
-#popup.origin-bottom-left,
-#popup.origin-bottom-center,
-#popup.origin-bottom-right {
+#layout.origin-bottom-left,
+#layout.origin-bottom-center,
+#layout.origin-bottom-right {
   box-shadow: 0 -3px 6px -4px rgb(0,0,0,0.12),
     0 -6px 16px 0 rgb(0,0,0,0.08),
     0 -9px 28px 8px rgb(0,0,0,0.05);
 }
-:host(:focus-within) #popup.origin-bottom-right, #popup:focus-within.origin-bottom-right,
-:host(:focus-within) #popup.origin-bottom-center, #popup:focus-within.origin-bottom-center,
-:host(:focus-within) #popup.origin-bottom-left, #popup:focus-within.origin-bottom-left {
+:host(:focus-within) #layout.origin-bottom-right, #layout:focus-within.origin-bottom-right,
+:host(:focus-within) #layout.origin-bottom-center, #layout:focus-within.origin-bottom-center,
+:host(:focus-within) #layout.origin-bottom-left, #layout:focus-within.origin-bottom-left {
   box-shadow: 0 -3px 6px -2px rgb(0,0,0,0.16),
     0 -6px 16px 0 rgb(0,0,0,0.08),
     0 -9px 28px 8px rgb(0,0,0,0.05);
@@ -200,16 +200,16 @@ const TEMPLATE_CSS = `<style>
   right: 10px;
 }
 /* 箭头指向左方，阴影向右 */
-#popup.origin-center-left,
-#popup.origin-top-left.horizontal,
-#popup.origin-bottom-left.horizontal {
+#layout.origin-center-left,
+#layout.origin-top-left.horizontal,
+#layout.origin-bottom-left.horizontal {
   box-shadow: 3px 0 6px -4px rgb(0,0,0,0.12),
     6px 0 16px 0 rgb(0,0,0,0.08),
     9px 0 28px 8px rgb(0,0,0,0.05);
 }
-:host(:focus-within) #popup.origin-center-left, #popup:focus-within.origin-center-left,
-:host(:focus-within) #popup.origin-top-left.horizontal, #popup:focus-within.origin-top-left.horizontal,
-:host(:focus-within) #popup.origin-bottom-left.horizontal, #popup:focus-within.origin-bottom-left.horizontal {
+:host(:focus-within) #layout.origin-center-left, #layout:focus-within.origin-center-left,
+:host(:focus-within) #layout.origin-top-left.horizontal, #layout:focus-within.origin-top-left.horizontal,
+:host(:focus-within) #layout.origin-bottom-left.horizontal, #layout:focus-within.origin-bottom-left.horizontal {
   box-shadow: 3px 0 6px -2px rgb(0,0,0,0.16),
     6px 0 16px 0 rgb(0,0,0,0.08),
     9px 0 28px 8px rgb(0,0,0,0.05);
@@ -231,16 +231,16 @@ const TEMPLATE_CSS = `<style>
   left: -15px;
 }
 /* 箭头指向右方，阴影向左 */
-#popup.origin-center-right,
-#popup.origin-top-right.horizontal,
-#popup.origin-bottom-right.horizontal {
+#layout.origin-center-right,
+#layout.origin-top-right.horizontal,
+#layout.origin-bottom-right.horizontal {
   box-shadow: -3px 0 6px -4px rgb(0,0,0,0.12),
     -6px 0 16px 0 rgb(0,0,0,0.08),
     -9px 0 28px 8px rgb(0,0,0,0.05);
 }
-:host(:focus-within) #popup.origin-center-right, #popup:focus-within.origin-center-right,
-:host(:focus-within) #popup.origin-top-right.horizontal, #popup:focus-within.origin-top-right.horizontal,
-:host(:focus-within) #popup.origin-bottom-right.horizontal, #popup:focus-within.origin-bottom-right.horizontal {
+:host(:focus-within) #layout.origin-center-right, #layout:focus-within.origin-center-right,
+:host(:focus-within) #layout.origin-top-right.horizontal, #layout:focus-within.origin-top-right.horizontal,
+:host(:focus-within) #layout.origin-bottom-right.horizontal, #layout:focus-within.origin-bottom-right.horizontal {
   box-shadow: -3px 0 6px -2px rgb(0,0,0,0.16),
     -6px 0 16px 0 rgb(0,0,0,0.08),
     -9px 0 28px 8px rgb(0,0,0,0.05);
@@ -275,7 +275,7 @@ const TEMPLATE_CSS = `<style>
 </style>`
 
 const TEMPLATE_HTML = `
-<div id="popup">
+<div id="layout">
   <i id="arrow"></i>
   <slot></slot>
 </div>
@@ -328,28 +328,28 @@ class BlocksPopup extends HTMLElement {
     const fragment = template.content.cloneNode(true)
     this.shadowRoot.appendChild(fragment)
 
-    this._popup = this.shadowRoot.getElementById('popup')
-    this._popupArrow = this.shadowRoot.getElementById('arrow')
+    this.$layout = this.shadowRoot.getElementById('layout')
+    this.$arrow = this.shadowRoot.getElementById('arrow')
 
     // 过渡开始时
-    this._popup.ontransitionstart = (ev) => {
-      if (ev.target !== this._popup || ev.propertyName !== 'opacity') return
+    this.$layout.ontransitionstart = (ev) => {
+      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
       this._disableEvents()
     }
 
     // 过渡进行中时
-    this._popup.ontransitionrun = (ev) => {
-      if (ev.target !== this._popup || ev.propertyName !== 'opacity') return
+    this.$layout.ontransitionrun = (ev) => {
+      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
     }
 
     // 过渡取消时
-    this._popup.onontransitioncancel = () => {
-      if (ev.target !== this._popup || ev.propertyName !== 'opacity') return
+    this.$layout.onontransitioncancel = () => {
+      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
     }
 
     // 过渡结束时
-    this._popup.ontransitionend = (ev) => {
-      if (ev.target !== this._popup || ev.propertyName !== 'opacity') return
+    this.$layout.ontransitionend = (ev) => {
+      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
       this._enableEvents()
 
       if (this.open) {
@@ -360,7 +360,7 @@ class BlocksPopup extends HTMLElement {
       }
       else {
         this._blur()
-        this._popup.style.display = 'none'
+        this.$layout.style.display = 'none'
         dispatchEvent(this, 'close')
       }
     }
@@ -499,7 +499,7 @@ class BlocksPopup extends HTMLElement {
   updatePosition() {
     if (!this.open) return
 
-    const popup = this._popup
+    const popup = this.$layout
     const popupWidth = popup.offsetWidth
     const popupHeight = popup.offsetHeight
 
@@ -713,9 +713,9 @@ class BlocksPopup extends HTMLElement {
 
     // 设置初始样式，确保动画生效
     if (!this.open) {
-      this._popup.style.display = 'none'
-      this._popup.style.opacity = '0'
-      this._popup.style.transform = 'scale(0)'
+      this.$layout.style.display = 'none'
+      this.$layout.style.opacity = '0'
+      this.$layout.style.transform = 'scale(0)'
     }
     else {
       this.updatePosition()
@@ -770,8 +770,8 @@ class BlocksPopup extends HTMLElement {
 
   // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
   _captureFocus() {
-    this._firstFocusable = this._popup.querySelector('#first') || this._popup.insertBefore(document.createElement('button'), this._popup.firstChild)
-    this._lastFocusable = this._popup.querySelector('#last') || this._popup.appendChild(document.createElement('button'))
+    this._firstFocusable = this.$layout.querySelector('#first') || this.$layout.insertBefore(document.createElement('button'), this.$layout.firstChild)
+    this._lastFocusable = this.$layout.querySelector('#last') || this.$layout.appendChild(document.createElement('button'))
     this._firstFocusable.id = 'first'
     this._lastFocusable.id = 'last'
     this._firstFocusable.onkeydown = e => {
@@ -789,31 +789,31 @@ class BlocksPopup extends HTMLElement {
   // 停止强制捕获焦点
   _stopCaptureFocus() {
     if (this._firstFocusable && this._firstFocusable.parentElement) {
-      this._popup.removeChild(this._firstFocusable)
+      this.$layout.removeChild(this._firstFocusable)
     }
     if (this._firstFocusable && this._lastFocusable.parentElement) {
-      this._popup.removeChild(this._lastFocusable)
+      this.$layout.removeChild(this._lastFocusable)
     }
   }
 
   // 执行过渡前的准备工作，确保动画正常
   _prepareForAnimate() {
-    this._popup.style.display = ''
-    this._popup.offsetHeight
+    this.$layout.style.display = ''
+    this.$layout.offsetHeight
   }
 
   _animateOpen() {
     // 强制执行动画
-    this._popup.offsetHeight
-    this._popup.style.opacity = ''
-    this._popup.style.transform = ''
+    this.$layout.offsetHeight
+    this.$layout.style.opacity = ''
+    this.$layout.style.transform = ''
   }
 
   _animateClose() {
     // 强制执行动画
-    this._popup.offsetHeight
-    this._popup.style.opacity = '0'
-    this._popup.style.transform = 'scale(0)'
+    this.$layout.offsetHeight
+    this.$layout.style.opacity = '0'
+    this.$layout.style.transform = 'scale(0)'
   }
 
   _updateVisible() {
@@ -839,25 +839,25 @@ class BlocksPopup extends HTMLElement {
 
   _updateClass() {
     if (this._isHorizontal()) {
-      this._popup.classList.add('horizontal')
-      this._popup.classList.remove('vertical')
+      this.$layout.classList.add('horizontal')
+      this.$layout.classList.remove('vertical')
     }
     else if (this._isVertical()) {
-      this._popup.classList.remove('horizontal')
-      this._popup.classList.add('vertical')
+      this.$layout.classList.remove('horizontal')
+      this.$layout.classList.add('vertical')
     }
     else {
-      this._popup.classList.remove('horizontal')
-      this._popup.classList.remove('vertical')
+      this.$layout.classList.remove('horizontal')
+      this.$layout.classList.remove('vertical')
     }
   }
 
   _updateArrow() {
     if (this.arrow) {
-      this._popupArrow.style.display = ''
+      this.$arrow.style.display = ''
     }
     else {
-      this._popupArrow.style.display = 'none'
+      this.$arrow.style.display = 'none'
     }
   }
 
@@ -880,28 +880,28 @@ class BlocksPopup extends HTMLElement {
 
   // 设置原点 class
   _setOriginClass(value) {
-    [...this._popup.classList.values()].forEach(className => {
+    [...this.$layout.classList.values()].forEach(className => {
       if (className !== value && className.startsWith('origin-')) {
-        this._popup.classList.remove(className)
+        this.$layout.classList.remove(className)
       }
     })
-    this._popup.classList.add(value)
+    this.$layout.classList.add(value)
   }
 
   // 设置 css 变换原点
   _setOrigin(y, x) {
     this._setOriginClass(`origin-${y}-${x}`)
-    this._popup.style.transformOrigin = `${y} ${x}`
+    this.$layout.style.transformOrigin = `${y} ${x}`
   }
 
   // 启用鼠标交互
   _enableEvents() {
-    this._popup.style.pointerEvents = ''
+    this.$layout.style.pointerEvents = ''
   }
 
   // 禁用鼠标交互
   _disableEvents() {
-    this._popup.style.pointerEvents = 'none'
+    this.$layout.style.pointerEvents = 'none'
   }
 }
 

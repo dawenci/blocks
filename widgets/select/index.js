@@ -30,14 +30,14 @@ const TEMPLATE_CSS = `<style>
 .dropdown::part(suffix) {
   transform: rotate(180deg);
 }
-blocks-select-result {
+#result {
   width: 100%;
 }
 </style>`
 
 const TEMPLATE_HTML = `
-<blocks-select-result suffix-icon="down" class="date-picker-input" readonly></blocks-select-result>
-<blocks-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
+<blocks-select-result suffix-icon="down" id="result" readonly></blocks-select-result>
+<blocks-popup append-to-body id="date-picker-popup" origin="top-start" arrow>
   <div class="option-list" style="overflow:hidden;min-height:20px;border-radius:${$radiusBase};"></div>
 </blocks-popup>
 <slot style="display:none;"></slot>
@@ -75,113 +75,99 @@ class BlocksSelect extends HTMLElement {
       delegatesFocus: true
     })
 
-    const id = `select-${idSeed++}` 
-
-    const fragment = template.content.cloneNode(true)
-    this._result = fragment.querySelector('blocks-select-result')
-    this._popup = fragment.querySelector('.date-picker-popup')
-    this._list = fragment.querySelector('.option-list')
-    this._optionSlot = fragment.querySelector('slot')
+    const id = `select-${idSeed++}`
     this.id = id
-    this._popup.setAttribute('anchor', `#${id}`)
+    const fragment = template.content.cloneNode(true)
+    this.$result = fragment.querySelector('blocks-select-result')
+    this.$popup = fragment.querySelector('#date-picker-popup')
+    this.$list = fragment.querySelector('.option-list')
+    this.$optionSlot = fragment.querySelector('slot')
+    this.$popup.setAttribute('anchor', `#${id}`)
     this.shadowRoot.appendChild(fragment)
 
-    this._result.onfocus = this._result.onfocus = e => {
-      this._popup.style.minWidth = `${this._result.offsetWidth}px`
-      this._popup.open = true
-      this._result.classList.add('dropdown')
+    this.$result.onfocus = this.$result.onfocus = e => {
+      this.$popup.style.minWidth = `${this.$result.offsetWidth}px`
+      this.$popup.open = true
+      this.$result.classList.add('dropdown')
     }
 
-    // 
-    const selectOption = option => {
-      if (option.disabled) return
-      if (option.parentElement.tagName === 'BLOCKS-OPTGROUP' && option.parentElement.disabled) return
-      if (this.multiple) {
-        option.selected = !option.selected
-      }
-      else {
-        const selected = this._list.querySelector('[selected]')
-        if (selected && selected !== option) {
-          selected.selected = false
-        }
-        option.selected = true
-      }
-    }
-
-    this._list.onclick = e => {
+    this.$list.onclick = e => {
       const target = e.target
       if (target.tagName === 'BLOCKS-OPTION') {
-        selectOption(target)
-        // if (target.disabled) return
-        // if (target.parentElement.tagName === 'BLOCKS-OPTGROUP' && target.parentElement.disabled) return
-        // if (this.multiple) {
-        //   target.selected = !target.selected
-        // }
-        // else {
-        //   const selected = this._list.querySelector('[selected]')
-        //   if (selected && selected !== target) {
-        //     selected.selected = false
-        //   }
-        //   target.selected = true
-        // }
+        this._selectOption(target)
       }
       this.render()
     }
 
-    this._result.addEventListener('click-clear', e => {
+    this.$result.addEventListener('click-clear', e => {
       this.value = this.multiple ? [] : null
-      forEach(this._list.querySelectorAll('[selected]'), option => {
+      forEach(this.$list.querySelectorAll('[selected]'), option => {
         option.selected = false
       })
     })
 
-    this._list.addEventListener('select', e => {
+    this.$list.addEventListener('select', e => {
       const target = e.target
       // 单选模式
       if (!this.multiple) {
         console.log('单选选中')
         const newValue = { value: target.value, label: target.label ?? target.textContent ?? target.value }
-        this._result.value = newValue
-        this._popup.open = false
-        this._result.classList.remove('dropdown')
+        this.$result.value = newValue
+        this.$popup.open = false
+        this.$result.classList.remove('dropdown')
       }
 
       // 多选模式
       else {
         console.log('多选选中')
-        const newValue = this._result.value.slice()
+        const newValue = this.$result.value.slice()
         newValue.push({ value: target.value, label: target.label ?? target.textContent ?? target.value })
-        this._result.value = newValue
+        this.$result.value = newValue
       }
     })
 
-    this._list.addEventListener('deselect', e => {
+    this.$list.addEventListener('deselect', e => {
       const target = e.target
       // 单选模式
       if (!this.multiple) {
         console.log('单选取消选中')
-        this._result.value = null
+        this.$result.value = null
       }
 
       // 多选模式
       else {
         console.log('多选取消选中')
-        const newValue = this._result.value.filter(item => item.value !== target.value)
-        this._result.value = newValue
+        const newValue = this.$result.value.filter(item => item.value !== target.value)
+        this.$result.value = newValue
       }
     })
 
-    this._result.addEventListener('deselect', e => {
+    this.$result.addEventListener('deselect', e => {
       const selected = find(this.options, option => option.value === e.detail.value)
       if (selected) selected.selected = false
     })
 
-    this._result.onsearch = e => {
+    this.$result.onsearch = e => {
       this.searchStr = e.detail.value
       this.filter()
     }
 
     this._initKeymap()
+  }
+
+  _selectOption(option) {
+    if (option.disabled) return
+    if (option.parentElement.tagName === 'BLOCKS-OPTGROUP' && option.parentElement.disabled) return
+    if (this.multiple) {
+      option.selected = !option.selected
+    }
+    else {
+      const selected = this.$list.querySelector('[selected]')
+      if (selected && selected !== option) {
+        selected.selected = false
+      }
+      option.selected = true
+    }
   }
 
   _initKeymap() {
@@ -212,11 +198,11 @@ class BlocksSelect extends HTMLElement {
     }
 
     // 在 result 上按 tab、上下方向键，foucs 第一个选项
-    this._result.onkeydown = e => {
+    this.$result.onkeydown = e => {
       if (e.key === 'Escape') {
-        this._popup.open = false
-        this._result.blur()
-        this._result.classList.remove('dropdown')
+        this.$popup.open = false
+        this.$result.blur()
+        this.$result.classList.remove('dropdown')
       }
       if ((e.key === 'Tab' && !e.shiftKey) || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault()
@@ -229,10 +215,10 @@ class BlocksSelect extends HTMLElement {
     }
 
     // 在 list 上按 tab、shift + tab，上下方向键，上下移动焦点
-    this._popup.onkeydown = e => {
+    this.$popup.onkeydown = e => {
       if (e.key === 'Escape') {
-        this._popup.open = false
-        this._result.classList.remove('dropdown')
+        this.$popup.open = false
+        this.$result.classList.remove('dropdown')
       }
       else if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
         focusNext()
@@ -242,9 +228,9 @@ class BlocksSelect extends HTMLElement {
       }
       else if (e.key === ' ' || e.key === 'Enter') {
         const option = this.options.find(item => item.value === currentFocusValue)
-        if (option) selectOption(option)
+        if (option) this._selectOption(option)
       }
-    }    
+    }
   }
 
   render() {
@@ -255,52 +241,52 @@ class BlocksSelect extends HTMLElement {
     forEach(this.options, option => {
       option.style.display = this.searchMethod(option, searchStr) ? '' : 'none'
     })
-    forEach(this._list.querySelectorAll('blocks-optgroup'), group => {
+    forEach(this.$list.querySelectorAll('blocks-optgroup'), group => {
       const options = group.querySelectorAll('blocks-option')
       group.style.display = every(options, option => option.style.display === 'none') ? 'none' : ''
     })
   }
 
   get options() {
-    return Array.prototype.slice.call(this._list.querySelectorAll('blocks-option'))
+    return Array.prototype.slice.call(this.$list.querySelectorAll('blocks-option'))
   }
 
   get multiple() {
-    return this._result.multiple
+    return this.$result.multiple
   }
 
   set multiple(value) {
-    this._result.multiple = value
+    this.$result.multiple = value
   }
 
   get multipleMode() {
-    return this._result.multipleMode
+    return this.$result.multipleMode
   }
 
   set multipleMode(value) {
-    this._result.multipleMode = value
+    this.$result.multipleMode = value
   }
 
   get formatMethod() {
-    return this._result.formatMethod
+    return this.$result.formatMethod
   }
 
   set formatMethod(value) {
-    this._result.formatMethod = value
+    this.$result.formatMethod = value
   }
 
   get label() {
-    return this._result.label
+    return this.$result.label
   }
 
   get selectedOptions() {
-    return this._result.value
+    return this.$result.value
   }
 
   set selectedOptions(value) {
-    this._result.value = value
+    this.$result.value = value
     const valueMap = Object.create(null)
-    const values = this.multiple ? this._result.value : this._result.value ? [this._result.value] : []
+    const values = this.multiple ? this.$result.value : this.$result.value ? [this.$result.value] : []
     values.forEach(item => {
       valueMap[item.value] = true
     })
@@ -310,11 +296,11 @@ class BlocksSelect extends HTMLElement {
   }
 
   get clearable() {
-    return this._result.clearable
+    return this.$result.clearable
   }
 
   set clearable(value) {
-    this._result.clearable = value
+    this.$result.clearable = value
   }
 
   get tagClearable() {
@@ -322,15 +308,15 @@ class BlocksSelect extends HTMLElement {
   }
 
   set tagClearable(value) {
-    this._result.tagClearable = value
+    this.$result.tagClearable = value
   }
 
   get searchable() {
-    return this._result.searchable
+    return this.$result.searchable
   }
 
   set searchable(value) {
-    this._result.searchable = value
+    this.$result.searchable = value
   }
 
   get max() {
@@ -361,34 +347,34 @@ class BlocksSelect extends HTMLElement {
 
     if (!this._onClickOutside) {
       this._onClickOutside = (e) => {
-        if (this._popup.open && !this.contains(e.target) && !this._popup.contains(e.target)) {
-          this._popup.open = false
-          this._result.classList.remove('dropdown')
+        if (this.$popup.open && !this.contains(e.target) && !this.$popup.contains(e.target)) {
+          this.$popup.open = false
+          this.$result.classList.remove('dropdown')
         }
       }
     }
 
     document.addEventListener('click', this._onClickOutside)
 
-    this._optionSlot.addEventListener('slotchange', e => {
+    this.$optionSlot.addEventListener('slotchange', e => {
       this.initOptions()
     })
   }
 
   initOptions() {
-    this._list.innerHTML = ''
+    this.$list.innerHTML = ''
 
     const isOption = el => el instanceof customElements.get('blocks-option')
     const isGroup = el => el instanceof customElements.get('blocks-optgroup')
 
     // 将 slot 传入的 option 等拷贝到 popup 里
-    this._optionSlot.assignedElements()
+    this.$optionSlot.assignedElements()
       .forEach(el => {
         if (isOption(el) || isGroup(el)) {
           const copy = el.cloneNode(true)
           copy.setAttribute('tabindex', '0')
           if (copy.id) delete copy.id
-          this._list.appendChild(copy)
+          this.$list.appendChild(copy)
         }
       })
   }
@@ -402,7 +388,7 @@ class BlocksSelect extends HTMLElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (['clearable', 'tag-clearable', 'multiple', 'multiple-mode', 'searchable'].includes(name)) {
-      this._result.setAttribute(name, newValue)
+      this.$result.setAttribute(name, newValue)
     }
 
     if (name === 'disabled') {

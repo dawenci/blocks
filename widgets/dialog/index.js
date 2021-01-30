@@ -7,251 +7,252 @@ import {
 import { boolGetter, boolSetter } from '../core/property.js'
 import { setRole } from '../core/accessibility.js'
 import { dispatchEvent } from '../core/event.js'
-import { filter, find } from '../core/utils.js'
 
-const template = document.createElement('template')
-template.innerHTML = `
-  <style>
-  :host {
-    font-family: ${$fontFamily};
-    position:absolute;
-    margin:auto;
-    z-index:-1;
-    pointer-events: none;
-    z-index:10;
-  }
+const TEMPLATE_CSS = `
+<style>
+:host {
+  font-family: ${$fontFamily};
+  position:absolute;
+  margin:auto;
+  z-index:-1;
+  pointer-events: none;
+  z-index:10;
+}
 
-  :host([open]) {
-    pointer-events: auto;
-  }
+:host([open]) {
+  pointer-events: auto;
+}
 
-  :host(:focus) {
-    outline: 0 none;
-  }
+:host(:focus) {
+  outline: 0 none;
+}
 
-  /* 遮罩 */
-  #mask {
-    position:absolute;
-    left:0;
-    top:0;
-    right:0;
-    bottom:0;
-    z-index:100;
-    background: rgba(0,0,0,.3);
-    opacity:0;
-  }
-  :host([open]) #mask {
-    opacity:1;
-  }
+/* 遮罩 */
+#mask {
+  position:absolute;
+  left:0;
+  top:0;
+  right:0;
+  bottom:0;
+  z-index:100;
+  background: rgba(0,0,0,.3);
+  opacity:0;
+}
+:host([open]) #mask {
+  opacity:1;
+}
 
-  /* 对话框 */
-  #dialog {
-    position:relative;
-    z-index: 100;
-    box-sizing: border-box;
-    display:inline-flex;
-    flex-flow: column nowrap;
-    margin:auto;
-    box-sizing: border-box;
-    max-width: calc(100vw - 20px);
-    max-height: calc(100vh - 20px);
-    border-radius: ${$radiusBase};
-    background-color: #fff;
+/* 对话框 */
+#layout {
+  position:relative;
+  z-index: 100;
+  box-sizing: border-box;
+  display:inline-flex;
+  flex-flow: column nowrap;
+  margin:auto;
+  box-sizing: border-box;
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 20px);
+  border-radius: ${$radiusBase};
+  background-color: #fff;
 
-    opacity:0;
-    transform: scale(0);
-    transition: transform ${$transitionDuration} cubic-bezier(.645, .045, .355, 1),
-      opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
-  }
+  opacity:0;
+  transform: scale(0);
+  transition: transform ${$transitionDuration} cubic-bezier(.645, .045, .355, 1),
+    opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
+}
 
-  :host([open]) #dialog {
-    opacity:1;
-    transform:scale(1);
-  }
+:host([open]) #layout {
+  opacity:1;
+  transform:scale(1);
+}
 
-  #dialog {
-    box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.1),
-      0px 24px 38px 3px rgba(0, 0, 0, 0.10),
-      0px 9px 46px 8px rgba(0, 0, 0, 0.10);
-  }
-  :host(:focus-within) #dialog, #dialog:focus-within {
-    outline: 0 none;
-    box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
-      0px 24px 38px 3px rgba(0, 0, 0, 0.14),
-      0px 9px 46px 8px rgba(0, 0, 0, 0.12);
-  }
+#layout {
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.1),
+    0px 24px 38px 3px rgba(0, 0, 0, 0.10),
+    0px 9px 46px 8px rgba(0, 0, 0, 0.10);
+}
+:host(:focus-within) #layout, #layout:focus-within {
+  outline: 0 none;
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
+    0px 24px 38px 3px rgba(0, 0, 0, 0.14),
+    0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+}
 
-  /* 标题栏 */
-  header {
-    box-sizing: border-box;
-    flex: 1 1 auto;
-    display: flex;
-    flex-flow: row nowrap;
-    position: relative;
-    padding: 10px 15px;
-    line-height: 1.428571429;
-    cursor: move;
-    user-select: none;
-  }
-  .no-header header {
-    display: none;
-  }
-  :host([closeable]) header {
-    padding-right: 45px;
-  }
+/* 标题栏 */
+header {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
+  position: relative;
+  padding: 10px 15px;
+  line-height: 1.428571429;
+  cursor: move;
+  user-select: none;
+}
+.no-header header {
+  display: none;
+}
+:host([closeable]) header {
+  padding-right: 45px;
+}
 
-  :host([closeable]) .no-header section {
-    min-height: 38px;
-    padding-right: 45px;
-  }
-  :host([closeable]) .no-header.no-footer section {
-    min-height: 78px;
-  }
+:host([closeable]) .no-header section {
+  min-height: 38px;
+  padding-right: 45px;
+}
+:host([closeable]) .no-header.no-footer section {
+  min-height: 78px;
+}
 
-  h1 {
-    margin: 0;
-    font-weight: 700;
-    font-size: 14px;
-    color: #4c5161;
-    user-select: none;
-    cursor: default;
-  }
-  h1:empty {
-    display: none;
-  }
+h1 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: #4c5161;
+  user-select: none;
+  cursor: default;
+}
+h1:empty {
+  display: none;
+}
 
-  /* 内容区 */
-  section {
-    box-sizing: border-box;
-    display:flex;
-    width: 100%;
-    padding-left: 15px;
-    padding-right: 15px;
-    flex:1;
-    flex-direction:column;
-    overflow: auto;
-  }
-  .no-header section {
-    padding-top: 15px;
-  }
-  .no-footer section {
-    padding-top: 10px;
-    padding-bottom: 30px;
-  }
-  .no-header.no-footer section {
-    padding-top: 30px;
-    padding-bottom: 30px;
-  }
+/* 内容区 */
+section {
+  box-sizing: border-box;
+  display:flex;
+  width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+  flex:1;
+  flex-direction:column;
+  overflow: auto;
+}
+.no-header section {
+  padding-top: 15px;
+}
+.no-footer section {
+  padding-top: 10px;
+  padding-bottom: 30px;
+}
+.no-header.no-footer section {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
 
-  /* 脚部 */
-  footer {
-    box-sizing: border-box;
-    padding: 10px 15px;
-    text-align: right;
-  }
-  .no-footer footer {
-    display: none;
-  }
+/* 脚部 */
+footer {
+  box-sizing: border-box;
+  padding: 10px 15px;
+  text-align: right;
+}
+.no-footer footer {
+  display: none;
+}
 
-  /* 关闭按钮 */
-  #close {
-    overflow: hidden;
-    position:absolute;
-    z-index: 1;
-    right:10px;
-    top:10px;
-    border:0;
-    width: 19px;
-    height: 19px;
-    transform: rotate(45deg);
-    border-radius: 50%;
-  }
-  #close::before,
-  #close::after {
-    display: block;
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    margin: auto;
-    background-color: rgba(0,0,0,.2);
-  }
-  #close::before {
-    width: 13px;
-    height: 1px;
-  }
-  #close::after {
-    width: 1px;
-    height: 13px;
-  }
+/* 关闭按钮 */
+#close {
+  overflow: hidden;
+  position:absolute;
+  z-index: 1;
+  right:10px;
+  top:10px;
+  border:0;
+  width: 19px;
+  height: 19px;
+  transform: rotate(45deg);
+  border-radius: 50%;
+}
+#close::before,
+#close::after {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  background-color: rgba(0,0,0,.2);
+}
+#close::before {
+  width: 13px;
+  height: 1px;
+}
+#close::after {
+  width: 1px;
+  height: 13px;
+}
 
-  #close:hover,
-  #close:focus {
-    background-color: rgba(0,0,0,.3);
-    outline: 0 none;
-  }
-  #close:active {
-    background-color: rgba(0,0,0,.5);
-    outline: 0 none;
-  }
-  #close:hover::before,
-  #close:hover::after,
-  #close:active::before,
-  #close:active::after {
-    background-color: rgba(255,255,255,.8);
-  }
+#close:hover,
+#close:focus {
+  background-color: rgba(0,0,0,.3);
+  outline: 0 none;
+}
+#close:active {
+  background-color: rgba(0,0,0,.5);
+  outline: 0 none;
+}
+#close:hover::before,
+#close:hover::after,
+#close:active::before,
+#close:active::after {
+  background-color: rgba(255,255,255,.8);
+}
 
-  :host(:not([closeable])) #close {
-    display:none;
-  }
-  .no-header #close {
-    top: 15px;
-  }
-  .no-header.no-footer #close {
-    top: 30px;
-  }
+:host(:not([closeable])) #close {
+  display:none;
+}
+.no-header #close {
+  top: 15px;
+}
+.no-header.no-footer #close {
+  top: 30px;
+}
 
-  #first, #last, #first:focus, #last:focus {
-    overflow: hidden;
-    width: 0;
-    height: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    outline: 0 none;
-  }
-  </style>
+#first, #last, #first:focus, #last:focus {
+  overflow: hidden;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0 none;
+}
+</style>
+`
+const TEMPLATE_HTML = `
+<div id="layout">
+  <header>
+    <slot name="header">
+      <h1></h1>
+    </slot>
+  </header>
 
-  <div id="dialog">
-    <header>  
-      <slot name="header">
-        <h1></h1>
-      </slot>
-    </header>
+  <section>
+    <slot></slot>
+  </section>
 
-    <section>
-      <slot></slot>
-    </section>
+  <footer>
+    <slot name="footer"></slot>
+  </footer>
 
-    <footer>
-      <slot name="footer">
-      </slot>
-    </footer>
-
-    <button id="close"></button>
-  </div>
+  <button id="close"></button>
+</div>
 `
 
+const template = document.createElement('template')
+template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
+
 function getBodyScrollBarWidth() {
-  const outer = document.createElement('div')
-  const inner = outer.cloneNode()
-  outer.style.cssText = 'visibility: hidden;overflow:scroll;position: absolute;top: 0;left: 0;width: 100px;'
-  inner.style.cssText = 'width: 100%;'
-  outer.appendChild(inner)
-  document.body.appendChild(outer)
-  return outer.offsetWidth - inner.offsetWidth
+  const $outer = document.createElement('div')
+  const $inner = $outer.cloneNode()
+  $outer.style.cssText = 'visibility: hidden;overflow:scroll;position: absolute;top: 0;left: 0;width: 100px;'
+  $inner.style.cssText = 'width: 100%;'
+  $outer.appendChild($inner)
+  document.body.appendChild($outer)
+  return $outer.offsetWidth - $inner.offsetWidth
 }
 
 const openGetter = boolGetter('open')
@@ -287,9 +288,9 @@ class BlocksDialog extends HTMLElement {
 
     shadowRoot.appendChild(template.content.cloneNode(true))
 
-    this._dialog = shadowRoot.getElementById('dialog')
-    this._mask = document.createElement('div')
-    this._mask.style.cssText = `
+    this.$layout = shadowRoot.getElementById('layout')
+    this.$mask = document.createElement('div')
+    this.$mask.style.cssText = `
       display: none;
       position:absolute;
       left:0;
@@ -304,7 +305,7 @@ class BlocksDialog extends HTMLElement {
 
     this.remove = false
 
-    this._dialog.onclick = e => {
+    this.$layout.onclick = e => {
       const target = e.target
       if (target.id === 'close') {
         this.open = false
@@ -319,30 +320,30 @@ class BlocksDialog extends HTMLElement {
         this.focus()
         this.removeEventListener('blur', this._refocus)
       }
-      this._mask.addEventListener('mousedown', e => {
+      this.$mask.addEventListener('mousedown', e => {
         this.focus()
-        this.addEventListener('blur', this._refocus)        
+        this.addEventListener('blur', this._refocus)
       })
-      this._mask.addEventListener('mouseup', e => {
+      this.$mask.addEventListener('mouseup', e => {
         this.removeEventListener('blur', this._refocus)
       })
     }
 
     // 过渡开始
-    this._dialog.ontransitionstart = ev => {
-      if (ev.target !== this._dialog || ev.propertyName !== 'opacity') return
+    this.$layout.ontransitionstart = ev => {
+      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
       this._disableEvents()
     }
 
     // 过渡进行
-    this._dialog.ontransitionrun = ev => {}
+    this.$layout.ontransitionrun = ev => { }
 
     // 过渡取消
-    this._dialog.onontransitioncancel = ev => {}
+    this.$layout.onontransitioncancel = ev => { }
 
     // 过渡结束
-    this._dialog.ontransitionend = ev => {
-      if (ev.target !== this._dialog || ev.propertyName !== 'opacity') return
+    this.$layout.ontransitionend = ev => {
+      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
       this._enableEvents()
 
       if (this.open) {
@@ -351,8 +352,8 @@ class BlocksDialog extends HTMLElement {
       }
       else {
         this._blur()
-        this._dialog.style.display = 'none'
-        this._mask.style.display = 'none'
+        this.$layout.style.display = 'none'
+        this.$mask.style.display = 'none'
 
         if (this.remove) {
           this.parentElement && this.parentElement.removeChild(this)
@@ -361,13 +362,13 @@ class BlocksDialog extends HTMLElement {
       }
     }
 
-    this._dialog.addEventListener('slotchange', e => {
+    this.$layout.addEventListener('slotchange', e => {
       this.render()
     })
 
     if (this.capturefocus) {
       this._captureFocus()
-    }    
+    }
   }
 
   get open() {
@@ -418,7 +419,7 @@ class BlocksDialog extends HTMLElement {
   set appendToBody(value) {
     appendToBodySetter(value)
   }
-  
+
   render() {
     this._renderHeader()
     this._renderFooter()
@@ -426,26 +427,26 @@ class BlocksDialog extends HTMLElement {
 
   // 执行过渡前的准备工作，确保动画正常
   _prepareForAnimate() {
-    this._dialog.style.display = ''
-    this._mask.style.display = ''
-    this._dialog.offsetHeight
-    this._mask.offsetHeight
+    this.$layout.style.display = ''
+    this.$mask.style.display = ''
+    this.$layout.offsetHeight
+    this.$mask.offsetHeight
   }
 
   // 启用鼠标交互
   _enableEvents() {
-    this._dialog.style.pointerEvents = ''
+    this.$layout.style.pointerEvents = ''
   }
 
   // 禁用鼠标交互
   _disableEvents() {
-    this._dialog.style.pointerEvents = 'none'
+    this.$layout.style.pointerEvents = 'none'
   }
 
   // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
   _captureFocus() {
-    this._firstFocusable = this._dialog.querySelector('#first') || this._dialog.insertBefore(document.createElement('button'), this._dialog.firstChild)
-    this._lastFocusable = this._dialog.querySelector('#last') || this._dialog.appendChild(document.createElement('button'))
+    this._firstFocusable = this.$layout.querySelector('#first') || this.$layout.insertBefore(document.createElement('button'), this.$layout.firstChild)
+    this._lastFocusable = this.$layout.querySelector('#last') || this.$layout.appendChild(document.createElement('button'))
     this._firstFocusable.id = 'first'
     this._lastFocusable.id = 'last'
     this._firstFocusable.onkeydown = e => {
@@ -463,10 +464,10 @@ class BlocksDialog extends HTMLElement {
   // 停止强制捕获焦点
   _stopCaptureFocus() {
     if (this._firstFocusable && this._firstFocusable.parentElement) {
-      this._dialog.removeChild(this._firstFocusable)
+      this.$layout.removeChild(this._firstFocusable)
     }
     if (this._firstFocusable && this._lastFocusable.parentElement) {
-      this._dialog.removeChild(this._lastFocusable)
+      this.$layout.removeChild(this._lastFocusable)
     }
   }
 
@@ -484,29 +485,29 @@ class BlocksDialog extends HTMLElement {
 
   _animateOpen() {
     // 强制执行动画
-    this._dialog.offsetHeight
-    this._dialog.style.opacity = ''
-    this._dialog.style.transform = ''
+    this.$layout.offsetHeight
+    this.$layout.style.opacity = ''
+    this.$layout.style.transform = ''
 
     if (!this.style.left) {
-      this._dialog.style.left = (document.body.clientWidth - this._dialog.offsetWidth) / 2 + 'px'
+      this.$layout.style.left = (document.body.clientWidth - this.$layout.offsetWidth) / 2 + 'px'
     }
     if (!this.style.top) {
-      this._dialog.style.top = (document.body.clientHeight - this._dialog.offsetHeight) / 2 + 'px'
+      this.$layout.style.top = (document.body.clientHeight - this.$layout.offsetHeight) / 2 + 'px'
     }
 
-    this._mask.offsetHeight
-    this._mask.style.opacity = ''
+    this.$mask.offsetHeight
+    this.$mask.style.opacity = ''
   }
 
   _animateClose() {
     // 强制执行动画
-    this._dialog.offsetHeight
-    this._dialog.style.opacity = '0'
-    this._dialog.style.transform = 'scale(0)'
+    this.$layout.offsetHeight
+    this.$layout.style.opacity = '0'
+    this.$layout.style.transform = 'scale(0)'
 
-    this._mask.offsetHeight
-    this._mask.style.opacity = '0'
+    this.$mask.offsetHeight
+    this.$mask.style.opacity = '0'
   }
 
   _lockScroll() {
@@ -545,24 +546,24 @@ class BlocksDialog extends HTMLElement {
 
   _renderHeader() {
     if (this._hostChild('[slot="header"]')) {
-      this._dialog.classList.remove('no-header')
+      this.$layout.classList.remove('no-header')
     }
     else if (this.title) {
-      this._dialog.classList.remove('no-header')
+      this.$layout.classList.remove('no-header')
       const title = this._shadowChild('h1')
       title.innerText = this.title
     }
     else {
-      this._dialog.classList.add('no-header')
+      this.$layout.classList.add('no-header')
     }
   }
 
   _renderFooter() {
     if (this.querySelector('[slot="footer"]')) {
-      this._dialog.classList.remove('no-footer')
+      this.$layout.classList.remove('no-footer')
     }
     else {
-      this._dialog.classList.add('no-footer')
+      this.$layout.classList.add('no-footer')
     }
   }
 
@@ -578,7 +579,7 @@ class BlocksDialog extends HTMLElement {
     if (this._prevFocus) {
       this._prevFocus.focus()
       this._prevFocus = undefined
-    } 
+    }
   }
 
   connectedCallback() {
@@ -592,7 +593,7 @@ class BlocksDialog extends HTMLElement {
       document.body.appendChild(this)
     }
     if (this.mask) {
-      this.parentElement.insertBefore(this._mask, this)
+      this.parentElement.insertBefore(this.$mask, this)
     }
 
     this._renderHeader()
@@ -600,9 +601,9 @@ class BlocksDialog extends HTMLElement {
 
     // 设置初始样式，确保动画生效
     if (!this.open) {
-      this._dialog.style.display = 'none'
-      this._dialog.style.opacity = '0'
-      this._dialog.style.transform = 'scale(0)'
+      this.$layout.style.display = 'none'
+      this.$layout.style.opacity = '0'
+      this.$layout.style.transform = 'scale(0)'
     }
 
     // 拖拽 header 移动
@@ -613,7 +614,7 @@ class BlocksDialog extends HTMLElement {
       let startPageY
 
       const isHeader = (e) => {
-        if (this._dialog.querySelector('header').contains(e.target)) return true
+        if (this.$layout.querySelector('header').contains(e.target)) return true
         // maybe header slot
         if (this.contains(e.target)) {
           let el = e.target
@@ -624,7 +625,7 @@ class BlocksDialog extends HTMLElement {
         }
         return false
       }
-  
+
       const move = (e) => {
         this.style.left = startX + (e.pageX - startPageX) + 'px'
         this.style.top = startY + (e.pageY - startPageY) + 'px'
@@ -635,7 +636,7 @@ class BlocksDialog extends HTMLElement {
         removeEventListener('mouseup', up)
       }
 
-      this._dialog.onmousedown = (e) => {
+      this.$layout.onmousedown = (e) => {
         if (!isHeader(e)) return
         startPageX = e.pageX
         startPageY = e.pageY
@@ -650,8 +651,8 @@ class BlocksDialog extends HTMLElement {
   }
 
   disconnectedCallback() {
-    if (this._mask && this._mask.parentElement) {
-      this._mask.parentElement.removeChild(this._mask)
+    if (this.$mask && this.$mask.parentElement) {
+      this.$mask.parentElement.removeChild(this.$mask)
     }
   }
 
@@ -662,10 +663,10 @@ class BlocksDialog extends HTMLElement {
 
     if (name === 'mask') {
       if (this.mask) {
-        this.parentElement.insertBefore(this._mask, this)
-      }      
-      else if (this._mask.parentElement) {
-        this._mask.parentElement.removeChild(this._mask)
+        this.parentElement.insertBefore(this.$mask, this)
+      }
+      else if (this.$mask.parentElement) {
+        this.$mask.parentElement.removeChild(this.$mask)
       }
     }
 

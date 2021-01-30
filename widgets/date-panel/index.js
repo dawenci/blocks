@@ -19,30 +19,29 @@ const TEMPLATE_CSS = `<style>
   }
 }
 
-:host, :host * {
+:host {
+  display: inline-block;
   box-sizing: border-box;
+  user-select: none;
+  background-color: #fff;
+  cursor: default;
 }
 :host(:focus) {
   outline: 0 none;
 }
 
-:host {
-  display: inline-block;
-  user-select: none;
-  background-color: #fff;
-  cursor: default;
-}
-
-.container {
+#layout {
+  box-sizing: border-box;
   position: relative;
   width: 100%;
   height: 100%;
 }
-.container:focus {
+#layout:focus {
   outline: 0 none;
 }
 
-.header {
+#header {
+  box-sizing: border-box;
   display: flex;
   flex-flow: row nowrap;
   overflow: hidden;
@@ -54,6 +53,7 @@ const TEMPLATE_CSS = `<style>
 
 .header-button {
   flex: 0 0 28px;
+  box-sizing: border-box;
   overflow: hidden;
   position: relative;
   display: block;
@@ -125,6 +125,7 @@ const TEMPLATE_CSS = `<style>
 }
  
 .header-content {
+  box-sizing: border-box;
   flex: 1 1 100%;
   height: 28px;
   text-align: center;
@@ -132,6 +133,7 @@ const TEMPLATE_CSS = `<style>
 }
 
 .header-title {
+  box-sizing: border-box;
   overflow: hidden;
   width: 100%;
   height: 18px;
@@ -151,12 +153,14 @@ const TEMPLATE_CSS = `<style>
   color: ${$colorPrimary};
 }
 
-.body {
+#body {
+  box-sizing: border-box;
   position: relative;
   width: 220px;
 }
 
 .week-header {
+  box-sizing: border-box;
   position: relative;
   display: flex;
   flex-flow: row nowrap;
@@ -170,12 +174,14 @@ const TEMPLATE_CSS = `<style>
 }
 
 .week-header span {
+  box-sizing: border-box;
   display: block;
   width: 30px;
   height: 20px;
 }
 
 .button-list {
+  box-sizing: border-box;
   overflow: hidden;
   position: relative;
   display: flex;
@@ -196,6 +202,7 @@ const TEMPLATE_CSS = `<style>
 }
 
 .button-item {
+  box-sizing: border-box;
   position: relative;
   margin: 1px;
   padding: 0;
@@ -264,6 +271,7 @@ const TEMPLATE_CSS = `<style>
 }
 
 .button-badge {
+  box-sizing: border-box;
   display: block;
   position: absolute;
   overflow: hidden;
@@ -277,6 +285,7 @@ const TEMPLATE_CSS = `<style>
 }
 
 .body-loading {
+  box-sizing: border-box;
   overflow: hidden;
   position: absolute;
   top: 0;
@@ -289,6 +298,7 @@ const TEMPLATE_CSS = `<style>
 }
 
 .body-loading .icon {
+  box-sizing: border-box;
   overflow: hidden;
   position: absolute;
   top: -30px;
@@ -340,8 +350,8 @@ const TEMPLATE_CSS = `<style>
 </style>`
 
 const TEMPLATE_HTML = `
-<div class="container" tabindex="-1">
-  <header class="header">
+<div id="layout" tabindex="-1">
+  <header id="header">
     <button class="header-button button-prevPrev"></button>
     <button class="header-button button-prev"></button>
     <div class="header-content">
@@ -351,7 +361,7 @@ const TEMPLATE_HTML = `
     <button class="header-button button-nextNext"></button>
   </header>
 
-  <div class="body">
+  <div id="body">
     <div class="week-header"></div>
     <div class="button-list"></div>
 
@@ -413,19 +423,17 @@ class BlocksDatePanel extends HTMLElement {
     const fragment = template.content.cloneNode(true)
     this.shadowRoot.appendChild(fragment)
 
-    const panel = this.shadowRoot.querySelector('.container')
-    this.elements = {
-      panel,
-      title: panel.querySelector('.header-title'),
-      prevPrev: panel.querySelector('.button-prevPrev'),
-      prev: panel.querySelector('.button-prev'),
-      nextNext: panel.querySelector('.button-nextNext'),
-      next: panel.querySelector('.button-next'),
-      weekHeader: panel.querySelector('.week-header'),
-      content: panel.querySelector('.body'),
-      list: panel.querySelector('.button-list'),
-      loading: panel.querySelector('.body-loading')
-    }
+    const $panel = this.shadowRoot.querySelector('#layout')
+    this.$panel = $panel
+    this.$title = $panel.querySelector('.header-title')
+    this.$prevPrev = $panel.querySelector('.button-prevPrev')
+    this.$prev = $panel.querySelector('.button-prev')
+    this.$nextNext = $panel.querySelector('.button-nextNext')
+    this.$next = $panel.querySelector('.button-next')
+    this.$weekHeader = $panel.querySelector('.week-header')
+    this.$content = $panel.querySelector('#body')
+    this.$list = $panel.querySelector('.button-list')
+    this.$loading = $panel.querySelector('.body-loading')
 
     // 面板视图深度层级
     this.viewDepth = this.startdepth
@@ -433,21 +441,21 @@ class BlocksDatePanel extends HTMLElement {
     // 设置面板起始视图状态
     this.setPanelDate(this.closestDate ?? new Date())
     
-    panel.onclick = (e) => {
+    $panel.onclick = (e) => {
       const target = e.target
-      if (this.elements.prevPrev.contains(target)) {
+      if (this.$prevPrev.contains(target)) {
         this.onPrevPrev()
       }
-      else if (this.elements.prev.contains(target)) {
+      else if (this.$prev.contains(target)) {
         this.onPrev()
       }
-      else if (this.elements.next.contains(target)) {
+      else if (this.$next.contains(target)) {
         this.onNext()
       }
-      else if (this.elements.nextNext.contains(target)) {
+      else if (this.$nextNext.contains(target)) {
         this.onNextNext()
       }
-      else if (this.elements.title.contains(target)) {
+      else if (this.$title.contains(target)) {
         this.onSwitchDepth()
       }
       else if (target.classList.contains('button-item')) {
@@ -474,21 +482,21 @@ class BlocksDatePanel extends HTMLElement {
 
   renderHeaderButtons() {
     if (this.viewDepth === Depth.Month) {
-      this.elements.prevPrev.style.cssText = ''
-      this.elements.nextNext.style.cssText = ''
+      this.$prevPrev.style.cssText = ''
+      this.$nextNext.style.cssText = ''
     }
     else {
-      this.elements.prevPrev.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
-      this.elements.nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
+      this.$prevPrev.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
+      this.$nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
     }
   }
 
   renderTitle() {
-    this.elements.title.textContent = this.title
+    this.$title.textContent = this.title
   }
 
   renderWeekHeader() {
-    const header = this.elements.weekHeader
+    const header = this.$weekHeader
     if (this.viewDepth === Depth.Month) {
       // header.style.display = ''
       header.style.height = ''
@@ -510,15 +518,15 @@ class BlocksDatePanel extends HTMLElement {
   }
 
   renderLoading() {
-    this.elements.loading.style.display = this.loading ? '' : 'none'
+    this.$loading.style.display = this.loading ? '' : 'none'
   }
 
   renderItems() {
     ;['body-century', 'body-decade', 'body-year', 'body-month'].forEach(klass => {
-      this.elements.content.classList.remove(klass)
+      this.$content.classList.remove(klass)
     })
     const contentPanelClass = `body-${this.viewDepth}`
-    this.elements.content.classList.add(contentPanelClass)
+    this.$content.classList.add(contentPanelClass)
 
     if (this.viewDepth === Depth.Month) {
       this.renderDateItems()
@@ -536,7 +544,7 @@ class BlocksDatePanel extends HTMLElement {
 
   // 只保留 N 个日期按钮
   ensureItemCount(n) {
-    const list = this.elements.list
+    const list = this.$list
     let len = list.children.length ?? 0
     while (len++ < n) {
       const el = document.createElement('button')

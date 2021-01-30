@@ -24,7 +24,7 @@ const TEMPLATE_CSS = `<style>
   transition: all ${$transitionDuration} ease-out;
   pointer-events: auto;
 }
-#notification {
+#layout {
   box-sizing: border-box;
   display: flex;
   flex-flow: row nowrap;  
@@ -83,7 +83,7 @@ const TEMPLATE_CSS = `<style>
 </style>`
 
 const TEMPLATE_HTML = `
-<div id="notification">
+<div id="layout">
   <div id="icon"></div>
   <div id="main">
     <div id="title">
@@ -108,14 +108,14 @@ class BlocksNotification extends HTMLElement {
     super()
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this._widget = shadowRoot.querySelector('#notification')
-    this._icon = shadowRoot.querySelector('#icon')
-    this._content = shadowRoot.querySelector('#content')
+    this.$layout = shadowRoot.querySelector('#layout')
+    this.$icon = shadowRoot.querySelector('#icon')
+    this.$content = shadowRoot.querySelector('#content')
 
-    this._widget.onmouseenter = () => {
+    this.$layout.onmouseenter = () => {
       this._clearAutoClose()
     }
-    this._widget.onmouseleave = () => {
+    this.$layout.onmouseleave = () => {
       this._setAutoClose()
     }
   }
@@ -168,13 +168,13 @@ class BlocksNotification extends HTMLElement {
     const iconName = this.type === 'warning' ? 'info' : this.type
     const icon = getRegisteredSvgIcon(iconName, { fill })
     if (icon) {
-      this._icon.innerHTML = ''
-      this._icon.appendChild(icon)
+      this.$icon.innerHTML = ''
+      this.$icon.appendChild(icon)
     }
 
     if (this.closeable) {
       if (!this._close) {
-        this._close = this._widget.appendChild(document.createElement('button'))
+        this._close = this.$layout.appendChild(document.createElement('button'))
         this._close.id = 'close'
         this._close.appendChild(getRegisteredSvgIcon('cross'))
         this._close.onclick = () => {

@@ -20,143 +20,145 @@ const [minSetter, maxSetter] = ['min', 'max'].map(prop => numSetter(prop))
 const [disabledGetter, rangeGetter, verticalGetter] = ['disabled', 'range', 'vertical'].map(prop => boolGetter(prop))
 const [disabledSetter, rangeSetter, verticalSetter] = ['disabled', 'range', 'vertical'].map(prop => boolSetter(prop))
 
+const TEMPLATE_CSS = `
+<style>
+:host, :host * {
+  box-sizing: border-box;
+  user-select: none;
+}
+:host {
+  all: initial;
+  contain: content;
+  box-sizing: border-box;
+  display: inline-block;
+  align-items: center;
+  text-align: center;
+  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+  font-size: 0;
+  width: 118px;
+  height: auto;
+}
+
+#layout {
+  position: relative;
+  width: 100%;
+  height: 18px;
+  border-radius: 7px;
+  cursor: default;
+  border: 0 none;
+  /* padding，容纳 shadow */
+  padding: 2px;
+}
+
+:host([vertical]) {
+  height: 118px;
+  width: auto;
+}
+:host([vertical]) #layout {
+  height: 100%;
+  width: 18px;
+}
+
+/* 滑轨，button 的容器 */
+#layout #track {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 滑轨的背景，长或宽需要减去 button 的半径 */
+#layout #track:after {
+  display: block;
+  content: "";
+  position: absolute;
+  width: auto;
+  height: 4px;
+  z-index: 0;
+  top: 0;
+  right: 7px;
+  bottom: 0;
+  left: 7px;
+  margin: auto;
+  background-color: rgba(0,0,0,.1);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: all .2s;
+}
+:host([vertical]) #layout #track:after {
+  width: 4px;
+  height: auto;
+  top: 7px;
+  right: 0;
+  bottom: 7px;
+  left: 0;
+}
+
+/* 按钮 */
+#layout .button {
+  overflow: hidden;
+  display: block;
+  position: absolute;
+  top: 0;
+  right: auto;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  margin: auto;
+  border-radius: 50%;
+  border: 2px solid ${$borderColorBase};
+  background: #fff;
+  transition: border-color .2s;
+}
+:host([vertical]) #layout .button {
+  top: auto;
+  right: 0;
+}
+
+#layout .button:hover,
+#layout .button:focus,
+#layout .button.active {
+  z-index: 2;
+  border-color: ${$colorPrimary};
+  outline: 0 none;
+  box-shadow: 0 0 2px 2px ${makeRgbaColor($colorPrimary, .5)};
+}
+
+:host([disabled]) #layout .button,
+:host([disabled]) #layout .button:hover,
+:host([disabled]) #layout .button:focus,
+:host([disabled]) #layout .button:active {
+  border: 2px solid ${$borderColorBase};
+  box-shadow: none;
+}
+</style>
+`
+const TEMPLATE_HTML = `
+<div id="layout">
+  <div id="track">
+    <span tabindex="0" class="button"></span>
+    <span tabindex="0" class="button"></span>
+  </div>
+</div>
+`
 
 const template = document.createElement('template')
-template.innerHTML = `
-  <style>
-  :host, :host * {
-    box-sizing: border-box;
-    user-select: none;
-  }
-  :host {
-    all: initial;
-    contain: content;
-    box-sizing: border-box;
-    display: inline-block;
-    align-items: center;
-    text-align: center;
-    transition: color ${$transitionDuration}, border-color ${$transitionDuration};
-    font-size: 0;
-    width: 118px;
-    height: auto;
-  }
-
-  .slider {
-    position: relative;
-    width: 100%;
-    height: 18px;
-    border-radius: 7px;
-    cursor: default;
-    border: 0 none;
-    /* padding，容纳 shadow */
-    padding: 2px;
-  }
-
-  :host([vertical]) {
-    height: 118px;
-    width: auto;
-  }
-  :host([vertical]) .slider {
-    height: 100%;
-    width: 18px;
-  }
-
-  /* 滑轨，button 的容器 */
-  .slider .track {
-    display: block;
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-  
-  /* 滑轨的背景，长或宽需要减去 button 的半径 */
-  .slider .track:after {
-    display: block;
-    content: "";
-    position: absolute;
-    width: auto;
-    height: 4px;
-    z-index: 0;
-    top: 0;
-    right: 7px;
-    bottom: 0;
-    left: 7px;
-    margin: auto;
-    background-color: rgba(0,0,0,.1);
-    border-radius: 2px;
-    overflow: hidden;
-    transition: all .2s;
-  }
-  :host([vertical]) .slider .track:after {
-    width: 4px;
-    height: auto;
-    top: 7px;
-    right: 0;
-    bottom: 7px;
-    left: 0;
-  }
-
-  /* 按钮 */
-  .slider .button {
-    overflow: hidden;
-    display: block;
-    position: absolute;
-    top: 0;
-    right: auto;
-    bottom: 0;
-    left: 0;
-    z-index: 1;
-    width: 14px;
-    height: 14px;
-    margin: auto;
-    border-radius: 50%;
-    border: 2px solid ${$borderColorBase};
-    background: #fff;
-    transition: border-color .2s;
-  }
-  :host([vertical]) .slider .button {
-    top: auto;
-    right: 0;
-  }
-
-  .slider .button:hover,
-  .slider .button:focus,
-  .slider .button.active {
-    z-index: 2;
-    border-color: ${$colorPrimary};
-    outline: 0 none;
-    box-shadow: 0 0 2px 2px ${makeRgbaColor($colorPrimary, .5)};
-  }
-
-  :host([disabled]) .slider .button,
-  :host([disabled]) .slider .button:hover,
-  :host([disabled]) .slider .button:focus,
-  :host([disabled]) .slider .button:active {
-    border: 2px solid ${$borderColorBase};
-    box-shadow: none;
-  }
-  </style>
-
-  <div class="slider">
-    <div class="track">
-      <span tabindex="0" class="button"></span>
-      <span tabindex="0" class="button"></span>
-    </div>
-  </div>
-`
+template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksSlider extends HTMLElement {
   static get observedAttributes() {
-    return [ 'value', 'max', 'min', 'step', 'range', 'vertical', 'disabled', 'size' ]
+    return ['value', 'max', 'min', 'step', 'range', 'vertical', 'disabled', 'size']
   }
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
-
+    const shadowRoot = this.attachShadow({ mode: 'open' })
     const fragment = template.content.cloneNode(true)
     shadowRoot.appendChild(fragment)
-    this.slider = shadowRoot.querySelector('.slider')
+    this.$layout = shadowRoot.getElementById('layout')
+    this.$track = shadowRoot.getElementById('track')
   }
 
   get value() {
@@ -226,28 +228,27 @@ class BlocksSlider extends HTMLElement {
   }
 
   _getTrackSize() {
-    const track = this.slider.querySelector('.track')
-    return parseFloat(getComputedStyle(track).getPropertyValue(this.vertical ? 'height' : 'width'))
+    return parseFloat(getComputedStyle(this.$track).getPropertyValue(this.vertical ? 'height' : 'width'))
   }
 
   _updateButton() {
     if (this.range) {
-      this.slider.querySelectorAll('.button').forEach(button => button.style.display = 'block')
+      this.$layout.querySelectorAll('.button').forEach(button => button.style.display = 'block')
     }
     else {
-      this.slider.querySelector('.button').style.display = 'none'
+      this.$layout.querySelector('.button').style.display = 'none'
     }
   }
 
   _updateTabindex() {
-    const buttons = this.shadowRoot.querySelectorAll('.button')
+    const $buttons = this.shadowRoot.querySelectorAll('.button')
     if (this.disabled) {
-      forEach(buttons, button => {
+      forEach($buttons, button => {
         button.removeAttribute('tabindex')
       })
     }
     else {
-      forEach(buttons, button => {
+      forEach($buttons, button => {
         button.setAttribute('tabindex', '0')
       })
     }
@@ -267,7 +268,7 @@ class BlocksSlider extends HTMLElement {
     {
       let pointStart = null
       let positionStart = null
-      let button = null
+      let $button = null
 
       const setPosition = (value) => {
         const trackSize = this._getTrackSize()
@@ -278,25 +279,25 @@ class BlocksSlider extends HTMLElement {
           value = trackSize - 14
         }
         const axis = this.vertical ? 'bottom' : 'left'
-        button.style[axis] = `${value}px`
+        $button.style[axis] = `${value}px`
       }
-  
+
       const move = (e) => {
         const offset = this.vertical ? pointStart - e.pageY : e.pageX - pointStart
         let position = positionStart + offset
         setPosition(position)
       }
-  
+
       const up = () => {
         window.removeEventListener('mousemove', move)
         window.removeEventListener('mouseup', up)
-        button.classList.remove('active')
+        $button.classList.remove('active')
         positionStart = null
         pointStart = null
-        button = null
+        $button = null
       }
-  
-      this.slider.onmousedown = (e) => {
+
+      this.$layout.onmousedown = (e) => {
         if (this.disabled) {
           e.preventDefault()
           e.stopPropagation()
@@ -304,11 +305,11 @@ class BlocksSlider extends HTMLElement {
         }
 
         // 点击轨道，则先将滑块（第二个）移动过去，再记录移动初始信息
-        if (e.target.classList.contains('track')) {
-          button = this.slider.querySelectorAll('.button')[1]
-          button.classList.add('active')
+        if (e.target === this.$track) {
+          $button = this.$layout.querySelectorAll('.button')[1]
+          $button.classList.add('active')
 
-          const rect = this.slider.querySelector('.track').getBoundingClientRect()
+          const rect = this.$track.getBoundingClientRect()
           pointStart = this.vertical ? e.pageY : e.pageX
 
           if (this.vertical) {
@@ -322,13 +323,13 @@ class BlocksSlider extends HTMLElement {
           window.addEventListener('mousemove', move)
           window.addEventListener('mouseup', up)
         }
-  
+
         // 点击的是滑块，记录移动初始信息
         else if (e.target.classList.contains('button')) {
-          button = e.target
-          button.classList.add('active')
+          $button = e.target
+          $button.classList.add('active')
           pointStart = this.vertical ? e.pageY : e.pageX
-          positionStart = parseFloat(button.style[this.vertical ? 'bottom' : 'left']) || 0
+          positionStart = parseFloat($button.style[this.vertical ? 'bottom' : 'left']) || 0
           window.addEventListener('mousemove', move)
           window.addEventListener('mouseup', up)
         }
@@ -337,15 +338,15 @@ class BlocksSlider extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.slider.onmousedown = null
+    this.$layout.onmousedown = null
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {    
+  attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'disabled') {
       setDisabled(this, this.disabled)
       this._updateTabindex()
     }
-    
+
     if (name === 'range') {
       this._updateButton()
     }

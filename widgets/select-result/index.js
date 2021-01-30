@@ -4,6 +4,7 @@ import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property
 import { upgradeProperty } from '../core/upgradeProperty.js'
 import { $borderColorBase, $heightBase, $radiusBase, $colorPrimary, $transitionDuration, $heightMini, $heightSmall, $heightLarge } from '../theme/var.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
+import { dispatchEvent } from '../core/event.js'
 
 const multipleGetter = boolGetter('multiple')
 const multipleSetter = boolSetter('multiple')
@@ -29,7 +30,7 @@ const TEMPLATE_CSS = `<style>
   cursor: default;
 }
 
-.widget {
+#layout {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
@@ -41,15 +42,15 @@ const TEMPLATE_CSS = `<style>
   background-color: #fff;
 }
 
-.widget:focus {
+#layout:focus {
   outline: 0 none;
 }
 
-:host(:focus-within) .widget {
+:host(:focus-within) #layout {
   border-color: ${$colorPrimary};
 }
 
-.value {
+#value {
   flex: 1 1 100%;
   display: flex;
   min-height: 18px;
@@ -153,11 +154,11 @@ blocks-tag:focus {
   transform: rotate(45deg);
   transition: all ${$transitionDuration};
 }
-:host([clearable]) .widget:hover .value:not(:empty)+.suffix-icon {
+:host([clearable]) #layout:hover #value:not(:empty)+.suffix-icon {
   visibility: hidden;
 }
-:host([clearable]) .widget:hover .value:not(:empty)+.clearable,
-:host([clearable]) .widget:hover .value:not(:empty)+.suffix-icon+.clearable {
+:host([clearable]) #layout:hover #value:not(:empty)+.clearable,
+:host([clearable]) #layout:hover #value:not(:empty)+.suffix-icon+.clearable {
   opacity: 1;
 }
 .suffix-icon+.clearable {
@@ -202,10 +203,10 @@ blocks-tag:focus {
 
 
 /* size */
-.widget {
+#layout {
   min-height: ${$heightBase};
 }
-.value {
+#value {
   text-align: left;
   margin: 1px;
 }
@@ -216,7 +217,7 @@ blocks-tag {
   margin: 2px;
 }
 
-:host([size="mini"]) .widget {
+:host([size="mini"]) #layout {
   min-height: ${$heightMini};
 }
 :host([size="mini"]) blocks-tag {
@@ -224,7 +225,7 @@ blocks-tag {
   margin: 2px;
 }
 
-:host([size="small"]) .widget {
+:host([size="small"]) #layout {
   min-height: ${$heightSmall};
 }
 :host([size="small"]) blocks-tag {
@@ -232,10 +233,10 @@ blocks-tag {
   margin: 2px;
 }
 
-:host([size="large"]) .widget {
+:host([size="large"]) #layout {
   min-height: ${$heightLarge};
 }
-:host([size="large"]) .value {
+:host([size="large"]) #value {
   margin: 3px;
 }
 :host([size="large"]) blocks-tag {
@@ -246,8 +247,8 @@ blocks-tag {
 </style>`
 
 const TEMPLATE_HTML = `
-<div class="widget">
-  <div class="value"></div>
+<div id="layout">
+  <div id="value"></div>
 </div>
 `
 
@@ -264,36 +265,32 @@ class BlocksSelectResult extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template.content.cloneNode(true))
 
-    this._widget = shadowRoot.querySelector('.widget')
-    this._valuePrint = shadowRoot.querySelector('.value')
+    this.$layout = shadowRoot.getElementById('layout')
+    this.$value = shadowRoot.getElementById('value')
 
-    this._widget.oninput = e => {
+    this.$layout.oninput = e => {
       const value = e.target.value
-      this.dispatchEvent(new CustomEvent('search', {
-        bubbles: true, composed: true, cancelable: true, detail: { value }
-      }))
+      dispatchEvent(this, 'search', { detail: { value } })
     }
 
-    this._widget.onclick = e => {
+    this.$layout.onclick = e => {
       const target = e.target
       if (target.classList.contains('prefix-icon')) {
-        this.dispatchEvent(new CustomEvent('click-prefix-icon', { bubbles: true, composed: true, cancelable: true }))
+        dispatchEvent(this, 'click-prefix-icon')
       }
       else if (target.classList.contains('suffix-icon')) {
-        this.dispatchEvent(new CustomEvent('click-suffix-icon', { bubbles: true, composed: true, cancelable: true }))
+        dispatchEvent(this, 'click-suffix-icon')
       }
       else if (target.classList.contains('clearable')) {
-        this.dispatchEvent(new CustomEvent('click-clear', { bubbles: true, composed: true, cancelable: true }))
+        dispatchEvent(this, 'click-clear')
       }
     }
 
-    this._widget.onclose = e => {
+    this.$layout.onclose = e => {
       const tag = e.target
       const label = tag.textContent
       const value = tag.value
-      this.dispatchEvent(new CustomEvent('deselect', {
-        bubbles: true, composed: true, cancelable: true, detail: { tag, value, label }
-      }))
+      dispatchEvent(this, 'deselect', { detail: { tag, value, label } })
     }
   }
 
@@ -369,7 +366,7 @@ class BlocksSelectResult extends HTMLElement {
   }
 
   get label() {
-    return this._valuePrint.textContent
+    return this.$value.textContent
   }
 
   get value() {
@@ -403,28 +400,28 @@ class BlocksSelectResult extends HTMLElement {
 
   renderClass() {
     ['single', 'multiple-tag', 'multiple-plain'].forEach(klass => {
-      this._widget.classList.remove(klass)
+      this.$layout.classList.remove(klass)
     })
-    this._widget.classList.add(this.multiple ? `multiple-${this.multipleMode}` : 'single')
+    this.$layout.classList.add(this.multiple ? `multiple-${this.multipleMode}` : 'single')
   }
 
   renderSingle() {
     if (this.searchable) {
-      const search = this._valuePrint.appendChild(document.createElement('input'))
-      search.className = 'search'
-      search.setAttribute('tabindex', '-1')
+      const $search = this.$value.appendChild(document.createElement('input'))
+      $search.className = 'search'
+      $search.setAttribute('tabindex', '-1')
       // 使 placeholder-show 伪类生效
-      search.setAttribute('placeholder', ' ')
+      $search.setAttribute('placeholder', ' ')
     }
     const label = this.formatMethod(this.value)
     if (label) {
-      const valueText = this._valuePrint.querySelector('.value-text') ?? this._valuePrint.appendChild(document.createElement('div'))
-      valueText.className = 'value-text'
-      valueText.textContent = label
+      const $valueText = this.$value.querySelector('.value-text') ?? this.$value.appendChild(document.createElement('div'))
+      $valueText.className = 'value-text'
+      $valueText.textContent = label
     }
     else {
-      const valueText = this._valuePrint.querySelector('.value-text')
-      if (valueText) this._valuePrint.removeChild(valueText)
+      const $valueText = this.$value.querySelector('.value-text')
+      if ($valueText) this.$value.removeChild($valueText)
     }
   }
 
@@ -432,115 +429,115 @@ class BlocksSelectResult extends HTMLElement {
     this.value.forEach(item => {
       const label = this.formatMethod(item)
       const value = item.value
-      const tag = document.createElement('blocks-tag')
-      tag.setAttribute('size', 'mini')
-      tag.setAttribute('tabindex', '-1')
-      tag.textContent = label
-      tag.value = value
+      const $tag = document.createElement('blocks-tag')
+      $tag.setAttribute('size', 'mini')
+      $tag.setAttribute('tabindex', '-1')
+      $tag.textContent = label
+      $tag.value = value
 
       if (this.tagClearable) {
-        tag.setAttribute('closable', '')
+        $tag.setAttribute('closable', '')
       }
 
-      this._valuePrint.appendChild(tag)
+      this.$value.appendChild($tag)
     })
 
     if (this.searchable) {
-      const search = this._valuePrint.appendChild(document.createElement('input'))
-      search.className = 'search'
-      search.setAttribute('tabindex', '-1')
+      const $search = this.$value.appendChild(document.createElement('input'))
+      $search.className = 'search'
+      $search.setAttribute('tabindex', '-1')
       // 使 placeholder-show 伪类生效
-      search.setAttribute('placeholder', ' ')
+      $search.setAttribute('placeholder', ' ')
     }
   }
 
   renderMultiplePlain() {
     if (this.searchable) {
-      const search = this._valuePrint.appendChild(document.createElement('input'))
-      search.className = 'search'
-      search.setAttribute('tabindex', '-1')
+      const $search = this.$value.appendChild(document.createElement('input'))
+      $search.className = 'search'
+      $search.setAttribute('tabindex', '-1')
       // 使 placeholder-show 伪类生效
-      search.setAttribute('placeholder', ' ')
+      $search.setAttribute('placeholder', ' ')
     }
 
     if (this.value.length) {
-      const value = this._valuePrint.appendChild(document.createElement('div'))
-      value.className = 'value-text'
+      const $valueText = this.$value.appendChild(document.createElement('div'))
+      $valueText.className = 'value-text'
 
       const label = this.formatMethod(this.value[0])
       if (this.value.length === 1) {
-        value.textContent = label
+        $valueText.textContent = label
       }
       else {
-        const strong = document.createElement('strong')
-        strong.textContent = label
+        const $strong = document.createElement('strong')
+        $strong.textContent = label
         const span = document.createElement('span')
         span.textContent = `等${this.value.length}项`
-        strong.className = span.className = 'plain'
-        value.appendChild(strong)
-        value.appendChild(span)
+        $strong.className = span.className = 'plain'
+        $valueText.appendChild($strong)
+        $valueText.appendChild(span)
       }
     }
   }
 
   renderClearable() {
     if (this.clearable) {
-      const el = this._widget.querySelector('.clearable') ?? this._widget.appendChild(document.createElement('button'))
-      el.className = 'clearable'
-      el.setAttribute('part', 'clearable')
-      el.setAttribute('tabindex', '-1')
-      this._widget.appendChild(el)
+      const $clearable = this.$layout.querySelector('.clearable') ?? this.$layout.appendChild(document.createElement('button'))
+      $clearable.className = 'clearable'
+      $clearable.setAttribute('part', 'clearable')
+      $clearable.setAttribute('tabindex', '-1')
+      this.$layout.appendChild($clearable)
     }
     else {
-      const el = this._widget.querySelector('.clearable')
-      if (el) this._widget.removeChild(el)
+      const $clearable = this.$layout.querySelector('.clearable')
+      if ($clearable) this.$layout.removeChild($clearable)
     }
   }
 
   renderIcon() {
     const prefixIcon = getRegisteredSvgIcon(this.prefixIcon)
     if (prefixIcon) {
-      let el = this._widget.querySelector('.prefix-icon') ?? this._widget.insertBefore(document.createElement('span'), this._widget.firstElementChild)
-      el.innerHTML = ''
-      el.className = 'prefix-icon'
-      el.setAttribute('part', 'prefix')
-      el.appendChild(prefixIcon)
+      let $prefix = this.$layout.querySelector('.prefix-icon') ?? this.$layout.insertBefore(document.createElement('span'), this.$layout.firstElementChild)
+      $prefix.innerHTML = ''
+      $prefix.className = 'prefix-icon'
+      $prefix.setAttribute('part', 'prefix')
+      $prefix.appendChild(prefixIcon)
     }
     else {
-      let el = this._widget.querySelector('.prefix-icon')
-      if (el) this._widget.removeChild(el)
+      let $prefix = this.$layout.querySelector('.prefix-icon')
+      if ($prefix) this.$layout.removeChild($prefix)
     }
 
     const suffixIcon = getRegisteredSvgIcon(this.suffixIcon)
     if (suffixIcon) {
-      let el = this._widget.querySelector('.suffix-icon')
-      if (!el) {
-        el = document.createElement('span')
+      let $suffix = this.$layout.querySelector('.suffix-icon')
+      if (!$suffix) {
+        $suffix = document.createElement('span')
         const clear = this.querySelector('.clearable')
         if (clear) {
-          this._widget.insertBefore(el, clear)
+          this.$layout.insertBefore($suffix, clear)
         }
         else {
-          this._widget.appendChild(el)
+          this.$layout.appendChild($suffix)
         }
       } 
-      el.innerHTML = ''
-      el.className = 'suffix-icon'
-      el.setAttribute('part', 'suffix')
-      el.appendChild(suffixIcon)
+      $suffix.innerHTML = ''
+      $suffix.className = 'suffix-icon'
+      $suffix.setAttribute('part', 'suffix')
+      $suffix.appendChild(suffixIcon)
     }
     else {
-      let el = this._widget.querySelector('.suffix-icon')
-      if (el) this._widget.removeChild(el)
+      let $suffix = this.$layout.querySelector('.suffix-icon')
+      if ($suffix) this.$layout.removeChild($suffix)
     }
   }
 
   render() {
     // 清空
-    Array.prototype.forEach.call(this._widget.children, el => {
-      if (el !== this._valuePrint) this._widget.removeChild(el)
+    Array.prototype.forEach.call(this.$layout.children, el => {
+      if (el !== this.$value) this.$layout.removeChild(el)
     })
-    this._valuePrint.innerHTML = ''
+    this.$value.innerHTML = ''
 
     this.renderClass()
 
@@ -565,7 +562,7 @@ class BlocksSelectResult extends HTMLElement {
     })
 
     if (!this.disabled) {
-      this._widget.setAttribute('tabindex', '0')
+      this.$layout.setAttribute('tabindex', '0')
     }
 
     this.render()
@@ -577,11 +574,11 @@ class BlocksSelectResult extends HTMLElement {
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     if (this.disabled) {
-      this._widget.removeAttribute('tabindex')
+      this.$layout.removeAttribute('tabindex')
       this.setAttribute('aria-disabled', 'true')
     }
     else {
-      this._widget.setAttribute('tabindex', '0')
+      this.$layout.setAttribute('tabindex', '0')
       this.setAttribute('aria-disabled', 'false')
     }
 

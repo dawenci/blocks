@@ -4,21 +4,21 @@ import { makeRgbaColor } from '../core/utils.js';
 import { $colorDanger, $colorPrimary, $colorSuccess, $colorWarning, $radiusBase, $transitionDuration } from '../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
-:host, :host * {
-  box-sizing: border-box;
-}
 :host {
   display: block;
+  box-sizing: border-box;
   position: relative;
 }
-.widget {
+#layout {
+  box-sizing: border-box;
   position: relative;
   width: 100%;
   height: 100%;
   min-height: 1px;
   border-radius: ${$radiusBase};
 }
-.progress {
+#progress {
+  box-sizing: border-box;
   position: absolute;
   top: 0;
   right: auto;
@@ -28,7 +28,8 @@ const TEMPLATE_CSS = `<style>
   transition: ${$transitionDuration} all;
   border-radius: ${$radiusBase};
 }
-.value {
+#value {
+  box-sizing: border-box;
   position: absolute;
   top: auto;
   right: auto;
@@ -40,15 +41,15 @@ const TEMPLATE_CSS = `<style>
   text-shadow: 1px 1px 0 rgba(255,255,255,.5);
 }
 
-.widget { background-color: ${makeRgbaColor($colorPrimary, .05)} }
-.progress { background-color: ${$colorPrimary} }
-.value { color: ${$colorPrimary} }
+#layout { background-color: ${makeRgbaColor($colorPrimary, .05)} }
+#progress { background-color: ${$colorPrimary} }
+#value { color: ${$colorPrimary} }
 </style>`
 
 const TEMPLATE_HTML = `
-<div class="widget">
-  <div class="progress"></div>
-  <div class="value"></div>
+<div id="layout">
+  <div id="progress"></div>
+  <div id="value"></div>
 </div>
 `
 
@@ -64,8 +65,8 @@ class BlocksProgress extends HTMLElement {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this._progress = shadowRoot.querySelector('.progress')
-    this._value = shadowRoot.querySelector('.value')
+    this.$progress = shadowRoot.querySelector('#progress')
+    this.$value = shadowRoot.querySelector('#value')
   }
 
   get value() {
@@ -85,13 +86,13 @@ class BlocksProgress extends HTMLElement {
   }
 
   render() {
-    this._progress.style.width = `${this.value}%`
+    this.$progress.style.width = `${this.value}%`
     if (this.showNumber) {
-      this._value.style.display = 'block'
-      this._value.textContent = `${this.value}%`
+      this.$value.style.display = 'block'
+      this.$value.textContent = `${this.value}%`
     }
     else {
-      this._value.style.display = 'none'
+      this.$value.style.display = 'none'
     }
   }
 

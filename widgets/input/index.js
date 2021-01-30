@@ -18,44 +18,45 @@ import { upgradeProperty } from '../core/upgradeProperty.js'
 import { setDisabled, setRole } from '../core/accessibility.js'
 
 const TEMPLATE_CSS = `<style>
-:host, :host * {
+:host {
+  display: inline-block;
   box-sizing: border-box;
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+  font-size: 14px;
+  height: ${$heightBase};
+  border: 1px solid ${$borderColorBase};
+  border-radius: ${$radiusBase};
+  background-color: #fff;
 }
 :host(:focus) {
   outline: 0 none;
 }
-:host {
-  overflow: hidden;
-  display: inline-block;
-  user-select: none;
-  cursor: default;
+:host(:focus-within) {
+  border-color: ${$colorPrimary};
+}
+:host([size="mini"]) {
+  height: ${$heightMini};
+  font-size: 12px;
+}
+:host([size="small"]) {
+  height: ${$heightSmall};
+}
+:host([size="large"]) {
+  height: ${$heightLarge};
+  font-size: 16px;
 }
 
-.container {
+.layout {
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
   position: relative;
-  height: ${$heightBase};
-  border: 1px solid ${$borderColorBase};
-  background-color: #fff;
-  border-radius: ${$radiusBase};
-  font-size: 14px;
-}
-:host([size="mini"]) .container {
-  height: ${$heightMini};
-  font-size: 12px;
-}
-:host([size="small"]) .container {
-  height: ${$heightSmall};
-}
-:host([size="large"]) .container {
-  height: ${$heightLarge};
-  font-size: 16px;
-}
-:host(:focus-within) .container {
-  border-color: ${$colorPrimary};
+  width: 100%;
+  height: 100%;
 }
 
 input {
@@ -86,8 +87,8 @@ input:focus {
 .suffix-icon {
   margin-right: 6px;
 }
-.prefix-icon svg,
-.suffix-icon svg {
+.prefix-icon > svg,
+.suffix-icon > svg {
   width: 100%;
   height: 100%;
 }
@@ -107,10 +108,10 @@ input:focus {
   transform: rotate(45deg);
   transition: all ${$transitionDuration};
 }
-.container:hover .clearable {
+:host(:hover) .clearable {
   opacity: 1;
 }
-:host([clearable]) .container:hover .suffix-icon {
+:host([clearable]:hover) .suffix-icon {
   visibility: hidden;
 }
 :host([suffix-icon]) .clearable {
@@ -155,7 +156,7 @@ input:focus {
 </style>`
 
 const TEMPLATE_HTML = `
-<div class="container">
+<div class="layout">
   <input class="input" part="input" />
 </div>
 `
@@ -200,11 +201,11 @@ class BlocksInput extends HTMLElement {
     })
 
     const fragment = template.content.cloneNode(true)
-    this.container = fragment.querySelector('.container')
-    this.input = fragment.querySelector('input')
+    this.$layout = fragment.querySelector('.layout')
+    this.$input = fragment.querySelector('input')
     this.shadowRoot.appendChild(fragment)
 
-    this.container.onclick = (e) => {
+    this.$layout.onclick = (e) => {
       const target = e.target
       if (target.classList.contains('prefix-icon')) {
         this.dispatchEvent(new CustomEvent('click-prefix-icon', { bubbles: true, composed: true, cancelable: true }))
@@ -221,38 +222,38 @@ class BlocksInput extends HTMLElement {
   render() {
     const prefixIcon = getRegisteredSvgIcon(this.prefixIcon)
     if (prefixIcon) {
-      if (this.prefixEl) {
-        this.container.removeChild(this.prefixEl)
+      if (this.$prefix) {
+        this.$layout.removeChild(this.$prefix)
       }
-      this.prefixEl = this.container.insertBefore(document.createElement('span'), this.input)
-      this.prefixEl.className = 'prefix-icon'
-      this.prefixEl.setAttribute('part', 'prefix')
-      this.prefixEl.appendChild(prefixIcon)
+      this.$prefix = this.$layout.insertBefore(document.createElement('span'), this.$input)
+      this.$prefix.className = 'prefix-icon'
+      this.$prefix.setAttribute('part', 'prefix')
+      this.$prefix.appendChild(prefixIcon)
     }
 
     const suffixIcon = getRegisteredSvgIcon(this.suffixIcon)
     if (suffixIcon) {
-      if (this.suffixEl) {
-        this.container.removeChild(this.suffixEl)
+      if (this.$suffix) {
+        this.$layout.removeChild(this.$suffix)
       }
-      this.suffixEl = this.container.appendChild(document.createElement('span'))
-      this.suffixEl.className = 'suffix-icon'
-      this.suffixEl.setAttribute('part', 'suffix')
-      this.suffixEl.appendChild(suffixIcon)
+      this.$suffix = this.$layout.appendChild(document.createElement('span'))
+      this.$suffix.className = 'suffix-icon'
+      this.$suffix.setAttribute('part', 'suffix')
+      this.$suffix.appendChild(suffixIcon)
     }
 
     if (this.clearable) {
-      if (!this.clearableEl) {
-        this.clearableEl = document.createElement('button')
-        this.clearableEl.className = 'clearable'
-        this.clearableEl.setAttribute('part', 'clearable')
-        this.clearableEl.onclick = this.clearValue.bind(this)
+      if (!this.$clearable) {
+        this.$clearable = document.createElement('button')
+        this.$clearable.className = 'clearable'
+        this.$clearable.setAttribute('part', 'clearable')
+        this.$clearable.onclick = this.clearValue.bind(this)
       }
       if (this.suffixIcon) {
-        this.container.insertBefore(this.clearableEl, this.suffixEl)
+        this.$layout.insertBefore(this.$clearable, this.$suffix)
       }
       else {
-        this.container.appendChild(this.clearableEl)
+        this.$layout.appendChild(this.$clearable)
       }
     }
   }
@@ -289,27 +290,27 @@ class BlocksInput extends HTMLElement {
   }
 
   get value() {
-    return this.input.value
+    return this.$input.value
   }
 
   set value(value) {
-    this.input.value = value
+    this.$input.value = value
   }
 
   get type() {
-    return this.input.type
+    return this.$input.type
   }
 
   set type(value) {
-    this.input.type = value
+    this.$input.type = value
   }
 
   get step() {
-    return this.input.step
+    return this.$input.step
   }
 
   set step(value) {
-    this.input.step = value
+    this.$input.step = value
   }
 
   get size() {
@@ -321,79 +322,79 @@ class BlocksInput extends HTMLElement {
   }
 
   get readonly() {
-    return this.input.readonly
+    return this.$input.readonly
   }
 
   set readonly(value) {
-    this.input.readonly = value
+    this.$input.readonly = value
   }
 
   get placeholder() {
-    return this.input.placeholder
+    return this.$input.placeholder
   }
 
   set placeholder(value) {
-    this.input.placeholder = value
+    this.$input.placeholder = value
   }
 
   get name() {
-    return this.input.name
+    return this.$input.name
   }
 
-  set name(value) { 
-    this.input.name = value
+  set name(value) {
+    this.$input.name = value
   }
 
   get min() {
-    return this.input.min
+    return this.$input.min
   }
 
   set min(value) {
-    this.input.min = value
+    this.$input.min = value
   }
 
   get max() {
-    return this.input.max
+    return this.$input.max
   }
 
   set max(value) {
-    this.input.max = value
+    this.$input.max = value
   }
 
   get minlength() {
-    return this.input.minlength
+    return this.$input.minlength
   }
 
   set minlength(value) {
-    this.input.minlength = value
+    this.$input.minlength = value
   }
 
   get maxlength() {
-    return this.input.maxlength
+    return this.$input.maxlength
   }
 
   set maxlength(value) {
-    this.input.maxlength = value
+    this.$input.maxlength = value
   }
 
   get autofocus() {
-    return this.input.autofocus
+    return this.$input.autofocus
   }
 
   set autofocus(value) {
-    this.input.autofocus = value
+    this.$input.autofocus = value
   }
 
   get autocomplete() {
-    return this.input.autocomplete
+    return this.$input.autocomplete
   }
 
   set autocomplete(value) {
-    this.input.autocomplete = value
+    this.$input.autocomplete = value
   }
 
   clearValue() {
-    this.input.value = null
+    this.$input.value = null
   }
 
   connectedCallback() {
@@ -429,7 +430,7 @@ class BlocksInput extends HTMLElement {
       'autofocus',
       'autocomplete',
     ].includes(name)) {
-      this.input.setAttribute(name, newValue)
+      this.$input.setAttribute(name, newValue)
     }
 
     if (name === 'disabled') {

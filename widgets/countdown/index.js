@@ -3,13 +3,13 @@ import { upgradeProperty } from '../core/upgradeProperty.js'
 import { numGetter, numSetter } from '../core/property.js'
 
 const TEMPLATE_CSS = `<style>
-:host, :host * {
+:host {
   box-sizing: border-box;
 }
 </style>`
 
 const TEMPLATE_HTML = `
-<div class="widget"></div>
+<div id="layout"></div>
 `
 
 const template = document.createElement('template')
@@ -22,9 +22,9 @@ class BlocksCountdown extends HTMLElement {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
+    const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this._widget = shadowRoot.querySelector('.widget')
+    this.$layout = shadowRoot.querySelector('#layout')
   }
 
   // timestamp
@@ -192,16 +192,16 @@ class BlocksCountdown extends HTMLElement {
     const parts = parseFormat(this.format)
 
     // 内容没更新
-    if (this._widget.textContent === parts.map(part => part.text).join('')) return
+    if (this.$layout.textContent === parts.map(part => part.text).join('')) return
 
     // 生成（优先重用） DOM 渲染
-    const children = this._widget.children
+    const children = this.$layout.children
     if (children.length > parts.length) {
       let len = children.length - parts.length
-      while (len--) this._widget.removeChild(this._widget.lastElementChild)
+      while (len--) this.$layout.removeChild(this.$layout.lastElementChild)
     }
     parts.forEach((part, index) => {
-      let el = children[index] ?? this._widget.appendChild(document.createElement('span'))
+      let el = children[index] ?? this.$layout.appendChild(document.createElement('span'))
       el.setAttribute('part', part.klass)
       el.textContent = part.text
     })
@@ -229,7 +229,7 @@ class BlocksCountdown extends HTMLElement {
     this._stopLoop()
   }
 
-  adoptedCallback() {}
+  adoptedCallback() { }
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     this.render()

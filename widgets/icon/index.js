@@ -1,39 +1,36 @@
-import {} from '../theme/var.js'
+import { } from '../theme/var.js'
 
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
 
 const TEMPLATE_CSS = `<style>
-:host, :host * {
-  box-sizing: border-box;
-}
-:host(:focus) {
-  outline: 0 none;
-}
 :host {
-  overflow: hidden;
   display: inline-block;
+  box-sizing: border-box;
+  overflow: hidden;
   user-select: none;
   cursor: default;
   width: 32px;
   height: 32px;
 }
-.widget {
+:host(:focus) {
+  outline: 0 none;
+}
+#layout {
   width: 100%;
   height: 100%;
 }
-.widget svg {
+#layout svg {
   display: block;
   width: 100%;
   height: 100%;
 }
 </style>`
 
-const TEMPLATE_HTML = `<div class="widget"></div>`
+const TEMPLATE_HTML = `<div id="layout"></div>`
 
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
-
 
 class BlocksIcon extends HTMLElement {
   static get observedAttributes() {
@@ -47,16 +44,16 @@ class BlocksIcon extends HTMLElement {
     super()
     this.attachShadow({ mode: 'open' })
     const fragment = template.content.cloneNode(true)
-    this._widget = fragment.querySelector('.widget')
+    this.$layout = fragment.querySelector('#layout')
     this.shadowRoot.appendChild(fragment)
   }
 
   render() {
-    if (this._widget.firstElementChild) this._widget.removeChild(this._widget.firstElementChild)
+    if (this.$layout.firstElementChild) this.$layout.removeChild(this.$layout.firstElementChild)
     const attrs = {}
     if (this.fill) attrs.fill = this.fill
     let icon = getRegisteredSvgIcon(this.value, attrs) ?? parseSvg(this.value, attrs)
-    if (icon) this._widget.appendChild(icon)
+    if (icon) this.$layout.appendChild(icon)
   }
 
   get value() {

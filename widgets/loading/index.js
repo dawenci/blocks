@@ -25,13 +25,13 @@ const TEMPLATE_CSS = `<style>
   left: 0;
   margin: auto;
 }
-#loading {
+#layout {
   display: inline-block;
   position: relative;
   width: 100%;
   height: 100%;
 }
-#loading svg {
+#layout svg {
   position: absolute;
   top: 0;
   right: 0;
@@ -47,7 +47,7 @@ const TEMPLATE_CSS = `<style>
 </style>`
 
 const TEMPLATE_HTML = `
-<div id="loading"></div>
+<div id="layout"></div>
 `
 
 const template = document.createElement('template')
@@ -62,14 +62,14 @@ class BlocksLoading extends HTMLElement {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this._loading = shadowRoot.querySelector('#loading')
+    this.$layout = shadowRoot.querySelector('#layout')
   }
 
   render() {
     const icon = getRegisteredSvgIcon('loading')
 
-    this._loading.innerHTML = ''
-    this._loading.appendChild(icon)
+    this.$layout.innerHTML = ''
+    this.$layout.appendChild(icon)
   }
 
   connectedCallback() {
