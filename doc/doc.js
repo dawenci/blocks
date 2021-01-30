@@ -79,7 +79,7 @@ window.onload = () => {
     toggle.onclick = e => {
       nav.style.display = nav.style.display ? '' : 'none'
     }
-    if (nav.childElementCount > 1) {
+    if (nav.childElementCount > 2) {
       document.body.appendChild(headingNav)
     }
   }

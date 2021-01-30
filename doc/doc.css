@@ -83,7 +83,7 @@ article h4 {
 .heading-nav {
   position: fixed;
   top: 0;
-  right: 0;
+  right: 12px;
   border-radius: 3px;
   background: #fff;
   box-shadow: 0 0 5px -4px rgb(0,0,0,0.12),
