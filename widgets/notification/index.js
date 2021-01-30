@@ -16,12 +16,13 @@ const TEMPLATE_CSS = `<style>
   display: block;
   box-sizing: border-box;
   width: 350px;
-  margin: 15px 28px;
+  margin: 8px 28px;
   background: #fff;
   box-shadow: 0 0 5px -2px rgb(0,0,0,0.16),
     0 0 16px 0 rgb(0,0,0,0.08),
     0 0 28px 8px rgb(0,0,0,0.05);
   transition: all ${$transitionDuration} ease-out;
+  pointer-events: auto;
 }
 #notification {
   box-sizing: border-box;
@@ -35,7 +36,7 @@ const TEMPLATE_CSS = `<style>
   flex: 0 0 auto;
   width: 24px;
   height: 24px;
-  margin: 0 15px 0 0;
+  margin: 0 12px 0 0;
 }
 #icon:empty {
   display: none;
@@ -45,6 +46,7 @@ const TEMPLATE_CSS = `<style>
 }
 #title {
   font-size: 16px;
+  margin: 2px 0 4px;
 }
 #title:empty {
   display: none;
@@ -57,15 +59,12 @@ const TEMPLATE_CSS = `<style>
   line-height: 24px;
   font-size: 14px;
 }
-#title+#content {
-  margin-top: 8px;
-}
 #close {
   flex: 0 0 auto;
   display: block;
   width: 18px;
   height: 18px;
-  margin: 0 0 0 15px;
+  margin: 0 0 0 12px;
   padding: 0;
   border: 0 none;
   background: #fff;
@@ -107,7 +106,7 @@ class BlocksNotification extends HTMLElement {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
+    const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template.content.cloneNode(true))
     this._widget = shadowRoot.querySelector('#notification')
     this._icon = shadowRoot.querySelector('#icon')
@@ -152,15 +151,20 @@ class BlocksNotification extends HTMLElement {
         this.destroy()
       }
     }
-    this.style.cssText = `transform:translate(0,-100%);opacity:0`
+    if (this.parentElement.className.includes('bottom')) {
+      this.style.cssText = `transform:translate(0,100%);opacity:0`
+    }
+    else {
+      this.style.cssText = `transform:translate(0,-100%);opacity:0`
+    }
   }
 
   render() {
     const fill = this.type === 'success' ? $colorSuccess
       : this.type === 'error' ? $colorDanger
-      : this.type === 'warning' ? $colorWarning
-      : this.type === 'info' ? $colorPrimary
-      : undefined
+        : this.type === 'warning' ? $colorWarning
+          : this.type === 'info' ? $colorPrimary
+            : undefined
     const iconName = this.type === 'warning' ? 'info' : this.type
     const icon = getRegisteredSvgIcon(iconName, { fill })
     if (icon) {
@@ -199,9 +203,9 @@ class BlocksNotification extends HTMLElement {
     this.render()
   }
 
-  disconnectedCallback() {}
+  disconnectedCallback() { }
 
-  adoptedCallback() {}
+  adoptedCallback() { }
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     this.render()
@@ -225,12 +229,37 @@ if (!customElements.get('blocks-notification')) {
   customElements.define('blocks-notification', BlocksNotification)
 }
 
-function cage() {
-  let cage = document.querySelector('.blocks-notification-cage')
+const placementEnum = ['top-right', 'bottom-right', 'bottom-left', 'top-left']
+const normalizePlacement = (value) => placementEnum.includes(value) ? value : placementEnum[0]
+
+function cage(placement) {
+  placement = normalizePlacement(placement)
+  let cage = document.querySelector('.blocks-notification-cage' + '.' + placement)
   if (!cage) {
     cage = document.body.appendChild(document.createElement('div'))
-    cage.className = 'blocks-notification-cage'
-    cage.style.cssText = "overflow:hidden;position:fixed;z-index:100;top:0;right:0;bottom:0;left:auto;"
+    cage.className = `blocks-notification-cage ${placement}`
+    let cssText = "pointer-events:none;overflow:hidden;position:fixed;z-index:100;display:flex;flex-flow:column nowrap;padding:8px 0;"
+
+    switch (placement) {
+      case 'top-right': {
+        cssText += "top:0;right:0;bottom:0;left:auto;justify-content:flex-start;"
+        break
+      }
+      case 'bottom-right': {
+        cssText += "top:0;right:0;bottom:0;left:auto;justify-content:flex-end;"
+        break
+      }
+      case 'bottom-left': {
+        cssText += "top:0;right:auto;bottom:0;left:0;justify-content:flex-end;"
+        break
+      }
+      case 'top-left': {
+        cssText += "top:0;right:auto;bottom:0;left:0;justify-content:flex-start;"
+        break
+      }
+    }
+
+    cage.style.cssText = cssText
   }
   return cage
 }
@@ -243,16 +272,59 @@ export function notify(options = {}) {
 
   let content = options.content
   if (options.title) {
-    content = `<h1 slot="title">${options.title}</h1>` + content
+    content = `<h1 slot="title">${options.title}</h1>` + (content ?? '')
   }
 
   el.innerHTML = content
 
-  el.style.cssText = `transform:translate(100%, 0);opacity:0;`
+  const placement = normalizePlacement(options.placement)
+  const parent = cage(placement)
 
-  cage().appendChild(el)
+  if (placement.endsWith('right')) {
+    el.style.cssText = `transform:translate(100%, 0);opacity:0;`
+  }
+  else {
+    el.style.cssText = `transform:translate(-100%, 0);opacity:0;`
+  }
+
+  if (placement.startsWith('top')) {
+    parent.appendChild(el)
+  }
+  else {
+    if (parent.firstElementChild) {
+      parent.insertBefore(el, parent.firstElementChild)
+    }
+    else {
+      parent.appendChild(el)
+    }
+  }
+  
   el.offsetHeight
   el.style.cssText = `transform:translate(0, 0);opacity:1;`
 
-  return el
+  let closedCallback
+  let closed = false
+  const onClosed = e => {
+    closed = true
+    if (closedCallback) closedCallback()
+    el.removeEventListener('closed', onClosed)
+  }
+  el.addEventListener('closed', onClosed)
+
+  return {
+    el,
+    close() {
+      el.close()
+      return this
+    },
+    onclose(callback) {
+      if (closed) {
+        callback()
+      }
+      else {
+        closedCallback = callback
+      }
+      return this
+    }
+  }
 }

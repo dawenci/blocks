@@ -27,11 +27,40 @@
 
         <script type="module">
           import { notify } from '/widgets/notification/index.js'
-          document.querySelector('#default').onclick = () => {
-            notify({
-              title: '消息通知',
-              content: '这里是消息内容',
-            })
+          const $ = (id) => document.getElementById(id)
+          $('default').onclick = () => {
+            notify({ title: '消息通知', content: '这里是消息内容' })
+          }
+        </script>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>位置</h2>
+
+      <p>使用 'placement' 控制通知出现的位置，支持 'top-right'（默认）、'top-left'、'bottom-right'、'bottom-left'</p>
+
+      <div data-codesource="html">
+        <blocks-button id="placement-topLeft">top-left</blocks-button>
+        <blocks-button id="placement-topRight">top-right</blocks-button>
+        <blocks-button id="placement-bottomLeft">bottom-left</blocks-button>
+        <blocks-button id="placement-bottomRight">bottom-right</blocks-button>
+        <script type="module">
+          import { notify } from '/widgets/notification/index.js'
+          const $ = (id) => document.getElementById(id)
+          const title = '消息通知'
+          const content = '这里是消息内容'
+          $('placement-topLeft').onclick = () => {
+            notify({ title, content, placement: 'top-left' })
+          }
+          $('placement-topRight').onclick = () => {
+            notify({ title, content, placement: 'top-right' })
+          }
+          $('placement-bottomLeft').onclick = () => {
+            notify({ title, content, placement: 'bottom-left' })
+          }
+          $('placement-bottomRight').onclick = () => {
+            notify({ title, content, placement: 'bottom-right' })
           }
         </script>
       </div>
@@ -42,45 +71,96 @@
       <script type="module" src="/widgets/button/index.js"></script>
       <h2>类别</h2>
 
+      <p>使用 'type' 配置通知类型，支持 'success'、'error'、'warning'、'info'</p>
+
       <div data-codesource="html">
         <blocks-button id="success">成功</blocks-button>
         <blocks-button id="error">错误</blocks-button>
         <blocks-button id="info">信息</blocks-button>
-        <blocks-button id="warn">警告</blocks-button>
+        <blocks-button id="warning">警告</blocks-button>
+        <script type="module">
+          import { notify } from '/widgets/notification/index.js'
+          const $ = (id) => document.getElementById(id)
+          const title = '消息通知'
+          const content = '这里是消息内容'
+          $('success').onclick = () => {
+            notify({ type: 'success', title, content })
+          }
+          $('error').onclick = () => {
+            notify({ type: 'error', title, content })
+          }
+          $('info').onclick = () => {
+            notify({ type: 'info', title, content })
+          }
+          $('warning').onclick = () => {
+            notify({ type: 'warning', title, content })
+          }
+        </script>
+      </div>
+    </section>
+
+    <section class="section">
+      <script type="module" src="/widgets/button/index.js"></script>
+      <h2>可手动关闭</h2>
+
+      <p>使用 'closeable' 可以配置手动关闭功能。</p>
+
+      <div data-codesource="html">
+        <blocks-button id="closeable">成功</blocks-button>
+        <script type="module">
+          import { notify } from '/widgets/notification/index.js'
+          const $ = (id) => document.getElementById(id)
+          const title = '消息通知'
+          const content = '这里是消息内容'
+          $('closeable').onclick = () => {
+            notify({ closeable: true, title, content })
+          }
+        </script>
+      </div>
+    </section>
+    
+    <section class="section">
+      <h2>自动关闭时间</h2>
+
+      <p>使用 'duration' 配置自动关闭的时间，单位为秒。默认值为 '10'，如果配置为小于等于 '0' 的值，则表示永远不自动关闭。</p>
+
+      <div data-codesource="html">
+        <blocks-button id="duration3">3s 后关闭</blocks-button>
+        <blocks-button id="duration0">永远不自动关闭</blocks-button>
 
         <script type="module">
           import { notify } from '/widgets/notification/index.js'
-          document.querySelector('#success').onclick = () => {
-            notify({
-              type: 'success',
-              title: '成功通知',
-              content: '这里是消息内容',
-              closeable: true,
-            })
+          const $ = (id) => document.getElementById(id)
+          const title = '消息通知'
+          const content = '这里是消息内容'
+          $('duration3').onclick = () => {
+            notify({ duration: 3, title, content })
           }
-          document.querySelector('#error').onclick = () => {
-            notify({
-              type: 'error',
-              title: '错误通知',
-              content: '这里是消息内容',
-              closeable: true,
-            })
+          $('duration0').onclick = () => {
+            notify({ duration: 0, title, content, closeable: true })
           }
-          document.querySelector('#info').onclick = () => {
-            notify({
-              type: 'info',
-              title: '信息通知',
-              content: '这里是消息内容',
-              closeable: true,
-            })
-          }
-          document.querySelector('#warn').onclick = () => {
-            notify({
-              type: 'warning',
-              title: '警告通知',
-              content: '这里是消息内容',
-              closeable: true,
-            })
+        </script>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>监听关闭事件</h2>
+
+      <p>notify 的返回值提供 onclose 方法，可以在关闭动画结束后调用传入的回调函数。</p>
+
+      <div data-codesource="html">
+        <blocks-button id="onclose">onclose消息</blocks-button>
+
+        <script type="module">
+          import { notify } from '/widgets/notification/index.js'
+          const $ = (id) => document.getElementById(id)
+          const title = '消息通知'
+          const content = '这里是消息内容'
+          $('onclose').onclick = () => {
+            notify({ title, content, closeable: true, duration: 3 })
+              .onclose(() => {
+                notify({ title: '上个通知关闭了' })
+              })
           }
         </script>
       </div>
