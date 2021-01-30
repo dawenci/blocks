@@ -1,4 +1,5 @@
 import { forEach } from '../widgets/core/utils.js'
+import '../widgets/button/index.js'
 
 
 // html 由于缩进，每行前面有固定的空格，使用该方法移除掉每行的开头 count 个空格
@@ -58,6 +59,31 @@ const insertAfter = (newElement, element) => {
 
 
 window.onload = () => {
+  // 生成标题导航
+  {
+    const headingNav = document.createElement('div')
+    headingNav.className = 'heading-nav'
+    const toggle = headingNav.appendChild(document.createElement('blocks-button'))
+    toggle.size = 'small'
+    toggle.textContent = '显示/隐藏导航'
+
+    const nav = headingNav.appendChild(document.createElement('ol'))
+    forEach(document.querySelectorAll('.section > h2'), h2 => {
+      const item = nav.appendChild(document.createElement('li'))
+      item.textContent = h2.textContent
+      item.onclick = () => {
+        const top = h2.offsetTop
+        document.querySelector('article').scrollTop = top
+      }
+    })
+    toggle.onclick = e => {
+      nav.style.display = nav.style.display ? '' : 'none'
+    }
+    if (nav.childElementCount > 1) {
+      document.body.appendChild(headingNav)
+    }
+  }
+
   // 从页面中提取 html，作为 demo code 打印在页面中
   forEach(document.querySelectorAll('[data-codesource]'), template => {
     const role = template.dataset.codesource

@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -19,23 +20,32 @@ article {
   box-sizing: border-box;
   height: 100%;
   background-color: #fff;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, .1);
   border: none;
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 0;  
+  padding: 0;
 }
 
 article header {
   padding: 40px 40px 0;
 }
-article header h1 { margin: 0; }
-article h1 { font-size: 48px }
-article h2 { font-size: 36px }
-article h3 { font-size: 24px }
-article h4 { font-size: 16px }
-
+article header h1 {
+  margin: 0;
+}
+article h1 {
+  font-size: 48px;
+}
+article h2 {
+  font-size: 36px;
+}
+article h3 {
+  font-size: 24px;
+}
+article h4 {
+  font-size: 16px;
+}
 
 .section {
   border-top: 1px dashed #ddd;
@@ -46,7 +56,7 @@ article h4 { font-size: 16px }
 
 .case:not(:first-child) {
   padding: 15px 0;
-}  
+}
 
 .print-area {
   margin: 30px 0;
@@ -70,6 +80,33 @@ article h4 { font-size: 16px }
   background-color: #fafafa;
 }
 
+.heading-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: 0 0 5px -4px rgb(0,0,0,0.12),
+    0 0 16px 0 rgb(0,0,0,0.08),
+    0 0 28px 8px rgb(0,0,0,0.05);
+}
+.heading-nav blocks-button {
+  display: block;
+  margin: 5px;
+}
+.heading-nav ol {
+  margin: 0;
+  padding: 0 5px 5px;
+}
+.heading-nav li {
+  padding: 4px 15px;
+  list-style: none;
+  font-size: 12px;
+  cursor: pointer;
+}
+.heading-nav li:hover {
+  background: #f0f0f0;
+}
 
 /* scrollbar 宽度 */
 ::-webkit-scrollbar {
@@ -90,7 +127,7 @@ article h4 { font-size: 16px }
 }
 /* scrollbar 滑块 */
 ::-webkit-scrollbar-thumb {
-  border: 1px solid rgba(255,255,255,.3);
+  border: 1px solid rgba(255, 255, 255, .3);
   background: rgba(0, 0, 0, .2);
   border-radius: 3px;
 }
