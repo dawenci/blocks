@@ -30,6 +30,14 @@ import {
 
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { setDisabled, setRole, setTabindex } from '../core/accessibility.js'
+import { boolGetter, boolSetter, enumGetter, enumSetter } from '../core/property.js'
+
+const disabledGetter = boolGetter('disabled')
+const disabledSetter = boolSetter('disabled')
+const typeGetter = enumGetter('type', [null, 'primary', 'danger', 'warning', 'success', 'link'])
+const typeSetter = enumSetter('type', [null, 'primary', 'danger', 'warning', 'success', 'link'])
+const sizeGetter = enumGetter('size', [null, 'small', 'mini', 'large'])
+const sizeSetter = enumSetter('size', [null, 'small', 'mini', 'large'])
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -296,7 +304,7 @@ template.innerHTML = `
 
 class BlocksButton extends HTMLElement {
   static get observedAttributes() {
-    return [ 'disabled' ]
+    return [ 'type', 'size', 'disabled', 'prefix-icon', 'suffix-icon' ]
   }
 
   constructor() {
@@ -335,16 +343,27 @@ class BlocksButton extends HTMLElement {
   }
   
   get disabled() {
-    return this.hasAttribute('disabled')
+    return disabledGetter(this)
   }
 
   set disabled(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('disabled')
-    } 
-    else {
-      this.setAttribute('disabled', '')
-    }
+    disabledSetter(this, value)
+  }
+
+  get type() {
+    return typeGetter(this)
+  }
+
+  set type(value) {
+    typeSetter(this, value)
+  }
+
+  get size() {
+    return sizeGetter(this)
+  }
+
+  set size(value) {
+    sizeSetter(this, value)
   }
 
   get prefixIcon() {
@@ -353,7 +372,6 @@ class BlocksButton extends HTMLElement {
 
   set prefixIcon(value) {
     this.setAttribute('prefix-icon', value)
-    this.render()
   }
 
   get suffixIcon() {
@@ -362,7 +380,6 @@ class BlocksButton extends HTMLElement {
 
   set suffixIcon(value) {
     this.setAttribute('suffix-icon', value)
-    this.render()
   }
 
   render() {

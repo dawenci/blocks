@@ -27,7 +27,12 @@ export function numGetter(attr) {
 export function numSetter(attr) {
   return (element, value) => {
     if (element.getAttribute(attr) === value) return
-    element.setAttribute(attr, value)
+    if (value === null) {
+      element.removeAttribute(attr)
+    }
+    else {
+      element.setAttribute(attr, value)
+    }
   }
 }
 
@@ -42,7 +47,12 @@ export function intSetter(attr) {
   return (element, value) => {
     value = parseInt(value, 10)
     if (parseInt(element.getAttribute(attr), 10) === value) return
-    element.setAttribute(attr, value)
+    if (value === null) {
+      element.removeAttribute(attr)
+    }
+    else {
+      element.setAttribute(attr, value)
+    }
   } 
 }
 
@@ -57,11 +67,12 @@ export function enumGetter(attr, values) {
 export function enumSetter(attr, values) {
   return (element, value) => {
     if (element.getAttribute(attr) === value) return
-    if (values.includes(value)) {
-      element.setAttribute(attr, value)
+    if (!values.includes(value)) value = values[0]
+    if (value === null) {
+      element.removeAttribute(attr)
     }
     else {
-      element.setAttribute(attr, values[0])
+      element.setAttribute(attr, value)
     }
   }
 }
