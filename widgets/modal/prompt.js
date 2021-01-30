@@ -23,5 +23,11 @@ export function prompt(text, options = {}) {
     })
   })
 
+  input.onkeydown = e => {
+    if (e.key === 'Enter') {
+      dialog.confirm()
+    }
+  }
+
   return promise
 }
