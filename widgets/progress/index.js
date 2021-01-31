@@ -1,55 +1,78 @@
 import { upgradeProperty } from '../core/upgradeProperty.js'
-import { boolGetter, boolSetter, numGetter, numSetter } from '../core/property.js'
+import { boolGetter, boolSetter, enumGetter, enumSetter, numGetter, numSetter } from '../core/property.js'
 import { makeRgbaColor } from '../core/utils.js';
 import { $colorDanger, $colorPrimary, $colorSuccess, $colorWarning, $radiusBase, $transitionDuration } from '../theme/var.js'
+
+const valueGetter = numGetter('value')
+const valueSetter = numSetter('value')
+const percentageGetter = boolGetter('percentage')
+const percentageSetter = boolSetter('percentage')
+const status = [null, 'success', 'error', 'warning']
+const statusGetter = enumGetter('status', status)
+const statusSetter = enumSetter('status', status)
 
 const TEMPLATE_CSS = `<style>
 :host {
   display: block;
   box-sizing: border-box;
   position: relative;
+  height: 5px;
 }
 #layout {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
   box-sizing: border-box;
   position: relative;
   width: 100%;
   height: 100%;
   min-height: 1px;
+}
+#track {
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  height: 100%;
   border-radius: ${$radiusBase};
 }
 #progress {
-  box-sizing: border-box;
-  position: absolute;
-  top: 0;
-  right: auto;
-  bottom: 0;
-  left: 0;
   width: 0;
+  height: 100%;
   transition: ${$transitionDuration} all;
   border-radius: ${$radiusBase};
 }
 #value {
+  flex: 0 0 auto;
   box-sizing: border-box;
-  position: absolute;
-  top: auto;
-  right: auto;
-  bottom: -16px;
-  left: 0;
   height: 16px;
+  margin-left: 5px;
   line-height: 16px;
   font-size: 12px;
   text-shadow: 1px 1px 0 rgba(255,255,255,.5);
 }
 
-#layout { background-color: ${makeRgbaColor($colorPrimary, .05)} }
+#track { background-color: ${makeRgbaColor($colorPrimary, .1)} }
 #progress { background-color: ${$colorPrimary} }
 #value { color: ${$colorPrimary} }
+
+:host([status="success"]) #track { background-color: ${makeRgbaColor($colorSuccess, .1)} }
+:host([status="success"]) #progress { background-color: ${$colorSuccess} }
+:host([status="success"]) #value { color: ${$colorSuccess} }
+
+:host([status="error"]) #track { background-color: ${makeRgbaColor($colorDanger, .1)} }
+:host([status="error"]) #progress { background-color: ${$colorDanger} }
+:host([status="error"]) #value { color: ${$colorDanger} }
+
+:host([status="warning"]) #track { background-color: ${makeRgbaColor($colorWarning, .1)} }
+:host([status="warning"]) #progress { background-color: ${$colorWarning} }
+:host([status="warning"]) #value { color: ${$colorWarning} }
 </style>`
 
 const TEMPLATE_HTML = `
 <div id="layout">
-  <div id="progress"></div>
-  <div id="value"></div>
+  <div id="track">
+    <div id="progress" part="progress"></div>
+  </div>
+  <div id="value" part="value"></div>
 </div>
 `
 
@@ -58,7 +81,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksProgress extends HTMLElement {
   static get observedAttributes() {
-    return ['value']
+    return ['value', 'status', 'percentage']
   }
 
   constructor() {
@@ -70,24 +93,32 @@ class BlocksProgress extends HTMLElement {
   }
 
   get value() {
-    return numGetter('value')(this)
+    return valueGetter(this)
   }
 
   set value(value) {
-    numSetter('value')(this, value)
+    valueSetter(this, value)
   }
 
-  get showNumber() {
-    return boolGetter('show-number')(this)
+  get status() {
+    return statusGetter(this)
   }
 
-  set showNumber(value) {
-    return boolSetter('show-number')(this, value)
+  set status(value) {
+    statusSetter(this, value)
+  }
+
+  get percentage() {
+    return percentageGetter(this)
+  }
+
+  set percentage(value) {
+    percentageSetter(this, value)
   }
 
   render() {
     this.$progress.style.width = `${this.value}%`
-    if (this.showNumber) {
+    if (this.percentage) {
       this.$value.style.display = 'block'
       this.$value.textContent = `${this.value}%`
     }
@@ -102,10 +133,6 @@ class BlocksProgress extends HTMLElement {
     })
     this.render()
   }
-
-  disconnectedCallback() {}
-
-  adoptedCallback() {}
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     this.render()
