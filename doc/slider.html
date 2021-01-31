@@ -17,6 +17,8 @@
       <h1>slider</h1>
     </header>
 
+    <script type="module" src="/widgets/input/index.js"></script>
+
     <section class="section">
       <div data-codesource="html" data-title="依赖引入">
         <script type="module" src="/widgets/slider/index.js"></script>
@@ -26,26 +28,43 @@
     <section class="section">
       <h2>默认</h2>
 
-      <template data-codesource="html">
-        <blocks-slider></blocks-slider>
-      </template>
+      <div data-codesource="html">
+        <blocks-slider id="default"></blocks-slider>
+        <blocks-input id="default-value"></blocks-input>
+        <script>
+          document.getElementById('default').addEventListener('change', e => {
+            document.getElementById('default-value').value = e.detail.value
+          })
+        </script>
+      </div>
     </section>
 
     <section class="section">
       <h2>垂直方向</h2>
 
-      <template data-codesource="html">
-        <blocks-slider vertical></blocks-slider>
-      </template>
+      <div data-codesource="html">
+        <blocks-slider vertical id="vertical"></blocks-slider>
+        <blocks-input id="vertical-value"></blocks-input>
+        <script>
+          document.getElementById('vertical').addEventListener('change', e => {
+            document.getElementById('vertical-value').value = e.detail.value
+          })
+        </script>
+      </div>
     </section>
-
 
     <section class="section">
       <h2>区间</h2>
 
-      <template data-codesource="html">
-        <blocks-slider range></blocks-slider>
-      </template>
+      <div data-codesource="html">
+        <blocks-slider range id="range"></blocks-slider>
+        <blocks-input id="range-value"></blocks-input>
+        <script>
+          document.getElementById('range').addEventListener('change', e => {
+            document.getElementById('range-value').value = e.detail.value
+          })
+        </script>
+      </div>
     </section>
 
 

@@ -46,3 +46,12 @@ export function padLeft(ch, n, str) {
 export function padRight(ch, n, str) {
   return pad(ch, n, str, true)
 }
+
+export function round(x, digits) {
+  const sign = x < 0 ? -1 : 1
+  if (sign < 0) x = -x
+  digits = Math.pow(10, digits)
+  x *= digits
+  x = Math.round(x)
+  return sign * x / digits
+}

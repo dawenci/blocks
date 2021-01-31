@@ -1,6 +1,7 @@
 import { upgradeProperty } from '../core/upgradeProperty.js'
-import { boolGetter, boolSetter, numGetter, numSetter } from '../core/property.js';
-import { forEach, makeRgbaColor } from '../core/utils.js';
+import { boolGetter, boolSetter, intGetter, intSetter, numGetter, numSetter } from '../core/property.js';
+import { forEach, makeRgbaColor, round } from '../core/utils.js';
+import { dispatchEvent } from '../core/event.js'
 import {
   $fontFamily,
   $radiusSmall,
@@ -19,12 +20,13 @@ const [minGetter, maxGetter] = ['min', 'max'].map(prop => numGetter(prop))
 const [minSetter, maxSetter] = ['min', 'max'].map(prop => numSetter(prop))
 const [disabledGetter, rangeGetter, verticalGetter] = ['disabled', 'range', 'vertical'].map(prop => boolGetter(prop))
 const [disabledSetter, rangeSetter, verticalSetter] = ['disabled', 'range', 'vertical'].map(prop => boolSetter(prop))
+const roundGetter = intGetter('round')
+const roundSetter = intSetter('round')
 
 const TEMPLATE_CSS = `
 <style>
 :host, :host * {
   box-sizing: border-box;
-  user-select: none;
 }
 :host {
   all: initial;
@@ -38,8 +40,13 @@ const TEMPLATE_CSS = `
   width: 118px;
   height: auto;
 }
+:host([vertical]) {
+  height: 118px;
+  width: auto;
+}
 
 #layout {
+  box-sizing: border-box;
   position: relative;
   width: 100%;
   height: 18px;
@@ -48,11 +55,7 @@ const TEMPLATE_CSS = `
   border: 0 none;
   /* padding，容纳 shadow */
   padding: 2px;
-}
-
-:host([vertical]) {
-  height: 118px;
-  width: auto;
+  user-select: none;
 }
 :host([vertical]) #layout {
   height: 100%;
@@ -61,6 +64,7 @@ const TEMPLATE_CSS = `
 
 /* 滑轨，button 的容器 */
 #layout #track {
+  box-sizing: border-box;
   display: block;
   position: relative;
   width: 100%;
@@ -69,6 +73,7 @@ const TEMPLATE_CSS = `
 
 /* 滑轨的背景，长或宽需要减去 button 的半径 */
 #layout #track:after {
+  box-sizing: border-box;
   display: block;
   content: "";
   position: absolute;
@@ -95,7 +100,8 @@ const TEMPLATE_CSS = `
 }
 
 /* 按钮 */
-#layout .button {
+#layout button {
+  box-sizing: border-box;
   overflow: hidden;
   display: block;
   position: absolute;
@@ -107,29 +113,30 @@ const TEMPLATE_CSS = `
   width: 14px;
   height: 14px;
   margin: auto;
+  padding: 0;
   border-radius: 50%;
   border: 2px solid ${$borderColorBase};
   background: #fff;
   transition: border-color .2s;
 }
-:host([vertical]) #layout .button {
+:host([vertical]) #layout button {
   top: auto;
   right: 0;
 }
 
-#layout .button:hover,
-#layout .button:focus,
-#layout .button.active {
+#layout button:hover,
+#layout button:focus,
+#layout button.active {
   z-index: 2;
   border-color: ${$colorPrimary};
   outline: 0 none;
   box-shadow: 0 0 2px 2px ${makeRgbaColor($colorPrimary, .5)};
 }
 
-:host([disabled]) #layout .button,
-:host([disabled]) #layout .button:hover,
-:host([disabled]) #layout .button:focus,
-:host([disabled]) #layout .button:active {
+:host([disabled]) #layout button,
+:host([disabled]) #layout button:hover,
+:host([disabled]) #layout button:focus,
+:host([disabled]) #layout button:active {
   border: 2px solid ${$borderColorBase};
   box-shadow: none;
 }
@@ -138,8 +145,7 @@ const TEMPLATE_CSS = `
 const TEMPLATE_HTML = `
 <div id="layout">
   <div id="track">
-    <span tabindex="0" class="button"></span>
-    <span tabindex="0" class="button"></span>
+    <button></button>
   </div>
 </div>
 `
@@ -149,7 +155,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksSlider extends HTMLElement {
   static get observedAttributes() {
-    return ['value', 'max', 'min', 'step', 'range', 'vertical', 'disabled', 'size']
+    return ['value', 'max', 'min', 'step', 'range', 'vertical', 'disabled', 'size', 'round']
   }
 
   constructor() {
@@ -159,17 +165,17 @@ class BlocksSlider extends HTMLElement {
     shadowRoot.appendChild(fragment)
     this.$layout = shadowRoot.getElementById('layout')
     this.$track = shadowRoot.getElementById('track')
+    this.$point = shadowRoot.querySelector('button')
   }
 
   get value() {
     const attrValue = this.getAttribute('value')?.trim?.()
     if (!this.range) {
-      const value = parseInt(attrValue, 10)
+      const value = parseFloat(attrValue)
       return value == value ? value : 0
     }
-    return /\d+\,?\d+/.test(attrValue)
-      ? attrValue.split(',').map(n => parseInt(n, 10))
-      : [0, 0]
+    const values = (attrValue || '').split(',').map(n => parseFloat(n))
+    return values.every(n => this._isValidNumber(n)) ? values : [0, 0]
   }
 
   set value(value) {
@@ -181,7 +187,7 @@ class BlocksSlider extends HTMLElement {
   }
 
   get min() {
-    return minGetter(this)
+    return minGetter(this) || 0
   }
 
   set min(value) {
@@ -189,7 +195,8 @@ class BlocksSlider extends HTMLElement {
   }
 
   get max() {
-    return maxGetter(this)
+    const max = maxGetter(this)
+    return (Object.is(max, NaN) || max == null ) ? 100 : max
   }
 
   set max(value) {
@@ -220,6 +227,14 @@ class BlocksSlider extends HTMLElement {
     verticalSetter(this, value)
   }
 
+  get round() {
+    return roundGetter(this) || 2
+  }
+
+  set round(value) {
+    roundSetter(this, value)
+  }
+
   _isValidNumber(n) {
     return typeof n === 'number'
       && n === n
@@ -231,17 +246,8 @@ class BlocksSlider extends HTMLElement {
     return parseFloat(getComputedStyle(this.$track).getPropertyValue(this.vertical ? 'height' : 'width'))
   }
 
-  _updateButton() {
-    if (this.range) {
-      this.$layout.querySelectorAll('.button').forEach(button => button.style.display = 'block')
-    }
-    else {
-      this.$layout.querySelector('.button').style.display = 'none'
-    }
-  }
-
   _updateTabindex() {
-    const $buttons = this.shadowRoot.querySelectorAll('.button')
+    const $buttons = this.shadowRoot.querySelectorAll('button')
     if (this.disabled) {
       forEach($buttons, button => {
         button.removeAttribute('tabindex')
@@ -254,6 +260,42 @@ class BlocksSlider extends HTMLElement {
     }
   }
 
+  _getPointValue($point) {
+    const total = this._getTrackSize() - 14
+    const pos = parseInt($point.style[this.vertical ? 'bottom' : 'left']) || 0
+    const ratio = pos / total
+    const value = this.min + (this.max - this.min) * ratio
+    
+    return round(value, this.round)
+  }
+
+  _updateValue() {
+    if (this.range) {
+      const value1 = this._getPointValue(this.$point)
+      const value2 = this._getPointValue(this.$point2)
+      const value = [round(value1, this.round), round(value2, this.round)]
+      value.sort()
+      this.value = value
+    }
+    else {
+      this.value = this._getPointValue(this.$point)
+    }
+    dispatchEvent(this, 'change', { detail: { value: this.value } })
+  }
+
+  render() {
+    if (this.range) {
+      this.$point2 = this.$point2 ?? document.createElement('button')
+      this.$track.appendChild(this.$point2)
+    }
+    else {
+      if (this.$point2) {
+        this.$track.removeChild(this.$point2)
+        this.$point2 = null
+      }
+    }
+  }
+
   connectedCallback() {
     setRole(this, 'slider')
     setDisabled(this, this.disabled)
@@ -263,11 +305,15 @@ class BlocksSlider extends HTMLElement {
       upgradeProperty(this, attr)
     })
 
-    this._updateButton()
+    this.render()
+    if (this.value) {
+      this._updateValue()
+    }
 
     {
       let pointStart = null
       let positionStart = null
+      let $lastActiveButton = null
       let $button = null
 
       const setPosition = (value) => {
@@ -280,6 +326,8 @@ class BlocksSlider extends HTMLElement {
         }
         const axis = this.vertical ? 'bottom' : 'left'
         $button.style[axis] = `${value}px`
+
+        this._updateValue()
       }
 
       const move = (e) => {
@@ -304,9 +352,9 @@ class BlocksSlider extends HTMLElement {
           return
         }
 
-        // 点击轨道，则先将滑块（第二个）移动过去，再记录移动初始信息
+        // 点击轨道，则先将滑块移动过去，再记录移动初始信息
         if (e.target === this.$track) {
-          $button = this.$layout.querySelectorAll('.button')[1]
+          $lastActiveButton = $button = $lastActiveButton ?? this.$point2 ?? this.$point
           $button.classList.add('active')
 
           const rect = this.$track.getBoundingClientRect()
@@ -325,8 +373,8 @@ class BlocksSlider extends HTMLElement {
         }
 
         // 点击的是滑块，记录移动初始信息
-        else if (e.target.classList.contains('button')) {
-          $button = e.target
+        else if (e.target === this.$point || e.target === this.$point2) {
+          $lastActiveButton = $button = e.target
           $button.classList.add('active')
           pointStart = this.vertical ? e.pageY : e.pageX
           positionStart = parseFloat($button.style[this.vertical ? 'bottom' : 'left']) || 0
@@ -347,9 +395,7 @@ class BlocksSlider extends HTMLElement {
       this._updateTabindex()
     }
 
-    if (name === 'range') {
-      this._updateButton()
-    }
+    this.render()
   }
 }
 
