@@ -15,6 +15,7 @@ export default [
   { title: 'popup', url: 'popup.html' },
   { title: 'progress', url: 'progress.html' },
   { title: 'radio', url: 'radio.html' },
+  { title: 'rating', url: 'rating.html' },
   { title: 'select', url: 'select.html' },
   { title: 'select-result', url: 'select-result.html' },  
   { title: 'slider', url: 'slider.html' },
