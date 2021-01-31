@@ -179,10 +179,16 @@ class BlocksSlider extends HTMLElement {
   }
 
   set value(value) {
-    if (!this.range) {
-      if (!this._isValidNumber(value)) return
+    if (this.range) {
+      if (!Array.isArray(value)) return
+      if (value.some(n => !this._isValidNumber(n))) return
+      if (value.every((n, i) => n === this.value[i])) return
+      value = value.slice()
+      value.sort()
     }
-    else if (!Array.isArray(value) || value.length !== 2 || value.some(n => !this._isValidNumber(n))) return
+    else {
+      if (!this._isValidNumber(value) || this.value === value) return
+    }
     this.setAttribute('value', value)
   }
 
@@ -260,13 +266,75 @@ class BlocksSlider extends HTMLElement {
     }
   }
 
+  _positionRange() {
+    return [0, this._getTrackSize() - 14]
+  }
+
+  _normalizePosition(position) {
+    const positionRange = this._positionRange()
+    if (position < positionRange[0]) {
+      position = positionRange[0]
+    }
+    else if (position > positionRange[1]) {
+      position = positionRange[1]
+    }
+    return position
+  }
+
+  _getPointPosition($point) {
+    return parseFloat($point.style[this.vertical ? 'bottom' : 'left']) || 0
+  }
+
+  _setPointPosition($point, value) {
+    const axis = this.vertical ? 'bottom' : 'left'
+    $point.style[axis] = `${value}px`
+  }
+
   _getPointValue($point) {
     const total = this._getTrackSize() - 14
-    const pos = parseInt($point.style[this.vertical ? 'bottom' : 'left']) || 0
-    const ratio = pos / total
-    const value = this.min + (this.max - this.min) * ratio
-    
+    const pos = parseFloat($point.style[this.vertical ? 'bottom' : 'left']) || 0
+    const value = this.min + (this.max - this.min) * (pos / total)
     return round(value, this.round)
+  }
+
+  _setPointValue($point, value) {
+    if (this._isValidNumber(value)) {
+      value = round(value, this.round)
+      if (this.range) {
+        const values = this.value.slice()
+        if ($point === this.$point) {
+          values[0] = value
+        }
+        else {
+          values[1] = value
+        }
+        this.value = values
+      }
+      else {
+        this.value = value
+      }
+    }
+  }
+
+  _setPointPositionByValue($point, value) {
+    if (this._isValidNumber(value)) {
+      value = round(value, this.round)
+      const total = this._getTrackSize() - 14
+      const pos = total * ((value - this.min) / (this.max - this.min))
+      $point.style[this.vertical ? 'bottom' : 'left'] = pos + 'px'
+    }
+  }
+
+  _updatePositionByValue() {
+    if (this.value) {
+      if (this.range) {
+        this._setPointPositionByValue(this.$point, this.value[0])
+        this._setPointPositionByValue(this.$point2, this.value[1])
+      }
+      else {
+        this._setPointPositionByValue(this.$point, this.value)
+      }
+    }
   }
 
   _updateValue() {
@@ -280,7 +348,6 @@ class BlocksSlider extends HTMLElement {
     else {
       this.value = this._getPointValue(this.$point)
     }
-    dispatchEvent(this, 'change', { detail: { value: this.value } })
   }
 
   render() {
@@ -306,67 +373,91 @@ class BlocksSlider extends HTMLElement {
     })
 
     this.render()
-    if (this.value) {
-      this._updateValue()
-    }
+    this._updatePositionByValue()
 
     {
-      let pointStart = null
+      this._dragging = false
+      let moveStart = null
       let positionStart = null
-      let $lastActiveButton = null
-      let $button = null
+      let $active = null
 
-      const setPosition = (value) => {
-        const trackSize = this._getTrackSize()
-        if (value < 0) {
-          value = 0
-        }
-        else if (value > (trackSize - 14)) {
-          value = trackSize - 14
-        }
-        const axis = this.vertical ? 'bottom' : 'left'
-        $button.style[axis] = `${value}px`
-
+      const swap = ($point) => {
+        const $p2 = $point === this.$point ? this.$point2 : this.$point
+        this._setPointPosition($point, this._getPointPosition($p2))
+        $point.classList.remove('active')
+        $point.blur()
+        $p2.classList.add('active')
+        $p2.focus()
+        $active = $p2
         this._updateValue()
       }
-
+      
       const move = (e) => {
-        const offset = this.vertical ? pointStart - e.pageY : e.pageX - pointStart
-        let position = positionStart + offset
-        setPosition(position)
+        const moveOffset = this.vertical ? moveStart - e.pageY : e.pageX - moveStart
+        let position = this._normalizePosition(positionStart + moveOffset)
+        if (this.range) {
+          if ($active === this.$point && position > this._getPointPosition(this.$point2)) {
+            swap($active)
+          }
+          else if ($active === this.$point2 && position < this._getPointPosition(this.$point)) {
+            swap($active)
+          }
+        }
+        this._setPointPosition($active, position)
+        this._updateValue()
       }
 
       const up = () => {
         window.removeEventListener('mousemove', move)
         window.removeEventListener('mouseup', up)
-        $button.classList.remove('active')
+        $active.classList.remove('active')
         positionStart = null
-        pointStart = null
-        $button = null
+        moveStart = null
+        $active = null
+        this._updateValue()
+        this._dragging = false
       }
 
-      this.$layout.onmousedown = (e) => {
+      this.$track.onmousedown = (e) => {
         if (this.disabled) {
           e.preventDefault()
           e.stopPropagation()
           return
         }
+        this._dragging = true
 
         // 点击轨道，则先将滑块移动过去，再记录移动初始信息
         if (e.target === this.$track) {
-          $lastActiveButton = $button = $lastActiveButton ?? this.$point2 ?? this.$point
-          $button.classList.add('active')
-
+          moveStart = this.vertical ? e.pageY : e.pageX
           const rect = this.$track.getBoundingClientRect()
-          pointStart = this.vertical ? e.pageY : e.pageX
-
           if (this.vertical) {
             positionStart = this._getTrackSize() - (this.vertical ? e.clientY - rect.y : e.clientX - rect.x) - 7
           }
           else {
             positionStart = (this.vertical ? e.clientY - rect.y : e.clientX - rect.x) - 7
           }
-          setPosition(positionStart)
+          positionStart = this._normalizePosition(positionStart)
+
+          // 如果是区间，则需要确定移动哪个控制点
+          // 1. 点击的是 min 点的左侧，则移动 min 点
+          // 2. 点击的是 max 点的右侧，则移动 max 点
+          // 3. 点击的是两点之间，则移动接近点击位置的那个点
+          if (this.range) {
+            const pos1 = this._getPointPosition(this.$point)
+            const pos2 = this._getPointPosition(this.$point2)
+            $active = positionStart < pos1 ? this.$point
+              : positionStart > pos2 ? this.$point2
+              : pos2 - positionStart > positionStart - pos1 ? this.$point
+              : this.$point2
+          }
+          else {
+            $active = this.$point
+          }
+
+          $active.classList.add('active')
+
+          this._setPointPosition($active, positionStart)
+          this._updateValue()
 
           window.addEventListener('mousemove', move)
           window.addEventListener('mouseup', up)
@@ -374,10 +465,10 @@ class BlocksSlider extends HTMLElement {
 
         // 点击的是滑块，记录移动初始信息
         else if (e.target === this.$point || e.target === this.$point2) {
-          $lastActiveButton = $button = e.target
-          $button.classList.add('active')
-          pointStart = this.vertical ? e.pageY : e.pageX
-          positionStart = parseFloat($button.style[this.vertical ? 'bottom' : 'left']) || 0
+          $active = e.target
+          $active.classList.add('active')
+          moveStart = this.vertical ? e.pageY : e.pageX
+          positionStart = parseFloat($active.style[this.vertical ? 'bottom' : 'left']) || 0
           window.addEventListener('mousemove', move)
           window.addEventListener('mouseup', up)
         }
@@ -393,6 +484,13 @@ class BlocksSlider extends HTMLElement {
     if (name === 'disabled') {
       setDisabled(this, this.disabled)
       this._updateTabindex()
+    }
+
+    if (name === 'value') {
+      if (!this._dragging) {
+        this._updatePositionByValue()
+      }
+      dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
 
     this.render()
