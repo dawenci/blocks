@@ -148,6 +148,27 @@
         <blocks-button onclick="document.getElementById('dialog5').open = true">打开5</blocks-button>
       </template>
     </section>
+
+    <section class="section">
+      <h2>dark mode</h2>
+
+      <template data-codesource="html">
+        <blocks-dialog
+          id="dark"
+          mask
+          dark
+          closeable
+          title="Title attr">
+          <div style="width:400px;height:100px;overflow:auto;">
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+          </div>
+        </blocks-dialog>
+
+        <blocks-button onclick="document.getElementById('dark').open = true">打开1</blocks-button>
+      </template>
+    </section>
   </article>
 </body>
 </html>

@@ -1,4 +1,5 @@
 import {
+  $colorFontBase,
   $radiusBase,
   $transitionDuration,
 } from '../theme/var.js'
@@ -116,7 +117,7 @@ const TEMPLATE_CSS = `<style>
   /*border-top: 1px solid rgba(0,0,0,.08);
   border-right: 1px solid rgba(0,0,0,.08);*/
   transform: rotate(-45deg);
-  background: #fff;
+  background-color: #fff;
 }
 #arrow::after {
   box-shadow: 0 0 5px rgb(0,0,0,0.06);
@@ -272,6 +273,15 @@ const TEMPLATE_CSS = `<style>
   border: 0;
   outline: 0 none;
 }
+
+:host-context([dark]),
+:host([dark]) { color: #fff; }
+:host-context([dark]) #layout,
+:host-context([dark]) #arrow:after,
+:host([dark]) #arrow:after,
+:host([dark]) #arrow:after {
+  background-color: ${$colorFontBase};
+}
 </style>`
 
 const TEMPLATE_HTML = `
@@ -317,6 +327,8 @@ class BlocksPopup extends HTMLElement {
       'restorefocus',
       // 捕获焦点，tab 键不会将焦点移出 Popup
       'capturefocus',
+      // 暗色主题
+      'dark',
     ]
   }
 

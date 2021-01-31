@@ -1,5 +1,6 @@
 import '../button/index.js'
 import {
+  $colorFontBase,
   $fontFamily,
   $radiusBase,
   $transitionDuration,
@@ -7,6 +8,7 @@ import {
 import { boolGetter, boolSetter } from '../core/property.js'
 import { setRole } from '../core/accessibility.js'
 import { dispatchEvent } from '../core/event.js'
+import { getRegisteredSvgIcon } from '../../icon/store.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -106,7 +108,7 @@ header {
   min-height: 78px;
 }
 
-h1 {
+header h1 {
   margin: 0;
   font-weight: 700;
   font-size: 14px;
@@ -158,52 +160,22 @@ footer {
   z-index: 1;
   right:10px;
   top:10px;
-  border:0;
-  width: 19px;
-  height: 19px;
-  transform: rotate(45deg);
-  border-radius: 50%;
-}
-#close::before,
-#close::after {
   display: block;
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  margin: auto;
-  background-color: rgba(0,0,0,.2);
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0 none;
+  background: transparent;
+  fill: #aaa;
 }
-#close::before {
-  width: 13px;
-  height: 1px;
-}
-#close::after {
-  width: 1px;
-  height: 13px;
-}
-
 #close:hover,
-#close:focus {
-  background-color: rgba(0,0,0,.3);
-  outline: 0 none;
-}
+#close:focus,
 #close:active {
-  background-color: rgba(0,0,0,.5);
+  background-color: transparent;
+  fill: #888;
   outline: 0 none;
-}
-#close:hover::before,
-#close:hover::after,
-#close:active::before,
-#close:active::after {
-  background-color: rgba(255,255,255,.8);
 }
 
-:host(:not([closeable])) #close {
-  display:none;
-}
 .no-header #close {
   top: 15px;
 }
@@ -219,6 +191,16 @@ footer {
   padding: 0;
   border: 0;
   outline: 0 none;
+}
+
+:host-context([dark]) #layout,
+:host([dark]) #layout {
+  background-color: ${$colorFontBase};
+  color: #fff;
+}
+:host-context([dark]) header h1,
+:host([dark]) header h1 {
+  color: #fff;
 }
 </style>
 `
@@ -304,14 +286,6 @@ class BlocksDialog extends HTMLElement {
     `
 
     this.remove = false
-
-    this.$layout.onclick = e => {
-      const target = e.target
-      if (target.id === 'close') {
-        this.open = false
-        return
-      }
-    }
 
     // 避免点击 mask 的时候，dialog blur
     // 注：mousedown 到 mouseup 之间，dialog 会发生 blur
@@ -423,6 +397,7 @@ class BlocksDialog extends HTMLElement {
   render() {
     this._renderHeader()
     this._renderFooter()
+    this._renderClose()
   }
 
   // 执行过渡前的准备工作，确保动画正常
@@ -445,29 +420,29 @@ class BlocksDialog extends HTMLElement {
 
   // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
   _captureFocus() {
-    this._firstFocusable = this.$layout.querySelector('#first') || this.$layout.insertBefore(document.createElement('button'), this.$layout.firstChild)
-    this._lastFocusable = this.$layout.querySelector('#last') || this.$layout.appendChild(document.createElement('button'))
-    this._firstFocusable.id = 'first'
-    this._lastFocusable.id = 'last'
-    this._firstFocusable.onkeydown = e => {
+    this.$firstFocusable = this.$layout.querySelector('#first') || this.$layout.insertBefore(document.createElement('button'), this.$layout.firstChild)
+    this.$lastFocusable = this.$layout.querySelector('#last') || this.$layout.appendChild(document.createElement('button'))
+    this.$firstFocusable.id = 'first'
+    this.$lastFocusable.id = 'last'
+    this.$firstFocusable.onkeydown = e => {
       if (e.key === 'Tab' && e.shiftKey) {
-        this._lastFocusable.focus()
+        this.$lastFocusable.focus()
       }
     }
-    this._lastFocusable.onkeydown = e => {
+    this.$lastFocusable.onkeydown = e => {
       if (e.key === 'Tab' && !e.shiftKey) {
-        this._firstFocusable.focus()
+        this.$firstFocusable.focus()
       }
     }
   }
 
   // 停止强制捕获焦点
   _stopCaptureFocus() {
-    if (this._firstFocusable && this._firstFocusable.parentElement) {
-      this.$layout.removeChild(this._firstFocusable)
+    if (this.$firstFocusable && this.$firstFocusable.parentElement) {
+      this.$layout.removeChild(this.$firstFocusable)
     }
-    if (this._firstFocusable && this._lastFocusable.parentElement) {
-      this.$layout.removeChild(this._lastFocusable)
+    if (this.$firstFocusable && this.$lastFocusable.parentElement) {
+      this.$layout.removeChild(this.$lastFocusable)
     }
   }
 
@@ -542,6 +517,31 @@ class BlocksDialog extends HTMLElement {
 
   _shadowChild(selector) {
     return this.shadowRoot.querySelector(selector)
+  }
+
+  _renderClose() {
+    if (this.closeable) {
+      if (!this.$close) {
+        this.$close = document.createElement('button')
+        this.$close.id = 'close'
+        this.$close.appendChild(getRegisteredSvgIcon('cross'))
+        this.$close.onclick = () => {
+          this.open = false
+        }
+        if (this.lastFocusable) {
+          this.$layout.insertBefore(this.$close, this.$lastFocusable)
+        }
+        else {
+          this.$layout.appendChild(this.$close)
+        }
+      }
+    }
+    else {
+      if (this.$close) {
+        this.$close.parentElement.removeChild(this.$close)
+        this.$close = null
+      }
+    }
   }
 
   _renderHeader() {

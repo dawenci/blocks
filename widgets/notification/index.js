@@ -2,7 +2,7 @@ import { dispatchEvent } from '../core/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../core/property.js'
-import { $colorPrimary, $colorDanger, $colorSuccess, $colorWarning, $transitionDuration } from '../theme/var.js'
+import { $colorPrimary, $colorDanger, $colorSuccess, $colorWarning, $transitionDuration, $colorFontBase, $bgBaseDark, $colorFontBaseDark, $bgBase } from '../theme/var.js'
 
 const closeableGetter = boolGetter('closeable')
 const closeableSetter = boolSetter('closeable')
@@ -17,7 +17,6 @@ const TEMPLATE_CSS = `<style>
   box-sizing: border-box;
   width: 350px;
   margin: 8px 28px;
-  background: #fff;
   box-shadow: 0 0 5px -2px rgb(0,0,0,0.16),
     0 0 16px 0 rgb(0,0,0,0.08),
     0 0 28px 8px rgb(0,0,0,0.05);
@@ -31,6 +30,8 @@ const TEMPLATE_CSS = `<style>
   width: 100%;
   padding: 15px;
   position: relative;
+  background-color: ${$bgBase};
+  color: ${$colorFontBase};
 }
 #icon {
   flex: 0 0 auto;
@@ -67,7 +68,7 @@ const TEMPLATE_CSS = `<style>
   margin: 0 0 0 12px;
   padding: 0;
   border: 0 none;
-  background: #fff;
+  background: transparent;
   fill: #aaa;
 }
 #close:hover {
@@ -79,6 +80,11 @@ const TEMPLATE_CSS = `<style>
 #close svg {
   width: 100%;
   height: 100%;
+}
+
+:host-context([dark]) #layout {
+  background-color: ${$bgBaseDark};
+  color: ${$colorFontBaseDark};
 }
 </style>`
 
@@ -173,19 +179,19 @@ class BlocksNotification extends HTMLElement {
     }
 
     if (this.closeable) {
-      if (!this._close) {
-        this._close = this.$layout.appendChild(document.createElement('button'))
-        this._close.id = 'close'
-        this._close.appendChild(getRegisteredSvgIcon('cross'))
-        this._close.onclick = () => {
+      if (!this.$close) {
+        this.$close = this.$layout.appendChild(document.createElement('button'))
+        this.$close.id = 'close'
+        this.$close.appendChild(getRegisteredSvgIcon('cross'))
+        this.$close.onclick = () => {
           this.close()
         }
       }
     }
     else {
-      if (this._close) {
-        this._close.parentElement.removeChild(this._close)
-        this._close = null
+      if (this.$close) {
+        this.$close.parentElement.removeChild(this.$close)
+        this.$close = null
       }
     }
 
