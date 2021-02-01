@@ -8,8 +8,9 @@ let idSeed = Date.now()
 
 const TEMPLATE_CSS = `<style>
 :host {
-  box-sizing: border-box;
   display: inline-block;
+  box-sizing: border-box;
+  width: 220px;
   height: 32px;
   user-select: none;
   cursor: default;
@@ -17,10 +18,14 @@ const TEMPLATE_CSS = `<style>
 :host(:focus) {
   outline: 0 none;
 }
+
+#result {
+  width: 100%;
+}
 </style>`
 
 const TEMPLATE_HTML = `
-<blocks-input suffix-icon="date" class="date-picker-input" readonly />
+<blocks-input suffix-icon="date" id="result" readonly />
 <blocks-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
   <blocks-date-panel class="date-picker-panel" />
 </blocks-popup>
@@ -47,15 +52,16 @@ class BlocksDatePicker extends HTMLElement {
 
   constructor() {
     super()
+    this.id = `date-picker-${idSeed++}`
 
     this.attachShadow({ mode: 'open' })
 
     const fragment = template.content.cloneNode(true)
-    this.$input = fragment.querySelector('blocks-input')
+    this.$input = fragment.querySelector('#result')
     this.$popup = fragment.querySelector('blocks-popup')
     this.$panel = fragment.querySelector('blocks-date-panel')
     this.shadowRoot.appendChild(fragment)
-    this.id = `date-picker-${idSeed++}`
+    
     this.$popup.setAttribute('anchor', `#${this.id}`)
 
     this.$input.onfocus = this.$input.onclick = (e) => {
