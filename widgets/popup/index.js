@@ -9,7 +9,7 @@ import { setRole } from '../core/accessibility.js'
 import { dispatchEvent } from '../core/event.js'
 
 // 箭头尺寸
-const ARROW_SIZE = 6
+const ARROW_SIZE = 10
 
 // Popup 的原点，13 种取值的原点以及箭头（如果启用箭头）朝向情况如下：
 const PopupOrigin = {
@@ -99,8 +99,8 @@ const TEMPLATE_CSS = `<style>
   display: block;
   position: absolute;
   /* width, height 留出 5px 投影 */
-  width: 22px;
-  height: 9px;
+  width: 24px;
+  height: 10px;
   margin: auto;
 }
 #arrow::after {
@@ -112,8 +112,8 @@ const TEMPLATE_CSS = `<style>
   left: 0;
   margin: auto;
   content: '';
-  width: ${getArrowRectSize(ARROW_SIZE)}px;
-  height: ${getArrowRectSize(ARROW_SIZE)}px;
+  width: 10px;
+  height: 10px;
   /*border-top: 1px solid rgba(0,0,0,.08);
   border-right: 1px solid rgba(0,0,0,.08);*/
   transform: rotate(-45deg);
@@ -218,18 +218,18 @@ const TEMPLATE_CSS = `<style>
 .origin-top-left.horizontal #arrow {
   transform: rotate(-90deg);
   top: 10px;
-  left: -15px;
+  left: -17px;
 }
 .origin-center-left #arrow {
   transform: rotate(-90deg);
   top: 0;
   bottom: 0;
-  left: -15px;
+  left: -17px;
 }
 .origin-bottom-left.horizontal #arrow {
   transform: rotate(-90deg);
   bottom: 10px;
-  left: -15px;
+  left: -17px;
 }
 /* 箭头指向右方，阴影向左 */
 #layout.origin-center-right,
@@ -249,18 +249,18 @@ const TEMPLATE_CSS = `<style>
 .origin-top-right.horizontal #arrow {
   transform: rotate(90deg);
   top: 10px;
-  right: -15px;
+  right: -17px;
 }
 .origin-center-right #arrow {
   transform: rotate(90deg);
-  right: -15px;
+  right: -17px;
   top: 0;
   bottom: 0;
 }
 .origin-bottom-right.horizontal #arrow {
   transform: rotate(90deg);
   bottom: 10px;
-  right: -15px;
+  right: -17px;
 }
 
 #first, #last, #first:focus, #last:focus {
