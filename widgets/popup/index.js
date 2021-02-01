@@ -9,7 +9,7 @@ import { setRole } from '../core/accessibility.js'
 import { dispatchEvent } from '../core/event.js'
 
 // 箭头尺寸
-const ARROW_SIZE = 10
+const ARROW_SIZE = 8
 
 // Popup 的原点，13 种取值的原点以及箭头（如果启用箭头）朝向情况如下：
 const PopupOrigin = {
@@ -155,16 +155,16 @@ const TEMPLATE_CSS = `<style>
     0 9px 28px 8px rgb(0,0,0,0.05);
 }
 .origin-top-left.vertical #arrow {
-  top: -9px;
+  top: -10px;
   left: 10px;
 }
 .origin-top-center #arrow {
-  top: -9px;
+  top: -10px;
   left: 0;
   right: 0;
 }
 .origin-top-right.vertical #arrow {
-  top: -9px;
+  top: -10px;
   right: 10px;
 }
 /* 箭头指向下方，阴影向上 */
@@ -186,18 +186,18 @@ const TEMPLATE_CSS = `<style>
 /* 未知原因 BUG, 上方多写一行才会生效 */
 .origin-bottom-left.vertical #arrow {
   transform: rotate(180deg);
-  bottom: -9px;
+  bottom: -10px;
   left: 10px;
 }
 .origin-bottom-center #arrow {
   transform: rotate(180deg);
-  bottom: -9px;
+  bottom: -10px;
   left: 0;
   right: 0;
 }
 .origin-bottom-right.vertical #arrow {
   transform: rotate(180deg);
-  bottom: -9px;
+  bottom: -10px;
   right: 10px;
 }
 /* 箭头指向左方，阴影向右 */
