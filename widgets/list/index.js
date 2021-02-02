@@ -1,7 +1,7 @@
 import { setDisabled, setRole, setTabindex } from '../core/accessibility.js'
 import { boolGetter, boolSetter } from '../core/property.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
-import { forEach } from '../core/utils.js'
+import { forEach, makeRgbaColor } from '../core/utils.js'
 import {
   $fontFamily,
   $colorPrimary,
@@ -22,7 +22,6 @@ const TEMPLATE_CSS = `
   font-family: ${$fontFamily};
   text-align: center;
   transition: color ${$transitionDuration}, border-color ${$transitionDuration};
-  all: initial;
   contain: content;
   font-size: 14px;
 }
@@ -43,10 +42,10 @@ const TEMPLATE_CSS = `
 }
 
 .item {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 4px 8px;
   cursor: default;
 }
 .item:nth-child(odd) {
@@ -54,23 +53,32 @@ const TEMPLATE_CSS = `
 }
 .label {
   flex: 1 1 auto;
+  padding: 4px;
 }
 .prefix {
   flex: 0 0 auto;
 }
 .suffix {
-  flex: 0 0 20px;
+  flex: 0 0 24px;
 }
-.selected .suffix:after {
+.item.selected .suffix:after {
   position: relative;
   display: block;
   content: '';
   width: 8px;
   height: 5px;
-  border-left: 1px solid ${$colorPrimary};
-  border-bottom: 1px solid ${$colorPrimary};
+  margin: auto;
+  border-width: 0;
+  border-style: solid;
+  border-color: ${$colorPrimary};
+  border-left-width: 1px;
+  border-bottom-width: 1px;
   transform: rotate(-45deg);
 }
+.item:hover {
+  background-color: ${makeRgbaColor($colorPrimary, .1)};
+}
+
 </style>
 `
 const TMEPLATE_HTML = `

@@ -94,27 +94,36 @@ window.onload = () => {
   // 从页面中提取 html，作为 demo code 打印在页面中
   forEach(document.querySelectorAll('[data-codesource]'), template => {
     const role = template.dataset.codesource
-    const rawCode = template.innerHTML
-    const title = template.dataset.title
+    let rawCode = template.innerHTML
 
-    // 真实内容插入到 source 前面
+    // template 里面的东西不会真正渲染，因此将内容插入到 source 前面
     if (template.tagName === 'TEMPLATE') {
-      const caseBlock = document.createElement(role === 'script' ? 'script' : 'div')
-      caseBlock.className = 'case'
-      caseBlock.innerHTML = rawCode
-
-      // 如果代码块是脚本，则在 dom 准备完毕后，再插入执行
+      let caseBlock
       if (role === 'script') {
+        // js 代码写在 template 里面的 script 标签里面的情况
+        if (template.content.querySelector('script')) {
+          caseBlock = template.content.querySelector('script').cloneNode(true)
+        }
+        // template 里面没有 script 标签，直接就是 js 代码的情况
+        else {
+          caseBlock = document.createElement('script')
+          caseBlock.appendChild(template.content.cloneNode(true))
+        }
+        rawCode = caseBlock.innerHTML
+        // 如果代码块是脚本，则在 dom 准备完毕后，再插入执行
         setTimeout(() => {
           template.parentElement.insertBefore(caseBlock, template)
         })
       }
       else {
+        caseBlock =document.createElement('div')
+        caseBlock.appendChild(template.content.cloneNode(true))
         template.parentElement.insertBefore(caseBlock, template)
       }
     }
 
     // 读取代码内容，插入到 source 后面
+    const title = template.dataset.title
     const printPart = insertAfter(document.createElement('div'), template)
     printPart.className = 'print-area'
     if (role === 'html') {

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>list</title>
+  <title>dropdown-list</title>
   <link rel="stylesheet" href="./doc.css">
   <link rel="stylesheet" href="./highlight/styles/default.css">
   <link rel="stylesheet" href="./highlight/styles/vs2015.css">
@@ -14,27 +14,32 @@
 <body>
   <article>
     <header>
-      <h1>list</h1>
+      <h1>dropdown-list</h1>
     </header>
 
     <section class="section">
       <div data-codesource="html" data-title="依赖引入">
-        <script type="module" src="/widgets/list/index.js"></script>
+        <script type="module" src="/widgets/dropdown-list/index.js"></script>
       </div>
     </section>
 
     <section class="section">
       <div data-codesource="html">
-        <blocks-list style="width:200px;height:400px;" multiple id="default"></blocks-list>
-        <script>
+        <blocks-dropdown-list multiple id="default"></blocks-dropdown-list>
+      </div>
+
+      <template data-codesource="script">
+        
           (() => {
+            const widget = document.getElementById('default')
             const data = []
             let i = -1
             while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
-            document.getElementById('default').data = data
+            widget.data = data
+            widget.open = true
           })()
-        </script>
-      </div>
+        
+      </template>
     </section>
     
   </article>

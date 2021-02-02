@@ -7,6 +7,7 @@ export default [
   { title: 'date-panel', url: 'date-panel.html' },
   { title: 'date-picker', url: 'date-picker.html' },
   { title: 'dialog', url: 'dialog.html' },
+  { title: 'dropdown-list', url: 'dropdown-list.html' },
   { title: 'icon', url: 'icon.html' },
   { title: 'input', url: 'input.html' },
   { title: 'list', url: 'list.html' },
