@@ -302,11 +302,13 @@ function deepActiveElement() {
   return el
 }
 
-class BlocksPopup extends HTMLElement {
+export default class BlocksPopup extends HTMLElement {
   static get observedAttributes() {
     return [
       // Popup 是否展示
       'open',
+      // 原点
+      'origin',
       // Popup 锚定的布局框，是一个矩形区域
       // Popup 吸附在该矩形的四条边中的某一条的外侧（设置 inset 后在内测）
       // 支持传入一个 `[x, y]` 形式的坐标像素值，这是长宽为 0 的矩形的特例，
@@ -338,11 +340,10 @@ class BlocksPopup extends HTMLElement {
     this.attachShadow({ mode: 'open' })
 
     const fragment = template.content.cloneNode(true)
+    this.$layout = fragment.querySelector('#layout')
+    this.$arrow = fragment.querySelector('#arrow')
     this.shadowRoot.appendChild(fragment)
-
-    this.$layout = this.shadowRoot.getElementById('layout')
-    this.$arrow = this.shadowRoot.getElementById('arrow')
-
+   
     // 过渡开始时
     this.$layout.ontransitionstart = (ev) => {
       if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
@@ -421,7 +422,7 @@ class BlocksPopup extends HTMLElement {
   }
 
   set appendToBody(value) {
-    appendToBodySetter(value)
+    appendToBodySetter(this, value)
   }
 
   get arrow() {
@@ -506,7 +507,11 @@ class BlocksPopup extends HTMLElement {
     }
 
     return { x1, y1, x2, y2 }
-  }  
+  }
+
+  render() {
+    this.updatePosition()
+  }
 
   updatePosition() {
     if (!this.open) return
@@ -730,7 +735,7 @@ class BlocksPopup extends HTMLElement {
       this.$layout.style.transform = 'scale(0)'
     }
     else {
-      this.updatePosition()
+      this._updateVisible()
     }
 
     this.initAnchorEvent()
@@ -752,11 +757,12 @@ class BlocksPopup extends HTMLElement {
 
       case 'arrow': {
         this._updateArrow()
+        this.updatePosition()
         break
       }
  
       case 'append-to-body': {
-        if (this.appendToBody && this.parentElement !== document.body) {
+        if (this.appendToBody && this.parentElement !== document.body && document.documentElement.contains(this)) {
           document.body.appendChild(this)
         }
         this.updatePosition()
@@ -770,6 +776,13 @@ class BlocksPopup extends HTMLElement {
         else {
           this._stopCaptureFocus()
         }
+        break
+      }
+
+      case 'origin': {
+        this._updateClass()
+        this._updateArrow()
+        this.updatePosition()
         break
       }
 
