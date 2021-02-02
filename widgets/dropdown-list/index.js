@@ -31,7 +31,7 @@ const TEMPLATE_CSS = `
 `
 
 const TMEPLATE_HTML = `
-<blocks-popup append-to-body>
+<blocks-popup append-to-body arrow>
   <blocks-list id="list" style="width:200px;height:400px;"></blocks-list>
 </blocks-popup>
 `
