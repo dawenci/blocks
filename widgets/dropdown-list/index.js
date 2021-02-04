@@ -1,4 +1,4 @@
-import '../popup/index.js';
+import BlocksPopup from '../popup/index.js';
 import '../list/index.js';
 import { setDisabled, setRole, setTabindex } from '../core/accessibility.js'
 import { boolGetter, boolSetter } from '../core/property.js'
@@ -16,49 +16,36 @@ import {
   $transitionDuration,
 } from '../theme/var.js'
 
-const TEMPLATE_CSS = `
+const cssTemplate = document.createElement('template')
+cssTemplate.innerHTML = `
 <style>
-:host {
-  display: block;
-  box-sizing: border-box;
-  font-family: ${$fontFamily};
-  text-align: center;
-  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
-  contain: content;
+::slotted(blocks-list) {
+  width: 200px;
+  height: 400px;
   font-size: 14px;
 }
 </style>
 `
 
-const TMEPLATE_HTML = `
-<blocks-popup append-to-body arrow>
-  <blocks-list id="list" style="width:200px;height:400px;"></blocks-list>
-</blocks-popup>
+const template = document.createElement('template')
+template.innerHTML = `
+<blocks-list></blocks-list>
 `
 
-const template = document.createElement('template')
-template.innerHTML = TEMPLATE_CSS + TMEPLATE_HTML
-
-class BlocksDropDownList extends HTMLElement {
+export default class BlocksDropDownList extends BlocksPopup {
   static get observedAttributes() {
-    return ['id-field', 'label-field', 'multiple', 'open']
+    return super.observedAttributes.concat(['id-field', 'label-field', 'multiple'])
   }
 
   constructor() {
     super()
+    this.shadowRoot.appendChild(cssTemplate.content.cloneNode(true))
     const fragment = template.content.cloneNode(true)
-    this.$popup = fragment.querySelector('blocks-popup')
-    this.$list = fragment.getElementById('list')   
-    const shadowRoot = this.attachShadow({mode: 'open'})
-    shadowRoot.appendChild(fragment)
-  }
-
-  get open() {
-    return this.$popup.open
-  }
-
-  set open(value) {
-    this.$popup.open = value
+    this.$list = fragment.querySelector('blocks-list')
+    this.origin = 'top-start'
+    this.arrow = true
+    this.appendToBody = true
+    this.appendChild(this.$list)
   }
 
   get data() {
@@ -102,9 +89,11 @@ class BlocksDropDownList extends HTMLElement {
   }
 
   render() {
+    super.render()
   }
 
   connectedCallback() {
+    super.connectedCallback()
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
@@ -112,9 +101,11 @@ class BlocksDropDownList extends HTMLElement {
   }
 
   disconnectedCallback() {
+    super.disconnectedCallback()
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    super.attributeChangedCallback(name, oldValue, newValue)
   }
 }
 

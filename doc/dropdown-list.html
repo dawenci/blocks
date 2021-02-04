@@ -16,6 +16,7 @@
     <header>
       <h1>dropdown-list</h1>
     </header>
+    <script type="module" src="/widgets/button/index.js"></script>
 
     <section class="section">
       <div data-codesource="html" data-title="依赖引入">
@@ -25,23 +26,28 @@
 
     <section class="section">
       <div data-codesource="html">
-        <blocks-dropdown-list multiple id="default"></blocks-dropdown-list>
+        <blocks-button id="button-default">下拉菜单</blocks-button>
+        <blocks-dropdown-list
+          anchor="#button-default"
+          multiple
+          id="default"></blocks-dropdown-list>
       </div>
 
       <template data-codesource="script">
-        
+        <script>
           (() => {
             const widget = document.getElementById('default')
+            const button = document.getElementById('button-default')
             const data = []
             let i = -1
             while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
             widget.data = data
-            widget.open = true
+            button.onclick = () => widget.open = !widget.open
           })()
-        
+        </script>
       </template>
     </section>
-    
+
   </article>
 </body>
 </html>
