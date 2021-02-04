@@ -465,8 +465,8 @@ class BlocksPopup extends HTMLElement {
   }
 
   // Popup 相对一个矩形框进行布局，可以吸附在框的四条边，也可以吸附在框的中心点
-  // layoutFrame 返回这个矩形框的四条边的相对于 viewport 的定位数值
-  get layoutFrame() {
+  // anchorFrame 返回这个矩形框的四条边的相对于 viewport 的定位数值
+  get anchorFrame() {
     let x1
     let x2
     let y1
@@ -526,7 +526,7 @@ class BlocksPopup extends HTMLElement {
     // 锚定位置点
     // x1 最左取值，x2 最右取值
     // y1 最上取值，y2 最下取值
-    const { x1, y1, x2, y2 } = this.layoutFrame
+    const { x1, y1, x2, y2 } = this.anchorFrame
 
     let top
     let left
@@ -549,7 +549,7 @@ class BlocksPopup extends HTMLElement {
 
     // 配置 Popup 定位起始边（如果启用了箭头，也是箭头所在边）
     // 1. 起始边为上边，往下方展开 Popup
-    // 吸附在 layoutFrame 的下边，如果启用 inset，则吸附在 layoutFrame 的上边
+    // 吸附在 anchorFrame 的下边，如果启用 inset，则吸附在 anchorFrame 的上边
     if (this.origin.startsWith('top')) {      
       top = (this.inset ? y1 : y2) + arrowSize
       originY = 'top'
@@ -565,7 +565,7 @@ class BlocksPopup extends HTMLElement {
     }
 
     // 2. 起始边为右边，往左方展开 Popup
-    // 吸附在 layoutFrame 的左边，如果启用 inset 则吸附在 layoutFrame 的右边
+    // 吸附在 anchorFrame 的左边，如果启用 inset 则吸附在 anchorFrame 的右边
     else if (this.origin.startsWith('right')) {
       left = (this.inset ? x1 : x2) - arrowSize - popupWidth
       originX = 'right'
@@ -580,7 +580,7 @@ class BlocksPopup extends HTMLElement {
     }
 
     // 3. 起始边为下边，往上方展开
-    // 吸附在 layoutFrame 的上边，如果启用 inset 则吸附在 layoutFrame 的下边
+    // 吸附在 anchorFrame 的上边，如果启用 inset 则吸附在 anchorFrame 的下边
     else if (this.origin.startsWith('bottom')) {
       top = (this.inset ? y2 : y1) - arrowSize - popupHeight
       originY = 'bottom'
@@ -596,7 +596,7 @@ class BlocksPopup extends HTMLElement {
     }
 
     // 4. 起始边为左边，往右方展开 Popup
-    // 吸附在 layoutFrame 的右边，如果启用 inset 则吸附在 layoutFrame 的左边
+    // 吸附在 anchorFrame 的右边，如果启用 inset 则吸附在 anchorFrame 的左边
     else if (this.origin.startsWith('left')) {
       left = (this.inset ? x1 : x2) + arrowSize
       originX = 'left'
