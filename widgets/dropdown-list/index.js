@@ -21,7 +21,7 @@ cssTemplate.innerHTML = `
 <style>
 ::slotted(blocks-list) {
   width: 200px;
-  height: 400px;
+  height: 240px;
   font-size: 14px;
 }
 </style>
@@ -44,7 +44,7 @@ export default class BlocksDropDownList extends BlocksPopup {
     this.$list = fragment.querySelector('blocks-list')
     this.origin = 'top-start'
     this.arrow = true
-    this.appendToBody = true
+    this.appendToBody = false
     this.appendChild(this.$list)
   }
 

@@ -2,6 +2,7 @@ import { setDisabled, setRole, setTabindex } from '../core/accessibility.js'
 import { boolGetter, boolSetter } from '../core/property.js'
 import { upgradeProperty } from '../core/upgradeProperty.js'
 import { forEach, makeRgbaColor } from '../core/utils.js'
+import { definePrivate } from '../core/definePrivate.js'
 import {
   $fontFamily,
   $colorPrimary,
@@ -16,17 +17,39 @@ import {
 
 const TEMPLATE_CSS = `
 <style>
+::-webkit-scrollbar {
+  background: transparent;
+  background: rgba(0, 0, 0, .075);
+}
+::-webkit-scrollbar:vertical {
+  width: 6px;
+  height: 100%;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 1px solid rgba(255, 255, 255, .3);
+  background: rgba(0, 0, 0, .2);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+* {
+  scrollbar-width: thin;
+}
+
 :host {
   display: block;
   box-sizing: border-box;
   font-family: ${$fontFamily};
-  text-align: center;
   transition: color ${$transitionDuration}, border-color ${$transitionDuration};
   contain: content;
   font-size: 14px;
 }
 
 #layout {
+  box-sizing: border-box;
   display: block;
   position: relative;
   overflow: hidden;
@@ -48,12 +71,15 @@ const TEMPLATE_CSS = `
   align-items: center;
   cursor: default;
 }
-.item:nth-child(odd) {
-  background-color: rgba(0,0,0,.05);
+.item:nth-child(even) {
+  background-color: rgba(0,0,0,.04);
 }
 .label {
   flex: 1 1 auto;
   padding: 4px;
+}
+.prefix:empty+.label {
+  padding-left: 12px;
 }
 .prefix {
   flex: 0 0 auto;
@@ -110,6 +136,10 @@ class BlocksList extends HTMLElement {
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$layout = shadowRoot.getElementById('layout')
     this.$list = shadowRoot.getElementById('list')
+
+    definePrivate(this, '_data', [])
+    definePrivate(this, '_selected', [])
+
     this.$list.onclick = e => {
       let $item = e.target
       if ($item === this.$list) return
@@ -122,7 +152,7 @@ class BlocksList extends HTMLElement {
   }
 
   get data() {
-    return this._data ?? []
+    return this._data
   }
 
   set data(value) {
@@ -131,7 +161,7 @@ class BlocksList extends HTMLElement {
   }
 
   get selected() {
-    return this._selected ?? []
+    return this._selected
   }
 
   set selected(ids) {
