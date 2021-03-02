@@ -3,16 +3,16 @@ import { boolGetter, boolSetter, intGetter, intSetter, numGetter, numSetter } fr
 import { forEach, makeRgbaColor, round } from '../../common/utils.js';
 import { dispatchEvent } from '../../common/event.js'
 import {
-  $fontFamily,
-  $radiusSmall,
-  $colorPrimary,
-  $colorPrimaryLight,
-  $colorPrimaryDark,
-  $colorDisabled,
-  $borderColorBase,
-  $borderColorDisabled,
-  $backgroundColorDisabled,
-  $transitionDuration,
+  __font_family,
+  __radius_small,
+  __color_primary,
+  __color_primary_light,
+  __color_primary_dark,
+  __fg_disabled,
+  __border_color_base,
+  __border_color_disabled,
+  __bg_disabled,
+  __transition_duration,
 } from '../theme/var.js'
 import { setDisabled, setRole } from '../../common/accessibility.js';
 
@@ -35,7 +35,7 @@ const TEMPLATE_CSS = `
   display: inline-block;
   align-items: center;
   text-align: center;
-  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   font-size: 0;
   width: 118px;
   height: auto;
@@ -115,7 +115,7 @@ const TEMPLATE_CSS = `
   margin: auto;
   padding: 0;
   border-radius: 50%;
-  border: 2px solid ${$borderColorBase};
+  border: 2px solid var(--border-color-base, ${__border_color_base});
   background: #fff;
   transition: border-color .2s;
 }
@@ -128,16 +128,16 @@ const TEMPLATE_CSS = `
 #layout button:focus,
 #layout button.active {
   z-index: 2;
-  border-color: ${$colorPrimary};
+  border-color: var(--color-primary, ${__color_primary});
   outline: 0 none;
-  box-shadow: 0 0 2px 2px ${makeRgbaColor($colorPrimary, .5)};
+  box-shadow: 0 0 2px 2px ${makeRgbaColor(__color_primary, .5)};
 }
 
 :host([disabled]) #layout button,
 :host([disabled]) #layout button:hover,
 :host([disabled]) #layout button:focus,
 :host([disabled]) #layout button:active {
-  border: 2px solid ${$borderColorBase};
+  border: 2px solid var(--border-color-base, ${__border_color_base});
   box-shadow: none;
 }
 </style>

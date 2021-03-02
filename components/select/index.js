@@ -6,7 +6,7 @@ import '../select-result/index.js'
 
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import {
-  $radiusBase
+  __radius_base
 } from '../theme/var.js'
 import { every, find, forEach, findIndex } from '../../common/utils.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
@@ -38,7 +38,7 @@ const TEMPLATE_CSS = `<style>
 const TEMPLATE_HTML = `
 <blocks-select-result suffix-icon="down" id="result" readonly></blocks-select-result>
 <blocks-popup append-to-body id="date-picker-popup" origin="top-start" arrow>
-  <div class="option-list" style="overflow:hidden;min-height:20px;border-radius:${$radiusBase};"></div>
+  <div class="option-list" style="overflow:hidden;min-height:20px;border-radius:var(--radius-base, ${__radius_base});"></div>
 </blocks-popup>
 <slot style="display:none;"></slot>
 `

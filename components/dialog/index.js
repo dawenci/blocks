@@ -1,9 +1,9 @@
 import '../button/index.js'
 import {
-  $colorFontBase,
-  $fontFamily,
-  $radiusBase,
-  $transitionDuration,
+  __fg_base,
+  __font_family,
+  __radius_base,
+  __transition_duration,
 } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { setRole } from '../../common/accessibility.js'
@@ -13,7 +13,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js'
 const TEMPLATE_CSS = `
 <style>
 :host {
-  font-family: ${$fontFamily};
+  font-family: var(--font-family, ${__font_family});
   position:absolute;
   margin:auto;
   z-index:-1;
@@ -55,13 +55,13 @@ const TEMPLATE_CSS = `
   box-sizing: border-box;
   max-width: calc(100vw - 20px);
   max-height: calc(100vh - 20px);
-  border-radius: ${$radiusBase};
+  border-radius: var(--radius-base, ${__radius_base});
   background-color: #fff;
 
   opacity:0;
   transform: scale(0);
-  transition: transform ${$transitionDuration} cubic-bezier(.645, .045, .355, 1),
-    opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
+  transition: transform var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1),
+    opacity var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1);
 }
 
 :host([open]) #layout {
@@ -195,7 +195,7 @@ footer {
 
 :host-context([dark]) #layout,
 :host([dark]) #layout {
-  background-color: ${$colorFontBase};
+  background-color: var(--fg-base, ${__fg_base});
   color: #fff;
 }
 :host-context([dark]) header h1,
@@ -282,7 +282,7 @@ class BlocksDialog extends HTMLElement {
       z-index:10;
       background: rgba(0,0,0,.3);
       opacity:0;
-      transition: opacity ${$transitionDuration} cubic-bezier(.645, .045, .355, 1);
+      transition: opacity var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1);
     `
 
     this.remove = false

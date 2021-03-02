@@ -1,6 +1,6 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
-import { $colorPrimary } from '../theme/var.js'
+import { __color_primary } from '../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
 @keyframes rotate360 {
@@ -41,7 +41,7 @@ const TEMPLATE_CSS = `<style>
   height: 100%;
   margin: auto;
   animation: 1s linear infinite rotate360;
-  fill: ${$colorPrimary};
+  fill: var(--color-primary, ${__color_primary});
   pointer-events: none;
 }
 </style>`

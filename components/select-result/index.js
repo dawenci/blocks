@@ -2,7 +2,7 @@ import '../tag/index.js'
 
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { $borderColorBase, $heightBase, $radiusBase, $colorPrimary, $transitionDuration, $heightMini, $heightSmall, $heightLarge } from '../theme/var.js'
+import { __border_color_base, __height_base, __radius_base, __color_primary, __transition_duration, __height_small, __height_large } from '../theme/var.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { dispatchEvent } from '../../common/event.js'
 
@@ -35,8 +35,8 @@ const TEMPLATE_CSS = `<style>
   flex-flow: row nowrap;
   align-items: center;
   position: relative;
-  border: 1px solid ${$borderColorBase};
-  border-radius: ${$radiusBase};
+  border: 1px solid var(--border-color-base, ${__border_color_base});
+  border-radius: var(--radius-base, ${__radius_base});
   font-size: 14px;
   white-space: nowrap;
   background-color: #fff;
@@ -47,7 +47,7 @@ const TEMPLATE_CSS = `<style>
 }
 
 :host(:focus-within) #layout {
-  border-color: ${$colorPrimary};
+  border-color: var(--color-primary, ${__color_primary});
 }
 
 #value {
@@ -72,7 +72,7 @@ blocks-tag:focus {
 .multiple-plain strong {
   margin-right: 4px;
   font-weight: normal;
-  color: ${$colorPrimary};
+  color: var(--color-primary, ${__color_primary});
 }
 
 .multiple-plain span {
@@ -123,7 +123,7 @@ blocks-tag:focus {
   width: 16px;
   height: 16px;
   fill: #aaa;
-  transition: transform ${$transitionDuration};
+  transition: transform var(--transition-duration, ${__transition_duration});
 }
 .prefix-icon {
   margin-left: 6px;
@@ -152,7 +152,7 @@ blocks-tag:focus {
   background-color: transparent;
   opacity: 0;
   transform: rotate(45deg);
-  transition: all ${$transitionDuration};
+  transition: all var(--transition-duration, ${__transition_duration});
 }
 :host([clearable]) #layout:hover #value:not(:empty)+.suffix-icon {
   visibility: hidden;
@@ -204,7 +204,7 @@ blocks-tag:focus {
 
 /* size */
 #layout {
-  min-height: ${$heightBase};
+  min-height: var(--height-base, ${__height_base});
 }
 #value {
   text-align: left;
@@ -217,16 +217,8 @@ blocks-tag {
   margin: 2px;
 }
 
-:host([size="mini"]) #layout {
-  min-height: ${$heightMini};
-}
-:host([size="mini"]) blocks-tag {
-  height: 18px;
-  margin: 2px;
-}
-
 :host([size="small"]) #layout {
-  min-height: ${$heightSmall};
+  min-height: var(--height-small, ${__height_small});
 }
 :host([size="small"]) blocks-tag {
   height: 20px;
@@ -234,7 +226,7 @@ blocks-tag {
 }
 
 :host([size="large"]) #layout {
-  min-height: ${$heightLarge};
+  min-height: var(--height-large, ${__height_large});
 }
 :host([size="large"]) #value {
   margin: 3px;

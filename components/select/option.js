@@ -2,7 +2,7 @@ import { boolGetter, boolSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { makeRgbaColor } from '../../common/utils.js'
 import {
-  $colorPrimary, $colorPrimaryLight,
+  __color_primary, __color_primary_light,
 } from '../theme/var.js'
 
 const selectedGetter = boolGetter('selected')
@@ -23,15 +23,15 @@ const TEMPLATE_CSS = `<style>
   padding: 4px 10px 4px 2em;
 }
 :host(:focus) {
-  outline: 1px solid ${makeRgbaColor($colorPrimary, .3)};
-  background: ${makeRgbaColor($colorPrimary, .1)};
+  outline: 1px solid ${makeRgbaColor(__color_primary, .3)};
+  background: ${makeRgbaColor(__color_primary, .1)};
 }
 :host([selected]) {
-  background-color: ${$colorPrimary};
+  background-color: var(--color-primary, ${__color_primary});
   color: #fff;
 }
 :host([selected]:hover) {
-  background-color: ${$colorPrimaryLight};
+  background-color: var(--color-primary-light, ${__color_primary_light});
   color: #fff;
 }
 :host-context(blocks-optgroup[disabled]),

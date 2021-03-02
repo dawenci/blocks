@@ -1,5 +1,5 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { $colorPrimary, $colorPrimaryLight, $radiusBase } from '../theme/var.js'
+import { __color_primary, __color_primary_light, __radius_base } from '../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
 :host, :host * {
@@ -19,14 +19,14 @@ const TEMPLATE_CSS = `<style>
   align-items: center;
   width: 100%;
   height: 100%;
-  border-radius: ${$radiusBase};
-  background-color: ${$colorPrimary};
+  border-radius: var(--radius-base, ${__radius_base});
+  background-color: var(--color-primary, ${__color_primary});
   color: #fff;
   font-family: sans-serif;
   cursor: pointer;
 }
 #widget:hover {
-  background-color: ${$colorPrimaryLight};
+  background-color: var(--color-primary-light, ${__color_primary_light});
 }
 </style>`
 

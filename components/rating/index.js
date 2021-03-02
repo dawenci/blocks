@@ -1,7 +1,7 @@
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
-import { $transitionDuration } from '../theme/var.js'
+import { __transition_duration } from '../theme/var.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 
 const halfValueGetter = enumGetter('value', [null, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5])
@@ -36,7 +36,7 @@ button {
   border: 0;
   background: none;
   cursor: pointer;
-  transition: all ${$transitionDuration};
+  transition: all var(--transition-duration, ${__transition_duration});
 }
 button:first-child {
   margin-left: 0;

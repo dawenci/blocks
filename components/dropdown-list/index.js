@@ -5,15 +5,15 @@ import { boolGetter, boolSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach, makeRgbaColor } from '../../common/utils.js'
 import {
-  $fontFamily,
-  $colorPrimary,
-  $colorPrimaryLight,
-  $colorPrimaryDark,
-  $colorDisabled,
-  $borderColorBase,
-  $borderColorDisabled,
-  $backgroundColorDisabled,
-  $transitionDuration,
+  __font_family,
+  __color_primary,
+  __color_primary_light,
+  __color_primary_dark,
+  __fg_disabled,
+  __border_color_base,
+  __border_color_disabled,
+  __bg_disabled,
+  __transition_duration,
 } from '../theme/var.js'
 
 const cssTemplate = document.createElement('template')

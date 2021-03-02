@@ -2,7 +2,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
-import { $colorPrimary, $colorDanger, $colorSuccess, $colorWarning, $transitionDuration, $colorFontBase, $bgBaseDark, $colorFontBaseDark, $bgBase } from '../theme/var.js'
+import { __color_primary, __color_danger, __color_success, __color_warning, __transition_duration, __fg_base, __bg_baseDark, __fg_baseDark, __bg_base } from '../theme/var.js'
 
 const closeableGetter = boolGetter('closeable')
 const closeableSetter = boolSetter('closeable')
@@ -20,7 +20,7 @@ const TEMPLATE_CSS = `<style>
   box-shadow: 0 0 5px -2px rgb(0,0,0,0.16),
     0 0 16px 0 rgb(0,0,0,0.08),
     0 0 28px 8px rgb(0,0,0,0.05);
-  transition: all ${$transitionDuration} ease-out;
+  transition: all var(--transition-duration, ${__transition_duration}) ease-out;
   pointer-events: auto;
 }
 #layout {
@@ -30,8 +30,8 @@ const TEMPLATE_CSS = `<style>
   width: 100%;
   padding: 15px;
   position: relative;
-  background-color: ${$bgBase};
-  color: ${$colorFontBase};
+  background-color: var(--bg-base, ${__bg_base});
+  color: var(--fg-base, ${__fg_base});
 }
 #icon {
   flex: 0 0 auto;
@@ -83,8 +83,8 @@ const TEMPLATE_CSS = `<style>
 }
 
 :host-context([dark]) #layout {
-  background-color: ${$bgBaseDark};
-  color: ${$colorFontBaseDark};
+  background-color: var(--bg-base-dark, ${__bg_baseDark});
+  color: var(--fg-base-dark, ${__fg_baseDark});
 }
 </style>`
 
@@ -166,10 +166,10 @@ class BlocksNotification extends HTMLElement {
   }
 
   render() {
-    const fill = this.type === 'success' ? $colorSuccess
-      : this.type === 'error' ? $colorDanger
-        : this.type === 'warning' ? $colorWarning
-          : this.type === 'info' ? $colorPrimary
+    const fill = this.type === 'success' ? __color_success
+      : this.type === 'error' ? __color_danger
+        : this.type === 'warning' ? __color_warning
+          : this.type === 'info' ? __color_primary
             : undefined
     const iconName = this.type === 'warning' ? 'info' : this.type
     const icon = getRegisteredSvgIcon(iconName, { fill })

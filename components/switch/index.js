@@ -1,15 +1,15 @@
 import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
 import {
-  $fontFamily,
-  $radiusSmall,
-  $colorPrimary,
-  $colorPrimaryLight,
-  $colorPrimaryDark,
-  $colorDisabled,
-  $borderColorBase,
-  $borderColorDisabled,
-  $backgroundColorDisabled,
-  $transitionDuration,
+  __font_family,
+  __radius_small,
+  __color_primary,
+  __color_primary_light,
+  __color_primary_dark,
+  __fg_disabled,
+  __border_color_base,
+  __border_color_disabled,
+  __bg_disabled,
+  __transition_duration,
 } from '../theme/var.js'
 
 const TEMPLATE_CSS = `
@@ -24,7 +24,7 @@ const TEMPLATE_CSS = `
   display: inline-block;
   align-items: center;
   text-align: center;
-  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   font-size: 0;
 }
 
@@ -58,11 +58,11 @@ const TEMPLATE_CSS = `
   border-radius: 50%;
   background: #fff;
   overflow: hidden;
-  transition: all ${$transitionDuration};
+  transition: all var(--transition-duration, ${__transition_duration});
 }
 
 :host([checked]) #switch {
-  background-color: ${$colorPrimary};
+  background-color: var(--color-primary, ${__color_primary});
 }
 :host([checked]) #switch:after {
   left: calc(100% - 17px);
@@ -71,7 +71,7 @@ const TEMPLATE_CSS = `
 :host([checked]:not([disabled]):hover) #switch,
 :host([checked]:not([disabled]):focus) #switch {
   border-color: transparent;
-  background-color: ${$colorPrimaryLight};
+  background-color: var(--color-primary-light, ${__color_primary_light});
 }
 
 :host([disabled]) {

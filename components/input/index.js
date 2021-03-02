@@ -1,14 +1,13 @@
 import {
-  $radiusBase,
-  $colorPrimary,
-  $colorWarning,
-  $transitionDuration,
-  $borderColorBase,
-  $borderColorDisabled,
-  $heightBase,
-  $heightMini,
-  $heightSmall,
-  $heightLarge,
+  __radius_base,
+  __color_primary,
+  __color_warning,
+  __transition_duration,
+  __border_color_base,
+  __border_color_disabled,
+  __height_base,
+  __height_small,
+  __height_large,
 } from '../theme/var.js'
 
 import { getRegisteredSvgIcon } from '../../icon/index.js'
@@ -25,26 +24,23 @@ const TEMPLATE_CSS = `<style>
   cursor: default;
   user-select: none;
   font-size: 14px;
-  height: ${$heightBase};
-  border: 1px solid ${$borderColorBase};
-  border-radius: ${$radiusBase};
+  height: var(--height-base, ${__height_base});
+  border: 1px solid var(--border-color-base, ${__border_color_base});
+  border-radius: var(--radius-base, ${__radius_base});
   background-color: #fff;
 }
 :host(:focus) {
   outline: 0 none;
 }
 :host(:focus-within) {
-  border-color: ${$colorPrimary};
-}
-:host([size="mini"]) {
-  height: ${$heightMini};
-  font-size: 12px;
+  border-color: var(--color-primary, ${__color_primary});
 }
 :host([size="small"]) {
-  height: ${$heightSmall};
+  height: var(--height-small, ${__height_small});
+  font-size: 12px;
 }
 :host([size="large"]) {
-  height: ${$heightLarge};
+  height: var(--height-large, ${__height_large});
   font-size: 16px;
 }
 
@@ -79,7 +75,7 @@ input:focus {
   width: 16px;
   height: 16px;
   fill: #aaa;
-  transition: transform ${$transitionDuration};
+  transition: transform var(--transition-duration, ${__transition_duration});
 }
 .prefix-icon {
   margin-left: 6px;
@@ -106,7 +102,7 @@ input:focus {
   background-color: transparent;
   opacity: 0;
   transform: rotate(45deg);
-  transition: all ${$transitionDuration};
+  transition: all var(--transition-duration, ${__transition_duration});
 }
 :host(:hover) .clearable {
   opacity: 1;

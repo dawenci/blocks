@@ -4,7 +4,7 @@ const icons = new Map()
  * @param {string} key
  * @param {{ width: number, height: number, viewBox: string, data: string, [key: string]: any }} options 
  */
-export function registerSvgIcon(key, data, attrs) {
+export function registerSvgIcon(key, data, attrs = {}) {
   icons.set(key, { data, attrs })
 }
 

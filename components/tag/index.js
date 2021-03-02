@@ -1,18 +1,17 @@
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import {
-  $fontFamily,
-  $borderColorBase,
-  $heightBase,
-  $heightMini,
-  $heightSmall,
-  $heightLarge,
-  $radiusBase,
-  $colorPrimary,
-  $colorDanger,
-  $colorSuccess,
-  $colorWarning,
-  $transitionDuration,
+  __font_family,
+  __border_color_base,
+  __height_base,
+  __height_small,
+  __height_large,
+  __radius_base,
+  __color_primary,
+  __color_danger,
+  __color_success,
+  __color_warning,
+  __transition_duration,
 } from '../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
 
@@ -24,14 +23,15 @@ const outlineSetter = boolSetter('outline')
 const TEMPLATE_CSS = `<style>
 :host {
   display: inline-block;
-  border-radius: ${$radiusBase};
+  box-sizing: border-box;
+  border-radius: var(--radius-base, ${__radius_base});
   border-width: 1px;
   border-style: solid;
   cursor: pointer;
   text-align: center;
-  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   user-select: none;
-  font-family: ${$fontFamily};
+  font-family: var(--font-family, ${__font_family});
 }
 
 #layout {
@@ -67,7 +67,7 @@ const TEMPLATE_CSS = `<style>
   border-radius: 50%;
   border-width: 1px;
   border-style: solid;
-  transition: transform ${$transitionDuration};
+  transition: transform var(--transition-duration, ${__transition_duration});
 }
 #close:focus {
   outline: 0 none;
@@ -95,19 +95,19 @@ const TEMPLATE_CSS = `<style>
 
 /* background */
 :host { background-color: #fff; }
-:host([type="primary"]) { background-color: ${$colorPrimary}; }
-:host([type="danger"]) { background-color: ${$colorDanger}; }
-:host([type="success"]) { background-color: ${$colorSuccess}; }
-:host([type="warning"]) { background-color: ${$colorWarning}; }
+:host([type="primary"]) { background-color: var(--color-primary, ${__color_primary}); }
+:host([type="danger"]) { background-color: var(--color-danger, ${__color_danger}); }
+:host([type="success"]) { background-color: var(--color-success, ${__color_success}); }
+:host([type="warning"]) { background-color: var(--color-warning, ${__color_warning}); }
 :host([outline]) { background-color: transparent; }
 
 
 /* border-color */
-:host { border-color: ${$borderColorBase}; }
-:host([type="primary"]) { border-color: ${$colorPrimary}; }
-:host([type="danger"]) { border-color: ${$colorDanger}; }
-:host([type="warning"]) { border-color: ${$colorWarning}; }
-:host([type="success"]) { border-color: ${$colorSuccess}; }
+:host { border-color: var(--border-color-base, ${__border_color_base}); }
+:host([type="primary"]) { border-color: var(--color-primary, ${__color_primary}); }
+:host([type="danger"]) { border-color: var(--color-danger, ${__color_danger}); }
+:host([type="warning"]) { border-color: var(--color-warning, ${__color_warning}); }
+:host([type="success"]) { border-color: var(--color-success, ${__color_success}); }
 
 
 /* color */
@@ -115,10 +115,10 @@ const TEMPLATE_CSS = `<style>
 :host([type="danger"]),
 :host([type="warning"]),
 :host([type="success"]) { color: #fff; }
-:host([type="primary"][outline]) { color: ${$colorPrimary} }
-:host([type="danger"][outline]) { color: ${$colorDanger} }
-:host([type="warning"][outline]) { color: ${$colorWarning} }
-:host([type="success"][outline])  { color: ${$colorSuccess} }
+:host([type="primary"][outline]) { color: var(--color-primary, ${__color_primary}) }
+:host([type="danger"][outline]) { color: var(--color-danger, ${__color_danger}) }
+:host([type="warning"][outline]) { color: var(--color-warning, ${__color_warning}) }
+:host([type="success"][outline])  { color: var(--color-success, ${__color_success}) }
 
 
 /* close color */
@@ -142,46 +142,58 @@ const TEMPLATE_CSS = `<style>
 :host([type="success"]) #close:hover { border-color: #fff; }
 
 :host([type="primary"][outline]) #close::before,
-:host([type="primary"][outline]) #close::after { background-color: ${$colorPrimary} }
-:host([type="primary"][outline]) #close:hover { border-color: ${$colorPrimary} }
+:host([type="primary"][outline]) #close::after { background-color: var(--color-primary, ${__color_primary}) }
+:host([type="primary"][outline]) #close:hover { border-color: var(--color-primary, ${__color_primary}) }
 
 :host([type="danger"][outline]) #close::before,
-:host([type="danger"][outline]) #close::after { background-color: ${$colorDanger} }
-:host([type="danger"][outline]) #close:hover { border-color: ${$colorDanger} }
+:host([type="danger"][outline]) #close::after { background-color: var(--color-danger, ${__color_danger}) }
+:host([type="danger"][outline]) #close:hover { border-color: var(--color-danger, ${__color_danger}) }
 
 :host([type="warning"][outline]) #close::before,
-:host([type="warning"][outline]) #close::after { background-color: ${$colorWarning} }
-:host([type="warning"][outline]) #close:hover { border-color: ${$colorWarning} }
+:host([type="warning"][outline]) #close::after { background-color: var(--color-warning, ${__color_warning}) }
+:host([type="warning"][outline]) #close:hover { border-color: var(--color-warning, ${__color_warning}) }
 
 :host([type="success"][outline]) #close::before,
-:host([type="success"][outline]) #close::after { background-color: ${$colorSuccess} }
-:host([type="success"][outline]) #close:hover { border-color: ${$colorSuccess} }
+:host([type="success"][outline]) #close::after { background-color: var(--color-success, ${__color_success}) }
+:host([type="success"][outline]) #close:hover { border-color: var(--color-success, ${__color_success}) }
 
 
 /* size */
 :host {
-  height: ${$heightBase};
+  height: var(--height-base, ${__height_base});
+  padding: 0 calc(var(--height-base, ${__height_base}) / 8);
   font-size: 14px;
 }
-:host #label { margin: 0 7px; }
-
-:host([size="mini"]) {
-  height: ${$heightMini};
-  font-size: 12px;
+:host([round]) {
+  border-radius: calc(var(--height-base, ${__height_base}) / 2);
 }
-:host([size="mini"]) #label { margin: 0 4px; }
+:host #label {
+  margin: 0 calc(var(--height-base, ${__height_base}) / 4);
+}
 
 :host([size="small"]) {
-  height: ${$heightSmall};
-  font-size: 12px;
+  height: var(--height-small, ${__height_small});
+  padding: 0 calc(var(--height-base, ${__height_small}) / 8);
+  font-size: 14px;
 }
-:host([size="small"]) #label { margin: 0 6px; }
+:host([size="small"][round]) {
+  border-radius: calc(var(--height-base, ${__height_small}) / 2);
+}
+:host([size="small"]) #label {
+  margin: 0 calc(var(--height-base, ${__height_small}) / 4);
+}
 
 :host([size="large"]) {
-  height: ${$heightLarge};
+  height: var(--height-large, ${__height_large});
+  padding: 0 calc(var(--height-base, ${__height_large}) / 8);
   font-size: 16px;
 }
-:host([size="large"]) #label { margin: 0 10px; }
+:host([size="large"][round]) {
+  border-radius: calc(var(--height-base, ${__height_large}) / 2);
+}
+:host([size="large"]) #label {
+  margin: 0 calc(var(--height-base, ${__height_large}) / 4);
+}
 </style>`
 
 const TEMPLATE_HTML = `
@@ -193,7 +205,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksTag extends HTMLElement {
   static get observedAttributes() {
-    return []
+    return [ 'type', 'size', 'closeable', 'round' ]
   }
 
   constructor() {

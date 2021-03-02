@@ -1,14 +1,14 @@
 import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
 import {
-  $fontFamily,
-  $colorPrimary,
-  $colorPrimaryLight,
-  $colorPrimaryDark,
-  $colorDisabled,
-  $borderColorBase,
-  $borderColorDisabled,
-  $backgroundColorDisabled,
-  $transitionDuration,
+  __font_family,
+  __color_primary,
+  __color_primary_light,
+  __color_primary_dark,
+  __fg_disabled,
+  __border_color_base,
+  __border_color_disabled,
+  __bg_disabled,
+  __transition_duration,
 } from '../theme/var.js'
 
 const TEMPLATE_CSS = `
@@ -17,9 +17,9 @@ const TEMPLATE_CSS = `
   display: inline-block;
   box-sizing: border-box;
   font-size: 0;
-  font-family: ${$fontFamily};
+  font-family: var(--font-family, ${__font_family});
   text-align: center;
-  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   all: initial;
   contain: content;
 }
@@ -42,25 +42,25 @@ const TEMPLATE_CSS = `
   border-width: 1px;
   border-style: solid;
   cursor: pointer;
-  border-color: ${$borderColorBase};
+  border-color: var(--border-color-base, ${__border_color_base});
 }
 :host(:hover) #radio,
 :host(:focus) #radio {
-  border-color: ${$colorPrimary};
+  border-color: var(--color-primary, ${__color_primary});
 }
 
 :host([checked]) #radio {
-  border-color: ${$colorPrimary};
-  background-color: ${$colorPrimary};
+  border-color: var(--color-primary, ${__color_primary});
+  background-color: var(--color-primary, ${__color_primary});
 }
 :host([checked]:hover) #radio,
 :host([checked]:focus) #radio {
-  border-color: ${$colorPrimaryLight};
-  background-color: ${$colorPrimaryLight};
+  border-color: var(--color-primary-light, ${__color_primary_light});
+  background-color: var(--color-primary-light, ${__color_primary_light});
 }
 :host([checked]) #radio:active {
-  border-color: ${$colorPrimaryDark};
-  background-color: ${$colorPrimaryDark};
+  border-color: var(--color-primary-dark, ${__color_primary_dark});
+  background-color: var(--color-primary-dark, ${__color_primary_dark});
 }
 
 :host([checked]) #radio::before {
@@ -76,7 +76,7 @@ const TEMPLATE_CSS = `
   bottom: 0;
   left: 0;
   margin: auto;
-  transition: transform ${$transitionDuration} ease-in .05s;
+  transition: transform var(--transition-duration, ${__transition_duration}) ease-in .05s;
   background-color: #fff;
 }
 
@@ -92,20 +92,20 @@ const TEMPLATE_CSS = `
 }
 
 :host([disabled]) {
-  color: ${$colorDisabled};
+  color: var(--color-disabled, ${__fg_disabled});
   outline: 0 none;
 }
 :host([disabled]) #radio,
 :host([disabled]:hover) #radio,
 :host([disabled]:active) #radio {
-  border-color: ${$borderColorDisabled};
-  background-color: ${$backgroundColorDisabled};
+  border-color: var(--border-color-disabled, ${__border_color_disabled});
+  background-color: var(--bg-disabled, ${__bg_disabled});
 }
 
 :host([disabled][checked]) #radio,
 :host([disabled][checked]:hover) #radio,
 :host([disabled][checked]:active) #radio {
-  background-color: ${$borderColorDisabled};
+  background-color: var(--border-color-disabled, ${__border_color_disabled});
 }
 
 :host([disabled]) * {

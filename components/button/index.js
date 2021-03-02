@@ -1,31 +1,30 @@
 import {
-  $fontFamily,
-  $colorPrimary,
-  $colorPrimaryLight,
-  $colorPrimaryDark,
-  $colorDanger,
-  $colorDangerLight,
-  $colorDangerDark,
-  $colorSuccess,
-  $colorSuccessLight,
-  $colorSuccessDark,
-  $colorWarning,
-  $colorWarningLight,
-  $colorWarningDark,
-  $colorDisabled,
+  __font_family,
+  __color_primary,
+  __color_primary_light,
+  __color_primary_dark,
+  __color_danger,
+  __color_danger_light,
+  __color_danger_dark,
+  __color_success,
+  __color_success_light,
+  __color_success_dark,
+  __color_warning,
+  __color_warning_light,
+  __color_warning_dark,
+  __fg_disabled,
 
-  $borderColorDisabled,
-  $backgroundColorDisabled,
-  $transitionDuration,
-  $colorFontBase,
-  $borderColorBase,
+  __border_color_disabled,
+  __bg_disabled,
+  __transition_duration,
+  __fg_base,
+  __border_color_base,
 
-  $radiusBase,
+  __radius_base,
 
-  $heightMini,
-  $heightBase,
-  $heightSmall,
-  $heightLarge,
+  __height_base,
+  __height_small,
+  __height_large,
 } from '../theme/var.js'
 
 import { getRegisteredSvgIcon } from '../../icon/index.js'
@@ -34,28 +33,40 @@ import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/pro
 
 const disabledGetter = boolGetter('disabled')
 const disabledSetter = boolSetter('disabled')
+const loadingGetter = boolGetter('loading')
+const loadingSetter = boolSetter('loading')
 const typeGetter = enumGetter('type', [null, 'primary', 'danger', 'warning', 'success', 'link'])
 const typeSetter = enumSetter('type', [null, 'primary', 'danger', 'warning', 'success', 'link'])
-const sizeGetter = enumGetter('size', [null, 'small', 'mini', 'large'])
-const sizeSetter = enumSetter('size', [null, 'small', 'mini', 'large'])
+const sizeGetter = enumGetter('size', [null, 'small', 'large'])
+const sizeSetter = enumSetter('size', [null, 'small', 'large'])
 
 const TEMPLATE_CSS = `
 <style>
+@keyframes rotate360 {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 :host {
   display: inline-block;
+  box-sizing: border-box;
   border-width: 1px;
   border-style: solid;
-  border-radius: ${$radiusBase};
-  font-family: ${$fontFamily};
+  border-radius: var(--radius-base, ${__radius_base});
+  font-family: var(--font-family, ${__font_family});
   cursor: pointer;
   text-align: center;
-  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   user-select: none;
 }
 :host(:focus) {
   outline: 0 none;
 }
-:host([disabled]) {
+:host([disabled]),
+:host([loading]) {
   outline: 0 none;
   cursor: not-allowed;
 }
@@ -63,7 +74,7 @@ const TEMPLATE_CSS = `
   display: none;
 }
 
-.layout {
+#layout {
   box-sizing: border-box;
   display: flex;
   flex-flow: row nowrap;
@@ -80,7 +91,7 @@ const TEMPLATE_CSS = `
   box-sizing: border-box;
   width: 16px;
   height: 16px;
-  transition: transform ${$transitionDuration};
+  transition: transform var(--transition-duration, ${__transition_duration});
 }
 .prefix-icon svg,
 .suffix-icon svg {
@@ -88,9 +99,13 @@ const TEMPLATE_CSS = `
   width: 100%;
   height: 100%;
 }
+.loading svg {
+  position: relative;
+  animation: 1s linear infinite rotate360;
+}
 
-.label {
-  flex: 1 1 100%;
+#label {
+  flex: 0 0 auto;
   display: block;
   height: 16px;
   line-height: 16px;
@@ -104,30 +119,35 @@ const TEMPLATE_CSS = `
 :host(:hover),
 :host(:active) { background-color: #fff; }
 
-:host([type="primary"]) { background-color: ${$colorPrimary}; }
+:host([type="primary"]) { background-color: var(--color-primary, ${__color_primary}); }
 :host([type="primary"]:hover),
-:host([type="primary"]:focus) { background-color: ${$colorPrimaryLight}; }
-:host([type="primary"]:active) { background-color: ${$colorPrimaryDark}; }
+:host([type="primary"]:focus) { background-color: var(--color-primary-light, ${__color_primary_light}); }
+:host([type="primary"]:active) { background-color: var(--color-primary-dark, ${__color_primary_dark}); }
 
-:host([type="danger"]) { background-color: ${$colorDanger}; }
+:host([type="danger"]) { background-color: var(--color-danger, ${__color_danger}); }
 :host([type="danger"]:hover),
-:host([type="danger"]:focus) { background-color: ${$colorDangerLight}; }
-:host([type="danger"]:active) { background-color: ${$colorDangerDark}; }
+:host([type="danger"]:focus) { background-color: var(--color-danger-light, ${__color_danger_light}); }
+:host([type="danger"]:active) { background-color: ${__color_danger_dark}; }
 
-:host([type="success"]) { background-color: ${$colorSuccess}; }
+:host([type="success"]) { background-color: var(--color-success, ${__color_success}); }
 :host([type="success"]:hover),
-:host([type="success"]:focus) { background-color: ${$colorSuccessLight}; }
-:host([type="success"]:active) { background-color: ${$colorSuccessDark}; }
+:host([type="success"]:focus) { background-color: var(--color-success-light, ${__color_success_light}); }
+:host([type="success"]:active) { background-color: var(--color-success-dark, ${__color_success_dark}); }
 
-:host([type="warning"]) { background-color: ${$colorWarning}; }
+:host([type="warning"]) { background-color: var(--color-warning, ${__color_warning}); }
 :host([type="warning"]:hover),
-:host([type="warning"]:focus) { background-color: ${$colorWarningLight}; }
-:host([type="warning"]:active) { background-color: ${$colorWarningDark}; }
+:host([type="warning"]:focus) { background-color: var(--color-warning-light, ${__color_warning_light}); }
+:host([type="warning"]:active) { background-color: var(--color-danger-dark, var(--color-warning-dark, ${__color_warning_dark})); }
 
 :host([disabled]),
 :host([disabled]:hover),
 :host([disabled]:focus),
-:host([disabled]:active) { background-color: ${$backgroundColorDisabled}; }
+:host([disabled]:active) { background-color: var(--bg-disabled, ${__bg_disabled}); }
+
+:host([loading]),
+:host([loading]:hover),
+:host([loading]:focus),
+:host([loading]:active) { background-color: inherit; }
 
 :host([outline]),
 :host([outline]:hover),
@@ -141,35 +161,35 @@ const TEMPLATE_CSS = `
 
 
 /* border-color */
-:host { border-color: ${$borderColorBase}; }
+:host { border-color: var(--border-color-base, ${__border_color_base}); }
 :host(:hover),
-:host(:focus) { border-color: ${$colorPrimaryLight}; }
-:host(:active) { border-color: ${$colorPrimaryDark}; }
+:host(:focus) { border-color: var(--color-primary-light, ${__color_primary_light}); }
+:host(:active) { border-color: var(--color-primary-dark, ${__color_primary_dark}); }
 
-:host([type="primary"]) { border-color: ${$colorPrimary}; }
+:host([type="primary"]) { border-color: var(--color-primary, ${__color_primary}); }
 :host([type="primary"]:hover),
-:host([type="primary"]:focus) { border-color: ${$colorPrimaryLight}; }
-:host([type="primary"]:active) {border-color: ${$colorPrimaryDark}; }
+:host([type="primary"]:focus) { border-color: var(--color-primary-light, ${__color_primary_light}); }
+:host([type="primary"]:active) {border-color: var(--color-primary-dark, ${__color_primary_dark}); }
 
-:host([type="danger"]) { border-color: ${$colorDanger}; }
+:host([type="danger"]) { border-color: var(--color-danger, ${__color_danger}); }
 :host([type="danger"]:hover),
-:host([type="danger"]:focus) { border-color: ${$colorDangerLight}; }
-:host([type="danger"]:active) { border-color: ${$colorDangerDark}; }
+:host([type="danger"]:focus) { border-color: var(--color-danger-light, ${__color_danger_light}); }
+:host([type="danger"]:active) { border-color: ${__color_danger_dark}; }
 
-:host([type="warning"]) { border-color: ${$colorWarning}; }
+:host([type="warning"]) { border-color: var(--color-warning, ${__color_warning}); }
 :host([type="warning"]:hover),
-:host([type="warning"]:focus) { border-color: ${$colorWarningLight}; }
-:host([type="warning"]:active) { border-color: ${$colorWarningDark}; }
+:host([type="warning"]:focus) { border-color: var(--color-warning-light, ${__color_warning_light}); }
+:host([type="warning"]:active) { border-color: var(--color-danger-dark, var(--color-warning-dark, ${__color_warning_dark})); }
 
-:host([type="success"]) { border-color: ${$colorSuccess}; }
+:host([type="success"]) { border-color: var(--color-success, ${__color_success}); }
 :host([type="success"]:hover),
-:host([type="success"]:focus) { border-color: ${$colorSuccessLight}; }
-:host([type="success"]:active) { border-color: ${$colorSuccessDark}; }
+:host([type="success"]:focus) { border-color: var(--color-success-light, ${__color_success_light}); }
+:host([type="success"]:active) { border-color: var(--color-success-dark, ${__color_success_dark}); }
 
 :host([disabled]),
 :host([disabled]:hover),
 :host([disabled]:focus),
-:host([disabled]:active) { border-color: ${$borderColorDisabled}; }
+:host([disabled]:active) { border-color: var(--border-color-disabled, ${__border_color_disabled}); }
 
 :host([type="link"]),
 :host([type="link"]:hover),
@@ -178,10 +198,10 @@ const TEMPLATE_CSS = `
 
 
 /* color */
-:host { fill: ${$colorFontBase}; color: ${$colorFontBase}; }
+:host { fill: var(--fg-base, ${__fg_base}); color: var(--fg-base, ${__fg_base}); }
 :host(:hover),
-:host(:focus) { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
-:host(:active) { fill: ${$colorPrimaryDark}; color: ${$colorPrimaryDark}; }
+:host(:focus) { fill: var(--color-primary-light, ${__color_primary_light}); color: var(--color-primary-light, ${__color_primary_light}); }
+:host(:active) { fill: var(--color-primary-dark, ${__color_primary_dark}); color: var(--color-primary-dark, ${__color_primary_dark}); }
 
 :host([type="primary"]),
 :host([type="primary"]:hover),
@@ -200,30 +220,30 @@ const TEMPLATE_CSS = `
 :host([type="success"]:focus),
 :host([type="success"]:active) { fill: #fff; color: #fff; }
 
-:host([type="primary"][outline]) { fill: ${$colorPrimary}; color: ${$colorPrimary}; }
+:host([type="primary"][outline]) { fill: var(--color-primary, ${__color_primary}); color: var(--color-primary, ${__color_primary}); }
 :host([type="primary"][outline]:hover),
-:host([type="primary"][outline]:focus) { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
-:host([type="primary"][outline]:active) { fill: ${$colorPrimaryDark}; color: ${$colorPrimaryDark}; }
+:host([type="primary"][outline]:focus) { fill: var(--color-primary-light, ${__color_primary_light}); color: var(--color-primary-light, ${__color_primary_light}); }
+:host([type="primary"][outline]:active) { fill: var(--color-primary-dark, ${__color_primary_dark}); color: var(--color-primary-dark, ${__color_primary_dark}); }
 
-:host([type="danger"][outline]) { fill: ${$colorDanger}; color: ${$colorDanger}; }
+:host([type="danger"][outline]) { fill: var(--color-danger, ${__color_danger}); color: var(--color-danger, ${__color_danger}); }
 :host([type="danger"][outline]:hover),
-:host([type="danger"][outline]:focus) { fill: ${$colorDangerLight}; color: ${$colorDangerLight}; }
-:host([type="danger"][outline]:active) { fill: ${$colorDangerDark}; color: ${$colorDangerDark}; }
+:host([type="danger"][outline]:focus) { fill: var(--color-danger-light, ${__color_danger_light}); color: var(--color-danger-light, ${__color_danger_light}); }
+:host([type="danger"][outline]:active) { fill: ${__color_danger_dark}; color: ${__color_danger_dark}; }
 
-:host([type="warning"][outline]) { fill: ${$colorWarning}; color: ${$colorWarning}; }
+:host([type="warning"][outline]) { fill: var(--color-warning, ${__color_warning}); color: var(--color-warning, ${__color_warning}); }
 :host([type="warning"][outline]:hover),
-:host([type="warning"][outline]:focus) { fill: ${$colorWarningLight}; color: ${$colorWarningLight}; }
-:host([type="warning"][outline]:active) { fill: ${$colorWarningDark}; color: ${$colorWarningDark}; }
+:host([type="warning"][outline]:focus) { fill: var(--color-warning-light, ${__color_warning_light}); color: var(--color-warning-light, ${__color_warning_light}); }
+:host([type="warning"][outline]:active) { fill: var(--color-danger-dark, var(--color-warning-dark, ${__color_warning_dark})); color: var(--color-danger-dark, var(--color-warning-dark, ${__color_warning_dark})); }
 
-:host([type="success"][outline]) { fill: ${$colorSuccess}; color: ${$colorSuccess}; }
+:host([type="success"][outline]) { fill: var(--color-success, ${__color_success}); color: var(--color-success, ${__color_success}); }
 :host([type="success"][outline]:hover),
-:host([type="success"][outline]:focus) { fill: ${$colorSuccessLight}; color: ${$colorSuccessLight}; }
-:host([type="success"][outline]:active) { fill: ${$colorSuccessDark}; color: ${$colorSuccessDark}; }
+:host([type="success"][outline]:focus) { fill: var(--color-success-light, ${__color_success_light}); color: var(--color-success-light, ${__color_success_light}); }
+:host([type="success"][outline]:active) { fill: var(--color-success-dark, ${__color_success_dark}); color: var(--color-success-dark, ${__color_success_dark}); }
 
-:host([type="link"]) { fill: ${$colorPrimary}; color: ${$colorPrimary}; }
+:host([type="link"]) { fill: var(--color-primary, ${__color_primary}); color: var(--color-primary, ${__color_primary}); }
 :host([type="link"]:hover),
-:host([type="link"]:focus) { fill: ${$colorPrimaryLight}; color: ${$colorPrimaryLight}; }
-:host([type="link"]:active) { fill: ${$colorPrimaryDark}; color: ${$colorPrimaryDark}; }
+:host([type="link"]:focus) { fill: var(--color-primary-light, ${__color_primary_light}); color: var(--color-primary-light, ${__color_primary_light}); }
+:host([type="link"]:active) { fill: var(--color-primary-dark, ${__color_primary_dark}); color: var(--color-primary-dark, ${__color_primary_dark}); }
 
 :host([disabled]),
 :host([disabled]:hover),
@@ -232,41 +252,63 @@ const TEMPLATE_CSS = `
 :host([disabled][outline]),
 :host([disabled][outline]:hover),
 :host([disabled][outline]:focus),
-:host([disabled][outline]:active) { fill: ${$colorDisabled}; color: ${$colorDisabled}; }
+:host([disabled][outline]:active) { fill: var(--color-disabled, ${__fg_disabled}); color: var(--color-disabled, ${__fg_disabled}); }
 
 
 /* size */
 :host {
-  height: ${$heightBase};
+  height: var(--height-base, ${__height_base});
+  padding: 0 calc(var(--height-base, ${__height_base}) / 8);
   font-size: 14px;
 }
-:host .label { margin: 0 7px; }
-:host .prefix-icon { margin-left: 7px; }
-:host .suffix-icon { margin-right: 7px; }
-
-:host([size="mini"]) {
-  height: ${$heightMini};
-  font-size: 12px;
+:host([round]) {
+  border-radius: calc(var(--height-base, ${__height_base}) / 2);
 }
-:host([size="mini"]) .label { margin: 0 4px; }
-:host([size="mini"]) .prefix-icon { margin-left: 4px; }
-:host([size="mini"]) .suffix-icon { margin-right: 4px; }
+:host #label {
+  margin: 0 calc(var(--height-base, ${__height_base}) / 4);
+}
+:host .prefix-icon {
+  margin-left: calc(var(--height-base, ${__height_base}) / 4);
+}
+:host .suffix-icon {
+  margin-right: calc(var(--height-base, ${__height_base}) / 4);
+}
 
 :host([size="small"]) {
-  height: ${$heightSmall};
-  font-size: 12px;
+  height: var(--height-small, ${__height_small});
+  padding: 0 calc(var(--height-base, ${__height_small}) / 8);
+  font-size: 14px;
 }
-:host([size="small"]) .label { margin: 0 6px; }
-:host([size="small"]) .prefix-icon { margin-left: 6px; }
-:host([size="small"]) .suffix-icon { margin-right: 6px; }
+:host([size="small"][round]) {
+  border-radius: calc(var(--height-base, ${__height_small}) / 2);
+}
+:host([size="small"]) #label {
+  margin: 0 calc(var(--height-base, ${__height_small}) / 4);
+}
+:host([size="small"]) .prefix-icon {
+  margin-left: calc(var(--height-base, ${__height_small}) / 4);
+}
+:host([size="small"]) .suffix-icon {
+  margin-right: calc(var(--height-base, ${__height_small}) / 4);
+}
 
 :host([size="large"]) {
-  height: ${$heightLarge};
+  height: var(--height-large, ${__height_large});
+  padding: 0 calc(var(--height-base, ${__height_large}) / 8);
   font-size: 16px;
 }
-:host([size="large"]) .label { margin: 0 10px; }
-:host([size="large"]) .prefix-icon { margin-left: 10px; }
-:host([size="large"]) .suffix-icon { margin-right: 10px; }
+:host([size="large"][round]) {
+  border-radius: calc(var(--height-base, ${__height_large}) / 2);
+}
+:host([size="large"]) #label {
+  margin: 0 calc(var(--height-base, ${__height_large}) / 4);
+}
+:host([size="large"]) .prefix-icon {
+  margin-left: calc(var(--height-base, ${__height_large}) / 4);
+}
+:host([size="large"]) .suffix-icon {
+  margin-right: calc(var(--height-base, ${__height_large}) / 4);
+}
 
 
 /* button group */
@@ -295,8 +337,8 @@ const TEMPLATE_CSS = `
 </style>
 `
 const TEMPLATE_HTML = `
-<div class="layout">
-  <span class="label"><slot></slot></span>
+<div id="layout">
+  <span id="label"><slot></slot></span>
 </div>
 `
 
@@ -305,15 +347,15 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksButton extends HTMLElement {
   static get observedAttributes() {
-    return [ 'type', 'size', 'disabled', 'prefix-icon', 'suffix-icon' ]
+    return [ 'type', 'size', 'disabled', 'loading', 'prefix-icon', 'suffix-icon' ]
   }
 
   constructor() {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$layout = shadowRoot.querySelector('.layout')
-    this.$label = shadowRoot.querySelector('.label')
+    this.$layout = shadowRoot.getElementById('layout')
+    this.$label = shadowRoot.getElementById('label')
 
     this.addEventListener('keydown', (e) => {
       if (this.disabled) {
@@ -332,7 +374,7 @@ class BlocksButton extends HTMLElement {
     })
 
     this.addEventListener('click', (e) => {
-      if (this.disabled) {
+      if (this.disabled || this.loading) {
         e.preventDefault()
         e.stopPropagation()
       }
@@ -349,6 +391,14 @@ class BlocksButton extends HTMLElement {
 
   set disabled(value) {
     disabledSetter(this, value)
+  }
+
+  get loading() {
+    return loadingGetter(this)
+  }
+
+  set loading(value) {
+    loadingSetter(this, value)
   }
 
   get type() {
@@ -384,13 +434,16 @@ class BlocksButton extends HTMLElement {
   }
 
   render() {
-    const prefixIcon = getRegisteredSvgIcon(this.prefixIcon)
+    const prefixIcon = this.loading
+      ? getRegisteredSvgIcon('loading')
+      : getRegisteredSvgIcon(this.prefixIcon)
     if (prefixIcon) {
       if (this.$prefix) {
         this.$layout.removeChild(this.$prefix)
       }
       this.$prefix = this.$layout.insertBefore(document.createElement('span'), this.$label)
       this.$prefix.className = 'prefix-icon'
+      this.$prefix.classList[this.loading ? 'add' : 'remove']('loading')
       this.$prefix.setAttribute('part', 'prefix')
       this.$prefix.appendChild(prefixIcon)
     }

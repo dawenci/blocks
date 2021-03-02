@@ -1,49 +1,102 @@
-export const $fontFamily = `-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol'`
-export const $transitionDuration = '.16s'
+// --font-family
+export const __font_family = `-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol'`
 
-export const $bgBase = '#fff'
-export const $colorFontBase = '#333'
+// --transition-duration
+export const __transition_duration = '.16s'
 
-// widget 高度
-export const $heightBase = '32px'
-export const $heightMini = '24px'
-export const $heightSmall = '28px'
-export const $heightLarge = '40px'
+// --bg-base
+export const __bg_base = '#fff'
 
-// 字号
-export const $fontSizeBase = '14px'
-export const $fontSizeSmall = '12px'
-export const $fontSizeLarge = '16px'
+// --fg-base
+export const __fg_base = '#333'
 
-// 圆角
-export const $radiusBase = '3px'
-export const $radiusSmall = '2px'
-export const $radiusLarge = '4px'
+// --bg-disabled
+export const __bg_disabled = '#f5f5f5'
 
-// 颜色
-export const $colorPrimary = '#1890ff'
-export const $colorPrimaryLight = '#40a9ff'
-export const $colorPrimaryDark = '#096dd9'
+// --fg-disabled
+export const __fg_disabled = 'rgba(0,0,0,0.25)'
 
-export const $colorDanger = '#ff4d4f'
-export const $colorDangerLight = '#ff7875'
-export const $colorDangerDark = '#d9363e'
+// --bg-base-dark
+export const __bg_baseDark = '#333'
 
-export const $colorWarning = '#ffb84d'
-export const $colorWarningLight = '#ffc772'
-export const $colorWarningDark = '#ffa61f'
+// --fg-base-dark
+export const __fg_baseDark = '#fff'
 
-export const $colorSuccess = '#45c55b'
-export const $colorSuccessLight = '#56ce6b'
-export const $colorSuccessDark = '#39b54e'
+// widget 高度 ****************************** /
 
-export const $colorDisabled = 'rgba(0,0,0,0.25)'
-export const $backgroundColorDisabled = '#f5f5f5'
+// --height-base
+export const __height_base = '32px'
 
-// 边框
-export const $borderColorBase = 'rgb(217, 217, 217)'
-export const $borderColorDisabled = '#d9d9d9'
+// --height-small
+export const __height_small = '28px'
 
-// dark mode
-export const $bgBaseDark = '#333'
-export const $colorFontBaseDark = '#fff'
+// --height-large
+export const __height_large = '40px'
+
+// 字号 ****************************** /
+
+// --font-size-base
+export const __font_size_base = '14px'
+
+// --font-size-small
+export const __font_size_small = '12px'
+
+// --font-size-large
+export const __font_size_large = '16px'
+
+// 圆角 ****************************** /
+
+// --radius-base
+export const __radius_base = '2px'
+
+// --radius-small
+export const __radius_small = '1px'
+
+// --radius-large
+export const __radius_large = '4px'
+
+// 颜色 ****************************** /
+
+// --color-primary
+export const __color_primary = '#1890ff'
+
+// --color-primary-light
+export const __color_primary_light = '#40a9ff'
+
+// --color-primary-dark
+export const __color_primary_dark = '#096dd9'
+
+// --color-danger
+export const __color_danger = '#ff4d4f'
+
+// --color-danger-light
+export const __color_danger_light = '#ff7875'
+
+// --color-danger-dark
+export const __color_danger_dark = '#d9363e'
+
+// --color-warning
+export const __color_warning = '#ffb84d'
+
+// --color-warning-light
+export const __color_warning_light = '#ffc772'
+
+// --color-warning-dark
+export const __color_warning_dark = '#ffa61f'
+
+// --color-success
+export const __color_success = '#45c55b'
+
+// --color-success-light
+export const __color_success_light = '#56ce6b'
+
+// --color-success-dark
+export const __color_success_dark = '#39b54e'
+
+// 边框 ****************************** /
+
+// --border-color-base
+export const __border_color_base = 'rgb(217, 217, 217)'
+
+// --border-color-disabled
+export const __border_color_disabled = '#d9d9d9'

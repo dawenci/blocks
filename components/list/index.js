@@ -4,15 +4,15 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach, makeRgbaColor } from '../../common/utils.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import {
-  $fontFamily,
-  $colorPrimary,
-  $colorPrimaryLight,
-  $colorPrimaryDark,
-  $colorDisabled,
-  $borderColorBase,
-  $borderColorDisabled,
-  $backgroundColorDisabled,
-  $transitionDuration,
+  __font_family,
+  __color_primary,
+  __color_primary_light,
+  __color_primary_dark,
+  __fg_disabled,
+  __border_color_base,
+  __border_color_disabled,
+  __bg_disabled,
+  __transition_duration,
 } from '../theme/var.js'
 
 const TEMPLATE_CSS = `
@@ -42,8 +42,8 @@ const TEMPLATE_CSS = `
 :host {
   display: block;
   box-sizing: border-box;
-  font-family: ${$fontFamily};
-  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+  font-family: var(--font-family, ${__font_family});
+  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   contain: content;
   font-size: 14px;
 }
@@ -96,13 +96,13 @@ const TEMPLATE_CSS = `
   margin: auto;
   border-width: 0;
   border-style: solid;
-  border-color: ${$colorPrimary};
+  border-color: var(--color-primary, ${__color_primary});
   border-left-width: 1px;
   border-bottom-width: 1px;
   transform: rotate(-45deg);
 }
 .item:hover {
-  background-color: ${makeRgbaColor($colorPrimary, .1)};
+  background-color: ${makeRgbaColor(__color_primary, .1)};
 }
 
 </style>

@@ -1,9 +1,9 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import {
-  $radiusBase,
-  $colorPrimary,
-  $colorWarning,
-  $transitionDuration,
+  __radius_base,
+  __color_primary,
+  __color_warning,
+  __transition_duration,
 } from '../theme/var.js'
 
 import { Depth } from './data.js'
@@ -66,7 +66,7 @@ const TEMPLATE_CSS = `<style>
   text-align: center;
   font-size: 0;
   outline: 0;
-  transition: ${$transitionDuration} all;
+  transition: var(--transition-duration, ${__transition_duration}) all;
 }
 
 .header-button::before,
@@ -93,7 +93,7 @@ const TEMPLATE_CSS = `<style>
 .header-button:active::after,
 .header-button:focus::before,
 .header-button:focus::after {
-  border-color: ${$colorPrimary};
+  border-color: var(--color-primary, ${__color_primary});
 }
 
 .header-button.button-prevPrev::before,
@@ -147,10 +147,10 @@ const TEMPLATE_CSS = `<style>
 .header-title:focus {
   outline: 0 none;
   background-color: #f0f0f0;
-  color: ${$colorPrimary};
+  color: var(--color-primary, ${__color_primary});
 }
 .header-title:hover {
-  color: ${$colorPrimary};
+  color: var(--color-primary, ${__color_primary});
 }
 
 #body {
@@ -170,7 +170,7 @@ const TEMPLATE_CSS = `<style>
   line-height: 29px;
   font-size: 12px;
   text-align: center;
-  transition: ${$transitionDuration} all;
+  transition: var(--transition-duration, ${__transition_duration}) all;
 }
 
 .week-header span {
@@ -188,7 +188,7 @@ const TEMPLATE_CSS = `<style>
   flex-flow: row wrap;
   width: 220px;
   padding: 5px;
-  transition: ${$transitionDuration} all;
+  transition: var(--transition-duration, ${__transition_duration}) all;
 }
 
 .body-month .button-list {
@@ -209,15 +209,15 @@ const TEMPLATE_CSS = `<style>
   text-align: center;
   border: 0 none;
   background: transparent;
-  border-radius: ${$radiusBase};
+  border-radius: var(--radius-base, ${__radius_base});
   font-size: 12px;
-  transition: ${$transitionDuration} height,
-    ${$transitionDuration} background,
-    ${$transitionDuration} color;
+  transition: var(--transition-duration, ${__transition_duration}) height,
+    var(--transition-duration, ${__transition_duration}) background,
+    var(--transition-duration, ${__transition_duration}) color;
 }
 .button-item:focus {
   background-color: #f0f0f0;
-  color: ${$colorPrimary};
+  color: var(--color-primary, ${__color_primary});
   outline: 0 none;
 }
 
@@ -254,19 +254,19 @@ const TEMPLATE_CSS = `<style>
 }
 
 .button-item.button-item--today {
-  color: ${$colorPrimary};
-  text-shadow: 0 0 1px ${$colorPrimary};
+  color: var(--color-primary, ${__color_primary});
+  text-shadow: 0 0 1px var(--color-primary, ${__color_primary});
 }
 
 .button-item.button-item--childActive {
-  color: ${$colorPrimary};
-  text-shadow: 0 0 1px ${$colorPrimary};
+  color: var(--color-primary, ${__color_primary});
+  text-shadow: 0 0 1px var(--color-primary, ${__color_primary});
 }
 
 .button-item.button-item--active,
 .button-item.button-item--active:hover,
 .button-item.button-item--active:active {
-  background-color: ${$colorPrimary};
+  background-color: var(--color-primary, ${__color_primary});
   color: #fff;
 }
 
@@ -277,7 +277,7 @@ const TEMPLATE_CSS = `<style>
   overflow: hidden;
   width: 6px;
   height: 6px;
-  background: ${$colorWarning};
+  background: var(--color-warning, ${__color_warning});
   border: 1px solid #fff;
   border-radius: 50%;
   top: 3px;

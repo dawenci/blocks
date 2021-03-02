@@ -1,7 +1,7 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, numGetter, numSetter } from '../../common/property.js'
 import { makeRgbaColor } from '../../common/utils.js';
-import { $colorDanger, $colorPrimary, $colorSuccess, $colorWarning, $radiusBase, $transitionDuration } from '../theme/var.js'
+import { __color_danger, __color_primary, __color_success, __color_warning, __radius_base, __transition_duration } from '../theme/var.js'
 
 const valueGetter = numGetter('value')
 const valueSetter = numSetter('value')
@@ -32,13 +32,13 @@ const TEMPLATE_CSS = `<style>
   flex: 1 1 100%;
   box-sizing: border-box;
   height: 100%;
-  border-radius: ${$radiusBase};
+  border-radius: var(--radius-base, ${__radius_base});
 }
 #progress {
   width: 0;
   height: 100%;
-  transition: ${$transitionDuration} all;
-  border-radius: ${$radiusBase};
+  transition: var(--transition-duration, ${__transition_duration}) all;
+  border-radius: var(--radius-base, ${__radius_base});
 }
 #value {
   flex: 0 0 auto;
@@ -50,21 +50,21 @@ const TEMPLATE_CSS = `<style>
   text-shadow: 1px 1px 0 rgba(255,255,255,.5);
 }
 
-#track { background-color: ${makeRgbaColor($colorPrimary, .1)} }
-#progress { background-color: ${$colorPrimary} }
-#value { color: ${$colorPrimary} }
+#track { background-color: ${makeRgbaColor(__color_primary, .1)} }
+#progress { background-color: var(--color-primary, ${__color_primary}) }
+#value { color: var(--color-primary, ${__color_primary}) }
 
-:host([status="success"]) #track { background-color: ${makeRgbaColor($colorSuccess, .1)} }
-:host([status="success"]) #progress { background-color: ${$colorSuccess} }
-:host([status="success"]) #value { color: ${$colorSuccess} }
+:host([status="success"]) #track { background-color: ${makeRgbaColor(__color_success, .1)} }
+:host([status="success"]) #progress { background-color: var(--color-success, ${__color_success}) }
+:host([status="success"]) #value { color: var(--color-success, ${__color_success}) }
 
-:host([status="error"]) #track { background-color: ${makeRgbaColor($colorDanger, .1)} }
-:host([status="error"]) #progress { background-color: ${$colorDanger} }
-:host([status="error"]) #value { color: ${$colorDanger} }
+:host([status="error"]) #track { background-color: ${makeRgbaColor(__color_danger, .1)} }
+:host([status="error"]) #progress { background-color: var(--color-danger, ${__color_danger}) }
+:host([status="error"]) #value { color: var(--color-danger, ${__color_danger}) }
 
-:host([status="warning"]) #track { background-color: ${makeRgbaColor($colorWarning, .1)} }
-:host([status="warning"]) #progress { background-color: ${$colorWarning} }
-:host([status="warning"]) #value { color: ${$colorWarning} }
+:host([status="warning"]) #track { background-color: ${makeRgbaColor(__color_warning, .1)} }
+:host([status="warning"]) #progress { background-color: var(--color-warning, ${__color_warning}) }
+:host([status="warning"]) #value { color: var(--color-warning, ${__color_warning}) }
 </style>`
 
 const TEMPLATE_HTML = `

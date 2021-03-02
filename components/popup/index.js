@@ -1,7 +1,7 @@
 import {
-  $colorFontBase,
-  $radiusBase,
-  $transitionDuration,
+  __fg_base,
+  __radius_base,
+  __transition_duration,
 } from '../theme/var.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
@@ -88,10 +88,10 @@ const TEMPLATE_CSS = `<style>
   width: 100%;
   height: 100%;
   background-color: #fff;
-  border-radius: ${$radiusBase};
+  border-radius: var(--radius-base, ${__radius_base});
   transform-origin: center center;
   transition-property: transform, opacity;
-  transition-duration: ${$transitionDuration};
+  transition-duration: var(--transition-duration, ${__transition_duration});
   transition-timing-function: cubic-bezier(.645, .045, .355, 1);
 }
 #arrow {
@@ -280,7 +280,7 @@ const TEMPLATE_CSS = `<style>
 :host-context([dark]) #arrow:after,
 :host([dark]) #arrow:after,
 :host([dark]) #arrow:after {
-  background-color: ${$colorFontBase};
+  background-color: var(--fg-base, ${__fg_base});
 }
 </style>`
 

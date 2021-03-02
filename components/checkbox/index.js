@@ -1,15 +1,15 @@
 import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
 import {
-  $fontFamily,
-  $radiusSmall,
-  $colorPrimary,
-  $colorPrimaryLight,
-  $colorPrimaryDark,
-  $colorDisabled,
-  $borderColorBase,
-  $borderColorDisabled,
-  $backgroundColorDisabled,
-  $transitionDuration,
+  __font_family,
+  __radius_small,
+  __color_primary,
+  __color_primary_light,
+  __color_primary_dark,
+  __fg_disabled,
+  __border_color_base,
+  __border_color_disabled,
+  __bg_disabled,
+  __transition_duration,
 } from '../theme/var.js'
 
 const TEMPLATE_CSS = `
@@ -18,9 +18,9 @@ const TEMPLATE_CSS = `
   display: inline-block;
   box-sizing: border-box;
   font-size: 0;
-  font-family: ${$fontFamily};
+  font-family: var(--font-family, ${__font_family});
   text-align: center;
-  transition: color ${$transitionDuration}, border-color ${$transitionDuration};
+  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   all: initial;
   contain: content;
 }
@@ -39,10 +39,10 @@ const TEMPLATE_CSS = `
   overflow: hidden;
   width: 14px;
   height: 14px;
-  border-radius: ${$radiusSmall};
+  border-radius: var(--radius-small, ${__radius_small});
   border-width: 1px;
   border-style: solid;
-  border-color: ${$borderColorBase};
+  border-color: var(--border-color-base, ${__border_color_base});
   cursor: pointer;
 }
 
@@ -53,15 +53,15 @@ const TEMPLATE_CSS = `
 /* hover 框线高亮 */
 :host(:hover) #checkbox,
 :host(:focus) #checkbox {
-  border-color: ${$colorPrimary};
+  border-color: var(--color-primary, ${__color_primary});
 }
 
 /* 选中状态、不确定状态，框线、背景高亮 */
 :host([checked]) #checkbox,
 :host #checkbox[indeterminate],
 :host #checkbox[indeterminate] {
-  border-color: ${$colorPrimary};
-  background-color: ${$colorPrimary};
+  border-color: var(--color-primary, ${__color_primary});
+  background-color: var(--color-primary, ${__color_primary});
 }
 
 /* 选中状态、不确定状态，hover、foucs 高光高亮 */
@@ -69,15 +69,15 @@ const TEMPLATE_CSS = `
 :host(:focus) #checkbox[indeterminate],
 :host([checked]:hover) #checkbox,
 :host([checked]:focus) #checkbox {
-  border-color: ${$colorPrimaryLight};
-  background-color: ${$colorPrimaryLight};
+  border-color: var(--color-primary-light, ${__color_primary_light});
+  background-color: var(--color-primary-light, ${__color_primary_light});
 }
 
 /* 激活状态，加深高亮 */
 :host([checked]:active) #checkbox,
 :host(:active) #checkbox[indeterminate] {
-  border-color: ${$colorPrimaryDark};
-  background-color: ${$colorPrimaryDark};
+  border-color: var(--color-primary-dark, ${__color_primary_dark});
+  background-color: var(--color-primary-dark, ${__color_primary_dark});
 }
 
 /* 不确定状态，内部渲染横杠 */
@@ -123,21 +123,21 @@ const TEMPLATE_CSS = `
 }
 
 :host([disabled]) {
-  color: ${$colorDisabled};
+  color: var(--color-disabled, ${__fg_disabled});
 }
 :host([disabled]) #checkbox,
 :host([disabled]:hover) #checkbox,
 :host([disabled]:active) #checkbox,
 :host([disabled]:focus) #checkbox {
-  border-color: ${$borderColorDisabled};
-  background-color: ${$backgroundColorDisabled};
+  border-color: var(--border-color-disabled, ${__border_color_disabled});
+  background-color: var(--bg-disabled, ${__bg_disabled});
 }
 
 :host([disabled][checked]) #checkbox,
 :host([disabled][checked]:hover) #checkbox,
 :host([disabled][checked]:active) #checkbox,
 :host([disabled][checked]:focus) #checkbox {
-  background-color: ${$borderColorDisabled};
+  background-color: var(--border-color-disabled, ${__border_color_disabled});
 }
 
 :host([disabled]) * {
