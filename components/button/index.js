@@ -87,7 +87,7 @@ const TEMPLATE_CSS = `
   height: 100%;
 }
 
-.prefix-icon, .suffix-icon {
+.icon {
   flex: 0 0 auto;
   display: block;
   position: relative;
@@ -96,8 +96,7 @@ const TEMPLATE_CSS = `
   height: 16px;
   transition: transform var(--transition-duration, ${__transition_duration});
 }
-.prefix-icon svg,
-.suffix-icon svg {
+.icon svg {
   display: block;
   width: 100%;
   height: 100%;
@@ -261,56 +260,35 @@ const TEMPLATE_CSS = `
 /* size */
 :host {
   height: var(--height-base, ${__height_base});
-  padding: 0 calc(var(--height-base, ${__height_base}) / 8);
+  padding: 0 calc(var(--height-base, ${__height_base}) / 4);
   font-size: 14px;
+}
+:host([icon]) #layout:not(.empty) .icon {
+  margin: 0 2px 0 4px;
+}
+:host #layout:not(.empty) #label {
+  margin: 0 4px;
 }
 :host([round]) {
   border-radius: calc(var(--height-base, ${__height_base}) / 2);
 }
-:host #label {
-  margin: 0 calc(var(--height-base, ${__height_base}) / 4);
-}
-:host .prefix-icon {
-  margin-left: calc(var(--height-base, ${__height_base}) / 4);
-}
-:host .suffix-icon {
-  margin-right: calc(var(--height-base, ${__height_base}) / 4);
-}
 
 :host([size="small"]) {
   height: var(--height-small, ${__height_small});
-  padding: 0 calc(var(--height-base, ${__height_small}) / 8);
+  padding: 0 calc(var(--height-base, ${__height_small}) / 4 - 2px);
   font-size: 14px;
 }
 :host([size="small"][round]) {
   border-radius: calc(var(--height-base, ${__height_small}) / 2);
 }
-:host([size="small"]) #label {
-  margin: 0 calc(var(--height-base, ${__height_small}) / 4);
-}
-:host([size="small"]) .prefix-icon {
-  margin-left: calc(var(--height-base, ${__height_small}) / 4);
-}
-:host([size="small"]) .suffix-icon {
-  margin-right: calc(var(--height-base, ${__height_small}) / 4);
-}
 
 :host([size="large"]) {
   height: var(--height-large, ${__height_large});
-  padding: 0 calc(var(--height-base, ${__height_large}) / 8);
+  padding: 0 calc(var(--height-base, ${__height_large}) / 4 + 1px);
   font-size: 16px;
 }
 :host([size="large"][round]) {
   border-radius: calc(var(--height-base, ${__height_large}) / 2);
-}
-:host([size="large"]) #label {
-  margin: 0 calc(var(--height-base, ${__height_large}) / 4);
-}
-:host([size="large"]) .prefix-icon {
-  margin-left: calc(var(--height-base, ${__height_large}) / 4);
-}
-:host([size="large"]) .suffix-icon {
-  margin-right: calc(var(--height-base, ${__height_large}) / 4);
 }
 
 
@@ -340,9 +318,7 @@ const TEMPLATE_CSS = `
 </style>
 `
 const TEMPLATE_HTML = `
-<div id="layout">
-  <span id="label"><slot></slot></span>
-</div>
+<div id="layout"><span id="label"><slot id="slot"></slot></span></div>
 `
 
 const template = document.createElement('template')
@@ -350,7 +326,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksButton extends HTMLElement {
   static get observedAttributes() {
-    return [ 'type', 'size', 'disabled', 'loading', 'prefix-icon', 'suffix-icon' ]
+    return [ 'type', 'size', 'disabled', 'loading', 'icon' ]
   }
 
   constructor() {
@@ -359,6 +335,7 @@ class BlocksButton extends HTMLElement {
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$layout = shadowRoot.getElementById('layout')
     this.$label = shadowRoot.getElementById('label')
+    this.$slot = shadowRoot.getElementById('slot')
 
     this.addEventListener('keydown', (e) => {
       if (this.disabled) {
@@ -420,46 +397,29 @@ class BlocksButton extends HTMLElement {
     sizeSetter(this, value)
   }
 
-  get prefixIcon() {
-    return this.getAttribute('prefix-icon')
+  get icon() {
+    return this.getAttribute('icon')
   }
 
-  set prefixIcon(value) {
-    this.setAttribute('prefix-icon', value)
-  }
-
-  get suffixIcon() {
-    return this.getAttribute('suffix-icon')
-  }
-
-  set suffixIcon(value) {
-    this.setAttribute('suffix-icon', value)
+  set icon(value) {
+    this.setAttribute('icon', value)
   }
 
   render() {
-    const prefixIcon = this.loading
-      ? getRegisteredSvgIcon('loading')
-      : getRegisteredSvgIcon(this.prefixIcon)
-    if (prefixIcon) {
-      if (this.$prefix) {
-        this.$layout.removeChild(this.$prefix)
-      }
-      this.$prefix = this.$layout.insertBefore(document.createElement('span'), this.$label)
-      this.$prefix.className = 'prefix-icon'
-      this.$prefix.classList[this.loading ? 'add' : 'remove']('loading')
-      this.$prefix.setAttribute('part', 'prefix')
-      this.$prefix.appendChild(prefixIcon)
-    }
+    this.$layout.classList[this.$slot.assignedNodes().length ? 'remove' : 'add']('empty')
 
-    const suffixIcon = getRegisteredSvgIcon(this.suffixIcon)
-    if (suffixIcon) {
-      if (this.$suffix) {
-        this.$layout.removeChild(this.$suffix)
+    const icon = this.loading
+      ? getRegisteredSvgIcon('loading')
+      : getRegisteredSvgIcon(this.icon)
+    if (icon) {
+      if (this.$icon) {
+        this.$layout.removeChild(this.$icon)
       }
-      this.$suffix = this.$layout.appendChild(document.createElement('span'))
-      this.$suffix.className = 'suffix-icon'
-      this.$suffix.setAttribute('part', 'suffix')
-      this.$suffix.appendChild(suffixIcon)
+      this.$icon = this.$layout.insertBefore(document.createElement('span'), this.$label)
+      this.$icon.className = 'icon'
+      this.$icon.classList[this.loading ? 'add' : 'remove']('loading')
+      this.$icon.setAttribute('part', 'prefix')
+      this.$icon.appendChild(icon)
     }
   }
 

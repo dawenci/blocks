@@ -59,7 +59,7 @@ const TEMPLATE_CSS = `<style>
   box-sizing: border-box;
   width: 16px;
   height: 16px;
-  margin: 0 6px 0 -2px;
+  margin: 0;
   padding: 0;
   border: 1px solid transparent;
   background: transparent;
@@ -161,38 +161,32 @@ const TEMPLATE_CSS = `<style>
 /* size */
 :host {
   height: var(--height-base, ${__height_base});
-  padding: 0 calc(var(--height-base, ${__height_base}) / 8);
+  padding: 0 calc(var(--height-base, ${__height_base}) / 4);
   font-size: 14px;
+}
+:host #label {
+  margin: 0 4px;
 }
 :host([round]) {
   border-radius: calc(var(--height-base, ${__height_base}) / 2);
 }
-:host #label {
-  margin: 0 calc(var(--height-base, ${__height_base}) / 4);
-}
 
 :host([size="small"]) {
-  height: var(--height-small, ${__height_small});
-  padding: 0 calc(var(--height-base, ${__height_small}) / 8);
+  height: var(--height-base, ${__height_small});
+  padding: 0 calc(var(--height-base, ${__height_small}) / 4 - 2px);
   font-size: 14px;
 }
 :host([size="small"][round]) {
   border-radius: calc(var(--height-base, ${__height_small}) / 2);
 }
-:host([size="small"]) #label {
-  margin: 0 calc(var(--height-base, ${__height_small}) / 4);
-}
 
 :host([size="large"]) {
   height: var(--height-large, ${__height_large});
-  padding: 0 calc(var(--height-base, ${__height_large}) / 8);
+  padding: 0 calc(var(--height-base, ${__height_large}) / 4 + 1px);
   font-size: 16px;
 }
 :host([size="large"][round]) {
   border-radius: calc(var(--height-base, ${__height_large}) / 2);
-}
-:host([size="large"]) #label {
-  margin: 0 calc(var(--height-base, ${__height_large}) / 4);
 }
 </style>`
 
