@@ -6,7 +6,21 @@ html, body {
   overflow: hidden;
 }
 
-body {
+#header {
+  overflow: hidden;
+  position: relative;
+  height: 50px;
+  background-color: #222;
+  color: #fff;
+}
+
+#header h1 {
+  margin: 0;
+  padding: 0 1em;
+}
+
+#body {
+  height: calc(100vh - 50px);
   display: flex;
   flex-flow: row nowrap;
   box-sizing: border-box;

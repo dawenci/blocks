@@ -63,9 +63,6 @@ window.onload = () => {
   {
     const headingNav = document.createElement('div')
     headingNav.className = 'heading-nav'
-    const toggle = headingNav.appendChild(document.createElement('blocks-button'))
-    toggle.size = 'mini'
-    toggle.textContent = '隐藏导航'
 
     const nav = headingNav.appendChild(document.createElement('ol'))
     forEach(document.querySelectorAll('.section > h2'), h2 => {
@@ -76,16 +73,6 @@ window.onload = () => {
         document.querySelector('article').scrollTop = top
       }
     })
-    toggle.onclick = e => {
-      if (nav.style.display === 'none') {
-        nav.style.display = ''
-        toggle.textContent = '隐藏导航'
-      }
-      else {
-        nav.style.display = 'none'
-        toggle.textContent = '显示导航'
-      }
-    }
     if (nav.childElementCount > 2) {
       document.body.appendChild(headingNav)
     }
