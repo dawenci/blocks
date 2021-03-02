@@ -4,10 +4,10 @@ import { forEach } from '../../common/utils.js'
 import { __transition_duration } from '../theme/var.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 
-const halfValueGetter = enumGetter('value', [null, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5])
-const halfValueSetter = enumSetter('value', [null, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5])
-const valueGetter = enumGetter('value', [null, 1, 2, 3, 4, 5])
-const valueSetter = enumSetter('value', [null, 1, 2, 3, 4, 5])
+const halfValueGetter = enumGetter('value', [null, '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
+const halfValueSetter = enumSetter('value', [null, '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
+const valueGetter = enumGetter('value', [null, '1', '2', '3', '4', '5'])
+const valueSetter = enumSetter('value', [null, '1', '2', '3', '4', '5'])
 const halfGetter = boolGetter('half')
 const halfSetter = boolSetter('half')
 
@@ -19,7 +19,7 @@ const TEMPLATE_CSS = `<style>
 
 #layout {
   display: flex;
-  flex-flow: row-reverse nowrap;
+  flex-flow: row nowrap;
   justify-content: flex-end;
   align-items: center;
 }
@@ -83,29 +83,11 @@ svg {
 button {
   fill: #f0f0f0;
 }
-button:hover ~ button {
+button.selected {
   fill: #fadb14;
 }
-button[selected] ~ button {
+button.half-selected .left {
   fill: #fadb14;
-}
-
-:host(:not([half])) .star:hover,
-:host(:not([half])) .star[selected] {
-  fill: #fadb14;
-}
-
-:host([half]) .left:hover,
-:host([half]) .left[selected],
-:host([half]) .right:hover,
-:host([half]) .right[selected],
-:host([half]) .right:hover+.left,
-:host([half]) .right[selected]+.left {
-  fill: #fadb14;
-}
-
-:host([half]) button[selected] {
-
 }
 </style>`
 
@@ -135,35 +117,48 @@ class BlocksRating extends HTMLElement {
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$layout = shadowRoot.getElementById('layout')
 
-    this.$layout.onclick = e => {
-      const target = e.target
-      let star
-      let button
-      let el = target
-      while (el && el !== this.$layout) {
-        if (el.classList.contains('star')) {
-          star = el
-          star.setAttribute('selected', '')
+    forEach(this.$layout.children, (button, index) => {
+      button.onmouseover = e => {
+        if (!this.half) {
+          this._hoverValue = index + 1
         }
-        if (el.tagName === 'BUTTON') {
-          button = el
-          el.setAttribute('selected', '')
-          break
+        else {
+          let el = e.target
+          while (!el.classList.contains('star')) {
+            el = el.parentElement
+          }
+          this._hoverValue = index + (el.classList.contains('left') ? 0.5 : 1)
         }
-        el = el.parentElement
+        this.updateSelect()
       }
-      forEach(this.$layout.querySelectorAll('[selected]'), el => {
-        if (el !== star && el !== button) el.removeAttribute('selected')
-      })
+
+      button.onclick = e => {
+        if (!this.half) {
+          this.value = index + 1
+        }
+        else {
+          let el = e.target
+          while (!el.classList.contains('star')) {
+            el = el.parentElement
+          }
+          this.value = index + (el.classList.contains('left') ? 0.5 : 1)
+        }
+        this.updateSelect()
+      }
+    })
+    this.$layout.onmouseleave = e => {
+      this._hoverValue = undefined
+      this.updateSelect()
     }
   }
 
   get value() {
-    return this.half ? halfValueGetter(this) : valueGetter(this)
+    const value = this.half ? halfValueGetter(this) : valueGetter(this)
+    return value ? +value : value
   }
 
   set value(value) {
-    return this.half ? halfValueSetter(this, value) : valueSetter(this, value)
+    return this.half ? halfValueSetter(this, '' + value) : valueSetter(this, '' + value)
   }
 
   get half() {
@@ -172,6 +167,24 @@ class BlocksRating extends HTMLElement {
 
   set half(value) {
     halfSetter(this, value)
+  }
+
+  updateSelect() {
+    const value = +(this._hoverValue ?? this.value ?? 0)
+    let acc = 0
+    forEach(this.$layout.children, button => {
+      if (value - acc >= 1) {
+        button.className = 'selected'
+        acc += 1
+      }
+      else if (value - acc === 0.5) {
+        button.className = 'half-selected'
+        acc += 0.5
+      }
+      else {
+        button.className = ''
+      }
+    })
   }
 
   render() {
@@ -199,14 +212,16 @@ class BlocksRating extends HTMLElement {
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
-    this.render()    
+    this.render()
   }
 
   disconnectedCallback() {}
 
   adoptedCallback() {}
 
-  attributeChangedCallback(attrName, oldVal, newVal) {}
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    this.updateSelect()
+  }
 }
 
 if (!customElements.get('blocks-rating')) {
