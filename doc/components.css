@@ -1,3 +1,34 @@
+/* scrollbar 宽度 */
+::-webkit-scrollbar {
+  background: transparent;
+  background: rgba(0, 0, 0, .075);
+}
+::-webkit-scrollbar:horizontal {
+  width: 100%;
+  height: 8px;
+}
+::-webkit-scrollbar:vertical {
+  width: 8px;
+  height: 100%;
+}
+/* scrollbar 轨道（滑动槽） */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* scrollbar 滑块 */
+::-webkit-scrollbar-thumb {
+  border: 1px solid rgba(255, 255, 255, .3);
+  background: rgba(0, 0, 0, .2);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+}
+
+
 html,
 body {
   width: 100%;
@@ -25,7 +56,7 @@ article {
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 0 235px 0 0;
+  padding: 15px 235px 15px 15px;
 }
 
 article header {
@@ -36,15 +67,19 @@ article header h1 {
 }
 article h1 {
   font-size: 48px;
+  font-weight: 500;
 }
 article h2 {
   font-size: 36px;
+  font-weight: 500;
 }
 article h3 {
   font-size: 24px;
+  font-weight: 500;
 }
 article h4 {
   font-size: 16px;
+  font-weight: 500;
 }
 
 .section {
@@ -108,35 +143,4 @@ article h4 {
 }
 .heading-nav li:hover {
   background: #f0f0f0;
-}
-
-/* scrollbar 宽度 */
-::-webkit-scrollbar {
-  background: transparent;
-  background: rgba(0, 0, 0, .075);
-}
-::-webkit-scrollbar:horizontal {
-  width: 100%;
-  height: 12px;
-}
-::-webkit-scrollbar:vertical {
-  width: 12px;
-  height: 100%;
-}
-/* scrollbar 轨道（滑动槽） */
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-/* scrollbar 滑块 */
-::-webkit-scrollbar-thumb {
-  border: 1px solid rgba(255, 255, 255, .3);
-  background: rgba(0, 0, 0, .2);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
 }

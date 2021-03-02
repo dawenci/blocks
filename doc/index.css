@@ -12,11 +12,50 @@ html, body {
   height: 50px;
   background-color: #222;
   color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,.2);
 }
 
 #header h1 {
+  float: left;
   margin: 0;
-  padding: 0 1em;
+  padding: 0 15px;
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 50px;
+}
+
+#header nav {
+  height: 100%;
+}
+
+#header nav ul {
+  float: left;
+  height: 100%;
+  margin: 0 0 0 100px;
+  padding: 0;
+  display: flex;
+}
+
+#header nav ul li {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#header nav ul li a {
+  display: block;
+  padding: 0 15px;
+  color: #fff;
+  text-decoration: none;
+  line-height: 50px;
+}
+#header nav ul li a:hover {
+  background-image: linear-gradient(to bottom, rgba(255,255,255,.1), rgba(255,255,255,.1));
+}
+#header nav ul li.active a {
+  background-color: #fff;
+  color: #000;
 }
 
 #body {
