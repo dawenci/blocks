@@ -1,4 +1,6 @@
 export default [
+  { title: 'resizable', url: 'resizable.html' },
+
   { title: 'backtop', url: 'backtop.html' },
   { title: 'button-group', url: 'button-group.html' },
   { title: 'button', url: 'button.html' },

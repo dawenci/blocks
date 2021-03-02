@@ -17,7 +17,7 @@
       <h1>loading</h1>
     </header>
 
-    <script type="module" src="/widgets/button/index.js"></script>
+    <script type="module" src="/components/button/index.js"></script>
 
     <section class="section">
       <h2>默认</h2>
@@ -26,7 +26,7 @@
         <blocks-button id="default">消息</blocks-button>
 
         <script type="module">
-          import { notify } from '/widgets/notification/index.js'
+          import { notify } from '/components/notification/index.js'
           const $ = (id) => document.getElementById(id)
           $('default').onclick = () => {
             notify({ title: '消息通知', content: '这里是消息内容' })
@@ -46,7 +46,7 @@
         <blocks-button id="placement-bottomLeft">bottom-left</blocks-button>
         <blocks-button id="placement-bottomRight">bottom-right</blocks-button>
         <script type="module">
-          import { notify } from '/widgets/notification/index.js'
+          import { notify } from '/components/notification/index.js'
           const $ = (id) => document.getElementById(id)
           const title = '消息通知'
           const content = '这里是消息内容'
@@ -68,7 +68,7 @@
 
 
     <section class="section">
-      <script type="module" src="/widgets/button/index.js"></script>
+      <script type="module" src="/components/button/index.js"></script>
       <h2>类别</h2>
 
       <p>使用 'type' 配置通知类型，支持 'success'、'error'、'warning'、'info'</p>
@@ -79,7 +79,7 @@
         <blocks-button id="info">信息</blocks-button>
         <blocks-button id="warning">警告</blocks-button>
         <script type="module">
-          import { notify } from '/widgets/notification/index.js'
+          import { notify } from '/components/notification/index.js'
           const $ = (id) => document.getElementById(id)
           const title = '消息通知'
           const content = '这里是消息内容'
@@ -100,7 +100,7 @@
     </section>
 
     <section class="section">
-      <script type="module" src="/widgets/button/index.js"></script>
+      <script type="module" src="/components/button/index.js"></script>
       <h2>可手动关闭</h2>
 
       <p>使用 'closeable' 可以配置手动关闭功能。</p>
@@ -108,7 +108,7 @@
       <div data-codesource="html">
         <blocks-button id="closeable">成功</blocks-button>
         <script type="module">
-          import { notify } from '/widgets/notification/index.js'
+          import { notify } from '/components/notification/index.js'
           const $ = (id) => document.getElementById(id)
           const title = '消息通知'
           const content = '这里是消息内容'
@@ -129,7 +129,7 @@
         <blocks-button id="duration0">永远不自动关闭</blocks-button>
 
         <script type="module">
-          import { notify } from '/widgets/notification/index.js'
+          import { notify } from '/components/notification/index.js'
           const $ = (id) => document.getElementById(id)
           const title = '消息通知'
           const content = '这里是消息内容'
@@ -152,7 +152,7 @@
         <blocks-button id="onclose">onclose消息</blocks-button>
 
         <script type="module">
-          import { notify } from '/widgets/notification/index.js'
+          import { notify } from '/components/notification/index.js'
           const $ = (id) => document.getElementById(id)
           const title = '消息通知'
           const content = '这里是消息内容'
