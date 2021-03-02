@@ -62,6 +62,9 @@ const TEMPLATE_CSS = `
   transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   user-select: none;
 }
+:host([block]) {
+  display: block;
+}
 :host(:focus) {
   outline: 0 none;
 }
