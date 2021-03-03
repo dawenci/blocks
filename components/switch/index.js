@@ -1,4 +1,6 @@
 import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
+import { dispatchEvent } from '../../common/event.js'
+import { boolGetter, boolSetter } from '../../common/property.js'
 import {
   __font_family,
   __radius_small,
@@ -11,6 +13,11 @@ import {
   __bg_disabled,
   __transition_duration,
 } from '../theme/var.js'
+
+const checkedGetter = boolGetter('checked')
+const checkedSetter = boolSetter('checked')
+const disabledGetter = boolGetter('disabled')
+const disabledSetter = boolSetter('disabled')
 
 const TEMPLATE_CSS = `
 <style>
@@ -130,29 +137,19 @@ class BlocksSwitch extends HTMLElement {
   }
 
   get disabled() {
-    return this.hasAttribute('disabled')
+    return disabledGetter(this)
   }
 
-  set disabled(v) {
-    if (v) {
-      this.setAttribute('disabled', '')
-    }
-    else {
-      this.removeAttribute('disabled')
-    }
+  set disabled(value) {
+    disabledSetter(this, value)
   }
 
   get checked() {
-    return this.hasAttribute('checked')
+    return checkedGetter(this)
   }
 
-  set checked(v) {
-    if (v) {
-      this.setAttribute('checked', '')
-    }
-    else {
-      this.removeAttribute('checked')
-    }
+  set checked(value) {
+    checkedSetter(this, value)
   }
 
   connectedCallback() {
@@ -168,6 +165,9 @@ class BlocksSwitch extends HTMLElement {
     if (name === 'disabled') {
       setDisabled(this, this.disabled)
       setTabindex(this, !this.disabled)
+    }
+    if (name === 'checked') {
+      dispatchEvent(this, 'change', { detail: { value: this.checked } })
     }
   }
 }

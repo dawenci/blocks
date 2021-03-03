@@ -10,6 +10,12 @@ export const __bg_base = '#fff'
 // --fg-base
 export const __fg_base = '#333'
 
+// --fg-secondary
+export const __fg_secondary = '#909090'
+
+// --fg-placeholder
+export const __fg_placeholder = '#ccc'
+
 // --bg-disabled
 export const __bg_disabled = '#f5f5f5'
 
@@ -96,7 +102,10 @@ export const __color_success_dark = '#39b54e'
 // 边框 ****************************** /
 
 // --border-color-base
-export const __border_color_base = 'rgb(217, 217, 217)'
+export const __border_color_base = '#d9d9d9'
+
+// --border-color-light
+export const __border_color_light = '#e5e5e5'
 
 // --border-color-disabled
 export const __border_color_disabled = '#d9d9d9'
