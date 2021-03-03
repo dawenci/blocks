@@ -1,10 +1,9 @@
 import '../popup/index.js'
 import '../list/index.js'
 import '../button/index.js'
-import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
-import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
+import { enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { forEach, makeRgbaColor } from '../../common/utils.js'
+import { forEach } from '../../common/utils.js'
 import {
   __font_family,
   __color_primary,
@@ -17,6 +16,11 @@ import {
   __transition_duration
 } from '../theme/var.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
+import { makeMessages } from '../../i18n/makeMessages.js'
+
+const getMessage = makeMessages('dropdown-list', {
+  confirm: '确定'
+})
 
 const template = document.createElement('template')
 template.innerHTML = `<slot id="slot"></slot>`
@@ -163,7 +167,7 @@ export default class BlocksDropDownList extends HTMLElement {
         this.$confirm.block = true
         this.$confirm.size = 'small'
         this.$confirm.style.cssText = 'margin:5px;'
-        this.$confirm.innerText = window?.blocksUI?.messages?.confirm ?? '确定'
+        this.$confirm.innerText = getMessage('confirm')
         this.$confirm.onclick = () => this.open = false
       }
     }

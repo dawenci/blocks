@@ -817,16 +817,16 @@ class BlocksDatePanel extends HTMLElement {
 
   get title() {
     if (this.viewDepth === Depth.Century) {
-      return `${this.panelCentury * 100} 至 ${this.panelCentury * 100 + 99}`
+      return `${this.panelCentury * 100} ~ ${this.panelCentury * 100 + 99}`
     }
     if (this.viewDepth === Depth.Decade) {
       const [from, to] = this.getDecadeRange(this.panelDecade)
-      return `${from} 至 ${to}`
+      return `${from} ~ ${to}`
     }
     if (this.viewDepth === Depth.Year) {
-      return `${this.panelYear} 年`
+      return `${this.panelYear}`
     }
-    return `${this.panelYear} 年 ${this.panelMonth + 1} 月`
+    return `${this.panelYear} / ${this.panelMonth + 1}`
   }
 
   // 是否已经选够最大数量的值
@@ -948,7 +948,7 @@ class BlocksDatePanel extends HTMLElement {
     const list = []
     for (let decade = decadeFrom; decade <= decadeTo; decade += 1) {
       list.push({
-        label: `${decade * 10}-${decade * 10 + 9}`,
+        label: `${decade * 10} ~ ${decade * 10 + 9}`,
         century: this.panelCentury,
         decade
       })
