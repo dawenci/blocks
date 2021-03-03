@@ -58,15 +58,14 @@ class BlocksBackTop extends HTMLElement {
 
     // TODO, animate
     this.$layout.onclick = () => {
-      if (!this.target()) return
-      scrollTo(this.target(), 0, {
+      scrollTo(this.targetElement, 0, {
         duration: .1,
         done: () => this.render()
       })
     }
 
     this._onTargetScroll = (e) => {
-      if (e.target === this.target()) {
+      if (e.target === this.targetElement) {
         this.render()
       }
     }
@@ -81,21 +80,43 @@ class BlocksBackTop extends HTMLElement {
   }
 
   get target() {
-    return this._target ?? (() => window)
+    if (this._target) {
+      return this._target() ?? null
+    }
+    return this.getAttribute('target')
   }
 
   set target(value) {
-    this._target = typeof value === 'string' ? (() => {
+    if (typeof value === 'string' || value === null) {
+      this.setAttribute('target', value)
+      this._target = undefined
+      return
+    }
+    if (typeof value === 'function') {
+      this._target = value
+    }
+    else if (value instanceof Node) {
+      this._target = () => value
+    }
+    this.removeAttribute('target')
+  }
+
+  get targetElement() {
+    const target = this.target
+    if (target === null) {
+      return window
+    }
+    if (target instanceof Element) {
+      return target
+    }
+    if (typeof target === 'string') {
       try {
-        return document.querySelector(value)
+        return document.querySelector(target) ?? window
       }
       catch (error) {
-        return null
+        return window
       }
-    })
-    : typeof value === 'function' ? value
-    : typeof value === Element ? (() => value)
-    : (() => null)
+    }
   }
 
   get visibilityHeight() {
@@ -107,7 +128,7 @@ class BlocksBackTop extends HTMLElement {
   }
 
   render() {
-    const scrollTop = (this.target()?.scrollTop ?? 0)
+    const scrollTop = this.targetElement.scrollTop
     if (scrollTop >= this.visibilityHeight) {
       this.style.display = ''
     }
@@ -130,9 +151,6 @@ class BlocksBackTop extends HTMLElement {
   }
 
   attributeChangedCallback(attrName, oldVal, newVal) {
-    if (attrName === 'target') {
-      this.target = newVal
-    }
   }
 }
 

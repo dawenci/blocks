@@ -1,4 +1,3 @@
-import { } from '../theme/var.js'
 import '../popup/index.js'
 import '../input/index.js'
 import '../date-panel/index.js'
@@ -24,16 +23,19 @@ const TEMPLATE_CSS = `<style>
 }
 </style>`
 
-const TEMPLATE_HTML = `
-<blocks-input suffix-icon="date" id="result" readonly />
+const TEMPLATE_HTML_INPUT = `<blocks-input suffix-icon="date" id="result" readonly />`
+
+const TEMPLATE_HTML_POPUP = `
 <blocks-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
   <blocks-date-panel class="date-picker-panel" />
 </blocks-popup>
 `
 
-const template = document.createElement('template')
-template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
+const inputTemplate = document.createElement('template')
+inputTemplate.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML_INPUT
 
+const popupTemplate = document.createElement('template')
+popupTemplate.innerHTML = TEMPLATE_HTML_POPUP
 
 class BlocksDatePicker extends HTMLElement {
   static get observedAttributes() {
@@ -46,7 +48,7 @@ class BlocksDatePicker extends HTMLElement {
       'max',
       'loading',
       'clearable',
-      'startWeekOn',
+      'startWeekOn'
     ]
   }
 
@@ -56,19 +58,21 @@ class BlocksDatePicker extends HTMLElement {
 
     this.attachShadow({ mode: 'open' })
 
-    const fragment = template.content.cloneNode(true)
+    // input 部分
+    const fragment = inputTemplate.content.cloneNode(true)
     this.$input = fragment.querySelector('#result')
-    this.$popup = fragment.querySelector('blocks-popup')
-    this.$panel = fragment.querySelector('blocks-date-panel')
     this.shadowRoot.appendChild(fragment)
-    
+
+    // 面板部分
+    this.$popup = popupTemplate.content.cloneNode(true).querySelector('blocks-popup')
+    this.$panel = this.$popup.querySelector('blocks-date-panel')
     this.$popup.setAttribute('anchor', `#${this.id}`)
 
     this.$input.onfocus = this.$input.onclick = (e) => {
       this.$popup.open = true
     }
 
-    this.$panel.addEventListener('input', e => {
+    this.$panel.addEventListener('input', (e) => {
       if (!this.$panel.multiple) this.$popup.open = false
       this.render()
     })
@@ -76,10 +80,13 @@ class BlocksDatePicker extends HTMLElement {
 
   render() {
     if (this.multiple) {
-      this.$input.value = (this.value ?? []).map(date => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`).join(', ')
-    }
-    else {
-      this.$input.value = this.value ? `${this.value.getFullYear()}-${this.value.getMonth() + 1}-${this.value.getDate()}` : ''
+      this.$input.value = (this.value ?? [])
+        .map((date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
+        .join(', ')
+    } else {
+      this.$input.value = this.value
+        ? `${this.value.getFullYear()}-${this.value.getMonth() + 1}-${this.value.getDate()}`
+        : ''
     }
   }
 
@@ -148,9 +155,11 @@ class BlocksDatePicker extends HTMLElement {
   }
 
   connectedCallback() {
-    this.constructor.observedAttributes.forEach(attr => {
+    this.constructor.observedAttributes.forEach((attr) => {
       upgradeProperty(this, attr)
     })
+    document.body.appendChild(this.$popup)
+
     this.render()
 
     if (!this._onClickOutside) {
@@ -166,6 +175,7 @@ class BlocksDatePicker extends HTMLElement {
 
   disconnectedCallback() {
     document.removeEventListener('click', this._onClickOutside)
+    document.body.removeChild(this.$popup)
   }
 
   // adoptedCallback() {

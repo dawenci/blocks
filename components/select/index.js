@@ -5,9 +5,7 @@ import '../input/index.js'
 import '../select-result/index.js'
 
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
-import {
-  __radius_base
-} from '../theme/var.js'
+import { __radius_base } from '../theme/var.js'
 import { every, find, forEach, findIndex } from '../../common/utils.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setDisabled, setRole } from '../../common/accessibility.js'
@@ -35,17 +33,18 @@ const TEMPLATE_CSS = `<style>
 }
 </style>`
 
-const TEMPLATE_HTML = `
-<blocks-select-result suffix-icon="down" id="result" readonly></blocks-select-result>
-<blocks-popup append-to-body id="date-picker-popup" origin="top-start" arrow>
-  <div class="option-list" style="overflow:hidden;min-height:20px;border-radius:var(--radius-base, ${__radius_base});"></div>
-</blocks-popup>
-<slot style="display:none;"></slot>
-`
+const TEMPLATE_HTML_INPUT = `<blocks-select-result suffix-icon="down" id="result" readonly></blocks-select-result>
+<slot style="display:none;"></slot>`
 
-const template = document.createElement('template')
-template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
+const TEMPLATE_HTML_POPUP = `<blocks-popup append-to-body id="date-picker-popup" origin="top-start" arrow>
+<div class="option-list" style="overflow:hidden;min-height:20px;border-radius:var(--radius-base, ${__radius_base});"></div>
+</blocks-popup>`
 
+const inputTemplate = document.createElement('template')
+inputTemplate.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML_INPUT
+
+const popupTemplate = document.createElement('template')
+popupTemplate.innerHTML = TEMPLATE_HTML_POPUP
 
 class BlocksSelect extends HTMLElement {
   static get observedAttributes() {
@@ -59,7 +58,7 @@ class BlocksSelect extends HTMLElement {
       // 多选结果 tag 是否可以关闭
       'tag-clearable',
       // 是否可以搜索
-      'searchable',
+      'searchable'
     ]
   }
 
@@ -77,21 +76,24 @@ class BlocksSelect extends HTMLElement {
 
     const id = `select-${idSeed++}`
     this.id = id
-    const fragment = template.content.cloneNode(true)
+
+    const fragment = inputTemplate.content.cloneNode(true)
     this.$result = fragment.querySelector('blocks-select-result')
-    this.$popup = fragment.querySelector('#date-picker-popup')
-    this.$list = fragment.querySelector('.option-list')
     this.$optionSlot = fragment.querySelector('slot')
-    this.$popup.setAttribute('anchor', `#${id}`)
+
     this.shadowRoot.appendChild(fragment)
 
-    this.$result.onfocus = this.$result.onfocus = e => {
+    this.$popup = popupTemplate.content.cloneNode(true).querySelector('#date-picker-popup')
+    this.$popup.setAttribute('anchor', `#${id}`)
+    this.$list = this.$popup.querySelector('.option-list')
+
+    this.$result.onfocus = this.$result.onfocus = (e) => {
       this.$popup.style.minWidth = `${this.$result.offsetWidth}px`
       this.$popup.open = true
       this.$result.classList.add('dropdown')
     }
 
-    this.$list.onclick = e => {
+    this.$list.onclick = (e) => {
       const target = e.target
       if (target.tagName === 'BLOCKS-OPTION') {
         this._selectOption(target)
@@ -99,14 +101,14 @@ class BlocksSelect extends HTMLElement {
       this.render()
     }
 
-    this.$result.addEventListener('click-clear', e => {
+    this.$result.addEventListener('click-clear', (e) => {
       this.value = this.multiple ? [] : null
-      forEach(this.$list.querySelectorAll('[selected]'), option => {
+      forEach(this.$list.querySelectorAll('[selected]'), (option) => {
         option.selected = false
       })
     })
 
-    this.$list.addEventListener('select', e => {
+    this.$list.addEventListener('select', (e) => {
       const target = e.target
       // 单选模式
       if (!this.multiple) {
@@ -126,7 +128,7 @@ class BlocksSelect extends HTMLElement {
       }
     })
 
-    this.$list.addEventListener('deselect', e => {
+    this.$list.addEventListener('deselect', (e) => {
       const target = e.target
       // 单选模式
       if (!this.multiple) {
@@ -137,114 +139,22 @@ class BlocksSelect extends HTMLElement {
       // 多选模式
       else {
         console.log('多选取消选中')
-        const newValue = this.$result.value.filter(item => item.value !== target.value)
+        const newValue = this.$result.value.filter((item) => item.value !== target.value)
         this.$result.value = newValue
       }
     })
 
-    this.$result.addEventListener('deselect', e => {
-      const selected = find(this.options, option => option.value === e.detail.value)
+    this.$result.addEventListener('deselect', (e) => {
+      const selected = find(this.options, (option) => option.value === e.detail.value)
       if (selected) selected.selected = false
     })
 
-    this.$result.onsearch = e => {
+    this.$result.onsearch = (e) => {
       this.searchStr = e.detail.value
       this.filter()
     }
 
     this._initKeymap()
-  }
-
-  _selectOption(option) {
-    if (option.disabled) return
-    if (option.parentElement.tagName === 'BLOCKS-OPTGROUP' && option.parentElement.disabled) return
-    if (this.multiple) {
-      option.selected = !option.selected
-    }
-    else {
-      const selected = this.$list.querySelector('[selected]')
-      if (selected && selected !== option) {
-        selected.selected = false
-      }
-      option.selected = true
-    }
-  }
-
-  _initKeymap() {
-    // 快捷键控制焦点移动
-    let currentFocusValue
-    const focusPrev = () => {
-      const all = this.options.filter(el => !el.disabled)
-      if (!all.length) return
-      const index = findIndex(all, item => item.value === currentFocusValue)
-      const prev = all[index - 1] ?? all[all.length - 1]
-      if (prev) {
-        prev.focus()
-        currentFocusValue = prev.value
-      }
-      console.log('prev', prev)
-    }
-
-    const focusNext = () => {
-      const all = this.options.filter(el => !el.disabled)
-      if (!all.length) return
-      const index = findIndex(all, item => item.value === currentFocusValue)
-      const next = all[index + 1] ?? all[0]
-      if (next) {
-        next.focus()
-        currentFocusValue = next.value
-      }
-      console.log('next', next)
-    }
-
-    // 在 result 上按 tab、上下方向键，foucs 第一个选项
-    this.$result.onkeydown = e => {
-      if (e.key === 'Escape') {
-        this.$popup.open = false
-        this.$result.blur()
-        this.$result.classList.remove('dropdown')
-      }
-      if ((e.key === 'Tab' && !e.shiftKey) || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault()
-        const first = this.options.find(el => !el.disabled)
-        if (first) {
-          currentFocusValue = first.value
-          first.focus()
-        }
-      }
-    }
-
-    // 在 list 上按 tab、shift + tab，上下方向键，上下移动焦点
-    this.$popup.onkeydown = e => {
-      if (e.key === 'Escape') {
-        this.$popup.open = false
-        this.$result.classList.remove('dropdown')
-      }
-      else if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
-        focusNext()
-      }
-      else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
-        focusPrev()
-      }
-      else if (e.key === ' ' || e.key === 'Enter') {
-        const option = this.options.find(item => item.value === currentFocusValue)
-        if (option) this._selectOption(option)
-      }
-    }
-  }
-
-  render() {
-  }
-
-  filter() {
-    const searchStr = this.searchStr
-    forEach(this.options, option => {
-      option.style.display = this.searchMethod(option, searchStr) ? '' : 'none'
-    })
-    forEach(this.$list.querySelectorAll('blocks-optgroup'), group => {
-      const options = group.querySelectorAll('blocks-option')
-      group.style.display = every(options, option => option.style.display === 'none') ? 'none' : ''
-    })
   }
 
   get options() {
@@ -287,10 +197,10 @@ class BlocksSelect extends HTMLElement {
     this.$result.value = value
     const valueMap = Object.create(null)
     const values = this.multiple ? this.$result.value : this.$result.value ? [this.$result.value] : []
-    values.forEach(item => {
+    values.forEach((item) => {
       valueMap[item.value] = true
     })
-    forEach(this.options, option => {
+    forEach(this.options, (option) => {
       option.silentSelected(!!valueMap[option.value])
     })
   }
@@ -340,9 +250,11 @@ class BlocksSelect extends HTMLElement {
     setRole(this, 'select')
     setDisabled(this, this.disabled)
 
-    this.constructor.observedAttributes.forEach(attr => {
+    this.constructor.observedAttributes.forEach((attr) => {
       upgradeProperty(this, attr)
     })
+    document.body.appendChild(this.$popup)
+
     this.render()
 
     if (!this._onClickOutside) {
@@ -356,35 +268,15 @@ class BlocksSelect extends HTMLElement {
 
     document.addEventListener('click', this._onClickOutside)
 
-    this.$optionSlot.addEventListener('slotchange', e => {
+    this.$optionSlot.addEventListener('slotchange', (e) => {
       this.initOptions()
     })
   }
 
-  initOptions() {
-    this.$list.innerHTML = ''
-
-    const isOption = el => el instanceof customElements.get('blocks-option')
-    const isGroup = el => el instanceof customElements.get('blocks-optgroup')
-
-    // 将 slot 传入的 option 等拷贝到 popup 里
-    this.$optionSlot.assignedElements()
-      .forEach(el => {
-        if (isOption(el) || isGroup(el)) {
-          const copy = el.cloneNode(true)
-          copy.setAttribute('tabindex', '0')
-          if (copy.id) delete copy.id
-          this.$list.appendChild(copy)
-        }
-      })
-  }
-
   disconnectedCallback() {
     document.removeEventListener('click', this._onClickOutside)
+    document.body.removeChild(this.$popup)
   }
-
-  // adoptedCallback() {
-  // }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (['clearable', 'tag-clearable', 'multiple', 'multiple-mode', 'searchable'].includes(name)) {
@@ -396,6 +288,110 @@ class BlocksSelect extends HTMLElement {
     }
 
     this.render()
+  }
+
+  initOptions() {
+    this.$list.innerHTML = ''
+
+    const isOption = (el) => el instanceof customElements.get('blocks-option')
+    const isGroup = (el) => el instanceof customElements.get('blocks-optgroup')
+
+    // 将 slot 传入的 option 等拷贝到 popup 里
+    this.$optionSlot.assignedElements().forEach((el) => {
+      if (isOption(el) || isGroup(el)) {
+        const copy = el.cloneNode(true)
+        copy.setAttribute('tabindex', '0')
+        if (copy.id) delete copy.id
+        this.$list.appendChild(copy)
+      }
+    })
+  }
+
+  _selectOption(option) {
+    if (option.disabled) return
+    if (option.parentElement.tagName === 'BLOCKS-OPTGROUP' && option.parentElement.disabled) return
+    if (this.multiple) {
+      option.selected = !option.selected
+    } else {
+      const selected = this.$list.querySelector('[selected]')
+      if (selected && selected !== option) {
+        selected.selected = false
+      }
+      option.selected = true
+    }
+  }
+
+  _initKeymap() {
+    // 快捷键控制焦点移动
+    let currentFocusValue
+    const focusPrev = () => {
+      const all = this.options.filter((el) => !el.disabled)
+      if (!all.length) return
+      const index = findIndex(all, (item) => item.value === currentFocusValue)
+      const prev = all[index - 1] ?? all[all.length - 1]
+      if (prev) {
+        prev.focus()
+        currentFocusValue = prev.value
+      }
+      console.log('prev', prev)
+    }
+
+    const focusNext = () => {
+      const all = this.options.filter((el) => !el.disabled)
+      if (!all.length) return
+      const index = findIndex(all, (item) => item.value === currentFocusValue)
+      const next = all[index + 1] ?? all[0]
+      if (next) {
+        next.focus()
+        currentFocusValue = next.value
+      }
+      console.log('next', next)
+    }
+
+    // 在 result 上按 tab、上下方向键，foucs 第一个选项
+    this.$result.onkeydown = (e) => {
+      if (e.key === 'Escape') {
+        this.$popup.open = false
+        this.$result.blur()
+        this.$result.classList.remove('dropdown')
+      }
+      if ((e.key === 'Tab' && !e.shiftKey) || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        const first = this.options.find((el) => !el.disabled)
+        if (first) {
+          currentFocusValue = first.value
+          first.focus()
+        }
+      }
+    }
+
+    // 在 list 上按 tab、shift + tab，上下方向键，上下移动焦点
+    this.$popup.onkeydown = (e) => {
+      if (e.key === 'Escape') {
+        this.$popup.open = false
+        this.$result.classList.remove('dropdown')
+      } else if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
+        focusNext()
+      } else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
+        focusPrev()
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        const option = this.options.find((item) => item.value === currentFocusValue)
+        if (option) this._selectOption(option)
+      }
+    }
+  }
+
+  render() {}
+
+  filter() {
+    const searchStr = this.searchStr
+    forEach(this.options, (option) => {
+      option.style.display = this.searchMethod(option, searchStr) ? '' : 'none'
+    })
+    forEach(this.$list.querySelectorAll('blocks-optgroup'), (group) => {
+      const options = group.querySelectorAll('blocks-option')
+      group.style.display = every(options, (option) => option.style.display === 'none') ? 'none' : ''
+    })
   }
 }
 

@@ -7,6 +7,7 @@ import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/pro
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
+import { definePrivate } from '../../common/definePrivate.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -294,13 +295,6 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-function deepActiveElement() {
-  let el = document.activeElement
-  while (el && el.shadowRoot && el.shadowRoot.activeElement) {
-    el = el.shadowRoot.activeElement
-  }
-  return el
-}
 
 export default class BlocksPopup extends HTMLElement {
   static get observedAttributes() {
@@ -343,6 +337,8 @@ export default class BlocksPopup extends HTMLElement {
     this.$layout = fragment.querySelector('#layout')
     this.$arrow = fragment.querySelector('#arrow')
     this.shadowRoot.appendChild(fragment)
+
+    definePrivate(this, '_anchor')
    
     // 过渡开始时
     this.$layout.ontransitionstart = (ev) => {
@@ -410,11 +406,27 @@ export default class BlocksPopup extends HTMLElement {
 
   // 吸附到的元素 selector，设置了该属性且对应的元素存在，则忽略 x、y 属性
   get anchor() {
+    if (this._anchor) {
+      return this._anchor() ?? null
+    }
     return this.getAttribute('anchor')
   }
 
   set anchor(value) {
-    this.setAttribute('anchor', value)
+    if (typeof value === 'string' || value === null) {
+      this.setAttribute('anchor', value)
+      this._anchor = undefined
+      return
+    }
+
+    if (typeof value === 'function') {
+      this._anchor = value
+    }
+    else if (value instanceof Node) {
+      this._anchor = () => value
+    }
+    this.removeAttribute('anchor')
+    this.updatePosition()
   }
 
   get appendToBody() {
@@ -473,22 +485,31 @@ export default class BlocksPopup extends HTMLElement {
     let y1
     let y2
     let layoutAnchor
-    const anchor = this.getAttribute('anchor')?.trim?.()
-    if (!anchor) {
+    const anchor = this.anchor
+
+    if (anchor === null) {
       layoutAnchor = getOffsetParent(this)
     }
-    // [x1, y1, x2, y2]
-    else if (/\[\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\]/.test(anchor)) {
-      [x1, y1, x2, y2] = JSON.parse(anchor)
+    else if (typeof anchor === 'string') {
+      if (!anchor.trim()) {
+        layoutAnchor = getOffsetParent(this)
+      }
+      // [x1, y1, x2, y2]
+      else if (/\[\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\]/.test(anchor)) {
+        [x1, y1, x2, y2] = JSON.parse(anchor)
+      }
+      // [x1, y1]
+      else if (/\[\s*\d+\s*,\s*\d+\s*\]/.test(anchor)) {
+        [x1, y1] = JSON.parse(anchor)
+        x2 = x1
+        y2 = y1
+      }
+      else {
+        layoutAnchor = document.querySelector(anchor)
+      }
     }
-    // [x1, y1]
-    else if (/\[\s*\d+\s*,\s*\d+\s*\]/.test(anchor)) {
-      [x1, y1] = JSON.parse(anchor)
-      x2 = x1
-      y2 = y1
-    }
-    else {
-      layoutAnchor = document.querySelector(anchor)
+    else if (anchor instanceof Element) {
+      layoutAnchor = anchor
     }
 
     if (layoutAnchor) {
