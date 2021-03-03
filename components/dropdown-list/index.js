@@ -17,6 +17,7 @@ import {
 } from '../theme/var.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { makeMessages } from '../../i18n/makeMessages.js'
+import { dispatchEvent } from '../../common/event.js'
 
 const getMessage = makeMessages('dropdown-list', {
   confirm: '确定'
@@ -101,6 +102,10 @@ export default class BlocksDropDownList extends HTMLElement {
     this.$popup.addEventListener('mouseenter', onenter)
     this.addEventListener('mouseleave', onleave)
     this.$popup.addEventListener('mouseleave', onleave)
+
+    this.$list.addEventListener('change', event => {
+      dispatchEvent(this, 'change', { detail: event.detail })
+    })
   }
 
   get open() {

@@ -14,6 +14,7 @@ import {
   __bg_disabled,
   __transition_duration,
 } from '../theme/var.js'
+import { dispatchEvent } from '../../common/event.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -161,12 +162,13 @@ class BlocksList extends HTMLElement {
   }
 
   get selected() {
-    return this._selected
+    return this.multiple ? this._selected : this._selected[0]
   }
 
   set selected(ids) {
-    this._selected = Array.isArray(ids) ? ids : []
+    this._selected = this.multiple ? Array.isArray(ids) ? ids : [ids] : [ids]
     this.render()
+    dispatchEvent(this, 'change', { detail: { value: this.multiple ? this._selected : this._selected[0] } })
   }
 
   get idField() {
@@ -210,8 +212,8 @@ class BlocksList extends HTMLElement {
     }
 
     const selectedMap = Object.create(null)
-    forEach(this.selected, id => {
-      this.selectedMap[id] = true
+    forEach(this._selected, id => {
+      selectedMap[id] = true
     })
     const { idField: idField, labelField } = this
     forEach(this.$list.children, (item, index) => {
@@ -234,6 +236,7 @@ class BlocksList extends HTMLElement {
   _selectItem($item) {
     if (this.multiple) {
       $item.classList.toggle('selected')
+      this._selected.push($item.dataset.id)
     }
     else {
       forEach(this.$list.children, $child => {
@@ -242,9 +245,11 @@ class BlocksList extends HTMLElement {
         }
         else {
           $child.classList.add('selected')
-        } 
+        }
       })
+      this._selected = [$item.dataset.id]
     }
+    dispatchEvent(this, 'change', { detail: { value: this.multiple ? this._selected : this._selected[0] } })
   }
 
   connectedCallback() {
@@ -258,6 +263,14 @@ class BlocksList extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    // 从多选改成单选，保留最后一个选择的值
+    if (name === 'multiple') {
+      if (!this.multiple && this._selected.length) {
+        this._selected = [this._selected[this._selected.length - 1]]
+      }
+    }
+
+    this.render()
   }
 }
 
