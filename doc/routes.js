@@ -1,6 +1,4 @@
 export default [
-  { title: 'resizable', url: 'resizable.html' },
-
   { title: 'backtop', url: 'backtop.html' },
   { title: 'button-group', url: 'button-group.html' },
   { title: 'button', url: 'button.html' },
@@ -17,9 +15,11 @@ export default [
   { title: 'modal', url: 'modal.html' },
   { title: 'notification', url: 'notification.html' },
   { title: 'popup', url: 'popup.html' },
+  { title: 'popup-list', url: 'popup-list.html' },
   { title: 'progress', url: 'progress.html' },
   { title: 'radio', url: 'radio.html' },
   { title: 'rating', url: 'rating.html' },
+  { title: 'resizable', url: 'resizable.html' },
   { title: 'select', url: 'select.html' },
   { title: 'select-result', url: 'select-result.html' },  
   { title: 'slider', url: 'slider.html' },

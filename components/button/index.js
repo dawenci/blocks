@@ -35,6 +35,8 @@ const disabledGetter = boolGetter('disabled')
 const disabledSetter = boolSetter('disabled')
 const loadingGetter = boolGetter('loading')
 const loadingSetter = boolSetter('loading')
+const blockGetter = boolGetter('block')
+const blockSetter = boolSetter('block')
 const typeGetter = enumGetter('type', [null, 'primary', 'danger', 'warning', 'success', 'link'])
 const typeSetter = enumSetter('type', [null, 'primary', 'danger', 'warning', 'success', 'link'])
 const sizeGetter = enumGetter('size', [null, 'small', 'large'])
@@ -379,6 +381,14 @@ class BlocksButton extends HTMLElement {
 
   set loading(value) {
     loadingSetter(this, value)
+  }
+
+  get block() {
+    return blockGetter(this)
+  }
+
+  set block(value) {
+    blockSetter(this, value)
   }
 
   get type() {
