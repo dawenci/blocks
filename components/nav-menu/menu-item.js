@@ -78,9 +78,6 @@ blocks-icon {
 :host([link]) #layout {
   cursor: pointer;
 }
-:host([active]) #layout {
-  box-shadow: inset -3px 0 0 var(--color-primary, ${__color_primary});
-}
 :host([disabled]) #layout,
 :host([disabled]:hover) #layout,
 :host([disabled]:active) #layout {
@@ -88,8 +85,18 @@ blocks-icon {
   fill: var(--fg-disabled, ${__fg_disabled});
   cursor: not-allowed;
 }
+
+:host([active]) #layout {
+  box-shadow: inset -3px 0 0 var(--color-primary, ${__color_primary});
+}
 :host([disabled][active]) #layout {
   box-shadow: inset -3px 0 0 var(--fg-disabled, ${__fg_disabled});
+}
+:host-context([horizontal]):host([active]) #layout {
+  box-shadow: inset 0 -3px 0 var(--color-primary, ${__color_primary});
+}
+:host-context([horizontal]):host([disabled][active]) #layout {
+  box-shadow: inset 0 -3px 0 var(--fg-disabled, ${__fg_disabled});
 }
 
 :host-context(blocks-nav-menu[size="small"]) #layout {

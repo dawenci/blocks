@@ -43,18 +43,12 @@ const TEMPLATE_CSS = `<style>
   color: var(--color-primary, ${__color_primary});
   fill: var(--color-primary, ${__color_primary});
 }
-:host([active]) {
-  box-shadow: inset -3px 0 0 var(--color-primary, ${__color_primary});
-}
 :host([disabled]),
 :host([disabled]:hover),
 :host([disabled]:active) {
   color: var(--fg-disabled, ${__fg_disabled});
   fill: var(--fg-disabled, ${__fg_disabled});
   cursor: not-allowed;
-}
-:host([disabled][active]) {
-  box-shadow: inset -3px 0 0 var(--fg-disabled, ${__fg_disabled});
 }
 
 #layout {
