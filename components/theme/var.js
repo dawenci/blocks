@@ -7,8 +7,20 @@ export const __transition_duration = '.16s'
 // --bg-base
 export const __bg_base = '#fff'
 
+// --bg-base-hover
+export const __bg_base_hover = '#f8f8f8'
+
+// --bg-base-active
+export const __bg_base_active = '#f0f0f0'
+
 // --fg-base
 export const __fg_base = '#333'
+
+// --fg-base-hover
+export const __fg_base_hover = '#222'
+
+// --fg-base-active
+export const __fg_base_active = '#000'
 
 // --fg-secondary
 export const __fg_secondary = '#909090'

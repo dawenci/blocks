@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>menu</title>
+  <title>nav-menu</title>
   <link rel="stylesheet" href="./components.css">
   <link rel="stylesheet" href="./highlight/styles/default.css">
   <link rel="stylesheet" href="./highlight/styles/vs2015.css">
@@ -14,13 +14,13 @@
 <body>
   <article>
     <header>
-      <h1>menu</h1>
+      <h1>nav-menu</h1>
     </header>
     <script type="module" src="/components/switch/index.js"></script>
 
     <section class="section">
       <div data-codesource="html" data-title="依赖引入">
-        <script type="module" src="/components/menu/index.js"></script>
+        <script type="module" src="/components/nav-menu/index.js"></script>
       </div>
     </section>
 
@@ -33,32 +33,60 @@
           <span>
             <blocks-switch onchange="document.getElementById('menu').collapse=event.detail.value"></blocks-switch> collapse
           </span>
+          <span>
+            <blocks-switch onchange="document.getElementById('menu').inline=event.detail.value"></blocks-switch> inline
+          </span>
         </div>
         
-        <blocks-menu id="menu"></blocks-menu>
+        <blocks-nav-menu id="menu"></blocks-nav-menu>
 
         <script>
           (() => {
+            function handler() {
+              console.log(this)
+            }
+
             const data = [
-              { icon: 'date', label: 'Menu 1' },
-              { image: 'images/menu.png', label: 'Menu 2' },
+              { icon: 'date', label: 'Menu 1', handler },
+              { icon: 'date', label: 'Menu 2', disabled: true, handler },
 
               {
                 title: 'Group 1',
                 data: [
-                  { label: 'Group1 Menu 1' },
-                  { label: 'Group1 Menu 2' }
+                  { label: 'Group1 Menu 1', handler },
+                  {
+                    label: 'Group1 Menu 2',
+                    children: [
+                      { label: 'Group1 Menu 2 > child 1' }
+                    ]
+                  }
                 ]
               },
 
               {
                 label: 'Menu 3',
                 children: [
-                  { label: 'Menu 3 > child 1' },
-                  { label: 'Menu 3 > child 2' },
+                  { label: 'Menu 3 > child 1', handler },
+                  { label: 'Menu 3 > child 2', handler },
+                  {
+                    label: 'Menu 3 > child 3',
+                    handler,
+                    children: [
+                      { label: 'Menu3 > child 3 > child 1' }
+                    ]
+                  },
                 ]
-              }
+              },
+
+              {
+                label: 'Link',
+                href: 'index.html',
+                target: '_blank',
+              },
+
+              { icon: 'date', label: 'Long long long long long long long', handler },
             ]
+
             document.getElementById('menu').data = data
           })()
         </script>

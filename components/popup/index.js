@@ -1,13 +1,9 @@
-import {
-  __fg_base,
-  __radius_base,
-  __transition_duration,
-} from '../theme/var.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
 import { definePrivate } from '../../common/definePrivate.js'
+import { __fg_base, __radius_base, __transition_duration } from '../theme/var.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -318,7 +314,7 @@ export default class BlocksPopup extends HTMLElement {
       // 自动翻转功能，Popup 在 x 或 y 轴上溢出文档时，自动翻转显示
       'autoflip',
       // 打开时是否自动聚焦
-      'autofocus',      
+      'autofocus',
       // 失去焦点时，是否恢复获得焦点前的焦点
       'restorefocus',
       // 捕获焦点，tab 键不会将焦点移出 Popup
@@ -339,7 +335,7 @@ export default class BlocksPopup extends HTMLElement {
     this.shadowRoot.appendChild(fragment)
 
     definePrivate(this, '_anchor')
-   
+
     // 过渡开始时
     this.$layout.ontransitionstart = (ev) => {
       if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
@@ -530,9 +526,7 @@ export default class BlocksPopup extends HTMLElement {
     return { x1, y1, x2, y2 }
   }
 
-  render() {
-    this.updatePosition()
-  }
+  render() {}
 
   updatePosition() {
     if (!this.open) return
@@ -576,7 +570,7 @@ export default class BlocksPopup extends HTMLElement {
     // 配置 Popup 定位起始边（如果启用了箭头，也是箭头所在边）
     // 1. 起始边为上边，往下方展开 Popup
     // 吸附在 anchorFrame 的下边，如果启用 inset，则吸附在 anchorFrame 的上边
-    if (this.origin.startsWith('top')) {      
+    if (this.origin.startsWith('top')) {
       top = (this.inset ? y1 : y2) + arrowSize
       originY = 'top'
       shadowY = 'bottom'
@@ -781,7 +775,7 @@ export default class BlocksPopup extends HTMLElement {
         this.updatePosition()
         break
       }
- 
+
       case 'append-to-body': {
         if (this.appendToBody && this.parentElement !== document.body && document.documentElement.contains(this)) {
           document.body.appendChild(this)
