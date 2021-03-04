@@ -6,21 +6,29 @@ export const __transition_duration = '.16s'
 
 // --bg-base
 export const __bg_base = '#fff'
+// --bg-base-dark
+export const __bg_baseDark = '#333'
 
 // --bg-base-hover
 export const __bg_base_hover = '#f8f8f8'
+export const __bg_baseDark_hover = '#383838'
 
 // --bg-base-active
 export const __bg_base_active = '#f0f0f0'
+export const __bg_baseDark_active = '#222'
 
 // --fg-base
 export const __fg_base = '#333'
+// --fg-base-dark
+export const __fg_baseDark = '#ddd'
 
 // --fg-base-hover
 export const __fg_base_hover = '#222'
+export const __fg_baseDark_hover = '#eee'
 
 // --fg-base-active
 export const __fg_base_active = '#000'
+export const __fg_baseDark_active = '#fff'
 
 // --fg-secondary
 export const __fg_secondary = '#909090'
@@ -33,12 +41,6 @@ export const __bg_disabled = '#f5f5f5'
 
 // --fg-disabled
 export const __fg_disabled = 'rgba(0,0,0,0.25)'
-
-// --bg-base-dark
-export const __bg_baseDark = '#333'
-
-// --fg-base-dark
-export const __fg_baseDark = '#fff'
 
 // widget 高度 ****************************** /
 
@@ -115,9 +117,12 @@ export const __color_success_dark = '#39b54e'
 
 // --border-color-base
 export const __border_color_base = '#d9d9d9'
+export const __border_color_baseDark = '#383838'
 
 // --border-color-light
 export const __border_color_light = '#e5e5e5'
+export const __border_color_lightDark = '#444'
 
 // --border-color-disabled
 export const __border_color_disabled = '#d9d9d9'
+export const __border_color_disabledDark = '#383838'

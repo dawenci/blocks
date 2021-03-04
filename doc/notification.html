@@ -165,6 +165,28 @@
         </script>
       </div>
     </section>
+
+    <section class="section">
+      <h2>dark</h2>
+
+      <div data-codesource="html">
+        <blocks-button id="dark">dark</blocks-button>
+
+        <script type="module">
+          import { notify } from '/components/notification/index.js'
+          const $ = (id) => document.getElementById(id)
+          const title = '消息通知'
+          const content = '这里是消息内容'
+          $('dark').onclick = () => {
+            notify({ title, content, closeable: true, duration: 3, dark: true })
+            notify({ type: 'success', title, content, closeable: true, duration: 3, dark: true })
+            notify({ type: 'error', title, content, closeable: true, duration: 3, dark: true })
+            notify({ type: 'info', title, content, closeable: true, duration: 3, dark: true })
+            notify({ type: 'warn', title, content, closeable: true, duration: 3, dark: true })
+          }
+        </script>
+      </div>
+    </section>
     
   </article>
 </body>

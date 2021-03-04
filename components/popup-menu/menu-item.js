@@ -2,7 +2,7 @@ import '../../components/popup/index.js'
 import '../../components/icon/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
-import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __color_primary, __height_base, __height_small, __height_large } from '../theme/var.js'
+import { __fg_base, __fg_base_hover, __bg_baseDark_hover, __fg_baseDark_hover, __bg_baseDark_active, __fg_baseDark_active, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __color_primary, __height_base, __height_small, __height_large, __fg_baseDark, __bg_base_hover } from '../theme/var.js'
 import { activeGetter, activeSetter, disabledGetter, disabledSetter } from '../../common/propertyAccessor.js'
 import { dispatchEvent } from '../../common/event.js'
 import { forEach } from '../../common/utils.js'
@@ -19,12 +19,22 @@ const TEMPLATE_CSS = `<style>
   user-select: none;
   cursor: default;
 }
+:host-context(blocks-popup-menu[dark]) {
+  color: var(--fg-base-dark, ${__fg_baseDark});
+  fill: var(--fg-base-dark, ${__fg_baseDark});
+}
 
 :host(:hover),
 :host(.submenu-open) {
-  background-color: #f0f0f0;
+  background-color: var(--bg-base-hover, ${__bg_base_hover});
   color: var(--fg-base-hover, ${__fg_base_hover});
   fill: var(--fg-base-hover, ${__fg_base_hover});
+}
+:host-context(blocks-popup-menu[dark]):host(:hover),
+:host-context(blocks-popup-menu[dark]):host(.submenu-open) {
+  background-color: var(--bg-base-dark-hover, ${__bg_baseDark_hover});
+  color: var(--fg-base-dark-hover, ${__fg_baseDark_hover});
+  fill: var(--fg-base-hover, ${__fg_baseDark_hover});
 }
 
 :host(:active),
@@ -32,6 +42,12 @@ const TEMPLATE_CSS = `<style>
   background-color: #f0f0f0;
   color: var(--fg-base-active, ${__fg_base_active});
   fill: var(--fg-base-active, ${__fg_base_active});
+}
+:host-context(blocks-popup-menu[dark]):host(:active),
+:host-context(blocks-popup-menu[dark]):host(.submenu-open:active) {
+  background-color: var(--bg-base-dark-hover, ${__bg_baseDark_active});
+  color: var(--fg-base-dark-hover, ${__fg_baseDark_active});
+  fill: var(--fg-base-hover, ${__fg_baseDark_active});
 }
 
 :host([link]) {
@@ -232,6 +248,7 @@ class BlocksPopupMenuItem extends HTMLElement {
     if (this.hasSubmenu) {
       this.classList.add('has-submenu')
       this.$submenu = menuTemplate.cloneNode(true)
+      this.$submenu.dark = this.$hostMenu.dark
       this.$submenu.size = this.$hostMenu.size
       this.$submenu.appendToBody = true
       this.$submenu.$parentItem = this

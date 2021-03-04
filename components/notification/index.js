@@ -3,6 +3,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
 import { __color_primary, __color_danger, __color_success, __color_warning, __transition_duration, __fg_base, __bg_baseDark, __fg_baseDark, __bg_base } from '../theme/var.js'
+import { darkSetter } from '../../common/propertyAccessor.js'
 
 const closeableGetter = boolGetter('closeable')
 const closeableSetter = boolSetter('closeable')
@@ -82,7 +83,7 @@ const TEMPLATE_CSS = `<style>
   height: 100%;
 }
 
-:host-context([dark]) #layout {
+:host([dark]) #layout {
   background-color: var(--bg-base-dark, ${__bg_baseDark});
   color: var(--fg-base-dark, ${__fg_baseDark});
 }
@@ -107,7 +108,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksNotification extends HTMLElement {
   static get observedAttributes() {
-    return ['type']
+    return ['type', 'dark']
   }
 
   constructor() {
@@ -273,6 +274,7 @@ function cage(placement) {
 export function notify(options = {}) {
   const el = document.createElement('blocks-notification')
   typeSetter(el, options.type)
+  darkSetter(el, options.dark)
   closeableSetter(el, options.closeable ?? false)
   if (options.duration) durationSetter(el, options.duration)
 

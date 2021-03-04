@@ -1,5 +1,5 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __color_primary, __fg_secondary, __font_family } from '../theme/var.js'
+import { __border_color_light, __border_color_lightDark, __color_primary, __fg_secondary, __font_family } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { forEach } from '../../common/utils.js'
 
@@ -13,9 +13,12 @@ const TEMPLATE_CSS = `
 #head {
   margin: 5px 10px;
   padding: 5px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color-light, ${__border_color_light});
   font-weight: 700;
   color: var(--fg-secondary, ${__fg_secondary});
+}
+:host-context(blocks-nav-menu[dark]) #head {
+  border-bottom: 1px solid var(--border-color-light-dark, ${__border_color_lightDark});
 }
 </style>
 `

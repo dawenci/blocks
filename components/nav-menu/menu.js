@@ -1,10 +1,10 @@
 import { definePrivate } from '../../common/definePrivate.js'
 import { boolGetter, boolSetter, intGetter, intSetter } from '../../common/property.js'
-import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
+import { darkGetter, darkSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
-import { __border_color_light, __color_primary, __font_family, __transition_duration } from '../theme/var.js'
+import { __bg_base, __bg_baseDark, __border_color_light, __color_primary, __fg_base, __fg_baseDark, __font_family, __transition_duration } from '../theme/var.js'
 
 const itemTemplate = document.createElement('blocks-nav-menu-item')
 const groupTemplate = document.createElement('blocks-nav-menu-group')
@@ -12,13 +12,18 @@ const groupTemplate = document.createElement('blocks-nav-menu-group')
 const TEMPLATE_CSS = `<style>
 :host {
   box-sizing: border-box;
-  width: 250px;
   font-family: var(--font-family, ${__font_family});
   font-size: 14px;
   display: flex;
   flex-flow: column nowrap;
   position: relative;
   transition: height var(--transition-duration, ${__transition_duration});
+  background-color: var(--bg-base, ${__bg_base});
+  color: var(--fg-base, ${__fg_base});
+}
+:host([dark]) {
+  background-color: var(--bg-base-dark, ${__bg_baseDark});
+  color: var(--fg-base-dark, ${__fg_baseDark});
 }
 :host([horizontal]) {
   width: auto;
@@ -32,10 +37,8 @@ const TEMPLATE_CSS = `<style>
   border-bottom: 1px solid var(--border-color-base, ${__border_color_light});
   border-right: none;
 }
-
 :host([submenu][expand]) {
   height: auto;
-  background-color: #fafafa;
 }
 :host([submenu]:not([expand])) {
   overflow: hidden;
@@ -57,7 +60,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 // TODO, collapse 模式，tooltip 显示一级菜单文本
 class BlocksNavMenu extends HTMLElement {
   static get observedAttributes() {
-    return ['horizontal', 'collapse', 'inline', 'submenu', 'level', 'expand', 'size']
+    return ['horizontal', 'collapse', 'inline', 'submenu', 'level', 'expand', 'size', 'dark']
   }
 
   constructor() {
@@ -143,6 +146,14 @@ class BlocksNavMenu extends HTMLElement {
   set data(value) {
     this._data = value
     this.render()
+  }
+
+  get dark() {
+    return darkGetter(this)
+  }
+
+  set dark(value) {
+    darkSetter(this, value)
   }
 
   // 清空整棵树上的菜单激活状态

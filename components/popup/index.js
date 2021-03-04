@@ -3,7 +3,8 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
 import { definePrivate } from '../../common/definePrivate.js'
-import { __fg_base, __radius_base, __transition_duration } from '../theme/var.js'
+import { __bg_base, __bg_baseDark, __fg_base, __fg_baseDark, __radius_base, __transition_duration } from '../theme/var.js'
+import { darkGetter, darkSetter } from '../../common/propertyAccessor.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -84,12 +85,13 @@ const TEMPLATE_CSS = `<style>
   display:inline-block;
   width: 100%;
   height: 100%;
-  background-color: #fff;
   border-radius: var(--radius-base, ${__radius_base});
   transform-origin: center center;
   transition-property: transform, opacity;
   transition-duration: var(--transition-duration, ${__transition_duration});
   transition-timing-function: cubic-bezier(.645, .045, .355, 1);
+  background-color: var(--bg-base, ${__bg_base});
+  color: var(--fg-base, ${__fg_base});
 }
 #arrow {
   overflow: hidden;
@@ -114,7 +116,7 @@ const TEMPLATE_CSS = `<style>
   /*border-top: 1px solid rgba(0,0,0,.08);
   border-right: 1px solid rgba(0,0,0,.08);*/
   transform: rotate(-45deg);
-  background-color: #fff;
+  background-color: var(--bg-base, ${__bg_base});
 }
 #arrow::after {
   box-shadow: 0 0 5px rgb(0,0,0,0.06);
@@ -271,13 +273,10 @@ const TEMPLATE_CSS = `<style>
   outline: 0 none;
 }
 
-:host-context([dark]),
-:host([dark]) { color: #fff; }
-:host-context([dark]) #layout,
-:host-context([dark]) #arrow:after,
-:host([dark]) #arrow:after,
+:host([dark]) #layout,
 :host([dark]) #arrow:after {
-  background-color: var(--fg-base, ${__fg_base});
+  background-color: var(--bg-base-dark, ${__bg_baseDark});
+  color: var(--fg-base-dark, ${__fg_baseDark});
 }
 </style>`
 
@@ -471,6 +470,14 @@ export default class BlocksPopup extends HTMLElement {
 
   set restorefocus(value) {
     restorefocusSetter(this, value)
+  }
+
+  get dark() {
+    return darkGetter(this)
+  }
+
+  set dark(value) {
+    darkSetter(this, value)
   }
 
   // Popup 相对一个矩形框进行布局，可以吸附在框的四条边，也可以吸附在框的中心点

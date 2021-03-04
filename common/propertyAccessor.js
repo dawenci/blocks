@@ -3,6 +3,9 @@ import { boolGetter, boolSetter, enumGetter, enumSetter } from './property.js'
 export const activeGetter = boolGetter('active')
 export const activeSetter = boolSetter('active')
 
+export const darkGetter = boolGetter('dark')
+export const darkSetter = boolSetter('dark')
+
 export const disabledGetter = boolGetter('disabled')
 export const disabledSetter = boolSetter('disabled')
 

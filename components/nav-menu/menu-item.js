@@ -1,7 +1,7 @@
 import '../../components/icon/index.js'
 import '../../components/popup-menu/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __height_base, __height_large, __transition_duration, __height_small, __color_primary } from '../theme/var.js'
+import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __height_base, __height_large, __transition_duration, __height_small, __color_primary, __bg_baseDark_hover, __bg_base_hover, __fg_baseDark_hover, __bg_base_active, __bg_baseDark_active, __fg_baseDark_active, __fg_baseDark } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 
@@ -58,23 +58,42 @@ blocks-icon {
   fill: var(--fg-base, ${__fg_base});
   cursor: default;
 }
+:host-context(blocks-nav-menu[dark]) #layout {
+  color: var(--fg-base-dark, ${__fg_baseDark});
+  fill: var(--fg-base-dark, ${__fg_baseDark});
+}
+
 :host #layout:hover,
 :host(.submenu-open) #layout {
-  background-color: #f0f0f0;
+  background-color: var(--bg-base-hover, ${__bg_base_hover});
   color: var(--fg-base-hover, ${__fg_base_hover});
   fill: var(--fg-base-hover, ${__fg_base_hover});
 }
+:host-context(blocks-nav-menu[dark]) #layout:hover,
+:host-context(blocks-nav-menu[dark]):host(.submenu-open) #layout {
+  background-color: var(--bg-base-dark-hover, ${__bg_baseDark_hover});
+  color: var(--fg-base-dark-hover, ${__fg_baseDark_hover});
+  fill: var(--fg-base-hover, ${__fg_baseDark_hover});
+}
+
 :host #layout:active {
-  background-color: #f0f0f0;
+  background-color: var(--bg-base-active, ${__bg_base_active});
   color: var(--fg-base-active, ${__fg_base_active});
   fill: var(--fg-base-active, ${__fg_base_active});
 }
+:host-context(blocks-nav-menu[dark]) #layout:active {
+  background-color: var(--bg-base-dark-hover, ${__bg_baseDark_active});
+  color: var(--fg-base-dark-hover, ${__fg_baseDark_active});
+  fill: var(--fg-base-hover, ${__fg_baseDark_active});
+}
+
 :host([active]) #layout,
 :host([active]) #layout:hover,
 :host([active]) #layout:active {
   color: var(--color-primary, ${__color_primary});
   fill: var(--color-primary, ${__color_primary});
 }
+
 :host([link]) #layout {
   cursor: pointer;
 }
@@ -87,16 +106,16 @@ blocks-icon {
 }
 
 :host([active]) #layout {
-  box-shadow: inset -3px 0 0 var(--color-primary, ${__color_primary});
+  box-shadow: inset -2px 0 0 var(--color-primary, ${__color_primary}), 1px 0 0 var(--color-primary, ${__color_primary});
 }
 :host([disabled][active]) #layout {
-  box-shadow: inset -3px 0 0 var(--fg-disabled, ${__fg_disabled});
+  box-shadow: inset -2px 0 0 var(--fg-disabled, ${__fg_disabled}), 1px 0 0 var(--fg-disabled, ${__fg_disabled});
 }
 :host-context([horizontal]):host([active]) #layout {
-  box-shadow: inset 0 -3px 0 var(--color-primary, ${__color_primary});
+  box-shadow: inset 0 -2px 0 var(--color-primary, ${__color_primary}), 0 1px 0 var(--color-primary, ${__color_primary});
 }
 :host-context([horizontal]):host([disabled][active]) #layout {
-  box-shadow: inset 0 -3px 0 var(--fg-disabled, ${__fg_disabled});
+  box-shadow: inset 0 -2px 0 var(--fg-disabled, ${__fg_disabled}), 0 1px 0 var(--fg-disabled, ${__fg_disabled});
 }
 
 :host-context(blocks-nav-menu[size="small"]) #layout {
@@ -300,6 +319,7 @@ class BlocksNavMenuItem extends HTMLElement {
 
       this.$submenu.$parentItem = this
       this.$submenu.$parentMenu = this.$hostMenu
+      this.$submenu.dark = this.$hostMenu.dark
       this.$submenu.size = this.$hostMenu.size
       this.$submenu.level = this.$hostMenu.level + 1
       this.$submenu.data = data.children

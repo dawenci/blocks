@@ -1,6 +1,9 @@
 import '../button/index.js'
 import {
+  __bg_base,
+  __bg_baseDark,
   __fg_base,
+  __fg_baseDark,
   __font_family,
   __radius_base,
   __transition_duration,
@@ -56,8 +59,8 @@ const TEMPLATE_CSS = `
   max-width: calc(100vw - 20px);
   max-height: calc(100vh - 20px);
   border-radius: var(--radius-base, ${__radius_base});
-  background-color: #fff;
-
+  background-color: var(--bg-base, ${__bg_base});
+  color: var(--fg-base, ${__fg_base});
   opacity:0;
   transform: scale(0);
   transition: transform var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1),
@@ -193,14 +196,10 @@ footer {
   outline: 0 none;
 }
 
-:host-context([dark]) #layout,
-:host([dark]) #layout {
-  background-color: var(--fg-base, ${__fg_base});
-  color: #fff;
-}
-:host-context([dark]) header h1,
+:host([dark]) #layout,
 :host([dark]) header h1 {
-  color: #fff;
+  background-color: var(--bg-base-dark, ${__bg_baseDark});
+  color: var(--fg-base-dark, ${__fg_baseDark});
 }
 </style>
 `
@@ -261,6 +260,7 @@ class BlocksDialog extends HTMLElement {
       'capturefocus',
       // 显示遮罩
       'mask',
+      'dark',
     ]
   }
 
