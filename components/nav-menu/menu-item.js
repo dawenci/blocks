@@ -6,14 +6,6 @@ import { boolGetter, boolSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 
 const TEMPLATE_CSS = `<style>
-@keyframes rotate360 {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
 :host {
   display: block;
   position: relative;
@@ -21,6 +13,7 @@ const TEMPLATE_CSS = `<style>
   font-size: 14px;
   box-sizing: border-box;
   min-width: 0;
+  user-select: none;
 }
 #layout {
   display: flex;
@@ -272,6 +265,8 @@ class BlocksNavMenuItem extends HTMLElement {
     this.$label.textContent = data.label ?? ''
 
     this.link = !!data.href
+
+    this.active = !!data.active
 
     this.$label.style.paddingLeft = this.$hostMenu.level * 28 + 'px'
     

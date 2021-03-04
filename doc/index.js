@@ -1,5 +1,9 @@
-import routes from './routes.js'
 import '../components/nav-menu/index.js'
+
+const routes = [
+  { title: '安装', url: 'install.html' },
+  { title: '主题', url: 'theme.html' }
+]
 
 window.onload = () => {
   const aside = document.querySelector('aside')

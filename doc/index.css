@@ -1,3 +1,33 @@
+/* scrollbar 宽度 */
+::-webkit-scrollbar {
+  background: transparent;
+  /* background: rgba(0, 0, 0, .075); */
+}
+::-webkit-scrollbar:horizontal {
+  width: 100%;
+  height: 8px;
+}
+::-webkit-scrollbar:vertical {
+  width: 8px;
+  height: 100%;
+}
+/* scrollbar 轨道（滑动槽） */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* scrollbar 滑块 */
+::-webkit-scrollbar-thumb {
+  border: 1px solid rgba(255, 255, 255, .3);
+  background: rgba(0, 0, 0, .2);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+}
+
 html, body {
   width: 100%;
   height: 100%;
@@ -63,11 +93,10 @@ html, body {
   display: flex;
   flex-flow: row nowrap;
   box-sizing: border-box;
-  background: #f0f0f0;
 }
 
 aside {
-  flex: 0 0 150px;
+  flex: 0 0 180px;
   overflow: auto;
   box-sizing: border-box;
   padding: 15px 0;
@@ -89,8 +118,7 @@ aside {
 }
 
 aside > h1 {
-  padding: 0 15px;
-  text-align: right;
+  padding: 0 10px;
 }
 aside > div {
   padding: 5px 15px;
