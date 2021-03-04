@@ -2,7 +2,10 @@ import '../../components/popup/index.js'
 import '../../components/icon/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
-import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family } from '../theme/var.js'
+import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __color_primary, __height_base, __height_small, __height_large } from '../theme/var.js'
+import { activeGetter, activeSetter, disabledGetter, disabledSetter } from '../../common/propertyAccessor.js'
+import { dispatchEvent } from '../../common/event.js'
+import { forEach } from '../../common/utils.js'
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -13,31 +16,51 @@ const TEMPLATE_CSS = `<style>
   box-sizing: border-box;
   color: var(--fg-base, ${__fg_base});
   fill: var(--fg-base, ${__fg_base});
+  user-select: none;
   cursor: default;
 }
-:host(:not([disabled]):hover) {
+
+:host(:hover),
+:host(.submenu-open) {
   background-color: #f0f0f0;
   color: var(--fg-base-hover, ${__fg_base_hover});
   fill: var(--fg-base-hover, ${__fg_base_hover});
 }
-:host(:not([disabled]):active) {
+
+:host(:active),
+:host(.submenu-open:active) {
   background-color: #f0f0f0;
   color: var(--fg-base-active, ${__fg_base_active});
   fill: var(--fg-base-active, ${__fg_base_active});
 }
+
 :host([link]) {
   cursor: pointer;
 }
-:host([disabled]) {
+:host([active]),
+:host([active]:hover),
+:host([active]:active) {
+  color: var(--color-primary, ${__color_primary});
+  fill: var(--color-primary, ${__color_primary});
+}
+:host([active]) {
+  box-shadow: inset -3px 0 0 var(--color-primary, ${__color_primary});
+}
+:host([disabled]),
+:host([disabled]:hover),
+:host([disabled]:active) {
   color: var(--fg-disabled, ${__fg_disabled});
   fill: var(--fg-disabled, ${__fg_disabled});
   cursor: not-allowed;
+}
+:host([disabled][active]) {
+  box-shadow: inset -3px 0 0 var(--fg-disabled, ${__fg_disabled});
 }
 
 #layout {
   display: flex;
   align-items: center;
-  height: 32px;
+  height: var(--height-base, ${__height_base});
   padding: 0 10px;
 }
 #label {
@@ -66,6 +89,12 @@ blocks-icon {
 :host(.has-submenu) blocks-icon {
   display: inline-block;
 }
+:host-context(blocks-popup-menu[size="small"]) #layout {
+  height: var(--height-small, ${__height_small});
+}
+:host-context(blocks-popup-menu[size="large"]) #layout {
+  height: var(--height-large, ${__height_large});
+}
 </style>`
 
 const TEMPLATE_HTML = `
@@ -83,7 +112,7 @@ const menuTemplate = document.createElement('blocks-popup-menu')
 
 class BlocksPopupMenuItem extends HTMLElement {
   static get observedAttributes() {
-    return ['disabled', 'link']
+    return ['disabled', 'link', 'active']
   }
 
   constructor() {
@@ -97,6 +126,7 @@ class BlocksPopupMenuItem extends HTMLElement {
 
     this.addEventListener('click', e => {
       if (this.disabled) return
+      if (this.hasSubmenu) return
 
       if (this.data.handler) {
         this.data.handler(e)
@@ -104,6 +134,11 @@ class BlocksPopupMenuItem extends HTMLElement {
       else if (this.data.href) {
         window.open(this.data.href, this.data.target ?? '_blank')
       }
+
+      if (this.$rootMenu) {
+        dispatchEvent(this.$rootMenu, 'active', { detail: { $item: this } })
+      }
+      this.$hostMenu.closeAll()
     })
 
     this.onmouseenter = () => {
@@ -134,16 +169,26 @@ class BlocksPopupMenuItem extends HTMLElement {
     }
   }
 
+  get $rootMenu() {
+    let $menu = this.$hostMenu
+    while ($menu.$parentMenu) $menu = $menu.$parentMenu
+    return $menu
+  }
+
   get hasSubmenu() {
     return !!this.data.children?.length
   }
 
+  get isLeaf() {
+    return !this.hasSubmenu
+  }
+
   get disabled() {
-    return boolGetter('disabled')(this)
+    return disabledGetter(this)
   }
 
   set disabled(value) {
-    boolSetter('disabled')(this, value)
+    disabledSetter(this, value)
   }
 
   get link() {
@@ -152,6 +197,14 @@ class BlocksPopupMenuItem extends HTMLElement {
 
   set link(value) {
     boolSetter('link')(this, value)
+  }
+
+  get active() {
+    return activeGetter(this)
+  }
+
+  set active(value) {
+    activeSetter(this, value)
   }
 
   get data() {
@@ -180,9 +233,12 @@ class BlocksPopupMenuItem extends HTMLElement {
 
     this.link = !!data.href
 
+    this.active = !!data.active
+
     if (this.hasSubmenu) {
       this.classList.add('has-submenu')
       this.$submenu = menuTemplate.cloneNode(true)
+      this.$submenu.size = this.$hostMenu.size
       this.$submenu.appendToBody = true
       this.$submenu.$parentItem = this
       this.$submenu.$parentMenu = this.$hostMenu
@@ -208,6 +264,12 @@ class BlocksPopupMenuItem extends HTMLElement {
     if (this.$submenu && document.body.contains(this.$submenu)) {
       this.$submenu.parentElement.removeChild(this.$submenu)
     }
+  }
+
+  clearActive() {
+    this.data.active = false
+    this.active = false
+    if (this.$submenu) this.$submenu.clearActive()
   }
 }
 

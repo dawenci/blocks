@@ -1,6 +1,8 @@
 import { definePrivate } from '../../common/definePrivate.js'
 import { boolGetter, boolSetter, intGetter, intSetter } from '../../common/property.js'
+import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
+import { forEach } from '../../common/utils.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { __border_color_light, __color_primary, __font_family, __transition_duration } from '../theme/var.js'
 
@@ -42,7 +44,7 @@ const TEMPLATE_CSS = `<style>
 
 /* 垂直模式顶级菜单的折叠模式 */
 :host(:not([horizontal]):not([submenu])[collapse]) {
-  width: 40px;
+  width: 80px;
   overflow: hidden;
 }
 </style>`
@@ -52,9 +54,10 @@ const TEMPLATE_HTML = `<slot></slot>`
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
+// TODO, collapse 模式，tooltip 显示一级菜单文本
 class BlocksNavMenu extends HTMLElement {
   static get observedAttributes() {
-    return ['horizontal', 'collapse', 'inline', 'submenu', 'level', 'expand']
+    return ['horizontal', 'collapse', 'inline', 'submenu', 'level', 'expand', 'size']
   }
 
   constructor() {
@@ -65,6 +68,24 @@ class BlocksNavMenu extends HTMLElement {
 
     definePrivate(this, '_data', [])
     this.$parentMenu = null
+
+    this.addEventListener('active', (e) => {
+      this.clearActive()
+      let $item = e.detail.$item
+      while ($item) {
+        $item.data.active = true
+        $item.active = true
+        $item = $item.$hostMenu.$parentItem
+      }
+    })
+  }
+
+  get size() {
+    return sizeGetter(this)
+  }
+
+  set size(value) {
+    sizeSetter(this, value)
   }
 
   get level() {
@@ -124,6 +145,13 @@ class BlocksNavMenu extends HTMLElement {
     this.render()
   }
 
+  // 清空整棵树上的菜单激活状态
+  clearActive() {
+    forEach(this.children, child => {
+      if (child.clearActive) child.clearActive()
+    })
+  }
+
   horizontalRender() {
     const fragment = document.createDocumentFragment()
     const render = ($root, data = []) => {
@@ -146,21 +174,29 @@ class BlocksNavMenu extends HTMLElement {
 
   verticalRender() {
     const fragment = document.createDocumentFragment()
-    this.data.forEach(item => {
-      // group
-      if (item.data) {
-        const $group = fragment.appendChild(groupTemplate.cloneNode(true))
-        $group.horizontal = this.horizontal
-        $group.collapse = this.collapse
-        $group.$hostMenu = this
-        $group.data = item
-        return
-      }
-      // item
-      const $item = fragment.appendChild(itemTemplate.cloneNode(true))
-      $item.$hostMenu = this
-      $item.data = item
-    })
+    const render = ($root, data = []) => {
+      data.forEach(item => {
+        // 不渲染 group，直接渲染里面的项
+        if (item.data) {
+          if (this.collapse) {
+            render($root, item.data)
+          }
+          else {
+            const $group = $root.appendChild(groupTemplate.cloneNode(true))
+            $group.horizontal = this.horizontal
+            $group.collapse = this.collapse
+            $group.$hostMenu = this
+            $group.data = item
+          }
+          return
+        }
+        // item
+        const $item = $root.appendChild(itemTemplate.cloneNode(true))
+        $item.$hostMenu = this
+        $item.data = item
+      })
+    }
+    render(fragment, this.data)
     this.innerHTML = ''
     this.appendChild(fragment)
   }

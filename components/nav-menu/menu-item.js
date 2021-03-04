@@ -1,8 +1,9 @@
 import '../../components/icon/index.js'
 import '../../components/popup-menu/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __height_base, __height_large } from '../theme/var.js'
+import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __height_base, __height_large, __transition_duration, __height_small, __color_primary } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
+import { dispatchEvent } from '../../common/event.js'
 
 const TEMPLATE_CSS = `<style>
 @keyframes rotate360 {
@@ -19,20 +20,23 @@ const TEMPLATE_CSS = `<style>
   font-family: var(--font-family, ${__font_family});
   font-size: 14px;
   box-sizing: border-box;
+  min-width: 0;
 }
 #layout {
   display: flex;
+  justify-content: center;
   align-items: center;
-  height: var(--height-large, ${__height_large});
+  height: var(--height-base, ${__height_base});
   padding: 0 10px;
+  min-width: 0;
 }
 #label {
   overflow: hidden;
   flex: 1 1 auto;
-  display: flex;
   margin-right: 10px;
   align-items: center;
   white-space: nowrap;
+  display: inline;
   text-overflow: ellipsis;
 }
 #arrow {
@@ -41,6 +45,7 @@ const TEMPLATE_CSS = `<style>
   width: 14px;
   height: 14px;
   fill: var(--fg-placeholder, ${__fg_placeholder});
+  transition: transform var(--transition-duration, ${__transition_duration});
 }
 #icon {
   width: 16px;
@@ -60,29 +65,55 @@ blocks-icon {
   fill: var(--fg-base, ${__fg_base});
   cursor: default;
 }
-:host(:not([disabled])) #layout:hover {
+:host #layout:hover,
+:host(.submenu-open) #layout {
   background-color: #f0f0f0;
   color: var(--fg-base-hover, ${__fg_base_hover});
   fill: var(--fg-base-hover, ${__fg_base_hover});
 }
-:host(:not([disabled])) #layout:active {
+:host #layout:active {
   background-color: #f0f0f0;
   color: var(--fg-base-active, ${__fg_base_active});
   fill: var(--fg-base-active, ${__fg_base_active});
 }
+:host([active]) #layout,
+:host([active]) #layout:hover,
+:host([active]) #layout:active {
+  color: var(--color-primary, ${__color_primary});
+  fill: var(--color-primary, ${__color_primary});
+}
 :host([link]) #layout {
   cursor: pointer;
 }
-:host([disabled]) #layout {
+:host([active]) #layout {
+  box-shadow: inset -3px 0 0 var(--color-primary, ${__color_primary});
+}
+:host([disabled]) #layout,
+:host([disabled]:hover) #layout,
+:host([disabled]:active) #layout {
   color: var(--fg-disabled, ${__fg_disabled});
   fill: var(--fg-disabled, ${__fg_disabled});
   cursor: not-allowed;
 }
+:host([disabled][active]) #layout {
+  box-shadow: inset -3px 0 0 var(--fg-disabled, ${__fg_disabled});
+}
 
+:host-context(blocks-nav-menu[size="small"]) #layout {
+  height: var(--height-small, ${__height_small});
+}
+:host-context(blocks-nav-menu[size="large"]) #layout {
+  height: var(--height-large, ${__height_large});
+}
+:host-context([horizontal]) {
+  flex: 0 0 auto;
+}
 :host-context([inline]) #arrow {
   transform: rotate(90deg);
 }
-
+:host-context([inline]):host([expand]) #arrow {
+  transform: rotate(-90deg);
+}
 :host-context([collapse]) #label,
 :host-context([collapse]) #arrow {
   display: none;
@@ -118,22 +149,28 @@ class BlocksNavMenuItem extends HTMLElement {
 
     this.$layout.addEventListener('click', e => {
       if (this.disabled) return
-
-      if (this.data.children?.length) {
-        this.expand = !this.expand
+      if (this.hasSubmenu) {
+        if (this.isInlineMode) {
+          this.expand = !this.expand
+        }
+        return
       }
 
       if (this.data.handler) {
         this.data.handler(e)
+
       }
       else if (this.data.href) {
         window.open(this.data.href, this.data.target ?? '_blank')
       }
+
+      if (this.$rootMenu) {
+        dispatchEvent(this.$rootMenu, 'active', { detail: { $item: this } })
+      }
     })
 
     this.onmouseenter = () => {
-      if (this.isInlineMode) return
-      if (this.$submenu) {
+      if (!this.isInlineMode && this.$submenu) {
         clearTimeout(this._enterTimer)
         if (!document.body.contains(this.$submenu)) {
           document.body.appendChild(this.$submenu)
@@ -145,8 +182,7 @@ class BlocksNavMenuItem extends HTMLElement {
     }
 
     this.onmouseleave = () => {
-      if (this.isInlineMode) return
-      if (this.$submenu) {
+      if (!this.isInlineMode && this.$submenu) {
         clearTimeout(this._enterTimer)
 
         this._enterTimer = setTimeout(() => {
@@ -159,7 +195,6 @@ class BlocksNavMenuItem extends HTMLElement {
         }
       }
     }
-
   }
 
   get $rootMenu() {
@@ -170,6 +205,10 @@ class BlocksNavMenuItem extends HTMLElement {
 
   get isInlineMode() {
     return this.$rootMenu.inline
+  }
+
+  get isCollapseMode() {
+    return this.$rootMenu.collapse
   }
 
   get expand() {
@@ -259,6 +298,7 @@ class BlocksNavMenuItem extends HTMLElement {
 
       this.$submenu.$parentItem = this
       this.$submenu.$parentMenu = this.$hostMenu
+      this.$submenu.size = this.$hostMenu.size
       this.$submenu.level = this.$hostMenu.level + 1
       this.$submenu.data = data.children
     }
@@ -287,6 +327,12 @@ class BlocksNavMenuItem extends HTMLElement {
     if (attrName === 'expand' && this.$submenu) {
       this.$submenu.expand = this.expand
     }
+  }
+
+  clearActive() {
+    this.data.active = false
+    this.active = false
+    if (this.$submenu) this.$submenu.clearActive()
   }
 }
 

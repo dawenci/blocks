@@ -3,13 +3,15 @@ import { definePrivate } from '../../common/definePrivate.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __border_color_light, __color_primary, __font_family } from '../theme/var.js'
 import { intGetter, intSetter } from '../../common/property.js';
+import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js';
+import { forEach } from '../../common/utils.js';
 
 const itemTemplate = document.createElement('blocks-popup-menu-item')
 const groupTemplate = document.createElement('blocks-popup-menu-group')
 
 class BlocksPopupMenu extends BlocksPopup {
   static get observedAttributes() {
-    return BlocksPopup.observedAttributes.concat(['level'])
+    return BlocksPopup.observedAttributes.concat(['level', 'size'])
   }
 
   constructor() {
@@ -25,6 +27,14 @@ class BlocksPopupMenu extends BlocksPopup {
     this.onmouseleave = () => {
       this.leave()
     }
+  }
+
+  get size() {
+    return sizeGetter(this)
+  }
+
+  set size(value) {
+    sizeSetter(this, value)
   }
 
   get level() {
@@ -45,6 +55,8 @@ class BlocksPopupMenu extends BlocksPopup {
   }
 
   enter() {
+    if (this.level === 0) return
+
     clearTimeout(this._enterTimer)
     this.open = true
     if (this.$parentMenu) {
@@ -58,6 +70,8 @@ class BlocksPopupMenu extends BlocksPopup {
   }
 
   leave() {
+    if (this.level === 0) return
+
     clearTimeout(this._enterTimer)
     this._enterTimer = setTimeout(() => {
       this.open = false
@@ -71,6 +85,19 @@ class BlocksPopupMenu extends BlocksPopup {
     if (this.$parentItem) {
       clearTimeout(this.$parentItem._enterTimer)
     }
+  }
+
+  closeAll() {
+    this.open = false
+    if (this.$parentMenu) {
+      this.$parentMenu.closeAll?.()
+    }
+  }
+
+  clearActive() {
+    forEach(this.children, child => {
+      if (child.clearActive) child.clearActive()
+    })
   }
 
   render() {
@@ -109,6 +136,13 @@ class BlocksPopupMenu extends BlocksPopup {
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     super.attributeChangedCallback(attrName, oldVal, newVal)
+
+    // 子菜单打开的时候，为父 item 加上 submenu-open class，以显示 hover 效果
+    if (attrName === 'open' && this.$parentItem) {
+      console.log('yes!!!')
+      this.$parentItem.classList[this.open ? 'add' : 'remove']('submenu-open')
+    }
+
     this.render()
   }
 }

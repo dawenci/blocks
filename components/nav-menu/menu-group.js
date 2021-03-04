@@ -1,6 +1,7 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __color_primary, __fg_secondary, __font_family } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
+import { forEach } from '../../common/utils.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -105,6 +106,12 @@ class BlocksNavMenuGroup extends HTMLElement {
     })
     this.$body.innerHTML = ''
     this.$body.appendChild(bodyFragment)
+  }
+
+  clearActive() {
+    forEach(this.$body.children, child => {
+      if (child.clearActive) child.clearActive()
+    })
   }
 }
 

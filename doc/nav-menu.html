@@ -38,7 +38,7 @@
           </span>
         </div>
         
-        <blocks-nav-menu id="menu"></blocks-nav-menu>
+        <blocks-nav-menu id="menu" size="large"></blocks-nav-menu>
 
         <script>
           (() => {
@@ -85,6 +85,14 @@
               },
 
               { icon: 'date', label: 'Long long long long long long long', handler },
+              {
+                icon: 'date',
+                label: 'Long long long long long long long',
+                handler,
+                children: [
+                  { icon: 'date', label: 'Long long long long long long long', handler },
+                ]
+              },
             ]
 
             document.getElementById('menu').data = data

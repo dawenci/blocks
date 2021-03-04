@@ -1,7 +1,17 @@
+/**
+ * @export
+ * @param {string} attr
+ * @returns {(element: Element) => boolean}
+ */
 export function boolGetter(attr) {
   return element => element.hasAttribute(attr)
 }
 
+/**
+ * @export
+ * @param {string} attr
+ * @returns {(element: Element, value: any) => void}
+ */
 export function boolSetter(attr) {
   return (element, value) => {
     if (value === null || value === false) {
@@ -17,6 +27,11 @@ export function boolSetter(attr) {
   }
 }
 
+/**
+ * @export
+ * @param {string} attr
+ * @returns {(element: Element) => number}
+ */
 export function numGetter(attr) {
   return element => {
     const value = parseFloat(element.getAttribute(attr))
@@ -24,6 +39,11 @@ export function numGetter(attr) {
   }
 }
 
+/**
+ * @export
+ * @param {string} attr
+ * @returns {(element: Element, value: any) => void}
+ */
 export function numSetter(attr) {
   return (element, value) => {
     if (element.getAttribute(attr) === value) return
@@ -36,6 +56,11 @@ export function numSetter(attr) {
   }
 }
 
+/**
+ * @export
+ * @param {string} attr
+ * @returns {(element: Element) => number}
+ */
 export function intGetter(attr) {
   return element => {
     const value = parseInt(element.getAttribute(attr))
@@ -43,6 +68,11 @@ export function intGetter(attr) {
   }
 }
 
+/**
+ * @export
+ * @param {string} attr
+ * @returns {(element: Element, value: any) => void}
+ */
 export function intSetter(attr) {
   return (element, value) => {
     value = parseInt(value, 10)
@@ -56,6 +86,12 @@ export function intSetter(attr) {
   } 
 }
 
+/**
+ * @export
+ * @param {string} attr
+ * @param {any[]} values
+ * @returns {(element: Element) => any}
+ */
 export function enumGetter(attr, values) {
   return (element) => {
     const value = element.getAttribute(attr)
@@ -64,6 +100,12 @@ export function enumGetter(attr, values) {
   }
 }
 
+/**
+ * @export
+ * @param {string} attr
+ * @param {any[]} values
+ * @returns {(element: Element, value: any) => void}
+ */
 export function enumSetter(attr, values) {
   return (element, value) => {
     if (element.getAttribute(attr) === value) return
