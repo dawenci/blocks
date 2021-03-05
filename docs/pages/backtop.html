@@ -25,14 +25,45 @@
 
     <section class="section">
       <template data-codesource="html">
-        <div id="target" style="height:300px;overflow:auto;border:1px solid #ccc;">
-          <div style="height:600vh;">
-            <blocks-backtop target="#target"></blocks-backtop>
-          </div>
+        <div id="target" style="height:400px;overflow:auto;border:1px solid #ccc;">
+          <div style="height:600vh;padding:50px;font-size:40px;text-align:center;">滚动此处，然后注意右下角</div>
         </div>
+
+        <blocks-backtop duration=".1" target="#target"></blocks-backtop>
       </template>
     </section>
-    
+
+    <section class="section">
+      <h2>API</h2>
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>duration</td>
+            <td>number</td>
+            <td>0</td>
+            <td>滚动到顶部的动画持续时间，单位为秒</td>
+            <td>N</td>
+          </tr>
+          <tr>
+            <td>target</td>
+            <td>string | Node | (() => string | Node</td>
+            <td>无</td>
+            <td>滚动容器元素，或滚动容器元素 CSS 选择器，或返回这两者的函数</td>
+            <td>Y</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </section>
   </article>
 </body>
 </html>

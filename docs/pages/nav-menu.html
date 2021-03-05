@@ -101,6 +101,85 @@
       </div>
     </section>
     
+
+    <section class="section">
+      <h2>API</h2>
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>collapse</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否折叠（最小化）模式。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>dark</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否使用 dark 主题。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>data</td>
+            <td></td>
+            <td></td>
+            <td>
+              导航的数据，该属性为 prop，非 attr。接受一个 JavaScript 数组。数组中的项可以为菜单项，或者分组。其中菜单项可以有子菜单。
+              菜单项的数据结构：
+<pre>
+interface MenuItem {
+  active?: boolean
+  disabled?: boolean
+  handler?: () => void
+  href?: string
+  icon?: string
+  label: string
+}
+</pre>
+              菜单分组的的数据结构:
+<pre>
+interface MenuGrup {
+  title: string
+  data: MenuItem[]
+}
+</pre>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>horizontal</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否水平模式。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>inline</td>
+            <td>boolean</td>
+            <td></td>
+            <td>（垂直模式专用）子菜单是否直接内联渲染（而非弹出菜单模式）。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>size</td>
+            <td>'small'|'large'</td>
+            <td></td>
+            <td>菜单的尺寸。默认不设置为中等尺寸。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   </article>
 </body>
 </html>

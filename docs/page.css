@@ -144,3 +144,27 @@ article h4 {
 .heading-nav li:hover {
   background: #f0f0f0;
 }
+
+
+table {
+  width: 100%;
+  border: 1px solid #d9d9d9;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th, td {
+  overflow: hidden;
+  padding: 10px;
+  border: 1px solid #d9d9d9;
+  word-break: break-word;
+}
+th {
+  text-align: left;
+  background-color: #f0f0f0;
+}
+table.api-props th:last-child,
+table.api-props td:last-child {
+  width: 50px;
+  text-align: center;
+}

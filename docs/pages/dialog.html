@@ -169,6 +169,89 @@
         <blocks-button onclick="document.getElementById('dark').open = true">打开1</blocks-button>
       </template>
     </section>
+
+    <section class="section">
+      <h2>API</h2>
+
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>capturefocus</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否捕获焦点。如果是，tab 键不会将焦点移出 Dialog。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>closeable</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否提供关闭按钮。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>dark</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否使用 dark 主题。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>mask</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否显示遮罩。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>open</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>对话框的打开状态。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>title</td>
+            <td>string</td>
+            <td></td>
+            <td>对话框的标题</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="api-slots">
+        <thead>
+          <tr>
+            <th>slot 名称</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>header</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>footer</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>default</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   </article>
 </body>
 </html>

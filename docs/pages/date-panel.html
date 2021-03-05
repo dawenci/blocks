@@ -30,6 +30,87 @@
         <blocks-date-panel mode="range" max="3"></blocks-date-panel>
       </template>
     </section>
+
+    <section class="section">
+      <h2>API</h2>
+
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>depth</td>
+            <td>'month'|'year'|'decade'</td>
+            <td>'month'</td>
+            <td>选择值的深度。month 代表最深按照月展示选项，可以选择到 “天”；year 代表最深按照年份展示选项，可以选择到 “月”；decade 代表最深按照十年展示选项，可以选择到 “年”。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>disableMethod</td>
+            <td>(data: { year: number, month?: number, date?: number }) => boolean</td>
+            <td></td>
+            <td>校验（depth 末级）选项是否禁用的检查方法。该属性无对应 attr，只能作为 prop 传入。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>loading</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否进入 loading 状态（遮罩）。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>max</td>
+            <td>number</td>
+            <td></td>
+            <td>多选模式的话，最多能选择多少个值。默认不设置表示不限。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>mindepth</td>
+            <td>'month'|'year'|'decade'|'century'</td>
+            <td>'century'</td>
+            <td>可切换至的最小深度。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>mode</td>
+            <td>'single'|'multiple'|'range'</td>
+            <td>'single'</td>
+            <td>选择模式。支持单选、多选、区间选择。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>startdepth</td>
+            <td></td>
+            <td></td>
+            <td>初始化显示的面板深度。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>startWeekOn</td>
+            <td>0|1|2|3|4|5|6</td>
+            <td>1</td>
+            <td>每周从星期几开始，0 代表星期天，1 代表星期一，顺序类推。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>value</td>
+            <td></td>
+            <td></td>
+            <td>model 值。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
    
   </article>
 </body>
