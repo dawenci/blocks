@@ -127,9 +127,11 @@ blocks-icon {
 :host-context([horizontal]) {
   flex: 0 0 auto;
 }
+:host-context([horizontal]) #arrow,
 :host-context([inline]) #arrow {
   transform: rotate(90deg);
 }
+:host-context([horizontal]):host(.submenu-open) #arrow,
 :host-context([inline]):host([expand]) #arrow {
   transform: rotate(-90deg);
 }
