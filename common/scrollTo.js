@@ -9,7 +9,7 @@
  */
 export function scrollTo(scrollable, to = 0, options = {}) {
   if (!scrollable) return
-  const duration = options.duration ?? 0
+  const duration = options.duration || 0
 
   const startScrollTop = scrollable.scrollTop
   const offset = to - startScrollTop

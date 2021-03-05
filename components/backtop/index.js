@@ -56,10 +56,9 @@ class BlocksBackTop extends HTMLElement {
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$layout = shadowRoot.querySelector('#layout')
 
-    // TODO, animate
     this.$layout.onclick = () => {
       scrollTo(this.targetElement, 0, {
-        duration: .1,
+        duration: this.duration,
         done: () => this.render()
       })
     }
