@@ -24,7 +24,7 @@
         <div data-codesource="html">
           <blocks-button class="confirm-1">打开</blocks-button>
           <script type="module">
-            import { confirm } from '/components/modal/index.js'
+            import { confirm } from '../../components/modal/index.js'
             document.querySelector('.confirm-1').onclick = () => {
               confirm('这里是需要确认的消息内容')
             }
@@ -41,7 +41,7 @@
           <blocks-button class="confirm-2">打开（回调例子）</blocks-button>
           <blocks-button class="confirm-3">打开（Promise例子）</blocks-button>
           <script type="module">
-            import { confirm } from '/components/modal/index.js'
+            import { confirm } from '../../components/modal/index.js'
             document.querySelector('.confirm-2').onclick = () => {
               confirm('这里是需要确认的消息内容', {
                 cancel: true,

@@ -3,7 +3,7 @@ export default [
   { category: 'guide', title: '主题定制', url: 'pages/theme.html' },
 
   { category: 'components', title: 'backtop', url: 'pages/backtop.html' },
-  { category: 'components', title: 'button-category', url: 'pages/button-category.html' },
+  { category: 'components', title: 'button-group', url: 'pages/button-group.html' },
   { category: 'components', title: 'button', url: 'pages/button.html' },
   { category: 'components', title: 'checkbox', url: 'pages/checkbox.html' },
   { category: 'components', title: 'countdown', url: 'pages/countdown.html' },
