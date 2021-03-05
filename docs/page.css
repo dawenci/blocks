@@ -36,6 +36,8 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  font-family: -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol';
+  color: #333;
 }
 
 body {
@@ -59,23 +61,28 @@ article {
 }
 
 article header {
-  padding: 40px 40px 0;
+  padding: 30px 30px 0;
 }
+
 article header h1 {
   margin: 0;
 }
+
 article h1 {
   font-size: 48px;
   font-weight: 500;
 }
+
 article h2 {
   font-size: 36px;
   font-weight: 500;
 }
+
 article h3 {
   font-size: 24px;
   font-weight: 500;
 }
+
 article h4 {
   font-size: 16px;
   font-weight: 500;
@@ -83,8 +90,8 @@ article h4 {
 
 .section {
   border-top: 1px dashed #ddd;
-  margin: 40px 0;
-  padding: 40px 40px;
+  margin: 40px 30px;
+  padding: 40px 0;
   background: #fff;
 }
 
@@ -99,6 +106,7 @@ article h4 {
   border-radius: 5px;
   color: #eee;
 }
+
 .print-area .print-title {
   margin: 0;
   padding: 10px 15px;
@@ -106,18 +114,22 @@ article h4 {
   border-bottom: 1px solid #383838;
   cursor: pointer;
 }
+
 .print-area .print-title:hover {
   background-image: linear-gradient(to bottom, rgba(255,255,255,.03), rgba(255,255,255,.03));
 }
+
 .print-area .print-title:active {
   background-image: linear-gradient(to bottom, rgba(0,0,0,.5), rgba(0,0,0,.5));
 }
+
 .print-area .print-title .toggle {
   position: relative;
   float: right;
   width: 16px;
   height: 16px;
 }
+
 .print-area .print-title .toggle::after {
   position: absolute;
   top: 0;
@@ -134,12 +146,15 @@ article h4 {
   transform: rotate(45deg);
   transition: all .1s;
 }
+
 .print-area .print-title .toggle.on::after {
   transform: rotate(-135deg);
 }
+
 .print-area pre {
   margin: 20px;
 }
+
 .print-area code {
   border-radius: 3px;
 }
