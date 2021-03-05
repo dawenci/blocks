@@ -16,12 +16,12 @@ const TEMPLATE_CSS = `
 :host {
   display: inline-block;
   box-sizing: border-box;
-  font-size: 0;
   font-family: var(--font-family, ${__font_family});
   text-align: center;
   transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   all: initial;
   contain: content;
+  font-size: 14px;
 }
 
 #layout {
@@ -80,14 +80,12 @@ const TEMPLATE_CSS = `
   background-color: #fff;
 }
 
-#label, #radio + * {
-  cursor: default;
-  font-size: 14px;
-}
 #label {
+  cursor: default;
   margin-left: 3px;
 }
-#label:empty {
+
+#label.empty {
   display: none;
 }
 
@@ -116,7 +114,7 @@ const TEMPLATE_CSS = `
 const TMEPLATE_HTML = `
 <div id="layout">
   <span id="radio"></span>
-  <slot name="label"><label id="label"></label></slot>
+  <label id="label"><slot></slot></label>
 </div>
 `
 
@@ -125,14 +123,21 @@ template.innerHTML = TEMPLATE_CSS + TMEPLATE_HTML
 
 class BlocksRadio extends HTMLElement {
   static get observedAttributes() {
-    return [ 'name', 'value', 'label', 'checked', 'disabled' ]
+    return [ 'name', 'value', 'checked', 'disabled' ]
   }
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
-    shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$radio = shadowRoot.querySelector('#radio')
+    this.attachShadow({mode: 'open'})
+    this.shadowRoot.appendChild(template.content.cloneNode(true))
+    this.$radio = this.shadowRoot.querySelector('#radio')
+    this.$label = this.shadowRoot.querySelector('#label')
+    this.$slot = this.shadowRoot.querySelector('slot')
+
+    this.$label.classList[this.$slot.assignedNodes().length ? 'remove' : 'add']('empty')
+    this.$slot.addEventListener('slotchange', (e) => {
+      this.$label.classList[this.$slot.assignedNodes().length ? 'remove' : 'add']('empty')
+    })
 
     const check = () => {
       if (!this.checked) {
@@ -172,15 +177,6 @@ class BlocksRadio extends HTMLElement {
     this.setAttribute('name', value)
   }
 
-  get label() {
-    return this.getAttribute('label')
-  }
-
-  set label(value) {
-    this.setAttribute('label', value)
-    this._renderLabel()
-  }
-
   get disabled() {
     return this.getAttribute('disabled') !== null
   }
@@ -207,19 +203,10 @@ class BlocksRadio extends HTMLElement {
     }
   }
 
-  _renderLabel() {
-    if (!this.querySelector('[slot="label"]') && this.label) {
-      const label = this.shadowRoot.querySelector('label')
-      label.innerHTML = this.label
-    }
-  }
-
   connectedCallback() {
     setRole(this, 'radio')
     setDisabled(this, this.disabled)
     setTabindex(this, !this.disabled)
-
-    this._renderLabel()
   }
 
   disconnectedCallback() {

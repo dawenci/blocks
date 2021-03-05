@@ -17,12 +17,12 @@ const TEMPLATE_CSS = `
 :host {
   display: inline-block;
   box-sizing: border-box;
-  font-size: 0;
   font-family: var(--font-family, ${__font_family});
   text-align: center;
   transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   all: initial;
   contain: content;
+  font-size: 14px;
 }
 
 #layout {
@@ -111,14 +111,12 @@ const TEMPLATE_CSS = `
   transform: rotate(45deg) scaleY(1);
 }
 
-#label, #checkbox + * {
-  cursor: default;
-  font-size: 14px;
-}
 #label {
+  cursor: default;
   margin-left: 3px;
 }
-#label:empty {
+
+#label.empty {
   display: none;
 }
 
@@ -148,7 +146,7 @@ const TEMPLATE_CSS = `
 const TMEPLATE_HTML = `
 <div id="layout">
   <span id="checkbox"></span>
-  <slot name="label"><label id="label"></label></slot>
+  <label id="label"><slot></slot></label>
 </div>
 `
 
@@ -159,17 +157,23 @@ class BlocksCheckbox extends HTMLElement {
   _indeterminate = false
 
   static get observedAttributes() {
-    return ['name', 'value', 'label', 'checked', 'disabled']
+    return ['name', 'value', 'checked', 'disabled']
   }
 
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    this.attachShadow({ mode: 'open' })
     const fragment = template.content.cloneNode(true)
-    shadowRoot.appendChild(fragment)
-    this.$checkbox = shadowRoot.querySelector('#checkbox')
-    this.$label = shadowRoot.querySelector('#label')
+    this.shadowRoot.appendChild(fragment)
+    this.$checkbox = this.shadowRoot.querySelector('#checkbox')
+    this.$label = this.shadowRoot.querySelector('#label')
+    this.$slot = this.shadowRoot.querySelector('slot')
+
+    this.$label.classList[this.$slot.assignedNodes().length ? 'remove' : 'add']('empty')
+    this.$slot.addEventListener('slotchange', (e) => {
+      this.$label.classList[this.$slot.assignedNodes().length ? 'remove' : 'add']('empty')
+    })
 
     this.shadowRoot.addEventListener('click', (e) => {
       if (this.disabled) {
@@ -189,15 +193,6 @@ class BlocksCheckbox extends HTMLElement {
         e.preventDefault()
       }
     })
-  }
-
-  get label() {
-    return this.getAttribute('label')
-  }
-
-  set label(value) {
-    this.setAttribute('label', value)
-    this._renderLabel()
   }
 
   get disabled() {
@@ -251,19 +246,10 @@ class BlocksCheckbox extends HTMLElement {
     }
   }
 
-  _renderLabel() {
-    if (!this.querySelector('[slot="label"]') && this.label) {
-      const label = this.shadowRoot.querySelector('#label')
-      label.innerHTML = this.label
-    }
-  }
-
   connectedCallback() {
     setRole(this, 'checkbox')
     setDisabled(this, this.disabled)
     setTabindex(this, !this.disabled)
-
-    this._renderLabel()
   }
 
   disconnectedCallback() {
