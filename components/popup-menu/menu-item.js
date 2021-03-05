@@ -70,14 +70,12 @@ const TEMPLATE_CSS = `<style>
 #layout {
   display: flex;
   align-items: center;
-  height: var(--height-base, ${__height_base});
-  padding: 0 10px;
+  height: 100%;
 }
 #label {
   overflow: hidden;
   flex: 1 1 auto;
   display: flex;
-  margin-right: 10px;
   align-items: center;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -86,6 +84,7 @@ const TEMPLATE_CSS = `<style>
   flex: 0 0 auto;
   width: 14px;
   height: 14px;
+  margin-left: 5px;
   fill: var(--fg-placeholder, ${__fg_placeholder});
 }
 #icon {
@@ -99,11 +98,19 @@ blocks-icon {
 :host(.has-submenu) blocks-icon {
   display: inline-block;
 }
-:host-context(blocks-popup-menu[size="small"]) #layout {
+
+/* size */
+:host {
+  height: var(--height-base, ${__height_base});
+}
+:host-context(blocks-popup-menu[size="small"]) {
   height: var(--height-small, ${__height_small});
 }
-:host-context(blocks-popup-menu[size="large"]) #layout {
+:host-context(blocks-popup-menu[size="large"]) {
   height: var(--height-large, ${__height_large});
+}
+#layout {
+  padding: 0 12px;
 }
 </style>`
 

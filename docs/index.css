@@ -71,10 +71,16 @@ html, body {
 
 #aside {
   flex: 0 0 180px;
-  overflow: auto;
+  overflow: hidden;
   box-sizing: border-box;
-  padding: 15px 0;
+  padding: 0;
   height: 100%;
+}
+#aside:hover {
+  overflow: auto;
+}
+#aside blocks-nav-menu {
+  min-height: 100%;
 }
 
 #article {

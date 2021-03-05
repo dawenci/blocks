@@ -53,6 +53,7 @@ window.onload = () => {
   // 侧导航
   const $sideMenu = $aside.appendChild(document.createElement('blocks-nav-menu'))
   $sideMenu.style.width = '100%'
+  $sideMenu.size = 'large'
   $sideMenu.data = generateSideNavData()
 
 

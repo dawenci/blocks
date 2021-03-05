@@ -12,21 +12,17 @@ const TEMPLATE_CSS = `<style>
   font-family: var(--font-family, ${__font_family});
   font-size: 14px;
   box-sizing: border-box;
-  min-width: 0;
   user-select: none;
 }
 #layout {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: var(--height-base, ${__height_base});
-  padding: 0 10px;
-  min-width: 0;
+  height: 100%;
 }
 #label {
   overflow: hidden;
   flex: 1 1 auto;
-  margin-right: 10px;
   align-items: center;
   white-space: nowrap;
   display: inline;
@@ -37,6 +33,7 @@ const TEMPLATE_CSS = `<style>
   flex: 0 0 auto;
   width: 14px;
   height: 14px;
+  margin-left: 5px;
   fill: var(--fg-placeholder, ${__fg_placeholder});
   transition: transform var(--transition-duration, ${__transition_duration});
 }
@@ -118,12 +115,6 @@ blocks-icon {
   box-shadow: inset 0 -2px 0 var(--fg-disabled, ${__fg_disabled}), 0 1px 0 var(--fg-disabled, ${__fg_disabled});
 }
 
-:host-context(blocks-nav-menu[size="small"]) #layout {
-  height: var(--height-small, ${__height_small});
-}
-:host-context(blocks-nav-menu[size="large"]) #layout {
-  height: var(--height-large, ${__height_large});
-}
 :host-context([horizontal]) {
   flex: 0 0 auto;
 }
@@ -138,6 +129,23 @@ blocks-icon {
 :host-context([collapse]) #label,
 :host-context([collapse]) #arrow {
   display: none;
+}
+
+/* size */
+:host {
+  height: var(--height-base, ${__height_base});
+}
+:host-context(blocks-nav-menu[size="small"]) {
+  height: var(--height-small, ${__height_small});
+}
+:host-context(blocks-nav-menu[size="large"]) {
+  height: var(--height-large, ${__height_large});
+}
+#layout {
+  padding: 0 12px;
+}
+:host-context([horizontal]) #layout {
+  padding: 0 16px;
 }
 </style>`
 
