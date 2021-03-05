@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>button</title>
+  <link rel="stylesheet" href="../page.css">
+  <link rel="stylesheet" href="../highlight/styles/default.css">
+  <link rel="stylesheet" href="../highlight/styles/vs2015.css">
+  <script src="../highlight/highlight.pack.js"></script>
+  <script type="module" src="../code-support.js"></script>
+</head>
+<body>
+  <article>
+    <header>
+      <h1>button</h1>
+    </header>
+
+    <section class="section">
+      <div data-codesource="html" data-title="依赖引入">
+        <script type="module" src="../../components/button/index.js"></script>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>尺寸</h2>
+    
+      <template data-codesource="html">
+        <blocks-button size="small">尺寸 small</blocks-button>
+        <blocks-button>尺寸 default</blocks-button>
+        <blocks-button size="large">尺寸 large</blocks-button>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>主题</h2>
+
+      <template data-codesource="html">
+        <blocks-button>主题 default</blocks-button>
+        <blocks-button type="primary">主题 primary</blocks-button>
+        <blocks-button type="danger">主题 danger</blocks-button>
+        <blocks-button type="warning">主题 warning</blocks-button>
+        <blocks-button type="success">主题 success</blocks-button>
+        <blocks-button type="link">主题 link</blocks-button>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>outline 主题</h2>
+
+      <template data-codesource="html">
+        <blocks-button outline>风格 default outline</blocks-button>
+        <blocks-button type="primary" outline>风格 primary outline</blocks-button>
+        <blocks-button type="danger" outline>风格 danger outline</blocks-button>
+        <blocks-button type="warning" outline>风格 warning outline</blocks-button>
+        <blocks-button type="success" outline>风格 success outline</blocks-button>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>不可用状态</h2>
+
+      <h3>默认</h3>
+      <template data-codesource="html">
+        <blocks-button disabled>default</blocks-button>
+        <blocks-button type="primary" disabled>primary</blocks-button>
+        <blocks-button type="danger" disabled>danger</blocks-button>
+        <blocks-button type="warning" disabled>warning</blocks-button>
+        <blocks-button type="success" disabled>success</blocks-button>
+      </template>
+
+      <h3>outline 时</h3>
+      <template data-codesource="html">
+        <blocks-button outline disabled>default outline</blocks-button>
+        <blocks-button type="primary" outline disabled>primary outline</blocks-button>
+        <blocks-button type="danger" outline disabled>danger outline</blocks-button>
+        <blocks-button type="warning" outline disabled>warning outline</blocks-button>
+        <blocks-button type="success" outline disabled>success outline</blocks-button>
+      </template>
+    </section>
+
+
+    <section class="section">
+      <h2>icon</h2>
+
+      <h3>color</h3>
+      <template data-codesource="html">
+        <blocks-button icon="date">default</blocks-button>
+        <blocks-button icon="date" type="primary">primary</blocks-button>
+        <blocks-button icon="date" type="danger">danger</blocks-button>
+        <blocks-button icon="date" type="warning">warning</blocks-button>
+        <blocks-button icon="date" type="success">success</blocks-button>
+      </template>
+
+
+      <h3>outline</h3>
+      <template data-codesource="html">
+        <blocks-button icon="date" outline>default</blocks-button>
+        <blocks-button icon="date" outline type="primary">primary</blocks-button>
+        <blocks-button icon="date" outline type="danger">danger</blocks-button>
+        <blocks-button icon="date" outline type="warning">warning</blocks-button>
+        <blocks-button icon="date" outline type="success">success</blocks-button>
+      </template>
+      
+      <h3>size</h3>
+      <template data-codesource="html">
+        <blocks-button icon="date" size="small">small</blocks-button>
+        <blocks-button icon="date">default</blocks-button>
+        <blocks-button icon="date" size="large">large</blocks-button>
+      </template>
+    </section>
+
+
+    <section class="section">
+      <h2>loading</h2>
+
+      <template data-codesource="html">
+        <blocks-button loading>Loading</blocks-button>
+      </template>
+    </section>
+
+
+    <section class="section">
+      <h2>圆角</h2>
+
+      <p>可通过 round 设置圆角按钮</p>
+
+      <template data-codesource="html">
+        <blocks-button size="small" round>round</blocks-button>
+        <blocks-button round>round</blocks-button>
+        <blocks-button size="large" round>round</blocks-button>
+
+        <blocks-button size="small" round icon="date">带图标</blocks-button>
+        <blocks-button round icon="date">带图标</blocks-button>
+        <blocks-button size="large" round icon="date">带图标</blocks-button>
+        <blocks-button size="small" round icon="date"></blocks-button>
+        <blocks-button round icon="date"></blocks-button>
+        <blocks-button size="large" round icon="date"></blocks-button>
+      </template>
+    </section>
+
+
+    <section class="section">
+      <h2>Block 按钮</h2>
+
+      <p>可通过 block 设置圆角按钮</p>
+
+      <template data-codesource="html">
+        <blocks-button block type="primary">block 按钮</blocks-button>
+      </template>
+    </section>
+
+  </article>
+</body>
+</html>
