@@ -274,7 +274,7 @@ function cage(placement) {
 export function notify(options = {}) {
   const el = document.createElement('blocks-notification')
   typeSetter(el, options.type)
-  darkSetter(el, options.dark)
+  darkSetter(el, !!options.dark)
   closeableSetter(el, options.closeable ?? false)
   if (options.duration) durationSetter(el, options.duration)
 
