@@ -11,6 +11,7 @@ import { modal } from './modal.js'
  * @returns {Promise<void>}
  */
 export function confirm(text, options = {}) {
-  const { dialog, promise } = modal(text, options)
+  if (!options.cancel) options.cancel = true
+  const { promise } = modal(text, options)
   return promise
 }

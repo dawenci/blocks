@@ -18,15 +18,15 @@
     </header>
 
     <section class="section">
-      <h2>confirm</h2>
+      <h2>alert</h2>
 
       <div class="case">
         <div data-codesource="html">
-          <blocks-button class="confirm-1">打开</blocks-button>
+          <blocks-button class="alert">打开</blocks-button>
           <script type="module">
-            import { confirm } from '../../components/modal/index.js'
-            document.querySelector('.confirm-1').onclick = () => {
-              confirm('这里是需要确认的消息内容')
+            import { alert } from '../../components/modal/index.js'
+            document.querySelector('.alert').onclick = () => {
+              alert('这里是消息内容')
             }
           </script>
         </div>

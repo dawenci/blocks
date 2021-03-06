@@ -14,10 +14,10 @@ import { modal } from './modal.js'
 export function prompt(text, options = {}) {
   const input = document.createElement('blocks-input')
   options.resolveValue = () => input.value
-  const { dialog, promise } = modal(text, options)
+  const { $dialog, promise } = modal(text, options)
 
-  dialog.appendChild(input)
-  dialog.addEventListener('focus', () => {
+  $dialog.appendChild(input)
+  $dialog.addEventListener('focus', () => {
     requestAnimationFrame(() => {
       input.focus()
     })
@@ -25,7 +25,7 @@ export function prompt(text, options = {}) {
 
   input.onkeydown = e => {
     if (e.key === 'Enter') {
-      dialog.confirm()
+      $dialog.confirm()
     }
   }
 
