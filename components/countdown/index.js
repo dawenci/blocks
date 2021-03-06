@@ -37,7 +37,7 @@ class BlocksCountdown extends HTMLElement {
   }
 
   get format() {
-    return this.getAttribute('format') || 'YYYY:MM:DD'
+    return this.getAttribute('format') || 'H:mm:ss'
   }
 
   set format(value) {
