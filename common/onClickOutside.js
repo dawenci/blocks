@@ -10,9 +10,9 @@ export function onClickOutside(el, handler) {
       handler(e)
     }
   }
-  document.addEventListener('click', callback)
+  document.addEventListener('mousedown', callback)
 
   return () => {
-    document.removeEventListener('click', callback)
+    document.removeEventListener('mousedown', callback)
   }
 }

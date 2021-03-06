@@ -5,6 +5,7 @@ import { __border_color_light, __color_primary, __font_family } from '../theme/v
 import { intGetter, intSetter } from '../../common/property.js';
 import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js';
 import { forEach } from '../../common/utils.js';
+import { onClickOutside } from '../../common/onClickOutside.js';
 
 const itemTemplate = document.createElement('blocks-popup-menu-item')
 const groupTemplate = document.createElement('blocks-popup-menu-group')
@@ -132,6 +133,18 @@ class BlocksPopupMenu extends BlocksPopup {
     })
     this.autoflip = true
     this.render()
+
+    this._clearClickOutside = onClickOutside(this, () => {
+      if (this.level === 0 && this.open) {
+        this.open = false
+      }
+    })
+  }
+
+  disconnectedCallback() {
+    if (this._clearClickOutside) {
+      this._clearClickOutside()
+    } 
   }
 
   attributeChangedCallback(attrName, oldVal, newVal) {
