@@ -4,7 +4,7 @@ import '../popup/index.js'
 import '../input/index.js'
 import '../select-result/index.js'
 
-import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
+import { intGetter, intSetter } from '../../common/property.js'
 import { __radius_base } from '../theme/var.js'
 import { every, find, forEach, findIndex } from '../../common/utils.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
@@ -231,11 +231,11 @@ class BlocksSelect extends HTMLElement {
   }
 
   get max() {
-    return parseInt(this.getAttribute('max')) || 0
+    return intGetter('max')(this) || 0
   }
 
   set max(value) {
-    this.setAttribute('max', value)
+    intSetter('max')(this, value)
   }
 
   get searchMethod() {

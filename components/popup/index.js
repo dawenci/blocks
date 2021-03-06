@@ -4,7 +4,7 @@ import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import { __bg_base, __bg_baseDark, __fg_base, __fg_baseDark, __radius_base, __transition_duration } from '../theme/var.js'
-import { darkGetter, darkSetter } from '../../common/propertyAccessor.js'
+import { darkGetter, darkSetter, openGetter, openSetter } from '../../common/propertyAccessor.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -39,8 +39,6 @@ const PopupOrigin = {
   LeftStart: 'left-start',
 }
 
-const openGetter = boolGetter('open')
-const openSetter = boolSetter('open')
 const insetGetter = boolGetter('inset')
 const insetSetter = boolSetter('inset')
 const autofocusGetter = boolGetter('autofocus')

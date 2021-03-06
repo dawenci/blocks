@@ -1,6 +1,7 @@
 import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
+import { checkedGetter, checkedSetter, disabledGetter, disabledSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import {
   __font_family,
   __radius_small,
@@ -13,11 +14,6 @@ import {
   __bg_disabled,
   __transition_duration,
 } from '../theme/var.js'
-
-const checkedGetter = boolGetter('checked')
-const checkedSetter = boolSetter('checked')
-const disabledGetter = boolGetter('disabled')
-const disabledSetter = boolSetter('disabled')
 
 const TEMPLATE_CSS = `
 <style>
@@ -136,6 +132,14 @@ class BlocksSwitch extends HTMLElement {
     })
   }
 
+  get checked() {
+    return checkedGetter(this)
+  }
+
+  set checked(value) {
+    checkedSetter(this, value)
+  }  
+
   get disabled() {
     return disabledGetter(this)
   }
@@ -144,12 +148,12 @@ class BlocksSwitch extends HTMLElement {
     disabledSetter(this, value)
   }
 
-  get checked() {
-    return checkedGetter(this)
+  get size() {
+    return sizeGetter(this)
   }
 
-  set checked(value) {
-    checkedSetter(this, value)
+  set size(value) {
+    sizeSetter(this, value)
   }
 
   connectedCallback() {

@@ -14,9 +14,8 @@ import {
   __transition_duration,
 } from '../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
+import { closeableGetter, closeableSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 
-const closeableGetter = boolGetter('closeable')
-const closeableSetter = boolSetter('closeable')
 const outlineGetter = boolGetter('outline')
 const outlineSetter = boolSetter('outline')
 
@@ -231,6 +230,14 @@ class BlocksTag extends HTMLElement {
   set outline(value) {
     outlineSetter(this, value)
     this.render()
+  }
+
+  get size() {
+    return sizeGetter(this)
+  }
+
+  set size(value)  {
+    sizeSetter(this, value)
   }
 
   render() {

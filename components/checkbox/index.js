@@ -1,4 +1,5 @@
 import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
+import { checkedGetter, checkedSetter, disabledGetter, disabledSetter } from '../../common/propertyAccessor.js'
 import {
   __font_family,
   __radius_small,
@@ -196,29 +197,19 @@ class BlocksCheckbox extends HTMLElement {
   }
 
   get disabled() {
-    return this.getAttribute('disabled') !== null
+    return disabledGetter(this)
   }
 
   set disabled(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('disabled')
-    }
-    else {
-      this.setAttribute('disabled', '')
-    }
+    disabledSetter(this, value)
   }
 
   get checked() {
-    return this.getAttribute('checked') !== null
+    return checkedGetter(this)
   }
 
   set checked(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('checked')
-    }
-    else {
-      this.setAttribute('checked', '')
-    }
+    checkedSetter(this, value)
   }
 
   get indeterminate() {

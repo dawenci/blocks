@@ -15,11 +15,12 @@ import {
   __transition_duration,
 } from '../theme/var.js'
 import { setDisabled, setRole } from '../../common/accessibility.js';
+import { disabledGetter, disabledSetter } from '../../common/propertyAccessor.js';
 
 const [minGetter, maxGetter] = ['min', 'max'].map(prop => numGetter(prop))
 const [minSetter, maxSetter] = ['min', 'max'].map(prop => numSetter(prop))
-const [disabledGetter, rangeGetter, verticalGetter] = ['disabled', 'range', 'vertical'].map(prop => boolGetter(prop))
-const [disabledSetter, rangeSetter, verticalSetter] = ['disabled', 'range', 'vertical'].map(prop => boolSetter(prop))
+const [rangeGetter, verticalGetter] = ['disabled', 'range', 'vertical'].map(prop => boolGetter(prop))
+const [rangeSetter, verticalSetter] = ['disabled', 'range', 'vertical'].map(prop => boolSetter(prop))
 const roundGetter = intGetter('round')
 const roundSetter = intSetter('round')
 

@@ -12,6 +12,7 @@ import { boolGetter, boolSetter } from '../../common/property.js'
 import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
+import { closeableGetter, closeableSetter, openGetter, openSetter } from '../../common/propertyAccessor.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -236,12 +237,8 @@ function getBodyScrollBarWidth() {
   return $outer.offsetWidth - $inner.offsetWidth
 }
 
-const openGetter = boolGetter('open')
-const openSetter = boolSetter('open')
 const maskGetter = boolGetter('mask')
 const maskSetter = boolSetter('mask')
-const closeableGetter = boolGetter('closeable')
-const closeableSetter = boolSetter('closeable')
 const capturefocusGetter = boolGetter('capturefocus')
 const capturefocusSetter = boolSetter('capturefocus')
 const appendToBodyGetter = boolGetter('append-to-body')

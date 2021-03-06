@@ -15,6 +15,7 @@ import '../popup/index.js'
 import '../date-panel/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setDisabled, setRole } from '../../common/accessibility.js'
+import { clearableGetter, clearableSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -273,16 +274,11 @@ class BlocksInput extends HTMLElement {
   }
 
   get clearable() {
-    return this.hasAttribute('clearable')
+    return clearableGetter(this)
   }
 
   set clearable(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('clearable')
-    }
-    else {
-      this.setAttribute('clearable', '')
-    }
+    clearableSetter(this, value)
   }
 
   get value() {
@@ -310,11 +306,11 @@ class BlocksInput extends HTMLElement {
   }
 
   get size() {
-    return this.getAttribute('size')
+    return sizeGetter(this)
   }
 
   set size(value) {
-    this.setAttribute('size', value)
+    sizeSetter(this, value)
   }
 
   get readonly() {

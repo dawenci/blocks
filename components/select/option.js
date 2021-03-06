@@ -1,14 +1,10 @@
 import { boolGetter, boolSetter } from '../../common/property.js'
+import { disabledGetter, disabledSetter, selectedGetter, selectedSetter } from '../../common/propertyAccessor.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { makeRgbaColor } from '../../common/utils.js'
 import {
   __color_primary, __color_primary_light,
 } from '../theme/var.js'
-
-const selectedGetter = boolGetter('selected')
-const selectedSetter = boolSetter('selected')
-const disabledGetter = boolGetter('disabled')
-const disabledSetter = boolSetter('disabled')
 
 const TEMPLATE_CSS = `<style>
 :host {

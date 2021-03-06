@@ -1,3 +1,4 @@
+import { disabledGetter, disabledSetter } from "../../common/propertyAccessor.js"
 import { upgradeProperty } from "../../common/upgradeProperty.js"
 
 const TEMPLATE_CSS = `<style>
@@ -55,16 +56,11 @@ class BlocksOptGroup extends HTMLElement {
   }
 
   get disabled() {
-    return this.hasAttribute('disabled')
+    return disabledGetter(this)
   }
 
   set disabled(value) {
-    if (value === null || value === false) {
-      this.removeAttribute('disabled')
-    }
-    else {
-      this.setAttribute('disabled', '')
-    }
+    disabledSetter(this, value)
   }
 
   render() {

@@ -5,19 +5,14 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __border_color_base, __height_base, __radius_base, __color_primary, __transition_duration, __height_small, __height_large } from '../theme/var.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { dispatchEvent } from '../../common/event.js'
+import { clearableGetter, clearableSetter, multipleGetter, multipleSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 
-const multipleGetter = boolGetter('multiple')
-const multipleSetter = boolSetter('multiple')
-const clearableGetter = boolGetter('clearable')
-const clearableSetter = boolSetter('clearable')
 const tagClearableGetter = boolGetter('tag-clearable')
 const tagClearableSetter = boolSetter('tag-clearable')
 const searchableGetter = boolGetter('searchable')
 const searchableSetter = boolSetter('searchable')
 const multipleModeGetter = enumGetter('multiple-mode', ['plain', 'tag'])
 const multipleModeSetter = enumSetter('multiple-mode', ['plain', 'tag'])
-const sizeGetter = enumGetter('size', ['mini', 'small', 'large', null])
-const sizeSetter = enumSetter('size', ['mini', 'small', 'large', null])
 
 const TEMPLATE_CSS = `<style>
 :host, :host * {
