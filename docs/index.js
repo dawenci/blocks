@@ -13,7 +13,7 @@ window.onload = () => {
 
   // 当前激活的路由
   let activeRoute = routes.find(route => {
-    const hash = decodeURIComponent(location.hash.slice(1))
+    const hash = location.hash.slice(1)
     const category = hash.split('/')[0] ?? ''
     const url = hash.slice(category.length + 1)
     return route.url === url
@@ -30,7 +30,7 @@ window.onload = () => {
     activeCategory = route.category
     $iframe.setAttribute('src', route.url)
     document.title = pageTitle(route)
-    history.pushState({}, route.title, `#${route.category}/${encodeURIComponent(route.url)}`)
+    history.pushState({}, route.title, `#${route.category}/${route.url}`)
   }
 
 
@@ -69,7 +69,7 @@ window.onload = () => {
     }
     headerNavData.push({
       label: route.category,
-      active: route === activeRoute,
+      active: route.category === activeCategory,
       handler() {
         gotoRoute(route)
         // 分类切换，重新生成侧导航

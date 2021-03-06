@@ -78,45 +78,54 @@ window.onload = () => {
     }
   }
 
-  // 从页面中提取 html，作为 demo code 打印在页面中
-  forEach(document.querySelectorAll('[data-codesource]'), $template => {
-    const role = $template.dataset.codesource
-    let rawCode = $template.innerHTML
+  // 渲染页面中标记为 code-source 的 html
+  // 并将这些 html 的文本值本身作为 code 内容，打印在页面中
+  forEach(document.querySelectorAll('[data-codesource]'), $codeSource => {
+    const role = $codeSource.dataset.codesource
+    let rawCode = $codeSource.innerHTML
 
-    // template 里面的东西不会真正渲染，因此将内容插入到 source 前面
-    if ($template.tagName === 'TEMPLATE') {
+    // 第一步：渲染
+    // 如果 $codeSource 是 template 标签，
+    // 则因为 template 里面的东西不会真正渲染，
+    // 需要将内容提取出来，插入到 source 前面以触发真正渲染
+    if ($codeSource.tagName === 'TEMPLATE') {
       let $exampleBlock
+
       if (role === 'script') {
         // js 代码写在 template 里面的 script 标签里面的情况
-        if ($template.content.querySelector('script')) {
-          $exampleBlock = $template.content.querySelector('script').cloneNode(true)
+        if ($codeSource.content.querySelector('script')) {
+          $exampleBlock = $codeSource.content.querySelector('script').cloneNode(true)
         }
         // template 里面没有 script 标签，直接就是 js 代码的情况
         else {
           $exampleBlock = document.createElement('script')
-          $exampleBlock.appendChild($template.content.cloneNode(true))
+          $exampleBlock.appendChild($codeSource.content.cloneNode(true))
         }
         rawCode = $exampleBlock.innerHTML
         // 如果代码块是脚本，则在 dom 准备完毕后，再插入执行
         setTimeout(() => {
-          $template.parentElement.insertBefore($exampleBlock, $template)
+          $codeSource.parentElement.insertBefore($exampleBlock, $codeSource)
         })
       }
+
+      // 非 js 代码
       else {
         $exampleBlock =document.createElement('div')
-        $exampleBlock.appendChild($template.content.cloneNode(true))
-        $template.parentElement.insertBefore($exampleBlock, $template)
+        $exampleBlock.appendChild($codeSource.content.cloneNode(true))
+        $codeSource.parentElement.insertBefore($exampleBlock, $codeSource)
       }
     }
-
+    
+    // 第二步：打印原始代码
     // 读取代码内容，插入到 source 后面
-    const title = $template.dataset.title
-    const $printArea = insertAfter(document.createElement('div'), $template)
+    const title = $codeSource.dataset.title
+    const $printArea = insertAfter(document.createElement('div'), $codeSource)
     $printArea.className = 'print-area'
+    const defaultExapnd = $codeSource.hasAttribute('on')
     if (role === 'html') {
       $printArea.innerHTML = `
       <h3 class="print-title"><span>${title ?? '对应的 HTML'}</span><i class="toggle"></i></h3>
-      <pre data-codeprint="html-code" style="display:none"><code class="html"></code></pre>
+      <pre data-codeprint="html-code" style="display:${defaultExapnd ? 'block' : 'none'}"><code class="html"></code></pre>
       `
       const $code = $printArea.querySelector('[data-codeprint="html-code"] code')
       const code = removeLeadingSpaces(rawCode)
@@ -126,7 +135,7 @@ window.onload = () => {
     else if (role === 'script') {
       $printArea.innerHTML = `
       <h3 class="print-title"><span>${title ?? '对应的 JavaScript'}</span><i class="toggle"></i></h3>
-      <pre data-codeprint="script-code" style="display:none"><code class="javascript"></code></pre>
+      <pre data-codeprint="script-code" style="display:${defaultExapnd ? 'block' : 'none'}"><code class="javascript"></code></pre>
       `
       const $code = $printArea.querySelector('[data-codeprint="script-code"] code')
       const code = removeLeadingSpaces(rawCode)
@@ -136,7 +145,7 @@ window.onload = () => {
     else if (role === 'style') {
       $printArea.innerHTML = `
       <h3 class="print-title"><span>${title ?? '对应的 CSS'}</span><i class="toggle"></i></h3>
-      <pre data-codeprint="style-code" style="display:none"><code class="css"></code></pre>
+      <pre data-codeprint="style-code" style="display:${defaultExapnd ? 'block' : 'none'}"><code class="css"></code></pre>
       `
       const $code = $printArea.querySelector('[data-codeprint="style-code"] code')
       const code = removeLeadingSpaces(rawCode)
@@ -146,28 +155,27 @@ window.onload = () => {
     else {
       $printArea.innerHTML = `
       <h3 class="print-title"><span>${title ?? '对应的 代码'}</span><i class="toggle"></i></h3>
-      <pre data-codeprint="${role}" style="display:none"><code class="${role}"></code></pre>
+      <pre data-codeprint="${role}" style="display:${defaultExapnd ? 'block' : 'none'}"><code class="${role}"></code></pre>
       `
       const $code = $printArea.querySelector('[data-codeprint] code')
       const code = removeLeadingSpaces(rawCode)
       $code.textContent = code
     }
 
+    // 步骤三：显示隐藏交互
     // 代码区域，标题栏点击切换代码显示隐藏
     forEach(document.querySelectorAll('.print-area'), $printArea => {
       const $heading = $printArea.querySelector('h3')
       const $toggle = $printArea.querySelector('.toggle')
       const $codeWrapper = $printArea.querySelector('pre')
-      $heading.onclick = () => {
-        if (getComputedStyle($codeWrapper).display === 'none') {
-          $codeWrapper.style.display = 'block'
-          $toggle.classList.add('on')
-        }
-        else {
-          $codeWrapper.style.display = 'none'
-          $toggle.classList.remove('on')
-        }
+      const update = () => {
+        $toggle.classList[getComputedStyle($codeWrapper).display === 'none' ? 'remove' : 'add']('on')
       }
+      $heading.onclick = () => {
+        $codeWrapper.style.display = getComputedStyle($codeWrapper).display === 'none' ? 'block' : 'none'
+        update()
+      }
+      update()
     })
 
   })
