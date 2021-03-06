@@ -190,12 +190,12 @@ export default class BlocksDropDownList extends HTMLElement {
     })
     document.body.appendChild(this.$popup)
     this.render()
-    this._clearClick = onClickOutside([this, this.$popup], () => (this.open = false))
+    this._clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false))
   }
 
   disconnectedCallback() {
     document.body.removeChild(this.$popup)
-    this._clearClick()
+    this._clearClickOutside()
   }
 
   attributeChangedCallback(name, oldValue, newValue) {

@@ -9,6 +9,7 @@ import { __radius_base } from '../theme/var.js'
 import { every, find, forEach, findIndex } from '../../common/utils.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setDisabled, setRole } from '../../common/accessibility.js'
+import { onClickOutside } from '../../common/onClickOutside.js'
 
 let idSeed = Date.now()
 
@@ -257,16 +258,12 @@ class BlocksSelect extends HTMLElement {
 
     this.render()
 
-    if (!this._onClickOutside) {
-      this._onClickOutside = (e) => {
-        if (this.$popup.open && !this.contains(e.target) && !this.$popup.contains(e.target)) {
-          this.$popup.open = false
-          this.$result.classList.remove('dropdown')
-        }
+    this._clearClickOutside = onClickOutside([this, this.$popup], () => {
+      if (this.$popup.open) {
+        this.$popup.open = false
+        this.$result.classList.remove('dropdown')
       }
-    }
-
-    document.addEventListener('click', this._onClickOutside)
+    })
 
     this.$optionSlot.addEventListener('slotchange', (e) => {
       this.initOptions()
@@ -274,7 +271,7 @@ class BlocksSelect extends HTMLElement {
   }
 
   disconnectedCallback() {
-    document.removeEventListener('click', this._onClickOutside)
+    this._clearClickOutside()
     document.body.removeChild(this.$popup)
   }
 

@@ -2,6 +2,7 @@ import '../popup/index.js'
 import '../input/index.js'
 import '../date-panel/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
+import { onClickOutside } from '../../common/onClickOutside.js'
 
 let idSeed = Date.now()
 
@@ -162,19 +163,13 @@ class BlocksDatePicker extends HTMLElement {
 
     this.render()
 
-    if (!this._onClickOutside) {
-      this._onClickOutside = (e) => {
-        if (this.$popup.open && !this.contains(e.target) && !this.$panel.contains(e.target)) {
-          this.$popup.open = false
-        }
-      }
-    }
-
-    document.addEventListener('click', this._onClickOutside)
+    this._clearClickOutside = onClickOutside([this, this.$panel], () => {
+      if (this.$popup.open) this.$popup.open = false
+    })
   }
 
   disconnectedCallback() {
-    document.removeEventListener('click', this._onClickOutside)
+    this._clearClickOutside()
     document.body.removeChild(this.$popup)
   }
 
