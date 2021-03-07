@@ -55,3 +55,11 @@ export function round(x, digits) {
   x = Math.round(x)
   return sign * x / digits
 }
+
+export function camelCase(str) {
+  str = ('' + str).trim()
+  if (!str.length) return str
+  return str
+    .replace(/[-_]+([\S])/g, (_, char) => char.toUpperCase())
+    .replace(/^([A-Z])/, (_, char) => char.toLowerCase())
+}
