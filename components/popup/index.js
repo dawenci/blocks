@@ -5,6 +5,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import { __bg_base, __bg_baseDark, __fg_base, __fg_baseDark, __radius_base, __transition_duration } from '../theme/var.js'
 import { darkGetter, darkSetter, openGetter, openSetter } from '../../common/propertyAccessor.js'
+import { onTransition } from '../../common/onTransition.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -85,9 +86,10 @@ const TEMPLATE_CSS = `<style>
   height: 100%;
   border-radius: var(--radius-base, ${__radius_base});
   transform-origin: center center;
-  transition-property: transform, opacity;
-  transition-duration: var(--transition-duration, ${__transition_duration});
-  transition-timing-function: cubic-bezier(.645, .045, .355, 1);
+  transition-delay: 0, 0;
+  transition-property: opacity, transform;
+  transition-duration: var(--transition-duration, ${__transition_duration}), var(--transition-duration, ${__transition_duration});
+  transition-timing-function: cubic-bezier(.645, .045, .355, 1), cubic-bezier(.645, .045, .355, 1);
   background-color: var(--bg-base, ${__bg_base});
   color: var(--fg-base, ${__fg_base});
 }
@@ -333,27 +335,9 @@ export default class BlocksPopup extends HTMLElement {
 
     definePrivate(this, '_anchor')
 
-    // 过渡开始时
-    this.$layout.ontransitionstart = (ev) => {
-      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
-      this._disableEvents()
-    }
-
-    // 过渡进行中时
-    this.$layout.ontransitionrun = (ev) => {
-      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
-    }
-
-    // 过渡取消时
-    this.$layout.onontransitioncancel = () => {
-      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
-    }
-
     // 过渡结束时
-    this.$layout.ontransitionend = (ev) => {
-      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
+    this._onTransitionEnd = () => {
       this._enableEvents()
-
       if (this.open) {
         if (this.autofocus) this._focus()
         dispatchEvent(this, 'open')
@@ -366,6 +350,10 @@ export default class BlocksPopup extends HTMLElement {
         dispatchEvent(this, 'close')
       }
     }
+    onTransition(this.$layout, {
+      start: () => this._disableEvents(),
+      end: () => this._onTransitionEnd()
+    })
 
     if (this.capturefocus) {
       this._captureFocus()
@@ -871,6 +859,12 @@ export default class BlocksPopup extends HTMLElement {
     }
     else {
       this._animateClose()
+    }
+
+    // 如果没有动画，则直接触发事件
+    const styles = getComputedStyle(this.$layout)
+    if (!parseFloat(styles.transitionDuration) && !parseFloat(styles.transitionDelay)) {
+      this._onTransitionEnd()
     }
   }
 
