@@ -10,6 +10,7 @@ export default [
   { category: 'components', title: 'date-panel', url: 'pages/date-panel.html' },
   { category: 'components', title: 'date-picker', url: 'pages/date-picker.html' },
   { category: 'components', title: 'dialog', url: 'pages/dialog.html' },
+  { category: 'components', title: 'drawer', url: 'pages/drawer.html' },
   { category: 'components', title: 'dropdown-list', url: 'pages/dropdown-list.html' },
   { category: 'components', title: 'icon', url: 'pages/icon.html' },
   { category: 'components', title: 'input', url: 'pages/input.html' },

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>drawer</title>
+  <link rel="stylesheet" href="../page.css">
+  <link rel="stylesheet" href="../highlight/styles/default.css">
+  <link rel="stylesheet" href="../highlight/styles/vs2015.css">
+  <script src="../highlight/highlight.pack.js"></script>
+  <script type="module" src="../code-support.js"></script>
+</head>
+<body>
+  <aside>
+  </aside>
+  <article>
+    <header>
+      <h1>drawer</h1>
+    </header>
+
+    <section class="section">
+      <h2>依赖引入</h2>
+
+      <p>根据自己项目调整 src 的路径</p>
+
+      <div data-codesource="html" data-title="依赖引入" on>
+        <script type="module" src="../../components/drawer/index.js"></script>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>默认</h2>
+
+      <template data-codesource="html">
+        <blocks-drawer
+          id="drawer1"
+          closeable
+          title="Title attr">
+          <div style="width:400px;height:100px;overflow:auto;">
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+          </div>
+        </blocks-drawer>
+
+        <blocks-button onclick="document.getElementById('drawer1').open = true">打开1</blocks-button>
+      </template>
+    </section>
+<!-- 
+    <section class="section">
+      <h2>遮罩</h2>
+
+      <template data-codesource="html">
+        <blocks-drawer
+          class="drawer-mask"
+          mask
+          closeable
+          title="Title attr">
+          <div style="width:400px;height:100px;overflow:auto;">
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+          </div>
+        </blocks-drawer>
+
+        <blocks-button onclick="document.querySelector('.drawer-mask').open = true">打开</blocks-button>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>header slot</h2>
+
+      <template data-codesource="html">
+        <blocks-drawer
+          id="drawer2"
+          closeable
+          title="忽略的title">
+          <span slot="header">
+            <strong>slot</strong>自定义对话框标题
+          </span>
+          <div style="width:400px;">
+            这里是对话框的内容。
+          </div>
+        </blocks-drawer>
+        <blocks-button onclick="document.getElementById('drawer2').open = true">打开2</blocks-button>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>footer slot</h2>
+
+      <template data-codesource="html">
+        <blocks-drawer
+          id="drawer3"
+          closeable
+          title="页脚 slot">
+          <div style="width:400px;">
+            这里是对话框的内容。
+          </div>
+
+          <div slot="footer">
+            <blocks-button onclick="document.getElementById('drawer3').open = false">
+              关闭
+            </blocks-button>
+          </div>
+        </blocks-drawer>
+        <blocks-button onclick="document.getElementById('drawer3').open = true">打开3</blocks-button>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>限制焦点</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <blocks-drawer
+            id="drawer4"
+            capturefocus
+            closeable>
+
+            <div slot="header">
+              header 焦点测试：
+              <input type="text" value="header slot">
+            </div>
+
+            <div style="width:400px;">
+              <input value="default slot" />
+            </div>
+
+            <div slot="footer">
+              <input type="text" value="footer slot">
+            </div>
+          </blocks-drawer>
+
+          <blocks-button onclick="document.getElementById('drawer4').open = true">打开4</blocks-button>
+          <blocks-button onclick="document.getElementById('drawer4').capturefocus = !document.getElementById('drawer4').capturefocus">切换状态</blocks-button>
+        </div>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>插入到 body</h2>
+
+      <template data-codesource="html">
+        <blocks-drawer id="drawer5" append-to-body closeable>
+          parent 为 body
+        </blocks-drawer>
+        <blocks-button onclick="document.getElementById('drawer5').open = true">打开5</blocks-button>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>dark</h2>
+
+      <template data-codesource="html">
+        <blocks-drawer
+          id="dark"
+          mask
+          dark
+          closeable
+          title="Title attr">
+          <div style="width:400px;height:100px;overflow:auto;">
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+            这里是对话框的内容。<br>
+          </div>
+        </blocks-drawer>
+
+        <blocks-button onclick="document.getElementById('dark').open = true">打开1</blocks-button>
+      </template>
+    </section> -->
+
+    <section class="section">
+      <h2>API</h2>
+
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>capturefocus</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否捕获焦点。如果是，tab 键不会将焦点移出 Dialog。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>closeable</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否提供关闭按钮。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>dark</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否使用 dark 主题。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>mask</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否显示遮罩。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>open</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>对话框的打开状态。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>title</td>
+            <td>string</td>
+            <td></td>
+            <td>对话框的标题</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="api-slots">
+        <thead>
+          <tr>
+            <th>slot 名称</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>header</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>footer</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>default</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </article>
+</body>
+</html>
