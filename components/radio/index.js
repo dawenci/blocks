@@ -155,7 +155,7 @@ class BlocksRadio extends HTMLElement {
     this.shadowRoot.addEventListener('click', (e) => {
       if (this.disabled) {
         e.preventDefault()
-        e.stopPropagation()
+        e.stopImmediatePropagation()
         return
       }
       check()

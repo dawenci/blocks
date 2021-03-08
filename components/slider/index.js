@@ -422,7 +422,7 @@ class BlocksSlider extends HTMLElement {
       this.$track.onmousedown = (e) => {
         if (this.disabled) {
           e.preventDefault()
-          e.stopPropagation()
+          e.stopImmediatePropagation()
           return
         }
         this._dragging = true
