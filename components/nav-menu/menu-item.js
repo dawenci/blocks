@@ -42,10 +42,10 @@ const TEMPLATE_CSS = `<style>
   height: 16px;
   margin-right: 5px;
 }
-blocks-icon {
+bl-icon {
   display: none;
 }
-:host(.has-submenu) blocks-icon {
+:host(.has-submenu) bl-icon {
   display: inline-block;
 }
 
@@ -55,7 +55,7 @@ blocks-icon {
   fill: var(--fg-base, ${__fg_base});
   cursor: default;
 }
-:host-context(blocks-nav-menu[dark]) #layout {
+:host-context(bl-nav-menu[dark]) #layout {
   color: var(--fg-base-dark, ${__fg_baseDark});
   fill: var(--fg-base-dark, ${__fg_baseDark});
 }
@@ -66,8 +66,8 @@ blocks-icon {
   color: var(--fg-base-hover, ${__fg_base_hover});
   fill: var(--fg-base-hover, ${__fg_base_hover});
 }
-:host-context(blocks-nav-menu[dark]) #layout:hover,
-:host-context(blocks-nav-menu[dark]):host(.submenu-open) #layout {
+:host-context(bl-nav-menu[dark]) #layout:hover,
+:host-context(bl-nav-menu[dark]):host(.submenu-open) #layout {
   background-color: var(--bg-base-dark-hover, ${__bg_baseDark_hover});
   color: var(--fg-base-dark-hover, ${__fg_baseDark_hover});
   fill: var(--fg-base-hover, ${__fg_baseDark_hover});
@@ -78,7 +78,7 @@ blocks-icon {
   color: var(--fg-base-active, ${__fg_base_active});
   fill: var(--fg-base-active, ${__fg_base_active});
 }
-:host-context(blocks-nav-menu[dark]) #layout:active {
+:host-context(bl-nav-menu[dark]) #layout:active {
   background-color: var(--bg-base-dark-hover, ${__bg_baseDark_active});
   color: var(--fg-base-dark-hover, ${__fg_baseDark_active});
   fill: var(--fg-base-hover, ${__fg_baseDark_active});
@@ -135,10 +135,10 @@ blocks-icon {
 :host {
   height: var(--height-base, ${__height_base});
 }
-:host-context(blocks-nav-menu[size="small"]) {
+:host-context(bl-nav-menu[size="small"]) {
   height: var(--height-small, ${__height_small});
 }
-:host-context(blocks-nav-menu[size="large"]) {
+:host-context(bl-nav-menu[size="large"]) {
   height: var(--height-large, ${__height_large});
 }
 #layout {
@@ -151,9 +151,9 @@ blocks-icon {
 
 const TEMPLATE_HTML = `
 <div id="layout">
-  <blocks-icon id="icon"></blocks-icon>
+  <bl-icon id="icon"></bl-icon>
   <div id="label"></div>
-  <blocks-icon id="arrow" value="right"></blocks-icon>
+  <bl-icon id="arrow" value="right"></bl-icon>
 </div>
 <slot></slot>
 `
@@ -310,7 +310,7 @@ class BlocksNavMenuItem extends HTMLElement {
       this.innerHTML = ''
       this.classList.add('has-submenu')
       if (!this.isInlineMode) {
-        this.$submenu = document.createElement('blocks-popup-menu')
+        this.$submenu = document.createElement('bl-popup-menu')
         this.$submenu.appendToBody = true
         this.$submenu.anchor = () => this
 
@@ -322,7 +322,7 @@ class BlocksNavMenuItem extends HTMLElement {
         }
       }
       else {
-        this.$submenu = document.createElement('blocks-nav-menu')
+        this.$submenu = document.createElement('bl-nav-menu')
         this.$submenu.submenu = true
         this.appendChild(this.$submenu)
       }
@@ -368,6 +368,6 @@ class BlocksNavMenuItem extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-nav-menu-item')) {
-  customElements.define('blocks-nav-menu-item', BlocksNavMenuItem)
+if (!customElements.get('bl-nav-menu-item')) {
+  customElements.define('bl-nav-menu-item', BlocksNavMenuItem)
 }

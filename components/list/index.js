@@ -274,6 +274,6 @@ class BlocksList extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-list')) {
-  customElements.define('blocks-list', BlocksList)
+if (!customElements.get('bl-list')) {
+  customElements.define('bl-list', BlocksList)
 }

@@ -39,6 +39,6 @@ class BlocksTree extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-tree')) {
-  customElements.define('blocks-tree', BlocksTree)
+if (!customElements.get('bl-tree')) {
+  customElements.define('bl-tree', BlocksTree)
 }

@@ -51,14 +51,14 @@ window.onload = () => {
 
 
   // 侧导航
-  const $sideMenu = $aside.appendChild(document.createElement('blocks-nav-menu'))
+  const $sideMenu = $aside.appendChild(document.createElement('bl-nav-menu'))
   $sideMenu.style.width = '100%'
   $sideMenu.size = 'large'
   $sideMenu.data = generateSideNavData()
 
 
   // 顶导航
-  const $headerMenu = $header.appendChild(document.createElement('blocks-nav-menu'))
+  const $headerMenu = $header.appendChild(document.createElement('bl-nav-menu'))
   $headerMenu.horizontal = true
   $headerMenu.dark = true
   $headerMenu.size = 'large'

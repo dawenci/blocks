@@ -15,7 +15,7 @@ const TEMPLATE_CSS = `<style>
   cursor: default;
   font-size: 12px;
 }
-:host-context(blocks-optgroup) {
+:host-context(bl-optgroup) {
   padding: 4px 10px 4px 2em;
 }
 :host(:focus) {
@@ -30,7 +30,7 @@ const TEMPLATE_CSS = `<style>
   background-color: var(--color-primary-light, ${__color_primary_light});
   color: #fff;
 }
-:host-context(blocks-optgroup[disabled]),
+:host-context(bl-optgroup[disabled]),
 :host([disabled]) {
   color: #ccc;
   cursor: not-allowed;
@@ -38,7 +38,7 @@ const TEMPLATE_CSS = `<style>
 :host(:hover) {
   background-color: #f0f0f0;
 }
-:host-context(blocks-optgroup[disabled]:hover),
+:host-context(bl-optgroup[disabled]:hover),
 :host([disabled]:hover) {
   background-color: transparent;
 }
@@ -130,6 +130,6 @@ class BlocksOption extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-option')) {
-  customElements.define('blocks-option', BlocksOption)
+if (!customElements.get('bl-option')) {
+  customElements.define('bl-option', BlocksOption)
 }

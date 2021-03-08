@@ -19,7 +19,7 @@ import {
 const cssTemplate = document.createElement('template')
 cssTemplate.innerHTML = `
 <style>
-::slotted(blocks-list) {
+::slotted(bl-list) {
   width: 200px;
   height: 240px;
   font-size: 14px;
@@ -29,7 +29,7 @@ cssTemplate.innerHTML = `
 
 const template = document.createElement('template')
 template.innerHTML = `
-<blocks-list></blocks-list>
+<bl-list></bl-list>
 `
 
 export default class BlocksPopupList extends BlocksPopup {
@@ -41,7 +41,7 @@ export default class BlocksPopupList extends BlocksPopup {
     super()
     this.shadowRoot.appendChild(cssTemplate.content.cloneNode(true))
     const fragment = template.content.cloneNode(true)
-    this.$list = fragment.querySelector('blocks-list')
+    this.$list = fragment.querySelector('bl-list')
     this.origin = this.getAttribute('origin') ?? 'top-start'
     this.appendChild(this.$list)
   }
@@ -107,6 +107,6 @@ export default class BlocksPopupList extends BlocksPopup {
   }
 }
 
-if (!customElements.get('blocks-popup-list')) {
-  customElements.define('blocks-popup-list', BlocksPopupList)
+if (!customElements.get('bl-popup-list')) {
+  customElements.define('bl-popup-list', BlocksPopupList)
 }

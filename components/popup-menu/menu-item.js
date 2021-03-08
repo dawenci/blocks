@@ -19,7 +19,7 @@ const TEMPLATE_CSS = `<style>
   user-select: none;
   cursor: default;
 }
-:host-context(blocks-popup-menu[dark]) {
+:host-context(bl-popup-menu[dark]) {
   color: var(--fg-base-dark, ${__fg_baseDark});
   fill: var(--fg-base-dark, ${__fg_baseDark});
 }
@@ -30,8 +30,8 @@ const TEMPLATE_CSS = `<style>
   color: var(--fg-base-hover, ${__fg_base_hover});
   fill: var(--fg-base-hover, ${__fg_base_hover});
 }
-:host-context(blocks-popup-menu[dark]):host(:hover),
-:host-context(blocks-popup-menu[dark]):host(.submenu-open) {
+:host-context(bl-popup-menu[dark]):host(:hover),
+:host-context(bl-popup-menu[dark]):host(.submenu-open) {
   background-color: var(--bg-base-dark-hover, ${__bg_baseDark_hover});
   color: var(--fg-base-dark-hover, ${__fg_baseDark_hover});
   fill: var(--fg-base-hover, ${__fg_baseDark_hover});
@@ -43,8 +43,8 @@ const TEMPLATE_CSS = `<style>
   color: var(--fg-base-active, ${__fg_base_active});
   fill: var(--fg-base-active, ${__fg_base_active});
 }
-:host-context(blocks-popup-menu[dark]):host(:active),
-:host-context(blocks-popup-menu[dark]):host(.submenu-open:active) {
+:host-context(bl-popup-menu[dark]):host(:active),
+:host-context(bl-popup-menu[dark]):host(.submenu-open:active) {
   background-color: var(--bg-base-dark-hover, ${__bg_baseDark_active});
   color: var(--fg-base-dark-hover, ${__fg_baseDark_active});
   fill: var(--fg-base-hover, ${__fg_baseDark_active});
@@ -92,10 +92,10 @@ const TEMPLATE_CSS = `<style>
   height: 16px;
   margin-right: 5px;
 }
-blocks-icon {
+bl-icon {
   display: none;
 }
-:host(.has-submenu) blocks-icon {
+:host(.has-submenu) bl-icon {
   display: inline-block;
 }
 
@@ -103,10 +103,10 @@ blocks-icon {
 :host {
   height: var(--height-base, ${__height_base});
 }
-:host-context(blocks-popup-menu[size="small"]) {
+:host-context(bl-popup-menu[size="small"]) {
   height: var(--height-small, ${__height_small});
 }
-:host-context(blocks-popup-menu[size="large"]) {
+:host-context(bl-popup-menu[size="large"]) {
   height: var(--height-large, ${__height_large});
 }
 #layout {
@@ -116,16 +116,16 @@ blocks-icon {
 
 const TEMPLATE_HTML = `
 <div id="layout">
-  <blocks-icon id="icon"></blocks-icon>
+  <bl-icon id="icon"></bl-icon>
   <div id="label"></div>
-  <blocks-icon id="arrow" value="right"></blocks-icon>
+  <bl-icon id="arrow" value="right"></bl-icon>
 </div>
 `
 
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-const menuTemplate = document.createElement('blocks-popup-menu')
+const menuTemplate = document.createElement('bl-popup-menu')
 
 class BlocksPopupMenuItem extends HTMLElement {
   static get observedAttributes() {
@@ -291,6 +291,6 @@ class BlocksPopupMenuItem extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-popup-menu-item')) {
-  customElements.define('blocks-popup-menu-item', BlocksPopupMenuItem)
+if (!customElements.get('bl-popup-menu-item')) {
+  customElements.define('bl-popup-menu-item', BlocksPopupMenuItem)
 }

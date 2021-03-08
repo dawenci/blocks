@@ -39,6 +39,6 @@ class BlocksCalc extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-calc')) {
-  customElements.define('blocks-calc', BlocksCalc)
+if (!customElements.get('bl-calc')) {
+  customElements.define('bl-calc', BlocksCalc)
 }

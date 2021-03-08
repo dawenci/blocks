@@ -39,6 +39,6 @@ class BlocksBreadcrumb extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-breadcrumb')) {
-  customElements.define('blocks-breadcrumb', BlocksBreadcrumb)
+if (!customElements.get('bl-breadcrumb')) {
+  customElements.define('bl-breadcrumb', BlocksBreadcrumb)
 }

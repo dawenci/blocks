@@ -7,8 +7,8 @@ import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js';
 import { forEach } from '../../common/utils.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 
-const itemTemplate = document.createElement('blocks-popup-menu-item')
-const groupTemplate = document.createElement('blocks-popup-menu-group')
+const itemTemplate = document.createElement('bl-popup-menu-item')
+const groupTemplate = document.createElement('bl-popup-menu-group')
 
 class BlocksPopupMenu extends BlocksPopup {
   static get observedAttributes() {
@@ -159,6 +159,6 @@ class BlocksPopupMenu extends BlocksPopup {
   }
 }
 
-if (!customElements.get('blocks-popup-menu')) {
-  customElements.define('blocks-popup-menu', BlocksPopupMenu)
+if (!customElements.get('bl-popup-menu')) {
+  customElements.define('bl-popup-menu', BlocksPopupMenu)
 }

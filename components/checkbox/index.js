@@ -254,6 +254,6 @@ class BlocksCheckbox extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-checkbox')) {
-  customElements.define('blocks-checkbox', BlocksCheckbox)
+if (!customElements.get('bl-checkbox')) {
+  customElements.define('bl-checkbox', BlocksCheckbox)
 }

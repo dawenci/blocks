@@ -94,7 +94,7 @@ const TEMPLATE_CSS = `<style>
 #close:active {
   fill: #666;
 }
-#close blocks-icon {
+#close bl-icon {
   width: 14px;
   height: 14px;
   cursor: pointer;
@@ -123,7 +123,7 @@ const TEMPLATE_HTML = `
       </slot>
     </div>
     <button id="close">
-      <blocks-icon value="cross"></blocks-icon>
+      <bl-icon value="cross"></bl-icon>
     </button>
   </header>
   <div id="body"><slot></slot></div>
@@ -408,7 +408,7 @@ class BlocksDrawer extends HTMLElement {
 
   _ensureMask() {
     if (!this.$mask) {
-      this.$mask = document.createElement('blocks-modal-mask')
+      this.$mask = document.createElement('bl-modal-mask')
     }
     this.$mask.open = this.open
     return this.$mask
@@ -443,6 +443,6 @@ class BlocksDrawer extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-drawer')) {
-  customElements.define('blocks-drawer', BlocksDrawer)
+if (!customElements.get('bl-drawer')) {
+  customElements.define('bl-drawer', BlocksDrawer)
 }

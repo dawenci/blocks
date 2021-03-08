@@ -153,6 +153,6 @@ class BlocksBackTop extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-backtop')) {
-  customElements.define('blocks-backtop', BlocksBackTop)
+if (!customElements.get('bl-backtop')) {
+  customElements.define('bl-backtop', BlocksBackTop)
 }

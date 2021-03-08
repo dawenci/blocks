@@ -33,13 +33,13 @@
       <h2>默认</h2>
 
       <template data-codesource="html">
-        <blocks-drawer id="default" title="标题内容">
+        <bl-drawer id="default" title="标题内容">
           <div style="padding:15px;">
             这里是抽屉的内容。
           </div>
-        </blocks-drawer>
+        </bl-drawer>
 
-        <blocks-button onclick="document.getElementById('default').open = true">打开1</blocks-button>
+        <bl-button onclick="document.getElementById('default').open = true">打开1</bl-button>
       </template>
     </section>
 
@@ -48,12 +48,12 @@
       <h2>遮罩</h2>
 
       <template data-codesource="html">
-        <blocks-drawer id="mask" mask title="遮罩例子">
+        <bl-drawer id="mask" mask title="遮罩例子">
           <div style="padding: 15px;">
             这里是抽屉的内容。
           </div>
-        </blocks-drawer>
-        <blocks-button onclick="document.getElementById('mask').open = true">打开</blocks-button>
+        </bl-drawer>
+        <bl-button onclick="document.getElementById('mask').open = true">打开</bl-button>
       </template>
     </section>
 
@@ -62,15 +62,15 @@
       <h2>点击外部关闭</h2>
 
       <template data-codesource="html">
-        <blocks-drawer
+        <bl-drawer
           id="clickOutside"
           close-on-click-outside
           title="点击外部关闭">
           <div style="padding: 15px;">
             这里是抽屉的内容。
           </div>
-        </blocks-drawer>
-        <blocks-button onclick="document.getElementById('clickOutside').open = true">打开</blocks-button>
+        </bl-drawer>
+        <bl-button onclick="document.getElementById('clickOutside').open = true">打开</bl-button>
       </template>
     </section>
 
@@ -79,15 +79,15 @@
       <h2>Esc 关闭</h2>
 
       <template data-codesource="html">
-        <blocks-drawer
+        <bl-drawer
           id="escape"
           close-on-escape
           title="按下 Esc 关闭">
           <div style="padding: 15px;">
             这里是抽屉的内容。
           </div>
-        </blocks-drawer>
-        <blocks-button onclick="document.getElementById('escape').open = true">打开</blocks-button>
+        </bl-drawer>
+        <bl-button onclick="document.getElementById('escape').open = true">打开</bl-button>
       </template>
     </section>
 
@@ -97,7 +97,7 @@
 
       <div class="case">
         <template data-codesource="html">
-          <blocks-drawer
+          <bl-drawer
             id="capturefocus" capturefocus>
             <div slot="title"><input type="text" value="title"></div>
 
@@ -108,9 +108,9 @@
             <div slot="footer">
               <input type="text" value="footer">
             </div>
-          </blocks-drawer>
+          </bl-drawer>
 
-          <blocks-button onclick="document.getElementById('capturefocus').open = true">打开4</blocks-button>
+          <bl-button onclick="document.getElementById('capturefocus').open = true">打开4</bl-button>
         </div>
       </template>
     </section>
@@ -120,33 +120,33 @@
       <h2>出现位置</h2>
 
       <template data-codesource="html">
-        <blocks-drawer
+        <bl-drawer
           id="left"
           placement="left"
           title="left">
           <div style="padding: 15px;">
             这里是抽屉的内容。
           </div>
-        </blocks-drawer>
-        <blocks-drawer
+        </bl-drawer>
+        <bl-drawer
           id="top"
           placement="top"
           title="top">
           <div style="padding: 15px;">
             这里是抽屉的内容。
           </div>
-        </blocks-drawer>
-        <blocks-drawer
+        </bl-drawer>
+        <bl-drawer
           id="bottom"
           placement="bottom"
           title="bottom">
           <div style="padding: 15px;">
             这里是抽屉的内容。
           </div>
-        </blocks-drawer>
-        <blocks-button onclick="document.getElementById('left').open = true">left</blocks-button>
-        <blocks-button onclick="document.getElementById('top').open = true">top</blocks-button>
-        <blocks-button onclick="document.getElementById('bottom').open = true">bottom</blocks-button>
+        </bl-drawer>
+        <bl-button onclick="document.getElementById('left').open = true">left</bl-button>
+        <bl-button onclick="document.getElementById('top').open = true">top</bl-button>
+        <bl-button onclick="document.getElementById('bottom').open = true">bottom</bl-button>
       </template>
     </section>
     
@@ -155,7 +155,7 @@
       <h2>title slot</h2>
 
       <template data-codesource="html">
-        <blocks-drawer
+        <bl-drawer
           id="drawer2"
           closeable
           title="忽略的title">
@@ -165,8 +165,8 @@
           <div style="padding:15px;">
             这里是抽屉的内容。
           </div>
-        </blocks-drawer>
-        <blocks-button onclick="document.getElementById('drawer2').open = true">打开2</blocks-button>
+        </bl-drawer>
+        <bl-button onclick="document.getElementById('drawer2').open = true">打开2</bl-button>
       </template>
     </section>
 
@@ -175,7 +175,7 @@
       <h2>footer slot</h2>
 
       <template data-codesource="html">
-        <blocks-drawer
+        <bl-drawer
           id="drawer3"
           closeable
           title="footer slot">
@@ -184,12 +184,12 @@
           </div>
 
           <div slot="footer" style="padding:5px;border-top:1px solid #e8e8e8;text-align:center;">
-            <blocks-button onclick="document.getElementById('drawer3').open = false">
+            <bl-button onclick="document.getElementById('drawer3').open = false">
               关闭
-            </blocks-button>
+            </bl-button>
           </div>
-        </blocks-drawer>
-        <blocks-button onclick="document.getElementById('drawer3').open = true">打开3</blocks-button>
+        </bl-drawer>
+        <bl-button onclick="document.getElementById('drawer3').open = true">打开3</bl-button>
       </template>
     </section>
 
@@ -197,13 +197,13 @@
       <h2>dark</h2>
 
       <template data-codesource="html">
-        <blocks-drawer dark id="dark" title="深色">
+        <bl-drawer dark id="dark" title="深色">
           <div style="padding:15px;">
             这里是抽屉的内容。<br>
           </div>
-        </blocks-drawer>
+        </bl-drawer>
 
-        <blocks-button onclick="document.getElementById('dark').open = true">打开1</blocks-button>
+        <bl-button onclick="document.getElementById('dark').open = true">打开1</bl-button>
       </template>
     </section>
 

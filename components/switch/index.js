@@ -176,6 +176,6 @@ class BlocksSwitch extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-switch')) {
-  customElements.define('blocks-switch', BlocksSwitch)
+if (!customElements.get('bl-switch')) {
+  customElements.define('bl-switch', BlocksSwitch)
 }

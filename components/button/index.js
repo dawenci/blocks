@@ -295,25 +295,25 @@ const TEMPLATE_CSS = `
 
 
 /* button group */
-:host-context(blocks-button-group) {
+:host-context(bl-button-group) {
   position: relative;
   vertical-align: top;
 }
-:host-context(blocks-button-group):host(:hover),
-:host-context(blocks-button-group):host(:focus-within) {
+:host-context(bl-button-group):host(:hover),
+:host-context(bl-button-group):host(:focus-within) {
   z-index: 1;
 }
-:host-context(blocks-button-group):host(:not(:first-of-type)) {
+:host-context(bl-button-group):host(:not(:first-of-type)) {
   margin-left: -1px;
 }
-:host-context(blocks-button-group) {
+:host-context(bl-button-group) {
   border-radius: 0;
 }
-:host-context(blocks-button-group):host(:first-of-type) {
+:host-context(bl-button-group):host(:first-of-type) {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
-:host-context(blocks-button-group):host(:last-of-type) {
+:host-context(bl-button-group):host(:last-of-type) {
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
 }
@@ -462,6 +462,6 @@ class BlocksButton extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-button')) {
-  customElements.define('blocks-button', BlocksButton)
+if (!customElements.get('bl-button')) {
+  customElements.define('bl-button', BlocksButton)
 }

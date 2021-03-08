@@ -10,7 +10,7 @@ import '../popup-menu/index.js'
 export function onContextMenu(el, menuData, dark) {
   const handler = (e) => {
     e.preventDefault()
-    const $menu = document.body.appendChild(document.createElement('blocks-popup-menu'))
+    const $menu = document.body.appendChild(document.createElement('bl-popup-menu'))
     $menu.style.minWidth = '200px'
     $menu.dark = !!dark
     $menu.anchor = `[${e.pageX}, ${e.pageY}]`

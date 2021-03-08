@@ -33,8 +33,8 @@
       <h2>默认</h2>
 
       <div data-codesource="html">
-        <blocks-slider value="90" id="default"></blocks-slider>
-        <blocks-input id="default-value"></blocks-input>
+        <bl-slider value="90" id="default"></bl-slider>
+        <bl-input id="default-value"></bl-input>
         <script>
           document.getElementById('default').addEventListener('change', e => {
             document.getElementById('default-value').value = e.detail.value
@@ -47,8 +47,8 @@
       <h2>垂直方向</h2>
 
       <div data-codesource="html">
-        <blocks-slider vertical id="vertical"></blocks-slider>
-        <blocks-input id="vertical-value"></blocks-input>
+        <bl-slider vertical id="vertical"></bl-slider>
+        <bl-input id="vertical-value"></bl-input>
         <script>
           document.getElementById('vertical').addEventListener('change', e => {
             document.getElementById('vertical-value').value = e.detail.value
@@ -61,8 +61,8 @@
       <h2>区间</h2>
 
       <div data-codesource="html">
-        <blocks-slider range id="range"></blocks-slider>
-        <blocks-input id="range-value"></blocks-input>
+        <bl-slider range id="range"></bl-slider>
+        <bl-input id="range-value"></bl-input>
         <script>
           document.getElementById('range').addEventListener('change', e => {
             document.getElementById('range-value').value = e.detail.value
@@ -76,8 +76,8 @@
       <h2>不可用状态</h2>
 
       <template data-codesource="html">
-        <blocks-slider disabled></blocks-slider>
-        <blocks-slider vertical disabled></blocks-slider>
+        <bl-slider disabled></bl-slider>
+        <bl-slider vertical disabled></bl-slider>
       </template>
     </section>
     

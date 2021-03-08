@@ -32,17 +32,17 @@
       <div data-codesource="html">
         <div style="margin-bottom: 50px;">
           <span style="margin-right: 50px;">
-            <blocks-switch onchange="document.getElementById('menu').horizontal=event.detail.value"></blocks-switch> horizontal
+            <bl-switch onchange="document.getElementById('menu').horizontal=event.detail.value"></bl-switch> horizontal
           </span>
           <span>
-            <blocks-switch onchange="document.getElementById('menu').collapse=event.detail.value"></blocks-switch> collapse
+            <bl-switch onchange="document.getElementById('menu').collapse=event.detail.value"></bl-switch> collapse
           </span>
           <span>
-            <blocks-switch onchange="document.getElementById('menu').inline=event.detail.value"></blocks-switch> inline
+            <bl-switch onchange="document.getElementById('menu').inline=event.detail.value"></bl-switch> inline
           </span>
         </div>
         
-        <blocks-nav-menu id="menu" size="large" dark></blocks-nav-menu>
+        <bl-nav-menu id="menu" size="large" dark></bl-nav-menu>
 
         <script>
           (() => {

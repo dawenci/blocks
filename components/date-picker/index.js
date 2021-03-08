@@ -24,12 +24,12 @@ const TEMPLATE_CSS = `<style>
 }
 </style>`
 
-const TEMPLATE_HTML_INPUT = `<blocks-input suffix-icon="date" id="result" readonly />`
+const TEMPLATE_HTML_INPUT = `<bl-input suffix-icon="date" id="result" readonly />`
 
 const TEMPLATE_HTML_POPUP = `
-<blocks-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
-  <blocks-date-panel class="date-picker-panel" />
-</blocks-popup>
+<bl-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
+  <bl-date-panel class="date-picker-panel" />
+</bl-popup>
 `
 
 const inputTemplate = document.createElement('template')
@@ -65,8 +65,8 @@ class BlocksDatePicker extends HTMLElement {
     this.shadowRoot.appendChild(fragment)
 
     // 面板部分
-    this.$popup = popupTemplate.content.cloneNode(true).querySelector('blocks-popup')
-    this.$panel = this.$popup.querySelector('blocks-date-panel')
+    this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup')
+    this.$panel = this.$popup.querySelector('bl-date-panel')
     this.$popup.setAttribute('anchor', `#${this.id}`)
 
     this.$input.onfocus = this.$input.onclick = (e) => {
@@ -204,6 +204,6 @@ class BlocksDatePicker extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-date-picker')) {
-  customElements.define('blocks-date-picker', BlocksDatePicker)
+if (!customElements.get('bl-date-picker')) {
+  customElements.define('bl-date-picker', BlocksDatePicker)
 }

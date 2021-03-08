@@ -33,7 +33,7 @@
       <h2>默认</h2>
 
       <template data-codesource="html">
-        <blocks-dialog
+        <bl-dialog
           id="dialog1"
           closeable
           title="Title attr">
@@ -46,9 +46,9 @@
             这里是对话框的内容。<br>
             这里是对话框的内容。<br>
           </div>
-        </blocks-dialog>
+        </bl-dialog>
 
-        <blocks-button onclick="document.getElementById('dialog1').open = true">打开1</blocks-button>
+        <bl-button onclick="document.getElementById('dialog1').open = true">打开1</bl-button>
       </template>
     </section>
 
@@ -56,7 +56,7 @@
       <h2>遮罩</h2>
 
       <template data-codesource="html">
-        <blocks-dialog
+        <bl-dialog
           class="dialog-mask"
           mask
           closeable
@@ -65,9 +65,9 @@
             这里是对话框的内容。<br>
             这里是对话框的内容。<br>
           </div>
-        </blocks-dialog>
+        </bl-dialog>
 
-        <blocks-button onclick="document.querySelector('.dialog-mask').open = true">打开</blocks-button>
+        <bl-button onclick="document.querySelector('.dialog-mask').open = true">打开</bl-button>
       </template>
     </section>
 
@@ -75,7 +75,7 @@
       <h2>header slot</h2>
 
       <template data-codesource="html">
-        <blocks-dialog
+        <bl-dialog
           id="dialog2"
           closeable
           title="忽略的title">
@@ -85,8 +85,8 @@
           <div style="width:400px;">
             这里是对话框的内容。
           </div>
-        </blocks-dialog>
-        <blocks-button onclick="document.getElementById('dialog2').open = true">打开2</blocks-button>
+        </bl-dialog>
+        <bl-button onclick="document.getElementById('dialog2').open = true">打开2</bl-button>
       </template>
     </section>
 
@@ -94,7 +94,7 @@
       <h2>footer slot</h2>
 
       <template data-codesource="html">
-        <blocks-dialog
+        <bl-dialog
           id="dialog3"
           closeable
           title="页脚 slot">
@@ -103,12 +103,12 @@
           </div>
 
           <div slot="footer">
-            <blocks-button onclick="document.getElementById('dialog3').open = false">
+            <bl-button onclick="document.getElementById('dialog3').open = false">
               关闭
-            </blocks-button>
+            </bl-button>
           </div>
-        </blocks-dialog>
-        <blocks-button onclick="document.getElementById('dialog3').open = true">打开3</blocks-button>
+        </bl-dialog>
+        <bl-button onclick="document.getElementById('dialog3').open = true">打开3</bl-button>
       </template>
     </section>
 
@@ -117,7 +117,7 @@
 
       <div class="case">
         <template data-codesource="html">
-          <blocks-dialog
+          <bl-dialog
             id="dialog4"
             capturefocus
             closeable>
@@ -134,10 +134,10 @@
             <div slot="footer">
               <input type="text" value="footer slot">
             </div>
-          </blocks-dialog>
+          </bl-dialog>
 
-          <blocks-button onclick="document.getElementById('dialog4').open = true">打开4</blocks-button>
-          <blocks-button onclick="document.getElementById('dialog4').capturefocus = !document.getElementById('dialog4').capturefocus">切换状态</blocks-button>
+          <bl-button onclick="document.getElementById('dialog4').open = true">打开4</bl-button>
+          <bl-button onclick="document.getElementById('dialog4').capturefocus = !document.getElementById('dialog4').capturefocus">切换状态</bl-button>
         </div>
       </template>
     </section>
@@ -146,10 +146,10 @@
       <h2>插入到 body</h2>
 
       <template data-codesource="html">
-        <blocks-dialog id="dialog5" append-to-body closeable>
+        <bl-dialog id="dialog5" append-to-body closeable>
           parent 为 body
-        </blocks-dialog>
-        <blocks-button onclick="document.getElementById('dialog5').open = true">打开5</blocks-button>
+        </bl-dialog>
+        <bl-button onclick="document.getElementById('dialog5').open = true">打开5</bl-button>
       </template>
     </section>
 
@@ -157,7 +157,7 @@
       <h2>dark</h2>
 
       <template data-codesource="html">
-        <blocks-dialog
+        <bl-dialog
           id="dark"
           mask
           dark
@@ -168,9 +168,9 @@
             这里是对话框的内容。<br>
             这里是对话框的内容。<br>
           </div>
-        </blocks-dialog>
+        </bl-dialog>
 
-        <blocks-button onclick="document.getElementById('dark').open = true">打开1</blocks-button>
+        <bl-button onclick="document.getElementById('dark').open = true">打开1</bl-button>
       </template>
     </section>
 

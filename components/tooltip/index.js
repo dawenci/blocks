@@ -39,6 +39,6 @@ class BlocksTooltip extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-tooltip')) {
-  customElements.define('blocks-tooltip', BlocksTooltip)
+if (!customElements.get('bl-tooltip')) {
+  customElements.define('bl-tooltip', BlocksTooltip)
 }

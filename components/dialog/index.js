@@ -669,6 +669,6 @@ class BlocksDialog extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-dialog')) {
-  customElements.define('blocks-dialog', BlocksDialog)
+if (!customElements.get('bl-dialog')) {
+  customElements.define('bl-dialog', BlocksDialog)
 }

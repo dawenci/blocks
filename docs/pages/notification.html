@@ -23,7 +23,7 @@
       <h2>默认</h2>
 
       <div data-codesource="html">
-        <blocks-button id="default">消息</blocks-button>
+        <bl-button id="default">消息</bl-button>
 
         <script type="module">
           import { notify } from '../../components/notification/index.js'
@@ -41,10 +41,10 @@
       <p>使用 'placement' 控制通知出现的位置，支持 'top-right'（默认）、'top-left'、'bottom-right'、'bottom-left'</p>
 
       <div data-codesource="html">
-        <blocks-button id="placement-topLeft">top-left</blocks-button>
-        <blocks-button id="placement-topRight">top-right</blocks-button>
-        <blocks-button id="placement-bottomLeft">bottom-left</blocks-button>
-        <blocks-button id="placement-bottomRight">bottom-right</blocks-button>
+        <bl-button id="placement-topLeft">top-left</bl-button>
+        <bl-button id="placement-topRight">top-right</bl-button>
+        <bl-button id="placement-bottomLeft">bottom-left</bl-button>
+        <bl-button id="placement-bottomRight">bottom-right</bl-button>
         <script type="module">
           import { notify } from '../../components/notification/index.js'
           const $ = (id) => document.getElementById(id)
@@ -74,10 +74,10 @@
       <p>使用 'type' 配置通知类型，支持 'success'、'error'、'warning'、'info'</p>
 
       <div data-codesource="html">
-        <blocks-button id="success">成功</blocks-button>
-        <blocks-button id="error">错误</blocks-button>
-        <blocks-button id="info">信息</blocks-button>
-        <blocks-button id="warning">警告</blocks-button>
+        <bl-button id="success">成功</bl-button>
+        <bl-button id="error">错误</bl-button>
+        <bl-button id="info">信息</bl-button>
+        <bl-button id="warning">警告</bl-button>
         <script type="module">
           import { notify } from '../../components/notification/index.js'
           const $ = (id) => document.getElementById(id)
@@ -106,7 +106,7 @@
       <p>使用 'closeable' 可以配置手动关闭功能。</p>
 
       <div data-codesource="html">
-        <blocks-button id="closeable">成功</blocks-button>
+        <bl-button id="closeable">成功</bl-button>
         <script type="module">
           import { notify } from '../../components/notification/index.js'
           const $ = (id) => document.getElementById(id)
@@ -125,8 +125,8 @@
       <p>使用 'duration' 配置自动关闭的时间，单位为秒。默认值为 '10'，如果配置为小于等于 '0' 的值，则表示永远不自动关闭。</p>
 
       <div data-codesource="html">
-        <blocks-button id="duration3">3s 后关闭</blocks-button>
-        <blocks-button id="duration0">永远不自动关闭</blocks-button>
+        <bl-button id="duration3">3s 后关闭</bl-button>
+        <bl-button id="duration0">永远不自动关闭</bl-button>
 
         <script type="module">
           import { notify } from '../../components/notification/index.js'
@@ -149,7 +149,7 @@
       <p>notify 的返回值提供 onclose 方法，可以在关闭动画结束后调用传入的回调函数。</p>
 
       <div data-codesource="html">
-        <blocks-button id="onclose">onclose消息</blocks-button>
+        <bl-button id="onclose">onclose消息</bl-button>
 
         <script type="module">
           import { notify } from '../../components/notification/index.js'
@@ -170,7 +170,7 @@
       <h2>dark</h2>
 
       <div data-codesource="html">
-        <blocks-button id="dark">dark</blocks-button>
+        <bl-button id="dark">dark</bl-button>
 
         <script type="module">
           import { notify } from '../../components/notification/index.js'

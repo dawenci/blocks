@@ -144,6 +144,6 @@ class BlocksModalMask extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-modal-mask')) {
-  customElements.define('blocks-modal-mask', BlocksModalMask)
+if (!customElements.get('bl-modal-mask')) {
+  customElements.define('bl-modal-mask', BlocksModalMask)
 }

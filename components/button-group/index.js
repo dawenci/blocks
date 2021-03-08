@@ -27,6 +27,6 @@ class BlocksButtonGroup extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-button-group')) {
-  customElements.define('blocks-button-group', BlocksButtonGroup)
+if (!customElements.get('bl-button-group')) {
+  customElements.define('bl-button-group', BlocksButtonGroup)
 }

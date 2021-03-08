@@ -237,8 +237,8 @@ class BlocksNotification extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-notification')) {
-  customElements.define('blocks-notification', BlocksNotification)
+if (!customElements.get('bl-notification')) {
+  customElements.define('bl-notification', BlocksNotification)
 }
 
 const placementEnum = ['top-right', 'bottom-right', 'bottom-left', 'top-left']
@@ -246,10 +246,10 @@ const normalizePlacement = (value) => placementEnum.includes(value) ? value : pl
 
 function cage(placement) {
   placement = normalizePlacement(placement)
-  let cage = document.querySelector('.blocks-notification-cage' + '.' + placement)
+  let cage = document.querySelector('.bl-notification-cage' + '.' + placement)
   if (!cage) {
     cage = document.body.appendChild(document.createElement('div'))
-    cage.className = `blocks-notification-cage ${placement}`
+    cage.className = `bl-notification-cage ${placement}`
     let cssText = "pointer-events:none;overflow:hidden;position:fixed;z-index:100;display:flex;flex-flow:column nowrap;padding:8px 0;"
 
     switch (placement) {
@@ -277,7 +277,7 @@ function cage(placement) {
 }
 
 export function notify(options = {}) {
-  const el = document.createElement('blocks-notification')
+  const el = document.createElement('bl-notification')
   typeSetter(el, options.type)
   darkSetter(el, !!options.dark)
   closeableSetter(el, options.closeable ?? false)

@@ -39,6 +39,6 @@ class BlocksPalette extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-palette')) {
-  customElements.define('blocks-palette', BlocksPalette)
+if (!customElements.get('bl-palette')) {
+  customElements.define('bl-palette', BlocksPalette)
 }

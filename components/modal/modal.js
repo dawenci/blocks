@@ -11,7 +11,7 @@ import '../input/index.js'
  * @returns {Promise<void>}
  */
 export function modal(text, options = {}) {
-  const $dialog = document.body.appendChild(document.createElement('blocks-dialog'))
+  const $dialog = document.body.appendChild(document.createElement('bl-dialog'))
   const content = $dialog.appendChild(document.createElement('div'))
   const promise = new Promise((resolve, reject) => {
     $dialog.mask = true
@@ -34,7 +34,7 @@ export function modal(text, options = {}) {
 
     // 取消按钮
     if (options.cancel) {
-      const $cancelButton = document.createElement('blocks-button')
+      const $cancelButton = document.createElement('bl-button')
       $cancelButton.setAttribute('slot', 'footer')
       $cancelButton.className = 'cancel'
       $cancelButton.style.marginRight = '8px'
@@ -50,7 +50,7 @@ export function modal(text, options = {}) {
     }
 
     // 确认按钮
-    const $confirmButton = document.createElement('blocks-button')
+    const $confirmButton = document.createElement('bl-button')
     $confirmButton.setAttribute('type', 'primary')
     $confirmButton.setAttribute('slot', 'footer')
     $confirmButton.className = 'confirm'

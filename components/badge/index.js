@@ -39,6 +39,6 @@ class BlocksBadge extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-badge')) {
-  customElements.define('blocks-badge', BlocksBadge)
+if (!customElements.get('bl-badge')) {
+  customElements.define('bl-badge', BlocksBadge)
 }

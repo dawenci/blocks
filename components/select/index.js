@@ -34,12 +34,12 @@ const TEMPLATE_CSS = `<style>
 }
 </style>`
 
-const TEMPLATE_HTML_INPUT = `<blocks-select-result suffix-icon="down" id="result" readonly></blocks-select-result>
+const TEMPLATE_HTML_INPUT = `<bl-select-result suffix-icon="down" id="result" readonly></bl-select-result>
 <slot style="display:none;"></slot>`
 
-const TEMPLATE_HTML_POPUP = `<blocks-popup append-to-body id="date-picker-popup" origin="top-start" arrow>
+const TEMPLATE_HTML_POPUP = `<bl-popup append-to-body id="date-picker-popup" origin="top-start" arrow>
 <div class="option-list" style="overflow:hidden;min-height:20px;border-radius:var(--radius-base, ${__radius_base});"></div>
-</blocks-popup>`
+</bl-popup>`
 
 const inputTemplate = document.createElement('template')
 inputTemplate.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML_INPUT
@@ -79,7 +79,7 @@ class BlocksSelect extends HTMLElement {
     this.id = id
 
     const fragment = inputTemplate.content.cloneNode(true)
-    this.$result = fragment.querySelector('blocks-select-result')
+    this.$result = fragment.querySelector('bl-select-result')
     this.$optionSlot = fragment.querySelector('slot')
 
     this.shadowRoot.appendChild(fragment)
@@ -96,7 +96,7 @@ class BlocksSelect extends HTMLElement {
 
     this.$list.onclick = (e) => {
       const target = e.target
-      if (target.tagName === 'BLOCKS-OPTION') {
+      if (target.tagName === 'BL-OPTION') {
         this._selectOption(target)
       }
       this.render()
@@ -159,7 +159,7 @@ class BlocksSelect extends HTMLElement {
   }
 
   get options() {
-    return Array.prototype.slice.call(this.$list.querySelectorAll('blocks-option'))
+    return Array.prototype.slice.call(this.$list.querySelectorAll('bl-option'))
   }
 
   get multiple() {
@@ -290,8 +290,8 @@ class BlocksSelect extends HTMLElement {
   initOptions() {
     this.$list.innerHTML = ''
 
-    const isOption = (el) => el instanceof customElements.get('blocks-option')
-    const isGroup = (el) => el instanceof customElements.get('blocks-optgroup')
+    const isOption = (el) => el instanceof customElements.get('bl-option')
+    const isGroup = (el) => el instanceof customElements.get('bl-optgroup')
 
     // 将 slot 传入的 option 等拷贝到 popup 里
     this.$optionSlot.assignedElements().forEach((el) => {
@@ -306,7 +306,7 @@ class BlocksSelect extends HTMLElement {
 
   _selectOption(option) {
     if (option.disabled) return
-    if (option.parentElement.tagName === 'BLOCKS-OPTGROUP' && option.parentElement.disabled) return
+    if (option.parentElement.tagName === 'BL-OPTGROUP' && option.parentElement.disabled) return
     if (this.multiple) {
       option.selected = !option.selected
     } else {
@@ -385,13 +385,13 @@ class BlocksSelect extends HTMLElement {
     forEach(this.options, (option) => {
       option.style.display = this.searchMethod(option, searchStr) ? '' : 'none'
     })
-    forEach(this.$list.querySelectorAll('blocks-optgroup'), (group) => {
-      const options = group.querySelectorAll('blocks-option')
+    forEach(this.$list.querySelectorAll('bl-optgroup'), (group) => {
+      const options = group.querySelectorAll('bl-option')
       group.style.display = every(options, (option) => option.style.display === 'none') ? 'none' : ''
     })
   }
 }
 
-if (!customElements.get('blocks-select')) {
-  customElements.define('blocks-select', BlocksSelect)
+if (!customElements.get('bl-select')) {
+  customElements.define('bl-select', BlocksSelect)
 }

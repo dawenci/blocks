@@ -139,6 +139,6 @@ class BlocksProgress extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-progress')) {
-  customElements.define('blocks-progress', BlocksProgress)
+if (!customElements.get('bl-progress')) {
+  customElements.define('bl-progress', BlocksProgress)
 }

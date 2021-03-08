@@ -224,6 +224,6 @@ class BlocksRating extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-rating')) {
-  customElements.define('blocks-rating', BlocksRating)
+if (!customElements.get('bl-rating')) {
+  customElements.define('bl-rating', BlocksRating)
 }

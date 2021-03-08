@@ -10,7 +10,7 @@ import { modal } from './modal.js'
  * @param {{ cancel: boolean, richMode: boolean, cancelText: string, confirmText: string, oncancel: () => any, onconfirm: () => any }} [options={}]
  * @returns {Promise<void>}
  */
-export function confirm(text, options = {}) {
+export function blConfirm(text, options = {}) {
   if (!options.cancel) options.cancel = true
   const { promise } = modal(text, options)
   return promise

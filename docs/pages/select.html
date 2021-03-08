@@ -31,12 +31,12 @@
       <h2>默认</h2>
 
       <template data-codesource="html">
-        <blocks-select>
-          <blocks-option value="A">选项A</blocks-option>
-          <blocks-option value="B">选项B</blocks-option>
-          <blocks-option value="C">选项C</blocks-option>
-          <blocks-option value="D">选项D</blocks-option>
-        </blocks-select>
+        <bl-select>
+          <bl-option value="A">选项A</bl-option>
+          <bl-option value="B">选项B</bl-option>
+          <bl-option value="C">选项C</bl-option>
+          <bl-option value="D">选项D</bl-option>
+        </bl-select>
       </template>
     </section>
 
@@ -44,12 +44,12 @@
       <h2>可清除</h2>
 
       <template data-codesource="html">
-        <blocks-select clearable>
-          <blocks-option value="A">选项A</blocks-option>
-          <blocks-option value="B">选项B</blocks-option>
-          <blocks-option value="C">选项C</blocks-option>
-          <blocks-option value="D">选项D</blocks-option>
-        </blocks-select>
+        <bl-select clearable>
+          <bl-option value="A">选项A</bl-option>
+          <bl-option value="B">选项B</bl-option>
+          <bl-option value="C">选项C</bl-option>
+          <bl-option value="D">选项D</bl-option>
+        </bl-select>
       </template>
     </section>
 
@@ -57,17 +57,17 @@
       <h2>选项分组</h2>
 
       <template data-codesource="html">
-        <blocks-select>
-          <blocks-optgroup label="Group A">
-            <blocks-option value="A">选项A</blocks-option>
-            <blocks-option value="B">选项B</blocks-option>
-          </blocks-optgroup>
+        <bl-select>
+          <bl-optgroup label="Group A">
+            <bl-option value="A">选项A</bl-option>
+            <bl-option value="B">选项B</bl-option>
+          </bl-optgroup>
 
-          <blocks-optgroup label="Group B">
-            <blocks-option value="C">选项C</blocks-option>
-            <blocks-option value="D">选项D</blocks-option>
-          </blocks-optgroup>
-        </blocks-select>
+          <bl-optgroup label="Group B">
+            <bl-option value="C">选项C</bl-option>
+            <bl-option value="D">选项D</bl-option>
+          </bl-optgroup>
+        </bl-select>
       </template>
     </section>
 
@@ -75,24 +75,24 @@
       <h2>多选</h2>
 
       <template data-codesource="html">
-        <blocks-select
+        <bl-select
           multiple
           multiple-mode="tag"
           clearable
           tag-clearable>
-          <blocks-optgroup label="Group A">
-            <blocks-option value="A">选项A</blocks-option>
-            <blocks-option value="B">选项B</blocks-option>
-          </blocks-optgroup>
+          <bl-optgroup label="Group A">
+            <bl-option value="A">选项A</bl-option>
+            <bl-option value="B">选项B</bl-option>
+          </bl-optgroup>
 
-          <blocks-optgroup label="Group B">
-            <blocks-option value="C" disabled>选项C</blocks-option>
-            <blocks-option value="D">选项D</blocks-option>
-            <blocks-option value="E">选项E</blocks-option>
-            <blocks-option value="F">选项F</blocks-option>
-            <blocks-option value="G">选项G</blocks-option>
-          </blocks-optgroup>
-        </blocks-select>
+          <bl-optgroup label="Group B">
+            <bl-option value="C" disabled>选项C</bl-option>
+            <bl-option value="D">选项D</bl-option>
+            <bl-option value="E">选项E</bl-option>
+            <bl-option value="F">选项F</bl-option>
+            <bl-option value="G">选项G</bl-option>
+          </bl-optgroup>
+        </bl-select>
       </template>
     </section>
 
@@ -101,15 +101,15 @@
 
       <p>每个 option 可以单独设置 disabled, 也可以整个 group 设置 disabled</p>
       <template data-codesource="html">
-        <blocks-select>
-          <blocks-optgroup label="group disabled" disabled>
-            <blocks-option value="A">选项A</blocks-option>
-            <blocks-option value="B">选项B</blocks-option>
-          </blocks-optgroup>
+        <bl-select>
+          <bl-optgroup label="group disabled" disabled>
+            <bl-option value="A">选项A</bl-option>
+            <bl-option value="B">选项B</bl-option>
+          </bl-optgroup>
 
-          <blocks-option value="C" disabled>选项C</blocks-option>
-          <blocks-option value="D">选项D</blocks-option>
-        </blocks-select>
+          <bl-option value="C" disabled>选项C</bl-option>
+          <bl-option value="D">选项D</bl-option>
+        </bl-select>
       </template>
     </section>
 
@@ -117,27 +117,27 @@
       <h2>可筛选</h2>
 
       <template data-codesource="html">
-        <blocks-select searchable>
-          <blocks-option value="A">选项A</blocks-option>
-          <blocks-option value="B">选项B</blocks-option>
-          <blocks-option value="C">选项C</blocks-option>
-          <blocks-option value="D">选项D</blocks-option>
-        </blocks-select>
+        <bl-select searchable>
+          <bl-option value="A">选项A</bl-option>
+          <bl-option value="B">选项B</bl-option>
+          <bl-option value="C">选项C</bl-option>
+          <bl-option value="D">选项D</bl-option>
+        </bl-select>
 
-        <blocks-select
+        <bl-select
           multiple
           multiple-mode="tag"
           clearable
           searchable>
-          <blocks-optgroup label="Group A">
-            <blocks-option value="A">选项A</blocks-option>
-            <blocks-option value="B">选项B</blocks-option>
-          </blocks-optgroup>
-          <blocks-optgroup label="Group B">
-            <blocks-option value="C">选项C</blocks-option>
-            <blocks-option value="D">选项D</blocks-option>
-          </blocks-optgroup>
-        </blocks-select>
+          <bl-optgroup label="Group A">
+            <bl-option value="A">选项A</bl-option>
+            <bl-option value="B">选项B</bl-option>
+          </bl-optgroup>
+          <bl-optgroup label="Group B">
+            <bl-option value="C">选项C</bl-option>
+            <bl-option value="D">选项D</bl-option>
+          </bl-optgroup>
+        </bl-select>
       </template>
     </section>
 

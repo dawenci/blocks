@@ -39,6 +39,6 @@ class BlocksTreeSelect extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-tree-select')) {
-  customElements.define('blocks-tree-select', BlocksTreeSelect)
+if (!customElements.get('bl-tree-select')) {
+  customElements.define('bl-tree-select', BlocksTreeSelect)
 }

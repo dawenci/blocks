@@ -89,6 +89,6 @@ class BlocksOptGroup extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-optgroup')) {
-  customElements.define('blocks-optgroup', BlocksOptGroup)
+if (!customElements.get('bl-optgroup')) {
+  customElements.define('bl-optgroup', BlocksOptGroup)
 }

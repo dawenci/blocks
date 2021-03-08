@@ -39,6 +39,6 @@ class BlocksTimePanel extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-time-panel')) {
-  customElements.define('blocks-time-panel', BlocksTimePanel)
+if (!customElements.get('bl-time-panel')) {
+  customElements.define('bl-time-panel', BlocksTimePanel)
 }

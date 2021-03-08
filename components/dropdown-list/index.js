@@ -27,10 +27,10 @@ const template = document.createElement('template')
 template.innerHTML = `<slot id="slot"></slot>`
 
 const popupTemplate = document.createElement('template')
-popupTemplate.innerHTML = '<blocks-popup></blocks-popup>'
+popupTemplate.innerHTML = '<bl-popup></bl-popup>'
 
 const listTemplate = document.createElement('template')
-listTemplate.innerHTML = '<blocks-list></blocks-list>'
+listTemplate.innerHTML = '<bl-list></bl-list>'
 
 const POPUP_ATTRS = [
   'open',
@@ -64,10 +64,10 @@ export default class BlocksDropDownList extends HTMLElement {
     this.attachShadow({ mode: 'open' })
     this.shadowRoot.appendChild(template.content.cloneNode(true))
     this.$slot = this.shadowRoot.getElementById('slot')
-    this.$popup = popupTemplate.content.cloneNode(true).querySelector('blocks-popup')
+    this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup')
     this.$popup.anchor = () => this.$slot.assignedElements()?.[0] ?? this
     this.$popup.origin = 'top-start'
-    this.$list = this.$popup.appendChild(listTemplate.content.cloneNode(true).querySelector('blocks-list'))
+    this.$list = this.$popup.appendChild(listTemplate.content.cloneNode(true).querySelector('bl-list'))
     this.$list.style.cssText="width:200px;height:250px;"
 
     forEach(this.attributes, (attr) => {
@@ -168,7 +168,7 @@ export default class BlocksDropDownList extends HTMLElement {
   render() {
     if (this.multiple) {
       if (!this.$confirm) {
-        this.$confirm = this.$popup.appendChild(document.createElement('blocks-button'))
+        this.$confirm = this.$popup.appendChild(document.createElement('bl-button'))
         this.$confirm.block = true
         this.$confirm.size = 'small'
         this.$confirm.style.cssText = 'margin:5px;'
@@ -209,6 +209,6 @@ export default class BlocksDropDownList extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-dropdown-list')) {
-  customElements.define('blocks-dropdown-list', BlocksDropDownList)
+if (!customElements.get('bl-dropdown-list')) {
+  customElements.define('bl-dropdown-list', BlocksDropDownList)
 }

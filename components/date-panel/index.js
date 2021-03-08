@@ -1414,6 +1414,6 @@ class BlocksDatePanel extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-date-panel')) {
-  customElements.define('blocks-date-panel', BlocksDatePanel)
+if (!customElements.get('bl-date-panel')) {
+  customElements.define('bl-date-panel', BlocksDatePanel)
 }

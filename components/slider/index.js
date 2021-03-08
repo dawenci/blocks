@@ -498,6 +498,6 @@ class BlocksSlider extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-slider')) {
-  customElements.define('blocks-slider', BlocksSlider)
+if (!customElements.get('bl-slider')) {
+  customElements.define('bl-slider', BlocksSlider)
 }

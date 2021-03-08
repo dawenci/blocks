@@ -11,8 +11,8 @@ import { modal } from './modal.js'
  * @param {{ cancel: boolean, richMode: boolean, cancelText: string, confirmText: string, oncancel: () => any, onconfirm: () => any }} [options={}]
  * @returns {Promise<void>}
  */
-export function prompt(text, options = {}) {
-  const input = document.createElement('blocks-input')
+export function blPrompt(text, options = {}) {
+  const input = document.createElement('bl-input')
   options.resolveValue = () => input.value
   const { $dialog, promise } = modal(text, options)
 

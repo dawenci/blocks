@@ -944,8 +944,8 @@ export default class BlocksPopup extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-popup')) {
-  customElements.define('blocks-popup', BlocksPopup)
+if (!customElements.get('bl-popup')) {
+  customElements.define('bl-popup', BlocksPopup)
 }
 
 // 等腰直角三角形，根据高求腰（矩形的边）

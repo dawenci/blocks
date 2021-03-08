@@ -236,6 +236,6 @@ class BlocksCountdown extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-countdown')) {
-  customElements.define('blocks-countdown', BlocksCountdown)
+if (!customElements.get('bl-countdown')) {
+  customElements.define('bl-countdown', BlocksCountdown)
 }

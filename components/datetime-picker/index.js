@@ -39,6 +39,6 @@ class BlocksDatetimePicer extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-datetime-picker')) {
-  customElements.define('blocks-datetime-picker', BlocksDatetimePicker)
+if (!customElements.get('bl-datetime-picker')) {
+  customElements.define('bl-datetime-picker', BlocksDatetimePicker)
 }

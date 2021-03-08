@@ -87,6 +87,6 @@ class BlocksIcon extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-icon')) {
-  customElements.define('blocks-icon', BlocksIcon)
+if (!customElements.get('bl-icon')) {
+  customElements.define('bl-icon', BlocksIcon)
 }

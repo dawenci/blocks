@@ -39,6 +39,6 @@ class BlocksTimePicker extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-time-picker')) {
-  customElements.define('blocks-time-picker', BlocksTimePicker)
+if (!customElements.get('bl-time-picker')) {
+  customElements.define('bl-time-picker', BlocksTimePicker)
 }

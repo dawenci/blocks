@@ -267,6 +267,6 @@ class BlocksTag extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-tag')) {
-  customElements.define('blocks-tag', BlocksTag)
+if (!customElements.get('bl-tag')) {
+  customElements.define('bl-tag', BlocksTag)
 }

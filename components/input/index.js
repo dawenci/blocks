@@ -450,6 +450,6 @@ class BlocksInput extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-input')) {
-  customElements.define('blocks-input', BlocksInput)
+if (!customElements.get('bl-input')) {
+  customElements.define('bl-input', BlocksInput)
 }

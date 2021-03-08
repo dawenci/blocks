@@ -39,6 +39,6 @@ class BlocksImage extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-image')) {
-  customElements.define('blocks-image', BlocksImage)
+if (!customElements.get('bl-image')) {
+  customElements.define('bl-image', BlocksImage)
 }

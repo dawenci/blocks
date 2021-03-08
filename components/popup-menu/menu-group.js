@@ -25,7 +25,7 @@ const TEMPLATE_HTML = `<div id="head"></div><div id="body"><slot></slot></div>`
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-const itemTemplate = document.createElement('blocks-popup-menu-item')
+const itemTemplate = document.createElement('bl-popup-menu-item')
 
 class BlocksPopupMenuGroup extends HTMLElement {
   static get observedAttributes() {
@@ -102,6 +102,6 @@ class BlocksPopupMenuGroup extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-popup-menu-group')) {
-  customElements.define('blocks-popup-menu-group', BlocksPopupMenuGroup)
+if (!customElements.get('bl-popup-menu-group')) {
+  customElements.define('bl-popup-menu-group', BlocksPopupMenuGroup)
 }

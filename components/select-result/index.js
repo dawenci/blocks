@@ -57,10 +57,10 @@ const TEMPLATE_CSS = `<style>
   white-space: nowrap;
 }
 
-blocks-tag {
+bl-tag {
   flex: 0 0 auto;
 }
-blocks-tag:focus {
+bl-tag:focus {
   outline: 0 none;
 }
 
@@ -105,7 +105,7 @@ blocks-tag:focus {
   flex: 1 1 auto;
   min-width: 32px;
 }
-.multiple-tag blocks-tag+.search {
+.multiple-tag bl-tag+.search {
   margin-left: 4px;
 }
 
@@ -208,14 +208,14 @@ blocks-tag:focus {
 .value-text {
   margin: 0 4px;
 }
-blocks-tag {
+bl-tag {
   margin: 2px;
 }
 
 :host([size="small"]) #layout {
   min-height: var(--height-small, ${__height_small});
 }
-:host([size="small"]) blocks-tag {
+:host([size="small"]) bl-tag {
   height: 20px;
   margin: 2px;
 }
@@ -226,7 +226,7 @@ blocks-tag {
 :host([size="large"]) #value {
   margin: 3px;
 }
-:host([size="large"]) blocks-tag {
+:host([size="large"]) bl-tag {
   height: 28px;
   margin: 2px;
 }
@@ -416,7 +416,7 @@ class BlocksSelectResult extends HTMLElement {
     this.value.forEach(item => {
       const label = this.formatMethod(item)
       const value = item.value
-      const $tag = document.createElement('blocks-tag')
+      const $tag = document.createElement('bl-tag')
       $tag.setAttribute('size', 'mini')
       $tag.setAttribute('tabindex', '-1')
       $tag.textContent = label
@@ -573,6 +573,6 @@ class BlocksSelectResult extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-select-result')) {
-  customElements.define('blocks-select-result', BlocksSelectResult)
+if (!customElements.get('bl-select-result')) {
+  customElements.define('bl-select-result', BlocksSelectResult)
 }

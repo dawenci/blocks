@@ -93,6 +93,6 @@ class BlocksItem extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-item')) {
-  customElements.define('blocks-item', BlocksItem)
+if (!customElements.get('bl-item')) {
+  customElements.define('bl-item', BlocksItem)
 }

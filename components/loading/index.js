@@ -86,6 +86,6 @@ class BlocksLoading extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-loading')) {
-  customElements.define('blocks-loading', BlocksLoading)
+if (!customElements.get('bl-loading')) {
+  customElements.define('bl-loading', BlocksLoading)
 }

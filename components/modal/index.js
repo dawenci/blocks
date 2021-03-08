@@ -1,3 +1,3 @@
-export { alert } from './alert.js'
-export { confirm } from './confirm.js'
-export { prompt } from './prompt.js'
+export { blAlert } from './alert.js'
+export { blConfirm } from './confirm.js'
+export { blPrompt } from './prompt.js'

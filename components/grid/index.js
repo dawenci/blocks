@@ -39,6 +39,6 @@ class BlocksGrid extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('blocks-grid')) {
-  customElements.define('blocks-grid', BlocksGrid)
+if (!customElements.get('bl-grid')) {
+  customElements.define('bl-grid', BlocksGrid)
 }

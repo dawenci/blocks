@@ -6,8 +6,8 @@ import { forEach } from '../../common/utils.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { __bg_base, __bg_baseDark, __border_color_light, __color_primary, __fg_base, __fg_baseDark, __font_family, __transition_duration } from '../theme/var.js'
 
-const itemTemplate = document.createElement('blocks-nav-menu-item')
-const groupTemplate = document.createElement('blocks-nav-menu-group')
+const itemTemplate = document.createElement('bl-nav-menu-item')
+const groupTemplate = document.createElement('bl-nav-menu-group')
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -241,6 +241,6 @@ class BlocksNavMenu extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-nav-menu')) {
-  customElements.define('blocks-nav-menu', BlocksNavMenu)
+if (!customElements.get('bl-nav-menu')) {
+  customElements.define('bl-nav-menu', BlocksNavMenu)
 }

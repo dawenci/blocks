@@ -59,7 +59,7 @@ html, body {
   line-height: 50px;
 }
 
-#header blocks-nav-menu {
+#header bl-nav-menu {
   margin: 8px 20px 0 200px;
 }
 
@@ -81,7 +81,7 @@ html, body {
 #aside:hover {
   overflow: auto;
 }
-#aside blocks-nav-menu {
+#aside bl-nav-menu {
   min-height: 100%;
 }
 

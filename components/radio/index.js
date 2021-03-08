@@ -211,6 +211,6 @@ class BlocksRadio extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-radio')) {
-  customElements.define('blocks-radio', BlocksRadio)
+if (!customElements.get('bl-radio')) {
+  customElements.define('bl-radio', BlocksRadio)
 }

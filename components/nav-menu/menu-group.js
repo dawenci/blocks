@@ -17,7 +17,7 @@ const TEMPLATE_CSS = `
   font-weight: 700;
   color: var(--fg-secondary, ${__fg_secondary});
 }
-:host-context(blocks-nav-menu[dark]) #head {
+:host-context(bl-nav-menu[dark]) #head {
   border-bottom: 1px solid var(--border-color-light-dark, ${__border_color_lightDark});
 }
 </style>
@@ -27,7 +27,7 @@ const TEMPLATE_HTML = `<div id="head"></div><div id="body"><slot></slot></div>`
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-const itemTemplate = document.createElement('blocks-nav-menu-item')
+const itemTemplate = document.createElement('bl-nav-menu-item')
 
 class BlocksNavMenuGroup extends HTMLElement {
   static get observedAttributes() {
@@ -118,6 +118,6 @@ class BlocksNavMenuGroup extends HTMLElement {
   }
 }
 
-if (!customElements.get('blocks-nav-menu-group')) {
-  customElements.define('blocks-nav-menu-group', BlocksNavMenuGroup)
+if (!customElements.get('bl-nav-menu-group')) {
+  customElements.define('bl-nav-menu-group', BlocksNavMenuGroup)
 }
