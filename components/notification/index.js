@@ -122,6 +122,7 @@ class BlocksNotification extends HTMLElement {
     this.$layout.onmouseenter = () => {
       this._clearAutoClose()
     }
+
     this.$layout.onmouseleave = () => {
       this._setAutoClose()
     }
@@ -195,11 +196,10 @@ class BlocksNotification extends HTMLElement {
         this.$close = null
       }
     }
-
-    this._setAutoClose()
   }
 
   destroy() {
+    this._clearAutoClose()
     this.parentElement.removeChild(this)
   }
 
@@ -208,6 +208,7 @@ class BlocksNotification extends HTMLElement {
       upgradeProperty(this, attr)
     })
     this.render()
+    this._setAutoClose()
   }
 
   disconnectedCallback() { }
@@ -216,6 +217,10 @@ class BlocksNotification extends HTMLElement {
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     this.render()
+
+    if (attrName === 'duration' && this.duration) {
+      this._setAutoClose()
+    }
   }
 
   _clearAutoClose() {
