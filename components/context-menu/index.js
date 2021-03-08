@@ -5,7 +5,7 @@ import '../popup-menu/index.js'
  *
  * @export
  * @param {Element} el
- * @param {any} menuData
+ * @param {any[] | () => any[]} menuData
  */
 export function onContextMenu(el, menuData, dark) {
   const handler = (e) => {
@@ -20,7 +20,7 @@ export function onContextMenu(el, menuData, dark) {
       document.body.removeChild($menu)
     })
     $menu.open = true
-    $menu.data = menuData
+    $menu.data = typeof menuData === 'function' ? menuData(e) : menuData
   }
 
   el.addEventListener('contextmenu', handler)

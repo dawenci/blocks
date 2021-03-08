@@ -28,7 +28,7 @@
 
         <script type="module">
           import { onContextMenu } from '../../components/context-menu/index.js'
-          onContextMenu(document.getElementById('box'), [
+          onContextMenu(document.getElementById('box'), () => [
             { label: '菜单1', handler() { console.log('点击菜单1') } },
             { label: '菜单2', handler() { console.log('点击菜单2') } }
           ])
@@ -50,9 +50,11 @@
         <tbody>
           <tr>
             <td>onContextMenu</td>
-            <td>(element: Element, menus) => () => void</td>
+            <td>(element: Element, menus: any[] | () => any[]) => () => void</td>
             <td>
-              传入需要自定义上下文菜单的元素，以及菜单数据。返回一个新的函数，调用返回的新函数可以解除菜单绑定。
+              接受两个参数，第一个参数是需要自定义上下文菜单的元素；
+              第二个参数是菜单数据，为数组类型，或者接受事件对象并返回菜单数组的函数。
+              返回值为一个清理函数，用于解除菜单绑定。
               菜单数据参照 `bl-popup-menu` 组件的说明。
             </td>
           </tr>
