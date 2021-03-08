@@ -10,4 +10,4 @@
 
 ## 文档、Demo
 
-[组件文档](https://dawenci.me/blocks/docs/components.html)
+[组件文档](https://dawenci.me/blocks/docs/index.html)
