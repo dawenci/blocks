@@ -13,6 +13,7 @@ import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { closeableGetter, closeableSetter, openGetter, openSetter } from '../../common/propertyAccessor.js'
+import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -226,16 +227,6 @@ const TEMPLATE_HTML = `
 
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
-
-function getBodyScrollBarWidth() {
-  const $outer = document.createElement('div')
-  const $inner = $outer.cloneNode()
-  $outer.style.cssText = 'visibility: hidden;overflow:scroll;position: absolute;top: 0;left: 0;width: 100px;'
-  $inner.style.cssText = 'width: 100%;'
-  $outer.appendChild($inner)
-  document.body.appendChild($outer)
-  return $outer.offsetWidth - $inner.offsetWidth
-}
 
 const maskGetter = boolGetter('mask')
 const maskSetter = boolSetter('mask')

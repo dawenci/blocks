@@ -1,10 +1,11 @@
 import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __transition_duration } from '../theme/var.js'
+import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
+import { onTransition } from '../../common/onTransition.js'
 
 const TEMPLATE_CSS = `<style>
 :host {
-  display: none;
   box-sizing: border-box;
   position: fixed;
   overflow: hidden;
@@ -33,6 +34,17 @@ class BlocksModalMask extends HTMLElement {
     super()
     this.attachShadow({mode: 'open'})
     this.shadowRoot.appendChild(template.content.cloneNode(true))
+
+    // 过渡结束时
+    this._onTransitionEnd = () => {
+      if (!this.open) {
+        this.style.display = 'none'
+      }
+    }
+    onTransition(this, {
+      end: () => this._onTransitionEnd()
+    })
+
   }
 
   get open() {
@@ -49,7 +61,16 @@ class BlocksModalMask extends HTMLElement {
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
-    this.render()    
+    this.render()
+
+    // 设置初始样式，确保动画生效
+    if (!this.open) {
+      this.style.display = 'none'
+      this.style.opacity = '0'
+    }
+    else {
+      this._updateVisible()
+    }
   }
 
   disconnectedCallback() {}
@@ -57,7 +78,7 @@ class BlocksModalMask extends HTMLElement {
   adoptedCallback() {}
 
   attributeChangedCallback(attrName, oldVal, newVal) {
-    if (attrName == 'open' && this.shadowRoot) {
+    if (attrName == 'open') {
       this._updateVisible()
     }
   }
@@ -72,12 +93,18 @@ class BlocksModalMask extends HTMLElement {
       this._unlockScroll()
       this._animateClose()
     }
+
+    // 如果没有动画，则直接执行回调
+    const styles = getComputedStyle(this)
+    if (!parseFloat(styles.transitionDuration) && !parseFloat(styles.transitionDelay)) {
+      this._onTransitionEnd()
+    }
   }
 
   // 执行过渡前的准备工作，确保动画正常
   _prepareForAnimate() {
-    this.$mask.style.display = ''
-    this.$mask.offsetHeight
+    this.style.display = ''
+    this.offsetHeight
   }
 
   _lockScroll() {
@@ -107,13 +134,13 @@ class BlocksModalMask extends HTMLElement {
   }
 
   _animateOpen() {
-    this.$mask.offsetHeight
-    this.$mask.style.opacity = ''
+    this.offsetHeight
+    this.style.opacity = ''
   }
 
   _animateClose() {
-    this.$mask.offsetHeight
-    this.$mask.style.opacity = '0'
+    this.offsetHeight
+    this.style.opacity = '0'
   }
 }
 
