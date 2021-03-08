@@ -294,18 +294,12 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 export default class BlocksPopup extends HTMLElement {
   static get observedAttributes() {
     return [
-      // Popup 是否展示
-      'open',
-      // 原点
-      'origin',
       // Popup 锚定的布局框，是一个矩形区域
       // Popup 吸附在该矩形的四条边中的某一条的外侧（设置 inset 后在内测）
       // 支持传入一个 `[x, y]` 形式的坐标像素值，这是长宽为 0 的矩形的特例，
       // 支持标准的 `[x1, y1, x2, y2]` 形式的两个坐标点用于左上角、 右下角，
       // 支持传入其他元素的 css selector，表示以该元素的布局矩形为准，
       'anchor',
-      // 在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染）
-      'inset',
       // 是否将节点插入到 document.body 中（通常用于确保 z-index 不会被遮挡）
       'append-to-body',
       // Popup 是否显示箭头
@@ -314,12 +308,18 @@ export default class BlocksPopup extends HTMLElement {
       'autoflip',
       // 打开时是否自动聚焦
       'autofocus',
-      // 失去焦点时，是否恢复获得焦点前的焦点
-      'restorefocus',
       // 捕获焦点，tab 键不会将焦点移出 Popup
       'capturefocus',
       // 暗色主题
       'dark',
+      // 在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染）
+      'inset',
+      // Popup 是否展示
+      'open',
+      // 原点
+      'origin',
+      // 失去焦点时，是否恢复获得焦点前的焦点
+      'restorefocus',
     ]
   }
 

@@ -31,7 +31,7 @@
     <section class="section">
       <h2>默认</h2>
 
-      <p>默认以中心点为原点，相对于 offsetParent 的中心点进行定位</p>
+      <p>默认以中心点为原点，相对于 offsetParent 的中心点进行定位。</p>
 
       <template data-codesource="html">
         <div style="position:relative;width:200px;height:100px;border:1px solid #ccc;">
@@ -239,10 +239,86 @@
         </thead>
         <tbody>
           <tr>
+            <td>anchor</td>
+            <td>string | Element | (() => string | Element)</td>
             <td></td>
+            <td>
+              Popup 锚定的布局框，是一个矩形区域，
+              Popup 吸附在该矩形的四条边中的某一条的外侧（设置 inset 后在内测），
+              支持传入一个 `[x, y]` 形式的坐标像素值，这是长宽为 0 的矩形的特例，
+              支持标准的 `[x1, y1, x2, y2]` 形式的两个坐标点用于左上角、 右下角，
+              支持传入其他元素的 css selector，表示以该元素的布局矩形为准。
+            </td>
             <td></td>
+          </tr>
+          <tr>
+            <td>append-to-body</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否将节点插入到 document.body 中（通常用于确保 z-index 不会被遮挡）。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>arrow</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>Popup 是否显示箭头。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>autoflip</td>
+            <td>false</td>
+            <td></td>
+            <td>是否启用自动翻转功能。启用后，Popup 在 x 或 y 轴上溢出文档时，自动翻转显示。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>autofocus</td>
+            <td>false</td>
+            <td></td>
+            <td>打开时是否自动聚焦。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>capturefocus</td>
+            <td>false</td>
+            <td></td>
+            <td>是否捕获焦点，启用后，tab 键不会将焦点移出 Popup。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>dark</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否使用 dark 主题</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>inset</td>
+            <td>false</td>
+            <td></td>
+            <td>在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染）。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>open</td>
+            <td>false</td>
+            <td></td>
+            <td>Popup 是否展示。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>origin</td>
+            <td>'center' | 'top-start' | 'top-center' | 'top-end' | 'right-start' | 'right-center' | 'right-end' | 'bottom-end' | 'bottom-center' | 'bottom-start' | 'left-end' | 'left-center' | 'left-start'</td>
+            <td>'center'</td>
+            <td>Popup 的原点（吸附点）。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>restorefocus</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>失去焦点时，是否恢复获得焦点前的焦点。</td>
             <td></td>
           </tr>
         </tbody>
