@@ -6,6 +6,7 @@ export default [
   { category: 'components', title: 'button-group', url: 'pages/button-group.html' },
   { category: 'components', title: 'button', url: 'pages/button.html' },
   { category: 'components', title: 'checkbox', url: 'pages/checkbox.html' },
+  { category: 'components', title: 'context-menu', url: 'pages/context-menu.html' },
   { category: 'components', title: 'countdown', url: 'pages/countdown.html' },
   { category: 'components', title: 'date-panel', url: 'pages/date-panel.html' },
   { category: 'components', title: 'date-picker', url: 'pages/date-picker.html' },

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>context-menu</title>
+  <link rel="stylesheet" href="../page.css">
+  <link rel="stylesheet" href="../highlight/styles/default.css">
+  <link rel="stylesheet" href="../highlight/styles/vs2015.css">
+  <script src="../highlight/highlight.pack.js"></script>
+  <script type="module" src="../code-support.js"></script>
+</head>
+<body>
+  <article>
+    <header>
+      <h1>context-menu</h1>
+    </header>
+
+    <script type="module" src="../../components/button/index.js"></script>
+
+    <section class="section">
+      <h2>默认</h2>
+      <div data-codesource="html">
+        <div id="box" style="height:400px;border:1px solid #e8e8e8;font-size:100px;">
+          右键点击
+        </div>
+
+        <script type="module">
+          import { onContextMenu } from '../../components/context-menu/index.js'
+          onContextMenu(document.getElementById('box'), [
+            { label: '菜单1', handler() { console.log('点击菜单1') } },
+            { label: '菜单2', handler() { console.log('点击菜单2') } }
+          ])
+        </script>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>API</h2>
+      <table class="api-fns">
+        <thead>
+          <tr>
+            <th>函数名称</th>
+            <th>类型</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>onContextMenu</td>
+            <td>(element: Element, menus) => () => void</td>
+            <td>
+              传入需要自定义上下文菜单的元素，以及菜单数据。返回一个新的函数，调用返回的新函数可以解除菜单绑定。
+              菜单数据参照 `blocks-popup-menu` 组件的说明。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </article>
+</body>
+</html>

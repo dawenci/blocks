@@ -152,7 +152,6 @@ class BlocksPopupMenu extends BlocksPopup {
 
     // 子菜单打开的时候，为父 item 加上 submenu-open class，以显示 hover 效果
     if (attrName === 'open' && this.$parentItem) {
-      console.log('yes!!!')
       this.$parentItem.classList[this.open ? 'add' : 'remove']('submenu-open')
     }
 
