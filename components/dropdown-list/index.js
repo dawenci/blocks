@@ -90,6 +90,7 @@ export default class BlocksDropDownList extends HTMLElement {
         this.open = true
       }
     }
+
     const onleave = () => {
       if (this.triggerMode === 'hover') {
         clearTimeout(this._timer)
@@ -98,6 +99,7 @@ export default class BlocksDropDownList extends HTMLElement {
         }, 200)
       }
     }
+
     this.addEventListener('mouseenter', onenter)
     this.$popup.addEventListener('mouseenter', onenter)
     this.addEventListener('mouseleave', onleave)

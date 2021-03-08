@@ -342,7 +342,7 @@ class BlocksButton extends HTMLElement {
     this.addEventListener('keydown', (e) => {
       if (this.disabled) {
         e.preventDefault()
-        e.stopPropagation()
+        e.stopImmediatePropagation()
         return
       }
       if (e.keyCode === 32 || e.keyCode === 13) {
@@ -358,7 +358,7 @@ class BlocksButton extends HTMLElement {
     this.addEventListener('click', (e) => {
       if (this.disabled || this.loading) {
         e.preventDefault()
-        e.stopPropagation()
+        e.stopImmediatePropagation()
       }
     })
 

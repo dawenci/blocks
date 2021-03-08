@@ -22,6 +22,7 @@ export default [
   { category: 'components', title: 'nav-menu', url: 'pages/nav-menu.html' },
   { category: 'components', title: 'notification', url: 'pages/notification.html' },
   { category: 'components', title: 'popup', url: 'pages/popup.html' },
+  { category: 'components', title: 'popup-confirm', url: 'pages/popup-confirm.html' },
   { category: 'components', title: 'popup-list', url: 'pages/popup-list.html' },
   { category: 'components', title: 'popup-menu', url: 'pages/popup-menu.html' },
   { category: 'components', title: 'progress', url: 'pages/progress.html' },
