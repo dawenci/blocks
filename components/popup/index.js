@@ -580,7 +580,7 @@ export default class BlocksPopup extends HTMLElement {
     // 2. 起始边为右边，往左方展开 Popup
     // 吸附在 anchorFrame 的左边，如果启用 inset 则吸附在 anchorFrame 的右边
     else if (this.origin.startsWith('right')) {
-      left = (this.inset ? x1 : x2) - arrowSize - popupWidth
+      left = (this.inset ? x2 : x1) - arrowSize - popupWidth
       originX = 'right'
       shadowX = 'left'
       if (this.autoflip && (left < 0)) {
@@ -705,7 +705,7 @@ export default class BlocksPopup extends HTMLElement {
     this._setOrigin(originY, originX)
   }
 
-  initAnchorEvent() {
+  _initAnchorEvent() {
     if (this._refreshPosition) return
     this._refreshPosition = () => this.open && this.anchor && this.updatePosition()
     // 使用捕获的方式，以保证内部元素滚动也能触发
@@ -714,11 +714,12 @@ export default class BlocksPopup extends HTMLElement {
     window.addEventListener('click', this._refreshPosition)
   }
 
-  destroyAnchorEvent() {
-    this._refreshPosition = null
+  _destroyAnchorEvent() {
+    if (!this._refreshPosition) return
     window.removeEventListener('scroll', this._refreshPosition, true)
     window.removeEventListener('touchstart', this._refreshPosition)
     window.removeEventListener('click', this._refreshPosition)
+    this._refreshPosition = null
   }
 
   connectedCallback() {
@@ -746,15 +747,15 @@ export default class BlocksPopup extends HTMLElement {
       this._updateVisible()
     }
 
-    this.initAnchorEvent()
+    this._initAnchorEvent()
   }
 
   disconnectedCallback() {
-    this.destroyAnchorEvent()
+    this._destroyAnchorEvent()
   }
 
-  // adoptedCallback() {
-  // }
+  adoptedCallback() {
+  }
 
   attributeChangedCallback(attrName, oldValue, newValue) {
     switch (attrName) {
@@ -856,9 +857,11 @@ export default class BlocksPopup extends HTMLElement {
     this.updatePosition()
     if (this.open) {
       this._animateOpen()
+      this._initAnchorEvent()
     }
     else {
       this._animateClose()
+      this._destroyAnchorEvent()
     }
 
     // 如果没有动画，则直接触发事件

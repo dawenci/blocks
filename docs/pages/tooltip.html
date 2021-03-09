@@ -18,12 +18,6 @@
     </header>
 
     <section class="section">
-      <h2>TODO</h2>
-      组件待实现
-
-    </section>
-
-    <!-- <section class="section">
       <h2>依赖引入</h2>
 
       <p>根据自己项目调整 src 的路径</p>
@@ -31,7 +25,110 @@
       <div data-codesource="html" data-title="依赖引入" on>
         <script type="module" src="../../components/tooltip/index.js"></script>
       </div>
-    </section> -->
+    </section>
+
+
+    <section class="section">
+      <h2>默认使用</h2>
+
+      <p>通过 content 属性传入提示内容。</p>
+
+      <div data-codesource="html">
+        <bl-tooltip content="测试">
+          <bl-button>content</bl-button>
+        </bl-tooltip>
+      </div>
+      </template>
+    </section>
+
+
+    <section class="section">
+      <h2>位置方向</h2>
+
+      <p>支持传入 popup 组件的属性（origin），配置箭头位置（方向与箭头相反）。</p>
+
+      <style data-codesource="style">
+        .box {
+          position: relative;
+          width: 350px;
+          height: 250px;
+          margin-left: 100px;
+        }
+        .top, .bottom, .left, .right {
+          position: absolute;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .top, .bottom {
+          flex-flow: row;
+          width: 210px;
+          height: 50px;
+          left: 70px;
+        }
+        .left, .right {
+          flex-flow: column;
+          width: 70px;
+          height: 150px;
+          top: 50px;
+        }
+        .top { top: 0; }
+        .bottom { bottom: 0; }
+        .left { left: 0; }
+        .right { right: 0; }
+      </style>
+
+      <div data-codesource="html">
+        <div class="box">
+          <div class="top">
+            <bl-tooltip origin="bottom-end" content="测试">
+              <bl-button>上左</bl-button>
+            </bl-tooltip>
+            <bl-tooltip origin="bottom-center" content="测试">
+              <bl-button>上中</bl-button>
+            </bl-tooltip>
+            <bl-tooltip origin="bottom-start" content="测试">
+              <bl-button>上右</bl-button>
+            </bl-tooltip>
+          </div>
+          <div class="left">
+            <bl-tooltip origin="right-end" content="测试">
+              <bl-button>左上</bl-button>
+            </bl-tooltip>
+            <bl-tooltip origin="right-center" content="测试">
+              <bl-button>左中</bl-button>
+            </bl-tooltip>
+            <bl-tooltip origin="right-start" content="测试">
+              <bl-button>左下</bl-button>
+            </bl-tooltip>
+          </div>
+          <div class="right">
+            <bl-tooltip origin="left-start" content="测试">
+              <bl-button>右上</bl-button>
+            </bl-tooltip>
+            <bl-tooltip origin="left-center" content="测试">
+              <bl-button>右中</bl-button>
+            </bl-tooltip>
+            <bl-tooltip origin="left-end" content="测试">
+              <bl-button>右下</bl-button>
+            </bl-tooltip>
+          </div>
+          <div class="bottom">
+            <bl-tooltip origin="top-end" content="测试">
+              <bl-button>上左</bl-button>
+            </bl-tooltip>
+            <bl-tooltip origin="top-center" content="测试">
+              <bl-button>下中</bl-button>
+            </bl-tooltip>
+            <bl-tooltip origin="top-start" content="测试">
+              <bl-button>下右</bl-button>
+            </bl-tooltip>
+          </div>
+        </div>
+      </div>
+      </template>
+    </section>
+
 
     <section class="section">
       <h2>API</h2>

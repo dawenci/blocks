@@ -19,6 +19,7 @@
 
     <section class="section" style="position:relative">
       <script type="module" src="../../components/button/index.js"></script>
+      <script type="module" src="../../components/switch/index.js"></script>
       <h2>依赖引入</h2>
 
       <p>根据自己项目调整 src 的路径</p>
@@ -151,6 +152,106 @@
           开关
         </bl-button>
       </template>
+    </section>
+
+    <section class="section">
+      <h2>位置方向</h2>
+
+      <p>通过 origin 属性配置箭头位置（弹出方向与箭头相反）。</p>
+
+      <div>
+        <bl-switch id="switch-mode"></bl-switch>inset mode
+      </div>
+
+      <div data-codesource="html">
+        <div class="box">
+          <div class="top">
+            <bl-button id="bottom-end" onclick="document.getElementById('t1').open = !document.getElementById('t1').open">上左</bl-button>
+            <bl-popup id="t1" origin="bottom-end" anchor="#bottom-end" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+
+            <bl-button id="bottom-center" onclick="document.getElementById('t2').open = !document.getElementById('t2').open">上中</bl-button>
+            <bl-popup id="t2" origin="bottom-center" anchor="#bottom-center" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+
+            <bl-button id="bottom-start" onclick="document.getElementById('t3').open = !document.getElementById('t3').open">上右</bl-button>
+            <bl-popup id="t3" origin="bottom-start" anchor="#bottom-start" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+          </div>
+
+          <div class="left">
+            <bl-button id="right-end" onclick="document.getElementById('l1').open = !document.getElementById('l1').open">左上</bl-button>
+            <bl-popup id="l1" origin="right-end" anchor="#right-end" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+
+            <bl-button id="right-center" onclick="document.getElementById('l2').open = !document.getElementById('l2').open">左中</bl-button>
+            <bl-popup id="l2" origin="right-center" anchor="#right-center" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+
+            <bl-button id="right-start" onclick="document.getElementById('l3').open = !document.getElementById('l3').open">左下</bl-button>
+            <bl-popup id="l3" origin="right-start" anchor="#right-start" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+          </div>
+
+          <div class="right">
+            <bl-button id="left-start" onclick="document.getElementById('r1').open = !document.getElementById('r1').open">右上</bl-button>
+            <bl-popup id="r1" origin="left-start" anchor="#left-start" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+
+            <bl-button id="left-center" onclick="document.getElementById('r2').open = !document.getElementById('r2').open">右中</bl-button>
+            <bl-popup id="r2" origin="left-center" anchor="#left-center" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+
+            <bl-button id="left-end" onclick="document.getElementById('r3').open = !document.getElementById('r3').open">右下</bl-button>
+            <bl-popup id="r3" origin="left-end" anchor="#left-end" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+          </div>
+
+          <div class="bottom">
+            <bl-button id="top-end" onclick="document.getElementById('b1').open = !document.getElementById('b1').open">上左</bl-button>
+            <bl-popup id="b1" origin="top-end" anchor="#top-end" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+
+            <bl-button id="top-center" onclick="document.getElementById('b2').open = !document.getElementById('b2').open">下中</bl-button>
+            <bl-popup id="b2" origin="top-center" anchor="#top-center" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+
+            <bl-button id="top-start" onclick="document.getElementById('b3').open = !document.getElementById('b3').open">下右</bl-button>
+            <bl-popup id="b3" origin="top-start" anchor="#top-start" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+          </div>
+        </div>
+      </div>
+
+      <style data-codesource="style">
+        .box {
+          position: relative;
+          width: 350px;
+          height: 250px;
+          margin: 100px;
+        }
+        .top, .bottom, .left, .right {
+          position: absolute;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .top, .bottom {
+          flex-flow: row;
+          width: 210px;
+          height: 50px;
+          left: 70px;
+        }
+        .left, .right {
+          flex-flow: column;
+          width: 70px;
+          height: 150px;
+          top: 50px;
+        }
+        .top { top: 0; }
+        .bottom { bottom: 0; }
+        .left { left: 0; }
+        .right { right: 0; }
+      </style>
+
+      <script>
+        document.getElementById('switch-mode').onchange = (e) => {
+          const value = e.detail.value
+          const buttons = e.target.parentElement.parentElement.querySelectorAll('.box bl-button')
+          ;[].forEach.call(buttons, button => {
+            const popup = document.querySelector(`[anchor='#${button.id}']`)
+            popup.inset = value
+          })
+        }
+      </script>
     </section>
 
     <section class="section">
