@@ -746,8 +746,6 @@ export default class BlocksPopup extends HTMLElement {
     else {
       this._updateVisible()
     }
-
-    this._initAnchorEvent()
   }
 
   disconnectedCallback() {
