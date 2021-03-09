@@ -19,8 +19,8 @@ import { disabledGetter, disabledSetter } from '../../common/propertyAccessor.js
 
 const [minGetter, maxGetter] = ['min', 'max'].map(prop => numGetter(prop))
 const [minSetter, maxSetter] = ['min', 'max'].map(prop => numSetter(prop))
-const [rangeGetter, verticalGetter] = ['disabled', 'range', 'vertical'].map(prop => boolGetter(prop))
-const [rangeSetter, verticalSetter] = ['disabled', 'range', 'vertical'].map(prop => boolSetter(prop))
+const [rangeGetter, verticalGetter] = ['range', 'vertical'].map(prop => boolGetter(prop))
+const [rangeSetter, verticalSetter] = ['range', 'vertical'].map(prop => boolSetter(prop))
 const roundGetter = intGetter('round')
 const roundSetter = intSetter('round')
 
