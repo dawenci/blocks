@@ -35,7 +35,7 @@ export default [
   { category: 'components', title: 'popup-menu', url: 'pages/popup-menu.html' },
   { category: 'components', title: 'progress', url: 'pages/progress.html' },
   { category: 'components', title: 'radio', url: 'pages/radio.html' },
-  { category: 'components', title: 'rating', url: 'pages/rating.html' },
+  { category: 'components', title: 'rate', url: 'pages/rate.html' },
   // { category: 'components', title: 'resizable', url: 'pages/resizable.html' },
   { category: 'components', title: 'select', url: 'pages/select.html' },
   { category: 'components', title: 'select-result', url: 'pages/select-result.html' },  

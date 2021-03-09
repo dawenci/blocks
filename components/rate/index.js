@@ -3,11 +3,13 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
 import { __transition_duration } from '../theme/var.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
+import { clearableGetter, clearableSetter } from '../../common/propertyAccessor.js'
 
 const halfValueGetter = enumGetter('value', [null, '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
 const halfValueSetter = enumSetter('value', [null, '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
 const valueGetter = enumGetter('value', [null, '1', '2', '3', '4', '5'])
 const valueSetter = enumSetter('value', [null, '1', '2', '3', '4', '5'])
+
 const halfGetter = boolGetter('half')
 const halfSetter = boolSetter('half')
 
@@ -25,12 +27,10 @@ const TEMPLATE_CSS = `<style>
 }
 
 button {
-  display: flex;
-  flex-flow: row-reverse nowrap;
   position: relative;
   overflow: hidden;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   margin: 0 2px;
   padding: 0;
   border: 0;
@@ -49,44 +49,45 @@ button:focus {
 }
 
 button > span {
-  flex: 1 1 auto;
   overflow: hidden;
   display: block;
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-:host([half]) button > span {
-  width: 50%;
-}
-:host([half]) button > span.left svg {
-  right: auto;
-}
-:host([half]) button > span.right svg {
-  left: auto;
-}
-
-svg {
   position: absolute;
   top: 0;
-  right: 0;
+  right: auto;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 100%;
+}
+svg {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: auto;
+  bottom: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
   margin: auto;
 }
-:host([half]) svg {
-  width: 200%;
+
+button > .part {
+  display: none;
+  z-index: 1;
+  width: 50%;
 }
-#layout:hover,
+:host([half]) button .part,
+:host([result-mode]) button .part {
+  display: block;
+}
+
 button {
   fill: #f0f0f0;
 }
 button.selected {
   fill: #fadb14;
 }
-button.half-selected .left {
+button.partially-selected > .part {
   fill: #fadb14;
 }
 </style>`
@@ -106,9 +107,18 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 const $STAR_ICON = getRegisteredSvgIcon('star')
 
-class BlocksRating extends HTMLElement {
+class BlocksRate extends HTMLElement {
   static get observedAttributes() {
-    return ['value', 'half']
+    return [
+      // model 值
+      'value',
+      // 允许选择半颗星
+      'half',
+      // 允许 toggle 高亮
+      'clearable',
+      // 结果模式，可以百分比高亮星星
+      'result-mode'
+    ]
   }
 
   constructor() {
@@ -119,6 +129,8 @@ class BlocksRating extends HTMLElement {
 
     forEach(this.$layout.children, (button, index) => {
       button.onmouseover = e => {
+        if (this.resultMode) return
+
         if (!this.half) {
           this._hoverValue = index + 1
         }
@@ -127,12 +139,14 @@ class BlocksRating extends HTMLElement {
           while (!el.classList.contains('star')) {
             el = el.parentElement
           }
-          this._hoverValue = index + (el.classList.contains('left') ? 0.5 : 1)
+          this._hoverValue = index + (el.classList.contains('part') ? 0.5 : 1)
         }
         this.updateSelect()
       }
 
       button.onclick = e => {
+        if (this.resultMode) return
+
         if (!this.half) {
           this.value = index + 1
         }
@@ -141,24 +155,41 @@ class BlocksRating extends HTMLElement {
           while (!el.classList.contains('star')) {
             el = el.parentElement
           }
-          this.value = index + (el.classList.contains('left') ? 0.5 : 1)
+          this.value = index + (el.classList.contains('part') ? 0.5 : 1)
         }
         this.updateSelect()
       }
     })
+
     this.$layout.onmouseleave = e => {
       this._hoverValue = undefined
       this.updateSelect()
     }
   }
 
+  get clearable() {
+    return clearableGetter(this)
+  }
+
+  set clearable(value) {
+    clearableSetter(this, value)
+  }
+
   get value() {
-    const value = this.half ? halfValueGetter(this) : valueGetter(this)
+    const value = this.resultMode ? this.getAttribute('value') : this.half ? halfValueGetter(this) : valueGetter(this)
     return value ? +value : value
   }
 
   set value(value) {
-    return this.half ? halfValueSetter(this, '' + value) : valueSetter(this, '' + value)
+    if (this.resultMode) {
+      this.setAttribute('value', value)
+    }
+    if (this.half) {
+      halfValueSetter(this, '' + value)
+    }
+    else {
+      valueSetter(this, '' + value)
+    }
   }
 
   get half() {
@@ -169,7 +200,36 @@ class BlocksRating extends HTMLElement {
     halfSetter(this, value)
   }
 
+  get resultMode() {
+    return boolGetter('result-mode')(this)
+  }
+
+  set resultMode(value) {
+    boolSetter('result-mode')(this, value)
+  }
+
   updateSelect() {
+    if (this.resultMode) {
+      const value = this.value ?? 0
+      let acc = 0
+      forEach(this.$layout.children, button => {
+        if (value - acc >= 1) {
+          button.className = 'selected'
+          acc += 1
+        }
+        else if (value - acc > 0) {
+          button.className = 'partially-selected'
+          const n = (value - acc)
+          button.querySelector('.part').style.width = `${n * 100}%`
+          acc += n
+        }
+        else {
+          button.className = ''
+        }
+      })
+      return
+    }
+
     const value = +(this._hoverValue ?? this.value ?? 0)
     let acc = 0
     forEach(this.$layout.children, button => {
@@ -178,7 +238,8 @@ class BlocksRating extends HTMLElement {
         acc += 1
       }
       else if (value - acc === 0.5) {
-        button.className = 'half-selected'
+        button.className = 'partially-selected'
+        button.querySelector('.part').style.width = ''
         acc += 0.5
       }
       else {
@@ -191,19 +252,11 @@ class BlocksRating extends HTMLElement {
     const star = document.createElement('span')
     star.className = 'star'
     star.appendChild($STAR_ICON.cloneNode(true))
-    forEach(this.shadowRoot.querySelectorAll('button'), button => {
-      if (this.half) {
-        if (button.children.length !== 2) {
-          button.innerHTML = ''
-          button.appendChild(star.cloneNode(true)).classList.add('right')
-          button.appendChild(star.cloneNode(true)).classList.add('left')
-        }
-      }
-      else {
-        if (button.children.length !== 1) {
-          button.innerHTML = ''
-          button.appendChild(star.cloneNode(true))
-        }
+    forEach(this.$layout.children, button => {
+      if (button.children.length !== 2) {
+        button.innerHTML = ''
+        button.appendChild(star.cloneNode(true))
+        button.appendChild(star.cloneNode(true)).classList.add('part')
       }
     })
   }
@@ -213,6 +266,7 @@ class BlocksRating extends HTMLElement {
       upgradeProperty(this, attr)
     })
     this.render()
+    this.updateSelect()
   }
 
   disconnectedCallback() {}
@@ -220,10 +274,11 @@ class BlocksRating extends HTMLElement {
   adoptedCallback() {}
 
   attributeChangedCallback(attrName, oldVal, newVal) {
+    this.render()
     this.updateSelect()
   }
 }
 
-if (!customElements.get('bl-rating')) {
-  customElements.define('bl-rating', BlocksRating)
+if (!customElements.get('bl-rate')) {
+  customElements.define('bl-rate', BlocksRate)
 }
