@@ -12,6 +12,27 @@ const statusGetter = enumGetter('status', status)
 const statusSetter = enumSetter('status', status)
 
 const TEMPLATE_CSS = `<style>
+@keyframes light {
+  0% {
+    transform: scale(0, 1);
+    opacity: .3;
+  }
+  25% {
+    transform: scale(0, 1);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1, 1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1, 1);
+    opacity: 0;
+  }
+}
 :host {
   display: block;
   box-sizing: border-box;
@@ -35,10 +56,20 @@ const TEMPLATE_CSS = `<style>
   border-radius: var(--radius-base, ${__radius_base});
 }
 #progress {
+  position: relative;
   width: 0;
   height: 100%;
   transition: var(--transition-duration, ${__transition_duration}) all;
   border-radius: var(--radius-base, ${__radius_base});
+}
+#progress:after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,.2);
+  animation: 2s linear infinite light;
+  transform-origin: left top;
 }
 #value {
   flex: 0 0 auto;
