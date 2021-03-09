@@ -151,7 +151,7 @@ const TEMPLATE_CSS = `
 :host([loading]),
 :host([loading]:hover),
 :host([loading]:focus),
-:host([loading]:active) { background-color: inherit; }
+:host([loading]:active) {}
 
 :host([outline]),
 :host([outline]:hover),
@@ -355,12 +355,15 @@ class BlocksButton extends HTMLElement {
       }
     })
 
+    // disabled 状态，阻止点击，使用捕获模式，
+    // 因为经过测试，在组件外面绑定的事件，会先于此处触发
+    // 导致无法成功阻止
     this.addEventListener('click', (e) => {
       if (this.disabled || this.loading) {
         e.preventDefault()
         e.stopImmediatePropagation()
       }
-    })
+    }, true)
 
     this._observer = new MutationObserver(() => {
       this.setAttribute('aria-label', this.textContent)
@@ -430,6 +433,12 @@ class BlocksButton extends HTMLElement {
       this.$icon.classList[this.loading ? 'add' : 'remove']('loading')
       this.$icon.setAttribute('part', 'prefix')
       this.$icon.appendChild(icon)
+    }
+    else {
+      if (this.$icon) {
+        if (this.$icon.parentElement) this.$icon.parentElement.removeChild(this.$icon)
+        this.$icon = null
+      }
     }
   }
 
