@@ -90,6 +90,9 @@ button.selected {
 button.partially-selected > .part {
   fill: #fadb14;
 }
+:host([result-mode]) button {
+  cursor: default;
+}
 </style>`
 
 const TEMPLATE_HTML = `
