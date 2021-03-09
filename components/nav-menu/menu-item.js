@@ -18,7 +18,6 @@ const TEMPLATE_CSS = `<style>
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
 }
 #label {
   overflow: hidden;
@@ -102,6 +101,7 @@ bl-icon {
   cursor: not-allowed;
 }
 
+/* 由于子菜单可能 inline，高度设置在 layout，而非 host */
 :host([active]) #layout {
   box-shadow: inset -2px 0 0 var(--color-primary, ${__color_primary}), 1px 0 0 var(--color-primary, ${__color_primary});
 }
@@ -132,13 +132,13 @@ bl-icon {
 }
 
 /* size */
-:host {
+:host #layout {
   height: var(--height-base, ${__height_base});
 }
-:host-context(bl-nav-menu[size="small"]) {
+:host-context(bl-nav-menu[size="small"]) #layout {
   height: var(--height-small, ${__height_small});
 }
-:host-context(bl-nav-menu[size="large"]) {
+:host-context(bl-nav-menu[size="large"]) #layout {
   height: var(--height-large, ${__height_large});
 }
 #layout {
