@@ -95,8 +95,9 @@ article h4 {
   background: #fff;
 }
 
-.case:not(:first-child) {
-  padding: 15px 0;
+.case {
+  padding: 15px;
+  border: 1px solid #e8e8e8;
 }
 
 .print-area {

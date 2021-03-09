@@ -29,29 +29,33 @@
     </section>
 
     <section class="section">
-      <div data-codesource="html">
-        <bl-popup-confirm
-          id="default"
-          icon="info"
-          message="危险操作，确定继续？">
-          <bl-button>点击</bl-button>
-        </bl-popup-confirm>
-      </div>
+      <div class="case">
+        <div data-codesource="html">
+          <div style="padding:50px;">
+            <bl-popup-confirm
+              id="default"
+              icon="info"
+              message="危险操作，确定继续？">
+              <bl-button>点击</bl-button>
+            </bl-popup-confirm>
+          </div>
+        </div>
 
-      <template data-codesource="script">
-        <script>
-          const widget = document.getElementById('default')
-          widget.confirm = () => {
-            return new Promise((resolve) => {
-              console.log('confirm')
-              setTimeout(resolve, 2000)
-            })
-          }
-          widget.cancel = () => {
-            console.log('cancel')
-          }
-        </script>
-      </template>
+        <template data-codesource="script">
+          <script>
+            const widget = document.getElementById('default')
+            widget.confirm = () => {
+              return new Promise((resolve) => {
+                console.log('confirm')
+                setTimeout(resolve, 2000)
+              })
+            }
+            widget.cancel = () => {
+              console.log('cancel')
+            }
+          </script>
+        </template>
+      </div>
     </section>
 
     <section class="section">
