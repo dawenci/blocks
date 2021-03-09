@@ -77,6 +77,13 @@ class BlocksDatePicker extends HTMLElement {
       if (!this.$panel.multiple) this.$popup.open = false
       this.render()
     })
+
+    this.$popup.addEventListener('open', () => {
+      this._initClickOutside()
+    })
+    this.$popup.addEventListener('close', () => {
+      this._destroyClickOutside()
+    })
   }
 
   render() {
@@ -162,19 +169,12 @@ class BlocksDatePicker extends HTMLElement {
     document.body.appendChild(this.$popup)
 
     this.render()
-
-    this._clearClickOutside = onClickOutside([this, this.$panel], () => {
-      if (this.$popup.open) this.$popup.open = false
-    })
   }
 
   disconnectedCallback() {
-    this._clearClickOutside()
     document.body.removeChild(this.$popup)
+    this._destroyClickOutside()
   }
-
-  // adoptedCallback() {
-  // }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (['clearable'].includes(name)) {
@@ -200,6 +200,21 @@ class BlocksDatePicker extends HTMLElement {
         this._prevFocus.focus()
       }
       this._prevFocus = undefined
+    }
+  }
+
+  _initClickOutside() {
+    if (!this._clearClickOutside) {
+      this._clearClickOutside = onClickOutside([this, this.$panel], () => {
+        if (this.$popup.open) this.$popup.open = false
+      })
+    }
+  }
+
+  _destroyClickOutside() {
+    if (this._clearClickOutside) {
+      this._clearClickOutside()
+      this._clearClickOutside = undefined
     }
   }
 }

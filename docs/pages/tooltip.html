@@ -37,13 +37,28 @@
         <div data-codesource="html">
           <div style="padding:100px;">
             <bl-tooltip content="测试">
-              <bl-button>content</bl-button>
+              <bl-button>hover 触发提示</bl-button>
             </bl-tooltip>
           </div>
         </div>
       </div>
     </section>
 
+    <section class="section">
+      <h2>点击触发</h2>
+
+      <p>`trigger-mode` 属性可以设置成点击触发。</p>
+
+      <div class="case">
+        <div data-codesource="html">
+          <div style="padding:100px;">
+            <bl-tooltip content="测试" trigger-mode="click">
+              <bl-button>click 触发提示</bl-button>
+            </bl-tooltip>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <section class="section">
       <h2>位置方向</h2>

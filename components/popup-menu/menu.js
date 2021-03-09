@@ -133,22 +133,23 @@ class BlocksPopupMenu extends BlocksPopup {
     })
     this.autoflip = true
     this.render()
-
-    this._clearClickOutside = onClickOutside(this, () => {
-      if (this.level === 0 && this.open) {
-        this.open = false
-      }
-    })
   }
 
   disconnectedCallback() {
-    if (this._clearClickOutside) {
-      this._clearClickOutside()
-    } 
+    this._destroyClickOutside()
   }
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     super.attributeChangedCallback(attrName, oldVal, newVal)
+
+    if (attrName === 'open') {
+      if (this.open) {
+        this._initClickOutside()
+      }
+      else {
+        this._destroyClickOutside()
+      }
+    }
 
     // 子菜单打开的时候，为父 item 加上 submenu-open class，以显示 hover 效果
     if (attrName === 'open' && this.$parentItem) {
@@ -156,6 +157,22 @@ class BlocksPopupMenu extends BlocksPopup {
     }
 
     this.render()
+  }
+
+  _initClickOutside() {
+    if (this._clearClickOutside) return
+    this._clearClickOutside = onClickOutside(this, () => {
+      if (this.level === 0 && this.open) {
+        this.open = false
+      }
+    })
+  }
+
+  _destroyClickOutside() {
+    if (this._clearClickOutside) {
+      this._clearClickOutside()
+      this._clearClickOutside = undefined
+    } 
   }
 }
 

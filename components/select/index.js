@@ -155,6 +155,14 @@ class BlocksSelect extends HTMLElement {
       this.filter()
     }
 
+    this.$popup.addEventListener('open', () => {
+      this._initClickOutside()
+    })
+
+    this.$popup.addEventListener('close', () => {
+      this._destroyClickOutside()
+    })
+
     this._initKeymap()
   }
 
@@ -258,21 +266,14 @@ class BlocksSelect extends HTMLElement {
 
     this.render()
 
-    this._clearClickOutside = onClickOutside([this, this.$popup], () => {
-      if (this.$popup.open) {
-        this.$popup.open = false
-        this.$result.classList.remove('dropdown')
-      }
-    })
-
     this.$optionSlot.addEventListener('slotchange', (e) => {
       this.initOptions()
     })
   }
 
   disconnectedCallback() {
-    this._clearClickOutside()
     document.body.removeChild(this.$popup)
+    this._destroyClickOutside()
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -389,6 +390,24 @@ class BlocksSelect extends HTMLElement {
       const options = group.querySelectorAll('bl-option')
       group.style.display = every(options, (option) => option.style.display === 'none') ? 'none' : ''
     })
+  }
+
+  _initClickOutside() {
+    if (!this._clearClickOutside) {
+      this._clearClickOutside = onClickOutside([this, this.$popup], () => {
+        if (this.$popup.open) {
+          this.$popup.open = false
+          this.$result.classList.remove('dropdown')
+        }
+      })
+    }
+  }
+
+  _destroyClickOutside() {
+    if (this._clearClickOutside) {
+      this._clearClickOutside()
+      this._clearClickOutside = undefined
+    }
   }
 }
 

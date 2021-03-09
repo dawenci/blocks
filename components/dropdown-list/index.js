@@ -108,6 +108,14 @@ export default class BlocksDropDownList extends HTMLElement {
     this.$list.addEventListener('change', event => {
       dispatchEvent(this, 'change', { detail: event.detail })
     })
+
+    this.$popup.addEventListener('open', () => {
+      this._initClickOutside()
+    })
+
+    this.$popup.addEventListener('close', () => {
+      this._destroyClickOutside()
+    })
   }
 
   get open() {
@@ -192,12 +200,11 @@ export default class BlocksDropDownList extends HTMLElement {
     })
     document.body.appendChild(this.$popup)
     this.render()
-    this._clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false))
   }
 
   disconnectedCallback() {
     document.body.removeChild(this.$popup)
-    this._clearClickOutside()
+    this._destroyClickOutside()
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -208,6 +215,19 @@ export default class BlocksDropDownList extends HTMLElement {
       this.$list.setAttribute(name, newValue)
     }
     this.render()
+  }
+
+  _initClickOutside() {
+    if (!this._clearClickOutside) {
+      this._clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false))
+    }
+  }
+
+  _destroyClickOutside() {
+    if (this._clearClickOutside) {
+      this._clearClickOutside()
+      this._clearClickOutside = undefined
+    }
   }
 }
 

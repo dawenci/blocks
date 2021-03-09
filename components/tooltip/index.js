@@ -48,6 +48,7 @@ export default class BlocksTooltip extends HTMLElement {
     this.attachShadow({ mode: 'open' })
     this.shadowRoot.appendChild(template.content.cloneNode(true))
     this.$slot = this.shadowRoot.getElementById('slot')
+
     this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup')
     this.$popup.anchor = () => this.$slot.assignedElements()?.[0] ?? this
     this.$popup.setAttribute('arrow', '')
@@ -55,7 +56,6 @@ export default class BlocksTooltip extends HTMLElement {
     this.$popup.setAttribute('origin', 'bottom-center')
     forEach(this.attributes, (attr) => {
       if (BlocksPopup.observedAttributes.includes(attr.name)) {
-        if (attr.name === 'origin') console.log('attr', attr.name, attr.value)
         this.$popup.setAttribute(attr.name, attr.value)
       }
     })
@@ -85,6 +85,13 @@ export default class BlocksTooltip extends HTMLElement {
     this.$popup.addEventListener('mouseenter', onmouseenter)
     this.addEventListener('mouseleave', onmouseleave)
     this.$popup.addEventListener('mouseleave', onmouseleave)
+
+    this.$popup.addEventListener('open', () => {
+      this._initClickOutside()
+    })
+    this.$popup.addEventListener('close', () => {
+      this._destroyClickOutside()
+    })
   }
 
   get content() {
@@ -121,12 +128,11 @@ export default class BlocksTooltip extends HTMLElement {
     })
     document.body.appendChild(this.$popup)
     this.render()
-    this._clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false))
   }
 
   disconnectedCallback() {
     document.body.removeChild(this.$popup)
-    this._clearClickOutside()
+    this._destroyClickOutside()
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -134,6 +140,19 @@ export default class BlocksTooltip extends HTMLElement {
       this.$popup.setAttribute(name, newValue)
     }
     this.render()
+  }
+
+  _initClickOutside() {
+    if (!this._clearClickOutside) {
+      this._clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false))
+    }
+  }
+
+  _destroyClickOutside() {
+    if (this._clearClickOutside) {
+      this._clearClickOutside()
+      this._clearClickOutside = undefined
+    }
   }
 }
 
