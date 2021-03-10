@@ -14,6 +14,7 @@ import './svg/loading.svg.js'
 import './svg/left.svg.js'
 import './svg/right.svg.js'
 import './svg/star.svg.js'
+import './svg/time.svg.js'
 import './svg/success.svg.js'
 import './svg/up.svg.js'
 

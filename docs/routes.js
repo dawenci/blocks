@@ -43,6 +43,7 @@ export default [
   { category: 'components', title: 'switch', url: 'pages/switch.html' },
   { category: 'components', title: 'tag', url: 'pages/tag.html' },
   { category: 'components', title: 'time-panel', url: 'pages/time-panel.html' },
+  { category: 'components', title: 'time-picker', url: 'pages/time-picker.html' },
   { category: 'components', title: 'tooltip', url: 'pages/tooltip.html' },
   { category: 'components', title: 'tree', url: 'pages/tree.html' },
   { category: 'components', title: 'tree-select', url: 'pages/tree-select.html' },

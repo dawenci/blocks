@@ -29,7 +29,7 @@ const TEMPLATE_HTML_INPUT = `<bl-input suffix-icon="date" id="result" readonly /
 
 const TEMPLATE_HTML_POPUP = `
 <bl-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
-  <bl-date-panel class="date-picker-panel" />
+  <bl-date-panel class="date-picker-panel"></bl-date-panel>
 </bl-popup>
 `
 

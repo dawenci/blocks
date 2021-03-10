@@ -35,6 +35,7 @@ export function boolSetter(attr) {
 export function numGetter(attr) {
   return element => {
     const value = parseFloat(element.getAttribute(attr))
+    if (Object.is(value, NaN)) return null
     return value
   }
 }
@@ -46,8 +47,11 @@ export function numGetter(attr) {
  */
 export function numSetter(attr) {
   return (element, value) => {
-    if (element.getAttribute(attr) === value) return
-    if (value === null) {
+    const oldAttrValue = element.getAttribute(attr)
+    // null、内容为数字的字符串
+    if (oldAttrValue === value || oldAttrValue === String(value)) return
+
+    if (Object.is(parseFloat(value), NaN)) {
       element.removeAttribute(attr)
     }
     else {
@@ -63,7 +67,8 @@ export function numSetter(attr) {
  */
 export function intGetter(attr) {
   return element => {
-    const value = parseInt(element.getAttribute(attr))
+    const value = parseInt(element.getAttribute(attr), 10)
+    if (Object.is(value, NaN)) return null
     return value
   }
 }
@@ -75,9 +80,11 @@ export function intGetter(attr) {
  */
 export function intSetter(attr) {
   return (element, value) => {
-    value = parseInt(value, 10)
-    if (parseInt(element.getAttribute(attr), 10) === value) return
-    if (value === null) {
+    const oldAttrValue = element.getAttribute(attr)
+    // null、内容为数字的字符串
+    if (oldAttrValue === value || oldAttrValue === String(value)) return
+
+    if (Object.is(parseInt(value, 10), NaN)) {
       element.removeAttribute(attr)
     }
     else {
@@ -110,6 +117,34 @@ export function enumSetter(attr, values) {
   return (element, value) => {
     if (element.getAttribute(attr) === value) return
     if (!values.includes(value)) value = values[0]
+    if (value === null) {
+      element.removeAttribute(attr)
+    }
+    else {
+      element.setAttribute(attr, value)
+    }
+  }
+}
+
+/**
+ * @export
+ * @param {string} attr
+ * @returns {(element: Element) => string | null}
+ */
+export function strGetter(attr) {
+  return element => element.getAttribute(attr)
+}
+
+/**
+ *
+ * @export
+ * @param {string} attr
+ * @returns {(element: Element, value: any) => void}
+ */
+export function strSetter(attr) {
+  return (element, value) => {
+    const oldAttrValue = element.getAttribute(attr)
+    if (oldAttrValue === value || oldAttrValue === String(value)) return
     if (value === null) {
       element.removeAttribute(attr)
     }

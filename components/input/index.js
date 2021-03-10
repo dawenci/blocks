@@ -58,6 +58,7 @@ const TEMPLATE_CSS = `<style>
 
 input {
   flex: 1 1 100%;
+  width: 100%;
   font-size: inherit;
   padding: 0 9px;
   border: 0 none;

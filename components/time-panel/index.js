@@ -1,7 +1,8 @@
+import { dispatchEvent } from '../../common/event.js'
 import { intGetter, intSetter } from '../../common/property.js'
 import { scrollTo } from '../../common/scrollTo.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { find, range } from '../../common/utils.js'
+import { find, forEach, range } from '../../common/utils.js'
 import { __color_primary, __height_base, __height_large, __height_small, __transition_duration } from '../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
@@ -155,6 +156,7 @@ class BlocksTimePanel extends HTMLElement {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
+    this.$layout = shadowRoot.getElementById('layout')
     this.$hours = shadowRoot.getElementById('hours')
     this.$minutes = shadowRoot.getElementById('minutes')
     this.$seconds = shadowRoot.getElementById('seconds')
@@ -232,20 +234,33 @@ class BlocksTimePanel extends HTMLElement {
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     if (['hour', 'minute', 'second'].includes(attrName)) {
-      const $list = this[`$${attrName}s`]
-      const $old = $list.querySelector('.active')
-      if ($old) $old.classList.remove('active')
-      const $new = find($list.children, $li => +$li.textContent === +newVal)
-      if ($new) {
-        $new.classList.add('active')
-        scrollTo($list, $new.offsetTop, { duration: .16 })
+      if (newVal === null) {
+        forEach(this.$layout.querySelectorAll('.active'), active => {
+          active.classList.remove('active')
+        })
+        this.hour = this.minute = this.second = null
+        this.$hours.scrollTop = 0
+        this.$minutes.scrollTop = 0
+        this.$seconds.scrollTop = 0
+      }
+      else {
+        const $list = this[`$${attrName}s`]
+
+        const $old = $list.querySelector('.active')
+        if ($old) $old.classList.remove('active')
+  
+        const $new = find($list.children, $li => +$li.textContent === +newVal)
+        if ($new) {
+          $new.classList.add('active')
+          scrollTo($list, $new.offsetTop, { duration: .16 })
+        }
+  
+        if (attrName !== 'hour' && !this.hour) this.hour = 0
+        if (attrName !== 'minute' &&!this.minute) this.minute = 0
+        if (attrName !== 'second' &&!this.second) this.second = 0
       }
 
-      if (newVal != null) {
-        if (!this.hour) this.hour = 0
-        if (!this.minute) this.minute = 0
-        if (!this.second) this.second = 0
-      }
+      dispatchEvent(this, 'change', { detail: { hour: this.hour, minute: this.minute, second: this.second } })
     }
   }
 }
