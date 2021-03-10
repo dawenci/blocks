@@ -46,18 +46,6 @@ export function toggleAttr(el, attrName, flag) {
 }
 
 /**
- * 规范化选择深度取值
- * 确保返回为 'decade', 'year', 'month' 之一
- */
-export function normalizeDepth(depth) {
-  if (!depth) return Depth.Month
-  if (depth !== Depth.Month && depth !== Depth.Year && depth !== Depth.Decade) {
-    depth = depth.Month
-  }
-  return depth
-}
-
-/**
  * 规范最小的深度取值
  */
 export function normalizeMinDepth(min, depth) {

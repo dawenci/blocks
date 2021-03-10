@@ -1,14 +1,19 @@
+import '../loading/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import {
   __radius_base,
   __color_primary,
   __color_warning,
   __transition_duration,
+  __height_base,
+  __height_small,
+  __height_large,
 } from '../theme/var.js'
 
 import { range } from '../../common/utils.js'
 import { Depth } from './data.js'
-import { normalizeDepth, normalizeMinDepth, normalizeViewDepth, toggleClass, toggleAttr, getClosestDate, getFirstDate, getLastDate, getLastDateOfPrevMonth, getFirstDateOfNextMonth } from './helpers.js'
+import { normalizeMinDepth, normalizeViewDepth, toggleClass, toggleAttr, getClosestDate, getFirstDate, getLastDate, getLastDateOfPrevMonth, getFirstDateOfNextMonth } from './helpers.js'
+import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
 
 const TEMPLATE_CSS = `<style>
 @keyframes rotate360 {
@@ -25,22 +30,29 @@ const TEMPLATE_CSS = `<style>
   box-sizing: border-box;
   user-select: none;
   cursor: default;
-  width: 220px;
-  height: 248px;
+  font-size: 12px;
   background-color: #fff;
 }
 :host(:focus) {
   outline: 0 none;
 }
 
+#layout:focus {
+  outline: 0 none;
+}
 #layout {
   box-sizing: border-box;
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: calc(var(--height-base, ${__height_base}) * 7 + 10px);
+  height: calc(var(--height-base, ${__height_base}) * 8 + 10px);
 }
-#layout:focus {
-  outline: 0 none;
+:host([size="small"]) #layout {
+  width: calc(var(--height-small, ${__height_small}) * 7 + 10px);
+  height: calc(var(--height-small, ${__height_small}) * 8 + 10px);
+}
+:host([size="large"]) #layout {
+  width: calc(var(--height-large, ${__height_large}) * 7 + 16px);
+  height: calc(var(--height-large, ${__height_large}) * 8 + 16px);
 }
 
 #header {
@@ -48,28 +60,43 @@ const TEMPLATE_CSS = `<style>
   display: flex;
   flex-flow: row nowrap;
   overflow: hidden;
-  width: 220px;
-  height: 28px;
-  line-height: 28px;
+  width: 100%;
+  height: var(--height-base, ${__height_base});
+  line-height: var(--height-base, ${__height_base});
   cursor: default;
+}
+:host([size="small"]) #header {
+  height: var(--height-small, ${__height_small});
+  line-height: var(--height-small, ${__height_small});
+}
+:host([size="large"]) #header {
+  height: var(--height-large, ${__height_large});
+  line-height: var(--height-large, ${__height_large});
 }
 
 .header-button {
-  flex: 0 0 28px;
+  flex: 0 0 var(--height-base, ${__height_base});
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
   display: block;
-  width: 28px;
+  width: var(--height-base, ${__height_base});
   height: 100%;
   margin: 0;
   padding: 0;
   border: 0 none;
   background-color: transparent;
   text-align: center;
-  font-size: 0;
   outline: 0;
   transition: var(--transition-duration, ${__transition_duration}) all;
+}
+:host([size="small"]) .header-button {
+  flex: 0 0 var(--height-small, ${__height_small});
+  width: var(--height-small, ${__height_small});
+}
+:host([size="large"]) .header-button {
+  flex: 0 0 var(--height-large, ${__height_large});
+  width: var(--height-large, ${__height_large});
 }
 
 .header-button::before,
@@ -126,27 +153,42 @@ const TEMPLATE_CSS = `<style>
 .header-button.button-nextNext::after {
   right: 8px;
 }
- 
+
 .header-content {
   box-sizing: border-box;
   flex: 1 1 100%;
-  height: 28px;
+  height: var(--height-base, ${__height_base});
   text-align: center;
-  font-size: 12px;
+  font-size: inherit;
+}
+:host([size="small"]) .header-content {
+  height: var(--height-small, ${__height_small});
+}
+:host([size="large"]) .header-content {
+  height: var(--height-large, ${__height_large});
 }
 
 .header-title {
   box-sizing: border-box;
   overflow: hidden;
   width: 100%;
-  height: 18px;
-  font-size: 12px;
-  line-height: 18px;
+  height: calc(var(--height-base, ${__height_base}) - 10px);
+  line-height: calc(var(--height-base, ${__height_base}) - 10px);
+  font-size: inherit;
   margin: 5px auto;
   border: 0 none;
   border-radius: 3px;
   background: transparent;
 }
+:host([size="small"]) .header-title {
+  height: calc(var(--height-small, ${__height_small}) - 10px);
+  line-height: calc(var(--height-small, ${__height_small}) - 10px);
+}
+:host([size="large"]) .header-title {
+  height: calc(var(--height-large, ${__height_large}) - 10px);
+  line-height: calc(var(--height-large, ${__height_large}) - 10px);
+}
+
 .header-title:focus {
   outline: 0 none;
   background-color: #f0f0f0;
@@ -159,7 +201,14 @@ const TEMPLATE_CSS = `<style>
 #body {
   box-sizing: border-box;
   position: relative;
-  width: 220px;
+  width: 100%;
+  height: calc(var(--height-base, ${__height_base}) * 7 + 10px);
+}
+:host([size="small"]) #body {
+  height: calc(var(--height-small, ${__height_small}) * 7 + 10px);
+}
+:host([size="large"]) #body {
+  height: calc(var(--height-large, ${__height_large}) * 7 + 16px);
 }
 
 .week-header {
@@ -167,20 +216,33 @@ const TEMPLATE_CSS = `<style>
   position: relative;
   display: flex;
   flex-flow: row nowrap;
-  height: 30px;
+  height: var(--height-base, ${__height_base});
   padding: 0 5px;
   box-shadow: inset 0 -1px 1px #f0f0f0;
-  line-height: 29px;
-  font-size: 12px;
+  line-height: calc(var(--height-base, ${__height_base}) - 1px);
+  font-size: inherit;
   text-align: center;
   transition: var(--transition-duration, ${__transition_duration}) all;
+}
+:host([size="small"]) .week-header {
+  height: var(--height-small, ${__height_small});
+  line-height: calc(var(--height-small, ${__height_small}) - 1px);
+}
+:host([size="large"]) .week-header {
+  height: var(--height-large, ${__height_large});
+  line-height: calc(var(--height-large, ${__height_large}) - 1px);
 }
 
 .week-header span {
   box-sizing: border-box;
   display: block;
-  width: 30px;
-  height: 20px;
+  width: var(--height-base, ${__height_base});
+}
+:host([size="small"]) .week-header span {
+  width: var(--height-small, ${__height_small});
+}
+:host([size="large"]) .week-header span {
+  width: var(--height-large, ${__height_large});
 }
 
 .button-list {
@@ -189,31 +251,53 @@ const TEMPLATE_CSS = `<style>
   position: relative;
   display: flex;
   flex-flow: row wrap;
-  width: 220px;
+  width: 100%;
   padding: 5px;
   transition: var(--transition-duration, ${__transition_duration}) all;
 }
+:host([size="small"]) .button-list {
+  padding: 5px;
+}
+:host([size="large"]) .button-list {
+  padding: 8px;
+}
 
 .body-month .button-list {
-  height: 190px;
+  height: calc(var(--height-base, ${__height_base}) * 6 + 10px);
+}
+:host([size="small"]) .body-month .button-list {
+  height: calc(var(--height-small, ${__height_small}) * 6 + 10px);
+}
+:host([size="large"]) .body-month .button-list {
+  height: calc(var(--height-large, ${__height_large}) * 6 + 16px);
 }
 
 .body-year .button-list,
 .body-decade .button-list,
 .body-century .button-list {
-  height: 220px;
+  height: calc(var(--height-base, ${__height_base}) * 7 + 10px);
+}
+:host([size="small"]) .body-year .button-list,
+:host([size="small"]) .body-decade .button-list,
+:host([size="small"]) .body-century .button-list {
+  height: calc(var(--height-small, ${__height_small}) * 7 + 10px);
+}
+:host([size="large"]) .body-year .button-list,
+:host([size="large"]) .body-decade .button-list,
+:host([size="large"]) .body-century .button-list {
+  height: calc(var(--height-large, ${__height_large}) * 7 + 16px);
 }
 
 .button-item {
   box-sizing: border-box;
   position: relative;
-  margin: 1px;
+  margin: 0;
   padding: 0;
   text-align: center;
-  border: 0 none;
+  border: 1px solid transparent;
   background: transparent;
   border-radius: var(--radius-base, ${__radius_base});
-  font-size: 12px;
+  font-size: inherit;
   transition: var(--transition-duration, ${__transition_duration}) height,
     var(--transition-duration, ${__transition_duration}) background,
     var(--transition-duration, ${__transition_duration}) color;
@@ -223,27 +307,65 @@ const TEMPLATE_CSS = `<style>
   color: var(--color-primary, ${__color_primary});
   outline: 0 none;
 }
+/* range, multiple 模式，选项之间紧密相连，去掉圆角 */
+:host([mode="range"]) .button-item,
+:host([mode="multiple"]) .button-item {
+  border-width: 0;
+  border-radius: 0;
+}
 
 /* 7 col * 5 row */
 .body-month .button-item {
-  width: 28px;
-  height: 28px;
-  line-height: 28px;  
+  width: var(--height-base, ${__height_base});
+  height: var(--height-base, ${__height_base});
+  line-height: calc(var(--height-base, ${__height_base}) - 2px);
+}
+:host([size="small"]) .body-month .button-item {
+  width: var(--height-small, ${__height_small});
+  height: var(--height-small, ${__height_small});
+  line-height: calc(var(--height-small, ${__height_small}) - 2px);
+}
+:host([size="large"]) .body-month .button-item {
+  width: var(--height-large, ${__height_large});
+  height: var(--height-large, ${__height_large});
+  line-height: calc(var(--height-large, ${__height_large}) - 2px);
 }
 
 /* 3 col * 4 row */
 .body-year .button-item {
-  width: 68px;
-  height: 50px;
-  line-height: 50px;
+  width: calc(var(--height-base, ${__height_base}) * 7 / 3);
+  height: calc(var(--height-base, ${__height_base}) * 7 / 4);
+  line-height: calc(var(--height-base, ${__height_base}) * 7 / 4);
+}
+:host([size="small"]) .body-year .button-item {
+  width: calc(var(--height-small, ${__height_small}) * 7 / 3);
+  height: calc(var(--height-small, ${__height_small}) * 7 / 4);
+  line-height: calc(var(--height-small, ${__height_small}) * 7 / 4);
+}
+:host([size="large"]) .body-year .button-item {
+  width: calc(var(--height-large, ${__height_large}) * 7 / 3);
+  height: calc(var(--height-large, ${__height_large}) * 7 / 4);
+  line-height: calc(var(--height-large, ${__height_large}) * 7 / 4);
 }
 
 /* 2 col * 5 row */
 .body-century .button-item,
 .body-decade .button-item {
-  width: 103px;
-  height: 40px;
-  line-height: 40px;
+  width: calc(var(--height-base, ${__height_base}) * 7 / 2);
+  height: calc(var(--height-base, ${__height_base}) * 7 / 5);
+  line-height: calc(var(--height-base, ${__height_base}) * 7 / 5);
+}
+:host([size="small"]) .body-century .button-item,
+:host([size="small"]) .body-decade .button-item {
+  width: calc(var(--height-small, ${__height_small}) * 7 / 2);
+  height: calc(var(--height-small, ${__height_small}) * 7 / 5);
+  line-height: calc(var(--height-small, ${__height_small}) * 7 / 5);
+}
+:host([size="large"]) .body-century .button-item,
+:host([size="large"]) .body-decade .button-item {
+  width: calc(var(--height-large, ${__height_large}) * 7 / 2);
+  height: calc(var(--height-large, ${__height_large}) * 7 / 5);
+  line-height: calc(var(--height-large, ${__height_large}) * 7 / 5);
 }
 
 
@@ -288,67 +410,16 @@ const TEMPLATE_CSS = `<style>
 }
 
 .body-loading {
-  box-sizing: border-box;
-  overflow: hidden;
+  display: none;
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  width: 220px;
-  height: 180px;
-  background-color: rgba(255,255,255,.7);
+  background: rgba(255,255,255,.8);
 }
-
-.body-loading .icon {
-  box-sizing: border-box;
-  overflow: hidden;
-  position: absolute;
-  top: -30px;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 30px;
-  height: 30px;
-  margin: auto;
-  border-radius: 50%;
-  animation: 1s linear infinite rotate360;
-}
-
-.body-loading .icon i {
-  overflow: hidden;
-  position: relative;
-  width: 13px;
-  height: 100%;
-}
-.body-loading .icon i::before {
-  position: absolute;
-  margin: auto;
-  content: '';
-  width: 30px;
-  height: 30px;
-  border: 2px solid rgba(0,0,0,.2);
-  border-radius: 50%;
-}
-
-.body-loading .icon i:nth-child(1) {
-  float: left;
-}
-.body-loading .icon i:nth-child(1)::before {
-  top: 0;
-  right: auto;
-  bottom: 0;
-  left: 0;
-}
-
-.body-loading .icon i:nth-child(2) {
-  float: right;
-}
-.body-loading .icon i:nth-child(2)::before {
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: auto;
+:host([loading]) .body-loading {
+  display: block;
 }
 </style>`
 
@@ -367,9 +438,8 @@ const TEMPLATE_HTML = `
   <div id="body">
     <div class="week-header"></div>
     <div class="button-list"></div>
-
     <div class="body-loading">
-      <div class="icon"><i></i><i></i></div>
+      <bl-loading></bl-loading>
     </div>
   </div>
 </div>
@@ -391,23 +461,20 @@ class BlocksDatePanel extends HTMLElement {
       // year 代表最深按照年份展示选项，可以选择到 “月”
       // decade 代表最深按照十年展示选项，可以选择到 “年”
       'depth',
-      // 可切换至的最小深度
-      'mindepth',
-      // 初始化显示的深度
-      'startdepth',
-      // model 值
-      'value',
-      // 校验（depth 末级）选项是否可用
-      // (data: { year: number, month?: number, date?: number }) => boolean
-      'disableMethod',
-      // 选择模式，支持 single, multiple, range
-      'mode',
-      // 多选模式的话，最多能选择多少个值
-      'max',
       // 是否使用 loading 遮罩
       'loading',
+      // 多选模式的话，最多能选择多少个值
+      'max',
+      // 可切换至的最小深度
+      'mindepth',
+      // 选择模式，支持 single, multiple, range
+      'mode',
+      // 初始化显示的深度
+      'startdepth',
       // 每周从星期几开始，0 代表星期天，1 代表星期一，顺序类推
-      'startWeekOn',
+      'start-week-on',
+      // model 值
+      'value',
     ]
   }
 
@@ -443,7 +510,7 @@ class BlocksDatePanel extends HTMLElement {
 
     // 设置面板起始视图状态
     this.setPanelDate(this.closestDate ?? new Date())
-    
+
     $panel.onclick = (e) => {
       const target = e.target
       if (this.$prevPrev.contains(target)) {
@@ -716,7 +783,7 @@ class BlocksDatePanel extends HTMLElement {
         return
       }
       this._value = value
-      
+
     }
     else if (this.range) {
       if (!value) value = []
@@ -733,11 +800,19 @@ class BlocksDatePanel extends HTMLElement {
   }
 
   get depth() {
-    return normalizeDepth(this.getAttribute('depth'))
+    return enumGetter('depth', [Depth.Month, Depth.Year, Depth.Decade])(this)
   }
 
   set depth(value) {
-    this.setAttribute('depth', normalizeDepth(value))
+    enumSetter('depth', [Depth.Month, Depth.Year, Depth.Decade])(this, value)
+  }
+
+  get loading() {
+    return boolGetter('loading')(this)
+  }
+
+  set loading(value) {
+    boolSetter('loading')(this, value)
   }
 
   get mindepth() {
@@ -767,27 +842,19 @@ class BlocksDatePanel extends HTMLElement {
   }
 
   get max() {
-    return parseInt(this.getAttribute('max'), 10) || null
+    return intGetter('max')(this) || null
   }
 
   set max(value) {
-    if (typeof value !== 'number' || value !== value) return
-    this.setAttribute('max', Math.trunc(value))
+    intSetter('max')(this, value)
   }
 
   get mode() {
-    const mode = this.getAttribute('mode')
-    return ['single', 'multiple', 'range'].includes(mode) ? mode : 'single'
+    return enumGetter('mode', [null, 'multiple', 'range'])(this)
   }
 
   set mode(value) {
-    value = ['single', 'multiple', 'range'].includes(value) ? value : 'single'
-    if (value === 'single') {
-      this.removeAttribute('mode')
-    }
-    else {
-      this.setAttribute('mode', value)  
-    }
+    enumSetter('mode', [null, 'multiple', 'range'])(this, value)
   }
 
   get multiple() {
@@ -847,11 +914,11 @@ class BlocksDatePanel extends HTMLElement {
   }
 
   get startWeekOn() {
-    return this.getAttribute('startweekon') ?? 1
+    return this.getAttribute('start-week-on') ?? 1
   }
 
   set startWeekOn(value) {
-    this.setAttribute('startweekon', value % 7)
+    this.setAttribute('start-week-on', value % 7)
   }
 
   get weekHeaders() {
@@ -1008,9 +1075,9 @@ class BlocksDatePanel extends HTMLElement {
         ? t => t.getFullYear() === item.year && t.getMonth() === item.month
         : this.depth === Depth.Decade
           ? t => t.getFullYear() === item.year
-          : () => false  
+          : () => false
 
-    if (this.mode === 'single' || this.mode === 'multiple') {
+    if (this.mode == null || this.mode === 'multiple') {
       return this.getValues().some(isActive)
     }
 
@@ -1073,6 +1140,8 @@ class BlocksDatePanel extends HTMLElement {
     // 检查是否抵达数量上限，
     if (this.limitReached) return true
     // 通过外部传入的 disableMethod 检查
+    // 校验（depth 末级）选项是否可用
+    // (data: { year: number, month?: number, date?: number }) => boolean
     return this.disableMethod ?
       this.disableMethod({
         year: item.year,
@@ -1359,7 +1428,7 @@ class BlocksDatePanel extends HTMLElement {
       }
     }
   }
- 
+
   connectedCallback() {
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)

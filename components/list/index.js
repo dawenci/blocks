@@ -30,7 +30,6 @@ const TEMPLATE_CSS = `
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  border: 1px solid rgba(255, 255, 255, .3);
   background: rgba(0, 0, 0, .2);
 }
 ::-webkit-scrollbar-corner {

@@ -28,12 +28,87 @@
     </section>
 
     <section class="section">
-      <h2>日期面板</h2>
+      <h2>基础单选</h2>
 
-      <template data-codesource="html">
-        <bl-date-panel mode="range" max="3"></bl-date-panel>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <div style="padding: 50px 0; text-align:center;">
+            <bl-date-panel></bl-date-panel>
+          </div>
+        </template>
+      </div>
     </section>
+
+
+    <section class="section">
+      <h2>多选</h2>
+
+      <p>'mode' 设置为 'multiple' 可以启用多选模式，可以用 'max' 属性限制最多选择的日期数量。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <div style="padding: 50px 0; text-align:center;">
+            <bl-date-panel mode="multiple" max="3"></bl-date-panel>
+          </div>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>区间</h2>
+
+      <p>'mode' 设置为 'range' 可以启用区间模式。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <div style="padding: 50px 0; text-align:center;">
+            <bl-date-panel mode="range"></bl-date-panel>
+          </div>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>选择深度</h2>
+
+      <p>'depth' 设置为选择的深度，支持月、年、年代。</p>
+      <p>此外，可以设置初始化显示的面板深度（startdepth，默认等于 depth），以及往上最多可以切换到多浅的深度（mindepth：默认世纪，century）</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <div style="padding: 50px 0; text-align:center;">
+            <bl-date-panel depth="month" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date-panel>
+            <bl-date-panel depth="year" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date-panel>
+            <bl-date-panel depth="decade" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date-panel>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>星期的起始</h2>
+
+      <p>可以通过 'start-week-on' 设置每周的第一天为星期几。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <bl-button onclick="document.getElementById('startWeekOn').startWeekOn = 0">日</bl-button>
+          <bl-button onclick="document.getElementById('startWeekOn').startWeekOn = 1">一</bl-button>
+          <bl-button onclick="document.getElementById('startWeekOn').startWeekOn = 2">二</bl-button>
+          <bl-button onclick="document.getElementById('startWeekOn').startWeekOn = 3">三</bl-button>
+          <bl-button onclick="document.getElementById('startWeekOn').startWeekOn = 4">四</bl-button>
+          <bl-button onclick="document.getElementById('startWeekOn').startWeekOn = 5">五</bl-button>
+          <bl-button onclick="document.getElementById('startWeekOn').startWeekOn = 6">六</bl-button>
+          
+          <div style="padding: 50px 0; text-align:center;">
+            <bl-date-panel id="startWeekOn" start-week-on="0"></bl-date-panel>
+          </div>
+        </template>
+      </div>
+    </section>
+
 
     <section class="section">
       <h2>API</h2>

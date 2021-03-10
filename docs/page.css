@@ -17,7 +17,6 @@
 }
 /* scrollbar 滑块 */
 ::-webkit-scrollbar-thumb {
-  border: 1px solid rgba(255, 255, 255, .3);
   background: rgba(0, 0, 0, .2);
 }
 ::-webkit-scrollbar-corner {
@@ -99,6 +98,11 @@ article h4 {
   padding: 15px;
   border: 1px solid #e8e8e8;
 }
+.case:after {
+  display: table;
+  content: '';
+  clear: both;
+}
 
 .print-area {
   overflow: hidden;
@@ -106,6 +110,7 @@ article h4 {
   background-color: #333;
   border-radius: 5px;
   color: #eee;
+  clear: both;
 }
 
 .print-area .print-title {

@@ -2,22 +2,73 @@ import { intGetter, intSetter } from '../../common/property.js'
 import { scrollTo } from '../../common/scrollTo.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { find, range } from '../../common/utils.js'
-import { __color_primary, __height_small, __transition_duration } from '../theme/var.js'
+import { __color_primary, __height_base, __height_large, __height_small, __transition_duration } from '../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
+::-webkit-scrollbar {
+  background: transparent;
+  background: rgba(0, 0, 0, .075);
+}
+::-webkit-scrollbar:vertical {
+  width: 6px;
+  height: 100%;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, .2);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+* {
+  scrollbar-width: thin;
+}
+
 :host {
   display: inline-block;
   box-sizing: border-box;
-  width: 156px;
-  height: 248px;
+  width: calc(var(--height-base, ${__height_base}) * 3 + 12px * 3);
+  height: calc(var(--height-base, ${__height_base}) * 8 + 10px);
   background: #fff;
+  user-select: none;
+  font-size: 14px;
+}
+:host([size="small"]) {
+  width: calc(var(--height-small, ${__height_small}) * 3 + 12px * 3);
+  height: calc(var(--height-small, ${__height_small}) * 8 + 10px);
+  font-size: 12px;
+}
+:host([size="large"]) {
+  width: calc(var(--height-large, ${__height_large}) * 3 + 12px * 3);
+  height: calc(var(--height-large, ${__height_large}) * 8 + 10px);
 }
 
 #layout {
+  position: relative;
   overflow: hidden;
   width: 100%;
   height: 100%;
 }
+#layout:after {
+  position: absolute;
+  top: var(--height-base, ${__height_base});
+  left: 0;
+  right: 0;
+  display: block;
+  content: '';
+  width: 100%;
+  height: 1px;
+  background-color: rgba(0,0,0,.05);
+}
+:host([size="small"]) #layout:after {
+  top: var(--height-small, ${__height_small});
+}
+:host([size="large"]) #layout:after {
+  top: var(--height-large, ${__height_large});
+}
+
 #layout > ol {
   position: relative;
   height: 100%;
@@ -25,10 +76,17 @@ const TEMPLATE_CSS = `<style>
   overflow: hidden;
   float: left;
   list-style: none;
-  width: 52px;
+  width: calc(var(--height-base, ${__height_base}) + 12px);
   margin: 0;
   padding: 0;
 }
+:host([size="small"]) #layout > ol {
+  width: calc(var(--height-small, ${__height_small}) + 12px);
+}
+:host([size="large"]) #layout > ol {
+  width: calc(var(--height-large, ${__height_large}) + 12px);
+}
+
 #layout > ol:hover {
   overflow: auto;
   background: rgba(0,0,0,.025);
@@ -36,18 +94,35 @@ const TEMPLATE_CSS = `<style>
 #layout > ol:after {
   display: block;
   content: '';
+  height: calc(100% - var(--height-base, ${__height_base}));
+}
+:host([size="small"]) #layout > ol:after {
   height: calc(100% - var(--height-small, ${__height_small}));
 }
+:host([size="large"]) #layout > ol:after {
+  height: calc(100% - var(--height-large, ${__height_large}));
+}
+
 #hours {}
 #minutes {}
 #seconds {}
 li {
-  height: var(--height-small, ${__height_small});
-  line-height: var(--height-small, ${__height_small});
+  height: var(--height-base, ${__height_base});
+  line-height: var(--height-base, ${__height_base});
   padding: 0 0 0 12px;
   cursor: default;
 }
+:host([size="small"]) li {
+  height: var(--height-small, ${__height_small});
+  line-height: var(--height-small, ${__height_small});
+}
+:host([size="large"]) li {
+  height: var(--height-large, ${__height_large});
+  line-height: var(--height-large, ${__height_large});
+}
+
 li:hover {
+  font-weight: 700;
   background-color: #f0f0f0;
 }
 
@@ -73,7 +148,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksTimePanel extends HTMLElement {
   static get observedAttributes() {
-    return ['hour', 'minute', 'second']
+    return ['hour', 'minute', 'second', 'size']
   }
 
   constructor() {
@@ -167,9 +242,9 @@ class BlocksTimePanel extends HTMLElement {
       }
 
       if (newVal != null) {
-        if (this.hour == null) this.hour = 0
-        if (this.minute == null) this.minute = 0
-        if (this.second == null) this.second = 0
+        if (!this.hour) this.hour = 0
+        if (!this.minute) this.minute = 0
+        if (!this.second) this.second = 0
       }
     }
   }

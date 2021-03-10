@@ -3,6 +3,7 @@ import '../input/index.js'
 import '../date-panel/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
+import { __height_base } from '../theme/var.js'
 
 let idSeed = Date.now()
 
@@ -10,7 +11,7 @@ const TEMPLATE_CSS = `<style>
 :host {
   display: inline-block;
   box-sizing: border-box;
-  width: 220px;
+  width: calc(var(--height-base, ${__height_base}) * 7 + 10px);
   height: 32px;
   user-select: none;
   cursor: default;
@@ -44,12 +45,11 @@ class BlocksDatePicker extends HTMLElement {
       'depth',
       'mindepth',
       'startdepth',
-      'disableMethod',
       'multiple',
       'max',
       'loading',
       'clearable',
-      'startWeekOn'
+      'start-week-on'
     ]
   }
 
@@ -180,7 +180,7 @@ class BlocksDatePicker extends HTMLElement {
     if (['clearable'].includes(name)) {
       this.$input.setAttribute(name, newValue)
     }
-    if (['depth', 'mindepth', 'startdepth', 'multiple', 'max', 'loading', 'startWeekOn'].includes(name)) {
+    if (['depth', 'mindepth', 'startdepth', 'multiple', 'max', 'loading', 'start-week-on'].includes(name)) {
       this.$panel.setAttribute(name, newValue)
     }
     this.render()
