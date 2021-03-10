@@ -209,6 +209,7 @@ bl-tag:focus {
   margin: 0 4px;
 }
 bl-tag {
+  height: calc(var(--height-base, ${__height_base}) - 4px);
   margin: 2px;
 }
 
@@ -216,8 +217,7 @@ bl-tag {
   min-height: var(--height-small, ${__height_small});
 }
 :host([size="small"]) bl-tag {
-  height: 20px;
-  margin: 2px;
+  height: calc(var(--height-small, ${__height_small}) - 4px);
 }
 
 :host([size="large"]) #layout {
@@ -227,8 +227,7 @@ bl-tag {
   margin: 3px;
 }
 :host([size="large"]) bl-tag {
-  height: 28px;
-  margin: 2px;
+  height: calc(var(--height-large, ${__height_large}) - 4px);
 }
 
 </style>`
