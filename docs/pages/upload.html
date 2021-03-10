@@ -59,6 +59,8 @@
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -71,14 +73,213 @@
         </thead>
         <tbody>
           <tr>
+            <td>accept</td>
+            <td>string</td>
             <td></td>
+            <td>接受的文件类型，同 input 的对应属性。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>action</td>
+            <td>string</td>
             <td></td>
+            <td>上传的请求地址。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>auto-upload</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否在选择文件后，自动上传。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>data</td>
+            <td>Object</td>
+            <td></td>
+            <td>请求时候，额外提交的字段数据。非 attr，作为 prop 接受 JS 对象。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>disabled</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否禁用。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>drag-drop</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否启用拖拽功能。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>headers</td>
+            <td>Object</td>
+            <td></td>
+            <td>请求时候，额外提交 header。非 attr，作为 prop 接受 JS 对象。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>iconMap</td>
+            <td>Object</td>
+            <td></td>
+            <td>
+              配置文件图标，key 为文件类型，如: 'image', 'pdf', 等等；
+              value 为 file 的 type 匹配正则，或者字符串，或这两者的数组。
+              如果是字符串，则使用 String.prototype.includes 作为检测逻辑。
+              检测通过后，会以名称为 'file-' + key 的已定义图标作为文件图标。
+              例如，{ image: 'pdf' } 检测 'application/pdf' 这个文件类型，结果将为 true，则 icon 的名称为 'file-pdf'。
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>list</td>
+            <td>Array</td>
+            <td></td>
+            <td>只读属性，获取当前选择的文件列表信息。数组每一项包含以下信息：
+<pre>
+{
+  file: File
+  progressValue: number
+  state: number
+  filename: string
+  type: string
+  abort?: () => void
+}
+</pre>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>multiple</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否允许多选文件。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>'file'</td>
+            <td>FormData 中，file input 的 name 属性。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>onAbort</td>
+            <td>(err, options) => void</td>
+            <td></td>
+            <td>上传取消时调用。options 包含上传时候的请求相关参数、选项。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>onError</td>
+            <td>(err, options) => void</td>
+            <td></td>
+            <td>上传错误时调用。options 包含上传时候的请求相关参数、选项。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>onProgress</td>
+            <td>(data, options) => void</td>
+            <td></td>
+            <td>上传 progress 处理函数。options 包含上传时候的请求相关参数、选项。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>onSuccess</td>
+            <td>(data, options) => void</td>
+            <td></td>
+            <td>上传成功时调用。options 包含上传时候的请求相关参数、选项。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>withCredentials</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否设置 XMLHttpRequest 对象的 withCredentials 属性为 true。</td>
             <td></td>
           </tr>
         </tbody>
       </table>
+
+      <h3>Methods</h3>
+      <table class="api-fns">
+        <thead>
+          <tr>
+            <th>函数名称</th>
+            <th>类型</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>upload</td>
+            <td>() => void</td>
+            <td>非 autoUpload 时，可调用该方法触发上传动作。</td>
+          </tr>
+          <tr>
+            <td>abortFile</td>
+            <td>(file: File) => void</td>
+            <td>abort 指定文件的上传。</td>
+          </tr>
+          <tr>
+            <td>abortAll</td>
+            <td>() => void</td>
+            <td>abort 所有正在进行的文件上传。</td>
+          </tr>
+          <tr>
+            <td>clearFiles</td>
+            <td>() => void</td>
+            <td>清空已选择的文件列表。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>abort</td>
+            <td>{ detail: { error, options } }</td>
+            <td>abort 文件上传时触发。</td>
+          </tr>
+          <tr>
+            <td>error</td>
+            <td>{ detail: { error, options } }</td>
+            <td>上传出错时触发。</td>
+          </tr>
+          <tr>
+            <td>list-change</td>
+            <td>{ detail: { list } }</td>
+            <td>文件列表发生变化时触发。</td>
+          </tr>
+          <tr>
+            <td>progress</td>
+            <td>{ detail: { data, options } }</td>
+            <td>文件上传过程触发。</td>
+          </tr>
+          <tr>
+            <td>success</td>
+            <td>{ detail: { data, options } }</td>
+            <td>文件上传成功时触发。</td>
+          </tr>
+          <tr>
+            <td>abort</td>
+            <td>{ detail: { error, options } }</td>
+            <td>abort 文件上传时触发。</td>
+          </tr>
+        </tbody>
+      </table>
+
 
     </section>
   </article>

@@ -1,39 +1,6 @@
-const normalizeError = (xhr, options) => {
-  let msg
-  if (xhr.response) {
-    msg = `${xhr.response.error || xhr.response}`
-  }
-  else if (xhr.responseText) {
-    msg = `${xhr.responseText}`
-  }
-  else {
-    msg = `fail to post ${options.url} ${xhr.status}`
-  }
-
-  const err = new Error(msg)
-  err.status = xhr.status
-  err.url = options.url
-
-  return err
-}
-
-const normalizeData = (xhr) => {
-  const text = xhr.responseText || xhr.response
-
-  if (!text) {
-    return text
-  }
-
-  try {
-    return JSON.parse(text)
-  } catch (e) {
-    return text
-  }
-}
 
 export function uploadRequest(options) {
   const xhr = new XMLHttpRequest()
-  const url = options.url
 
   if (options.withCredentials && 'withCredentials' in xhr) {
     xhr.withCredentials = true
@@ -69,8 +36,8 @@ export function uploadRequest(options) {
           loaded: event.loaded,
           target: event.target,
           total: event.total,
-          percent: event.lengthComputable ? event.loaded / event.total * 100 : 0
-        })
+          percent: event.lengthComputable ? event.loaded / event.total * 100 : 0,
+        }, options)
       }
     }
 
@@ -79,30 +46,30 @@ export function uploadRequest(options) {
       const err = new Error('abort')
       err.status = xhr.status
       err.url = options.url
-      if (options.abort) options.abort(err)
+      if (options.abort) options.abort(err, options)
     }
   }
 
   xhr.onerror = () => {
     if (options.error) {
-      options.error(normalizeError(xhr, options))
+      options.error(normalizeError(xhr, options), options)
     }
   }
 
   xhr.onload = function onload() {
     if (xhr.status < 200 || xhr.status >= 300) {
       if (options.error) {
-        options.error(normalizeError(xhr, options))
+        options.error(normalizeError(xhr, options), options)
       }
       return
     }
 
     if (options.success) {
-      options.success(normalizeData(xhr))
+      options.success(normalizeData(xhr), options)
     }
   }
 
-  xhr.open('post', url, true)
+  xhr.open('post', options.url, true)
 
   xhr.send(formData)
 
@@ -110,5 +77,38 @@ export function uploadRequest(options) {
     abort() {
       xhr.abort()
     }
+  }
+}
+
+function normalizeError(xhr, options) {
+  let msg
+  if (xhr.response) {
+    msg = `${xhr.response.error || xhr.response}`
+  }
+  else if (xhr.responseText) {
+    msg = `${xhr.responseText}`
+  }
+  else {
+    msg = `fail to post ${options.url} ${xhr.status}`
+  }
+
+  const err = new Error(msg)
+  err.status = xhr.status
+  err.url = options.url
+
+  return err
+}
+
+function normalizeData(xhr) {
+  const text = xhr.responseText || xhr.response
+
+  if (!text) {
+    return text
+  }
+
+  try {
+    return JSON.parse(text)
+  } catch (e) {
+    return text
   }
 }
