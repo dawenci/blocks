@@ -86,10 +86,10 @@ const TEMPLATE_CSS = `
   bottom: 0;
   left: 7px;
   margin: auto;
-  background-color: rgba(0,0,0,.1);
+  background-color: rgba(0,0,0,.05);
   border-radius: 2px;
   overflow: hidden;
-  transition: all .2s;
+  transition: all var(--transition-duration, ${__transition_duration});
 }
 :host([vertical]) #layout #track:after {
   width: 4px;
@@ -100,8 +100,12 @@ const TEMPLATE_CSS = `
   left: 0;
 }
 
+:host(:not([disabled]):hover) #layout #track:after {
+  background-color: rgba(0,0,0,.1);
+}
+
 /* 按钮 */
-#layout button {
+button {
   box-sizing: border-box;
   overflow: hidden;
   display: block;
@@ -110,34 +114,54 @@ const TEMPLATE_CSS = `
   right: auto;
   bottom: 0;
   left: 0;
-  z-index: 1;
+  z-index: 2;
   width: 14px;
   height: 14px;
   margin: auto;
   padding: 0;
   border-radius: 50%;
-  border: 2px solid var(--border-color-base, ${__border_color_base});
+  border: 2px solid var(--color-primary, ${__color_primary});
   background: #fff;
-  transition: border-color .2s;
+  transition: border-color var(--transition-duration, ${__transition_duration});
 }
-:host([vertical]) #layout button {
+:host([vertical]) button {
   top: auto;
   right: 0;
 }
 
-#layout button:hover,
-#layout button:focus,
-#layout button.active {
+/* range 控制点之间连线 */
+span {
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  overflow: hidden;
+  display: block;
+  width: 4px;
+  height: 4px;
+  background: var(--color-primary, ${__color_primary});
+}
+:host([vertical]) span {
+  top: auto;
+  left: 5px;
+}
+:host([disabled]) span {
+  display: none;
+}
+
+
+button:hover,
+button:focus,
+button.active {
   z-index: 2;
   border-color: var(--color-primary, ${__color_primary});
   outline: 0 none;
   box-shadow: 0 0 2px 2px ${makeRgbaColor(__color_primary, .5)};
 }
 
-:host([disabled]) #layout button,
-:host([disabled]) #layout button:hover,
-:host([disabled]) #layout button:focus,
-:host([disabled]) #layout button:active {
+:host([disabled]) button,
+:host([disabled]) button:hover,
+:host([disabled]) button:focus,
+:host([disabled]) button:active {
   border: 2px solid var(--border-color-base, ${__border_color_base});
   box-shadow: none;
 }
@@ -156,7 +180,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksSlider extends HTMLElement {
   static get observedAttributes() {
-    return ['value', 'max', 'min', 'step', 'range', 'vertical', 'disabled', 'size', 'round']
+    return ['disabled', 'max', 'min', 'range', 'size', 'step', 'round', 'value', 'vertical']
   }
 
   constructor() {
@@ -289,6 +313,23 @@ class BlocksSlider extends HTMLElement {
   _setPointPosition($point, value) {
     const axis = this.vertical ? 'bottom' : 'left'
     $point.style[axis] = `${value}px`
+
+    if (this.range) {
+      this._updateRangeLine()
+    }
+  }
+
+  _updateRangeLine() {
+    const p1 = this._getPointPosition(this.$point)
+    const p2 = this._getPointPosition(this.$point2)
+    if (this.vertical) {
+      this.$range.style.bottom = p1 + 'px'
+      this.$range.style.height = p2 - p1 + 'px'
+    }
+    else {
+      this.$range.style.left = p1 + 'px'
+      this.$range.style.width = p2 - p1 + 'px'
+    }
   }
 
   _getPointValue($point) {
@@ -298,24 +339,24 @@ class BlocksSlider extends HTMLElement {
     return round(value, this.round)
   }
 
-  _setPointValue($point, value) {
-    if (this._isValidNumber(value)) {
-      value = round(value, this.round)
-      if (this.range) {
-        const values = this.value.slice()
-        if ($point === this.$point) {
-          values[0] = value
-        }
-        else {
-          values[1] = value
-        }
-        this.value = values
-      }
-      else {
-        this.value = value
-      }
-    }
-  }
+  // _setPointValue($point, value) {
+  //   if (this._isValidNumber(value)) {
+  //     value = round(value, this.round)
+  //     if (this.range) {
+  //       const values = this.value.slice()
+  //       if ($point === this.$point) {
+  //         values[0] = value
+  //       }
+  //       else {
+  //         values[1] = value
+  //       }
+  //       this.value = values
+  //     }
+  //     else {
+  //       this.value = value
+  //     }
+  //   }
+  // }
 
   _setPointPositionByValue($point, value) {
     if (this._isValidNumber(value)) {
@@ -354,7 +395,9 @@ class BlocksSlider extends HTMLElement {
   render() {
     if (this.range) {
       this.$point2 = this.$point2 ?? document.createElement('button')
+      this.$range = this.$range ?? document.createElement('span')
       this.$track.appendChild(this.$point2)
+      this.$track.appendChild(this.$range)
     }
     else {
       if (this.$point2) {
@@ -375,6 +418,9 @@ class BlocksSlider extends HTMLElement {
 
     this.render()
     this._updatePositionByValue()
+    if (this.range) {
+      this._updateRangeLine()
+    }
 
     {
       this._dragging = false
@@ -490,6 +536,9 @@ class BlocksSlider extends HTMLElement {
     if (name === 'value') {
       if (!this._dragging) {
         this._updatePositionByValue()
+        if (this.range) {
+          this._updateRangeLine()
+        }
       }
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     }

@@ -62,10 +62,20 @@
 
       <div data-codesource="html">
         <bl-slider range id="range"></bl-slider>
+        <bl-slider range vertical id="range-vertical"></bl-slider>
         <bl-input id="range-value"></bl-input>
         <script>
-          document.getElementById('range').addEventListener('change', e => {
-            document.getElementById('range-value').value = e.detail.value
+          const range = document.getElementById('range')
+          const rangeVertical = document.getElementById('range-vertical')
+          const rangeValue = document.getElementById('range-value')
+
+          range.addEventListener('change', e => {
+            rangeVertical.value = e.detail.value
+            rangeValue.value = e.detail.value
+          })
+          rangeVertical.addEventListener('change', e => {
+            range.value = e.detail.value
+            rangeValue.value = e.detail.value
           })
         </script>
       </div>
@@ -84,8 +94,9 @@
 
     <section class="section">
       <h2>API</h2>
-      待编写
-      <table>
+      
+      <h3>Attrs / Props</h3>
+      <table class="api-props">
         <thead>
           <tr>
             <th>属性名</th>
@@ -97,14 +108,90 @@
         </thead>
         <tbody>
           <tr>
+            <td>disabled</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否禁用。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>max</td>
+            <td>number</td>
+            <td>100</td>
+            <td>value 最大取值。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>min</td>
+            <td>number</td>
+            <td>0</td>
+            <td>value 最小取值。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>range</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否区间模式。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>size</td>
             <td></td>
             <td></td>
+            <td>未实现，设置尺寸。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>step</td>
             <td></td>
             <td></td>
+            <td>未实现。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>round</td>
+            <td>number</td>
+            <td>2</td>
+            <td>数字舍入到的位数。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>value</td>
+            <td>number</td>
+            <td></td>
+            <td>model 值。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>vertical</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否垂直模式。</td>
             <td></td>
           </tr>
         </tbody>
       </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>change</td>
+            <td>{ detail: { value } }</td>
+            <td>value 变化时触发。</td>
+          </tr>
+        </tbody>
+      </table>
+
+
     </section>
   </article>
 </body>
