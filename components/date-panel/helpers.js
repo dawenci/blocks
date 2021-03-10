@@ -1,13 +1,5 @@
 import { Depth, DepthValue } from './data.js'
 
-export function range(start, end) {
-  const list = []
-  for (let i = start; i <= end; i += 1) {
-    list.push(i)
-  }
-  return list
-}
-
 export function getFirstDate(year, month) {
   return new Date(year, month, 1)
 }

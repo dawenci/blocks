@@ -6,8 +6,9 @@ import {
   __transition_duration,
 } from '../theme/var.js'
 
+import { range } from '../../common/utils.js'
 import { Depth } from './data.js'
-import { normalizeDepth, normalizeMinDepth, normalizeViewDepth, toggleClass, toggleAttr, range, getClosestDate, getFirstDate, getLastDate, getLastDateOfPrevMonth, getFirstDateOfNextMonth } from './helpers.js'
+import { normalizeDepth, normalizeMinDepth, normalizeViewDepth, toggleClass, toggleAttr, getClosestDate, getFirstDate, getLastDate, getLastDateOfPrevMonth, getFirstDateOfNextMonth } from './helpers.js'
 
 const TEMPLATE_CSS = `<style>
 @keyframes rotate360 {
@@ -23,8 +24,10 @@ const TEMPLATE_CSS = `<style>
   display: inline-block;
   box-sizing: border-box;
   user-select: none;
-  background-color: #fff;
   cursor: default;
+  width: 220px;
+  height: 248px;
+  background-color: #fff;
 }
 :host(:focus) {
   outline: 0 none;
