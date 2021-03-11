@@ -236,24 +236,10 @@ class BlocksColor extends HTMLElement {
 
   set hex(value) {
     const [r, g, b] = rgbFromHexColor(value)
-    const [h, s, v] = rgb2hsv(r, g, b)
-    this._hue = h
-    this._saturation = s
-    this._value = v
-    this._updateControls()
-    this._updateBg()
-  }
-
-  get hsv() {
-    return [this._hue, this._saturation, this._value]
-  }
-
-  set hsv([h, s, v]) {
-    this._hue = h
-    this._saturation = s
-    this._value = v
-    this._updateControls()
-    this._updateBg()
+    const [h, s, v] = rgb2hsv(r, g, b)    
+    if (this._setStates(h, s, v, this._alpha)) {
+      this.render()
+    }
   }
 
   get hsl() {
@@ -262,11 +248,9 @@ class BlocksColor extends HTMLElement {
 
   set hsl([hl, sl, l]) {
     const [hv, sv, v] = hsl2hsv(hl, sl, l)
-    this._hue = hv
-    this._saturation = sv
-    this._value = v
-    this._updateControls()
-    this._updateBg()
+    if (this._setStates(hv, sv, v, this._alpha)) {
+      this.render()
+    }
   }
 
   get hsla() {
@@ -275,25 +259,30 @@ class BlocksColor extends HTMLElement {
 
   set hsla([hl, sl, l, a]) {
     const [hv, sv, v] = hsl2hsv(hl, sl, l)
-    this._hue = hv
-    this._saturation = sv
-    this._value = v
-    this._alpha = a
-    this._updateControls()
-    this._updateBg()
+    if (this._setStates(hv, sv, v, a)) {
+      this.render()
+    }
   }
 
+  get hsv() {
+    return [this._hue, this._saturation, this._value]
+  }
+
+  set hsv([h, s, v]) {
+    if (this._setStates(h, s, v, this._alpha)) {
+      this.render()
+    }
+  }
+  
   get rgb() {
     return hsv2rgb(...this.hsv)
   }
 
   set rgb([r, g, b]) {
     const [h, s, v] = rgb2hsv(r, g, b)
-    this._hue = h
-    this._saturation = s
-    this._value = v
-    this._updateControls()
-    this._updateBg()
+    if (this._setStates(h, s, v, this._alpha)) {
+      this.render()
+    }
   }
 
   get rgba() {
@@ -302,23 +291,21 @@ class BlocksColor extends HTMLElement {
 
   set rgba([r, g, b, a]) {
     const [h, s, v] = rgb2hsv(r, g, b)
-    this._hue = h
-    this._saturation = s
-    this._value = v
-    this._alpha = a
+    if (this._setStates(h, s, v, a)) {
+      this.render()
+    }
+  }
+
+  render() {
     this._updateControls()
     this._updateBg()
   }
-
-  render() {}
 
   connectedCallback() {
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
     this.render()
-    this._updateControls()
-    this._updateState()
   }
 
   disconnectedCallback() {}
@@ -348,13 +335,16 @@ class BlocksColor extends HTMLElement {
 
       $button.style.left = x + 'px'
       $button.style.top = y + 'px'
-      this._updateState()
-      this._updateBg()
+
+      if (this._updateState()) {
+        this._updateBg()
+      }
     }
 
     const onup = (e) => {
-      this._updateState()
-      this._updateBg()
+      if (this._updateState()) {
+        this._updateBg()
+      }
       window.removeEventListener('mousemove', onmove)
       window.removeEventListener('mouseup', onup)
       positionStart = null
@@ -388,14 +378,28 @@ class BlocksColor extends HTMLElement {
 
       $button.style.left = x + 'px'
       $button.style.top = y + 'px'
-      this._updateState()
-      this._updateBg()
+      if (this._updateState()) {
+        this._updateBg()
+      }
     }
 
     this.$hueBar.onmousedown = ondown
     this.$alphaBar.onmousedown = ondown
     this.$hsv.onmousedown = ondown
   }
+
+  _setStates(hue, saturation, value, alpha) {
+    let changed = this._hue !== hue || this._saturation !== saturation || this._value !== value || this._alpha !== alpha
+    this._hue = hue
+    this._saturation = saturation
+    this._value = value
+    this._alpha = alpha
+
+    if (changed) {
+      dispatchEvent(this, 'change')
+    }
+    return changed
+  }  
 
   _updateControls() {
     // 透明度
@@ -419,18 +423,20 @@ class BlocksColor extends HTMLElement {
     // 透明度
     const alphaBarWidth = this.$alphaBar.clientWidth - 12
     const alphaX = parseInt(getComputedStyle(this.$alphaButton).left, 10) || 0
-    this._alpha = alphaX / alphaBarWidth
+    const alpha = alphaX / alphaBarWidth
     // 色相
     const hueBarWidth = this.$hueBar.clientWidth - 12
     const hueX = parseInt(getComputedStyle(this.$hueButton).left, 10) || 0
-    this._hue = Math.floor(360 * (hueX / hueBarWidth))
+    const hue = Math.floor(360 * (hueX / hueBarWidth))
     // HSV
     const width = this.$hsv.clientWidth - 12
     const height = this.$hsv.clientHeight - 12
     const x = parseInt(getComputedStyle(this.$hsvButton).left, 10) || 0
     const y = parseInt(getComputedStyle(this.$hsvButton).top, 10) || 0
-    this._saturation = Math.floor(100 * (x / width)) / 100
-    this._value = 1 - Math.floor(100 * (y / height)) / 100
+    const saturation = Math.floor(100 * (x / width)) / 100
+    const value = 1 - Math.floor(100 * (y / height)) / 100
+
+    return this._setStates(hue, saturation, value, alpha)
   }
 
   _updateBg() {
@@ -439,7 +445,6 @@ class BlocksColor extends HTMLElement {
     this.$alphaBarBg.style.backgroundImage = `linear-gradient(to right, transparent, ${bg})`
     const resultBg = this.hsla
     this.$resultBg.style.backgroundColor = `hsla(${resultBg[0]},${resultBg[1] * 100}%,${resultBg[2] * 100}%,${resultBg[3]})`
-    dispatchEvent(this, 'change')
   }
 }
 

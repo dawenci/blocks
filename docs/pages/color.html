@@ -19,6 +19,7 @@
 
     <section class="section">
       <h2>依赖引入</h2>
+      <script type="module" src="../../components/input/index.js"></script>
 
       <p>根据自己项目调整 src 的路径</p>
 
@@ -30,13 +31,46 @@
     <section class="section">
       <h2>默认使用</h2>
 
-      <template data-codesource="html">
-        <bl-color></bl-color>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <div style="padding:30px 10px;">
+            <div>
+              HEX: &nbsp;&nbsp;<span id="hex"></span>
+            </div>
+            <div>
+              HSV: &nbsp;&nbsp;<span id="hsv"></span>
+            </div>
+            <div>
+              RGBA: <span id="rgba"></span>
+            </div>
+            <div>
+              HSLA: <span id="hsla"></span>
+            </div>
+          </div>
+
+          <bl-color id="color"></bl-color>
+        </template>
+
+        <template data-codesource="script">
+          <script >
+            const $color = document.getElementById('color')
+            const render = () => {
+              document.getElementById('hex').innerText = $color.hex
+              document.getElementById('hsv').innerText = $color.hsv
+              document.getElementById('rgba').innerText = $color.rgba
+              document.getElementById('hsla').innerText = $color.hsla
+            }
+            $color.onchange = render
+            render()
+          </script>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -49,11 +83,64 @@
         </thead>
         <tbody>
           <tr>
+            <td>hex</td>
+            <td>string</td>
             <td></td>
+            <td>prop，获取、设置十六进制颜色值。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>hsl</td>
+            <td>[number, number, number]</td>
             <td></td>
+            <td>prop，获取、设置 hsl 颜色。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>hsla</td>
+            <td>[number, number, number, number]</td>
             <td></td>
+            <td>prop，获取、设置 hsla 颜色。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>hsv</td>
+            <td>[number, number, number]</td>
+            <td></td>
+            <td>prop，获取、设置 hsv 颜色。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>rgb</td>
+            <td>[number, number, number]</td>
+            <td></td>
+            <td>prop，获取、设置 rgb 颜色。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>rgba</td>
+            <td>[number, number, number, number]</td>
+            <td></td>
+            <td>prop，获取、设置 rgba 颜色。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>change</td>
+            <td></td>
+            <td>颜色变化时触发。</td>
           </tr>
         </tbody>
       </table>
