@@ -1,6 +1,5 @@
 import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
 import { checkedGetter, checkedSetter, disabledGetter, disabledSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import {
   __font_family,
@@ -95,6 +94,19 @@ const TEMPLATE_CSS = `
 }
 :host([size="small"][checked]) #switch:after {
   left: calc(100% - 13px);
+}
+
+:host([size="large"]) #switch {
+  width: 48px;
+  height: 24px;
+  border-radius: 12px;
+}
+:host([size="large"]) #switch:after {
+  width: 20px;
+  height: 20px;
+}
+:host([size="large"][checked]) #switch:after {
+  left: calc(100% - 22px);
 }
 </style>
 `

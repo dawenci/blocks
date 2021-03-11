@@ -31,72 +31,142 @@
       <h2>默认</h2>
 
       <template data-codesource="html">
+        <bl-select-result id="default"></bl-select-result>
+      </template>
+      <template data-codesource="script">
+        <script>
+          document.getElementById('default').value = { label: 'label', value: 'value' }
+        </script>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>可清除</h2>
+
+      <template data-codesource="html">
+        <bl-select-result clearable id="clearable"></bl-select-result>
+      </template>
+      <template data-codesource="script">
+        <script>
+          document.getElementById('clearable').value = { label: 'label', value: 'value' }
+        </script>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>多结果</h2>
+
+      <template data-codesource="html">
+        <bl-select-result multiple id="multiple"></bl-select-result>
+      </template>
+      <template data-codesource="script">
+        <script>
+          document.getElementById('multiple').value = [{ label: 'label', value: 'value' }, { label: 'label2', value: 'value2' }]
+        </script>
+      </template>
+
+      <h3>Tag 模式</h3>
+      <template data-codesource="html">
+        <bl-select-result
+          multiple
+          multiple-mode="tag"
+          id="tag"></bl-select-result>
+      </template>
+      <template data-codesource="script">
+        <script>
+          document.getElementById('tag').value = [{ label: 'label', value: 'value' }, { label: 'label2', value: 'value2' }]
+        </script>
+      </template>
+
+      <h3>Tag 可关闭</h3>
+      <template data-codesource="html">
         <bl-select-result
           multiple
           multiple-mode="tag"
           tag-clearable
-          searchable
-          clearable
-          class="select-result1">
-        </bl-select-result>
+          id="tag-clearable"></bl-select-result>
+      </template>
+      <template data-codesource="script">
+        <script>
+          document.getElementById('tag-clearable').value = [{ label: 'label', value: 'value' }, { label: 'label2', value: 'value2' }]
+        </script>
+      </template>
+    </section>
 
+    <section class="section">
+      <h2>搜索</h2>
+
+      <template data-codesource="html">
+        <bl-select-result
+          searchable
+          id="searchable1">
+        </bl-select-result>
+        <bl-select-result
+          searchable
+          multiple
+          multiple-mode="tag"
+          id="searchable2">
+        </bl-select-result>
+      </template>
+      <template data-codesource="script">
+        <script>
+          document.getElementById('searchable1').value = { label: 'label', value: 'value' }
+          document.getElementById('searchable2').value = [{ label: 'label', value: 'value' }]
+        </script>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>尺寸</h2>
+
+      <template data-codesource="html">
+        <bl-select-result size="small" id="small"></bl-select-result>
+        <bl-select-result size="large" id="large"></bl-select-result>
         <bl-select-result
           size="small"
           multiple
           multiple-mode="tag"
-          tag-clearable
-          searchable
-          clearable
-          class="select-result2">
+          id="small2">
         </bl-select-result>
-
         <bl-select-result
           size="large"
+          multiple
+          multiple-mode="tag"
+          id="large2">
+        </bl-select-result>
+      </template>
+      <template data-codesource="script">
+        <script>
+          document.getElementById('small').value = { label: 'AAA', value: 'AAA' }
+          document.getElementById('large').value = { label: 'AAA', value: 'AAA' }
+          document.getElementById('small2').value = [{ label: 'AAA', value: 'AAA' }, { label: 'BBB', value: 'BBB' }]
+          document.getElementById('large2').value = [{ label: 'AAA', value: 'AAA' }, { label: 'BBB', value: 'BBB' }]
+        </script>
+      </template>
+    </section>
+
+    <section class="section">
+      <h2>icon</h2>
+
+      <template data-codesource="html">
+        <bl-select-result
           multiple
           multiple-mode="tag"
           tag-clearable
           searchable
           clearable
-          class="select-result3">
-        </bl-select-result>
-
-        <bl-select-result
-          multiple
-          multiple-mode="plain"
-          tag-clearable
-          searchable
-          clearable
-          class="select-result4">
-        </bl-select-result>
-
-        <bl-select-result
-          multiple
-          multiple-mode="plain"
-          tag-clearable
-          searchable
-          clearable
-          prefix-icon="date"
           suffix-icon="date"
-          class="select-result5">
+          prefix-icon="time">
         </bl-select-result>
-      </template>
-
-      <template data-codesource="script">
-        const result1 = document.querySelector('.select-result1')
-        const result2 = document.querySelector('.select-result2')
-        const result3 = document.querySelector('.select-result3')
-        const result4 = document.querySelector('.select-result4')
-        const result5 = document.querySelector('.select-result5')
-        const value = [{ label: 'AAA', value: 'AAA' }, { label: 'BBB', value: 'BBB' }]
-        result1.value = result2.value = result3.value = result4.value = result5.value = value
       </template>
     </section>
 
 
     <section class="section">
       <h2>API</h2>
-      待编写
-      <table>
+
+      <h3>Attrs / Props</h3>
+      <table class="api-props">
         <thead>
           <tr>
             <th>属性名</th>
@@ -108,11 +178,93 @@
         </thead>
         <tbody>
           <tr>
+            <td>clearable</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否可以清除。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>multiple</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否多结果模式。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>multiple-mode</td>
+            <td>'plain' | 'tag'</td>
+            <td>'plain'</td>
+            <td>多结果显示模式。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>prefix-icon</td>
+            <td>string</td>
             <td></td>
+            <td>前缀图标。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>searchable</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否可以搜索。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>size</td>
+            <td>'small' | 'large'</td>
+            <td></td>
+            <td>尺寸。默认不设置为中等尺寸。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>suffix-icon</td>
+            <td>string</td>
+            <td></td>
+            <td>后缀图标。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>tag-clearable</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>结果 tag 是否渲染关闭按钮。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>search</td>
+            <td></td>
+            <td>搜索框录入时触发。</td>
+          </tr>
+          <tr>
+            <td>click-prefix-icon</td>
+            <td></td>
+            <td>点击前缀图标时触发。</td>
+          </tr>
+          <tr>
+            <td>click-suffix-icon</td>
+            <td></td>
+            <td>点击后缀图标时触发。</td>
+          </tr>
+          <tr>
+            <td>click-clear</td>
+            <td></td>
+            <td>点击清除按钮时触发。</td>
           </tr>
         </tbody>
       </table>

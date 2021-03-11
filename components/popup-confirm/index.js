@@ -171,7 +171,7 @@ export default class BlocksPopupConfirm extends HTMLElement {
     }
   }
 
-  renderMessage() {
+  render() {
     this.$message.innerHTML = ''
     this.renderIcon()
     const $content = document.createElement('div')
@@ -179,15 +179,11 @@ export default class BlocksPopupConfirm extends HTMLElement {
     this.$message.appendChild($content)
   }
 
-  render() {
-  }
-
   connectedCallback() {
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
     document.body.appendChild(this.$popup)
-    this.renderMessage()
     this.render()
   }
 
@@ -202,7 +198,7 @@ export default class BlocksPopupConfirm extends HTMLElement {
       this.$popup.setAttribute(attrName, newValue)
     }
     if (attrName === 'message') {
-      this.renderMessage()
+      this.render()
     }
   }
 }

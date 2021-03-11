@@ -23,6 +23,7 @@ const TEMPLATE_CSS = `<style>
   display: inline-block;
   user-select: none;
   cursor: default;
+  width: 200px;
 }
 
 #layout {
@@ -209,7 +210,7 @@ bl-tag:focus {
   margin: 0 4px;
 }
 bl-tag {
-  height: calc(var(--height-base, ${__height_base}) - 4px);
+  height: calc(var(--height-base, ${__height_base}) - 8px);
   margin: 2px;
 }
 
@@ -217,7 +218,7 @@ bl-tag {
   min-height: var(--height-small, ${__height_small});
 }
 :host([size="small"]) bl-tag {
-  height: calc(var(--height-small, ${__height_small}) - 4px);
+  height: calc(var(--height-small, ${__height_small}) - 8px);
 }
 
 :host([size="large"]) #layout {
@@ -227,7 +228,7 @@ bl-tag {
   margin: 3px;
 }
 :host([size="large"]) bl-tag {
-  height: calc(var(--height-large, ${__height_large}) - 4px);
+  height: calc(var(--height-large, ${__height_large}) - 12px);
 }
 
 </style>`
@@ -243,7 +244,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksSelectResult extends HTMLElement {
   static get observedAttributes() {
-    return ['size', 'multiple', 'multiple-mode', 'tag-clearable', 'clearable', 'searchable', 'prefix-icon', 'suffix-icon']
+    return ['clearable', 'multiple', 'multiple-mode', 'prefix-icon', 'searchable', 'size', 'suffix-icon', 'tag-clearable']
   }
 
   constructor() {
@@ -416,13 +417,12 @@ class BlocksSelectResult extends HTMLElement {
       const label = this.formatMethod(item)
       const value = item.value
       const $tag = document.createElement('bl-tag')
-      $tag.setAttribute('size', 'mini')
       $tag.setAttribute('tabindex', '-1')
       $tag.textContent = label
       $tag.value = value
 
       if (this.tagClearable) {
-        $tag.setAttribute('closable', '')
+        $tag.closeable = true
       }
 
       this.$value.appendChild($tag)

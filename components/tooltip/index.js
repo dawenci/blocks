@@ -14,7 +14,6 @@ import {
   __transition_duration
 } from '../theme/var.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
-import { dispatchEvent } from '../../common/event.js'
 
 const template = document.createElement('template')
 template.innerHTML = `

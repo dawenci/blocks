@@ -42,6 +42,10 @@
       <template data-codesource="html">
         <bl-switch size="small"></bl-switch>
         <bl-switch size="small" checked></bl-switch>
+        <bl-switch></bl-switch>
+        <bl-switch checked></bl-switch>
+        <bl-switch size="large"></bl-switch>
+        <bl-switch size="large" checked></bl-switch>
       </template>
     </section>
 
@@ -57,8 +61,9 @@
 
     <section class="section">
       <h2>API</h2>
-      待编写
-      <table>
+
+      <h3>Attrs / Props</h3>
+      <table class="api-props">
         <thead>
           <tr>
             <th>属性名</th>
@@ -70,10 +75,24 @@
         </thead>
         <tbody>
           <tr>
+            <td>checked</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>开关是否打开。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>disabled</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否禁用。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>size</td>
+            <td>'small' | 'large'</td>
             <td></td>
-            <td></td>
+            <td>尺寸。默认不设置为中等尺寸。</td>
             <td></td>
           </tr>
         </tbody>

@@ -385,7 +385,6 @@ export default class BlocksPopup extends HTMLElement {
     insetSetter(this, value)
   }
 
-  // 吸附到的元素 selector，设置了该属性且对应的元素存在，则忽略 x、y 属性
   get anchor() {
     if (this._anchor) {
       return this._anchor() ?? null

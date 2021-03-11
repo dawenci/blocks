@@ -186,23 +186,6 @@ class BlocksDatePicker extends HTMLElement {
     this.render()
   }
 
-  _focus() {
-    if (this.restorefocus && !this._prevFocus) {
-      this._prevFocus = document.activeElement
-    }
-    this.$popup.focus()
-  }
-
-  _blur() {
-    this.$popup.blur()
-    if (this._prevFocus) {
-      if (this.restorefocus && typeof this._prevFocus.focus) {
-        this._prevFocus.focus()
-      }
-      this._prevFocus = undefined
-    }
-  }
-
   _initClickOutside() {
     if (!this._clearClickOutside) {
       this._clearClickOutside = onClickOutside([this, this.$panel], () => {
