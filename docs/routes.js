@@ -10,6 +10,7 @@ export default [
   { category: 'components', title: 'calc', url: 'pages/calc.html' },
   { category: 'components', title: 'checkbox', url: 'pages/checkbox.html' },
   { category: 'components', title: 'color', url: 'pages/color.html' },
+  { category: 'components', title: 'color-picker', url: 'pages/color-picker.html' },
   { category: 'components', title: 'context-menu', url: 'pages/context-menu.html' },
   { category: 'components', title: 'countdown', url: 'pages/countdown.html' },
   { category: 'components', title: 'date', url: 'pages/date.html' },
