@@ -1,5 +1,7 @@
+import { dispatchEvent } from '../../common/event.js'
 import { intRangeGetter, intRangeSetter, numGetter, numRangeGetter, numRangeSetter, numSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
+import { padLeft, rgbFromHexColor } from '../../common/utils.js'
 import {
   __radius_base,
   __color_primary,
@@ -8,6 +10,7 @@ import {
   __height_base,
   __height_small,
   __height_large,
+  __border_color_base,
 } from '../theme/var.js'
 
 
@@ -18,29 +21,26 @@ const TEMPLATE_CSS = `<style>
   user-select: none;
   cursor: default;
   background-color: #fff;
+  width: 234px;
+  height: 234px;
 }
 :host(:focus) {
   outline: 0 none;
 }
-
+#layout {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  height: 100%;
+}
 #hsv {
+  flex: 1 1 100%;
   position: relative;
   box-sizing: border-box;
   position: relative;
-  width: 360px;
-  height: 200px;
+  width: 100%;
 }
-#hsv:before {
-  content: '';
-  display: block;
-  position: absolute;
-  z-index: 0;
-  top: 6px;
-  right: 6px;
-  bottom: 6px;
-  left: 6px;
-  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==) repeat;
-}
+
 #hsv .hue,
 #hsv .saturation,
 #hsv .value {
@@ -60,27 +60,58 @@ const TEMPLATE_CSS = `<style>
   background: linear-gradient(to top, #000, transparent);
 }
 
-#hue-bar,
-#alpha-bar {
-  box-sizing: border-box;
-  margin-top: 10px;
-  position: relative;
-  width: 360px;
-  height: 12px;
+#body {
+  flex: 0 0 auto;
+  display: flex;
+  flex-flow: row nowrap;
 }
-#hue-bar:before,
+
+#result:before,
 #alpha-bar:before {
   content: '';
   display: block;
   position: absolute;
   z-index: 0;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==) repeat;
+}
+#result {
+  position: relative;
+  flex: 0 0 50px;
+  padding: 6px;
+}
+#result .bg {
+  box-sizing: border-box;
+  position: relative;
+  height: 100%;
+  border: 1px solid var(--border-color-base, ${__border_color_base});
+  background: hsl(0, 100%, 50%);
+}
+#result:before {
+  top: 6px;
+  right: 6px;
+  bottom: 6px;
+  left: 6px;
+}
+#controls {
+  flex: 1 1 auto;
+}
+#controls > div {
+  margin: 6px 0;
+}
+#hue-bar,
+#alpha-bar {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  height: 12px;
+}
+#alpha-bar:before {
   top: 0;
   right: 6px;
   bottom: 0;
   left: 6px;
-  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==) repeat;
+  border-radius: 6px;
 }
-
 #hue-bar .bg,
 #alpha-bar .bg {
   position: absolute;
@@ -88,6 +119,7 @@ const TEMPLATE_CSS = `<style>
   right: 6px;
   bottom: 0;
   left: 6px;
+  border-radius: 6px;
 }
 
 #hue-bar .bg {
@@ -95,7 +127,7 @@ const TEMPLATE_CSS = `<style>
   background: linear-gradient(to right,hsl(0,100%,50%),hsl(60,100%,50%),hsl(120,100%,50%),hsl(180,100%,50%),hsl(240,100%,50%),hsl(300,100%,50%),hsl(360,100%,50%));
 }
 #alpha-bar .bg {
-  background: linear-gradient(to left, transparent, hsl(0,100%,50%));
+  background: linear-gradient(to right, transparent, hsl(0,100%,50%));
 }
 
 #hsv button,
@@ -126,7 +158,6 @@ const TEMPLATE_CSS = `<style>
   top: 0;
 }
 
-#result {}
 </style>`
 
 // 内部使用 hsv 表示
@@ -143,18 +174,21 @@ const TEMPLATE_HTML = `
     <div class="value"></div>
     <button></button>
   </div>
-
-  <div id="hue-bar">
-    <div class="bg"></div>
-    <button></button>
+  <div id="body">
+    <div id="result">
+      <div class="bg"></div>
+    </div>
+    <div id="controls">
+      <div id="hue-bar">
+        <div class="bg"></div>
+        <button></button>
+      </div>
+      <div id="alpha-bar">
+        <div class="bg"></div>
+        <button></button>
+      </div>    
+    </div>
   </div>
-
-  <div id="alpha-bar">
-    <div class="bg"></div>
-    <button></button>
-  </div>
-
-  <div id="result"></div>
 </div>
 `
 
@@ -172,6 +206,7 @@ class BlocksColor extends HTMLElement {
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$hsv = shadowRoot.getElementById('hsv')
+    this.$result = shadowRoot.getElementById('result')
     this.$hueBar = shadowRoot.getElementById('hue-bar')
     this.$alphaBar = shadowRoot.getElementById('alpha-bar')
     this.$hsvHue = this.$hsv.querySelector('.hue')
@@ -179,6 +214,7 @@ class BlocksColor extends HTMLElement {
     this.$hueButton = this.$hueBar.querySelector('button')
     this.$alphaButton = this.$alphaBar.querySelector('button')
     this.$alphaBarBg = this.$alphaBar.querySelector('.bg')
+    this.$resultBg = this.$result.querySelector('.bg')
 
     // 色相
     this._hue = 0
@@ -193,24 +229,85 @@ class BlocksColor extends HTMLElement {
     this._initEvents()
   }
 
+  get hex() {
+    const [r, g, b] = this.rgb
+    return `#${padLeft('0', 2, r.toString(16))}${padLeft('0', 2, g.toString(16))}${padLeft('0', 2, b.toString(16))}`
+  }
+
+  set hex(value) {
+    const [r, g, b] = rgbFromHexColor(value)
+    const [h, s, v] = rgb2hsv(r, g, b)
+    this._hue = h
+    this._saturation = s
+    this._value = v
+    this._updateControls()
+    this._updateBg()
+  }
+
   get hsv() {
     return [this._hue, this._saturation, this._value]
+  }
+
+  set hsv([h, s, v]) {
+    this._hue = h
+    this._saturation = s
+    this._value = v
+    this._updateControls()
+    this._updateBg()
   }
 
   get hsl() {
     return hsv2hsl(...this.hsv)
   }
 
+  set hsl([hl, sl, l]) {
+    const [hv, sv, v] = hsl2hsv(hl, sl, l)
+    this._hue = hv
+    this._saturation = sv
+    this._value = v
+    this._updateControls()
+    this._updateBg()
+  }
+
   get hsla() {
     return this.hsl.concat(this._alpha)
+  }
+
+  set hsla([hl, sl, l, a]) {
+    const [hv, sv, v] = hsl2hsv(hl, sl, l)
+    this._hue = hv
+    this._saturation = sv
+    this._value = v
+    this._alpha = a
+    this._updateControls()
+    this._updateBg()
   }
 
   get rgb() {
     return hsv2rgb(...this.hsv)
   }
 
+  set rgb([r, g, b]) {
+    const [h, s, v] = rgb2hsv(r, g, b)
+    this._hue = h
+    this._saturation = s
+    this._value = v
+    this._updateControls()
+    this._updateBg()
+  }
+
   get rgba() {
     return this.rgb.concat(this._alpha)
+  }
+
+  set rgba([r, g, b, a]) {
+    const [h, s, v] = rgb2hsv(r, g, b)
+    this._hue = h
+    this._saturation = s
+    this._value = v
+    this._alpha = a
+    this._updateControls()
+    this._updateBg()
   }
 
   render() {}
@@ -220,6 +317,8 @@ class BlocksColor extends HTMLElement {
       upgradeProperty(this, attr)
     })
     this.render()
+    this._updateControls()
+    this._updateState()
   }
 
   disconnectedCallback() {}
@@ -249,11 +348,13 @@ class BlocksColor extends HTMLElement {
 
       $button.style.left = x + 'px'
       $button.style.top = y + 'px'
-      this._updateValue()
+      this._updateState()
+      this._updateBg()
     }
 
     const onup = (e) => {
-      this._updateValue()
+      this._updateState()
+      this._updateBg()
       window.removeEventListener('mousemove', onmove)
       window.removeEventListener('mouseup', onup)
       positionStart = null
@@ -287,7 +388,8 @@ class BlocksColor extends HTMLElement {
 
       $button.style.left = x + 'px'
       $button.style.top = y + 'px'
-      this._updateValue()
+      this._updateState()
+      this._updateBg()
     }
 
     this.$hueBar.onmousedown = ondown
@@ -295,11 +397,29 @@ class BlocksColor extends HTMLElement {
     this.$hsv.onmousedown = ondown
   }
 
-  _updateValue() {
+  _updateControls() {
+    // 透明度
+    const alphaBarWidth = this.$alphaBar.clientWidth - 12
+    const alphaX = this._alpha * alphaBarWidth
+    this.$alphaButton.style.left = alphaX + 'px'
+    // 色相
+    const hueBarWidth = this.$hueBar.clientWidth - 12
+    const hueX = this._hue / 360 * hueBarWidth
+    this.$hueButton.style.left = hueX + 'px'
+    // HSV
+    const width = this.$hsv.clientWidth - 12
+    const height = this.$hsv.clientHeight - 12
+    const x = this._saturation * width
+    const y = height - this._value * height
+    this.$hsvButton.style.top = y + 'px'
+    this.$hsvButton.style.left = x + 'px'
+  }
+
+  _updateState() {
     // 透明度
     const alphaBarWidth = this.$alphaBar.clientWidth - 12
     const alphaX = parseInt(getComputedStyle(this.$alphaButton).left, 10) || 0
-    this._alpha = 1 - (alphaX / alphaBarWidth)
+    this._alpha = alphaX / alphaBarWidth
     // 色相
     const hueBarWidth = this.$hueBar.clientWidth - 12
     const hueX = parseInt(getComputedStyle(this.$hueButton).left, 10) || 0
@@ -311,10 +431,15 @@ class BlocksColor extends HTMLElement {
     const y = parseInt(getComputedStyle(this.$hsvButton).top, 10) || 0
     this._saturation = Math.floor(100 * (x / width)) / 100
     this._value = 1 - Math.floor(100 * (y / height)) / 100
+  }
 
+  _updateBg() {
     const bg = `hsl(${this._hue}, 100%, 50%)`
     this.$hsvHue.style.backgroundColor = bg
-    this.$alphaBarBg.style.backgroundImage = `linear-gradient(to left, transparent, ${bg})`
+    this.$alphaBarBg.style.backgroundImage = `linear-gradient(to right, transparent, ${bg})`
+    const resultBg = this.hsla
+    this.$resultBg.style.backgroundColor = `hsla(${resultBg[0]},${resultBg[1] * 100}%,${resultBg[2] * 100}%,${resultBg[3]})`
+    dispatchEvent(this, 'change')
   }
 }
 
@@ -389,7 +514,6 @@ function rgb2hsv(r, g, b) {
 
   return [h, s, v]
 }
-
 
 /**
  * 
