@@ -147,7 +147,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksTimePanel extends HTMLElement {
+class BlocksTime extends HTMLElement {
   static get observedAttributes() {
     return ['hour', 'minute', 'second', 'size']
   }
@@ -265,6 +265,6 @@ class BlocksTimePanel extends HTMLElement {
   }
 }
 
-if (!customElements.get('bl-time-panel')) {
-  customElements.define('bl-time-panel', BlocksTimePanel)
+if (!customElements.get('bl-time')) {
+  customElements.define('bl-time', BlocksTime)
 }

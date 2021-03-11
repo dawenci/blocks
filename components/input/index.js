@@ -12,7 +12,7 @@ import {
 
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import '../popup/index.js'
-import '../date-panel/index.js'
+import '../date/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setDisabled, setRole } from '../../common/accessibility.js'
 import { clearableGetter, clearableSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'

@@ -1,6 +1,6 @@
 import '../popup/index.js'
 import '../input/index.js'
-import '../time-panel/index.js'
+import '../time/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { __height_base } from '../theme/var.js'
@@ -31,7 +31,7 @@ const TEMPLATE_HTML_INPUT = `<bl-input suffix-icon="time" id="result" readonly /
 
 const TEMPLATE_HTML_POPUP = `
 <bl-popup append-to-body class="time-picker-popup" origin="top-start" arrow autoflip>
-  <bl-time-panel class="time-picker-panel"></bl-time-panel>
+  <bl-time class="time-picker-panel"></bl-time>
   <div id="action" style="padding:5px;text-align:center;">
     <bl-button block type="primary" size="small">确定</bl-button>
   </div>
@@ -69,7 +69,7 @@ class BlocksTimePicker extends HTMLElement {
 
     // 面板部分
     this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup')
-    this.$panel = this.$popup.querySelector('bl-time-panel')
+    this.$panel = this.$popup.querySelector('bl-time')
     this.$popup.setAttribute('anchor', `#${this.id}`)
 
     this.$input.onfocus = this.$input.onclick = (e) => {

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>date</title>
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -14,7 +14,7 @@
 <body>
   <article>
     <header>
-      <h1>date-panel</h1>
+      <h1>date</h1>
     </header>
 
     <section class="section">
@@ -23,7 +23,7 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/date-panel/index.js"></script>
+        <script type="module" src="../../components/date/index.js"></script>
       </div>
     </section>
 
@@ -33,7 +33,7 @@
       <div class="case">
         <template data-codesource="html">
           <div style="padding: 50px 0; text-align:center;">
-            <bl-date-panel></bl-date-panel>
+            <bl-date></bl-date>
           </div>
         </template>
       </div>
@@ -48,7 +48,7 @@
       <div class="case">
         <template data-codesource="html">
           <div style="padding: 50px 0; text-align:center;">
-            <bl-date-panel mode="multiple" max="3"></bl-date-panel>
+            <bl-date mode="multiple" max="3"></bl-date>
           </div>
         </template>
       </div>
@@ -63,7 +63,7 @@
       <div class="case">
         <template data-codesource="html">
           <div style="padding: 50px 0; text-align:center;">
-            <bl-date-panel mode="range"></bl-date-panel>
+            <bl-date mode="range"></bl-date>
           </div>
         </template>
       </div>
@@ -79,9 +79,9 @@
       <div class="case">
         <template data-codesource="html">
           <div style="padding: 50px 0; text-align:center;">
-            <bl-date-panel depth="month" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date-panel>
-            <bl-date-panel depth="year" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date-panel>
-            <bl-date-panel depth="decade" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date-panel>
+            <bl-date depth="month" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+            <bl-date depth="year" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+            <bl-date depth="decade" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
           </div>
         </template>
       </div>
@@ -103,7 +103,7 @@
           <bl-button onclick="document.getElementById('startWeekOn').startWeekOn = 6">六</bl-button>
           
           <div style="padding: 50px 0; text-align:center;">
-            <bl-date-panel id="startWeekOn" start-week-on="0"></bl-date-panel>
+            <bl-date id="startWeekOn" start-week-on="0"></bl-date>
           </div>
         </template>
       </div>

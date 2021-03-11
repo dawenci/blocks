@@ -449,7 +449,7 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 
-class BlocksDatePanel extends HTMLElement {
+class BlocksDate extends HTMLElement {
   static get Depth() {
     return Depth
   }
@@ -1486,6 +1486,6 @@ class BlocksDatePanel extends HTMLElement {
   }
 }
 
-if (!customElements.get('bl-date-panel')) {
-  customElements.define('bl-date-panel', BlocksDatePanel)
+if (!customElements.get('bl-date')) {
+  customElements.define('bl-date', BlocksDate)
 }

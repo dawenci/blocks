@@ -1,6 +1,6 @@
 import '../popup/index.js'
 import '../input/index.js'
-import '../date-panel/index.js'
+import '../date/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { __height_base } from '../theme/var.js'
@@ -29,7 +29,7 @@ const TEMPLATE_HTML_INPUT = `<bl-input suffix-icon="date" id="result" readonly /
 
 const TEMPLATE_HTML_POPUP = `
 <bl-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
-  <bl-date-panel class="date-picker-panel"></bl-date-panel>
+  <bl-date class="date-picker-panel"></bl-date>
 </bl-popup>
 `
 
@@ -66,7 +66,7 @@ class BlocksDatePicker extends HTMLElement {
 
     // 面板部分
     this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup')
-    this.$panel = this.$popup.querySelector('bl-date-panel')
+    this.$panel = this.$popup.querySelector('bl-date')
     this.$popup.setAttribute('anchor', `#${this.id}`)
 
     this.$input.onfocus = this.$input.onclick = (e) => {
