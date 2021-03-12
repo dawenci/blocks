@@ -27,6 +27,8 @@ const TEMPLATE_CSS = `
 <style>
 :host {
   display: none;
+  box-sizing: border-box;
+  overflow: hidden;
   position: absolute;
   z-index: 10;
   top: 0;
@@ -36,9 +38,9 @@ const TEMPLATE_CSS = `
   font-family: var(--font-family, ${__font_family});
   border: 1px solid var(--border-color-base, ${__border_color_base});
   border-radius: var(--radius-base, ${__radius_base});
-  background-color: var(--bg-base, ${__bg_base});
   color: var(--fg-base, ${__fg_base});
   font-size: 14px;
+  backdrop-filter: blur(4px);
 }
 :host([open]) {
   display: block;
@@ -46,6 +48,10 @@ const TEMPLATE_CSS = `
 }
 
 :host(:focus-within) {
+  border: 1px solid transparent;
+  background-color: var(--bg-base, ${__bg_base});
+  backdrop-filter: none;
+  opacity: 1;
   outline: 0 none;
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
     0px 24px 38px 3px rgba(0, 0, 0, 0.14),
@@ -54,6 +60,17 @@ const TEMPLATE_CSS = `
 
 :host(:focus) {
   outline: 0 none;
+}
+
+#bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  background-color: var(--bg-base, ${__bg_base});
+  opacity: .8;
 }
 
 #layout {
@@ -174,6 +191,7 @@ const TEMPLATE_CSS = `
 `
 const TEMPLATE_HTML = `
 <div id="layout">
+  <div id="bg"></div>
   <header id="header">
     <div id="icon"></div>
     <div id="name"></div>
