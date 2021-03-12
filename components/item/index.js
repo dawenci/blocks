@@ -19,8 +19,10 @@ import { setDisabled, setRole } from '../../common/accessibility.js'
 const TEMPLATE_CSS = `<style>
 :host {
   display: block;
+  position: relative;
   box-sizing: border-box;
   height: var(--height-base, ${__height_base});
+  padding: 0 calc(var(--height-base, ${__height_base}) / 3);
   font-size: 14px;
 }
 :host(:focus) {
@@ -29,6 +31,34 @@ const TEMPLATE_CSS = `<style>
 :host(:focus-within) {
   border-color: var(--color-primary, ${__color_primary});
 }
+
+:host:before,
+:host:after {
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: auto;
+  left: calc(var(--height-base, ${__height_base}) / 3);
+  display: block;
+  content: '';
+  height: 1px;
+  background: var(--border-color-base, ${__border_color_base});
+  transform: scale(1, 0.5);
+}
+:host:before {
+  top: -0.5;
+}
+:host:after {
+  bottom: -0.5;
+}
+:host(:first-child):before,
+:host(:last-child):after {
+  left: 0;
+}
+:host(:not(:last-child)):after {
+  display: none;
+}
+
 #layout {
   display: flex;
   flex-flow: row nowrap;

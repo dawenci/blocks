@@ -1,7 +1,7 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 
 const TEMPLATE_CSS = `<style>
-:host, :host * {
+:host {
   box-sizing: border-box;
 }
 </style>`
@@ -12,7 +12,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksGrid extends HTMLElement {
+class BlocksIntersection extends HTMLElement {
   static get observedAttributes() {
     return []
   }
@@ -39,6 +39,6 @@ class BlocksGrid extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {}
 }
 
-if (!customElements.get('bl-grid')) {
-  customElements.define('bl-grid', BlocksGrid)
+if (!customElements.get('bl-intersection')) {
+  customElements.define('bl-intersection', BlocksIntersection)
 }
