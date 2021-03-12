@@ -17,18 +17,58 @@
       <h1>主题定制</h1>
     </header>
 
+    <script type="module" src="../../components/button/index.js"></script>
+
     <section class="section">
       可以使用 css 变量定制主题，支持的变量名称，可以查看 `/components/theme/var.js`，文件里面有对应的变量名称以及默认值。
     </section>
     
     <section class="section">
       <h2>全局设置</h2>
-      文档待编写
+      <p>引入 css 文件或者 style 标签，覆盖 css 变量。例如：</p>
+
+      <div class="case">
+        <template data-codesource="html" on>
+          <bl-button type="primary">全局定制效果</bl-button>
+          <style>
+            :root {
+              --color-primary: #083;
+              --color-primary-light: #094;
+              --color-primary-dark: #072;
+            }
+          </style>
+        </template>
+      </div>
     </section>
 
     <section class="section">
-      <h2>组件设置</h2>
-      文档待编写
+      <h2>组件级别局部设置</h2>
+
+      <p>直接设置组件的 style，覆盖对应的变量即可。例如：</p>
+
+      <div class="case">
+        <template data-codesource="html" on>
+          <style>
+            #custom {
+              --color-primary: #F33;
+              --color-primary-light: #F55;
+              --color-primary-dark: #F22;
+            }
+          </style>
+
+          <bl-button
+            id="custom"
+            type="primary">
+            style 定制效果
+          </bl-button>
+
+          <bl-button
+            type="primary"
+            style="--color-primary:#f80;--color-primary-light:#f90;--color-primary-dark:#f70;">
+            内联 style 定制效果
+          </bl-button>
+        </template>
+      </div>
     </section>
 
   </article>
