@@ -2,10 +2,11 @@ import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __transition_duration } from '../theme/var.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
-import { onTransition } from '../../common/onTransition.js'
+import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
 
 const TEMPLATE_CSS = `<style>
 :host {
+  display: none;
   box-sizing: border-box;
   position: fixed;
   overflow: hidden;
@@ -14,8 +15,9 @@ const TEMPLATE_CSS = `<style>
   bottom: 0;
   left: 0;
   background-color: rgba(0,0,0,.3);
-  opacity: 1;
-  transition: all var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1);
+}
+:host([open]) {
+  display: block;
 }
 </style>`
 
@@ -35,16 +37,9 @@ class BlocksModalMask extends HTMLElement {
     this.attachShadow({mode: 'open'})
     this.shadowRoot.appendChild(template.content.cloneNode(true))
 
-    // 过渡结束时
-    this._onTransitionEnd = () => {
-      if (!this.open) {
-        this.style.display = 'none'
-      }
-    }
-    onTransition(this, {
-      end: () => this._onTransitionEnd()
+    initOpenCloseAnimation(this, {
+      transform: false,
     })
-
   }
 
   get open() {
@@ -64,11 +59,7 @@ class BlocksModalMask extends HTMLElement {
     this.render()
 
     // 设置初始样式，确保动画生效
-    if (!this.open) {
-      this.style.display = 'none'
-      this.style.opacity = '0'
-    }
-    else {
+    if (this.open) {
       this._updateVisible()
     }
   }
@@ -84,7 +75,6 @@ class BlocksModalMask extends HTMLElement {
   }
  
   _updateVisible() {
-    this._prepareForAnimate()
     if (this.open) {
       this._lockScroll()
       this._animateOpen()
@@ -93,18 +83,6 @@ class BlocksModalMask extends HTMLElement {
       this._unlockScroll()
       this._animateClose()
     }
-
-    // 如果没有动画，则直接执行回调
-    const styles = getComputedStyle(this)
-    if (!parseFloat(styles.transitionDuration) && !parseFloat(styles.transitionDelay)) {
-      this._onTransitionEnd()
-    }
-  }
-
-  // 执行过渡前的准备工作，确保动画正常
-  _prepareForAnimate() {
-    this.style.display = ''
-    this.offsetHeight
   }
 
   _lockScroll() {
@@ -134,13 +112,13 @@ class BlocksModalMask extends HTMLElement {
   }
 
   _animateOpen() {
-    this.offsetHeight
-    this.style.opacity = ''
+    this.classList.remove('close-animation')
+    this.classList.add('open-animation')
   }
 
   _animateClose() {
-    this.offsetHeight
-    this.style.opacity = '0'
+    this.classList.remove('open-animation')
+    this.classList.add('close-animation')
   }
 }
 

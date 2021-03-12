@@ -1,4 +1,5 @@
 import '../button/index.js'
+import '../modal-mask/index.js'
 import {
   __bg_base,
   __bg_baseDark,
@@ -14,10 +15,12 @@ import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { closeableGetter, closeableSetter, openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
+import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
 
 const TEMPLATE_CSS = `
 <style>
 :host {
+  display: none;
   font-family: var(--font-family, ${__font_family});
   position:absolute;
   margin:auto;
@@ -27,6 +30,7 @@ const TEMPLATE_CSS = `
 }
 
 :host([open]) {
+  display: block;
   pointer-events: auto;
 }
 
@@ -63,15 +67,6 @@ const TEMPLATE_CSS = `
   border-radius: var(--radius-base, ${__radius_base});
   background-color: var(--bg-base, ${__bg_base});
   color: var(--fg-base, ${__fg_base});
-  opacity:0;
-  transform: scale(0);
-  transition: transform var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1),
-    opacity var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1);
-}
-
-:host([open]) #layout {
-  opacity:1;
-  transform:scale(1);
 }
 
 #layout {
@@ -259,19 +254,19 @@ class BlocksDialog extends HTMLElement {
     shadowRoot.appendChild(template.content.cloneNode(true))
 
     this.$layout = shadowRoot.getElementById('layout')
-    this.$mask = document.createElement('div')
-    this.$mask.style.cssText = `
-      display: none;
-      position:absolute;
-      left:0;
-      top:0;
-      right:0;
-      bottom:0;
-      z-index:10;
-      background: rgba(0,0,0,.3);
-      opacity:0;
-      transition: opacity var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1);
-    `
+    this.$mask = document.createElement('bl-modal-mask')
+    // this.$mask.style.cssText = `
+    //   display: none;
+    //   position:absolute;
+    //   left:0;
+    //   top:0;
+    //   right:0;
+    //   bottom:0;
+    //   z-index:10;
+    //   background: rgba(0,0,0,.3);
+    //   opacity:0;
+    //   transition: opacity var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1);
+    // `
 
     this.remove = false
 
@@ -291,38 +286,23 @@ class BlocksDialog extends HTMLElement {
       })
     }
 
-    // 过渡开始
-    this.$layout.ontransitionstart = ev => {
-      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
-      this._disableEvents()
-    }
-
-    // 过渡进行
-    this.$layout.ontransitionrun = ev => { }
-
-    // 过渡取消
-    this.$layout.onontransitioncancel = ev => { }
-
-    // 过渡结束
-    this.$layout.ontransitionend = ev => {
-      if (ev.target !== this.$layout || ev.propertyName !== 'opacity') return
-      this._enableEvents()
-
-      if (this.open) {
-        this._focus()
-        dispatchEvent(this, 'open')
-      }
-      else {
-        this._blur()
-        this.$layout.style.display = 'none'
-        this.$mask.style.display = 'none'
-
-        if (this.remove) {
-          this.parentElement && this.parentElement.removeChild(this)
+    initOpenCloseAnimation(this, {
+      onEnd: () => {
+        if (this.open) {
+          this._focus()
+          dispatchEvent(this, 'open')
         }
-        dispatchEvent(this, 'close')
+        else {
+          this._blur()
+          // this.$mask.style.display = 'none'
+
+          if (this.remove) {
+            this.parentElement && this.parentElement.removeChild(this)
+          }
+          dispatchEvent(this, 'close')
+        }
       }
-    }
+    })
 
     this.$layout.addEventListener('slotchange', e => {
       this.render()
@@ -388,14 +368,6 @@ class BlocksDialog extends HTMLElement {
     this._renderClose()
   }
 
-  // 执行过渡前的准备工作，确保动画正常
-  _prepareForAnimate() {
-    this.$layout.style.display = ''
-    this.$mask.style.display = ''
-    this.$layout.offsetHeight
-    this.$mask.offsetHeight
-  }
-
   // 启用鼠标交互
   _enableEvents() {
     this.$layout.style.pointerEvents = ''
@@ -435,42 +407,33 @@ class BlocksDialog extends HTMLElement {
   }
 
   _updateVisible() {
-    this._prepareForAnimate()
     if (this.open) {
       this._lockScroll()
       this._animateOpen()
+      if (this.$mask) this.$mask.open = true
     }
     else {
       this._unlockScroll()
       this._animateClose()
+      if (this.$mask) this.$mask.open = false
     }
   }
 
   _animateOpen() {
-    // 强制执行动画
-    this.$layout.offsetHeight
-    this.$layout.style.opacity = ''
-    this.$layout.style.transform = ''
+    this.classList.remove('close-animation')
+    this.classList.add('open-animation')
 
     if (!this.style.left) {
-      this.$layout.style.left = (document.body.clientWidth - this.$layout.offsetWidth) / 2 + 'px'
+      this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
     }
     if (!this.style.top) {
-      this.$layout.style.top = (document.body.clientHeight - this.$layout.offsetHeight) / 2 + 'px'
+      this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
     }
-
-    this.$mask.offsetHeight
-    this.$mask.style.opacity = ''
   }
 
   _animateClose() {
-    // 强制执行动画
-    this.$layout.offsetHeight
-    this.$layout.style.opacity = '0'
-    this.$layout.style.transform = 'scale(0)'
-
-    this.$mask.offsetHeight
-    this.$mask.style.opacity = '0'
+    this.classList.remove('open-animation')
+    this.classList.add('close-animation')
   }
 
   _lockScroll() {
@@ -586,13 +549,6 @@ class BlocksDialog extends HTMLElement {
 
     this._renderHeader()
     this._renderFooter()
-
-    // 设置初始样式，确保动画生效
-    if (!this.open) {
-      this.$layout.style.display = 'none'
-      this.$layout.style.opacity = '0'
-      this.$layout.style.transform = 'scale(0)'
-    }
 
     // 拖拽 header 移动
     {

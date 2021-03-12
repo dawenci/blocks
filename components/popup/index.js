@@ -5,7 +5,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import { __bg_base, __bg_baseDark, __fg_base, __fg_baseDark, __radius_base, __transition_duration } from '../theme/var.js'
 import { darkGetter, darkSetter, openGetter, openSetter } from '../../common/propertyAccessor.js'
-import { onTransition } from '../../common/onTransition.js'
+import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -59,6 +59,7 @@ const originSetter = enumSetter('origin', Object.values(PopupOrigin))
 
 const TEMPLATE_CSS = `<style>
 :host {
+  display: none;
   box-sizing: border-box;
   position: absolute;
   z-index: 10;
@@ -71,6 +72,7 @@ const TEMPLATE_CSS = `<style>
 }
 
 :host([open]) {
+  display: block;
   pointer-events: auto;
 }
 
@@ -85,11 +87,13 @@ const TEMPLATE_CSS = `<style>
   width: 100%;
   height: 100%;
   border-radius: var(--radius-base, ${__radius_base});
+  /*
   transform-origin: center center;
   transition-delay: 0, 0;
   transition-property: opacity, transform;
   transition-duration: var(--transition-duration, ${__transition_duration}), var(--transition-duration, ${__transition_duration});
   transition-timing-function: cubic-bezier(.645, .045, .355, 1), cubic-bezier(.645, .045, .355, 1);
+  */
   background-color: var(--bg-base, ${__bg_base});
   color: var(--fg-base, ${__fg_base});
 }
@@ -113,8 +117,6 @@ const TEMPLATE_CSS = `<style>
   content: '';
   width: 10px;
   height: 10px;
-  /*border-top: 1px solid rgba(0,0,0,.08);
-  border-right: 1px solid rgba(0,0,0,.08);*/
   transform: rotate(-45deg);
   background-color: var(--bg-base, ${__bg_base});
 }
@@ -335,24 +337,19 @@ export default class BlocksPopup extends HTMLElement {
 
     definePrivate(this, '_anchor')
 
-    // 过渡结束时
-    this._onTransitionEnd = () => {
-      this._enableEvents()
-      if (this.open) {
-        if (this.autofocus) this._focus()
-        dispatchEvent(this, 'open')
-        // 动画过程可能锚定点移动，动画结束后，更新下位置
-        this.updatePosition()
+    initOpenCloseAnimation(this, {
+      onEnd: () => {
+        if (this.open) {
+          if (this.autofocus) this._focus()
+          dispatchEvent(this, 'open')
+          // 动画过程可能锚定点移动，动画结束后，更新下位置
+          this.updatePosition()
+        }
+        else {
+          this._blur()
+          dispatchEvent(this, 'close')
+        }
       }
-      else {
-        this._blur()
-        this.$layout.style.display = 'none'
-        dispatchEvent(this, 'close')
-      }
-    }
-    onTransition(this.$layout, {
-      start: () => this._disableEvents(),
-      end: () => this._onTransitionEnd()
     })
 
     if (this.capturefocus) {
@@ -736,13 +733,7 @@ export default class BlocksPopup extends HTMLElement {
       upgradeProperty(this, attr)
     })
 
-    // 设置初始样式，确保动画生效
-    if (!this.open) {
-      this.$layout.style.display = 'none'
-      this.$layout.style.opacity = '0'
-      this.$layout.style.transform = 'scale(0)'
-    }
-    else {
+    if (this.open) {
       this._updateVisible()
     }
   }
@@ -827,30 +818,19 @@ export default class BlocksPopup extends HTMLElement {
     }
   }
 
-  // 执行过渡前的准备工作，确保动画正常
-  _prepareForAnimate() {
-    this.$layout.style.display = ''
-    this.$layout.offsetHeight
-  }
-
   _animateOpen() {
-    // 强制执行动画
-    this.$layout.offsetHeight
-    this.$layout.style.opacity = ''
-    this.$layout.style.transform = ''
+    this.classList.remove('close-animation')
+    this.classList.add('open-animation')
   }
 
   _animateClose() {
-    // 强制执行动画
-    this.$layout.offsetHeight
-    this.$layout.style.opacity = '0'
-    this.$layout.style.transform = 'scale(0)'
+    this.classList.remove('open-animation')
+    this.classList.add('close-animation')
   }
 
   _updateVisible() {
     this._updateClass()
     this._updateArrow()
-    this._prepareForAnimate()
     this.updatePosition()
     if (this.open) {
       this._animateOpen()
@@ -859,12 +839,6 @@ export default class BlocksPopup extends HTMLElement {
     else {
       this._animateClose()
       this._destroyAnchorEvent()
-    }
-
-    // 如果没有动画，则直接触发事件
-    const styles = getComputedStyle(this.$layout)
-    if (!parseFloat(styles.transitionDuration) && !parseFloat(styles.transitionDelay)) {
-      this._onTransitionEnd()
     }
   }
 
@@ -930,7 +904,7 @@ export default class BlocksPopup extends HTMLElement {
   // 设置 css 变换原点
   _setOrigin(y, x) {
     this._setOriginClass(`origin-${y}-${x}`)
-    this.$layout.style.transformOrigin = `${y} ${x}`
+    this.style.transformOrigin = `${y} ${x}`
   }
 
   // 启用鼠标交互

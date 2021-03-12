@@ -1,8 +1,13 @@
 import '../button/index.js'
+import '../icon/index.js'
 import {
   __bg_base,
   __bg_baseDark,
   __border_color_base,
+  __border_color_baseDark,
+  __border_color_light,
+  __border_color_lightDark,
+  __color_danger,
   __fg_base,
   __fg_baseDark,
   __font_family,
@@ -16,7 +21,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
-import { onTransition } from '../../common/onTransition.js'
+import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -33,16 +38,10 @@ const TEMPLATE_CSS = `
   border-radius: var(--radius-base, ${__radius_base});
   background-color: var(--bg-base, ${__bg_base});
   color: var(--fg-base, ${__fg_base});
-  pointer-events: none;
-  transition: transform var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1), opacity var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1);
-  transform: scale(0);
-  opacity: 0;
+  font-size: 14px;
 }
 :host([open]) {
   display: block;
-  pointer-events: auto;
-  opacity: 1;
-  transform: scale(1);
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.1);
 }
 
@@ -57,11 +56,6 @@ const TEMPLATE_CSS = `
   outline: 0 none;
 }
 
-:host([dark]) {
-  background-color: var(--bg-base-dark, ${__bg_baseDark});
-  color: var(--fg-base-dark, ${__fg_baseDark});
-}
-
 #layout {
   display: flex;
   width: 100%;
@@ -72,13 +66,91 @@ const TEMPLATE_CSS = `
 /* 标题栏 */
 #header {
   box-sizing: border-box;
-  flex: 0 0 var(--height-base, ${__height_base});
+  flex: 0 0 auto;
+  height: var(--height-base, ${__height_base});
   display: flex;
   flex-flow: row nowrap;
+  align-items: center;
   position: relative;
   cursor: move;
   user-select: none;
-  border-bottom: 1px solid var(--border-color-base, ${__border_color_base});
+  box-shadow: 0 0 0 1px var(--border-color-light, ${__border_color_light});
+}
+
+#icon {
+  flex: 0 0 auto;
+}
+
+#name {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  padding: 0 10px;
+}
+
+#actions {
+  box-sizing: border-box;
+  display: flex;
+  height: 100%;
+  margin-left: 15px;
+}
+#actions button {
+  display: block;
+  position: relative;
+  width: 40px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  text-align: center;
+}
+#actions button:focus {
+  outline: none;
+}
+#maximize:after,
+#minimize:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  margin: auto;
+}
+#maximize:after {
+  height: 8px;
+  border: 1px solid #aaa;
+}
+#maximize:hover:after {
+  border-color: #888;
+}
+#minimize:after {
+  height: 2px;
+  background: #aaa;
+}
+#minimize:hover:after {
+  background: #888;
+}
+#close {
+  fill: #aaa;
+}
+#close bl-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  margin: auto;
+}
+#minimize:hover,
+#maximize:hover {
+  background: rgba(0, 0, 0, .1);
+}
+#close:hover {
+  background: var(--color-danger, ${__color_danger});
+  fill: #fff;
 }
 
 #body {
@@ -88,17 +160,27 @@ const TEMPLATE_CSS = `
 #footer {
   flex: 0 0 auto;
 }
+
+:host([dark]) {
+  background-color: var(--bg-base-dark, ${__bg_baseDark});
+  border: 1px solid var(--border-color-base-dark, ${__border_color_baseDark});
+  color: var(--fg-base-dark, ${__fg_baseDark});
+}
+
+:host([dark]) #header {
+  border-bottom: 1px solid var(--border-color-light-dark, ${__border_color_lightDark});
+}
 </style>
 `
 const TEMPLATE_HTML = `
 <div id="layout">
   <header id="header">
     <div id="icon"></div>
-    <div id="title"></div>
+    <div id="name"></div>
     <div id="actions">
+      <button id="minimize"></button>
       <button id="maximize"></button>
-      <button id="maximize"></button>
-      <button id="close"></button>
+      <button id="close"><bl-icon value="cross"></bl-icon></button>
     </div>
   </header>
 
@@ -128,7 +210,7 @@ class BlocksWindow extends HTMLElement {
       // 标题图标
       'icon',
       // 标题
-      'title',
+      'name',
       'close-button',
       'maximize-button',
       'minimize-button',
@@ -143,35 +225,30 @@ class BlocksWindow extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$layout = shadowRoot.getElementById('layout')
-
+    this.$header = shadowRoot.getElementById('header')
+    this.$actions = shadowRoot.getElementById('actions')
     this.$closeButton = shadowRoot.getElementById('close')
     this.$maximizeButton = shadowRoot.getElementById('maximize')
     this.$minimizeButton = shadowRoot.getElementById('minimize')
+    this.$icon = shadowRoot.getElementById('icon')
+    this.$name = shadowRoot.getElementById('name')
 
     this.$closeButton.onclick = () => {
       this.open = false
     }
 
-    onTransition(this, {
-      start: () => this._disableEvents(),
-      end: () => this._onTransitionEnd()
+    initOpenCloseAnimation(this, {
+      onEnd: () => {
+        if (this.open) {
+          this._focus()
+          dispatchEvent(this, 'open')
+        }
+        else {
+          this._blur()
+          dispatchEvent(this, 'close')
+        }
+      }
     })
-
-    // 过渡结束
-    this._onTransitionEnd = ev => {
-      if (ev.target !== this || ev.propertyName !== 'opacity') return
-      this._enableEvents()
-
-      if (this.open) {
-        this._focus()
-        dispatchEvent(this, 'open')
-      }
-      else {
-        this._blur()
-        dispatchEvent(this, 'close')
-      }
-      this.style.display = ''
-    }
 
     this.$layout.addEventListener('slotchange', e => {
       this.render()
@@ -190,12 +267,12 @@ class BlocksWindow extends HTMLElement {
     openSetter(this, value)
   }
 
-  get title() {
-    return this.getAttribute('title')
+  get name() {
+    return this.getAttribute('name')
   }
 
-  set title(value) {
-    this.setAttribute('title', value)
+  set name(value) {
+    this.setAttribute('name', value)
   }
 
   get capturefocus() {
@@ -217,30 +294,86 @@ class BlocksWindow extends HTMLElement {
   render() {
   }
 
-  // 执行过渡前的准备工作，确保动画正常
-  _prepareForAnimateOpen() {
-    this.style.display = 'block'
-    this.style.opacity = '0'
-    this.style.transform = 'scale(0)'
-    this.offsetHeight
+  connectedCallback() {
+    setRole(this, 'window')
+
+    // 将 tabindex 设置在 host 上，
+    // 因为 tabindex 在 layout 上的话，鼠标点击 slot 里面的内容时会反复 blur
+    this.setAttribute('tabindex', '-1')
+
+    if (this.parentElement !== document.body) {
+      document.body.appendChild(this)
+    }
+
+    // 拖拽 header 移动
+    {
+      let startX
+      let startY
+      let startPageX
+      let startPageY
+
+      const isHeader = (e) => {
+        if (this.$actions.contains(e.target)) return false
+        if (this.$header.contains(e.target)) return true
+        // maybe header slot
+        if (this.contains(e.target)) {
+          let el = e.target
+          while (el && el !== this) {
+            if (el.slot === 'header') return true
+            el = el.parentElement
+          }
+        }
+        return false
+      }
+
+      const move = (e) => {
+        this.style.left = startX + (e.pageX - startPageX) + 'px'
+        this.style.top = startY + (e.pageY - startPageY) + 'px'
+      }
+
+      const up = () => {
+        removeEventListener('mousemove', move)
+        removeEventListener('mouseup', up)
+      }
+
+      this.$layout.onmousedown = (e) => {
+        if (!isHeader(e)) return
+        startPageX = e.pageX
+        startPageY = e.pageY
+        const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0')
+        const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0')
+        startX = this.offsetLeft - marginLeft
+        startY = this.offsetTop - marginTop
+        addEventListener('mousemove', move)
+        addEventListener('mouseup', up)
+      }
+    }
   }
 
-  // 执行过渡前的准备工作，确保动画正常
-  _prepareForAnimateClose() {
-    this.style.display = 'block'
-    this.style.opacity = '1'
-    this.style.transform = 'scale(1)'
-    this.offsetHeight
+  disconnectedCallback() {
   }
 
-  // 启用鼠标交互
-  _enableEvents() {
-    this.style.pointerEvents = ''
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name == 'open') {
+      this._updateVisible()
+    }
+
+    if (name === 'name') {
+      this._renderTitle()
+    }
+
+    if (name === 'capturefocus') {
+      if (this.capturefocus) {
+        this._captureFocus()
+      }
+      else {
+        this._stopCaptureFocus()
+      }
+    }
   }
 
-  // 禁用鼠标交互
-  _disableEvents() {
-    this.style.pointerEvents = 'none'
+  _renderTitle() {
+    this.$name.textContent = this.name ?? ''
   }
 
   // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
@@ -273,37 +406,19 @@ class BlocksWindow extends HTMLElement {
 
   _updateVisible() {
     if (this.open) {
-      this._prepareForAnimateOpen()
-      this._lockScroll()
-      this._animateOpen()
+      this.classList.remove('close-animation')
+      this.classList.add('open-animation')
+      if (!this.style.left) {
+        this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
+      }
+      if (!this.style.top) {
+        this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
+      }      
     }
     else {
-      this._prepareForAnimateClose()
-      this._unlockScroll()
-      this._animateClose()
+      this.classList.remove('open-animation')
+      this.classList.add('close-animation')
     }
-  }
-
-  _animateOpen() {
-    // 强制执行动画
-    this.offsetHeight
-    this.style.opacity = ''
-    this.style.transform = ''
-
-    if (!this.style.left) {
-      this.style.left = (document.body.clientWidth - this.$layout.offsetWidth) / 2 + 'px'
-    }
-    if (!this.style.top) {
-      this.style.top = (document.body.clientHeight - this.$layout.offsetHeight) / 2 + 'px'
-    }
-  }
-
-  _animateClose() {
-    // 强制执行动画
-    this.offsetHeight
-    this.style.display = 'block'
-    this.style.opacity = '0'
-    this.style.transform = 'scale(0)'
   }
 
   _lockScroll() {
@@ -353,80 +468,7 @@ class BlocksWindow extends HTMLElement {
       this._prevFocus.focus()
       this._prevFocus = undefined
     }
-  }
-
-  connectedCallback() {
-    setRole(this, 'window')
-
-    // 将 tabindex 设置在 host 上，
-    // 因为 tabindex 在 layout 上的话，鼠标点击 slot 里面的内容时会反复 blur
-    this.setAttribute('tabindex', '-1')
-
-    if (this.parentElement !== document.body) {
-      document.body.appendChild(this)
-    }
-
-    // 拖拽 header 移动
-    {
-      let startX
-      let startY
-      let startPageX
-      let startPageY
-
-      const isHeader = (e) => {
-        if (this.$layout.querySelector('header').contains(e.target)) return true
-        // maybe header slot
-        if (this.contains(e.target)) {
-          let el = e.target
-          while (el && el !== this) {
-            if (el.slot === 'header') return true
-            el = el.parentElement
-          }
-        }
-        return false
-      }
-
-      const move = (e) => {
-        this.style.left = startX + (e.pageX - startPageX) + 'px'
-        this.style.top = startY + (e.pageY - startPageY) + 'px'
-      }
-
-      const up = () => {
-        removeEventListener('mousemove', move)
-        removeEventListener('mouseup', up)
-      }
-
-      this.$layout.onmousedown = (e) => {
-        if (!isHeader(e)) return
-        startPageX = e.pageX
-        startPageY = e.pageY
-        const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0')
-        const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0')
-        startX = this.offsetLeft - marginLeft
-        startY = this.offsetTop - marginTop
-        addEventListener('mousemove', move)
-        addEventListener('mouseup', up)
-      }
-    }
-  }
-
-  disconnectedCallback() {
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (name == 'open') {
-      this._updateVisible()
-    }
-
-    if (name === 'capturefocus') {
-      if (this.capturefocus) {
-        this._captureFocus()
-      }
-      else {
-        this._stopCaptureFocus()
-      }
-    }
-  }
+  }  
 }
 
 if (!customElements.get('bl-window')) {
