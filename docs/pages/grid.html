@@ -18,12 +18,6 @@
     </header>
 
     <section class="section">
-      <h2>TODO</h2>
-      组件待实现
-
-    </section>
-
-    <!-- <section class="section">
       <h2>依赖引入</h2>
 
       <p>根据自己项目调整 src 的路径</p>
@@ -31,10 +25,551 @@
       <div data-codesource="html" data-title="依赖引入" on>
         <script type="module" src="../../components/grid/index.js"></script>
       </div>
-    </section> -->
+    </section>
+
+
+    <section class="section">
+      <h2>默认栅格</h2>
+
+      <p>24 列栅格系统</p>
+
+      <template data-codesource="html">
+        <style>
+          bl-row {
+            margin: 10px 0;
+          }
+          bl-col:nth-child(even) .box {
+            background-color: #c9c9c9;
+          }
+          .box {
+            height: 50px;
+            box-sizing: border-box;
+            line-height: 50px;
+            text-align: center;
+            background: #c0c0c0;
+          }
+        </style>
+        <bl-row>
+          <bl-col span="24">
+            <div class="box">span 24</div>
+          </bl-col>
+        </bl-row>
+
+        <bl-row>
+          <bl-col span="12">
+            <div class="box">span 12</div>
+          </bl-col>
+          <bl-col span="12">
+            <div class="box">span 12</div>
+          </bl-col>
+        </bl-row>
+
+        <bl-row>
+          <bl-col span="8">
+            <div class="box">span 8</div>
+          </bl-col>
+          <bl-col span="8">
+            <div class="box">span 8</div>
+          </bl-col>
+          <bl-col span="8">
+            <div class="box">span 8</div>
+          </bl-col>
+        </bl-row>
+
+        <bl-row>
+          <bl-col span="6">
+            <div class="box">span 6</div>
+          </bl-col>
+          <bl-col span="6">
+            <div class="box">span 6</div>
+          </bl-col>
+          <bl-col span="6">
+            <div class="box">span 6</div>
+          </bl-col>
+          <bl-col span="6">
+            <div class="box">span 6</div>
+          </bl-col>
+        </bl-row>
+
+        <bl-row>
+          <bl-col span="4">
+            <div class="box">span 4</div>
+          </bl-col>
+          <bl-col span="4">
+            <div class="box">span 4</div>
+          </bl-col>
+          <bl-col span="4">
+            <div class="box">span 4</div>
+          </bl-col>
+          <bl-col span="4">
+            <div class="box">span 4</div>
+          </bl-col>
+          <bl-col span="4">
+            <div class="box">span 4</div>
+          </bl-col>
+          <bl-col span="4">
+            <div class="box">span 4</div>
+          </bl-col>
+        </bl-row>
+
+        <bl-row>
+          <bl-col span="3">
+            <div class="box">span 3</div>
+          </bl-col>
+          <bl-col span="3">
+            <div class="box">span 3</div>
+          </bl-col>
+          <bl-col span="3">
+            <div class="box">span 3</div>
+          </bl-col>
+          <bl-col span="3">
+            <div class="box">span 3</div>
+          </bl-col>
+          <bl-col span="3">
+            <div class="box">span 3</div>
+          </bl-col>
+          <bl-col span="3">
+            <div class="box">span 3</div>
+          </bl-col>
+          <bl-col span="3">
+            <div class="box">span 3</div>
+          </bl-col>
+          <bl-col span="3">
+            <div class="box">span 3</div>
+          </bl-col>
+        </bl-row>
+
+        <bl-row>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+          <bl-col span="2">
+            <div class="box">span 2</div>
+          </bl-col>
+        </bl-row>
+
+        <bl-row>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+          <bl-col span="1">
+            <div class="box"></div>
+          </bl-col>
+        </bl-row>
+      </template>
+    </section>
+
+
+    <section class="section">
+      <h2>主轴方向排版</h2>
+
+      <p>bl-row 的 justify 属性可以设置排版方式。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <style>
+            bl-col:nth-child(even) .box {
+              background-color: #c9c9c9;
+            }
+            .box {
+              height: 50px;
+              box-sizing: border-box;
+              line-height: 50px;
+              text-align: center;
+              background: #c0c0c0;
+            }
+          </style>
+
+          <h3>start</h3>
+          <bl-row justify="start">
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+          </bl-row>
+
+          <h3>center</h3>
+          <bl-row justify="center">
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+          </bl-row>
+
+          <h3>end</h3>
+          <bl-row justify="end">
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+          </bl-row>
+
+          <h3>space-around</h3>
+          <bl-row justify="space-around">
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+          </bl-row>
+
+          <h3>space-between</h3>
+          <bl-row justify="space-between">
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+            <bl-col span="6">
+              <div class="box">span 6</div>
+            </bl-col>
+          </bl-row>
+        </template>
+      </div>
+    </section>
+
+
+
+    <section class="section">
+      <h2>对齐</h2>
+
+      <p>bl-row 的 align 属性可以设置对齐方式。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <style>
+            #align bl-col:nth-child(even) .box {
+              height: 100px;
+              background-color: #c9c9c9;
+            }
+            #align .box {
+              height: 50px;
+              box-sizing: border-box;
+              line-height: 50px;
+              text-align: center;
+              background: #c0c0c0;
+            }
+          </style>
+
+          <div id="align">
+            <h3>top</h3>
+            <bl-row align="top" justify="space-between">
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+            </bl-row>
+
+            <h3>middle</h3>
+            <bl-row align="middle" justify="space-between">
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+            </bl-row>
+
+            <h3>bottom</h3>
+            <bl-row align="bottom" justify="space-between">
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+            </bl-row>
+          </div>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>间隔</h2>
+
+      <p>bl-row 的 gutter 属性可以设置列间隔。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <style>
+            #gutter bl-col:nth-child(even) .box {
+              background-color: #c9c9c9;
+            }
+            #gutter .box {
+              height: 50px;
+              box-sizing: border-box;
+              line-height: 50px;
+              text-align: center;
+              background: #c0c0c0;
+            }
+          </style>
+
+          <div id="gutter">
+            <bl-row gutter="10">
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+            </bl-row>
+          </div>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>换行</h2>
+
+      <p>bl-row 的 wrap 属性可以设置换行。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <style>
+            #wrap bl-row {
+              row-gap: 10px
+            }
+            #wrap bl-col:nth-child(even) .box {
+              background-color: #c9c9c9;
+            }
+            #wrap .box {
+              height: 50px;
+              box-sizing: border-box;
+              line-height: 50px;
+              text-align: center;
+              background: #c0c0c0;
+            }
+          </style>
+
+          <div id="wrap">
+            <bl-row gutter="10" wrap>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+              <bl-col span="6">
+                <div class="box">span 6</div>
+              </bl-col>
+            </bl-row>
+          </div>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>布局偏移</h2>
+
+      <h3>offset</h3>
+      <p>属性 offset 可以设置左侧偏移，以间隔出一块区域。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <style>
+            bl-col:nth-child(even) .box {
+              background-color: #c9c9c9;
+            }
+            .box {
+              height: 50px;
+              box-sizing: border-box;
+              line-height: 50px;
+              text-align: center;
+              background: #c0c0c0;
+            }
+          </style>
+
+          <bl-row>
+            <bl-col span="8">
+              <div class="box">span 8</div>
+            </bl-col>
+            <bl-col span="8" offset="8">
+              <div class="box">span 8, offset 8</div>
+            </bl-col>
+          </bl-row>
+        </template>
+      </div>
+
+      <h3>pull, push</h3>
+      <p>属性 pull 可以将自身往左边移动若干栅格列宽度的举例，而 pull 则往右移动。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <style>
+            bl-col:nth-child(even) .box {
+              background-color: #c9c9c9;
+            }
+            .box {
+              height: 50px;
+              box-sizing: border-box;
+              line-height: 50px;
+              text-align: center;
+              background: #c0c0c0;
+            }
+          </style>
+
+          <bl-row>
+            <bl-col span="8" push="16">
+              <div class="box">左列 span 8，往右移动 16 列</div>
+            </bl-col>
+            <bl-col span="16" pull="8">
+              <div class="box">右列 span 8，往左移动 8 列</div>
+            </bl-col>
+          </bl-row>
+        </template>
+      </div>
+    </section>
+
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>(row) Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -47,10 +582,74 @@
         </thead>
         <tbody>
           <tr>
+            <td>align</td>
+            <td>'top' | 'middle' | 'bottom'</td>
+            <td>'top'</td>
+            <td>垂直方向如何对齐元素。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>gutter</td>
+            <td>number</td>
+            <td>0</td>
+            <td>栅格之间的间隙尺寸（px）。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>justify</td>
+            <td>'start' | 'end' | 'center' | 'space-around' | 'space-between'</td>
+            <td>'start'</td>
+            <td>水平方向如何分配元素周围的空间。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>wrap</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否允许换行。</td>
             <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>(col) Attrs / Props</h3>
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>offset</td>
+            <td>number</td>
+            <td>0</td>
+            <td>左侧空出多少个栅格列。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>pull</td>
+            <td>number</td>
+            <td>0</td>
+            <td>往左移动多少个栅格列。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>push</td>
+            <td>number</td>
+            <td>0</td>
+            <td>往右移动多少个栅格列。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>span</td>
+            <td>number</td>
+            <td>24</td>
+            <td>尺寸横跨多少个栅格列。</td>
             <td></td>
           </tr>
         </tbody>
