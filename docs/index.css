@@ -76,6 +76,7 @@ html, body {
   box-sizing: border-box;
   padding: 0;
   height: 100%;
+  padding-bottom: 100px;
 }
 #aside:hover {
   overflow: auto;

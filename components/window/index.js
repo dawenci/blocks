@@ -244,6 +244,7 @@ class BlocksWindow extends HTMLElement {
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$layout = shadowRoot.getElementById('layout')
     this.$header = shadowRoot.getElementById('header')
+    this.$body = shadowRoot.getElementById('body')
     this.$actions = shadowRoot.getElementById('actions')
     this.$closeButton = shadowRoot.getElementById('close')
     this.$maximizeButton = shadowRoot.getElementById('maximize')
@@ -253,6 +254,24 @@ class BlocksWindow extends HTMLElement {
 
     this.$closeButton.onclick = () => {
       this.open = false
+    }
+
+    this.$maximizeButton.onclick = () => {
+      if (this._restoreSize) {
+        this.restoreSize()
+      }
+      else {
+        this.maximize()
+      }
+    }
+
+    this.$minimizeButton.onclick = () => {
+      if (this._restoreSize) {
+        this.restoreSize()
+      }
+      else {
+        this.minimize()
+      }
     }
 
     initOpenCloseAnimation(this, {
@@ -310,6 +329,41 @@ class BlocksWindow extends HTMLElement {
   }
 
   render() {
+  }
+
+  minimize() {
+    this.storeSize()
+    this.style.height = ''
+    this.$body.style.display = 'none'
+  }
+
+  maximize() {
+    this.storeSize()
+    this.style.width = '100%'
+    this.style.height = '100%'
+    this.style.left = '0'
+    this.style.top = '0'
+  }
+
+  storeSize() {
+    const style = getComputedStyle(this)
+    this._restoreSize = {
+      width: style.width,
+      height: style.height,
+      top: style.top,
+      left: style.left,
+    }
+  }
+
+  restoreSize() {
+    if (this._restoreSize) {
+      this.$body.style.display = ''
+      this.style.top = this._restoreSize.top
+      this.style.left = this._restoreSize.left
+      this.style.width = this._restoreSize.width
+      this.style.height = this._restoreSize.height
+      this._restoreSize = null
+    }
   }
 
   connectedCallback() {
