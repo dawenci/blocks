@@ -491,21 +491,11 @@ class BlocksWindow extends HTMLElement {
     }
 
     this.$maximizeButton.onclick = () => {
-      if (this.maximized) {
-        this.cancelMaximize()
-      }
-      else {
-        this.maximize()
-      }
+      this.maximized = !this.maximized
     }
 
     this.$minimizeButton.onclick = () => {
-      if (this.minimized) {
-        this.cancelMinimize()
-      }
-      else {
-        this.minimize()
-      }
+      this.minimized = !this.minimized
     }
 
     initOpenCloseAnimation(this, {
@@ -605,24 +595,7 @@ class BlocksWindow extends HTMLElement {
     openSetter(this, value)
   }
 
-  render() {
-  }
-
-  minimize() {
-    this.minimized = true
-  }
-
-  cancelMinimize() {
-    this.minimized = false
-  }
-
-  maximize() {
-    this.maximized = true
-  }
-
-  cancelMaximize() {
-    this.maximized = false
-  }
+  render() {}
 
   connectedCallback() {
     setRole(this, 'window')
@@ -880,40 +853,6 @@ class BlocksWindow extends HTMLElement {
       this.classList.remove('open-animation')
       this.classList.add('close-animation')
     }
-  }
-
-  _lockScroll() {
-    if (!this.isScrollLocked) {
-      this.bodyPaddingRight = document.body.style.paddingRight
-      this.bodyOverflowY = document.body.style.overflowY
-      this.computedBodyPaddingRight = parseInt(getComputedStyle(document.body).paddingRight, 10)
-    }
-
-    const scrollBarWidth = getBodyScrollBarWidth()
-    let bodyHasOverflow = document.documentElement.clientHeight < document.body.scrollHeight;
-    let bodyOverflowY = getComputedStyle(document.body).overflowY
-    if (scrollBarWidth > 0 && (bodyHasOverflow || bodyOverflowY === 'scroll') && !this.isScrollLocked) {
-      document.body.style.paddingRight = this.computedBodyPaddingRight + scrollBarWidth + 'px'
-    }
-
-    document.body.style.overflowY = 'hidden'
-    this.isScrollLocked = true
-  }
-
-  _unlockScroll() {
-    if (this.isScrollLocked) {
-      document.body.style.paddingRight = this.bodyPaddingRight
-      document.body.style.overflowY = this.bodyOverflowY
-      this.isScrollLocked = false
-    }
-  }
-
-  _hostChild(selector) {
-    return this.querySelector(selector)
-  }
-
-  _shadowChild(selector) {
-    return this.shadowRoot.querySelector(selector)
   }
 
   _focus() {

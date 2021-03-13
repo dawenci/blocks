@@ -184,6 +184,20 @@
             <td></td>
           </tr>
           <tr>
+            <td>maximized</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否最大化窗口。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>minimized</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否最小化窗口。</td>
+            <td></td>
+          </tr>
+          <tr>
             <td>name</td>
             <td>string</td>
             <td></td>
@@ -200,24 +214,6 @@
         </tbody>
       </table>
 
-      <h3>Methods</h3>
-      <table class="api-fns">
-        <thead>
-          <tr>
-            <th>函数名称</th>
-            <th>类型</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
       <h3>Events</h3>
       <table class="api-events">
         <thead>
@@ -229,9 +225,19 @@
         </thead>
         <tbody>
           <tr>
+            <td>close</td>
             <td></td>
+            <td>窗口关闭之后（动画播放完毕）触发。</td>
+          </tr>
+          <tr>
+            <td>open</td>
             <td></td>
-            <td></td>
+            <td>窗口打开之后（动画播放完毕）触发。</td>
+          </tr>          
+          <tr>
+            <td>resize</td>
+            <td>{ detail: { data } }</td>
+            <td>窗口尺寸变化触发。</td>
           </tr>
         </tbody>
       </table>
@@ -250,7 +256,7 @@
             <td></td>
           </tr>
           <tr>
-            <td>footer</td>
+            <td>status-bar</td>
             <td></td>
           </tr>          
         </tbody>
