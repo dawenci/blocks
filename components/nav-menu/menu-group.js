@@ -1,5 +1,5 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __border_color_light, __border_color_lightDark, __color_primary, __fg_secondary, __font_family } from '../theme/var.js'
+import { __border_color_light, __dark_border_color_light, __color_primary, __fg_secondary, __font_family } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { forEach } from '../../common/utils.js'
 
@@ -18,7 +18,7 @@ const TEMPLATE_CSS = `
   color: var(--fg-secondary, ${__fg_secondary});
 }
 :host-context(bl-nav-menu[dark]) #head {
-  border-bottom: 1px solid var(--border-color-light-dark, ${__border_color_lightDark});
+  border-bottom: 1px solid var(--border-color-light-dark, ${__dark_border_color_light});
 }
 </style>
 `

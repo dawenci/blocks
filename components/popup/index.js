@@ -3,7 +3,7 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
 import { definePrivate } from '../../common/definePrivate.js'
-import { __bg_base, __bg_baseDark, __fg_base, __fg_baseDark, __radius_base, __transition_duration } from '../theme/var.js'
+import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __radius_base, __transition_duration } from '../theme/var.js'
 import { darkGetter, darkSetter, openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
 
@@ -277,8 +277,8 @@ const TEMPLATE_CSS = `<style>
 
 :host([dark]) #layout,
 :host([dark]) #arrow:after {
-  background-color: var(--bg-base-dark, ${__bg_baseDark});
-  color: var(--fg-base-dark, ${__fg_baseDark});
+  background-color: var(--bg-base-dark, ${__dark_bg_base});
+  color: var(--fg-base-dark, ${__dark_fg_base});
 }
 </style>`
 

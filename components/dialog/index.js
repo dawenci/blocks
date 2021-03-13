@@ -2,9 +2,9 @@ import '../button/index.js'
 import '../modal-mask/index.js'
 import {
   __bg_base,
-  __bg_baseDark,
+  __dark_bg_base,
   __fg_base,
-  __fg_baseDark,
+  __dark_fg_base,
   __font_family,
   __radius_base,
   __transition_duration,
@@ -195,8 +195,8 @@ footer {
 
 :host([dark]) #layout,
 :host([dark]) header h1 {
-  background-color: var(--bg-base-dark, ${__bg_baseDark});
-  color: var(--fg-base-dark, ${__fg_baseDark});
+  background-color: var(--bg-base-dark, ${__dark_bg_base});
+  color: var(--fg-base-dark, ${__dark_fg_base});
 }
 </style>
 `

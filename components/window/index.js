@@ -2,18 +2,20 @@ import '../button/index.js'
 import '../icon/index.js'
 import {
   __bg_base,
-  __bg_baseDark,
+  __dark_bg_base,
   __border_color_base,
-  __border_color_baseDark,
+  __dark_border_color_base,
   __border_color_light,
-  __border_color_lightDark,
+  __dark_border_color_light,
   __color_danger,
+  __color_primary,
   __fg_base,
-  __fg_baseDark,
+  __dark_fg_base,
   __font_family,
   __height_base,
   __radius_base,
   __transition_duration,
+  __bg_base_header,
 } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { setRole } from '../../common/accessibility.js'
@@ -36,24 +38,27 @@ const TEMPLATE_CSS = `
   margin: auto;
   padding: 0;
   font-family: var(--font-family, ${__font_family});
-  border: 1px solid var(--border-color-base, ${__border_color_base});
   border-radius: var(--radius-base, ${__radius_base});
   color: var(--fg-base, ${__fg_base});
   font-size: 14px;
   backdrop-filter: blur(4px);
+  transform-origin: top right;
 }
 :host([open]) {
   display: block;
-  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.1);
+  /* 描边 * 4 + 底部阴影 */
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .5),
+    0px 11px 15px -7px rgba(0, 0, 0, 0.1);
 }
 
 :host(:focus-within) {
-  border: 1px solid transparent;
   background-color: var(--bg-base, ${__bg_base});
   backdrop-filter: none;
   opacity: 1;
   outline: 0 none;
-  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
+  box-shadow:
+    0px -1px 0px 0px rgba(0, 0, 0, 0.05),
+    0px 11px 15px -7px rgba(0, 0, 0, 0.2),
     0px 24px 38px 3px rgba(0, 0, 0, 0.14),
     0px 9px 46px 8px rgba(0, 0, 0, 0.12);
 }
@@ -62,9 +67,32 @@ const TEMPLATE_CSS = `
   outline: 0 none;
 }
 
-#bg {
+:host([maximized]) {
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+:host([minimized]) {
+  height: auto !important;
+}
+:host([minimized]) #body {
+  height: 0 !important;
+}
+
+#header-bg {
   position: absolute;
   top: 0;
+  right: 0;
+  left: 0;
+  height: var(--height-base, ${__height_base});
+  z-index: -1;
+  background-color: var(--bg-base-header, ${__bg_base_header});
+  opacity: .8;
+}
+#body-bg {
+  position: absolute;
+  top: var(--height-base, ${__height_base});
   right: 0;
   bottom: 0;
   left: 0;
@@ -86,12 +114,30 @@ const TEMPLATE_CSS = `
   flex: 0 0 auto;
   height: var(--height-base, ${__height_base});
   display: flex;
+  position: relative;
   flex-flow: row nowrap;
   align-items: center;
   position: relative;
+  /* actions(120) + padding(15) */
+  padding-right: 135px;
   cursor: move;
   user-select: none;
-  box-shadow: 0 0 0 1px var(--border-color-light, ${__border_color_light});
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .1);
+}
+:host([maximized]) #header {
+  cursor: default;
+}
+
+/* 正文区 */
+#body {
+  position: relative;
+  flex: 1 1 auto;
+}
+
+/* 状态栏 */
+#footer {
+  position: relative;
+  flex: 0 0 auto;
 }
 
 #icon {
@@ -105,9 +151,13 @@ const TEMPLATE_CSS = `
 }
 
 #actions {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
   box-sizing: border-box;
   display: flex;
-  height: 100%;
+  height: var(--height-base, ${__height_base});
   margin-left: 15px;
 }
 #actions button {
@@ -122,8 +172,11 @@ const TEMPLATE_CSS = `
 #actions button:focus {
   outline: none;
 }
+
 #maximize:after,
-#minimize:after {
+#minimize:after,
+:host([maximized]) #maximize:before,
+:host([minimized]) #minimize:before {
   content: '';
   display: block;
   position: absolute;
@@ -134,20 +187,37 @@ const TEMPLATE_CSS = `
   width: 10px;
   margin: auto;
 }
+
+:host([maximized]) #maximize:before {
+  height: 8px;
+  border-top: 1px solid #aaa;
+  border-right: 1px solid #aaa;
+  bottom: 6px;
+  left: 6px;
+}
 #maximize:after {
   height: 8px;
   border: 1px solid #aaa;
 }
+:host([maximized]) #maximize:before,
 #maximize:hover:after {
   border-color: #888;
+}
+
+:host([minimized]) #minimize:before {
+  width: 2px;
+  height: 8px;
+  background: #aaa;
 }
 #minimize:after {
   height: 2px;
   background: #aaa;
 }
-#minimize:hover:after {
+#minimize:hover:after,
+:host([minimized]) #minimize:before {
   background: #888;
 }
+
 #close {
   fill: #aaa;
 }
@@ -163,52 +233,143 @@ const TEMPLATE_CSS = `
 }
 #minimize:hover,
 #maximize:hover {
-  background: rgba(0, 0, 0, .1);
+  background: rgba(0, 0, 0, .05);
 }
 #close:hover {
   background: var(--color-danger, ${__color_danger});
   fill: #fff;
 }
 
-#body {
-  flex: 1 1 auto;
+:host([maximized]) #resize-top-left,
+:host([minimized]) #resize-top-left,
+:host([maximized]) #resize-top-right,
+:host([minimized]) #resize-top-right,
+:host([maximized]) #resize-bottom-right,
+:host([minimized]) #resize-bottom-right,
+:host([maximized]) #resize-bottom-left,
+:host([minimized]) #resize-bottom-left,
+:host([maximized]) #resize-top,
+:host([minimized]) #resize-top,
+:host([maximized]) #resize-right,
+:host([minimized]) #resize-right,
+:host([maximized]) #resize-bottom,
+:host([minimized]) #resize-bottom,
+:host([maximized]) #resize-left,
+:host([minimized]) #resize-left {
+  pointer-events: none;
 }
 
-#footer {
-  flex: 0 0 auto;
+#resize-top-left,
+#resize-top-right,
+#resize-bottom-right,
+#resize-bottom-left {
+  position: absolute;
+  z-index: 3;
+}
+#resize-top,
+#resize-right,
+#resize-bottom,
+#resize-left {
+  position: absolute;
+  z-index: 1;
+}
+
+#resize-top-left,
+#resize-top-right,
+#resize-bottom-right,
+#resize-bottom-left {
+  width: 4px;
+  height: 4px;
+}
+#resize-top-left {
+  top: 0;
+  left: 0;
+  cursor: nwse-resize;
+}
+#resize-top-right {
+  top: 0;
+  right: 0;
+  cursor: nesw-resize;
+}
+#resize-bottom-right {
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+}
+#resize-bottom-left {
+  bottom: 0;
+  left: 0;
+  cursor: nesw-resize;
+}
+
+#resize-left,
+#resize-right {
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  height: 100%;
+  cursor: ew-resize;
+}
+#resize-top,
+#resize-bottom {
+  width: 100%;
+  height: 4px;
+  cursor: ns-resize;
+}
+#resize-left {
+  left: 0;
+}
+#resize-right {
+  right: 0;
+}
+#resize-top {
+  top: 0;
+}
+#resize-bottom {
+  bottom: 0;
 }
 
 :host([dark]) {
-  background-color: var(--bg-base-dark, ${__bg_baseDark});
-  border: 1px solid var(--border-color-base-dark, ${__border_color_baseDark});
-  color: var(--fg-base-dark, ${__fg_baseDark});
+  color: var(--fg-base-dark, ${__dark_fg_base});
 }
-
-:host([dark]) #header {
-  border-bottom: 1px solid var(--border-color-light-dark, ${__border_color_lightDark});
+:host([dark]) #body-bg {
+  background-color: var(--bg-base-dark, ${__dark_bg_base});
 }
 </style>
 `
 const TEMPLATE_HTML = `
 <div id="layout">
-  <div id="bg"></div>
+  <div id="header-bg"></div>
+  <div id="body-bg"></div>
+
+  <div id="resize-left"></div>
+  <div id="resize-right"></div>
+  <div id="resize-bottom"></div>
+  <div id="resize-top-left"></div>
+  <div id="resize-top-right"></div>
+  <div id="resize-bottom-right"></div>
+  <div id="resize-bottom-left"></div>
+
+  <div id="actions">
+    <button id="minimize"></button>
+    <button id="maximize"></button>
+    <button id="close"><bl-icon value="cross"></bl-icon></button>
+  </div>
+
   <header id="header">
+    <div id="resize-top"></div>
     <div id="icon"></div>
     <div id="name"></div>
-    <div id="actions">
-      <button id="minimize"></button>
-      <button id="maximize"></button>
-      <button id="close"><bl-icon value="cross"></bl-icon></button>
-    </div>
   </header>
 
   <section id="body">
-    <slot></slot>
+    <div id="content">
+      <slot></slot>
+    </div>
+    <footer id="footer">
+      <slot name="footer"></slot>
+    </footer>    
   </section>
-
-  <footer id="footer">
-    <slot name="footer"></slot>
-  </footer>
 </div>
 `
 
@@ -232,6 +393,8 @@ class BlocksWindow extends HTMLElement {
       'close-button',
       'maximize-button',
       'minimize-button',
+      'maximized',
+      'minimized',
       // 捕获焦点，tab 键不会将焦点移出 Dialog
       'capturefocus',
       'dark',
@@ -257,8 +420,8 @@ class BlocksWindow extends HTMLElement {
     }
 
     this.$maximizeButton.onclick = () => {
-      if (this._restoreSize) {
-        this.restoreSize()
+      if (this.maximized) {
+        this.cancelMaximize()
       }
       else {
         this.maximize()
@@ -266,8 +429,8 @@ class BlocksWindow extends HTMLElement {
     }
 
     this.$minimizeButton.onclick = () => {
-      if (this._restoreSize) {
-        this.restoreSize()
+      if (this.minimized) {
+        this.cancelMinimize()
       }
       else {
         this.minimize()
@@ -294,14 +457,40 @@ class BlocksWindow extends HTMLElement {
     if (this.capturefocus) {
       this._captureFocus()
     }
+
+    this._initMoveEvents()
   }
 
-  get open() {
-    return openGetter(this)
+  get appendToBody() {
+    return appendToBodyGetter(this)
   }
 
-  set open(value) {
-    openSetter(this, value)
+  set appendToBody(value) {
+    appendToBodySetter(value)
+  }  
+
+  get capturefocus() {
+    return capturefocusGetter(this)
+  }
+
+  set capturefocus(value) {
+    capturefocusSetter(this, value)
+  }
+
+  get maximized() {
+    return boolGetter('maximized')(this)
+  }
+
+  set maximized(value) {
+    boolSetter('maximized')(this, value)
+  }
+
+  get minimized() {
+    return boolGetter('minimized')(this)
+  }
+
+  set minimized(value) {
+    boolSetter('minimized')(this, value)
   }
 
   get name() {
@@ -312,58 +501,31 @@ class BlocksWindow extends HTMLElement {
     this.setAttribute('name', value)
   }
 
-  get capturefocus() {
-    return capturefocusGetter(this)
+  get open() {
+    return openGetter(this)
   }
 
-  set capturefocus(value) {
-    capturefocusSetter(this, value)
-  }
-
-  get appendToBody() {
-    return appendToBodyGetter(this)
-  }
-
-  set appendToBody(value) {
-    appendToBodySetter(value)
-  }
+  set open(value) {
+    openSetter(this, value)
+  }  
 
   render() {
   }
 
   minimize() {
-    this.storeSize()
-    this.style.height = ''
-    this.$body.style.display = 'none'
+    this.minimized = true
+  }
+
+  cancelMinimize() {
+    this.minimized = false
   }
 
   maximize() {
-    this.storeSize()
-    this.style.width = '100%'
-    this.style.height = '100%'
-    this.style.left = '0'
-    this.style.top = '0'
+    this.maximized = true
   }
 
-  storeSize() {
-    const style = getComputedStyle(this)
-    this._restoreSize = {
-      width: style.width,
-      height: style.height,
-      top: style.top,
-      left: style.left,
-    }
-  }
-
-  restoreSize() {
-    if (this._restoreSize) {
-      this.$body.style.display = ''
-      this.style.top = this._restoreSize.top
-      this.style.left = this._restoreSize.left
-      this.style.width = this._restoreSize.width
-      this.style.height = this._restoreSize.height
-      this._restoreSize = null
-    }
+  cancelMaximize() {
+    this.maximized = false
   }
 
   connectedCallback() {
@@ -376,49 +538,49 @@ class BlocksWindow extends HTMLElement {
     if (this.parentElement !== document.body) {
       document.body.appendChild(this)
     }
+  }
 
+  _initMoveEvents() {
     // 拖拽 header 移动
-    {
-      let startX
-      let startY
-      let startPageX
-      let startPageY
+    let startX
+    let startY
+    let startPageX
+    let startPageY
 
-      const isHeader = (e) => {
-        if (this.$actions.contains(e.target)) return false
-        if (this.$header.contains(e.target)) return true
-        // maybe header slot
-        if (this.contains(e.target)) {
-          let el = e.target
-          while (el && el !== this) {
-            if (el.slot === 'header') return true
-            el = el.parentElement
-          }
+    const isHeader = (e) => {
+      if (this.$actions.contains(e.target)) return false
+      if (this.$header.contains(e.target)) return true
+      // maybe header slot
+      if (this.contains(e.target)) {
+        let el = e.target
+        while (el && el !== this) {
+          if (el.slot === 'header') return true
+          el = el.parentElement
         }
-        return false
       }
+      return false
+    }
 
-      const move = (e) => {
-        this.style.left = startX + (e.pageX - startPageX) + 'px'
-        this.style.top = startY + (e.pageY - startPageY) + 'px'
-      }
+    const move = (e) => {
+      this.style.left = startX + (e.pageX - startPageX) + 'px'
+      this.style.top = startY + (e.pageY - startPageY) + 'px'
+    }
 
-      const up = () => {
-        removeEventListener('mousemove', move)
-        removeEventListener('mouseup', up)
-      }
+    const up = () => {
+      removeEventListener('mousemove', move)
+      removeEventListener('mouseup', up)
+    }
 
-      this.$layout.onmousedown = (e) => {
-        if (!isHeader(e)) return
-        startPageX = e.pageX
-        startPageY = e.pageY
-        const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0')
-        const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0')
-        startX = this.offsetLeft - marginLeft
-        startY = this.offsetTop - marginTop
-        addEventListener('mousemove', move)
-        addEventListener('mouseup', up)
-      }
+    this.$layout.onmousedown = (e) => {
+      if (this.maximized || !isHeader(e)) return
+      startPageX = e.pageX
+      startPageY = e.pageY
+      const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0')
+      const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0')
+      startX = this.offsetLeft - marginLeft
+      startY = this.offsetTop - marginTop
+      addEventListener('mousemove', move)
+      addEventListener('mouseup', up)
     }
   }
 

@@ -7,38 +7,44 @@ export const __transition_duration = '.16s'
 // --bg-base
 export const __bg_base = '#fff'
 
+// --bg-base-header
+export const __bg_base_header = '#e0e0e0'
+
 // --bg-base-dark
-export const __bg_baseDark = '#333'
+export const __dark_bg_base = '#333'
+
+// --dark-bg-base-header
+export const __dark_bg_bse_header = '#202020'
 
 // --bg-base-hover
 export const __bg_base_hover = '#f8f8f8'
 
 // --bg-base-dark-hover
-export const __bg_baseDark_hover = '#383838'
+export const __dark_bg_base_hover = '#383838'
 
 // --bg-base-active
 export const __bg_base_active = '#f0f0f0'
 
 // --bg-base-dark-active
-export const __bg_baseDark_active = '#222'
+export const __dark_bg_base_active = '#222'
 
 // --fg-base
 export const __fg_base = '#333'
 
 // --fg-base-dark
-export const __fg_baseDark = '#ddd'
+export const __dark_fg_base = '#ddd'
 
 // --fg-base-hover
 export const __fg_base_hover = '#222'
 
 // --fg-base-dark-hover
-export const __fg_baseDark_hover = '#eee'
+export const __dark_fg_base_hover = '#eee'
 
 // --fg-base-active
 export const __fg_base_active = '#000'
 
 // --fg-base-dark-active
-export const __fg_baseDark_active = '#fff'
+export const __dark_fg_base_active = '#fff'
 
 // --fg-secondary
 export const __fg_secondary = '#909090'
@@ -129,16 +135,16 @@ export const __color_success_dark = '#39b54e'
 export const __border_color_base = '#d9d9d9'
 
 // --border-color-base-dark
-export const __border_color_baseDark = '#383838'
+export const __dark_border_color_base = '#383838'
 
 // --border-color-light
 export const __border_color_light = '#e5e5e5'
 
 // --border-color-light-dark
-export const __border_color_lightDark = '#444'
+export const __dark_border_color_light = '#444'
 
 // --border-color-disabled
 export const __border_color_disabled = '#d9d9d9'
 
 // --border-color-disabled-dark
-export const __border_color_disabledDark = '#383838'
+export const __dark_border_color_disabled = '#383838'

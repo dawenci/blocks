@@ -2,7 +2,7 @@ import '../../components/popup/index.js'
 import '../../components/icon/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
-import { __fg_base, __fg_base_hover, __bg_baseDark_hover, __fg_baseDark_hover, __bg_baseDark_active, __fg_baseDark_active, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __color_primary, __height_base, __height_small, __height_large, __fg_baseDark, __bg_base_hover } from '../theme/var.js'
+import { __fg_base, __fg_base_hover, __dark_bg_base_hover, __dark_fg_base_hover, __dark_bg_base_active, __dark_fg_base_active, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __color_primary, __height_base, __height_small, __height_large, __dark_fg_base, __bg_base_hover } from '../theme/var.js'
 import { activeGetter, activeSetter, disabledGetter, disabledSetter } from '../../common/propertyAccessor.js'
 import { dispatchEvent } from '../../common/event.js'
 import { forEach } from '../../common/utils.js'
@@ -20,8 +20,8 @@ const TEMPLATE_CSS = `<style>
   cursor: default;
 }
 :host-context(bl-popup-menu[dark]) {
-  color: var(--fg-base-dark, ${__fg_baseDark});
-  fill: var(--fg-base-dark, ${__fg_baseDark});
+  color: var(--fg-base-dark, ${__dark_fg_base});
+  fill: var(--fg-base-dark, ${__dark_fg_base});
 }
 
 :host(:hover),
@@ -32,9 +32,9 @@ const TEMPLATE_CSS = `<style>
 }
 :host-context(bl-popup-menu[dark]):host(:hover),
 :host-context(bl-popup-menu[dark]):host(.submenu-open) {
-  background-color: var(--bg-base-dark-hover, ${__bg_baseDark_hover});
-  color: var(--fg-base-dark-hover, ${__fg_baseDark_hover});
-  fill: var(--fg-base-hover, ${__fg_baseDark_hover});
+  background-color: var(--bg-base-dark-hover, ${__dark_bg_base_hover});
+  color: var(--fg-base-dark-hover, ${__dark_fg_base_hover});
+  fill: var(--fg-base-hover, ${__dark_fg_base_hover});
 }
 
 :host(:active),
@@ -45,9 +45,9 @@ const TEMPLATE_CSS = `<style>
 }
 :host-context(bl-popup-menu[dark]):host(:active),
 :host-context(bl-popup-menu[dark]):host(.submenu-open:active) {
-  background-color: var(--bg-base-dark-hover, ${__bg_baseDark_active});
-  color: var(--fg-base-dark-hover, ${__fg_baseDark_active});
-  fill: var(--fg-base-hover, ${__fg_baseDark_active});
+  background-color: var(--bg-base-dark-hover, ${__dark_bg_base_active});
+  color: var(--fg-base-dark-hover, ${__dark_fg_base_active});
+  fill: var(--fg-base-hover, ${__dark_fg_base_active});
 }
 
 :host([link]) {

@@ -1,7 +1,7 @@
 import '../../components/icon/index.js'
 import '../../components/popup-menu/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __height_base, __height_large, __transition_duration, __height_small, __color_primary, __bg_baseDark_hover, __bg_base_hover, __fg_baseDark_hover, __bg_base_active, __bg_baseDark_active, __fg_baseDark_active, __fg_baseDark } from '../theme/var.js'
+import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __height_base, __height_large, __transition_duration, __height_small, __color_primary, __dark_bg_base_hover, __bg_base_hover, __dark_fg_base_hover, __bg_base_active, __dark_bg_base_active, __dark_fg_base_active, __dark_fg_base } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 
@@ -55,8 +55,8 @@ bl-icon {
   cursor: default;
 }
 :host-context(bl-nav-menu[dark]) #layout {
-  color: var(--fg-base-dark, ${__fg_baseDark});
-  fill: var(--fg-base-dark, ${__fg_baseDark});
+  color: var(--fg-base-dark, ${__dark_fg_base});
+  fill: var(--fg-base-dark, ${__dark_fg_base});
 }
 
 :host #layout:hover,
@@ -67,9 +67,9 @@ bl-icon {
 }
 :host-context(bl-nav-menu[dark]) #layout:hover,
 :host-context(bl-nav-menu[dark]):host(.submenu-open) #layout {
-  background-color: var(--bg-base-dark-hover, ${__bg_baseDark_hover});
-  color: var(--fg-base-dark-hover, ${__fg_baseDark_hover});
-  fill: var(--fg-base-hover, ${__fg_baseDark_hover});
+  background-color: var(--bg-base-dark-hover, ${__dark_bg_base_hover});
+  color: var(--fg-base-dark-hover, ${__dark_fg_base_hover});
+  fill: var(--fg-base-hover, ${__dark_fg_base_hover});
 }
 
 :host #layout:active {
@@ -78,9 +78,9 @@ bl-icon {
   fill: var(--fg-base-active, ${__fg_base_active});
 }
 :host-context(bl-nav-menu[dark]) #layout:active {
-  background-color: var(--bg-base-dark-hover, ${__bg_baseDark_active});
-  color: var(--fg-base-dark-hover, ${__fg_baseDark_active});
-  fill: var(--fg-base-hover, ${__fg_baseDark_active});
+  background-color: var(--bg-base-dark-hover, ${__dark_bg_base_active});
+  color: var(--fg-base-dark-hover, ${__dark_fg_base_active});
+  fill: var(--fg-base-hover, ${__dark_fg_base_active});
 }
 
 :host([active]) #layout,
