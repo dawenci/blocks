@@ -16,14 +16,16 @@ import {
   __radius_base,
   __transition_duration,
   __bg_base_header,
+  __dark_bg_base_header,
 } from '../theme/var.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
+import { boolGetter, boolSetter, strGetter, strSetter } from '../../common/property.js'
 import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
 import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
+import { sizeObserve } from '../../common/sizeObserve.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -44,7 +46,6 @@ const TEMPLATE_CSS = `
   backdrop-filter: blur(4px);
   transform-origin: top right;
   min-width: 200px;
-  min-height: 100px;
 }
 :host([open]) {
   display: block;
@@ -80,6 +81,7 @@ const TEMPLATE_CSS = `
 }
 :host([minimized]) #body {
   height: 0 !important;
+  padding: 0;
 }
 
 #header-bg {
@@ -132,24 +134,65 @@ const TEMPLATE_CSS = `
 
 /* 正文区 */
 #body {
+  box-sizing: border-box;
+  overflow: hidden;
   position: relative;
   flex: 1 1 auto;
+}
+#body.has-status-bar {
+  padding-bottom: 24px;
+}
+#body.has-status-bar #status-bar {
+  display: flex;
+}
+
+#content {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 /* 状态栏 */
-#footer {
-  position: relative;
-  flex: 0 0 auto;
+#status-bar {
+  display: none;
+  flex-flow: row nowrap;
+  align-items: center;
+  box-sizing: border-box;
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+  border-top: 1px solid rgba(0, 0, 0, .03);
+  background-color: rgba(0, 0, 0, .025);
 }
 
+#icon:empty {
+  display: none;
+}
 #icon {
   flex: 0 0 auto;
+  height: 14px;
+  margin-left: 8px;
+}
+#icon svg,
+#icon img {
+  width: 14px;
+  height: 14px;
 }
 
 #name {
+  overflow: hidden;
   box-sizing: border-box;
   flex: 1 1 auto;
-  padding: 0 10px;
+  padding: 0 8px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 #actions {
@@ -234,10 +277,13 @@ const TEMPLATE_CSS = `
   margin: auto;
 }
 #minimize:hover,
-#maximize:hover {
+#maximize:hover,
+#minimize:focus,
+#maximize:focus {
   background: rgba(0, 0, 0, .05);
 }
-#close:hover {
+#close:hover,
+#close:focus {
   background: var(--color-danger, ${__color_danger});
   fill: #fff;
 }
@@ -333,11 +379,25 @@ const TEMPLATE_CSS = `
   bottom: 0;
 }
 
+#first, #last, #first:focus, #last:focus {
+  overflow: hidden;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0 none;
+}
+
 :host([dark]) {
   color: var(--fg-base-dark, ${__dark_fg_base});
+  fill: var(--fg-base-dark, ${__dark_fg_base});
 }
 :host([dark]) #body-bg {
   background-color: var(--bg-base-dark, ${__dark_bg_base});
+}
+:host([dark]) #header-bg {
+  background-color: var(--dark-bg-base-header, ${__dark_bg_base_header});
 }
 </style>
 `
@@ -355,9 +415,9 @@ const TEMPLATE_HTML = `
     <div id="content">
       <slot></slot>
     </div>
-    <footer id="footer">
-      <slot name="footer"></slot>
-    </footer>    
+    <footer id="status-bar">
+      <slot name="status-bar"></slot>
+    </footer>
   </section>
 
   <b id="resize-top"></b>
@@ -373,7 +433,7 @@ const TEMPLATE_HTML = `
     <button id="minimize"></button>
     <button id="maximize"></button>
     <button id="close"><bl-icon value="cross"></bl-icon></button>
-  </div>  
+  </div>
 </div>
 `
 
@@ -382,26 +442,23 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 const capturefocusGetter = boolGetter('capturefocus')
 const capturefocusSetter = boolSetter('capturefocus')
-const appendToBodyGetter = boolGetter('append-to-body')
-const appendToBodySetter = boolSetter('append-to-body')
 
 class BlocksWindow extends HTMLElement {
   static get observedAttributes() {
     return [
-      // 显示状态
-      'open',
-      // 标题图标
-      'icon',
-      // 标题
-      'name',
-      'close-button',
-      'maximize-button',
-      'minimize-button',
-      'maximized',
-      'minimized',
+      // 窗口按钮，'minimize,maximize,close'
+      'actions',
       // 捕获焦点，tab 键不会将焦点移出 Dialog
       'capturefocus',
       'dark',
+      // 标题图标
+      'icon',
+      'maximized',
+      'minimized',
+      // 标题
+      'name',
+      // 显示状态
+      'open',
     ]
   }
 
@@ -412,12 +469,22 @@ class BlocksWindow extends HTMLElement {
     this.$layout = shadowRoot.getElementById('layout')
     this.$header = shadowRoot.getElementById('header')
     this.$body = shadowRoot.getElementById('body')
+    this.$content = shadowRoot.getElementById('content')
+    this.$statusBar = shadowRoot.getElementById('status-bar')
+    this.$statusBarSlot = shadowRoot.querySelector('[name=status-bar]')
     this.$actions = shadowRoot.getElementById('actions')
     this.$closeButton = shadowRoot.getElementById('close')
     this.$maximizeButton = shadowRoot.getElementById('maximize')
     this.$minimizeButton = shadowRoot.getElementById('minimize')
     this.$icon = shadowRoot.getElementById('icon')
     this.$name = shadowRoot.getElementById('name')
+
+    sizeObserve(this, (data) => {
+      if (typeof this.onResize === 'function') {
+        this.onResize(data)
+      }
+      dispatchEvent(this, 'resize', { detail: { data } })
+    })
 
     this.$closeButton.onclick = () => {
       this.open = false
@@ -454,8 +521,18 @@ class BlocksWindow extends HTMLElement {
       }
     })
 
-    this.$layout.addEventListener('slotchange', e => {
+    // 主内容变化
+    this.$content.addEventListener('slotchange', e => {
       this.render()
+    })
+
+    // 状态栏内容变化
+    const updateSlot = () => {
+      this.$body.classList.toggle('has-status-bar', this.$statusBarSlot.assignedNodes().length)
+    }
+    updateSlot()
+    this.$statusBarSlot.addEventListener('slotchange', e => {
+      updateSlot()
     })
 
     if (this.capturefocus) {
@@ -466,13 +543,19 @@ class BlocksWindow extends HTMLElement {
     this._initResizeEvents()
   }
 
-  get appendToBody() {
-    return appendToBodyGetter(this)
+  get actions() {
+    return strGetter('actions')(this) ?? 'minimize,maximize,close'
   }
 
-  set appendToBody(value) {
-    appendToBodySetter(value)
-  }  
+  set actions(value) {
+    if (value !== null && typeof value !== 'string') return
+    if (typeof value === 'string') {
+      value = value.split(',')
+        .filter(action => ['minimize', 'maximize', 'close'].includes(action.trim()))
+        .join(',') || null
+    }
+    strSetter('actions')(this, value)
+  }
 
   get capturefocus() {
     return capturefocusGetter(this)
@@ -480,6 +563,14 @@ class BlocksWindow extends HTMLElement {
 
   set capturefocus(value) {
     capturefocusSetter(this, value)
+  }
+
+  get icon() {
+    return strGetter('icon')(this)
+  }
+
+  set icon(value) {
+    strSetter('icon')(this, value)
   }
 
   get maximized() {
@@ -512,7 +603,7 @@ class BlocksWindow extends HTMLElement {
 
   set open(value) {
     openSetter(this, value)
-  }  
+  }
 
   render() {
   }
@@ -549,14 +640,9 @@ class BlocksWindow extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (name == 'open') {
-      this._updateVisible()
+    if (name === 'actions') {
+      this._renderActions()
     }
-
-    if (name === 'name') {
-      this._renderTitle()
-    }
-
     if (name === 'capturefocus') {
       if (this.capturefocus) {
         this._captureFocus()
@@ -564,6 +650,15 @@ class BlocksWindow extends HTMLElement {
       else {
         this._stopCaptureFocus()
       }
+    }
+    if (name === 'icon') {
+      this._renderIcon()
+    }
+    if (name === 'name') {
+      this._renderName()
+    }
+    if (name == 'open') {
+      this._updateVisible()
     }
   }
 
@@ -588,7 +683,7 @@ class BlocksWindow extends HTMLElement {
       if (this.maximized) return
       const style = getComputedStyle(this)
       startLeft = parseFloat(style.left)
-      startTop = parseFloat(style.top)      
+      startTop = parseFloat(style.top)
       startMouseX = e.pageX
       startMouseY = e.pageY
       addEventListener('mousemove', move)
@@ -628,7 +723,7 @@ class BlocksWindow extends HTMLElement {
       const offset = y - startMouseY
       const newTop = startTop + offset
       const newHeight= startHeight - offset
-      if (newTop < 0 || newHeight < 100) return
+      if (newTop < 0 || newHeight < this.$header.offsetHeight) return
       currentTop = newTop
       currentHeight = newHeight
       this.style.top = newTop + 'px'
@@ -639,7 +734,7 @@ class BlocksWindow extends HTMLElement {
       // offset < 0: 往上拖拽缩小窗口, height 减少
       const offset = y - startMouseY
       const newHeight= startHeight + offset
-      if (newHeight < 100) return
+      if (newHeight < this.$header.offsetHeight) return
       currentHeight = newHeight
       this.style.height = newHeight + 'px'
     }
@@ -713,10 +808,33 @@ class BlocksWindow extends HTMLElement {
       addEventListener('mousemove', move)
       addEventListener('mouseup', up)
     }
-  }  
+  }
 
-  _renderTitle() {
-    this.$name.textContent = this.name ?? ''
+  _renderName() {
+    this.$name.title = this.$name.textContent = this.name ?? ''
+  }
+
+  _renderActions() {
+    this.$minimizeButton.style.display = this.actions.includes('minimize') ? '' : 'none'
+    this.$maximizeButton.style.display = this.actions.includes('maximize') ? '' : 'none'
+    this.$closeButton.style.display = this.actions.includes('close') ? '' : 'none'
+  }
+
+  _renderIcon() {
+    if (this.$icon.childElementCount) {
+      const $icon = this.$icon.firstElementChild
+      if ($icon.dataset.name === this.icon) return
+    }
+
+    const $icon = getRegisteredSvgIcon(this.icon ?? '')
+    if ($icon) {
+      $icon.dataset.name = this.icon
+      this.$icon.innerHTML = ''
+      this.$icon.appendChild($icon)
+    }
+    else {
+      this.$icon.innerHTML = ''
+    }
   }
 
   // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
@@ -756,7 +874,7 @@ class BlocksWindow extends HTMLElement {
       }
       if (!this.style.top) {
         this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
-      }      
+      }
     }
     else {
       this.classList.remove('open-animation')
@@ -811,7 +929,7 @@ class BlocksWindow extends HTMLElement {
       this._prevFocus.focus()
       this._prevFocus = undefined
     }
-  }  
+  }
 }
 
 if (!customElements.get('bl-window')) {

@@ -14,7 +14,7 @@ export const __bg_base_header = '#e0e0e0'
 export const __dark_bg_base = '#333'
 
 // --dark-bg-base-header
-export const __dark_bg_bse_header = '#202020'
+export const __dark_bg_base_header = '#202020'
 
 // --bg-base-hover
 export const __bg_base_hover = '#f8f8f8'
