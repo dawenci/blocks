@@ -15,10 +15,13 @@ const TEMPLATE_CSS = `<style>
   bottom: 0;
   left: 0;
   background-color: rgba(0,0,0,.3);
-  transition-duration: var(--transition-duration, ${__transition_duration}), 0s;
 }
 :host([open]) {
   display: block;
+}
+:host(.open-animation),
+:host(.close-animation) {
+  transition-duration: var(--transition-duration, ${__transition_duration}), 0s;
 }
 </style>`
 
