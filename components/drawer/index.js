@@ -60,7 +60,7 @@ const TEMPLATE_CSS = `<style>
   flex: 0 0 auto;
 }
 
-#title {
+#name {
   overflow: hidden;
   white-space: nowrap;
   flex: 1 1 auto;
@@ -70,7 +70,7 @@ const TEMPLATE_CSS = `<style>
   margin-left: 15px;
   font-size: 16px;
 }
-#title-prop {
+#name-prop {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -117,9 +117,9 @@ const TEMPLATE_CSS = `<style>
 const TEMPLATE_HTML = `
 <div id="layout">
   <header id="header">
-    <div id="title">
-      <slot name="title">
-        <span id="title-prop"></span>
+    <div id="name">
+      <slot name="name">
+        <span id="name-prop"></span>
       </slot>
     </div>
     <button id="close">
@@ -134,9 +134,10 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
+// TODO, Events
 class BlocksDrawer extends HTMLElement {
   static get observedAttributes() {
-    return ['capturefocus', 'close-on-click-outside', 'close-on-escape', 'mask', 'open', 'placement', 'size', 'title', ]
+    return ['capturefocus', 'close-on-click-outside', 'close-on-escape', 'mask', 'name', 'open', 'placement', 'size']
   }
 
   constructor() {
@@ -144,7 +145,7 @@ class BlocksDrawer extends HTMLElement {
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$layout = shadowRoot.getElementById('layout')
-    this.$title = shadowRoot.getElementById('title-prop')
+    this.$name = shadowRoot.getElementById('name-prop')
     this.$close = shadowRoot.getElementById('close')
     this.$close.onclick = () => this.open = false
 
@@ -185,6 +186,14 @@ class BlocksDrawer extends HTMLElement {
     maskSetter(value)
   }
 
+  get name() {
+    return this.getAttribute('name')
+  }
+
+  set name(value) {
+    this.setAttribute('name', value)
+  }  
+
   get open() {
     return openGetter(this)
   }
@@ -208,14 +217,6 @@ class BlocksDrawer extends HTMLElement {
 
   set size(value) {
     return this.setAttribute('size', value)
-  }
-  
-  get title() {
-    return this.getAttribute('title')
-  }
-
-  set title(value) {
-    this.setAttribute('title', value)
   }
 
   render() {
@@ -242,7 +243,7 @@ class BlocksDrawer extends HTMLElement {
       }
     }
 
-    this.$title.textContent = this.title
+    this.$name.textContent = this.name
   }
 
   connectedCallback() {

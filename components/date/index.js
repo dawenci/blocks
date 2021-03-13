@@ -9,11 +9,11 @@ import {
   __height_small,
   __height_large,
 } from '../theme/var.js'
-
 import { range } from '../../common/utils.js'
 import { Depth } from './data.js'
 import { normalizeMinDepth, normalizeViewDepth, toggleClass, toggleAttr, getClosestDate, getFirstDate, getLastDate, getLastDateOfPrevMonth, getFirstDateOfNextMonth } from './helpers.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
+import { dispatchEvent } from '../../common/event.js'
 
 const TEMPLATE_CSS = `<style>
 @keyframes rotate360 {
@@ -796,7 +796,7 @@ class BlocksDate extends HTMLElement {
     }
 
     this.render()
-    this.dispatchEvent(new CustomEvent('input', { detail: { value } }))
+    dispatchEvent(this, 'input', { detail: { value } })
   }
 
   get depth() {
@@ -1176,18 +1176,18 @@ class BlocksDate extends HTMLElement {
     if (this.viewDepth === Depth.Year) {
       this.panelMonth = item.month
       this.viewDepth = Depth.Month
-      this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
+      dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
       return
     }
     if (this.viewDepth === Depth.Decade) {
       this.viewDepth = Depth.Year
       this.panelYear = item.year
-      this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
+      dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
       return
     }
     this.viewDepth = Depth.Decade
     this.panelDecade = item.decade
-    this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
+    dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
   }
 
   makeDate(year, month, date) {
@@ -1308,7 +1308,7 @@ class BlocksDate extends HTMLElement {
       this.panelYear--
       this.panelMonth = 11
     }
-    this.dispatchEvent(new CustomEvent('prev-month', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear, month: this.panelMonth } }))
+    dispatchEvent(this, 'prev-month', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear, month: this.panelMonth } })
   }
 
   // 显示下个月的选项
@@ -1320,43 +1320,43 @@ class BlocksDate extends HTMLElement {
       this.panelYear++
       this.panelMonth = 0
     }
-    this.dispatchEvent(new CustomEvent('next-month', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear, month: this.panelMonth } }))
+    dispatchEvent(this, 'next-month', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear, month: this.panelMonth } })
   }
 
   // 显示上一年的选项
   showPrevYear() {
     this.panelYear--
-    this.dispatchEvent(new CustomEvent('prev-year', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear } }))
+    dispatchEvent(this, 'prev-year', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear } })
   }
 
   // 显示下一年的选项
   showNextYear() {
     this.panelYear++
-    this.dispatchEvent(new CustomEvent('next-year', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear } }))
+    dispatchEvent(this, 'next-year', { detail: { century: this.panelCentury, decade: this.panelDecade, year: this.panelYear } })
   }
 
   // 显示上个年代（十年）的选项
   showPrevDecade() {
     this.panelDecade--
-    this.dispatchEvent(new CustomEvent('prev-decade', { detail: { century: this.panelCentury, decade: this.panelDecade } }))
+    dispatchEvent(this, 'prev-decade', { detail: { century: this.panelCentury, decade: this.panelDecade } })
   }
 
   // 显示下个年代（十年）的选项
   showNextDecade() {
     this.panelDecade++
-    this.dispatchEvent(new CustomEvent('next-decade', { detail: { century: this.panelCentury, decade: this.panelDecade } }))
+    dispatchEvent(this, 'next-decade', { detail: { century: this.panelCentury, decade: this.panelDecade } })
   }
 
   // 显示上一个世纪的选项
   showPrevCentury() {
     this.panelCentury--
-    this.dispatchEvent(new CustomEvent('prev-century', { detail: { century: this.panelCentury } }))
+    dispatchEvent(this, 'prev-century', { detail: { century: this.panelCentury } })
   }
 
   // 显示下一个世纪的选项
   showNextCentury() {
     this.panelCentury++
-    this.dispatchEvent(new CustomEvent('next-century', { detail: { century: this.panelCentury }}))
+    dispatchEvent(this, 'next-century', { detail: { century: this.panelCentury }})
   }
 
   // 点击 prev 按钮
@@ -1411,19 +1411,19 @@ class BlocksDate extends HTMLElement {
       case Depth.Month: {
         this.viewDepth = normalizeViewDepth(Depth.Year, this.mindepth, this.depth)
         this.setPanelDate(this.makeDate(this.panelYear, 0))
-        this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
+        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
         break
       }
       case Depth.Year: {
         this.viewDepth = normalizeViewDepth(Depth.Decade, this.mindepth, this.depth)
         this.setPanelDate(this.makeDate(this.panelYear, 0))
-        this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
+        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
         break
       }
       case Depth.Decade: {
         this.viewDepth = normalizeViewDepth(Depth.Century, this.mindepth, this.depth)
         this.setPanelDate(this.makeDate(this.panelDecade * 10, 0))
-        this.dispatchEvent(new CustomEvent('panel-change', { detail: { viewDepth: this.viewDepth } }))
+        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
         break
       }
     }

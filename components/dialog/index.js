@@ -176,13 +176,6 @@ footer {
   outline: 0 none;
 }
 
-.no-header #close {
-  top: 15px;
-}
-.no-header.no-footer #close {
-  top: 30px;
-}
-
 #first, #last, #first:focus, #last:focus {
   overflow: hidden;
   width: 0;
@@ -255,18 +248,6 @@ class BlocksDialog extends HTMLElement {
 
     this.$layout = shadowRoot.getElementById('layout')
     this.$mask = document.createElement('bl-modal-mask')
-    // this.$mask.style.cssText = `
-    //   display: none;
-    //   position:absolute;
-    //   left:0;
-    //   top:0;
-    //   right:0;
-    //   bottom:0;
-    //   z-index:10;
-    //   background: rgba(0,0,0,.3);
-    //   opacity:0;
-    //   transition: opacity var(--transition-duration, ${__transition_duration}) cubic-bezier(.645, .045, .355, 1);
-    // `
 
     this.remove = false
 
@@ -294,8 +275,6 @@ class BlocksDialog extends HTMLElement {
         }
         else {
           this._blur()
-          // this.$mask.style.display = 'none'
-
           if (this.remove) {
             this.parentElement && this.parentElement.removeChild(this)
           }

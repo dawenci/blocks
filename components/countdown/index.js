@@ -1,6 +1,7 @@
 import { padLeft } from '../../common/utils.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { numGetter, numSetter } from '../../common/property.js'
+import { dispatchEvent } from '../../common/event.js'
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -103,7 +104,7 @@ class BlocksCountdown extends HTMLElement {
       }
     }
     else {
-      this.dispatchEvent(new CustomEvent('finish', { bubbles: true, composed: true, cancelable: true }))
+      dispatchEvent(this, 'end')
     }
 
     const parseFormat = (str) => {

@@ -1,4 +1,5 @@
 import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
+import { dispatchEvent } from '../../common/event.js'
 import { checkedGetter, checkedSetter, disabledGetter, disabledSetter } from '../../common/propertyAccessor.js'
 import {
   __font_family,
@@ -17,6 +18,7 @@ const TEMPLATE_CSS = `
 <style>
 :host {
   display: inline-block;
+  vertical-align: middle;
   box-sizing: border-box;
   font-family: var(--font-family, ${__font_family});
   text-align: center;
@@ -158,7 +160,7 @@ class BlocksCheckbox extends HTMLElement {
   _indeterminate = false
 
   static get observedAttributes() {
-    return ['name', 'value', 'checked', 'disabled']
+    return ['name', 'checked', 'disabled']
   }
 
   constructor() {
@@ -250,6 +252,9 @@ class BlocksCheckbox extends HTMLElement {
     if (name === 'disabled') {
       setDisabled(this, this.disabled)
       setTabindex(this, !this.disabled)
+    }
+    if (name === 'checked') {
+      dispatchEvent(this, 'change', { detail: { value: this.checked } })
     }
   }
 }

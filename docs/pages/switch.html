@@ -30,32 +30,38 @@
     <section class="section">
       <h2>默认</h2>
 
-      <template data-codesource="html">
-        <bl-switch></bl-switch>
-        <bl-switch checked></bl-switch>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-switch></bl-switch>
+          <bl-switch checked></bl-switch>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>尺寸</h2>
 
-      <template data-codesource="html">
-        <bl-switch size="small"></bl-switch>
-        <bl-switch size="small" checked></bl-switch>
-        <bl-switch></bl-switch>
-        <bl-switch checked></bl-switch>
-        <bl-switch size="large"></bl-switch>
-        <bl-switch size="large" checked></bl-switch>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-switch size="small"></bl-switch>
+          <bl-switch size="small" checked></bl-switch>
+          <bl-switch></bl-switch>
+          <bl-switch checked></bl-switch>
+          <bl-switch size="large"></bl-switch>
+          <bl-switch size="large" checked></bl-switch>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>不可用状态</h2>
 
-      <template data-codesource="html">
-        <bl-switch disabled></bl-switch>
-        <bl-switch checked disabled></bl-switch>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-switch disabled></bl-switch>
+          <bl-switch checked disabled></bl-switch>
+        </template>
+      </div>
     </section>
     
 
@@ -94,6 +100,24 @@
             <td></td>
             <td>尺寸。默认不设置为中等尺寸。</td>
             <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>change</td>
+            <td>{ detail: { value } }</td>
+            <td>选中状态切换时触发。</td>
           </tr>
         </tbody>
       </table>

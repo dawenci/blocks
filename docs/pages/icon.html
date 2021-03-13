@@ -17,6 +17,8 @@
       <h1>icon</h1>
     </header>
 
+    <script type="module" src="../../components/grid/index.js"></script>
+
     <section class="section">
       <h2>依赖引入</h2>
 
@@ -30,22 +32,75 @@
     <section class="section">
       <h2>默认</h2>
 
-      <template data-codesource="html">
-        <bl-icon value="date"></bl-icon>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-icon value="date"></bl-icon>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>填充颜色</h2>
 
+      <div class="case">
+        <template data-codesource="html">
+          <bl-icon value="date" fill="#1890ff"></bl-icon>
+        </template>
+      </div>
+    </section>
+
+  
+    <section class="section">
+      <h2>预定义图标</h2>
+
+      <style>
+        bl-col > div {
+          border: 1px solid #e8e8e8;
+          text-align: center;
+          margin: 5px;
+          padding: 10px 0;
+          overflow: hidden;
+        }
+        bl-col > bl-icon {
+          max-width: 100%;
+        }
+      </style>
       <template data-codesource="html">
-        <bl-icon value="date" fill="#1890ff"></bl-icon>
+        <bl-row>
+          <bl-col span="4"><div><bl-icon value="check" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="cross" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="date" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="down" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="error" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="file-excel" fill="#1890ff"></bl-icon></div></bl-col>
+        </bl-row>
+        <bl-row>
+          <bl-col span="4"><div><bl-icon value="file-image" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="file-other" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="file-pdf" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="file-ppt" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="file-word" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="info" fill="#1890ff"></bl-icon></div></bl-col>
+        </bl-row>
+        <bl-row>
+          <bl-col span="4"><div><bl-icon value="loading" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="left" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="right" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="star" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="time" fill="#1890ff"></bl-icon></div></bl-col>
+          <bl-col span="4"><div><bl-icon value="success" fill="#1890ff"></bl-icon></div></bl-col>
+        </bl-row>
+        <bl-row>
+          <bl-col span="4"><div><bl-icon value="up" fill="#1890ff"></bl-icon></div></bl-col>
+        </bl-row>
+        
       </template>
     </section>
 
     <section class="section">
       <h2>API</h2>
-      待编写
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>

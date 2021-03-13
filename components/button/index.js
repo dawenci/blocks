@@ -54,6 +54,7 @@ const TEMPLATE_CSS = `
 }
 :host {
   display: inline-block;
+  vertical-align: middle;
   box-sizing: border-box;
   border-width: 1px;
   border-style: solid;

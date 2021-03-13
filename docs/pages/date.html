@@ -113,6 +113,7 @@
     <section class="section">
       <h2>API</h2>
 
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -174,10 +175,10 @@
             <td></td>
           </tr>
           <tr>
-            <td>startWeekOn</td>
+            <td>start-week-on</td>
             <td>0 | 1 | 2 | 3 | 4 | 5 | 6</td>
             <td>1</td>
-            <td>每周从星期几开始，0 代表星期天，1 代表星期一，顺序类推。</td>
+            <td>每周从星期几开始，0 代表星期天，1 代表星期一，顺序类推。对应的 prop 为 `startWeekOn`</td>
             <td></td>
           </tr>
           <tr>
@@ -186,6 +187,69 @@
             <td></td>
             <td>model 值。</td>
             <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>input</td>
+            <td>{ detail: { value } }</td>
+            <td>value 变化时触发。</td>
+          </tr>
+          <tr>
+            <td>next-century</td>
+            <td>{ detail: { century }}</td>
+            <td>面板切换到下个世纪时触发。</td>
+          </tr>
+          <tr>
+            <td>next-decade</td>
+            <td>{ detail: { century, decade } }</td>
+            <td>面板切换到下个十年时触发。</td>
+          </tr>
+          <tr>
+            <td>next-month</td>
+            <td>{ detail: { century, decade, year, month } }</td>
+            <td>面板切换到下月时触发。</td>
+          </tr>
+          <tr>
+            <td>next-year</td>
+            <td>{ detail: { century, decade, year } }</td>
+            <td>面板切换到下一年时触发。</td>
+          </tr>
+          <tr>
+            <td>panel-change</td>
+            <td>{ detail: { viewDepth } }</td>
+            <td>面板层级变化时触发。</td>
+          </tr>
+          <tr>
+            <td>prev-century</td>
+            <td>{ detail: { century }}</td>
+            <td>面板切换到上个世纪时触发。</td>
+          </tr>
+          <tr>
+            <td>prev-decade</td>
+            <td>{ detail: { century, decade } }</td>
+            <td>面板切换到上个十年时触发。</td>
+          </tr>
+          <tr>
+            <td>prev-month</td>
+            <td>{ detail: { century, decade, year, month } }</td>
+            <td>面板切换到上月时触发。</td>
+          </tr>
+          <tr>
+            <td>prev-year</td>
+            <td>{ detail: { century, decade, year } }</td>
+            <td>面板切换到上一年时触发。</td>
           </tr>
         </tbody>
       </table>

@@ -16,6 +16,7 @@ import '../date/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setDisabled, setRole } from '../../common/accessibility.js'
 import { clearableGetter, clearableSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
+import { dispatchEvent } from '../../common/event.js'
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -206,13 +207,13 @@ class BlocksInput extends HTMLElement {
     this.$layout.onclick = (e) => {
       const target = e.target
       if (target.classList.contains('prefix-icon')) {
-        this.dispatchEvent(new CustomEvent('click-prefix-icon', { bubbles: true, composed: true, cancelable: true }))
+        dispatchEvent(this, 'click-prefix-icon')
       }
       else if (target.classList.contains('suffix-icon')) {
-        this.dispatchEvent(new CustomEvent('click-suffix-icon', { bubbles: true, composed: true, cancelable: true }))
+        dispatchEvent(this, 'click-suffix-icon')
       }
       else if (target.classList.contains('clearable')) {
-        this.dispatchEvent(new CustomEvent('click-clear', { bubbles: true, composed: true, cancelable: true }))
+        dispatchEvent(this, 'click-clear')
       }
     }
   }
@@ -283,11 +284,11 @@ class BlocksInput extends HTMLElement {
   }
 
   get value() {
-    return this.$input.value
+    return this.$input.getAttribute('value')
   }
 
   set value(value) {
-    this.$input.value = value
+    this.setAttribute('value', value)
   }
 
   get type() {
@@ -425,9 +426,14 @@ class BlocksInput extends HTMLElement {
     ].includes(name)) {
       this.$input.setAttribute(name, newValue)
     }
-
     if (name === 'disabled') {
       setDisabled(this, this.disabled)
+    }
+    if (name === 'value') {
+      if (newValue !== this.value) {
+        this.$input.setAttribute('value', newValue)
+        dispatchEvent(this, 'change', { detail: { value: newValue } })
+      }
     }
 
     this.render()

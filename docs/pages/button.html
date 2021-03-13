@@ -27,101 +27,124 @@
       </div>
     </section>
 
+    <style>
+      bl-button {
+        margin: 0 10px 10px 0;
+      }
+    </style>
+
     <section class="section">
       <h2>尺寸</h2>
 
-      <template data-codesource="html">
-        <bl-button size="small">尺寸 small</bl-button>
-        <bl-button>尺寸 default</bl-button>
-        <bl-button size="large">尺寸 large</bl-button>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-button size="small">尺寸 small</bl-button>
+          <bl-button>尺寸 default</bl-button>
+          <bl-button size="large">尺寸 large</bl-button>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>主题</h2>
 
-      <template data-codesource="html">
-        <bl-button>主题 default</bl-button>
-        <bl-button type="primary">主题 primary</bl-button>
-        <bl-button type="danger">主题 danger</bl-button>
-        <bl-button type="warning">主题 warning</bl-button>
-        <bl-button type="success">主题 success</bl-button>
-        <bl-button type="link">主题 link</bl-button>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-button>主题 default</bl-button>
+          <bl-button type="primary">主题 primary</bl-button>
+          <bl-button type="danger">主题 danger</bl-button>
+          <bl-button type="warning">主题 warning</bl-button>
+          <bl-button type="success">主题 success</bl-button>
+          <bl-button type="link">主题 link</bl-button>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>outline 风格</h2>
 
-      <template data-codesource="html">
-        <bl-button outline>风格 default outline</bl-button>
-        <bl-button type="primary" outline>风格 primary outline</bl-button>
-        <bl-button type="danger" outline>风格 danger outline</bl-button>
-        <bl-button type="warning" outline>风格 warning outline</bl-button>
-        <bl-button type="success" outline>风格 success outline</bl-button>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-button outline>风格 default outline</bl-button>
+          <bl-button type="primary" outline>风格 primary outline</bl-button>
+          <bl-button type="danger" outline>风格 danger outline</bl-button>
+          <bl-button type="warning" outline>风格 warning outline</bl-button>
+          <bl-button type="success" outline>风格 success outline</bl-button>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>不可用状态</h2>
 
-      <h3>默认</h3>
-      <template data-codesource="html">
-        <bl-button disabled>default</bl-button>
-        <bl-button type="primary" disabled>primary</bl-button>
-        <bl-button type="danger" disabled>danger</bl-button>
-        <bl-button type="warning" disabled>warning</bl-button>
-        <bl-button type="success" disabled>success</bl-button>
-      </template>
+      <div class="case">
+        <h3>默认</h3>
+        <template data-codesource="html">
+          <bl-button disabled>default</bl-button>
+          <bl-button type="primary" disabled>primary</bl-button>
+          <bl-button type="danger" disabled>danger</bl-button>
+          <bl-button type="warning" disabled>warning</bl-button>
+          <bl-button type="success" disabled>success</bl-button>
+        </template>
+      </div>
 
-      <h3>outline 时</h3>
-      <template data-codesource="html">
-        <bl-button outline disabled>default outline</bl-button>
-        <bl-button type="primary" outline disabled>primary outline</bl-button>
-        <bl-button type="danger" outline disabled>danger outline</bl-button>
-        <bl-button type="warning" outline disabled>warning outline</bl-button>
-        <bl-button type="success" outline disabled>success outline</bl-button>
-      </template>
+      <div class="case">
+        <h3>outline 时</h3>
+        <template data-codesource="html">
+          <bl-button outline disabled>default outline</bl-button>
+          <bl-button type="primary" outline disabled>primary outline</bl-button>
+          <bl-button type="danger" outline disabled>danger outline</bl-button>
+          <bl-button type="warning" outline disabled>warning outline</bl-button>
+          <bl-button type="success" outline disabled>success outline</bl-button>
+        </template>
+      </div>
     </section>
 
 
     <section class="section">
       <h2>icon</h2>
 
-      <h3>color</h3>
-      <template data-codesource="html">
-        <bl-button icon="date">default</bl-button>
-        <bl-button icon="date" type="primary">primary</bl-button>
-        <bl-button icon="date" type="danger">danger</bl-button>
-        <bl-button icon="date" type="warning">warning</bl-button>
-        <bl-button icon="date" type="success">success</bl-button>
-      </template>
+      <div class="case">
+        <h3>color</h3>
+        <template data-codesource="html">
+          <bl-button icon="date">default</bl-button>
+          <bl-button icon="date" type="primary">primary</bl-button>
+          <bl-button icon="date" type="danger">danger</bl-button>
+          <bl-button icon="date" type="warning">warning</bl-button>
+          <bl-button icon="date" type="success">success</bl-button>
+        </template>
+      </div>
 
+      <div class="case">
+        <h3>outline</h3>
+        <template data-codesource="html">
+          <bl-button icon="date" outline>default</bl-button>
+          <bl-button icon="date" outline type="primary">primary</bl-button>
+          <bl-button icon="date" outline type="danger">danger</bl-button>
+          <bl-button icon="date" outline type="warning">warning</bl-button>
+          <bl-button icon="date" outline type="success">success</bl-button>
+        </template>
+      </div>
 
-      <h3>outline</h3>
-      <template data-codesource="html">
-        <bl-button icon="date" outline>default</bl-button>
-        <bl-button icon="date" outline type="primary">primary</bl-button>
-        <bl-button icon="date" outline type="danger">danger</bl-button>
-        <bl-button icon="date" outline type="warning">warning</bl-button>
-        <bl-button icon="date" outline type="success">success</bl-button>
-      </template>
-
-      <h3>size</h3>
-      <template data-codesource="html">
-        <bl-button icon="date" size="small">small</bl-button>
-        <bl-button icon="date">default</bl-button>
-        <bl-button icon="date" size="large">large</bl-button>
-      </template>
+      <div class="case">
+        <h3>size</h3>
+        <template data-codesource="html">
+          <bl-button icon="date" size="small">small</bl-button>
+          <bl-button icon="date">default</bl-button>
+          <bl-button icon="date" size="large">large</bl-button>
+        </template>
+      </div>
     </section>
 
 
     <section class="section">
       <h2>loading</h2>
 
-      <template data-codesource="html">
-        <bl-button loading>Loading</bl-button>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-button loading>Loading</bl-button>
+        </template>
+      </div>
     </section>
 
 
@@ -130,18 +153,20 @@
 
       <p>可通过 round 设置圆角按钮</p>
 
-      <template data-codesource="html">
-        <bl-button size="small" round>round</bl-button>
-        <bl-button round>round</bl-button>
-        <bl-button size="large" round>round</bl-button>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-button size="small" round>round</bl-button>
+          <bl-button round>round</bl-button>
+          <bl-button size="large" round>round</bl-button>
 
-        <bl-button size="small" round icon="date">带图标</bl-button>
-        <bl-button round icon="date">带图标</bl-button>
-        <bl-button size="large" round icon="date">带图标</bl-button>
-        <bl-button size="small" round icon="date"></bl-button>
-        <bl-button round icon="date"></bl-button>
-        <bl-button size="large" round icon="date"></bl-button>
-      </template>
+          <bl-button size="small" round icon="date">带图标</bl-button>
+          <bl-button round icon="date">带图标</bl-button>
+          <bl-button size="large" round icon="date">带图标</bl-button>
+          <bl-button size="small" round icon="date"></bl-button>
+          <bl-button round icon="date"></bl-button>
+          <bl-button size="large" round icon="date"></bl-button>
+        </template>
+      </div>
     </section>
 
 
@@ -150,9 +175,11 @@
 
       <p>可通过 block 设置圆角按钮</p>
 
-      <template data-codesource="html">
-        <bl-button block type="primary">block 按钮</bl-button>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-button block type="primary">block 按钮</bl-button>
+        </template>
+      </div>
     </section>
 
     <section class="section">

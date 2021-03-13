@@ -30,14 +30,17 @@
     <section class="section">
       <h2>日期选择</h2>
 
-      <template data-codesource="html">
-        <bl-date-picker clearable></bl-date-picker>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-date-picker clearable></bl-date-picker>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>API</h2>
-      
+
+      <h3>Attrs / Props</h3>
       <p>支持传入 date 组件的属性控制日期面板。</p>
       <table>
         <thead>
@@ -59,8 +62,36 @@
           </tr>
         </tbody>
       </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>close</td>
+            <td></td>
+            <td>日期面板关闭时触发。</td>
+          </tr>
+          <tr>
+            <td>input</td>
+            <td>{ detail: { value } }</td>
+            <td>value 值变化时触发。</td>
+          </tr>
+          <tr>
+            <td>open</td>
+            <td></td>
+            <td>日期面板打开时触发。</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
-    
+
   </article>
 </body>
 </html>

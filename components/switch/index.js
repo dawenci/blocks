@@ -16,40 +16,41 @@ import {
 
 const TEMPLATE_CSS = `
 <style>
-:host, :host * {
-  box-sizing: border-box;
-}
 :host {
   all: initial;
-  contain: content;
   box-sizing: border-box;
   display: inline-block;
-  align-items: center;
-  text-align: center;
+  vertical-align: middle;
+  width: 38px;
+  height: 20px;
+  border-radius: 10px;
+  contain: content;
   transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   font-size: 0;
 }
 
-#switch {
+#layout {
+  box-sizing: border-box;
   overflow: hidden;
   position: relative;
-  display: block;
-  overflow: hidden;
-  width: 38px;
-  height: 20px;
-  border-radius: 10px;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
   border-width: 1px;
   border-style: solid;
   border-color: transparent;
   background-color: rgba(0,0,0,.25);
+  cursor: pointer;
 }
-:host(:not([disabled]):hover) #switch,
-:host(:not([disabled]):focus) #switch {
+:host(:not([disabled]):hover) #layout,
+:host(:not([disabled]):focus) #layout {
   background-color: rgba(0,0,0,.20);
 }
 
-#switch:after {
+#layout:after {
   position: absolute;
   top: 1px;
   left: 1px;
@@ -63,15 +64,15 @@ const TEMPLATE_CSS = `
   transition: all var(--transition-duration, ${__transition_duration});
 }
 
-:host([checked]) #switch {
+:host([checked]) #layout {
   background-color: var(--color-primary, ${__color_primary});
 }
-:host([checked]) #switch:after {
+:host([checked]) #layout:after {
   left: calc(100% - 17px);
 }
 
-:host([checked]:not([disabled]):hover) #switch,
-:host([checked]:not([disabled]):focus) #switch {
+:host([checked]:not([disabled]):hover) #layout,
+:host([checked]:not([disabled]):focus) #layout {
   border-color: transparent;
   background-color: var(--color-primary-light, ${__color_primary_light});
 }
@@ -83,35 +84,35 @@ const TEMPLATE_CSS = `
   cursor: not-allowed;
 }
 
-:host([size="small"]) #switch {
+:host([size="small"]) {
   width: 28px;
   height: 16px;
   border-radius: 8px;
 }
-:host([size="small"]) #switch:after {
+:host([size="small"]) #layout:after {
   width: 12px;
   height: 12px;
 }
-:host([size="small"][checked]) #switch:after {
+:host([size="small"][checked]) #layout:after {
   left: calc(100% - 13px);
 }
 
-:host([size="large"]) #switch {
+:host([size="large"]) {
   width: 48px;
   height: 24px;
   border-radius: 12px;
 }
-:host([size="large"]) #switch:after {
+:host([size="large"]) #layout:after {
   width: 20px;
   height: 20px;
 }
-:host([size="large"][checked]) #switch:after {
+:host([size="large"][checked]) #layout:after {
   left: calc(100% - 22px);
 }
 </style>
 `
 const TEMPLATE_HTML = `
-<div id="switch"></div>
+<div id="layout"></div>
 `
 
 const template = document.createElement('template')

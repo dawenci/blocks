@@ -30,33 +30,41 @@
     <section class="section">
       <h2>尺寸</h2>
 
-      <template data-codesource="html">
-        <bl-input size="small" value="small"></bl-input>
-        <bl-input value="default"></bl-input>
-        <bl-input size="large" value="large"></bl-input>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-input size="small" value="small"></bl-input>
+          <bl-input value="default"></bl-input>
+          <bl-input size="large" value="large"></bl-input>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>可清空</h2>
 
-      <template data-codesource="html">
-        <bl-input clearable value="clearable"></bl-input>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-input clearable value="clearable"></bl-input>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>图标</h2>
 
-      <template data-codesource="html">
-        <bl-input prefix-icon="date" value="prefix icon"></bl-input>
-        <bl-input suffix-icon="date" value="suffix icon"></bl-input>
-        <bl-input prefix-icon="date" suffix-icon="date" clearable value="icon & clearable"></bl-input>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-input prefix-icon="date" value="prefix icon"></bl-input>
+          <bl-input suffix-icon="date" value="suffix icon"></bl-input>
+          <bl-input prefix-icon="date" suffix-icon="date" clearable value="icon & clearable"></bl-input>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -186,6 +194,39 @@
             <td></td>
             <td>model 值</td>
             <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>change</td>
+            <td></td>
+            <td>value 变化时触发。</td>
+          </tr>          
+          <tr>
+            <td>click-clear</td>
+            <td></td>
+            <td>点击清除按钮时触发。</td>
+          </tr>
+          <tr>
+            <td>click-prefix-icon</td>
+            <td></td>
+            <td>点击前缀图标时触发。</td>
+          </tr>
+          <tr>
+            <td>click-suffix-icon</td>
+            <td></td>
+            <td>点击后缀图标时触发。</td>
           </tr>
         </tbody>
       </table>

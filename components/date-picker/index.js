@@ -4,6 +4,7 @@ import '../date/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { __height_base } from '../theme/var.js'
+import { dispatchEvent } from '../../common/event.js'
 
 let idSeed = Date.now()
 
@@ -74,15 +75,21 @@ class BlocksDatePicker extends HTMLElement {
     }
 
     this.$panel.addEventListener('input', (e) => {
-      if (!this.$panel.multiple) this.$popup.open = false
+      if (!this.$panel.multiple) {
+        this.$popup.open = false
+      }
+      dispatchEvent(this, 'input', { detail: { value: this.value } })
       this.render()
     })
 
     this.$popup.addEventListener('open', () => {
       this._initClickOutside()
+      dispatchEvent(this, 'open')
     })
+
     this.$popup.addEventListener('close', () => {
       this._destroyClickOutside()
+      dispatchEvent(this, 'close')
     })
   }
 

@@ -30,24 +30,29 @@
     <section class="section">
       <h2>默认</h2>
 
-      <template data-codesource="html">
-        <bl-checkbox>未选中</bl-checkbox>
-        <bl-checkbox checked>选中状态</bl-checkbox>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-checkbox>未选中</bl-checkbox>
+          <bl-checkbox checked>选中状态</bl-checkbox>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>不可用状态</h2>
 
-      <template data-codesource="html">
-        <bl-checkbox disabled>disabled</bl-checkbox>
-        <bl-checkbox disabled checked>checked disabled</bl-checkbox>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-checkbox disabled>disabled</bl-checkbox>
+          <bl-checkbox disabled checked>checked disabled</bl-checkbox>
+        </template>
+      </div>
     </section>
 
     <section class="section">
       <h2>API</h2>
-      待编写
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -72,6 +77,24 @@
             <td>false</td>
             <td>是否禁用。</td>
             <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>change</td>
+            <td></td>
+            <td>选中状态切换时触发。</td>
           </tr>
         </tbody>
       </table>
