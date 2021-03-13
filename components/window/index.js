@@ -43,6 +43,8 @@ const TEMPLATE_CSS = `
   font-size: 14px;
   backdrop-filter: blur(4px);
   transform-origin: top right;
+  min-width: 200px;
+  min-height: 100px;
 }
 :host([open]) {
   display: block;
@@ -265,6 +267,7 @@ const TEMPLATE_CSS = `
 #resize-bottom-left {
   position: absolute;
   z-index: 3;
+  user-select: none;
 }
 #resize-top,
 #resize-right,
@@ -272,6 +275,7 @@ const TEMPLATE_CSS = `
 #resize-left {
   position: absolute;
   z-index: 1;
+  user-select: none;
 }
 
 #resize-top-left,
@@ -342,22 +346,7 @@ const TEMPLATE_HTML = `
   <div id="header-bg"></div>
   <div id="body-bg"></div>
 
-  <div id="resize-left"></div>
-  <div id="resize-right"></div>
-  <div id="resize-bottom"></div>
-  <div id="resize-top-left"></div>
-  <div id="resize-top-right"></div>
-  <div id="resize-bottom-right"></div>
-  <div id="resize-bottom-left"></div>
-
-  <div id="actions">
-    <button id="minimize"></button>
-    <button id="maximize"></button>
-    <button id="close"><bl-icon value="cross"></bl-icon></button>
-  </div>
-
   <header id="header">
-    <div id="resize-top"></div>
     <div id="icon"></div>
     <div id="name"></div>
   </header>
@@ -370,6 +359,21 @@ const TEMPLATE_HTML = `
       <slot name="footer"></slot>
     </footer>    
   </section>
+
+  <b id="resize-top"></b>
+  <b id="resize-left"></b>
+  <b id="resize-right"></b>
+  <b id="resize-bottom"></b>
+  <b id="resize-top-left"></b>
+  <b id="resize-top-right"></b>
+  <b id="resize-bottom-right"></b>
+  <b id="resize-bottom-left"></b>
+
+  <div id="actions">
+    <button id="minimize"></button>
+    <button id="maximize"></button>
+    <button id="close"><bl-icon value="cross"></bl-icon></button>
+  </div>  
 </div>
 `
 
@@ -459,6 +463,7 @@ class BlocksWindow extends HTMLElement {
     }
 
     this._initMoveEvents()
+    this._initResizeEvents()
   }
 
   get appendToBody() {
@@ -540,50 +545,6 @@ class BlocksWindow extends HTMLElement {
     }
   }
 
-  _initMoveEvents() {
-    // 拖拽 header 移动
-    let startX
-    let startY
-    let startPageX
-    let startPageY
-
-    const isHeader = (e) => {
-      if (this.$actions.contains(e.target)) return false
-      if (this.$header.contains(e.target)) return true
-      // maybe header slot
-      if (this.contains(e.target)) {
-        let el = e.target
-        while (el && el !== this) {
-          if (el.slot === 'header') return true
-          el = el.parentElement
-        }
-      }
-      return false
-    }
-
-    const move = (e) => {
-      this.style.left = startX + (e.pageX - startPageX) + 'px'
-      this.style.top = startY + (e.pageY - startPageY) + 'px'
-    }
-
-    const up = () => {
-      removeEventListener('mousemove', move)
-      removeEventListener('mouseup', up)
-    }
-
-    this.$layout.onmousedown = (e) => {
-      if (this.maximized || !isHeader(e)) return
-      startPageX = e.pageX
-      startPageY = e.pageY
-      const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0')
-      const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0')
-      startX = this.offsetLeft - marginLeft
-      startY = this.offsetTop - marginTop
-      addEventListener('mousemove', move)
-      addEventListener('mouseup', up)
-    }
-  }
-
   disconnectedCallback() {
   }
 
@@ -605,6 +566,154 @@ class BlocksWindow extends HTMLElement {
       }
     }
   }
+
+  _initMoveEvents() {
+    // 拖拽 header 移动
+    let startLeft
+    let startTop
+    let startMouseX
+    let startMouseY
+
+    const move = (e) => {
+      this.style.left = startLeft + (e.pageX - startMouseX) + 'px'
+      this.style.top = startTop + (e.pageY - startMouseY) + 'px'
+    }
+
+    const up = () => {
+      removeEventListener('mousemove', move)
+      removeEventListener('mouseup', up)
+    }
+
+    this.$header.onmousedown = (e) => {
+      if (this.maximized) return
+      const style = getComputedStyle(this)
+      startLeft = parseFloat(style.left)
+      startTop = parseFloat(style.top)      
+      startMouseX = e.pageX
+      startMouseY = e.pageY
+      addEventListener('mousemove', move)
+      addEventListener('mouseup', up)
+    }
+  }
+
+  _initResizeEvents() {
+    // 拖拽 header 移动
+    let startLeft
+    let startTop
+    let startWidth
+    let startHeight
+    let startMouseX
+    let startMouseY
+    let currentLeft
+    let currentTop
+    let currentWidth
+    let currentHeight
+    let updateFn
+
+    const callAll = (...fns) => (...args) => fns.forEach(fn => fn(...args))
+
+    const move = (e) => {
+      if (e.pageY > window.innerHeight || e.pageX > window.innerWidth) return
+      updateFn(e.pageX, e.pageY)
+    }
+
+    const up = () => {
+      removeEventListener('mousemove', move)
+      removeEventListener('mouseup', up)
+    }
+
+    const resizeTop = (x, y) => {
+      // offset > 0:  往下拖拽缩小窗口, top 增加，height 减少
+      // offset < 0: 往上拖拽放大窗口, top 减少，height 增加
+      const offset = y - startMouseY
+      const newTop = startTop + offset
+      const newHeight= startHeight - offset
+      if (newTop < 0 || newHeight < 100) return
+      currentTop = newTop
+      currentHeight = newHeight
+      this.style.top = newTop + 'px'
+      this.style.height = newHeight + 'px'
+    }
+    const resizeBottom = (x, y) => {
+      // offset > 0:  往下拖拽放大窗口, height 增加
+      // offset < 0: 往上拖拽缩小窗口, height 减少
+      const offset = y - startMouseY
+      const newHeight= startHeight + offset
+      if (newHeight < 100) return
+      currentHeight = newHeight
+      this.style.height = newHeight + 'px'
+    }
+    const resizeLeft = (x, y) => {
+      // offset > 0:  往右拖拽缩小窗口, left 增加，width 减少
+      // offset < 0: 往左拖拽放大窗口, left 减少，width 增加
+      const offset = x - startMouseX
+      const newLeft = startLeft + offset
+      const newWidth= startWidth - offset
+      if (newLeft < 0 || newWidth < 200) return
+      currentLeft = newLeft
+      currentWidth = newWidth
+      this.style.left = newLeft + 'px'
+      this.style.width = newWidth + 'px'
+    }
+    const resizeRight = (x, y) => {
+      // offset > 0:  往右拖拽放大窗口, width 增加
+      // offset < 0: 往左拖拽缩小窗口, width 减少
+      const offset = x - startMouseX
+      const newWidth= startWidth + offset
+      if (newWidth < 200) return
+      currentWidth = newWidth
+      this.style.width = newWidth + 'px'
+    }
+
+    this.$layout.onmousedown = e => {
+      if (this.maximized || this.minimized) return
+      const $target = e.target
+      if ($target.tagName !== 'B') return
+      const style = getComputedStyle(this)
+      currentLeft = startLeft = parseFloat(style.left)
+      currentTop = startTop = parseFloat(style.top)
+      currentWidth = startWidth = parseFloat(style.width)
+      currentHeight = startHeight = parseFloat(style.height)
+      startMouseX = e.pageX
+      startMouseY = e.pageY
+      switch ($target.id) {
+        case 'resize-top': {
+          updateFn = resizeTop
+          break
+        }
+        case 'resize-right': {
+          updateFn = resizeRight
+          break
+        }
+        case 'resize-bottom': {
+          updateFn = resizeBottom
+          break
+        }
+        case 'resize-left': {
+          updateFn = resizeLeft
+          break
+        }
+        case 'resize-top-left': {
+          updateFn = callAll(resizeTop, resizeLeft)
+          break
+        }
+        case 'resize-top-right': {
+          updateFn = callAll(resizeTop, resizeRight)
+          break
+        }
+        case 'resize-bottom-right': {
+          updateFn = callAll(resizeBottom, resizeRight)
+          break
+        }
+        case 'resize-bottom-left': {
+          updateFn = callAll(resizeBottom, resizeLeft)
+          break
+        }
+      }
+      addEventListener('mousemove', move)
+      addEventListener('mouseup', up)
+    }
+  }  
 
   _renderTitle() {
     this.$name.textContent = this.name ?? ''
