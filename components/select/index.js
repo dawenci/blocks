@@ -5,7 +5,7 @@ import '../input/index.js'
 import '../select-result/index.js'
 
 import { intGetter, intSetter } from '../../common/property.js'
-import { __radius_base } from '../theme/var.js'
+import { __radius_base } from '../../theme/var.js'
 import { every, find, forEach, findIndex } from '../../common/utils.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setDisabled, setRole } from '../../common/accessibility.js'

@@ -4,7 +4,7 @@ import '../color/index.js'
 import '../icon/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
-import { __height_base, __height_large, __height_small, __radius_base } from '../theme/var.js'
+import { __height_base, __height_large, __height_small, __radius_base } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
 import { disabledGetter, disabledSetter } from '../../common/propertyAccessor.js'
 

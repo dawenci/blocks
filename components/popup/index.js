@@ -4,7 +4,7 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import { darkGetter, darkSetter } from '../../common/propertyAccessor.js'
-import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __radius_base, __transition_duration } from '../theme/var.js'
+import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __radius_base, __transition_duration } from '../../theme/var.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8

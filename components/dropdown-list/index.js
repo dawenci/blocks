@@ -14,7 +14,7 @@ import {
   __border_color_disabled,
   __bg_disabled,
   __transition_duration
-} from '../theme/var.js'
+} from '../../theme/var.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { makeMessages } from '../../i18n/makeMessages.js'
 import { dispatchEvent } from '../../common/event.js'

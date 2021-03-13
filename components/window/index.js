@@ -18,7 +18,7 @@ import {
   __transition_duration,
   __bg_base_header,
   __dark_bg_base_header,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 import { boolGetter, boolSetter, strGetter, strSetter } from '../../common/property.js'
 import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'

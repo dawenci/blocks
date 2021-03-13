@@ -12,7 +12,7 @@ import {
   __border_color_disabled,
   __bg_disabled,
   __transition_duration,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 
 const TEMPLATE_CSS = `
 <style>

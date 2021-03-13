@@ -1,5 +1,5 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __border_color_light, __dark_border_color_light, __color_primary, __fg_secondary, __font_family } from '../theme/var.js'
+import { __border_color_light, __dark_border_color_light, __color_primary, __fg_secondary, __font_family } from '../../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { forEach } from '../../common/utils.js'
 

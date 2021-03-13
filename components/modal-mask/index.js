@@ -1,6 +1,6 @@
 import BlocksOpenCloseAnimation from '../../common/open-close-animation.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __transition_duration } from '../theme/var.js'
+import { __transition_duration } from '../../theme/var.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
 
 

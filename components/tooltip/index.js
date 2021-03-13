@@ -12,7 +12,7 @@ import {
   __border_color_disabled,
   __bg_disabled,
   __transition_duration
-} from '../theme/var.js'
+} from '../../theme/var.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 
 const template = document.createElement('template')

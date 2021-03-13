@@ -1,6 +1,6 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
-import { __color_primary, __fg_secondary, __font_family } from '../theme/var.js'
+import { __color_primary, __fg_secondary, __font_family } from '../../theme/var.js'
 
 const TEMPLATE_CSS = `
 <style>

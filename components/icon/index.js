@@ -1,4 +1,4 @@
-import { } from '../theme/var.js'
+import { } from '../../theme/var.js'
 
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'

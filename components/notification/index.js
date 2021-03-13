@@ -2,7 +2,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
-import { __color_primary, __color_danger, __color_success, __color_warning, __transition_duration, __fg_base, __dark_bg_base, __dark_fg_base, __bg_base } from '../theme/var.js'
+import { __color_primary, __color_danger, __color_success, __color_warning, __transition_duration, __fg_base, __dark_bg_base, __dark_fg_base, __bg_base } from '../../theme/var.js'
 import { darkSetter } from '../../common/propertyAccessor.js'
 
 const closeableGetter = boolGetter('closeable')

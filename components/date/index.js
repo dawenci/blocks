@@ -8,7 +8,7 @@ import {
   __height_base,
   __height_small,
   __height_large,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 import { range } from '../../common/utils.js'
 import { Depth } from './data.js'
 import { normalizeMinDepth, normalizeViewDepth, toggleClass, toggleAttr, getClosestDate, getFirstDate, getLastDate, getLastDateOfPrevMonth, getFirstDateOfNextMonth } from './helpers.js'

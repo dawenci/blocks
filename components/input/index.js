@@ -8,7 +8,7 @@ import {
   __height_base,
   __height_small,
   __height_large,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import '../popup/index.js'

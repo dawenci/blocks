@@ -4,7 +4,7 @@ import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/pro
 import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { setStyles } from '../../common/style.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __transition_duration } from '../theme/var.js'
+import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __transition_duration } from '../../theme/var.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { onKey } from '../../common/onKey.js'
 

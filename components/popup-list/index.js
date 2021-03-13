@@ -14,7 +14,7 @@ import {
   __border_color_disabled,
   __bg_disabled,
   __transition_duration,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 
 const cssTemplate = document.createElement('template')
 cssTemplate.innerHTML = `

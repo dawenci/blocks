@@ -14,7 +14,7 @@ import {
   __bg_disabled,
   __transition_duration,
   __color_warning,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js';
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 

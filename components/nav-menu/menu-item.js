@@ -1,7 +1,7 @@
 import '../../components/icon/index.js'
 import '../../components/popup-menu/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __height_base, __height_large, __transition_duration, __height_small, __color_primary, __dark_bg_base_hover, __bg_base_hover, __dark_fg_base_hover, __bg_base_active, __dark_bg_base_active, __dark_fg_base_active, __dark_fg_base } from '../theme/var.js'
+import { __fg_base, __fg_base_hover, __fg_base_active, __fg_disabled, __fg_placeholder, __font_family, __height_base, __height_large, __transition_duration, __height_small, __color_primary, __dark_bg_base_hover, __bg_base_hover, __dark_fg_base_hover, __bg_base_active, __dark_bg_base_active, __dark_fg_base_active, __dark_fg_base } from '../../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 

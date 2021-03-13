@@ -13,7 +13,7 @@ import {
   __border_color_disabled,
   __bg_disabled,
   __transition_duration,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 import { setDisabled, setRole } from '../../common/accessibility.js';
 import { disabledGetter, disabledSetter } from '../../common/propertyAccessor.js';
 

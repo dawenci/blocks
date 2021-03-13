@@ -1,6 +1,6 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
-import { __color_primary } from '../theme/var.js'
+import { __color_primary } from '../../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
 @keyframes rotate360 {

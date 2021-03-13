@@ -3,7 +3,7 @@ import { intGetter, intSetter } from '../../common/property.js'
 import { scrollTo } from '../../common/scrollTo.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { find, forEach, range } from '../../common/utils.js'
-import { __color_primary, __height_base, __height_large, __height_small, __transition_duration } from '../theme/var.js'
+import { __color_primary, __height_base, __height_large, __height_small, __transition_duration } from '../../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
 ::-webkit-scrollbar {

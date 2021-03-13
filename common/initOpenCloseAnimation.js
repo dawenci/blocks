@@ -1,4 +1,4 @@
-import { __transition_duration } from "../components/theme/var.js"
+import { __transition_duration } from "../theme/var.js"
 
 /**
  * @param {Element} $host

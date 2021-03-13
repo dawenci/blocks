@@ -4,7 +4,7 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { makeRgbaColor } from '../../common/utils.js'
 import {
   __color_primary, __color_primary_light,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
 :host {

@@ -1,7 +1,7 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, numGetter, numSetter } from '../../common/property.js'
 import { makeRgbaColor } from '../../common/utils.js';
-import { __color_danger, __color_primary, __color_success, __color_warning, __radius_base, __transition_duration } from '../theme/var.js'
+import { __color_danger, __color_primary, __color_success, __color_warning, __radius_base, __transition_duration } from '../../theme/var.js'
 
 const valueGetter = numGetter('value')
 const valueSetter = numSetter('value')

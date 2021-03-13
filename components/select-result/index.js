@@ -2,7 +2,7 @@ import '../tag/index.js'
 
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __border_color_base, __height_base, __radius_base, __color_primary, __transition_duration, __height_small, __height_large } from '../theme/var.js'
+import { __border_color_base, __height_base, __radius_base, __color_primary, __transition_duration, __height_small, __height_large } from '../../theme/var.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { clearableGetter, clearableSetter, multipleGetter, multipleSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'

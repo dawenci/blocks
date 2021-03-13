@@ -9,7 +9,7 @@ import {
   __font_family,
   __radius_base,
   __transition_duration,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { setRole } from '../../common/accessibility.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'

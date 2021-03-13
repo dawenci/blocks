@@ -4,7 +4,7 @@ import { darkGetter, darkSetter, sizeGetter, sizeSetter } from '../../common/pro
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
-import { __bg_base, __dark_bg_base, __border_color_light, __color_primary, __fg_base, __dark_fg_base, __font_family, __transition_duration } from '../theme/var.js'
+import { __bg_base, __dark_bg_base, __border_color_light, __color_primary, __fg_base, __dark_fg_base, __font_family, __transition_duration } from '../../theme/var.js'
 
 const itemTemplate = document.createElement('bl-nav-menu-item')
 const groupTemplate = document.createElement('bl-nav-menu-group')

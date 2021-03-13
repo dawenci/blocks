@@ -1,5 +1,5 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __color_primary, __color_primary_light, __radius_base } from '../theme/var.js'
+import { __color_primary, __color_primary_light, __radius_base } from '../../theme/var.js'
 import { numGetter, numSetter } from '../../common/property.js'
 import { scrollTo } from '../../common/scrollTo.js'
 const durationGetter = numGetter('duration')

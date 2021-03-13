@@ -1,7 +1,7 @@
 import BlocksPopup from '../popup/index.js';
 import { definePrivate } from '../../common/definePrivate.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __border_color_light, __color_primary, __font_family } from '../theme/var.js'
+import { __border_color_light, __color_primary, __font_family } from '../../theme/var.js'
 import { intGetter, intSetter } from '../../common/property.js';
 import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js';
 import { forEach } from '../../common/utils.js';

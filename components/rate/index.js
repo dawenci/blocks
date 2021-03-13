@@ -1,7 +1,7 @@
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
-import { __transition_duration } from '../theme/var.js'
+import { __transition_duration } from '../../theme/var.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { clearableGetter, clearableSetter } from '../../common/propertyAccessor.js'
 

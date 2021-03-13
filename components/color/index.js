@@ -11,7 +11,7 @@ import {
   __height_small,
   __height_large,
   __border_color_base,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 
 
 const TEMPLATE_CSS = `<style>

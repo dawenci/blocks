@@ -12,7 +12,7 @@ import {
   __color_success,
   __color_warning,
   __transition_duration,
-} from '../theme/var.js'
+} from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
 import { closeableGetter, closeableSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 

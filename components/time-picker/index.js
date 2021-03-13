@@ -3,7 +3,7 @@ import '../input/index.js'
 import '../time/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
-import { __height_base } from '../theme/var.js'
+import { __height_base } from '../../theme/var.js'
 import { padLeft } from '../../common/utils.js'
 
 let idSeed = Date.now()
