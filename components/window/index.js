@@ -1,3 +1,4 @@
+import BlocksOpenCloseAnimation from '../../common/open-close-animation.js'
 import '../button/index.js'
 import '../icon/index.js'
 import {
@@ -443,9 +444,9 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 const capturefocusGetter = boolGetter('capturefocus')
 const capturefocusSetter = boolSetter('capturefocus')
 
-class BlocksWindow extends HTMLElement {
+class BlocksWindow extends BlocksOpenCloseAnimation {
   static get observedAttributes() {
-    return [
+    return super.observedAttributes.concat([
       // 窗口按钮，'minimize,maximize,close'
       'actions',
       // 捕获焦点，tab 键不会将焦点移出 Dialog
@@ -459,12 +460,13 @@ class BlocksWindow extends HTMLElement {
       'name',
       // 显示状态
       'open',
-    ]
+    ])
   }
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    // const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$layout = shadowRoot.getElementById('layout')
     this.$header = shadowRoot.getElementById('header')
@@ -498,17 +500,12 @@ class BlocksWindow extends HTMLElement {
       this.minimized = !this.minimized
     }
 
-    initOpenCloseAnimation(this, {
-      onEnd: () => {
-        if (this.open) {
-          this._focus()
-          dispatchEvent(this, 'open')
-        }
-        else {
-          this._blur()
-          dispatchEvent(this, 'close')
-        }
-      }
+    this.addEventListener('open', () => {
+      this._focus()
+    })
+
+    this.addEventListener('close', () => {
+      this._blur()
     })
 
     // 主内容变化
@@ -613,6 +610,8 @@ class BlocksWindow extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    super.attributeChangedCallback(name, oldValue, newValue)
+
     if (name === 'actions') {
       this._renderActions()
     }

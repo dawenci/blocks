@@ -1,11 +1,10 @@
+import BlocksOpenCloseAnimation from '../../common/open-close-animation.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
-import { dispatchEvent } from '../../common/event.js'
 import { definePrivate } from '../../common/definePrivate.js'
+import { darkGetter, darkSetter } from '../../common/propertyAccessor.js'
 import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __radius_base, __transition_duration } from '../theme/var.js'
-import { darkGetter, darkSetter, openGetter, openSetter } from '../../common/propertyAccessor.js'
-import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -59,7 +58,6 @@ const originSetter = enumSetter('origin', Object.values(PopupOrigin))
 
 const TEMPLATE_CSS = `<style>
 :host {
-  display: none;
   box-sizing: border-box;
   position: absolute;
   z-index: 10;
@@ -68,12 +66,10 @@ const TEMPLATE_CSS = `<style>
    */
   contain: none;
   /* 由于非 display none，需要确保 open 之前不可点击 */
-  pointer-events: none;
 }
 
 :host([open]) {
   display: block;
-  pointer-events: auto;
 }
 
 :host(:focus) {
@@ -293,9 +289,9 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 
-export default class BlocksPopup extends HTMLElement {
+export default class BlocksPopup extends BlocksOpenCloseAnimation {
   static get observedAttributes() {
-    return [
+    return super.observedAttributes.concat([
       // Popup 锚定的布局框，是一个矩形区域
       // Popup 吸附在该矩形的四条边中的某一条的外侧（设置 inset 后在内测）
       // 支持传入一个 `[x, y]` 形式的坐标像素值，这是长宽为 0 的矩形的特例，
@@ -322,14 +318,11 @@ export default class BlocksPopup extends HTMLElement {
       'origin',
       // 失去焦点时，是否恢复获得焦点前的焦点
       'restorefocus',
-    ]
+    ])
   }
 
   constructor() {
     super()
-
-    this.attachShadow({ mode: 'open' })
-
     const fragment = template.content.cloneNode(true)
     this.$layout = fragment.querySelector('#layout')
     this.$arrow = fragment.querySelector('#arrow')
@@ -337,33 +330,18 @@ export default class BlocksPopup extends HTMLElement {
 
     definePrivate(this, '_anchor')
 
-    initOpenCloseAnimation(this, {
-      onEnd: () => {
-        if (this.open) {
-          if (this.autofocus) this._focus()
-          dispatchEvent(this, 'open')
-          // 动画过程可能锚定点移动，动画结束后，更新下位置
-          this.updatePosition()
-        }
-        else {
-          this._blur()
-          dispatchEvent(this, 'close')
-        }
-      }
+    this.addEventListener('open', () => {
+      if (this.autofocus) this._focus()
+      // 动画过程可能锚定点移动，动画结束后，更新下位置
+      this.updatePosition()
+    })
+    this.addEventListener('close', () => {
+      this._blur()
     })
 
     if (this.capturefocus) {
       this._captureFocus()
     }
-  }
-
-  get open() {
-    return openGetter(this)
-  }
-
-  // 设置 open 属性为 null 或 false，表示关闭，其他任意指表示打开
-  set open(value) {
-    openSetter(this, value)
   }
 
   get origin() {
@@ -746,6 +724,7 @@ export default class BlocksPopup extends HTMLElement {
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {
+    super.attributeChangedCallback(attrName, oldValue, newValue)
     switch (attrName) {
       case 'open': {
         this._updateVisible()
@@ -818,26 +797,14 @@ export default class BlocksPopup extends HTMLElement {
     }
   }
 
-  _animateOpen() {
-    this.classList.remove('close-animation')
-    this.classList.add('open-animation')
-  }
-
-  _animateClose() {
-    this.classList.remove('open-animation')
-    this.classList.add('close-animation')
-  }
-
   _updateVisible() {
     this._updateClass()
     this._updateArrow()
     this.updatePosition()
     if (this.open) {
-      this._animateOpen()
       this._initAnchorEvent()
     }
     else {
-      this._animateClose()
       this._destroyAnchorEvent()
     }
   }
@@ -905,16 +872,6 @@ export default class BlocksPopup extends HTMLElement {
   _setOrigin(y, x) {
     this._setOriginClass(`origin-${y}-${x}`)
     this.style.transformOrigin = `${y} ${x}`
-  }
-
-  // 启用鼠标交互
-  _enableEvents() {
-    this.$layout.style.pointerEvents = ''
-  }
-
-  // 禁用鼠标交互
-  _disableEvents() {
-    this.$layout.style.pointerEvents = 'none'
   }
 }
 

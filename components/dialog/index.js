@@ -1,3 +1,4 @@
+import BlocksOpenCloseAnimation from '../../common/open-close-animation.js'
 import '../button/index.js'
 import '../modal-mask/index.js'
 import {
@@ -11,11 +12,9 @@ import {
 } from '../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { setRole } from '../../common/accessibility.js'
-import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
-import { closeableGetter, closeableSetter, openGetter, openSetter } from '../../common/propertyAccessor.js'
+import { closeableGetter, closeableSetter } from '../../common/propertyAccessor.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
-import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -25,13 +24,11 @@ const TEMPLATE_CSS = `
   position:absolute;
   margin:auto;
   z-index:-1;
-  pointer-events: none;
   z-index:10;
 }
 
 :host([open]) {
   display: block;
-  pointer-events: auto;
 }
 
 :host(:focus) {
@@ -223,9 +220,9 @@ const capturefocusSetter = boolSetter('capturefocus')
 const appendToBodyGetter = boolGetter('append-to-body')
 const appendToBodySetter = boolSetter('append-to-body')
 
-class BlocksDialog extends HTMLElement {
+class BlocksDialog extends BlocksOpenCloseAnimation {
   static get observedAttributes() {
-    return [
+    return super.observedAttributes.concat([
       // 显示状态
       'open',
       // 标题
@@ -237,16 +234,16 @@ class BlocksDialog extends HTMLElement {
       // 显示遮罩
       'mask',
       'dark',
-    ]
+    ])
   }
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    // const shadowRoot = this.attachShadow({ mode: 'open' })
 
-    shadowRoot.appendChild(template.content.cloneNode(true))
+    this.shadowRoot.appendChild(template.content.cloneNode(true))
 
-    this.$layout = shadowRoot.getElementById('layout')
+    this.$layout = this.shadowRoot.getElementById('layout')
     this.$mask = document.createElement('bl-modal-mask')
 
     this.remove = false
@@ -267,19 +264,14 @@ class BlocksDialog extends HTMLElement {
       })
     }
 
-    initOpenCloseAnimation(this, {
-      onEnd: () => {
-        if (this.open) {
-          this._focus()
-          dispatchEvent(this, 'open')
-        }
-        else {
-          this._blur()
-          if (this.remove) {
-            this.parentElement && this.parentElement.removeChild(this)
-          }
-          dispatchEvent(this, 'close')
-        }
+    this.addEventListener('open', () => {
+      this._focus()
+    })
+
+    this.addEventListener('close', () => {
+      this._blur()
+      if (this.remove) {
+        this.parentElement && this.parentElement.removeChild(this)
       }
     })
 
@@ -290,14 +282,6 @@ class BlocksDialog extends HTMLElement {
     if (this.capturefocus) {
       this._captureFocus()
     }
-  }
-
-  get open() {
-    return openGetter(this)
-  }
-
-  set open(value) {
-    openSetter(this, value)
   }
 
   get mask() {
@@ -347,16 +331,6 @@ class BlocksDialog extends HTMLElement {
     this._renderClose()
   }
 
-  // 启用鼠标交互
-  _enableEvents() {
-    this.$layout.style.pointerEvents = ''
-  }
-
-  // 禁用鼠标交互
-  _disableEvents() {
-    this.$layout.style.pointerEvents = 'none'
-  }
-
   // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
   _captureFocus() {
     this.$firstFocusable = this.$layout.querySelector('#first') || this.$layout.insertBefore(document.createElement('button'), this.$layout.firstChild)
@@ -388,31 +362,18 @@ class BlocksDialog extends HTMLElement {
   _updateVisible() {
     if (this.open) {
       this._lockScroll()
-      this._animateOpen()
+      if (!this.style.left) {
+        this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
+      }
+      if (!this.style.top) {
+        this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
+      }
       if (this.$mask) this.$mask.open = true
     }
     else {
       this._unlockScroll()
-      this._animateClose()
       if (this.$mask) this.$mask.open = false
     }
-  }
-
-  _animateOpen() {
-    this.classList.remove('close-animation')
-    this.classList.add('open-animation')
-
-    if (!this.style.left) {
-      this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
-    }
-    if (!this.style.top) {
-      this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
-    }
-  }
-
-  _animateClose() {
-    this.classList.remove('open-animation')
-    this.classList.add('close-animation')
   }
 
   _lockScroll() {
@@ -580,6 +541,7 @@ class BlocksDialog extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    super.attributeChangedCallback(name, oldValue, newValue)
     if (name == 'open' && this.shadowRoot) {
       this._updateVisible()
     }

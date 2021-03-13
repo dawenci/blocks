@@ -1,8 +1,8 @@
-import { openGetter, openSetter } from '../../common/propertyAccessor.js'
+import BlocksOpenCloseAnimation from '../../common/open-close-animation.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __transition_duration } from '../theme/var.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
-import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
+
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -15,6 +15,7 @@ const TEMPLATE_CSS = `<style>
   bottom: 0;
   left: 0;
   background-color: rgba(0,0,0,.3);
+  transition-duration: var(--transition-duration, ${__transition_duration}), 0s;
 }
 :host([open]) {
   display: block;
@@ -27,27 +28,14 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksModalMask extends HTMLElement {
+class BlocksModalMask extends BlocksOpenCloseAnimation {
   static get observedAttributes() {
-    return ['open', 'zIndex']
+    return super.observedAttributes.concat(['open', 'zIndex'])
   }
 
   constructor() {
     super()
-    this.attachShadow({mode: 'open'})
     this.shadowRoot.appendChild(template.content.cloneNode(true))
-
-    initOpenCloseAnimation(this, {
-      transform: false,
-    })
-  }
-
-  get open() {
-    return openGetter(this)
-  }
-
-  set open(value) {
-    openSetter(this, value)
   }
 
   render() {}
@@ -69,6 +57,8 @@ class BlocksModalMask extends HTMLElement {
   adoptedCallback() {}
 
   attributeChangedCallback(attrName, oldVal, newVal) {
+    super.attributeChangedCallback(attrName, oldVal, newVal)
+
     if (attrName == 'open') {
       this._updateVisible()
     }
@@ -77,11 +67,9 @@ class BlocksModalMask extends HTMLElement {
   _updateVisible() {
     if (this.open) {
       this._lockScroll()
-      this._animateOpen()
     }
     else {
       this._unlockScroll()
-      this._animateClose()
     }
   }
 
@@ -109,16 +97,6 @@ class BlocksModalMask extends HTMLElement {
       document.body.style.overflowY = this.bodyOverflowY
       this.isScrollLocked = false
     }
-  }
-
-  _animateOpen() {
-    this.classList.remove('close-animation')
-    this.classList.add('open-animation')
-  }
-
-  _animateClose() {
-    this.classList.remove('open-animation')
-    this.classList.add('close-animation')
   }
 }
 
