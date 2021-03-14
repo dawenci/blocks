@@ -64,6 +64,10 @@ export function camelCase(str) {
     .replace(/^([A-Z])/, (_, char) => char.toLowerCase())
 }
 
+export function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase()
+}
+
 export function range(start, end) {
   const list = []
   for (let i = start; i <= end; i += 1) {

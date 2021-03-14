@@ -7,6 +7,9 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __transition_duration } from '../../theme/var.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { onKey } from '../../common/onKey.js'
+import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
+import { capitalize } from '../../common/utils.js'
+import { dispatchEvent } from '../../common/event.js'
 
 const capturefocusGetter = boolGetter('capturefocus')
 const capturefocusSetter = boolSetter('capturefocus')
@@ -17,7 +20,7 @@ const placementSetter = enumSetter('placement', ['right', 'left', 'bottom', 'top
 
 const TEMPLATE_CSS = `<style>
 :host {
-  display: block;
+  display: none;
   box-sizing: border-box;
   position: fixed;
   z-index: 9;
@@ -32,12 +35,12 @@ const TEMPLATE_CSS = `<style>
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.1),
     0px 24px 38px 3px rgba(0, 0, 0, 0.10),
     0px 9px 46px 8px rgba(0, 0, 0, 0.10);
-  transition-delay: 0, 0;
-  transition-property: transform;
-  transition-duration: var(--transition-duration, ${__transition_duration});
-  transform: scale(1);
   font-size: 14px;
 }
+:host([open]) {
+  display: block;
+}
+
 #layout {
   position: relative;
   overflow: hidden;
@@ -112,6 +115,75 @@ const TEMPLATE_CSS = `<style>
   background-color: var(--bg-base-dark, ${__dark_bg_base});
   color: var(--fg-base-dark, ${__dark_fg_base});
 }
+
+:host(.openLeft-enter-transition-active),
+:host(.openLeft-leave-transition-active),
+:host(.openRight-enter-transition-active),
+:host(.openRight-leave-transition-active),
+:host(.openTop-enter-transition-active),
+:host(.openTop-leave-transition-active),
+:host(.openBottom-enter-transition-active),
+:host(.openBottom-leave-transition-active) {
+  display: block;
+  transition-delay: 0, 0;
+  transition-property: transform;
+  transition-duration: var(--transition-duration, ${__transition_duration});
+  transition-timing-function: cubic-bezier(.645, .045, .355, 1);
+  pointer-events: none;
+}
+
+:host(.openLeft-enter-transition-active),
+:host(.openLeft-leave-transition-active) {
+  transform-origin: left center;
+}
+:host(.openRight-enter-transition-active),
+:host(.openRight-leave-transition-active) {
+  transform-origin: right center;
+}
+
+:host(.openRight-enter-transition-from),
+:host(.openLeft-enter-transition-from) {
+  transform: scale(0, 1);
+}
+:host(.openRight-enter-transition-to) ,
+:host(.openLeft-enter-transition-to) {
+  transform: scale(1, 1);
+}
+:host(.openRight-leave-transition-from),
+:host(.openLeft-leave-transition-from) {
+  transform: scale(1, 1);
+}
+:host(.openRight-leave-transition-to),
+:host(.openLeft-leave-transition-to) {
+  transform: scale(0, 1);
+}
+
+
+:host(.openTop-enter-transition-active),
+:host(.openTop-leave-transition-active) {
+  transform-origin: center top;
+}
+:host(.openBottom-enter-transition-active),
+:host(.openBottom-leave-transition-active) {
+  transform-origin: center bottom;
+}
+
+:host(.openTop-enter-transition-from),
+:host(.openBottom-enter-transition-from) {
+  transform: scale(1, 0);
+}
+:host(.openBottom-enter-transition-to),
+:host(.openTop-enter-transition-to) {
+  transform: scale(1, 1);
+}
+:host(.openBottom-leave-transition-from),
+:host(.openTop-leave-transition-from) {
+  transform: scale(1, 1);
+}
+:host(.openBottom-leave-transition-to),
+:host(.openTop-leave-transition-to) {
+  transform: scale(1, 0);
+}
 </style>`
 
 const TEMPLATE_HTML = `
@@ -134,7 +206,6 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-// TODO, Events
 class BlocksDrawer extends HTMLElement {
   static get observedAttributes() {
     return ['capturefocus', 'close-on-click-outside', 'close-on-escape', 'mask', 'name', 'open', 'placement', 'size']
@@ -257,15 +328,6 @@ class BlocksDrawer extends HTMLElement {
 
     this.render()
 
-    // 设置初始样式，确保动画生效
-    if (!this.open) {
-      this.style.transform = this._transitionScale()
-      this.style.transformOrigin = this._transitionOrigin()
-    }
-    else {
-      this._updateVisible()
-    }
-
     if (this.mask) {
       this._ensureMask()
       this.parentElement.insertBefore(this.$mask, this)
@@ -289,9 +351,18 @@ class BlocksDrawer extends HTMLElement {
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     if (attrName === 'open') {
-      this._updateVisible()
       if (this.$mask) {
         this.$mask.open = this.open
+      }
+      if (this.open) {
+        doTransitionEnter(this, `open${capitalize(this.placement)}`, () => {
+          dispatchEvent(this, 'open')
+        })
+      }
+      else {
+        doTransitionLeave(this, `open${capitalize(this.placement)}`, () => {
+          dispatchEvent(this, 'close')
+        })
       }
     }
 
@@ -333,48 +404,6 @@ class BlocksDrawer extends HTMLElement {
         this._stopCaptureFocus()
       }
     }
-  }
-
-  _updateVisible() {
-    this._prepareForAnimate()
-    if (this.open) {
-      this._animateOpen()
-    }
-    else {
-      this._animateClose()
-    }
-  }
-
-  // 执行过渡前的准备工作，确保动画正常
-  _prepareForAnimate() {
-    this.style.display = ''
-    this.offsetHeight
-  }
-
-  _transitionOrigin() {
-    switch (this.placement) {
-      case 'right': return 'right center'
-      case 'left': return 'left center'
-      case 'bottom': return 'center bottom'
-      case 'top': return 'center top'
-    }
-  }
-
-  _transitionScale() {
-    return (this.placement === 'right' || this.placement === 'left') ? 'scale(0, 1)' : 'scale(1, 0)'
-  }
-
-  _animateOpen() {
-    this.style.transform = this._transitionScale()
-    this.style.transformOrigin = this._transitionOrigin()
-    this.offsetHeight
-    this.style.transform = 'scale(1)'
-  }
-
-  _animateClose() {
-    this.offsetHeight
-    this.style.transform = this._transitionScale()
-    this.style.transformOrigin = this._transitionOrigin()
   }
 
   _initKeydown() {

@@ -125,23 +125,23 @@
       <h2>出现位置</h2>
 
       <div class="case">
-        <bl-button onclick="document.getElementById('left').open = true">left</bl-button>
-        <bl-button onclick="document.getElementById('top').open = true">top</bl-button>
-        <bl-button onclick="document.getElementById('bottom').open = true">bottom</bl-button>
+        <bl-button onclick="document.getElementById('left').open = !document.getElementById('left').open">left</bl-button>
+        <bl-button onclick="document.getElementById('top').open = !document.getElementById('top').open">top</bl-button>
+        <bl-button onclick="document.getElementById('bottom').open = !document.getElementById('bottom').open">bottom</bl-button>
         <template data-codesource="html">
-          <bl-drawer id="left" placement="left" name="left" close-on-click-outside close-on-escape>
+          <bl-drawer id="left" placement="left" name="left" close-on-escape>
             <div style="padding: 15px;">
               这里是抽屉的内容。
             </div>
           </bl-drawer>
 
-          <bl-drawer id="top" placement="top" name="top" close-on-click-outside close-on-escape>
+          <bl-drawer id="top" placement="top" name="top" close-on-escape>
             <div style="padding: 15px;">
               这里是抽屉的内容。
             </div>
           </bl-drawer>
 
-          <bl-drawer id="bottom" placement="bottom" name="bottom" close-on-click-outside close-on-escape>
+          <bl-drawer id="bottom" placement="bottom" name="bottom" close-on-escape>
             <div style="padding: 15px;">
               这里是抽屉的内容。
             </div>
@@ -313,7 +313,28 @@
         </tbody>
       </table>
 
-      
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>close</td>
+            <td></td>
+            <td>Drawer 关闭时（过渡动画结束）触发。</td>
+          </tr>
+          <tr>
+            <td>open</td>
+            <td></td>
+            <td>Drawer 打开时（过渡动画结束）触发。</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
   </article>
 </body>
