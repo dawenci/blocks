@@ -361,7 +361,6 @@ class BlocksDialog extends BlocksOpenCloseAnimation {
 
   _updateVisible() {
     if (this.open) {
-      this._lockScroll()
       if (!this.style.left) {
         this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
       }
@@ -371,34 +370,7 @@ class BlocksDialog extends BlocksOpenCloseAnimation {
       if (this.$mask) this.$mask.open = true
     }
     else {
-      this._unlockScroll()
       if (this.$mask) this.$mask.open = false
-    }
-  }
-
-  _lockScroll() {
-    if (!this.isScrollLocked) {
-      this.bodyPaddingRight = document.body.style.paddingRight
-      this.bodyOverflowY = document.body.style.overflowY
-      this.computedBodyPaddingRight = parseInt(getComputedStyle(document.body).paddingRight, 10)
-    }
-
-    const scrollBarWidth = getBodyScrollBarWidth()
-    let bodyHasOverflow = document.documentElement.clientHeight < document.body.scrollHeight;
-    let bodyOverflowY = getComputedStyle(document.body).overflowY
-    if (scrollBarWidth > 0 && (bodyHasOverflow || bodyOverflowY === 'scroll') && !this.isScrollLocked) {
-      document.body.style.paddingRight = this.computedBodyPaddingRight + scrollBarWidth + 'px'
-    }
-
-    document.body.style.overflowY = 'hidden'
-    this.isScrollLocked = true
-  }
-
-  _unlockScroll() {
-    if (this.isScrollLocked) {
-      document.body.style.paddingRight = this.bodyPaddingRight
-      document.body.style.overflowY = this.bodyOverflowY
-      this.isScrollLocked = false
     }
   }
 

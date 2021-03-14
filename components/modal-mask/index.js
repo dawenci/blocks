@@ -33,7 +33,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksModalMask extends BlocksOpenCloseAnimation {
   static get observedAttributes() {
-    return super.observedAttributes.concat(['open', 'zIndex'])
+    return super.observedAttributes.concat(['open', 'z-index'])
   }
 
   constructor() {
