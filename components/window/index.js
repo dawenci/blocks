@@ -24,10 +24,8 @@ import { setRole } from '../../common/accessibility.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { openGetter, openSetter } from '../../common/propertyAccessor.js'
-import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
-import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
-import { clearTransition, isTransition, transitionEnter, transitionLeave } from '../../common/transition.js'
+import { clearTransition, doTransitionEnter, doTransitionLeave, onTransitionEnd, transitionEnter, transitionLeave } from '../../common/animation.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -548,26 +546,6 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
 
     this._initMoveEvents()
     this._initResizeEvents()
-
-    // 最大化动画
-    const onMaximizedProperties = ['top', 'left', 'width', 'height']
-    let onMaximizedProperty = ''
-    const onMaximizedEnd = e => {
-      clearTransition(this, 'maximized')
-    }
-    this.addEventListener('transitionrun', e => {
-      if (e.target !== this || !isTransition(this, 'maximized') || !onMaximizedProperties.includes(e.propertyName)) return
-      if (!onMaximizedProperty) onMaximizedProperty = e.propertyName
-      onMaximizedEnd(e)
-    })
-    this.addEventListener('transitioncancel', e => {
-      if (e.target !== this || !isTransition(this, 'maximized') || onMaximizedProperty !== e.propertyName) return
-      onMaximizedEnd(e)
-    })
-    this.addEventListener('transitionend', e => {
-      if (e.target !== this || !isTransition(this, 'maximized') || onMaximizedProperty !== e.propertyName) return
-      onMaximizedEnd(e)
-    })
   }
 
   get actions() {
@@ -671,10 +649,14 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
 
     if (name === 'maximized') {
       if (this.maximized) {
-        transitionEnter(this, 'maximized')
+        doTransitionEnter(this, 'maximized', () => {
+
+        })
       }
       else {
-        transitionLeave(this, 'maximized')
+        doTransitionLeave(this, 'maximized', () => {
+
+        })
       }
     }
 
@@ -892,18 +874,12 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
 
   _updateVisible() {
     if (this.open) {
-      this.classList.remove('open-leave-transition-to')
-      this.classList.add('open-enter-transition-to')
       if (!this.style.left) {
         this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
       }
       if (!this.style.top) {
         this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
       }
-    }
-    else {
-      this.classList.remove('open-enter-transition-to')
-      this.classList.add('open-leave-transition-to')
     }
   }
 

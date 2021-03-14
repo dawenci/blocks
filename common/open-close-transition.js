@@ -1,7 +1,7 @@
 import { __transition_duration } from '../../theme/var.js'
 import { openGetter, openSetter } from './propertyAccessor.js'
 import { dispatchEvent } from './event.js'
-import { clearTransition, isTransition, transitionEnter, transitionLeave } from './transition.js'
+import { clearTransition, doTransitionEnter, doTransitionLeave, onTransitionEnd, transitionEnter, transitionLeave } from './animation.js'
 
 const TEMPLATE = `
 <style>
@@ -54,50 +54,6 @@ export default class BlocksOpenCloseAnimation extends HTMLElement {
     super()
     this.attachShadow({ mode: 'open' })
     this.shadowRoot.appendChild(template.content.cloneNode(true))
-
-    // 如果要覆盖过渡的 class 实现，
-    // 必须更改该属性为新的 transition-property 中的某些属性，
-    // 动画会以该数组中，第一个触发过渡的属性作为依据，
-    // 通过追踪该属性来识别过渡的开始、结束时间点。
-    // 只追踪一个属性的过渡，是为了重复触发 open、close 事件。
-    this._openCloseTransitionProperties = ['opacity', 'transform']
-    let _openCloseTransitionProperty = ''
-
-    // transition 的属性可能有多个，避免重复触发，只跟踪一个属性
-    // 过渡开始执行（transition-delay 之前就开始算）
-    this.addEventListener('transitionrun', ev => {
-      if (ev.target !== this) return
-      if (!isTransition(this, 'open')) return
-      if (!this._openCloseTransitionProperties.includes(ev.propertyName)) return
-      if (!_openCloseTransitionProperty) _openCloseTransitionProperty = ev.propertyName
-    })
-
-    // 过渡真正开始时（transition-delay 后，动画开始执行才算）
-    this.addEventListener('transitionstart', (ev) => {
-      if (ev.target !== this) return
-      if (!isTransition(this, 'open') || ev.propertyName !== _openCloseTransitionProperty) return
-    })
-
-    const end = () => {
-      clearTransition(this, 'open')
-      let callback = this.open ? this.onOpen : this.onClose
-      if (callback) callback.call(this)
-      dispatchEvent(this, this.open ? 'open' : 'close')
-    }
-
-    // 过渡取消时
-    this.addEventListener('ontransitioncancel', (ev) => {
-      if (ev.target !== this) return
-      if (!isTransition(this, 'open') || ev.propertyName !== _openCloseTransitionProperty) return
-      end()
-    })
-
-    // 过渡结束时
-    this.addEventListener('transitionend', (ev) => {
-      if (ev.target !== this) return
-      if (!isTransition(this, 'open') || ev.propertyName !== _openCloseTransitionProperty) return
-      end()
-    })
   }
 
   get open() {
@@ -115,10 +71,16 @@ export default class BlocksOpenCloseAnimation extends HTMLElement {
   attributeChangedCallback(name) {
     if (name == 'open') {
       if (this.open) {
-        transitionEnter(this, 'open')
+        doTransitionEnter(this, 'open', () => {
+          if (this.onOpen) this.onOpen()
+          dispatchEvent(this, 'open')
+        })
       }
       else {
-        transitionLeave(this, 'open')
+        doTransitionLeave(this, 'open', () => {
+          if (this.onClose) this.onClose()
+          dispatchEvent(this, 'close')
+        })
       }
     }
   }
