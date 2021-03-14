@@ -27,6 +27,7 @@ import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
 import { initOpenCloseAnimation } from '../../common/initOpenCloseAnimation.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
+import { clearTransition, isTransition, transitionEnter, transitionLeave } from '../../common/transition.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -400,6 +401,25 @@ const TEMPLATE_CSS = `
 :host([dark]) #header-bg {
   background-color: var(--dark-bg-base-header, ${__dark_bg_base_header});
 }
+
+/* 最大化动画 */
+:host(.maximized-enter-transition-active),
+:host(.maximized-leave-transition-active) {
+  pointer-events: none;
+  transition:
+    top var(--transition-duration, ${__transition_duration}),
+    left var(--transition-duration, ${__transition_duration}),
+    width var(--transition-duration, ${__transition_duration}),
+    height var(--transition-duration, ${__transition_duration});
+}
+:host(.maximized-enter-transition-from) {
+}
+:host(.maximized-enter-transition-to) {
+}
+:host(.maximized-leave-transition-from) {
+}
+:host(.maximized-leave-transition-to) {
+}
 </style>
 `
 const TEMPLATE_HTML = `
@@ -528,6 +548,26 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
 
     this._initMoveEvents()
     this._initResizeEvents()
+
+    // 最大化动画
+    const onMaximizedProperties = ['top', 'left', 'width', 'height']
+    let onMaximizedProperty = ''
+    const onMaximizedEnd = e => {
+      clearTransition(this, 'maximized')
+    }
+    this.addEventListener('transitionrun', e => {
+      if (e.target !== this || !isTransition(this, 'maximized') || !onMaximizedProperties.includes(e.propertyName)) return
+      if (!onMaximizedProperty) onMaximizedProperty = e.propertyName
+      onMaximizedEnd(e)
+    })
+    this.addEventListener('transitioncancel', e => {
+      if (e.target !== this || !isTransition(this, 'maximized') || onMaximizedProperty !== e.propertyName) return
+      onMaximizedEnd(e)
+    })
+    this.addEventListener('transitionend', e => {
+      if (e.target !== this || !isTransition(this, 'maximized') || onMaximizedProperty !== e.propertyName) return
+      onMaximizedEnd(e)
+    })
   }
 
   get actions() {
@@ -615,6 +655,7 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
     if (name === 'actions') {
       this._renderActions()
     }
+
     if (name === 'capturefocus') {
       if (this.capturefocus) {
         this._captureFocus()
@@ -623,12 +664,24 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
         this._stopCaptureFocus()
       }
     }
+
     if (name === 'icon') {
       this._renderIcon()
     }
+
+    if (name === 'maximized') {
+      if (this.maximized) {
+        transitionEnter(this, 'maximized')
+      }
+      else {
+        transitionLeave(this, 'maximized')
+      }
+    }
+
     if (name === 'name') {
       this._renderName()
     }
+
     if (name == 'open') {
       this._updateVisible()
     }
@@ -839,8 +892,8 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
 
   _updateVisible() {
     if (this.open) {
-      this.classList.remove('close-transition-to')
-      this.classList.add('open-transition-to')
+      this.classList.remove('open-leave-transition-to')
+      this.classList.add('open-enter-transition-to')
       if (!this.style.left) {
         this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
       }
@@ -849,8 +902,8 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
       }
     }
     else {
-      this.classList.remove('open-transition-to')
-      this.classList.add('close-transition-to')
+      this.classList.remove('open-enter-transition-to')
+      this.classList.add('open-leave-transition-to')
     }
   }
 

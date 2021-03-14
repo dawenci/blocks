@@ -15,7 +15,7 @@ export function initOpenCloseAnimation($host, {
     const $style = document.createElement('style')
     $style.className = 'animation'
     $style.appendChild(document.createTextNode(`
-      @keyframes open-transition-to {
+      @keyframes open-enter-animation {
         from {
           ${opacity === false ? '' : 'opacity: 0;'}
           ${transform === false ? '' : 'transform: scale(0);'}
@@ -25,7 +25,7 @@ export function initOpenCloseAnimation($host, {
           ${transform === false ? '' : 'transform: scale(1);'}
         }
       }
-      @keyframes close-transition-to {
+      @keyframes open-leave-animation {
         from {
           ${opacity === false ? '' : 'opacity: 1;'}
           ${transform === false ? '' : 'transform: scale(1);'}
@@ -35,8 +35,8 @@ export function initOpenCloseAnimation($host, {
           ${transform === false ? '' : 'transform: scale(0);'}
         }
       }
-      :host(.open-transition-to),
-      :host(.close-transition-to) {
+      :host(.open-enter-animation),
+      :host(.open-leave-animation) {
         display: block;
         pointer-events: none;
         animation-delay: 0;
@@ -44,35 +44,35 @@ export function initOpenCloseAnimation($host, {
         animation-fill-mode: forwards;
         animation-timing-function: ease-in;
       }
-      :host(.open-transition-to) {
-        animation-name: open-transition-to;
+      :host(.open-enter-animation) {
+        animation-name: open-enter-animation;
       }
-      :host(.close-transition-to) {
-        animation-name: close-transition-to;
+      :host(.open-leave-animation) {
+        animation-name: open-leave-animation;
       }
     `))
     $host.shadowRoot.insertBefore($style, $host.shadowRoot.firstElementChild)
   }
 
   const _onStart = e => {
-    if (e.target !== $host || e.animationName !== 'open-transition-to' && e.animationName !== 'close-transition-to') return
+    if (e.target !== $host || e.animationName !== 'open-enter-animation' && e.animationName !== 'open-leave-animation') return
     if (onStart) onStart(e)
   }
 
   const _onIteration = e => {
-    if (e.target !== $host || e.animationName !== 'open-transition-to' && e.animationName !== 'close-transition-to') return
+    if (e.target !== $host || e.animationName !== 'open-enter-animation' && e.animationName !== 'open-leave-animation') return
     if (onIteration) onIteration(e)
   }
 
   const _onCancel = e => {
-    if (e.target !== $host || e.animationName !== 'open-transition-to' && e.animationName !== 'close-transition-to') return
+    if (e.target !== $host || e.animationName !== 'open-enter-animation' && e.animationName !== 'open-leave-animation') return
     if (onCancel) onCancel(e)
   }
 
   const _onEnd = e => {
-    if (e.target !== $host || e.animationName !== 'open-transition-to' && e.animationName !== 'close-transition-to') return
-    $host.classList.remove('open-transition-to')
-    $host.classList.remove('close-transition-to')
+    if (e.target !== $host || e.animationName !== 'open-enter-animation' && e.animationName !== 'open-leave-animation') return
+    $host.classList.remove('open-enter-animation')
+    $host.classList.remove('open-leave-animation')
     if (onEnd) onEnd(e)
   }
 

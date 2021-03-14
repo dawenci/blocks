@@ -19,8 +19,8 @@ const TEMPLATE_CSS = `<style>
 :host([open]) {
   display: block;
 }
-:host(.open-transition-active),
-:host(.close-transition-active) {
+:host(.open-enter-transition-active),
+:host(.open-leave-transition-active) {
   transition-duration: var(--transition-duration, ${__transition_duration}), 0s;
 }
 </style>`
