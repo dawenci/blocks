@@ -1,4 +1,4 @@
-import BlocksOpenCloseAnimation from '../../common/open-close-animation.js'
+import BlocksOpenCloseAnimation from '../../common/open-close-transition.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
@@ -312,8 +312,6 @@ export default class BlocksPopup extends BlocksOpenCloseAnimation {
       'dark',
       // 在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染）
       'inset',
-      // Popup 是否展示
-      'open',
       // 原点
       'origin',
       // 失去焦点时，是否恢复获得焦点前的焦点
@@ -335,6 +333,7 @@ export default class BlocksPopup extends BlocksOpenCloseAnimation {
       // 动画过程可能锚定点移动，动画结束后，更新下位置
       this.updatePosition()
     })
+
     this.addEventListener('close', () => {
       this._blur()
     })

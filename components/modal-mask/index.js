@@ -1,4 +1,4 @@
-import BlocksOpenCloseAnimation from '../../common/open-close-animation.js'
+import BlocksOpenCloseAnimation from '../../common/open-close-transition.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __transition_duration } from '../../theme/var.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
@@ -19,8 +19,8 @@ const TEMPLATE_CSS = `<style>
 :host([open]) {
   display: block;
 }
-:host(.open-animation),
-:host(.close-animation) {
+:host(.open-transition-active),
+:host(.close-transition-active) {
   transition-duration: var(--transition-duration, ${__transition_duration}), 0s;
 }
 </style>`

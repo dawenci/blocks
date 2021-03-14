@@ -1,4 +1,4 @@
-import BlocksOpenCloseAnimation from '../../common/open-close-animation.js'
+import BlocksOpenCloseAnimation from '../../common/open-close-transition.js'
 import '../button/index.js'
 import '../icon/index.js'
 import {
@@ -839,8 +839,8 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
 
   _updateVisible() {
     if (this.open) {
-      this.classList.remove('close-animation')
-      this.classList.add('open-animation')
+      this.classList.remove('close-transition-to')
+      this.classList.add('open-transition-to')
       if (!this.style.left) {
         this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
       }
@@ -849,8 +849,8 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
       }
     }
     else {
-      this.classList.remove('open-animation')
-      this.classList.add('close-animation')
+      this.classList.remove('open-transition-to')
+      this.classList.add('close-transition-to')
     }
   }
 

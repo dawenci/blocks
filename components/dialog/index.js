@@ -1,4 +1,4 @@
-import BlocksOpenCloseAnimation from '../../common/open-close-animation.js'
+import BlocksOpenCloseAnimation from '../../common/open-close-transition.js'
 import '../button/index.js'
 import '../modal-mask/index.js'
 import {
