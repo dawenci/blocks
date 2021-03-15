@@ -1,4 +1,4 @@
-import { __transition_duration } from '../../theme/var.js'
+import { __transition_duration } from '../theme/var.js'
 import { openGetter, openSetter } from './propertyAccessor.js'
 import { dispatchEvent } from './event.js'
 import { clearTransition, doTransitionEnter, doTransitionLeave, onTransitionEnd, transitionEnter, transitionLeave } from './animation.js'
