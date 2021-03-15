@@ -4,7 +4,7 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import { darkGetter, darkSetter } from '../../common/propertyAccessor.js'
-import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __radius_base, __transition_duration } from '../../theme/var.js'
+import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __radius_base, __transition_duration, __z_index_popup_base, __z_index_popup_focus } from '../../theme/var.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -60,12 +60,17 @@ const TEMPLATE_CSS = `<style>
 :host {
   box-sizing: border-box;
   position: absolute;
-  z-index: 10;
   /* TODO
    https://developers.google.com/web/updates/2016/06/css-containment
    */
   contain: none;
-  /* 由于非 display none，需要确保 open 之前不可点击 */
+}
+
+:host {
+  z-index: var(--z-index, var(--z-index-popup-base, ${__z_index_popup_base}));
+}
+:host(:focus-within) {
+  z-index: var(--z-index-focus, var(--z-index-popup-focus, ${__z_index_popup_focus}));
 }
 
 :host([open]) {
@@ -77,22 +82,16 @@ const TEMPLATE_CSS = `<style>
 }
 
 #layout {
-  position:relative;
+  display: inline-block;
   box-sizing: border-box;
-  display:inline-block;
+  position: relative;
   width: 100%;
   height: 100%;
   border-radius: var(--radius-base, ${__radius_base});
-  /*
-  transform-origin: center center;
-  transition-delay: 0, 0;
-  transition-property: opacity, transform;
-  transition-duration: var(--transition-duration, ${__transition_duration}), var(--transition-duration, ${__transition_duration});
-  transition-timing-function: cubic-bezier(.645, .045, .355, 1), cubic-bezier(.645, .045, .355, 1);
-  */
   background-color: var(--bg-base, ${__bg_base});
   color: var(--fg-base, ${__fg_base});
 }
+
 #arrow {
   overflow: hidden;
   display: block;

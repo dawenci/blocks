@@ -148,3 +148,24 @@ export const __border_color_disabled = '#d9d9d9'
 
 // --border-color-disabled-dark
 export const __dark_border_color_disabled = '#383838'
+
+
+// 层级 ****************************** /
+
+// --z-index-popup-base
+export const __z_index_popup_base = '10'
+
+// --z-index-popup-focus
+export const __z_index_popup_focus = '11'
+
+// --z-index-dialog-base
+export const __z_index_dialog_base = '10'
+
+// --z-index-dialog-focus
+export const __z_index_dialog_focus = '11'
+
+// --z-index-drawer-base
+export const __z_index_drawer_base = '10'
+
+// --z-index-drawer-focus
+export const __z_index_drawer_focus = '11'

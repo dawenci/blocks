@@ -4,7 +4,7 @@ import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/pro
 import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { setStyles } from '../../common/style.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __transition_duration } from '../../theme/var.js'
+import { __bg_base, __dark_bg_base, __fg_base, __dark_fg_base, __transition_duration, __z_index_drawer_base, __z_index_drawer_focus } from '../../theme/var.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { onKey } from '../../common/onKey.js'
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
@@ -37,6 +37,14 @@ const TEMPLATE_CSS = `<style>
     0px 9px 46px 8px rgba(0, 0, 0, 0.10);
   font-size: 14px;
 }
+
+:host {
+  z-index: var(--z-index, var(--z-index-drawer-base, ${__z_index_drawer_base}));
+}
+:host(:focus-within) {
+  z-index: var(--z-index-focus, var(--z-index-drawer-focus, ${__z_index_drawer_focus}));
+}
+
 :host([open]) {
   display: block;
 }

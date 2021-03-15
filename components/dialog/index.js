@@ -9,6 +9,8 @@ import {
   __font_family,
   __radius_base,
   __transition_duration,
+  __z_index_dialog_base,
+  __z_index_dialog_focus,
 } from '../../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { setRole } from '../../common/accessibility.js'
@@ -23,8 +25,14 @@ const TEMPLATE_CSS = `
   font-family: var(--font-family, ${__font_family});
   position:absolute;
   margin:auto;
-  z-index:-1;
-  z-index:10;
+}
+
+:host {
+  z-index: var(--z-index, var(--z-index-dialog-base, ${__z_index_dialog_base}));
+}
+
+:host(:focus-within) {
+  z-index: var(--z-index-focus, var(--z-index-dialog-focus, ${__z_index_dialog_focus}));
 }
 
 :host([open]) {
@@ -35,25 +43,9 @@ const TEMPLATE_CSS = `
   outline: 0 none;
 }
 
-/* 遮罩 */
-#mask {
-  position:absolute;
-  left:0;
-  top:0;
-  right:0;
-  bottom:0;
-  z-index:100;
-  background: rgba(0,0,0,.3);
-  opacity:0;
-}
-:host([open]) #mask {
-  opacity:1;
-}
-
 /* 对话框 */
 #layout {
   position:relative;
-  z-index: 100;
   box-sizing: border-box;
   display:inline-flex;
   flex-flow: column nowrap;
