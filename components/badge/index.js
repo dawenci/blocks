@@ -1,13 +1,33 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
+import { __border_color_base, __color_danger } from '../../theme/var.js'
 
 const TEMPLATE_CSS = `<style>
-:host, :host * {
+:host {
+  display: inline-block;
+  vertical-align: middle;
   box-sizing: border-box;
+  position: relative;
+}
+div {
+  position: relative;
+  display: inline-block;
+}
+sup {
+  position: relative;
+  top: -4px;
+  left: -4px;
+  height: 16px;
+  line-height:16px;
+  padding: 0 3px;
+  border: 1px solid var(--color-danger, ${__color_danger});
+  background-color: var(--color-danger, ${__color_danger});
+  border-radius: 8px;
+  color: #fff;
+  font-size: 12px;
 }
 </style>`
 
-const TEMPLATE_HTML = `
-`
+const TEMPLATE_HTML = `<div><slot></slot></div><sup>999+</sup>`
 
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
@@ -29,7 +49,7 @@ class BlocksBadge extends HTMLElement {
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
-    this.render()    
+    this.render()
   }
 
   disconnectedCallback() {}
