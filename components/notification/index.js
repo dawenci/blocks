@@ -276,7 +276,7 @@ function cage(placement) {
   return cage
 }
 
-export function notify(options = {}) {
+export function blNotify(options = {}) {
   const el = document.createElement('bl-notification')
   typeSetter(el, options.type)
   darkSetter(el, !!options.dark)
