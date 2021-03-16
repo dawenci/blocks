@@ -41,6 +41,7 @@ export default [
   { category: 'components', title: 'radio', url: 'pages/radio.html' },
   { category: 'components', title: 'rate', url: 'pages/rate.html' },
   // { category: 'components', title: 'resizable', url: 'pages/resizable.html' },
+  { category: 'components', title: 'scrollable', url: 'pages/scrollable.html' },
   { category: 'components', title: 'select', url: 'pages/select.html' },
   { category: 'components', title: 'select-result', url: 'pages/select-result.html' },  
   { category: 'components', title: 'slider', url: 'pages/slider.html' },
