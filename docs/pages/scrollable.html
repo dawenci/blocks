@@ -33,8 +33,10 @@
 
       <div class="case">
         <template data-codesource="html">
-          <bl-scrollable style="width:400px;height:200px;border: 1px solid #e8e8e8;">
-            <div style="width:1000px;height:1000px;background: repeating-linear-gradient(45deg,#666 2%, #666 2%, #888 4%, #888 4%, #aaa 6%, #aaa 6%);"></div>
+          <bl-scrollable style="height:200px;border: 1px solid #e8e8e8;">
+            <div style="width:3000px;height:3000px;
+            background: repeating-linear-gradient(45deg,#666 1%, #666 1%, #888 2%, #888 2%, #aaa 3%, #aaa 3%);
+            "></div>
           </bl-scrollable>
         </template>
       </div>
@@ -43,6 +45,8 @@
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -55,15 +59,55 @@
         </thead>
         <tbody>
           <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>shadow</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否在边沿显示可滚动提示阴影</td>
             <td></td>
           </tr>
         </tbody>
       </table>
 
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>scroll</td>
+            <td></td>
+            <td>发生滚动时触发。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>CSS Variables</h3>
+      <table class="api-css">
+        <thead>
+          <tr>
+            <th>变量名</th>
+            <th>默认值</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>--bg-thumb</td>
+            <td>black</td>
+            <td>滚动条滑块的背景颜色（设置不透明的颜色即可，显示时会自动设置透明度）。</td>
+          </tr>
+          <tr>
+            <td>--bg-track</td>
+            <td>transparent</td>
+            <td>滚动条滑轨的背景颜色。</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
   </article>
 </body>

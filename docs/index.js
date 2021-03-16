@@ -1,4 +1,5 @@
 import routes from './routes.js'
+import '../components/scrollable/index.js'
 import '../components/nav-menu/index.js'
 
 const pageTitle = (route) => {
@@ -51,7 +52,8 @@ window.onload = () => {
 
 
   // 侧导航
-  const $sideMenu = $aside.appendChild(document.createElement('bl-nav-menu'))
+  const $scrollable = $aside.appendChild(document.createElement('bl-scrollable'))
+  const $sideMenu = $scrollable.appendChild(document.createElement('bl-nav-menu'))
   $sideMenu.style.width = '100%'
   $sideMenu.size = 'large'
   $sideMenu.data = generateSideNavData()

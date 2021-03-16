@@ -74,16 +74,18 @@ html, body {
   flex: 0 0 180px;
   overflow: hidden;
   box-sizing: border-box;
+  margin-right: 50px;
   padding: 0;
   height: 100%;
-  padding-top: 15px;
-  padding-bottom: 100px;
 }
-#aside:hover {
-  overflow: auto;
+#aside bl-scrollable {
+  width: 100%;
+  height: 100%;
 }
 #aside bl-nav-menu {
   min-height: 100%;
+  padding-top: 15px;
+  padding-bottom: 100px;
 }
 
 #article {
@@ -92,7 +94,6 @@ html, body {
   box-sizing: border-box;
   height: 100%;
   background-color: #fff;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
   border: none;
   width: 100%;
   height: 100%;

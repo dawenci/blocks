@@ -1,7 +1,10 @@
 import { onWheel } from '../../common/onWheel.js'
+import { sizeObserve } from '../../common/sizeObserve.js'
+import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __transition_duration } from '../../theme/var.js'
+import { boolGetter, boolSetter } from '../../common/property.js'
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -22,8 +25,7 @@ const TEMPLATE_CSS = `<style>
   overflow: hidden;
 }
 
-#horizontal,
-#vertical {
+.track {
   opacity: 0;
   display: block;
   box-sizing: border-box;
@@ -31,58 +33,99 @@ const TEMPLATE_CSS = `<style>
   border-radius: 3px;
   user-select: none;
   transition: opacity var(--transition-duration, ${__transition_duration});
+  backgrond: var(--bg-track, transparent);
+  cursor: default;
 }
-
-#horizontal b,
-#vertical b {
-  display: block;
-  box-sizing: border-box;
-  position: absolute;
-  border-radius: 3px;
-  background: rgba(0,0,0, .25);
-  user-select: none;
-  transition: opacity var(--transition-duration, ${__transition_duration});
-}
-
-#horizontal b:hover,
-#vertical b:hover,
-#layout.dragging-horizontal b {
-  background: rgba(0,0,0, .5);
-}
-
 #horizontal {
   top: auto;
-  right: 0;
+  right: 6px;
   left: 0;
   bottom: 0;
-  width: 100%;
+  width: calc(100% - 6px);
   height: 6px;
 }
-
 #vertical {
   top: 0;
   right: 0;
-  bottom: 0;
+  bottom: 6px;
   left: auto;
   width: 6px;
-  height: 100%;
+  height: calc(100% - 6px);
 }
 
-#horizontal b {
+.thumb {
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 3px;
+  background: var(--bg-thumb, #000);
+  user-select: none;
+  transition: opacity var(--transition-duration, ${__transition_duration});
+  opacity: .3;
+}
+#layout:not(.dragging) .thumb {
+  transition: opacity var(--transition-duration, ${__transition_duration}),
+    /* 非拖拽模式，加上过渡动画 */
+    transform var(--transition-duration, ${__transition_duration});  
+}
+#horizontal .thumb {
   height: 100%;
 }
-
-#vertical b {
+#vertical .thumb {
   width: 100%;
 }
+.thumb:hover,
+.dragging-horizontal #horizontal .thumb,
+.dragging-vertical #vertical .thumb {
+  opacity: .5;
+}
 
-#layout.dragging-horizontal #horizontal,
-#layout.dragging-horizontal #vertical,
-#layout.dragging-vertical #horizontal,
-#layout.dragging-vertical #vertical,
-#layout:hover #horizontal,
-#layout:hover #vertical {
+#layout.dragging .track,
+#layout:hover .track {
   opacity: 1;
+}
+
+.top,
+.right,
+.bottom,
+.left {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+}
+:host([shadow]) .shadow-top .top {
+  display: block;
+  height: 10px;
+  top: -10px;
+  right: 0;
+  left: 0;
+  box-shadow: 0 3px 7px rgba(0,0,0,.2);
+}
+:host([shadow]) .shadow-right .right {
+  display: block;
+  width: 10px;
+  top: 0;
+  bottom: 0;
+  right: -10px;
+  box-shadow: -3px 0px 7px rgba(0,0,0,.2);
+}
+:host([shadow]) .shadow-bottom .bottom {
+  display: block;
+  height: 10px;
+  right: 0;
+  bottom: -10px;
+  left: 0;
+  box-shadow: 0 -3px 7px rgba(0,0,0,.2);
+}
+:host([shadow]) .shadow-left .left {
+  display: block;
+  width: 10px;
+  top: 0;
+  bottom: 0;
+  left: -10px;
+  box-shadow: 3px 0px 7px rgba(0,0,0,.2);
 }
 </style>`
 
@@ -91,8 +134,12 @@ const TEMPLATE_HTML = `
   <div id="viewport">
     <slot></slot>
   </div>
-  <div id="horizontal"><b></b></div>
-  <div id="vertical"><b></b></div>
+  <div class="track" id="horizontal"><b class="thumb"></b></div>
+  <div class="track" id="vertical"><b class="thumb"></b></div>
+  <b class="top"></b>
+  <b class="right"></b>
+  <b class="bottom"></b>
+  <b class="left"></b>
 </div>
 `
 
@@ -101,7 +148,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksScrollable extends HTMLElement {
   static get observedAttributes() {
-    return []
+    return ['shadow']
   }
 
   constructor() {
@@ -119,6 +166,10 @@ class BlocksScrollable extends HTMLElement {
       this._updateScrollbar()
     }
 
+    sizeObserve(this.$layout, () => {
+      this._updateScrollbar()
+    })
+
     onWheel(this.$viewport, (event, data) => {
       event.preventDefault()
       // 触顶
@@ -129,10 +180,19 @@ class BlocksScrollable extends HTMLElement {
       // 设置滚动距离，渲染更新
       this.$viewport.scrollTop += data.pixelY
 
+      dispatchEvent(this, 'scroll')
       this._updateScrollbar()
     })
 
     this._initMoveEvents()
+  }
+
+  get shadow() {
+    return boolGetter('shadow')(this)
+  }
+
+  set shadow(value) {
+    boolSetter('shadow')(this, value)
   }
 
   render() {}
@@ -146,32 +206,47 @@ class BlocksScrollable extends HTMLElement {
       scrollTop: contentTopSpace,
       scrollLeft: contentLeftSpace,
     } = this.$viewport
+    const showHorizontal = contentWidth > viewportWidth
+    const showVertical = contentHeight > viewportHeight
 
-    const trackWidth = this.$horizontal.clientWidth
-    const trackHeight = this.$vertical.clientHeight
+    if (showHorizontal) {
+      this.$horizontal.style.display = 'block'
 
-    const contentRightSpace = contentWidth - contentLeftSpace - viewportWidth
-    const contentBottomSpace = contentHeight - contentTopSpace - viewportHeight
+      const trackWidth = this.$horizontal.clientWidth
+      const contentRightSpace = contentWidth - contentLeftSpace - viewportWidth
+      // 滚动条尺寸（不小于 20px）
+      const thumbWidth = Math.max(Math.round((viewportWidth / contentWidth) * trackWidth), 20)
 
-    // 滚动条尺寸（不小于 20px）
-    const thumbHeight = Math.max(Math.round((viewportHeight / contentHeight) * trackHeight), 20)
-    const thumbWidth = Math.max(Math.round((viewportWidth / contentWidth) * trackWidth), 20)
+      const horizontalTrackSpace = trackWidth - thumbWidth
+      const thumbLeft = horizontalTrackSpace * (contentLeftSpace / (contentLeftSpace + contentRightSpace))
+
+      setStyles(this.$horizontalThumb, {
+        transform: `translateX(${thumbLeft}px)`,
+        width: `${thumbWidth}px`
+      })
+      this._updateShadow()
+    }
+    else {
+      this.$horizontal.style.display = 'none'
+    }
     
-    // 滚动条上右下左距离
-    const verticalTrackSpace = trackHeight - thumbHeight
-    const horizontalTrackSpace = trackWidth - thumbWidth
-    const thumbTop = verticalTrackSpace * (contentTopSpace / (contentTopSpace + contentBottomSpace))
-    const thumbLeft = horizontalTrackSpace * (contentLeftSpace / (contentLeftSpace + contentRightSpace))
-
-    setStyles(this.$verticalThumb, {
-      top: `${thumbTop}px`,
-      height: `${thumbHeight}px`
-    })
-
-    setStyles(this.$horizontalThumb, {
-      left: `${thumbLeft}px`,
-      width: `${thumbWidth}px`
-    })
+    if (showVertical) {
+      this.$vertical.style.display = 'block'
+      const trackHeight = this.$vertical.clientHeight
+      const contentBottomSpace = contentHeight - contentTopSpace - viewportHeight
+      // 滚动条尺寸（不小于 20px）
+      const thumbHeight = Math.max(Math.round((viewportHeight / contentHeight) * trackHeight), 20)
+      const verticalTrackSpace = trackHeight - thumbHeight
+      const thumbTop = verticalTrackSpace * (contentTopSpace / (contentTopSpace + contentBottomSpace))
+      setStyles(this.$verticalThumb, {
+        transform: `translateY(${thumbTop}px)`,
+        height: `${thumbHeight}px`
+      })
+      this._updateShadow()
+    }
+    else {
+      this.$vertical.style.display = 'none'
+    }
   }
 
   _updateScrollable() {
@@ -185,8 +260,8 @@ class BlocksScrollable extends HTMLElement {
     const trackHeight = this.$vertical.clientHeight
     const thumbWidth = this.$horizontalThumb.offsetWidth
     const thumbHeight = this.$verticalThumb.offsetHeight
-    const thumbTop = parseFloat(this.$verticalThumb.style.top)
-    const thumbLeft = parseFloat(this.$horizontalThumb.style.left)
+    const thumbTop = this._getThumbTop()
+    const thumbLeft = this._getThumbLeft()
 
     const verticalTrackSpace = trackHeight - thumbHeight
     const verticalContentSpace = contentHeight - viewportHeight
@@ -200,9 +275,30 @@ class BlocksScrollable extends HTMLElement {
     this.$viewport.scrollLeft = contentOffsetLeft
   }
 
+  _getThumbTop() {
+    return parseFloat((this.$verticalThumb.style.transform ?? '').slice(11, -3)) || 0
+  }
+
+  _getThumbLeft() {
+    return parseFloat((this.$horizontalThumb.style.transform ?? '').slice(11, -3)) || 0
+  }
+
+  _updateShadow() {
+    const trackWidth = this.$horizontal.clientWidth
+    const trackHeight = this.$vertical.clientHeight
+    const thumbLeft = this._getThumbLeft()
+    const thumbTop = this._getThumbTop()
+    const thumbWidth = this.$horizontalThumb.offsetWidth
+    const thumbHeight = this.$verticalThumb.offsetHeight
+    this.$layout.classList.toggle('shadow-left', thumbLeft > 0)
+    this.$layout.classList.toggle('shadow-right', trackWidth - thumbWidth - thumbLeft > 0)
+    this.$layout.classList.toggle('shadow-top', thumbTop > 0)
+    this.$layout.classList.toggle('shadow-bottom', trackHeight - thumbHeight - thumbTop > 0)
+  }
+
   _initMoveEvents() {
     let isVertical = false
-    let startBarPosition
+    let startThumbPosition
     let startMousePosition
 
     const move = (e) => {
@@ -210,24 +306,26 @@ class BlocksScrollable extends HTMLElement {
       e.stopImmediatePropagation()
 
       if (isVertical) {
-        const scrollableHeight = this.$viewport.clientHeight
-        const barHeight = this.$verticalThumb.offsetHeight
-        let barTop = startBarPosition + (e.pageY - startMousePosition)
-        if (barTop === 0 || barTop + barHeight === scrollableHeight) return
-        if (barTop < 0) barTop = 0
-        if (barTop + barHeight > scrollableHeight) barTop = scrollableHeight - barHeight
-        this.$verticalThumb.style.top = barTop + 'px'
+        const trackHeight = this.$vertical.clientHeight
+        const thumbHeight = this.$verticalThumb.offsetHeight
+        let thumbTop = startThumbPosition + (e.pageY - startMousePosition)
+        if (thumbTop === 0 || thumbTop + thumbHeight === trackHeight) return
+        if (thumbTop < 0) thumbTop = 0
+        if (thumbTop + thumbHeight > trackHeight) thumbTop = trackHeight - thumbHeight
+        this.$verticalThumb.style.transform = `translateY(${thumbTop}px)`
       }
       else {
-        const scrollableWidth = this.$viewport.clientWidth
-        const barWidth = this.$horizontalThumb.offsetWidth
-        let barLeft = startBarPosition + (e.pageX - startMousePosition)
-        if (barLeft === 0 || barLeft + barWidth === scrollableWidth) return
-        if (barLeft < 0) barLeft = 0
-        if (barLeft + barWidth > scrollableWidth) barLeft = scrollableWidth - barWidth
-        this.$horizontalThumb.style.left = barLeft + 'px'
+        const trackWidth = this.$horizontal.clientWidth
+        const thumbWidth = this.$horizontalThumb.offsetWidth
+        let thumbLeft = startThumbPosition + (e.pageX - startMousePosition)
+        if (thumbLeft === 0 || thumbLeft + thumbWidth === trackWidth) return
+        if (thumbLeft < 0) thumbLeft = 0
+        if (thumbLeft + thumbWidth > trackWidth) thumbLeft = trackWidth - thumbWidth
+        this.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
       }
 
+      dispatchEvent(this, 'scroll')
+      this._updateShadow()
       this._updateScrollable()
     }
 
@@ -237,8 +335,8 @@ class BlocksScrollable extends HTMLElement {
 
       removeEventListener('mousemove', move)
       removeEventListener('mouseup', up)
-      this.$layout.classList.remove('dragging-vertical')
-      this.$layout.classList.remove('dragging-horizontal')
+      this.$layout.classList.remove('dragging', 'dragging-vertical')
+      this.$layout.classList.remove('dragging', 'dragging-horizontal')
     }
 
     const down = (e) => {
@@ -253,38 +351,38 @@ class BlocksScrollable extends HTMLElement {
           // 期望滑块的中点座标
           const middle = e.clientY - this.$vertical.getBoundingClientRect().top
           // 推算出 top 座标
-          const height = this.$verticalThumb.offsetHeight
-          let top = middle - height / 2
-          if (top < 0) top = 0
-          if (top + height > this.$vertical.clientHeight) top = this.$vertical.clientHeight - height
-          this.$verticalThumb.style.top = top + 'px'
+          const thumbHeight = this.$verticalThumb.offsetHeight
+          let thumbTop = middle - thumbHeight / 2
+          if (thumbTop < 0) thumbTop = 0
+          if (thumbTop + thumbHeight > this.$vertical.clientHeight) thumbTop = this.$vertical.clientHeight - thumbHeight
+          this.$verticalThumb.style.transform = `translateY(${thumbTop}px)`
         }
         else {
           // 期望滑块的中点座标
           const center = e.clientX - this.$horizontal.getBoundingClientRect().left
           // 推算出滑块 left 座标
-          const width = this.$horizontalThumb.offsetWidth
-          let left = center - width / 2
-          if (left < 0) left = 0
-          if (left + width > this.$horizontal.clientWidth) left = this.$horizontal.clientWidth - width
-          this.$horizontalThumb.style.left = left + 'px'
+          const thumbWidth = this.$horizontalThumb.offsetWidth
+          let thumbLeft = center - thumbWidth / 2
+          if (thumbLeft < 0) thumbLeft = 0
+          if (thumbLeft + thumbWidth > this.$horizontal.clientWidth) thumbLeft = this.$horizontal.clientWidth - thumbWidth
+          this.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
         }
 
+        dispatchEvent(this, 'scroll')
+        this._updateShadow()
         this._updateScrollable()
         return
       }
 
       // 点击的是滑块，则启用拖动模式
       if (isVertical) {
-        this.$layout.classList.add('dragging-vertical')
-        const style = getComputedStyle(this.$verticalThumb)
-        startBarPosition = parseFloat(style.top)
+        this.$layout.classList.add('dragging', 'dragging-vertical')
+        startThumbPosition = this._getThumbTop()
         startMousePosition = e.pageY
       }
       else {
-        this.$layout.classList.add('dragging-horizontal')
-        const style = getComputedStyle(this.$horizontalThumb)
-        startBarPosition = parseFloat(style.left)
+        this.$layout.classList.add('dragging', 'dragging-horizontal')
+        startThumbPosition = this._getThumbLeft()
         startMousePosition = e.pageX
       }
       addEventListener('mousemove', move)
