@@ -28,15 +28,33 @@
     </section>
 
     <section class="section">
-      <h2>时间面板</h2>
+      <h2>默认使用</h2>
 
-      <template data-codesource="html">
-        <bl-time size="small"></bl-time>
-      </template>
+      <div class="case">
+        <template data-codesource="html">
+          <bl-time></bl-time>
+        </template>
+      </div>
     </section>
+
+
+    <section class="section">
+      <h2>尺寸</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <bl-time size="small" style="border:1px solid #e8e8e8;margin:5px;"></bl-time>
+          <bl-time style="border:1px solid #e8e8e8;margin:5px;"></bl-time>
+          <bl-time size="large" style="border:1px solid #e8e8e8;margin:5px;"></bl-time>
+        </template>
+      </div>
+    </section>
+
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -49,15 +67,53 @@
         </thead>
         <tbody>
           <tr>
+            <td>hour</td>
+            <td>0 - 23</td>
             <td></td>
+            <td>时。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>minute</td>
+            <td>0 - 59</td>
             <td></td>
+            <td>分。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>second</td>
+            <td>0 - 59</td>
+            <td></td>
+            <td>秒。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>size</td>
+            <td>'small' | 'large'</td>
+            <td></td>
+            <td>尺寸。不设置为中等尺寸。</td>
             <td></td>
           </tr>
         </tbody>
       </table>
 
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>change</td>
+            <td>{ detail: { hour, minute, second } }</td>
+            <td>时间变化时触发。</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
   </article>
 </body>
