@@ -23,6 +23,8 @@ import { dispatchEvent } from '../../common/event.js'
 const TEMPLATE_CSS = `
 <style>
 :host {
+  --item-height: var(--height-base, ${__height_base});
+
   display: block;
   box-sizing: border-box;
   font-family: var(--font-family, ${__font_family});
@@ -45,10 +47,17 @@ const TEMPLATE_CSS = `
   height: 100%;
 }
 
-#list {
-  position: relative;
+#list-size {
+  box-sizing: border-box;
   width: 100%;
+}
+#list {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
   overflow: hidden;
+  width: 100%;
 }
 
 .item {
@@ -57,7 +66,7 @@ const TEMPLATE_CSS = `
   justify-content: center;
   align-items: center;
   cursor: default;
-  height: var(--height-base, ${__height_base});
+  height: var(--item-height);
 }
 :host([disabled]) .item,
 .item[disabled] {
@@ -129,6 +138,7 @@ const TEMPLATE_CSS = `
 `
 const TMEPLATE_HTML = `
 <bl-scrollable id="layout">
+  <div id="list-size"></div>
   <div id="list"></div>
 </bl-scrollable>
 `
@@ -155,7 +165,10 @@ class BlocksList extends HTMLElement {
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$layout = shadowRoot.getElementById('layout')
+    this.$listSize = shadowRoot.getElementById('list-size')
     this.$list = shadowRoot.getElementById('list')
+
+    this._$pool = []
 
     definePrivate(this, '_data', [])
     definePrivate(this, '_selected', [])
@@ -177,6 +190,8 @@ class BlocksList extends HTMLElement {
         this._selectItem($item)
       } 
     }
+
+    this.$layout.onscroll = this.render.bind(this)
   }
 
   get data() {
@@ -238,7 +253,6 @@ class BlocksList extends HTMLElement {
     dispatchEvent(this, 'change', { detail: { value: this.multiple ? this._selected : this._selected[0] } })
   }
 
-
   get single() {
     return this.selectable === 'single'
   }
@@ -248,17 +262,31 @@ class BlocksList extends HTMLElement {
   }
 
   render() {
-    // 确保节点数量
-    let count = this.$list.children.length - this.data.length
-    if (count < 0) {
-      count *= -1
-      while (count--) {
-        this.$list.appendChild(itemTemplate.content.cloneNode(true))
+    const itemHeight = parseInt(getComputedStyle(this).getPropertyValue('--item-height'), 10)
+    this.$listSize.style.height = `${this.data.length * itemHeight}px`
+
+    const scrollTop = this.$layout.scrollTop
+    const viewportHeight = this.$layout.clientHeight
+    const renderCount = Math.ceil(viewportHeight / itemHeight)
+    const itemFrom = Math.floor(scrollTop / itemHeight)
+
+    this.$list.style.transform = `translateY(${-scrollTop % itemHeight}px)`
+
+    const dataSlice = this.data.slice(itemFrom, itemFrom + renderCount)
+    const idIndexMap = {}
+    dataSlice.forEach((data, i) => idIndexMap[data[this.idField]] = i)
+
+    const $newItems = Array(renderCount)
+    let len = this.$list.children.length
+    while (len--) {
+      const $item = this.$list.removeChild(this.$list.lastElementChild)
+      let index = idIndexMap[$item.dataset.id]
+      // 复用
+      if (index != null) {
+        $newItems[index] = $item
       }
-    }
-    else if (count > 0) {
-      while (count--) {
-        this.$list.removeChild(this.$list.lastElementChild)
+      else {
+        this._$pool.push($item)
       }
     }
 
@@ -268,12 +296,14 @@ class BlocksList extends HTMLElement {
     })
 
     const { idField, labelField, disabledField } = this
-    forEach(this.$list.children, ($item, index) => {
-      const data = this.data[index] ?? {}
+    let i = -1;
+    while (++i < renderCount) {
+      const $item = $newItems[i] ?? this._$pool.pop() ?? itemTemplate.content.querySelector('.item').cloneNode(true)
+      const data = dataSlice[i]
+      if (!data) return
       const id = data[idField] ?? ''
       const label = data[labelField] ?? ''
       const isDisabled = data[disabledField] ?? false
-
       $item.dataset.id = id
       $item.children[1].innerHTML = label
       if (isDisabled) {
@@ -282,14 +312,16 @@ class BlocksList extends HTMLElement {
       else {
         $item.removeAttribute('disabled')
       }
-
       if (selectedMap[id]) {
         $item.classList.add('selected')
       }
       else {
         $item.classList.remove('selected')
       }
-    })
+
+      this.$list.appendChild($item)
+    }
+    this._$pool = []
   }
 
   _selectItem($item) {

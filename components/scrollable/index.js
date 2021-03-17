@@ -168,6 +168,7 @@ class BlocksScrollable extends HTMLElement {
 
     sizeObserve(this.$layout, () => {
       this._updateScrollbar()
+      dispatchEvent(this, 'resize')
     })
 
     onWheel(this.$viewport, (event, data) => {
@@ -180,11 +181,14 @@ class BlocksScrollable extends HTMLElement {
       // 设置滚动距离，渲染更新
       this.$viewport.scrollTop += data.pixelY
 
-      dispatchEvent(this, 'scroll')
       this._updateScrollbar()
     })
 
     this._initMoveEvents()
+
+    this.$viewport.onscroll = () => {
+      dispatchEvent(this, 'scroll')
+    }
   }
 
   get shadow() {
@@ -193,6 +197,15 @@ class BlocksScrollable extends HTMLElement {
 
   set shadow(value) {
     boolSetter('shadow')(this, value)
+  }
+
+  get scrollTop() {
+    return this.$viewport.scrollTop
+  }
+
+  set scrollTop(value) {
+    this.$viewport.scrollTop = value
+    this._updateScrollbar()
   }
 
   render() {}
@@ -324,7 +337,6 @@ class BlocksScrollable extends HTMLElement {
         this.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
       }
 
-      dispatchEvent(this, 'scroll')
       this._updateShadow()
       this._updateScrollable()
     }
@@ -368,7 +380,6 @@ class BlocksScrollable extends HTMLElement {
           this.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
         }
 
-        dispatchEvent(this, 'scroll')
         this._updateShadow()
         this._updateScrollable()
         return

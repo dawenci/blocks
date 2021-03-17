@@ -105,7 +105,7 @@ export default class BlocksDropDownList extends HTMLElement {
     this.$popup.addEventListener('mouseleave', onleave)
 
     this.$list.addEventListener('click-item', event => {
-      console.log(event)
+      dispatchEvent(this, 'click-item', { detail: { id: event.detail.id } })
     })
     this.$list.addEventListener('change', event => {
       dispatchEvent(this, 'change', { detail: event.detail })
@@ -113,6 +113,7 @@ export default class BlocksDropDownList extends HTMLElement {
 
     this.$popup.addEventListener('open', () => {
       this._initClickOutside()
+      this.$list.render()
     })
 
     this.$popup.addEventListener('close', () => {
@@ -209,12 +210,12 @@ export default class BlocksDropDownList extends HTMLElement {
     this._destroyClickOutside()
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (POPUP_ATTRS.includes(name)) {
-      this.$popup.setAttribute(name, newValue)
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    if (POPUP_ATTRS.includes(attrName)) {
+      this.$popup.setAttribute(attrName, newValue)
     }
-    if (LIST_ATTRS.includes(name)) {
-      this.$list.setAttribute(name, newValue)
+    if (LIST_ATTRS.includes(attrName)) {
+      this.$list.setAttribute(attrName, newValue)
     }
     this.render()
   }

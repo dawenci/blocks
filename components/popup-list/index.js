@@ -111,6 +111,9 @@ export default class BlocksPopupList extends BlocksPopup {
     if (LIST_ATTRS.includes(attrName)) {
       this.$list.setAttribute(attrName, newValue)
     }
+    if (attrName === 'open') {
+      if (this.open) this.$list.render()
+    }
   }
 }
 
