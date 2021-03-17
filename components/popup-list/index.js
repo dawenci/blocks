@@ -32,9 +32,11 @@ template.innerHTML = `
 <bl-list></bl-list>
 `
 
+const LIST_ATTRS = ['border', 'disabled-field', 'id-field', 'label-field', 'multiple', 'stripe']
+
 export default class BlocksPopupList extends BlocksPopup {
   static get observedAttributes() {
-    return super.observedAttributes.concat(['id-field', 'label-field', 'multiple'])
+    return super.observedAttributes.concat(LIST_ATTRS)
   }
 
   constructor() {
@@ -102,8 +104,13 @@ export default class BlocksPopupList extends BlocksPopup {
     super.disconnectedCallback()
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    super.attributeChangedCallback(name, oldValue, newValue)
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    if (BlocksPopup.observedAttributes.includes(attrName)) {
+      super.attributeChangedCallback(attrName, oldValue, newValue)
+    }
+    if (LIST_ATTRS.includes(attrName)) {
+      this.$list.setAttribute(attrName, newValue)
+    }
   }
 }
 

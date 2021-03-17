@@ -49,7 +49,7 @@ const POPUP_ATTRS = [
   'multiple',
   'trigger-mode'
 ]
-const LIST_ATTRS = ['id-field', 'label-field', 'multiple']
+const LIST_ATTRS = ['border', 'disabled-field', 'id-field', 'label-field', 'multiple', 'stripe']
 
 const triggerModeGetter = enumGetter('trigger-mode', ['hover', 'click'])
 const triggerModeSetter = enumSetter('trigger-mode', ['hover', 'click'])
@@ -69,7 +69,6 @@ export default class BlocksDropDownList extends HTMLElement {
     this.$popup.origin = 'top-start'
     this.$list = this.$popup.appendChild(listTemplate.content.cloneNode(true).querySelector('bl-list'))
     this.$list.style.cssText="width:200px;height:250px;"
-
     forEach(this.attributes, (attr) => {
       if (POPUP_ATTRS.includes(attr.name)) {
         this.$popup.setAttribute(attr.name, attr.value)
@@ -105,6 +104,9 @@ export default class BlocksDropDownList extends HTMLElement {
     this.addEventListener('mouseleave', onleave)
     this.$popup.addEventListener('mouseleave', onleave)
 
+    this.$list.addEventListener('click-item', event => {
+      console.log(event)
+    })
     this.$list.addEventListener('change', event => {
       dispatchEvent(this, 'change', { detail: event.detail })
     })

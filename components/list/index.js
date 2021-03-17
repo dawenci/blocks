@@ -161,7 +161,7 @@ class BlocksList extends HTMLElement {
     definePrivate(this, '_selected', [])
 
     this.$list.onclick = e => {
-      if (this.disabled || !this.selectable) return
+      if (this.disabled) return
 
       let $item = e.target
       if ($item === this.$list) return
@@ -170,7 +170,12 @@ class BlocksList extends HTMLElement {
         $item = $item.parentElement
       }
       if ($item.hasAttribute('disabled')) return
-      this._selectItem($item)
+
+      dispatchEvent(this, 'click-item', { detail: { id: $item.dataset.id } })
+
+      if (this.selectable) {
+        this._selectItem($item)
+      } 
     }
   }
 

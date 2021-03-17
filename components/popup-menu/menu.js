@@ -10,9 +10,11 @@ import { onClickOutside } from '../../common/onClickOutside.js';
 const itemTemplate = document.createElement('bl-popup-menu-item')
 const groupTemplate = document.createElement('bl-popup-menu-group')
 
+const MENU_ATTRS = ['level', 'size']
+
 class BlocksPopupMenu extends BlocksPopup {
   static get observedAttributes() {
-    return BlocksPopup.observedAttributes.concat(['level', 'size'])
+    return BlocksPopup.observedAttributes.concat(MENU_ATTRS)
   }
 
   constructor() {
@@ -139,8 +141,10 @@ class BlocksPopupMenu extends BlocksPopup {
     this._destroyClickOutside()
   }
 
-  attributeChangedCallback(attrName, oldVal, newVal) {
-    super.attributeChangedCallback(attrName, oldVal, newVal)
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    if (BlocksPopup.observedAttributes.includes(attrName)) {
+      super.attributeChangedCallback(attrName, oldValue, newValue)
+    }
 
     if (attrName === 'open') {
       if (this.open) {

@@ -42,10 +42,11 @@ popupTemplate.innerHTML = `
 `
 
 const POPUP_ATTRS = ['open', 'origin']
+const CONFIRM_ATTRS = ['message', 'icon']
 
 export default class BlocksPopupConfirm extends HTMLElement {
   static get observedAttributes() {
-    return POPUP_ATTRS.concat(['message', 'icon'])
+    return POPUP_ATTRS.concat(CONFIRM_ATTRS)
   }
 
   constructor() {
