@@ -46,10 +46,10 @@ const TEMPLATE_CSS = `<style>
   transform: scale(1, 0.5);
 }
 :host:before {
-  top: -0.5;
+  top: -0.5px;
 }
 :host:after {
-  bottom: -0.5;
+  bottom: -0.5px;
 }
 :host(:first-child):before,
 :host(:last-child):after {

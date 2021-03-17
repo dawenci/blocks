@@ -28,16 +28,152 @@
     </section>
 
     <section class="section">
-      <div data-codesource="html">
-        <bl-list style="width:200px;height:400px;" multiple id="default"></bl-list>
-        <script>
-          (() => {
-            const data = []
-            let i = -1
-            while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
-            document.getElementById('default').data = data
-          })()
-        </script>
+      <h2>默认列表</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-list id="default" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+          <script>
+            (() => {
+              const data = []
+              let i = -1
+              while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
+              document.getElementById('default').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>border</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-list
+            border
+            id="border"
+            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+          <script>
+            (() => {
+              const data = []
+              let i = -1
+              while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
+              document.getElementById('border').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>斑马纹</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-list
+            stripe
+            id="stripe"
+            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+          <script>
+            (() => {
+              const data = []
+              let i = -1
+              while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
+              document.getElementById('stripe').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>可选择</h2>
+
+      <h3>单选</h3>
+      <div class="case">
+        <div data-codesource="html">
+          <bl-list
+            selectable="single"
+            id="single"
+            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+          <script>
+            (() => {
+              const data = []
+              let i = -1
+              while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
+              document.getElementById('single').data = data
+            })()
+          </script>
+        </div>
+      </div>
+
+      <h3>多选</h3>
+      <div class="case">
+        <div data-codesource="html">
+          <bl-list
+            selectable="multiple"
+            id="multiple"
+            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+          <script>
+            (() => {
+              const data = []
+              let i = -1
+              while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
+              document.getElementById('multiple').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>禁用</h2>
+
+      <h3>组件禁用</h3>
+      <div class="case">
+        <div data-codesource="html">
+          <bl-list
+            border
+            disabled
+            selectable="multiple"
+            id="disabled"
+            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+          <script>
+            (() => {
+              const data = []
+              let i = -1
+              while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
+              document.getElementById('disabled').data = data
+            })()
+          </script>
+        </div>
+      </div>
+
+      <h3>项禁用</h3>
+      <div class="case">
+        <div data-codesource="html">
+          <bl-list
+            border
+            selectable="multiple"
+            id="item-disabled"
+            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+          <script>
+            (() => {
+              const data = []
+              let i = -1
+              while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
+              data[1].disabled = true
+              data[3].disabled = true
+              data[5].disabled = true
+              document.getElementById('item-disabled').data = data
+            })()
+          </script>
+        </div>
       </div>
     </section>
     
@@ -56,10 +192,31 @@
         </thead>
         <tbody>
           <tr>
+            <td>border</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否启用项描边。</td>
+            <td></td>
+          </tr>
+          <tr>
             <td>data</td>
             <td>Object[]</td>
             <td></td>
             <td>列表数据（对象列表），该属性是 prop，非 attr。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>disabled</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否禁用。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>disabled-label</td>
+            <td>string</td>
+            <td>'disabled'</td>
+            <td>项禁用的依据字段名称。</td>
             <td></td>
           </tr>
           <tr>
@@ -88,6 +245,13 @@
             <td></td>
             <td></td>
             <td>选中的 id 或 id 数组（多选模式）。该属性是 prop，非 attr。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>stripe</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否启用斑马纹。</td>
             <td></td>
           </tr>
         </tbody>

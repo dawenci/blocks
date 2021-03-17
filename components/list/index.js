@@ -1,5 +1,6 @@
+import '../scrollable/index.js'
 import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
+import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach, makeRgbaColor } from '../../common/utils.js'
 import { definePrivate } from '../../common/definePrivate.js'
@@ -13,32 +14,14 @@ import {
   __border_color_disabled,
   __bg_disabled,
   __transition_duration,
+  __height_base,
+  __border_color_light,
+  __fg_base,
 } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
 
 const TEMPLATE_CSS = `
 <style>
-::-webkit-scrollbar {
-  background: transparent;
-  background: rgba(0, 0, 0, .075);
-}
-::-webkit-scrollbar:vertical {
-  width: 6px;
-  height: 100%;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, .2);
-}
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
-* {
-  scrollbar-width: thin;
-}
-
 :host {
   display: block;
   box-sizing: border-box;
@@ -46,7 +29,12 @@ const TEMPLATE_CSS = `
   transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   contain: content;
   font-size: 14px;
+  color: var(--fg-base, ${__fg_base});
 }
+:host([disabled]) {
+  color: var(--fg-disabled, ${__fg_disabled});
+}
+
 
 #layout {
   box-sizing: border-box;
@@ -60,8 +48,7 @@ const TEMPLATE_CSS = `
 #list {
   position: relative;
   width: 100%;
-  height: 100%;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .item {
@@ -70,10 +57,43 @@ const TEMPLATE_CSS = `
   justify-content: center;
   align-items: center;
   cursor: default;
+  height: var(--height-base, ${__height_base});
 }
-.item:nth-child(even) {
-  background-color: rgba(0,0,0,.04);
+:host([disabled]) .item,
+.item[disabled] {
+  cursor: not-allowed;
+  color: var(--fg-disabled, ${__fg_disabled});
 }
+
+:host([stripe]) .item:nth-child(even) {
+  background-color: rgba(0,0,0,.025);
+}
+
+:host([border]) .item:before,
+:host([border]) .item:after {
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: auto;
+  left: 0;
+  display: block;
+  content: '';
+  height: 1px;
+  background: rgba(0,0,0,.05);
+  transform: scale(1, 0.5);
+}
+:host([border]) .item:before {
+  top: -0.5px;
+}
+:host([border]) .item:after {
+  bottom: -0.5px;
+}
+:host([border]) .item:first-child:before,
+:host([border]) .item:last-child:after {
+  display: none;
+}
+
+
 .label {
   flex: 1 1 auto;
   padding: 4px;
@@ -108,9 +128,9 @@ const TEMPLATE_CSS = `
 </style>
 `
 const TMEPLATE_HTML = `
-<div id="layout">
+<bl-scrollable id="layout">
   <div id="list"></div>
-</div>
+</bl-scrollable>
 `
 
 const template = document.createElement('template')
@@ -127,7 +147,7 @@ itemTemplate.innerHTML = `
 
 class BlocksList extends HTMLElement {
   static get observedAttributes() {
-    return ['id-field', 'label-field', 'multiple']
+    return ['border', 'disabled', 'disabled-field', 'id-field', 'label-field', 'selectable', 'stripe']
   }
 
   constructor() {
@@ -141,12 +161,15 @@ class BlocksList extends HTMLElement {
     definePrivate(this, '_selected', [])
 
     this.$list.onclick = e => {
+      if (this.disabled || !this.selectable) return
+
       let $item = e.target
       if ($item === this.$list) return
       while ($item !== this.$list) {
         if ($item.classList.contains('item')) { break }
         $item = $item.parentElement
       }
+      if ($item.hasAttribute('disabled')) return
       this._selectItem($item)
     }
   }
@@ -160,14 +183,20 @@ class BlocksList extends HTMLElement {
     this.render()
   }
 
-  get selected() {
-    return this.multiple ? this._selected : this._selected[0]
+  get disabled() {
+    return boolGetter('disabled')(this)
   }
 
-  set selected(ids) {
-    this._selected = this.multiple ? Array.isArray(ids) ? ids : [ids] : [ids]
-    this.render()
-    dispatchEvent(this, 'change', { detail: { value: this.multiple ? this._selected : this._selected[0] } })
+  set disabled(value) {
+    boolSetter('disabled')(this, value)
+  }
+
+  get disabledField() {
+    return this.getAttribute('disabled-field') ?? 'disabled'
+  }
+
+  set disabledField(value) {
+    this.setAttribute('disabled-field', value)
   }
 
   get idField() {
@@ -186,18 +215,36 @@ class BlocksList extends HTMLElement {
     this.setAttribute('label-field', value)
   }
 
-  get multiple() {
-    return boolGetter('multiple')(this)
+  get selectable() {
+    return enumGetter('selectable', [null, 'single', 'multiple'])(this)
   }
 
-  set multiple(value) {
-    boolSetter('multiple')(this, value)
+  set selectable(value) {
+    enumSetter('selectable', [null, 'single', 'multiple'])(this, value)
+  }
+
+  get selected() {
+    return this.multiple ? this._selected : this._selected[0]
+  }
+
+  set selected(ids) {
+    this._selected = this.multiple ? Array.isArray(ids) ? ids : [ids] : [ids]
+    this.render()
+    dispatchEvent(this, 'change', { detail: { value: this.multiple ? this._selected : this._selected[0] } })
+  }
+
+
+  get single() {
+    return this.selectable === 'single'
+  }
+
+  get multiple() {
+    return this.selectable === 'multiple'
   }
 
   render() {
     // 确保节点数量
-    let items = this.$list.children
-    let count = items.length - this.data.length
+    let count = this.$list.children.length - this.data.length
     if (count < 0) {
       count *= -1
       while (count--) {
@@ -214,20 +261,28 @@ class BlocksList extends HTMLElement {
     forEach(this._selected, id => {
       selectedMap[id] = true
     })
-    const { idField: idField, labelField } = this
-    forEach(this.$list.children, (item, index) => {
+
+    const { idField, labelField, disabledField } = this
+    forEach(this.$list.children, ($item, index) => {
       const data = this.data[index] ?? {}
       const id = data[idField] ?? ''
       const label = data[labelField] ?? ''
+      const isDisabled = data[disabledField] ?? false
 
-      item.dataset.id = id
-      item.children[1].innerHTML = label
-
-      if (selectedMap[id]) {
-        item.classList.add('selected')
+      $item.dataset.id = id
+      $item.children[1].innerHTML = label
+      if (isDisabled) {
+        $item.setAttribute('disabled', '')
       }
       else {
-        item.classList.remove('selected')
+        $item.removeAttribute('disabled')
+      }
+
+      if (selectedMap[id]) {
+        $item.classList.add('selected')
+      }
+      else {
+        $item.classList.remove('selected')
       }
     })
   }
@@ -263,7 +318,7 @@ class BlocksList extends HTMLElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     // 从多选改成单选，保留最后一个选择的值
-    if (name === 'multiple') {
+    if (name === 'selectable') {
       if (!this.multiple && this._selected.length) {
         this._selected = [this._selected[this._selected.length - 1]]
       }
