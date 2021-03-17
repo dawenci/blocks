@@ -21,6 +21,7 @@ import { dispatchEvent } from '../../common/event.js'
 const TEMPLATE_CSS = `<style>
 :host {
   display: inline-block;
+  vertical-align: middle;
   box-sizing: border-box;
   overflow: hidden;
   cursor: default;

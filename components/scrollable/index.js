@@ -345,6 +345,7 @@ class BlocksScrollable extends HTMLElement {
       e.preventDefault()
       e.stopImmediatePropagation()
 
+      dispatchEvent(this, 'drag-scroll-end')
       removeEventListener('mousemove', move)
       removeEventListener('mouseup', up)
       this.$layout.classList.remove('dragging', 'dragging-vertical')
@@ -396,6 +397,10 @@ class BlocksScrollable extends HTMLElement {
         startThumbPosition = this._getThumbLeft()
         startMousePosition = e.pageX
       }
+
+      dispatchEvent(this, 'drag-scroll-start')
+      addEventListener('mouseout', console.log)
+
       addEventListener('mousemove', move)
       addEventListener('mouseup', up)
     }

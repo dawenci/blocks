@@ -10,6 +10,7 @@ window.onload = () => {
   const $header = document.getElementById('header')
   const $aside = document.getElementById('aside')
   const $iframe = document.getElementById('article')
+  const $mask = document.getElementById('mask')
   
 
   // 当前激活的路由
@@ -53,6 +54,13 @@ window.onload = () => {
 
   // 侧导航
   const $scrollable = $aside.appendChild(document.createElement('bl-scrollable'))
+  // 拉动滚动条的时候，显示遮罩覆盖 iframe，以免鼠标拖拽过程移到右侧时，move 事件被 iframe 捕获导致无法拉动滚动条
+  $scrollable.addEventListener('drag-scroll-start', () => {
+    $mask.style.display = 'block'
+  })
+  $scrollable.addEventListener('drag-scroll-end', () => {
+    $mask.style.display = 'none'
+  })
   const $sideMenu = $scrollable.appendChild(document.createElement('bl-nav-menu'))
   $sideMenu.style.width = '100%'
   $sideMenu.size = 'large'
