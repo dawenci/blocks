@@ -32,19 +32,6 @@ export function getClosestDate(dates = []) {
   return result
 }
 
-export function toggleClass(el, className, flag) {
-  el.classList[flag ? 'add' : 'remove'](className)
-}
-
-export function toggleAttr(el, attrName, flag) {
-  if (flag) {
-    el.setAttribute(attrName, '')
-  }
-  else {
-    el.removeAttribute(attrName)
-  }
-}
-
 /**
  * 规范最小的深度取值
  */

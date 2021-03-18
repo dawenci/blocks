@@ -165,7 +165,7 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 
-class BlocksInput extends HTMLElement {
+export default class BlocksInput extends HTMLElement {
   static get observedAttributes() {
     return [
       'value',

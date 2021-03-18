@@ -8,12 +8,14 @@ import {
   __height_base,
   __height_small,
   __height_large,
+  __color_primary_light,
 } from '../../theme/var.js'
 import { range } from '../../common/utils.js'
 import { Depth } from './data.js'
-import { normalizeMinDepth, normalizeViewDepth, toggleClass, toggleAttr, getClosestDate, getFirstDate, getLastDate, getLastDateOfPrevMonth, getFirstDateOfNextMonth } from './helpers.js'
+import { normalizeMinDepth, normalizeViewDepth, getClosestDate, getFirstDate, getLastDate, getLastDateOfPrevMonth, getFirstDateOfNextMonth } from './helpers.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
+import { disabledGetter, disabledSetter } from '../../common/propertyAccessor.js'
 
 const TEMPLATE_CSS = `<style>
 @keyframes rotate360 {
@@ -307,11 +309,15 @@ const TEMPLATE_CSS = `<style>
   color: var(--color-primary, ${__color_primary});
   outline: 0 none;
 }
-/* range, multiple 模式，选项之间紧密相连，去掉圆角 */
+/* range, multiple 模式，选项之间紧密相连，去掉圆角，range 首尾项除外 */
 :host([mode="range"]) .button-item,
 :host([mode="multiple"]) .button-item {
   border-width: 0;
   border-radius: 0;
+}
+:host([mode="range"]) .button-item.button-item--rangeFrom {
+}
+:host([mode="range"]) .button-item.button-item--rangeTo {
 }
 
 /* 7 col * 5 row */
@@ -383,9 +389,16 @@ const TEMPLATE_CSS = `<style>
   text-shadow: 0 0 1px var(--color-primary, ${__color_primary});
 }
 
-.button-item.button-item--childActive {
+.button-item.button-item--includesActive {
   color: var(--color-primary, ${__color_primary});
   text-shadow: 0 0 1px var(--color-primary, ${__color_primary});
+}
+
+.button-item.button-item--rangeIn,
+.button-item.button-item--rangeIn:hover,
+.button-item.button-item--rangeIn:active {
+  background-color: var(--color-primary-light, ${__color_primary_light});
+  color: #fff;
 }
 
 .button-item.button-item--active,
@@ -449,7 +462,7 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 
-class BlocksDate extends HTMLElement {
+export default class BlocksDate extends HTMLElement {
   static get Depth() {
     return Depth
   }
@@ -461,6 +474,8 @@ class BlocksDate extends HTMLElement {
       // year 代表最深按照年份展示选项，可以选择到 “月”
       // decade 代表最深按照十年展示选项，可以选择到 “年”
       'depth',
+      // 是否禁用
+      'disabled',
       // 是否使用 loading 遮罩
       'loading',
       // 多选模式的话，最多能选择多少个值
@@ -511,7 +526,7 @@ class BlocksDate extends HTMLElement {
     // 设置面板起始视图状态
     this.setPanelDate(this.closestDate ?? new Date())
 
-    $panel.onclick = (e) => {
+    $panel.onclick = e => {
       const target = e.target
       if (this.$prevPrev.contains(target)) {
         this.onPrevPrev()
@@ -526,347 +541,33 @@ class BlocksDate extends HTMLElement {
         this.onNextNext()
       }
       else if (this.$title.contains(target)) {
-        this.onSwitchDepth()
+        this.rollUp()
       }
       else if (target.classList.contains('button-item')) {
-        this.onClickItem({
-          label: target.dataset.label,
-          century: +target.dataset.century,
-          decade: +target.dataset.decade,
-          year: +target.dataset.year,
-          month: +target.dataset.month,
-          date: +target.dataset.date,
-        })
+        this.onClickItem(this._parseItem(target))
       }
       this.focus()
     }
-  }
 
-  setPanelDate(date) {
-    const panelYear = date.getFullYear()
-    this.panelCentury = Math.floor(panelYear / 100)
-    this.panelDecade = [Depth.Century].includes(this.viewDepth) ? undefined : Math.floor(panelYear / 10)
-    this.panelYear = [Depth.Century, Depth.Decade].includes(this.viewDepth) ? undefined : panelYear
-    this.panelMonth = [Depth.Century, Depth.Decade, Depth.Year].includes(this.viewDepth) ? undefined : date.getMonth()
-  }
-
-  renderHeaderButtons() {
-    if (this.viewDepth === Depth.Month) {
-      this.$prevPrev.style.cssText = ''
-      this.$nextNext.style.cssText = ''
+    // range 选择模式，鼠标移入，渲染选中效果
+    $panel.onmouseover = e => {
+      if (!this.isLeafDepth()) return
+      if (!e.target.classList.contains('button-item')) return
+      if (!this.range) return
+      if (!this.rangeFrom) return
+      if (this.rangeTo) return
+      this.maybeRangeTo = this._parseItem(e.target)
+      this.render()
     }
-    else {
-      this.$prevPrev.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
-      this.$nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
-    }
-  }
-
-  renderTitle() {
-    this.$title.textContent = this.title
-  }
-
-  renderWeekHeader() {
-    const header = this.$weekHeader
-    if (this.viewDepth === Depth.Month) {
-      // header.style.display = ''
-      header.style.height = ''
-      header.style.opacity = '1'
-
-      if (header.children.length !== 7) {
-        header.innerHTML = this.weekHeaders.map(header => `<span>${header}</span>`).join('')
-      }
-      else {
-        for (let i = 0; i < 7; i += 1) {
-          header.children[i].textContent = this.weekHeaders[i]
-        }
-      }
-    }
-    else {
-      header.style.height = '0'
-      header.style.opacity = '0'
-    }
-  }
-
-  renderLoading() {
-    this.$loading.style.display = this.loading ? '' : 'none'
-  }
-
-  renderItems() {
-    ;['body-century', 'body-decade', 'body-year', 'body-month'].forEach(klass => {
-      this.$content.classList.remove(klass)
-    })
-    const contentPanelClass = `body-${this.viewDepth}`
-    this.$content.classList.add(contentPanelClass)
-
-    if (this.viewDepth === Depth.Month) {
-      this.renderDateItems()
-    }
-    else if (this.viewDepth === Depth.Year) {
-      this.renderMonthItems()
-    }
-    else if (this.viewDepth === Depth.Decade) {
-      this.renderYearItems()
-    }
-    else if (this.viewDepth === Depth.Century) {
-      this.renderDecadeItems()
-    }
-  }
-
-  // 只保留 N 个日期按钮
-  ensureItemCount(n) {
-    const list = this.$list
-    let len = list.children.length ?? 0
-    while (len++ < n) {
-      const el = document.createElement('button')
-      el.className = 'button-item'
-      list.appendChild(el)
-    }
-    len = list.children.length
-    while (len-- > n) {
-      list.removeChild(list.lastElementChild)
-    }
-    return Array.prototype.slice.call(list.children)
-  }
-
-  renderBadge(el, item) {
-    const badges = this.getBadges(item)
-    let badgeEl = el.querySelector('.button-badge')
-    if (badges === null) {
-      el.title = ''
-      if (badgeEl) el.removeChild(badgeEl)
-      return
-    }
-    if (!badgeEl) badgeEl = el.appendChild(document.createElement('i'))
-    badgeEl.classList.add('button-badge')
-    let title = badges.filter(badge => badge.label).map(badge => badge.label).join('\n')
-    if (title.length > 100) title = title.slice(0, 97) + '...'
-    el.title = title
-  }
-
-  renderDecadeItems() {
-    if (!this.decadeList.length) return
-    this.ensureItemCount(10).forEach((el, i) => {
-      const item = this.decadeList[i]
-      toggleClass(el, 'button-item--otherMonth', false)
-      toggleClass(el, 'button-item--today', false)
-      toggleClass(el, 'button-item--active', false)
-      toggleClass(el, 'button-item--childActive', this.isChildActive(item))
-      toggleAttr(el, 'disabled', false)
-      el.dataset.century = item.century
-      el.dataset.decade = item.decade
-      el.dataset.year = null
-      el.dataset.month = null
-      el.dataset.date = null
-      el.dataset.label = item.label
-      el.innerHTML = item.label
-      this.renderBadge(el, item)
-    })
-  }
-
-  renderYearItems() {
-    if (!this.yearList.length) return
-    this.ensureItemCount(10).forEach((el, i) => {
-      const item = this.yearList[i]
-      toggleClass(el, 'button-item--otherMonth', false)
-      toggleClass(el, 'button-item--today', false)
-      toggleClass(el, 'button-item--active', false)
-      toggleClass(el, 'button-item--childActive', this.isChildActive(item))
-      toggleAttr(el, 'disabled', false)
-      el.dataset.century = item.century
-      el.dataset.decade = item.decade
-      el.dataset.year = item.year
-      el.dataset.month = null
-      el.dataset.date = null
-      el.dataset.label = item.label
-      el.innerHTML = item.label
-      this.renderBadge(el, item)
-    })
-  }
-
-  renderMonthItems() {
-    if (!this.monthList.length) return
-    this.ensureItemCount(12).forEach((el, i) => {
-      const item = this.monthList[i]
-      toggleClass(el, 'button-item--otherMonth', false)
-      toggleClass(el, 'button-item--today', false)
-      toggleClass(el, 'button-item--active', false)
-      toggleClass(el, 'button-item--childActive', this.isChildActive(item))
-      toggleAttr(el, 'disabled', false)
-      el.dataset.century = item.century
-      el.dataset.decade = item.decade
-      el.dataset.year = item.year
-      el.dataset.month = item.month
-      el.dataset.date = null
-      el.dataset.label = item.label
-      el.innerHTML = item.label
-      this.renderBadge(el, item)
-    })
-  }
-
-  renderDateItems() {
-    if (!this.dateList.length) return
-    this.ensureItemCount(42).forEach((el, i) => {
-      const item = this.dateList[i]
-      toggleClass(el, 'button-item--otherMonth', !this.isCurrentMonth(item))
-      toggleClass(el, 'button-item--today', this.isToday(item))
-      toggleClass(el, 'button-item--active', this.isActive(item))
-      toggleClass(el, 'button-item--childActive', false)
-      toggleAttr(el, 'disabled', !this.isActive(item) && this.isDisabled(item))
-      el.dataset.century = item.century
-      el.dataset.decade = item.decade
-      el.dataset.year = item.year
-      el.dataset.month = item.month
-      el.dataset.date = item.date
-      el.dataset.label = item.label
-      el.innerHTML = item.label
-      this.renderBadge(el, item)
-    })
-  }
-
-  render() {
-    this.renderHeaderButtons()
-    this.renderTitle()
-    this.renderWeekHeader()
-    this.renderLoading()
-    this.renderItems()
-  }
-
-  get panelCentury() {
-    return this._panelCentury ?? Math.floor(this.panelYear / 100)
-  }
-
-  set panelCentury(value) {
-    if (this._panelCentury === value) return
-    this._panelCentury = value
-    this.render()
-  }
-
-  get panelDecade() {
-    return this._panelDecade ?? Math.floor(this.panelYear / 10)
-  }
-
-  set panelDecade(value) {
-    if (this._panelDecade === value) return
-    this._panelDecade = value
-    this.render()
-  }
-
-  get panelYear() {
-    return this._panelYear
-  }
-
-  set panelYear(value) {
-    if (this._panelYear === value) return
-    this._panelYear = value
-    this.render()
-  }
-
-  get panelMonth() {
-    return this._panelMonth
-  }
-
-  set panelMonth(value) {
-    if (this._panelMonth === value) return
-    this._panelMonth = value
-    this.render()
-  }
-
-  get value() {
-    return this._value
-  }
-
-  set value(value) {
-    if (this.multiple) {
-      if (!value) value = []
-      if (this.max && value.length > this.max) {
-        console.error('选择的日期值超过最大数量限制')
-        return
-      }
-      this._value = value
-
-    }
-    else if (this.range) {
-      if (!value) value = []
-      value = value.slice()
-      value.sort((a, b) => a.getTime() - b.getTime())
-      this._value = value
-    }
-    else {
-      this._value = value
-    }
-
-    this.render()
-    dispatchEvent(this, 'input', { detail: { value } })
-  }
-
-  get depth() {
-    return enumGetter('depth', [Depth.Month, Depth.Year, Depth.Decade])(this)
-  }
-
-  set depth(value) {
-    enumSetter('depth', [Depth.Month, Depth.Year, Depth.Decade])(this, value)
-  }
-
-  get loading() {
-    return boolGetter('loading')(this)
-  }
-
-  set loading(value) {
-    boolSetter('loading')(this, value)
-  }
-
-  get mindepth() {
-    return normalizeMinDepth(this.getAttribute('mindepth'), this.depth)
-  }
-
-  set mindepth(value) {
-    this.setAttribute('mindepth', normalizeMinDepth(value, this.depth))
-  }
-
-  get startdepth() {
-    return normalizeViewDepth(this.getAttribute('startdepth'), this.mindepth, this.depth)
-  }
-
-  set startdepth(value) {
-    this.setAttribute('startdepth', normalizeViewDepth(value, this.mindepth, this.depth))
-  }
-
-  get viewDepth() {
-    return normalizeViewDepth(this._viewDepth, this.mindepth, this.depth)
-  }
-
-  set viewDepth(value) {
-    if (this._viewDepth === value) return
-    this._viewDepth = normalizeViewDepth(value, this.mindepth, this.depth)
-    this.render()
-  }
-
-  get max() {
-    return intGetter('max')(this) || null
-  }
-
-  set max(value) {
-    intSetter('max')(this, value)
-  }
-
-  get mode() {
-    return enumGetter('mode', [null, 'multiple', 'range'])(this)
-  }
-
-  set mode(value) {
-    enumSetter('mode', [null, 'multiple', 'range'])(this, value)
-  }
-
-  get multiple() {
-    return this.mode === 'multiple'
-  }
-
-  get range() {
-    return this.mode === 'range'
   }
 
   get badges() {
     return this._badges ?? []
+  }
+
+  // 在一组日期中，获取距离当前时刻最接近的那一个日期
+  get closestDate() {
+    return getClosestDate(this.getValues())
   }
 
   /**
@@ -875,55 +576,6 @@ class BlocksDate extends HTMLElement {
   set badges(value) {
     this._badges = value
     this.render()
-  }
-
-  get today() {
-    return {
-      year: new Date().getFullYear(),
-      month: new Date().getMonth(),
-      date: new Date().getDate()
-    }
-  }
-
-  get title() {
-    if (this.viewDepth === Depth.Century) {
-      return `${this.panelCentury * 100} ~ ${this.panelCentury * 100 + 99}`
-    }
-    if (this.viewDepth === Depth.Decade) {
-      const [from, to] = this.getDecadeRange(this.panelDecade)
-      return `${from} ~ ${to}`
-    }
-    if (this.viewDepth === Depth.Year) {
-      return `${this.panelYear}`
-    }
-    return `${this.panelYear} / ${this.panelMonth + 1}`
-  }
-
-  // 是否已经选够最大数量的值
-  get limitReached() {
-    if (!this.multiple || !this.max) return false
-    let max = Math.trunc(this.max)
-    if (max < 1) max = 1
-    const len = this.value?.length ?? 0
-    return len >= max
-  }
-
-  // 在一组日期中，获取距离当前时刻最接近的那一个日期
-  get closestDate() {
-    return getClosestDate(this.getValues())
-  }
-
-  get startWeekOn() {
-    return this.getAttribute('start-week-on') ?? 1
-  }
-
-  set startWeekOn(value) {
-    this.setAttribute('start-week-on', value % 7)
-  }
-
-  get weekHeaders() {
-    const headers = ['日', '一', '二', '三', '四', '五', '六']
-    return headers.slice(this.startWeekOn).concat(headers.slice(0, this.startWeekOn))
   }
 
   // 日期列表（按月动态生成）
@@ -989,28 +641,6 @@ class BlocksDate extends HTMLElement {
     return dateRange
   }
 
-  // 月份列表（固定 1 - 12 月）
-  get monthList() {
-    return range(0, 11).map(month => ({
-      label: month + 1,
-      century: this.panelCentury,
-      decade: this.panelDecade,
-      year: this.panelYear,
-      month
-    }))
-  }
-
-  // 年份列表（10 年一组）
-  get yearList() {
-    const [from, to] = this.getDecadeRange(this.panelDecade)
-    return range(from, to).map(year => ({
-      label: year,
-      century: this.panelCentury,
-      decade: this.panelDecade,
-      year,
-    }))
-  }
-
   // 年代列表
   get decadeList() {
     const decadeFrom = this.panelCentury * 10
@@ -1026,26 +656,456 @@ class BlocksDate extends HTMLElement {
     return list
   }
 
+  get disabled() {
+    return disabledGetter(this)
+  }
+
+  set disabled(value) {
+    disabledSetter(this, value)
+  }
+
+  get depth() {
+    return enumGetter('depth', [Depth.Month, Depth.Year, Depth.Decade])(this)
+  }
+
+  set depth(value) {
+    enumSetter('depth', [Depth.Month, Depth.Year, Depth.Decade])(this, value)
+  }
+
+  // 是否已经选够最大数量的值
+  get limitReached() {
+    if (!this.multiple || !this.max) return false
+    let max = Math.trunc(this.max)
+    if (max < 1) max = 1
+    const len = this.value?.length ?? 0
+    return len >= max
+  }
+
+  get loading() {
+    return boolGetter('loading')(this)
+  }
+
+  set loading(value) {
+    boolSetter('loading')(this, value)
+  }
+
+  get max() {
+    return intGetter('max')(this) || null
+  }
+
+  set max(value) {
+    intSetter('max')(this, value)
+  }
+
+  get mindepth() {
+    return normalizeMinDepth(this.getAttribute('mindepth'), this.depth)
+  }
+
+  set mindepth(value) {
+    this.setAttribute('mindepth', normalizeMinDepth(value, this.depth))
+  }
+
+  get mode() {
+    return enumGetter('mode', [null, 'multiple', 'range'])(this)
+  }
+
+  set mode(value) {
+    enumSetter('mode', [null, 'multiple', 'range'])(this, value)
+  }
+
+  // 月份列表（固定 1 - 12 月）
+  get monthList() {
+    return range(0, 11).map(month => ({
+      label: month + 1,
+      century: this.panelCentury,
+      decade: this.panelDecade,
+      year: this.panelYear,
+      month
+    }))
+  }
+
+  get multiple() {
+    return this.mode === 'multiple'
+  }
+
+  get panelCentury() {
+    return this._panelCentury ?? Math.floor(this.panelYear / 100)
+  }
+
+  set panelCentury(value) {
+    if (this._panelCentury === value) return
+    this._panelCentury = value
+    this.render()
+  }
+
+  get panelDecade() {
+    return this._panelDecade ?? Math.floor(this.panelYear / 10)
+  }
+
+  set panelDecade(value) {
+    if (this._panelDecade === value) return
+    this._panelDecade = value
+    this.render()
+  }
+
+  get panelMonth() {
+    return this._panelMonth
+  }
+
+  set panelMonth(value) {
+    if (this._panelMonth === value) return
+    this._panelMonth = value
+    this.render()
+  }
+
+  get panelYear() {
+    return this._panelYear
+  }
+
+  set panelYear(value) {
+    if (this._panelYear === value) return
+    this._panelYear = value
+    this.render()
+  }
+
+  get range() {
+    return this.mode === 'range'
+  }
+
+  get startdepth() {
+    return normalizeViewDepth(this.getAttribute('startdepth'), this.mindepth, this.depth)
+  }
+
+  set startdepth(value) {
+    this.setAttribute('startdepth', normalizeViewDepth(value, this.mindepth, this.depth))
+  }
+
+  get startWeekOn() {
+    return this.getAttribute('start-week-on') ?? 1
+  }
+
+  set startWeekOn(value) {
+    this.setAttribute('start-week-on', value % 7)
+  }
+
+  get title() {
+    if (this.viewDepth === Depth.Century) {
+      return `${this.panelCentury * 100} ~ ${this.panelCentury * 100 + 99}`
+    }
+    if (this.viewDepth === Depth.Decade) {
+      const [from, to] = this.getDecadeRange(this.panelDecade)
+      return `${from} ~ ${to}`
+    }
+    if (this.viewDepth === Depth.Year) {
+      return `${this.panelYear}`
+    }
+    return `${this.panelYear} / ${this.panelMonth + 1}`
+  }
+
+  get today() {
+    return {
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+      date: new Date().getDate()
+    }
+  }
+
+  get value() {
+    return this._value
+  }
+
+  set value(value) {
+    if (this.multiple) {
+      if (!value) value = []
+      if (this.max && value.length > this.max) {
+        console.error('选择的日期值超过最大数量限制')
+        return
+      }
+      this._value = value
+    }
+    else if (this.range) {
+      this.maybeRangeTo = null
+      if (!value) value = []
+
+      value = value.slice()
+      value.sort((a, b) => a.getTime() - b.getTime())
+      this._value = value
+
+      if (this._value.length) {
+        this.rangeFrom = this.makeItem(this.value[0], this.viewDepth)
+        this.rangeTo = this.makeItem(this.value[1], this.viewDepth)
+      }
+      else {
+        this.rangeFrom = this.rangeTo = null
+      }
+    }
+    else {
+      this._value = value
+    }
+
+    this.render()
+    dispatchEvent(this, 'input', { detail: { value } })
+  }
+
+  get viewDepth() {
+    return normalizeViewDepth(this._viewDepth, this.mindepth, this.depth)
+  }
+
+  set viewDepth(value) {
+    if (this._viewDepth === value) return
+    this._viewDepth = normalizeViewDepth(value, this.mindepth, this.depth)
+    this.render()
+  }
+
+  get weekHeaders() {
+    const headers = ['日', '一', '二', '三', '四', '五', '六']
+    return headers.slice(this.startWeekOn).concat(headers.slice(0, this.startWeekOn))
+  }
+
+  // 年份列表（10 年一组）
+  get yearList() {
+    const [from, to] = this.getDecadeRange(this.panelDecade)
+    return range(from, to).map(year => ({
+      label: year,
+      century: this.panelCentury,
+      decade: this.panelDecade,
+      year,
+    }))
+  }
+
+  setPanelDate(date) {
+    const panelYear = date.getFullYear()
+    this.panelCentury = Math.floor(panelYear / 100)
+    this.panelDecade = [Depth.Century].includes(this.viewDepth) ? undefined : Math.floor(panelYear / 10)
+    this.panelYear = [Depth.Century, Depth.Decade].includes(this.viewDepth) ? undefined : panelYear
+    this.panelMonth = [Depth.Century, Depth.Decade, Depth.Year].includes(this.viewDepth) ? undefined : date.getMonth()
+  }
+
+  _parseItem($item) {
+    return {
+      label: $item.dataset.label,
+      century: +$item.dataset.century,
+      decade: +$item.dataset.decade,
+      year: +$item.dataset.year,
+      month: +$item.dataset.month,
+      date: +$item.dataset.date,
+    }
+  }
+
+  _renderHeaderButtons() {
+    if (this.viewDepth === Depth.Month) {
+      this.$prevPrev.style.cssText = ''
+      this.$nextNext.style.cssText = ''
+    }
+    else {
+      this.$prevPrev.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
+      this.$nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
+    }
+  }
+
+  _renderTitle() {
+    this.$title.textContent = this.title
+  }
+
+  _renderWeekHeader() {
+    const header = this.$weekHeader
+    if (this.viewDepth === Depth.Month) {
+      // header.style.display = ''
+      header.style.height = ''
+      header.style.opacity = '1'
+
+      if (header.children.length !== 7) {
+        header.innerHTML = this.weekHeaders.map(header => `<span>${header}</span>`).join('')
+      }
+      else {
+        for (let i = 0; i < 7; i += 1) {
+          header.children[i].textContent = this.weekHeaders[i]
+        }
+      }
+    }
+    else {
+      header.style.height = '0'
+      header.style.opacity = '0'
+    }
+  }
+
+  _renderLoading() {
+    this.$loading.style.display = this.loading ? '' : 'none'
+  }
+
+  _renderItems() {
+    ;['body-century', 'body-decade', 'body-year', 'body-month'].forEach(klass => {
+      this.$content.classList.remove(klass)
+    })
+    const contentPanelClass = `body-${this.viewDepth}`
+    this.$content.classList.add(contentPanelClass)
+
+    if (this.viewDepth === Depth.Month) {
+      this._renderDateItems()
+    }
+    else if (this.viewDepth === Depth.Year) {
+      this._renderMonthItems()
+    }
+    else if (this.viewDepth === Depth.Decade) {
+      this._renderYearItems()
+    }
+    else if (this.viewDepth === Depth.Century) {
+      this._renderDecadeItems()
+    }
+  }
+
+  // 只保留 N 个日期按钮
+  _ensureItemCount(n) {
+    const $list = this.$list
+    let len = $list.children.length ?? 0
+    while (len++ < n) {
+      const el = document.createElement('button')
+      el.className = 'button-item'
+      $list.appendChild(el)
+    }
+    len = $list.children.length
+    while (len-- > n) {
+      $list.removeChild($list.lastElementChild)
+    }
+    return Array.prototype.slice.call($list.children)
+  }
+
+  _renderBadge($el, item) {
+    const badges = this.getBadges(item)
+    let $badge = $el.querySelector('.button-badge')
+    if (badges === null) {
+      $el.title = ''
+      if ($badge) $el.removeChild($badge)
+      return
+    }
+
+    if (!$badge) {
+      $badge = $el.appendChild(document.createElement('i'))
+    }
+
+    $badge.classList.add('button-badge')
+
+    let title = badges.filter(badge => badge.label).map(badge => badge.label).join('\n')
+    if (title.length > 100) title = title.slice(0, 97) + '...'
+    $el.title = title
+  }
+
+  _renderDecadeItems() {
+    if (!this.decadeList.length) return
+    this._ensureItemCount(10).forEach(($el, i) => {
+      const item = this.decadeList[i]
+      boolSetter('disabled')($el, false)
+      $el.classList.toggle('button-item--otherMonth', false)
+      $el.classList.toggle('button-item--today', false)
+      $el.classList.toggle('button-item--active', false)
+      $el.classList.toggle('button-item--includesActive', this.includesActive(item))
+      $el.classList.toggle('button-item--rangeFrom', false)
+      $el.classList.toggle('button-item--rangeTo', false)
+      $el.classList.toggle('button-item--rangeIn', false)
+
+      $el.dataset.century = item.century
+      $el.dataset.decade = item.decade
+      $el.dataset.year = null
+      $el.dataset.month = null
+      $el.dataset.date = null
+      $el.dataset.label = item.label
+
+      $el.innerHTML = item.label
+      this._renderBadge($el, item)
+    })
+  }
+
+  _renderYearItems() {
+    if (!this.yearList.length) return
+    this._ensureItemCount(10).forEach(($el, i) => {
+      const item = this.yearList[i]
+      boolSetter('disabled')($el, false)
+      $el.classList.toggle('button-item--otherMonth', false)
+      $el.classList.toggle('button-item--today', false)
+      $el.classList.toggle('button-item--active', this.isActiveLeaf(item))
+      $el.classList.toggle('button-item--includesActive', this.includesActive(item))
+      $el.classList.toggle('button-item--rangeFrom', this.range && this.isRangeFrom(item))
+      $el.classList.toggle('button-item--rangeTo', this.range && this.isRangeTo(item))
+      $el.classList.toggle('button-item--rangeIn', this.range && this.isInRange(item))
+      
+      $el.dataset.century = item.century
+      $el.dataset.decade = item.decade
+      $el.dataset.year = item.year
+      $el.dataset.month = null
+      $el.dataset.date = null
+      $el.dataset.label = item.label
+
+      $el.innerHTML = item.label
+      this._renderBadge($el, item)
+    })
+  }
+
+  _renderMonthItems() {
+    if (!this.monthList.length) return
+    this._ensureItemCount(12).forEach(($el, i) => {
+      const item = this.monthList[i]
+      $el.classList.toggle('button-item--otherMonth', false)
+      $el.classList.toggle('button-item--today', false)
+      $el.classList.toggle('button-item--active', this.isActiveLeaf(item))
+      $el.classList.toggle('button-item--includesActive', this.includesActive(item))
+      $el.classList.toggle('button-item--rangeFrom', this.range && this.isRangeFrom(item))
+      $el.classList.toggle('button-item--rangeTo', this.range && this.isRangeTo(item))
+      $el.classList.toggle('button-item--rangeIn', this.range && this.isInRange(item))
+
+      boolSetter('disabled')($el, false)
+      $el.dataset.century = item.century
+      $el.dataset.decade = item.decade
+      $el.dataset.year = item.year
+      $el.dataset.month = item.month
+      $el.dataset.date = null
+      $el.dataset.label = item.label
+      $el.innerHTML = item.label
+      this._renderBadge($el, item)
+    })
+  }
+
+  _renderDateItems() {
+    if (!this.dateList.length) return
+    this._ensureItemCount(42).forEach(($el, i) => {
+      const item = this.dateList[i]
+      boolSetter('disabled')($el, !this.isActiveLeaf(item) && this.isDisabledLeaf(item))
+      $el.classList.toggle('button-item--otherMonth', !this.isCurrentMonth(item))
+      $el.classList.toggle('button-item--today', this.isToday(item))
+      $el.classList.toggle('button-item--active', this.isActiveLeaf(item))
+      $el.classList.toggle('button-item--includesActive', false)
+      $el.classList.toggle('button-item--rangeFrom', this.range && this.isRangeFrom(item))
+      $el.classList.toggle('button-item--rangeTo', this.range && this.isRangeTo(item))
+      $el.classList.toggle('button-item--rangeIn', this.range && this.isInRange(item))
+
+      $el.dataset.century = item.century
+      $el.dataset.decade = item.decade
+      $el.dataset.year = item.year
+      $el.dataset.month = item.month
+      $el.dataset.date = item.date
+      $el.dataset.label = item.label
+
+      $el.innerHTML = item.label
+      this._renderBadge($el, item)
+    })
+  }
+
+  render() {
+    this._renderHeaderButtons()
+    this._renderTitle()
+    this._renderWeekHeader()
+    this._renderLoading()
+    this._renderItems()
+  }
+
   getDecadeRange(decade) {
     let from = decade * 10
     const to = from + 9
     return [from, to]
   }
 
-  getCenturyRange(century) {
-    let from = century * 100
-    const to = from + 90
-    return [from, to]
-  }
-
-  // 是否当前面板对应的月
+  // 是否当前面板对应的月（面板中，根据周起始日，可能包含上月末的几天，以及下月初的某几天）
   isCurrentMonth(item) {
     return item.month === this.panelMonth
-  }
-
-  // 当前选项是否是今天
-  isToday(item) {
-    return item.year === this.today.year && item.month === this.today.month && item.date === this.today.date
   }
 
   // 获取当前选项对应的 badge
@@ -1067,75 +1127,33 @@ class BlocksDate extends HTMLElement {
     return badges
   }
 
-  // 当前选项是否选中
-  isActive(item) {
-    const isActive = this.depth === Depth.Month
-      ? t => t.getFullYear() === item.year && t.getMonth() === item.month && t.getDate() === item.date
-      : this.depth === Depth.Year
-        ? t => t.getFullYear() === item.year && t.getMonth() === item.month
-        : this.depth === Depth.Decade
-          ? t => t.getFullYear() === item.year
-          : () => false
-
-    if (this.mode == null || this.mode === 'multiple') {
-      return this.getValues().some(isActive)
-    }
-
-    // range mode
-    if (this._rangeStart) {
-      return isActive(this._rangeStart)
-    }
-    if (this.value && this.value.length) {
-      let inRange
-      if (this.depth === Depth.Month) {
-        inRange = (t1, t2) => {
-          const t1Time = this.makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime()
-          const t2Time = this.makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime()
-          const itemTime = this.makeDate(item.year, item.month, item.date).getTime()
-          return t1Time <= itemTime && t2Time >= itemTime
-        }
-      }
-      else if (this.depth === Depth.Year) {
-        inRange = (t1, t2) => {
-          const t1Time = this.makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime()
-          const t2Time = this.makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime()
-          const itemTime = this.makeDate(item.year, item.month, 1).getTime()
-          return t1Time <= itemTime && t2Time >= itemTime
-        }
-      }
-      else if (this.depth === Depth.Decade) {
-        inRange = (t1, t2) => {
-          return t1.getFullYear() <= item.year && t2.getFullYear() >= item.year
-        }
-      }
-      return inRange(this.value[0], this.value[1])
-    }
-
-    return false
-  }
-
-  // 是否有子结点选中（年下的月、日，月下的日等等）
-  isChildActive(item) {
-    if (this.viewDepth === Depth.Month) return false
-    if (this.viewDepth === Depth.Year) {
-      return this.getValues().some(t => t.getMonth() === item.month && t.getFullYear() === item.year)
-    }
-    if (this.viewDepth === Depth.Decade) {
-      return this.getValues().some(t => t.getFullYear() === item.year)
-    }
-    if (this.viewDepth === Depth.Century) {
-      return this.getValues().some(t => Math.floor(t.getFullYear() / 10) === item.decade)
-    }
-    return false
-  }
-
   // 获取当前选中的值数组（非多选也转换成数组）
   getValues() {
     return this.multiple || this.range ? (this.value ?? []).slice() : this.value ? [this.value] : []
   }
 
+  isRangeFrom(item) {
+    if (!this.rangeFrom) return false
+    const from = Object.assign({}, this.rangeFrom)
+    delete from.label
+    return Object.keys(from).every(key => from[key] === item[key])
+  }
+
+  isRangeTo(item) {
+    if (!this.rangeTo) return false
+    const to = Object.assign({}, this.rangeTo)
+    delete to.label
+    return Object.keys(to).every(key => to[key] === item[key])
+  }
+
+  // 当前选项是否是今天
+  // TODO
+  isToday(item) {
+    return item.year === this.today.year && item.month === this.today.month && item.date === this.today.date
+  }  
+
   // 当前选项是否渲染成禁用，仅作用于末级 depth
-  isDisabled(item) {
+  isDisabledLeaf(item) {
     if (this.viewDepth !== this.depth) return false
     // 检查是否抵达数量上限，
     if (this.limitReached) return true
@@ -1151,72 +1169,176 @@ class BlocksDate extends HTMLElement {
       : false
   }
 
+  _isDate(item, date) {
+    return date.getFullYear() === item.year && date.getMonth() === item.month && date.getDate() === item.date
+  }
+
+  _isMonth(item, date) {
+    return date.getFullYear() === item.year && date.getMonth() === item.month
+  }
+
+  _isYear(item, date) {
+    return date.getFullYear() === item.year
+  }
+
+  isInRange(item) {
+    if (!this.isLeafDepth()) return false
+    if (!this.rangeFrom) return false
+    if (!this.rangeTo && !this.maybeRangeTo) return false
+    let inRange
+    if (this.depth === Depth.Month) {
+      inRange = (t1, t2) => {
+        const t1Time = this.makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime()
+        const t2Time = this.makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime()
+        const itemTime = this.makeDate(item.year, item.month, item.date).getTime()
+        return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime
+      }
+    }
+    else if (this.depth === Depth.Year) {
+      inRange = (t1, t2) => {
+        const t1Time = this.makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime()
+        const t2Time = this.makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime()
+        const itemTime = this.makeDate(item.year, item.month, 1).getTime()
+        return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime
+      }
+    }
+    else if (this.depth === Depth.Decade) {
+      inRange = (t1, t2) => {
+        return Math.min(t1.getFullYear(), t2.getFullYear()) <= item.year && Math.max(t1.getFullYear(), t2.getFullYear()) >= item.year
+      }
+    }
+
+    const from = this.rangeFrom
+    const to = this.rangeTo ?? this.maybeRangeTo
+    if (this.depth === Depth.Month) {
+      return inRange(
+        this.makeDate(from.year, from.month, from.date),
+        this.makeDate(to.year, to.month, to.date)
+      )
+    }
+    if (this.depth === Depth.Year) {
+      return inRange(
+        this.makeDate(from.year, from.month, 1),
+        this.makeDate(to.year, to.month, 1)
+      )
+    }
+    if (this.depth === Depth.Decade) {
+      return inRange(
+        this.makeDate(from.year, 0, 1),
+        this.makeDate(to.year, 0, 1)
+      )
+    }
+  }
+
+  // 当前选项是否选中
+  isActiveLeaf(item) {
+    if (!this.isLeafDepth()) return false
+
+    if (this.range) {
+      return this.isRangeFrom(item) || this.isRangeTo(item)
+    }
+
+    let isActive = this.depth === Depth.Month ? this._isDate.bind(this, item)
+      : this.depth === Depth.Year ? this._isMonth.bind(this, item)
+      : this.depth === Depth.Decade ? this._isYear.bind(this, item)
+      : () => false
+
+    if (this.mode == null) {
+      return this.getValues().some(isActive)
+    }
+
+    if (this.mode === 'multiple') {
+      return this.getValues().some(isActive)
+    }
+  }
+
+  // 子节点是否包含今天
+  includesToday(item) {
+    const { year, month } = this.today
+    switch (this.viewDepth) {
+      case Depth.Year:
+        return item.year === year && item.month === month
+      case Depth.Decade:
+        return item.year === year
+      case Depth.Century:
+        return Math.floor(year / 10) === item.decade
+      default: return false
+    }
+  }
+
+  // 是否有子结点选中（年下的月、日，月下的日等等）
+  includesActive(item) {
+    switch (this.viewDepth) {
+      case Depth.Year:
+        return this.getValues().some(t => t.getMonth() === item.month && t.getFullYear() === item.year)
+      case Depth.Decade:
+        return this.getValues().some(t => t.getFullYear() === item.year)
+      case Depth.Century:
+        return this.getValues().some(t => Math.floor(t.getFullYear() / 10) === item.decade)
+      default: return false
+    }
+  }
+
+  // 当前是否最深的选择深度
+  isLeafDepth() {
+    return this.viewDepth === this.depth
+  }
+
   // 点击选项时的 handler
   onClickItem(item) {
     // 点击 disabled 的日期，且该日期非激活状态，则直接返回
     // 如果该日期为激活状态，则可以取消选择（多选时）
-    if (this.isDisabled(item) && !this.isActive(item)) {
+    if (this.isDisabledLeaf(item) && !this.isActiveLeaf(item)) {
       return
     }
 
-    // 月视图是最深的层次了，当前操作是选择天
+    // 当前非最深层次，直接往下钻入
+    if (!this.isLeafDepth()) {
+      return this.drillDown(item)
+    }
+
+    // 月视图，当前操作是选择天
     if (this.viewDepth === Depth.Month) {
       return this.selectDate(item)
     }
-    // 当前是年视图，并且组件设置年视图是最深层次，则当前操作是选择月
-    if (this.viewDepth === Depth.Year && this.depth === Depth.Year) {
+
+    // 年视图，当前操作是选择月
+    if (this.viewDepth === Depth.Year) {
       return this.selectMonth(item)
     }
-    // 当前是年代视图，并且组件设置了年代视图是最深层次，则当前操作是选择年
-    if (this.viewDepth === Depth.Decade && this.depth === Depth.Decade) {
+
+    // 年代视图，当前操作是选择年
+    if (this.viewDepth === Depth.Decade) {
       return this.selectYear(item)
     }
-
-    // 当前非处于最深的视图层次，则往下钻入下一级视图（世纪 -> 年代, 年代 -> 年，或年 -> 月）
-    if (this.viewDepth === Depth.Year) {
-      this.panelMonth = item.month
-      this.viewDepth = Depth.Month
-      dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
-      return
-    }
-    if (this.viewDepth === Depth.Decade) {
-      this.viewDepth = Depth.Year
-      this.panelYear = item.year
-      dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
-      return
-    }
-    this.viewDepth = Depth.Decade
-    this.panelDecade = item.decade
-    dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
-  }
-
-  makeDate(year, month, date) {
-    const d = new Date(Date.UTC(year, month ?? 0, date ?? 1, 0, 0, 0, 0))
-    // 确保 1900 前的年份能正确设置
-    d.setUTCFullYear(year)
-    return d
   }
 
   // 选择、添加某一天作为值
   selectDate(item) {
+    if (this.disabled) return
+
     const date = this.makeDate(item.year, item.month, item.date)
 
     // 区间模式
     if (this.range) {
-      if (!this._rangeStart) {
-        this._rangeStart = date
-        this.value = []
+      this.maybeRangeTo = null
+      if (!this.rangeFrom || this.rangeTo) {
+        this.rangeTo = null
+        this.rangeFrom = item
+        this._value = []
         return
       }
-      const value = [this._rangeStart, date]
-      this._rangeStart = null
-      this.value = value
+      this.rangeTo = item
+      this.value = [
+        this.makeDate(this.rangeFrom.year, this.rangeFrom.month, this.rangeFrom.date),
+        this.makeDate(this.rangeTo.year, this.rangeTo.month, this.rangeTo.date),
+      ]
     }
 
     // （离散）多选模式
     else if (this.multiple) {
       const values = this.getValues()
-      if (this.isActive(item)) {
+      if (this.isActiveLeaf(item)) {
         const index = values.findIndex(t => t.getDate() === item.date && t.getMonth() === item.month && t.getFullYear() === item.year)
         if (index !== -1) values.splice(index, 1)
       }
@@ -1228,29 +1350,35 @@ class BlocksDate extends HTMLElement {
 
     // 单选模式
     else {
-      if (this.isActive(item)) return
+      if (this.isActiveLeaf(item)) return
       this.value = date
     }
   }
 
   // 选择、添加某一月作为值
   selectMonth(item) {
+    if (this.disabled) return
+
     const date = this.makeDate(item.year, item.month, 1)
     // 区间模式
     if (this.range) {
-      if (!this._rangeStart) {
-        this._rangeStart = date
-        this.value = []
+      this.maybeRangeTo = null
+      if (!this.rangeFrom || this.rangeTo) {
+        this.rangeTo = null
+        this.rangeFrom = item
+        this._value = []
         return
       }
-      const value = [this._rangeStart, date]
-      this._rangeStart = null
-      this.value = value
+      this.rangeTo = item
+      this.value = [
+        this.makeDate(this.rangeFrom.year, this.rangeFrom.month, 1),
+        this.makeDate(this.rangeTo.year, this.rangeTo.month, 1),
+      ]
     }
     // （离散）多选模式
     else if (this.multiple) {
       const values = this.getValues()
-      if (this.isActive(item)) {
+      if (this.isActiveLeaf(item)) {
         const index = values.findIndex(t => t.getMonth() === item.month && t.getFullYear() === item.year)
         if (index !== -1) values.splice(index, 1)
       }
@@ -1261,29 +1389,37 @@ class BlocksDate extends HTMLElement {
     }
     // 单选模式
     else {
-      if (this.isActive(item)) return
+      if (this.isActiveLeaf(item)) return
       this.value = date
     }
   }
 
   // 选择、添加某一年作为值
   selectYear(item) {
+    if (this.disabled) return
+
     const date = this.makeDate(item.year, 0, 1)
+
     // 区间模式
     if (this.range) {
-      if (!this._rangeStart) {
-        this._rangeStart = date
-        this.value = []
+      this.maybeRangeTo = null
+      if (!this.rangeFrom || this.rangeTo) {
+        this.rangeTo = null
+        this.rangeFrom = item
+        this._value = []
         return
       }
-      const value = [this._rangeStart, date]
-      this._rangeStart = null
-      this.value = value
+      this.rangeTo = item
+      this.value = [
+        this.makeDate(this.rangeFrom.year, 0, 1),
+        this.makeDate(this.rangeTo.year, 0, 1),
+      ]
     }
+
     // （离散）多选模式
     else if (this.multiple) {
       const values = this.getValues()
-      if (this.isActive(item)) {
+      if (this.isActiveLeaf(item)) {
         const index = values.findIndex(t => t.getFullYear() === item.year)
         if (index !== -1) values.splice(index, 1)
       }
@@ -1292,11 +1428,94 @@ class BlocksDate extends HTMLElement {
       }
       this.value = values
     }
+
     // 单选模式
     else {
-      if (this.isActive(item)) return
+      if (this.isActiveLeaf(item)) return
       this.value = date
     }
+  }
+
+  // 当前非处于最深的视图层次，则钻入下一级视图
+  drillDown(item) {
+    if (this.isLeafDepth()) return
+
+    switch (this.viewDepth) {
+      // 年 -> 月
+      case Depth.Year: {
+        this.panelMonth = item.month
+        this.viewDepth = Depth.Month
+        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
+        break
+      }
+      // 年代 -> 年
+      case Depth.Decade: {
+        this.viewDepth = Depth.Year
+        this.panelYear = item.year
+        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
+        break
+      }
+      // 世纪 -> 年代
+      default: {
+        this.viewDepth = Depth.Decade
+        this.panelDecade = item.decade
+        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
+      }
+    }
+  }
+
+  // 当前非处于最浅视图层次，则切换到上级视图
+  rollUp() {
+    switch (this.viewDepth) {
+      // 月 -> 年
+      case Depth.Month: {
+        this.viewDepth = normalizeViewDepth(Depth.Year, this.mindepth, this.depth)
+        this.setPanelDate(this.makeDate(this.panelYear, 0))
+        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
+        break
+      }
+      // 年 -> 年代
+      case Depth.Year: {
+        this.viewDepth = normalizeViewDepth(Depth.Decade, this.mindepth, this.depth)
+        this.setPanelDate(this.makeDate(this.panelYear, 0))
+        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
+        break
+      }
+      // 年代 -> 世纪
+      case Depth.Decade: {
+        this.viewDepth = normalizeViewDepth(Depth.Century, this.mindepth, this.depth)
+        this.setPanelDate(this.makeDate(this.panelDecade * 10, 0))
+        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
+        break
+      }
+    }
+  }
+
+  makeDate(year, month, date) {
+    const d = new Date(Date.UTC(year, month ?? 0, date ?? 1, 0, 0, 0, 0))
+    // 确保 1900 前的年份能正确设置
+    d.setUTCFullYear(year)
+    return d
+  }
+
+  makeItem(dateObj, depth) {    
+    const year = dateObj.getFullYear()
+    const month = dateObj.getMonth()
+    const date = dateObj.getDate()
+    const century = Math.floor(year / 100)
+    const decade = Math.floor(year / 10)
+    let label = depth === Depth.Month ? String(date)
+      : depth === Depth.Year ? String(month + 1)
+      : depth === Depth.Decade ? String(year)
+      : `${decade * 10} ~ ${decade * 10 + 9}`
+    return {
+      label,
+      century,
+      decade,
+      year,
+      month,
+      date,
+    }    
   }
 
   // 显示上个月的选项
@@ -1402,30 +1621,6 @@ class BlocksDate extends HTMLElement {
   onNextNext() {
     if (this.viewDepth === Depth.Month) {
       this.showNextYear()
-    }
-  }
-
-  // 点击 title，切换到上级视图（月 -> 年，年 -> 年代, 年代 -> 世纪）
-  onSwitchDepth() {
-    switch (this.viewDepth) {
-      case Depth.Month: {
-        this.viewDepth = normalizeViewDepth(Depth.Year, this.mindepth, this.depth)
-        this.setPanelDate(this.makeDate(this.panelYear, 0))
-        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
-        break
-      }
-      case Depth.Year: {
-        this.viewDepth = normalizeViewDepth(Depth.Decade, this.mindepth, this.depth)
-        this.setPanelDate(this.makeDate(this.panelYear, 0))
-        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
-        break
-      }
-      case Depth.Decade: {
-        this.viewDepth = normalizeViewDepth(Depth.Century, this.mindepth, this.depth)
-        this.setPanelDate(this.makeDate(this.panelDecade * 10, 0))
-        dispatchEvent(this, 'panel-change', { detail: { viewDepth: this.viewDepth } })
-        break
-      }
     }
   }
 

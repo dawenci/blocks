@@ -1,6 +1,6 @@
 import '../popup/index.js'
-import '../input/index.js'
-import '../time/index.js'
+import BlocksInput from '../input/index.js'
+import BlocksTime from '../time/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { __height_base } from '../../theme/var.js'
@@ -46,14 +46,7 @@ popupTemplate.innerHTML = TEMPLATE_HTML_POPUP
 
 class BlocksTimePicker extends HTMLElement {
   static get observedAttributes() {
-    return [
-      'clearable',
-      'disabled',
-      'hour',
-      'minute',
-      'second',
-      'size',
-    ]
+    return BlocksTime.observedAttributes.concat(BlocksInput.observedAttributes)
   }
 
   constructor() {
@@ -77,7 +70,7 @@ class BlocksTimePicker extends HTMLElement {
     }
 
     this.$input.addEventListener('click-clear', () => {
-      this.hour = this.minute = this.second = null
+      this.$panel.hour = this.$panel.minute = this.$panel.second = null
     })
 
     this.$panel.addEventListener('change', (e) => {
@@ -94,46 +87,6 @@ class BlocksTimePicker extends HTMLElement {
     })
   }
 
-  get clearable() {
-    return this.$input.clearable
-  }
-
-  set clearable(value) {
-    this.$input.clearable = value
-  }
-
-  get disabled() {
-    return this.$panel.disabled
-  }
-
-  set disabled(value) {
-    this.$panel.disabled = value
-  }
-
-  get hour() {
-    return this.$panel.hour
-  }
-
-  set hour(value) {
-    this.$panel.hour = value
-  }
-
-  get minute() {
-    return this.$panel.minute
-  }
-
-  set minute(value) {
-    this.$panel.minute = value
-  }
-
-  get second() {
-    return this.$panel.second
-  }
-
-  set second(value) {
-    this.$panel.second = value
-  }
-
   get value() {
     return this.$input.value
   }
@@ -143,11 +96,11 @@ class BlocksTimePicker extends HTMLElement {
   }
   
   render() {
-    if ([this.hour, this.minute, this.second].some(v => Object.is(v, NaN) || v == null)) {
+    if ([this.$panel.hour, this.$panel.minute, this.$panel.second].some(v => Object.is(v, NaN) || v == null)) {
       this.value = ''
       return
     }
-    this.value = `${padLeft('0', 2, this.hour)}:${padLeft('0', 2, this.minute)}:${padLeft('0', 2, this.second)}`
+    this.value = `${padLeft('0', 2, this.$panel.hour)}:${padLeft('0', 2, this.$panel.minute)}:${padLeft('0', 2, this.$panel.second)}`
   }
 
   connectedCallback() {
@@ -165,10 +118,10 @@ class BlocksTimePicker extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (['clearable'].includes(name)) {
+    if (BlocksInput.observedAttributes.includes(name)) {
       this.$input.setAttribute(name, newValue)
     }
-    if (['depth', 'mindepth', 'startdepth', 'multiple', 'max', 'loading', 'start-week-on'].includes(name)) {
+    if (BlocksTime.observedAttributes.includes(name)) {
       this.$panel.setAttribute(name, newValue)
     }
     this.render()
