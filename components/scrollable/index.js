@@ -399,7 +399,6 @@ class BlocksScrollable extends HTMLElement {
       }
 
       dispatchEvent(this, 'drag-scroll-start')
-      addEventListener('mouseout', console.log)
 
       addEventListener('mousemove', move)
       addEventListener('mouseup', up)
