@@ -294,64 +294,72 @@ const TEMPLATE_CSS = `<style>
   box-sizing: border-box;
   position: relative;
   margin: 0;
-  padding: 0;
-  text-align: center;
-  border: 1px solid transparent;
-  background: transparent;
-  border-radius: var(--radius-base, ${__radius_base});
+  padding: 1px;
+  border: 0;
+  background: none;
   font-size: inherit;
-  transition: var(--transition-duration, ${__transition_duration}) height,
-    var(--transition-duration, ${__transition_duration}) background,
-    var(--transition-duration, ${__transition_duration}) color;
+  transition: height var(--transition-duration, ${__transition_duration});
 }
 .button-item:focus {
-  background-color: #f0f0f0;
-  color: var(--color-primary, ${__color_primary});
   outline: 0 none;
 }
-/* range, multiple 模式，选项之间紧密相连，去掉圆角，range 首尾项除外 */
-:host([mode="range"]) .button-item,
-:host([mode="multiple"]) .button-item {
-  border-width: 0;
-  border-radius: 0;
+/* 单选模式，使用圆角 */
+.button-item:not(.button-item--rangeIn) span {
+  border-radius: var(--radius-base, ${__radius_base});
 }
-:host([mode="range"]) .button-item.button-item--rangeFrom {
+.button-item.button-item--rangeFrom span {
+  border-top-left-radius: var(--radius-base, ${__radius_base});
+  border-bottom-left-radius: var(--radius-base, ${__radius_base});
 }
-:host([mode="range"]) .button-item.button-item--rangeTo {
+.button-item.button-item--rangeTo span {
+  border-top-right-radius: var(--radius-base, ${__radius_base});
+  border-bottom-right-radius: var(--radius-base, ${__radius_base});
+}
+/* range 模式，左右按钮移除间隙 */
+.button-item.button-item--rangeIn {
+  padding: 1px 0;
+}
+
+.button-item span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transition: color var(--transition-duration, ${__transition_duration}),
+    background var(--transition-duration, ${__transition_duration});
+}
+.button-item:focus span {
+  background-color: #f0f0f0;
+  color: var(--color-primary, ${__color_primary});
 }
 
 /* 7 col * 5 row */
 .body-month .button-item {
   width: var(--height-base, ${__height_base});
   height: var(--height-base, ${__height_base});
-  line-height: calc(var(--height-base, ${__height_base}) - 2px);
 }
 :host([size="small"]) .body-month .button-item {
   width: var(--height-small, ${__height_small});
   height: var(--height-small, ${__height_small});
-  line-height: calc(var(--height-small, ${__height_small}) - 2px);
 }
 :host([size="large"]) .body-month .button-item {
   width: var(--height-large, ${__height_large});
   height: var(--height-large, ${__height_large});
-  line-height: calc(var(--height-large, ${__height_large}) - 2px);
 }
 
 /* 3 col * 4 row */
 .body-year .button-item {
   width: calc(var(--height-base, ${__height_base}) * 7 / 3);
   height: calc(var(--height-base, ${__height_base}) * 7 / 4);
-  line-height: calc(var(--height-base, ${__height_base}) * 7 / 4);
 }
 :host([size="small"]) .body-year .button-item {
   width: calc(var(--height-small, ${__height_small}) * 7 / 3);
   height: calc(var(--height-small, ${__height_small}) * 7 / 4);
-  line-height: calc(var(--height-small, ${__height_small}) * 7 / 4);
 }
 :host([size="large"]) .body-year .button-item {
   width: calc(var(--height-large, ${__height_large}) * 7 / 3);
   height: calc(var(--height-large, ${__height_large}) * 7 / 4);
-  line-height: calc(var(--height-large, ${__height_large}) * 7 / 4);
 }
 
 /* 2 col * 5 row */
@@ -359,51 +367,48 @@ const TEMPLATE_CSS = `<style>
 .body-decade .button-item {
   width: calc(var(--height-base, ${__height_base}) * 7 / 2);
   height: calc(var(--height-base, ${__height_base}) * 7 / 5);
-  line-height: calc(var(--height-base, ${__height_base}) * 7 / 5);
 }
 :host([size="small"]) .body-century .button-item,
 :host([size="small"]) .body-decade .button-item {
   width: calc(var(--height-small, ${__height_small}) * 7 / 2);
   height: calc(var(--height-small, ${__height_small}) * 7 / 5);
-  line-height: calc(var(--height-small, ${__height_small}) * 7 / 5);
 }
 :host([size="large"]) .body-century .button-item,
 :host([size="large"]) .body-decade .button-item {
   width: calc(var(--height-large, ${__height_large}) * 7 / 2);
   height: calc(var(--height-large, ${__height_large}) * 7 / 5);
-  line-height: calc(var(--height-large, ${__height_large}) * 7 / 5);
 }
 
 
-.button-item.button-item--otherMonth,
-.button-item[disabled] {
+.button-item.button-item--otherMonth span,
+.button-item[disabled] span {
   color: #ccc;
 }
 
-.button-item:not([disabled]):hover {
+.button-item:not([disabled]):hover span {
   background-color: #f0f0f0;
 }
 
-.button-item.button-item--today {
+.button-item.button-item--today span {
   color: var(--color-primary, ${__color_primary});
   text-shadow: 0 0 1px var(--color-primary, ${__color_primary});
 }
 
-.button-item.button-item--includesActive {
+.button-item.button-item--includesActive span {
   color: var(--color-primary, ${__color_primary});
   text-shadow: 0 0 1px var(--color-primary, ${__color_primary});
 }
 
-.button-item.button-item--rangeIn,
-.button-item.button-item--rangeIn:hover,
-.button-item.button-item--rangeIn:active {
+.button-item.button-item--rangeIn span,
+.button-item.button-item--rangeIn:hover span,
+.button-item.button-item--rangeIn:active span {
   background-color: var(--color-primary-light, ${__color_primary_light});
   color: #fff;
 }
 
-.button-item.button-item--active,
-.button-item.button-item--active:hover,
-.button-item.button-item--active:active {
+.button-item.button-item--active span,
+.button-item.button-item--active:hover span,
+.button-item.button-item--active:active span {
   background-color: var(--color-primary, ${__color_primary});
   color: #fff;
 }
@@ -519,6 +524,7 @@ export default class BlocksDate extends HTMLElement {
     this.$content = $panel.querySelector('#body')
     this.$list = $panel.querySelector('.button-list')
     this.$loading = $panel.querySelector('.body-loading')
+    this._$pool = []
 
     // 面板视图深度层级
     this.viewDepth = this.startdepth
@@ -545,6 +551,9 @@ export default class BlocksDate extends HTMLElement {
       }
       else if (target.classList.contains('button-item')) {
         this.onClickItem(this._parseItem(target))
+      }
+      else if (target.parentElement.classList.contains('button-item')) {
+        this.onClickItem(this._parseItem(target.parentElement))
       }
       this.focus()
     }
@@ -823,15 +832,14 @@ export default class BlocksDate extends HTMLElement {
       }
       this._value = value
     }
+
     else if (this.range) {
       this.maybeRangeTo = null
-      if (!value) value = []
-
-      value = value.slice()
+      value = value?.length === 2 ? value.slice() : []
       value.sort((a, b) => a.getTime() - b.getTime())
       this._value = value
 
-      if (this._value.length) {
+      if (value.length) {
         this.rangeFrom = this.makeItem(this.value[0], this.viewDepth)
         this.rangeTo = this.makeItem(this.value[1], this.viewDepth)
       }
@@ -839,6 +847,7 @@ export default class BlocksDate extends HTMLElement {
         this.rangeFrom = this.rangeTo = null
       }
     }
+
     else {
       this._value = value
     }
@@ -959,13 +968,19 @@ export default class BlocksDate extends HTMLElement {
     const $list = this.$list
     let len = $list.children.length ?? 0
     while (len++ < n) {
-      const el = document.createElement('button')
-      el.className = 'button-item'
-      $list.appendChild(el)
+      if (this._$pool.length) {
+        $list.appendChild(this._$pool.pop())
+      }
+      else {
+        const el = document.createElement('button')
+        el.className = 'button-item'
+        el.appendChild(document.createElement('span'))
+        $list.appendChild(el)
+      }
     }
     len = $list.children.length
     while (len-- > n) {
-      $list.removeChild($list.lastElementChild)
+      this._$pool.push($list.removeChild($list.lastElementChild))
     }
     return Array.prototype.slice.call($list.children)
   }
@@ -1010,7 +1025,7 @@ export default class BlocksDate extends HTMLElement {
       $el.dataset.date = null
       $el.dataset.label = item.label
 
-      $el.innerHTML = item.label
+      $el.lastElementChild.innerHTML = item.label
       this._renderBadge($el, item)
     })
   }
@@ -1035,7 +1050,7 @@ export default class BlocksDate extends HTMLElement {
       $el.dataset.date = null
       $el.dataset.label = item.label
 
-      $el.innerHTML = item.label
+      $el.lastElementChild.innerHTML = item.label
       this._renderBadge($el, item)
     })
   }
@@ -1059,7 +1074,7 @@ export default class BlocksDate extends HTMLElement {
       $el.dataset.month = item.month
       $el.dataset.date = null
       $el.dataset.label = item.label
-      $el.innerHTML = item.label
+      $el.lastElementChild.innerHTML = item.label
       this._renderBadge($el, item)
     })
   }
@@ -1084,7 +1099,7 @@ export default class BlocksDate extends HTMLElement {
       $el.dataset.date = item.date
       $el.dataset.label = item.label
 
-      $el.innerHTML = item.label
+      $el.lastElementChild.innerHTML = item.label
       this._renderBadge($el, item)
     })
   }
@@ -1133,17 +1148,23 @@ export default class BlocksDate extends HTMLElement {
   }
 
   isRangeFrom(item) {
-    if (!this.rangeFrom) return false
-    const from = Object.assign({}, this.rangeFrom)
-    delete from.label
-    return Object.keys(from).every(key => from[key] === item[key])
+    let obj = this.rangeFrom
+    if (!obj) return false
+    const obj2 = this.rangeTo ?? this.maybeRangeTo
+    if (obj2 && this.itemToDate(obj).getTime() > this.itemToDate(obj2).getTime()) {
+      obj = obj2
+    }
+    return ['year', 'month', 'date'].every(key => obj[key] === item[key])
   }
 
   isRangeTo(item) {
-    if (!this.rangeTo) return false
-    const to = Object.assign({}, this.rangeTo)
-    delete to.label
-    return Object.keys(to).every(key => to[key] === item[key])
+    let obj = this.rangeFrom
+    if (!obj) return false
+    const obj2 = this.rangeTo ?? this.maybeRangeTo
+    if (obj2 && this.itemToDate(obj).getTime() < this.itemToDate(obj2).getTime()) {
+      obj = obj2
+    }
+    return ['year', 'month', 'date'].every(key => obj[key] === item[key])
   }
 
   // 当前选项是否是今天
@@ -1268,14 +1289,41 @@ export default class BlocksDate extends HTMLElement {
 
   // 是否有子结点选中（年下的月、日，月下的日等等）
   includesActive(item) {
-    switch (this.viewDepth) {
-      case Depth.Year:
-        return this.getValues().some(t => t.getMonth() === item.month && t.getFullYear() === item.year)
-      case Depth.Decade:
-        return this.getValues().some(t => t.getFullYear() === item.year)
-      case Depth.Century:
-        return this.getValues().some(t => Math.floor(t.getFullYear() / 10) === item.decade)
-      default: return false
+    const values = this.getValues()
+    if (!values.length) return false
+
+    if (this.range) {
+      const fromTime = values[0].getTime()
+      const toTime = values[1].getTime()
+      switch (this.viewDepth) {
+        case Depth.Year: {
+          const t1 = this.makeDate(item.year, item.month, 1)
+          const t2 = this.makeDate(item.year, item.month + 1, 0)
+          return fromTime <= t2 && toTime >= t1
+        }
+        case Depth.Decade: {
+          const t1 = this.makeDate(item.year, 0, 1)
+          const t2 = this.makeDate(item.year, 11, 31)
+          return fromTime <= t2 && toTime >= t1
+        }
+        case Depth.Century: {
+          const t1 = this.makeDate(item.decade * 10, 0, 1)
+          const t2 = this.makeDate(item.decade * 10 + 9, 11, 31)
+          return fromTime <= t2 && toTime >= t1
+        }
+        default: return false
+      }
+    }
+    else {
+      switch (this.viewDepth) {
+        case Depth.Year:
+          return values.some(t => t.getMonth() === item.month && t.getFullYear() === item.year)
+        case Depth.Decade:
+          return values.some(t => t.getFullYear() === item.year)
+        case Depth.Century:
+          return values.some(t => Math.floor(t.getFullYear() / 10) === item.decade)
+        default: return false
+      }
     }
   }
 
@@ -1326,6 +1374,7 @@ export default class BlocksDate extends HTMLElement {
         this.rangeTo = null
         this.rangeFrom = item
         this._value = []
+        this.render()
         return
       }
       this.rangeTo = item
@@ -1367,6 +1416,7 @@ export default class BlocksDate extends HTMLElement {
         this.rangeTo = null
         this.rangeFrom = item
         this._value = []
+        this.render()
         return
       }
       this.rangeTo = item
@@ -1407,6 +1457,7 @@ export default class BlocksDate extends HTMLElement {
         this.rangeTo = null
         this.rangeFrom = item
         this._value = []
+        this.render()
         return
       }
       this.rangeTo = item
@@ -1496,6 +1547,11 @@ export default class BlocksDate extends HTMLElement {
     // 确保 1900 前的年份能正确设置
     d.setUTCFullYear(year)
     return d
+  }
+
+  // 仅限 year、month、date 三种 item
+  itemToDate(item) {
+    return this.makeDate(item.year, item.month || 0, item.date || 1)
   }
 
   makeItem(dateObj, depth) {    
@@ -1634,50 +1690,11 @@ export default class BlocksDate extends HTMLElement {
   disconnectedCallback() {
   }
 
-  // adoptedCallback() {
-  // }
+  adoptedCallback() {
+  }
 
   attributeChangedCallback(name, oldValue, newValue) {
     this.render()
-  }
-
-  _focus() {
-    if (this.restorefocus && !this._prevFocus) {
-      this._prevFocus = document.activeElement
-    }
-    this.popup.focus()
-  }
-
-  _blur() {
-    this.popup.blur()
-    if (this._prevFocus) {
-      if (this.restorefocus && typeof this._prevFocus.focus) {
-        this._prevFocus.focus()
-      }
-      this._prevFocus = undefined
-    }
-  }
-
-  _getBool(attrName) {
-    return this.hasAttribute(attrName)
-  }
-
-  _setBool(attrName, value) {
-    if (value === null || value === false) {
-      this.removeAttribute(attrName)
-    } else {
-      this.setAttribute(attrName, '')
-    }
-  }
-
-  // 启用鼠标交互
-  _enableEvents() {
-    this.popup.style.pointerEvents = ''
-  }
-
-  // 禁用鼠标交互
-  _disableEvents() {
-    this.popup.style.pointerEvents = 'none'
   }
 }
 
