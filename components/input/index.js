@@ -17,6 +17,7 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setDisabled, setRole } from '../../common/accessibility.js'
 import { clearableGetter, clearableSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { dispatchEvent } from '../../common/event.js'
+import { boolGetter, boolSetter } from '../../common/property.js'
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -66,6 +67,7 @@ input {
   border: 0 none;
   line-height: 1;
   background: transparent;
+  color: inherit;
 }
 
 input:focus {
@@ -164,28 +166,31 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
+const INPUT_ATTRS = [
+  'value',
+  'type',
+  'step',
+  'readonly',
+  'placeholder',
+  'name',
+  'multiple',
+  'min',
+  'max',
+  'minlength',
+  'maxlength',
+  'autocomplete',
+]
+
 
 export default class BlocksInput extends HTMLElement {
   static get observedAttributes() {
-    return [
-      'value',
+    return INPUT_ATTRS.concat([
       'prefix-icon',
       'suffix-icon',
       'clearable',
-      'type',
-      'step',
       'size',
-      'readonly',
-      'placeholder',
-      'name',
-      'multiple',
-      'min',
-      'max',
-      'minlength',
-      'maxlength',
       'autofocus',
-      'autocomplete',
-    ]
+    ])
   }
 
   constructor() {
@@ -264,7 +269,6 @@ export default class BlocksInput extends HTMLElement {
 
   set prefixIcon(value) {
     this.setAttribute('prefix-icon', value)
-    this.render()
   }
 
   get suffixIcon() {
@@ -273,7 +277,6 @@ export default class BlocksInput extends HTMLElement {
 
   set suffixIcon(value) {
     this.setAttribute('suffix-icon', value)
-    this.render()
   }
 
   get clearable() {
@@ -285,7 +288,7 @@ export default class BlocksInput extends HTMLElement {
   }
 
   get value() {
-    return this.$input.getAttribute('value')
+    return this.getAttribute('value')
   }
 
   set value(value) {
@@ -293,19 +296,19 @@ export default class BlocksInput extends HTMLElement {
   }
 
   get type() {
-    return this.$input.type
+    return this.getAttribute('type')
   }
 
   set type(value) {
-    this.$input.type = value
+    this.setAttribute('type', value)
   }
 
   get step() {
-    return this.$input.step
+    return this.getAttribute('step')
   }
 
   set step(value) {
-    this.$input.step = value
+    this.setAttribute('step', value)
   }
 
   get size() {
@@ -317,75 +320,75 @@ export default class BlocksInput extends HTMLElement {
   }
 
   get readonly() {
-    return this.$input.readonly
+    return boolGetter('readonly')(this)
   }
 
   set readonly(value) {
-    this.$input.readonly = value
+    boolSetter('readonly')(this, value)
   }
 
   get placeholder() {
-    return this.$input.placeholder
+    return this.getAttribute('placeholder')
   }
 
   set placeholder(value) {
-    this.$input.placeholder = value
+    this.setAttribute('placeholder', value)
   }
 
   get name() {
-    return this.$input.name
+    return this.getAttribute('name')
   }
 
   set name(value) {
-    this.$input.name = value
+    this.setAttribute('name', value)
   }
 
   get min() {
-    return this.$input.min
+    return this.getAttribute('min')
   }
 
   set min(value) {
-    this.$input.min = value
+    this.setAttribute('min', value)
   }
 
   get max() {
-    return this.$input.max
+    return this.getAttribute('max')
   }
 
   set max(value) {
-    this.$input.max = value
+    this.setAttribute('max', value)
   }
 
   get minlength() {
-    return this.$input.minlength
+    return this.getAttribute('minlength')
   }
 
   set minlength(value) {
-    this.$input.minlength = value
+    this.setAttribute('minlength', value)
   }
 
   get maxlength() {
-    return this.$input.maxlength
+    return this.getAttribute('maxlength')
   }
 
   set maxlength(value) {
-    this.$input.maxlength = value
+    this.setAttribute('maxlength', value)
   }
 
   get autofocus() {
-    return this.$input.autofocus
+    return boolGetter('autofocus')(this)
   }
 
   set autofocus(value) {
-    this.$input.autofocus = value
+    boolSetter('autofocus')(this, value)
   }
 
   get autocomplete() {
-    return this.$input.autocomplete
+    return boolGetter('autocomplete')(this)
   }
 
   set autocomplete(value) {
-    this.$input.autocomplete = value
+    boolSetter('autocomplete')(this, value)
   }
 
   clearValue() {
@@ -405,57 +408,22 @@ export default class BlocksInput extends HTMLElement {
   disconnectedCallback() {
   }
 
-  // adoptedCallback() {
-  // }
+  adoptedCallback() {
+  }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if ([
-      'value',
-      'type',
-      'step',
-      'size',
-      'readonly',
-      'placeholder',
-      'name',
-      'multiple',
-      'min',
-      'max',
-      'minlength',
-      'maxlength',
-      'autofocus',
-      'autocomplete',
-    ].includes(name)) {
+    if (INPUT_ATTRS.includes(name)) {
       this.$input.setAttribute(name, newValue)
+      this.$input.value = newValue
+      dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
+
     if (name === 'disabled') {
       setDisabled(this, this.disabled)
     }
-    if (name === 'value') {
-      if (newValue !== this.value) {
-        this.$input.setAttribute('value', newValue)
-        dispatchEvent(this, 'change', { detail: { value: newValue } })
-      }
-    }
 
     this.render()
-  }
-
-  _focus() {
-    if (this.restorefocus && !this._prevFocus) {
-      this._prevFocus = document.activeElement
-    }
-    this.popup.focus()
-  }
-
-  _blur() {
-    this.popup.blur()
-    if (this._prevFocus) {
-      if (this.restorefocus && typeof this._prevFocus.focus) {
-        this._prevFocus.focus()
-      }
-      this._prevFocus = undefined
-    }
-  }
+  } 
 }
 
 if (!customElements.get('bl-input')) {

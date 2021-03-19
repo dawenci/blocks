@@ -75,9 +75,6 @@ class BlocksSelect extends HTMLElement {
       delegatesFocus: true
     })
 
-    const id = `select-${idSeed++}`
-    this.id = id
-
     const fragment = inputTemplate.content.cloneNode(true)
     this.$result = fragment.querySelector('bl-select-result')
     this.$optionSlot = fragment.querySelector('slot')
@@ -85,7 +82,7 @@ class BlocksSelect extends HTMLElement {
     this.shadowRoot.appendChild(fragment)
 
     this.$popup = popupTemplate.content.cloneNode(true).querySelector('#date-picker-popup')
-    this.$popup.setAttribute('anchor', `#${id}`)
+    this.$popup.anchor = () => this.$result
     this.$list = this.$popup.querySelector('.option-list')
 
     this.$result.onfocus = this.$result.onfocus = (e) => {

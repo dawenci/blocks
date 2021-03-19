@@ -5,7 +5,7 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { __height_base } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
-import { enumGetter, intGetter, intSetter } from '../../common/property.js'
+import { boolSetter, enumGetter, intGetter, intSetter } from '../../common/property.js'
 
 let idSeed = Date.now()
 
@@ -30,7 +30,7 @@ const TEMPLATE_CSS = `<style>
 const TEMPLATE_HTML_INPUT = `<bl-input suffix-icon="date" id="result" readonly />`
 
 const TEMPLATE_HTML_POPUP = `
-<bl-popup append-to-body class="date-picker-popup" origin="top-start" arrow>
+<bl-popup append-to-body class="date-picker-popup" origin="top-start" arrow autoflip>
   <bl-date class="date-picker-panel"></bl-date>
   <div id="action" style="display:none;padding:5px;text-align:center;">
     <bl-button block type="primary" size="small">确定</bl-button>
@@ -51,7 +51,6 @@ class BlocksDatePicker extends HTMLElement {
 
   constructor() {
     super()
-    this.id = `date-picker-${idSeed++}`
 
     this.attachShadow({ mode: 'open' })
 
@@ -62,76 +61,87 @@ class BlocksDatePicker extends HTMLElement {
 
     // 面板部分
     this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup')
-    this.$panel = this.$popup.querySelector('bl-date')
-    this.$close = this.$popup.querySelector('bl-button')
-    this.$popup.setAttribute('anchor', `#${this.id}`)
+    this.$date = this.$popup.querySelector('bl-date')
+    this.$popup.anchor = () => this.$input
 
     this.$input.onfocus = this.$input.onclick = (e) => {
       this.$popup.open = true
     }
 
-    this.$panel.addEventListener('input', (e) => {
-      if (this.$panel.mode === null) {
-        this.value = this.$panel.value
-        dispatchEvent(this, 'input', { detail: { value: this.value } })
+    this.$date.addEventListener('change', (e) => {
+      if (this.$date.mode === null) {
+        this._prevValue = null
         this.render()
+        dispatchEvent(this, 'change', { detail: { value: this.value } })
         this.$popup.open = false
       }
-      if (this.$panel.mode === 'range') {
-        if (this.$panel.value.length === 2) {
-          this.value = this.$panel.value.slice()
-          dispatchEvent(this, 'input', { detail: { value: this.value } })
+      else if (this.$date.mode === 'range') {
+        if (this.$date.value.length === 2) {
+          this._prevValue = null
           this.render()
+          dispatchEvent(this, 'change', { detail: { value: this.value } })
           this.$popup.open = false
         }
       }
+      else {
+        this.render()
+      }
     })
 
-    this.$close.onclick = e => {
-      this.value = this.$panel.value.slice()
-      dispatchEvent(this, 'input', { detail: { value: this.value } })
-      this.render()
-      this.$popup.open = false
-    }
+    this.$popup.querySelector('bl-button').onclick = this._confirm.bind(this)
 
     this.$popup.addEventListener('open', () => {
-      this.$popup.querySelector('#action').style.display = this.$panel.mode === 'multiple' ? 'block' : 'none'
+      boolSetter('popup-open')(this, true)
+
+      if (this.$date.mode !== null) {
+        this._prevValue = this.$date.value
+      }
+
+      this.$popup.querySelector('#action').style.display = this.$date.mode === 'multiple' ? 'block' : 'none'
       this._initClickOutside()
       dispatchEvent(this, 'open')
     })
 
     this.$popup.addEventListener('close', () => {
+      boolSetter('popup-open')(this, false)
+
+      if (this.$date.mode !== null && this._prevValue) {
+        this.$date.value = this._prevValue
+        this._prevValue = null
+      }
+
       this._destroyClickOutside()
       dispatchEvent(this, 'close')
-
-      if (this.$panel.mode == null) {
-        this.$panel.value = this.value
-      }
-      else {
-        this.$panel.value = (this.value ?? []).slice()
-      }
     })
 
     this.$input.addEventListener('click-clear', () => {
-      if (this.$panel.mode == null) {
-        this.value = null
-        this.$panel.value = null
+      if (this.$date.mode == null) {
+        this.$date.value = null
       }
       else {
-        this.value = []
-        this.$panel.value = []
+        this.$date.value = []
       }
+
+      this._prevValue = this.$date.value
       this.render()
     })
   }
 
+  _confirm() {
+    this._prevValue = null
+    this.value = this.$date.value.slice()
+    dispatchEvent(this, 'input', { detail: { value: this.value } })
+    this.render()
+    this.$popup.open = false
+  }
+
   render() {
-    if (this.$panel.mode === 'range') {
+    if (this.$date.mode === 'range') {
       this.$input.value = (this.value ?? [])
         .map((date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
         .join(' ~ ')
     }
-    else if (this.$panel.mode === 'multiple') {
+    else if (this.$date.mode === 'multiple') {
       this.$input.value = (this.value ?? [])
         .map((date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
         .join(', ')
@@ -144,27 +154,27 @@ class BlocksDatePicker extends HTMLElement {
   }
 
   get value() {
-    return this._value
+    return this.$date.value
   }
 
   set value(value) {
-    this._value = value
+    this.$date.value = value
   }
 
   get disableMethod() {
-    return this.$panel.disableMethod
+    return this.$date.disableMethod
   }
 
   set disableMethod(value) {
-    this.$panel.disableMethod = value
+    this.$date.disableMethod = value
   }
 
   getDateProp(prop) {
-    return this.$panel[prop]
+    return this.$date[prop]
   }
 
   setDateProp(prop, value) {
-    this.$panel[prop] = value
+    this.$date[prop] = value
   }
 
   getInputProp(prop) {
@@ -182,7 +192,7 @@ class BlocksDatePicker extends HTMLElement {
     document.body.appendChild(this.$popup)
 
     this.render()
-    this.$popup.querySelector('#action').style.display = this.$panel.mode === 'multiple' ? 'block' : 'none'
+    this.$popup.querySelector('#action').style.display = this.$date.mode === 'multiple' ? 'block' : 'none'
   }
 
   disconnectedCallback() {
@@ -195,7 +205,7 @@ class BlocksDatePicker extends HTMLElement {
       this.$input.setAttribute(name, newValue)
     }
     if (BlocksDate.observedAttributes.includes(name)) {
-      this.$panel.setAttribute(name, newValue)
+      this.$date.setAttribute(name, newValue)
     }
     this.render()
   }

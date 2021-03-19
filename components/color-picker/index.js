@@ -103,16 +103,16 @@ class BlocksColorPicker extends HTMLElement {
 
     // 面板部分
     this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup')
-    this.$panel = this.$popup.querySelector('bl-color')
-    this.$popup.setAttribute('anchor', `#${this.id}`)
+    this.$color = this.$popup.querySelector('bl-color')
+    this.$popup.anchor = () => this.$result
 
     this.$result.onfocus = this.$result.onclick = (e) => {
       if (this.disabled) return
       this.$popup.open = true
-      this.$panel.render()
+      this.$color.render()
     }
 
-    this.$panel.addEventListener('change', (e) => {
+    this.$color.addEventListener('change', (e) => {
       this.render()
       dispatchEvent(this, 'change')
     })
@@ -135,55 +135,55 @@ class BlocksColorPicker extends HTMLElement {
   }
 
   get hex() {
-    return this.$panel.hex
+    return this.$color.hex
   }
 
   set hex(value) {
-    this.$panel.hex = value
+    this.$color.hex = value
   }
 
   get hsl() {
-    return this.$panel.hsl
+    return this.$color.hsl
   }
 
   set hsl(value) {
-    this.$panel.hsl = value
+    this.$color.hsl = value
   }
 
   get hsla() {
-    return this.$panel.hsla
+    return this.$color.hsla
   }
 
   set hsla(value) {
-    this.$panel.hsla = value
+    this.$color.hsla = value
   }
 
   get hsv() {
-    return this.$panel.hsv
+    return this.$color.hsv
   }
 
   set hsv(value) {
-    this.$panel.hsv = value
+    this.$color.hsv = value
   }
 
   get rgb() {
-    return this.$panel.rgb
+    return this.$color.rgb
   }
 
   set rgb(value) {
-    this.$panel.rgb = value
+    this.$color.rgb = value
   }
 
   get rgba() {
-    return this.$panel.rgba
+    return this.$color.rgba
   }
 
   set rgba(value) {
-    this.$panel.rgba = value
+    this.$color.rgba = value
   }
   
   render() {  
-    const resultBg = this.$panel.hsla
+    const resultBg = this.$color.hsla
     if (resultBg) {
       this.$result.style.backgroundColor = `hsla(${resultBg[0]},${resultBg[1] * 100}%,${resultBg[2] * 100}%,${resultBg[3]})`
     }
@@ -211,7 +211,7 @@ class BlocksColorPicker extends HTMLElement {
 
   _initClickOutside() {
     if (!this._clearClickOutside) {
-      this._clearClickOutside = onClickOutside([this, this.$panel], () => {
+      this._clearClickOutside = onClickOutside([this, this.$color], () => {
         if (this.$popup.open) this.$popup.open = false
       })
     }

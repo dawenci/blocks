@@ -524,7 +524,9 @@ export default class BlocksDate extends HTMLElement {
     this.$content = $panel.querySelector('#body')
     this.$list = $panel.querySelector('.button-list')
     this.$loading = $panel.querySelector('.body-loading')
+
     this._$pool = []
+    this._value = []
 
     // 面板视图深度层级
     this.viewDepth = this.startdepth
@@ -820,25 +822,43 @@ export default class BlocksDate extends HTMLElement {
   }
 
   get value() {
-    return this._value
+    return this.mode === null ? this._value[0] ?? null : this._value
   }
 
   set value(value) {
+    // 多选
     if (this.multiple) {
-      if (!value) value = []
+      if (!Array.isArray(value) || !value.every(date => date instanceof Date)) {
+        value = []
+      }
+      else {
+        value = value.slice()
+      }
+
+
       if (this.max && value.length > this.max) {
         console.error('选择的日期值超过最大数量限制')
         return
       }
+
       this._value = value
+      this.render()
+      dispatchEvent(this, 'change', { detail: { value: this._value } })
     }
 
+    // 区间
     else if (this.range) {
-      this.maybeRangeTo = null
-      value = value?.length === 2 ? value.slice() : []
-      value.sort((a, b) => a.getTime() - b.getTime())
+      if (!Array.isArray(value) || value.length !== 2 || !value.every(date => date instanceof Date)) {
+        value = []
+      }
+      else {
+        value = value.slice()
+        value.sort((a, b) => a.getTime() - b.getTime())
+      }
+
       this._value = value
 
+      this.maybeRangeTo = null
       if (value.length) {
         this.rangeFrom = this.makeItem(this.value[0], this.viewDepth)
         this.rangeTo = this.makeItem(this.value[1], this.viewDepth)
@@ -846,14 +866,19 @@ export default class BlocksDate extends HTMLElement {
       else {
         this.rangeFrom = this.rangeTo = null
       }
+
+      this.render()
+      dispatchEvent(this, 'change', { detail: { value: this._value } })
     }
 
+    // 单选
     else {
-      this._value = value
+      if (Array.isArray(value)) value = value[0]
+      if (!(value instanceof Date)) value = null
+      this._value = value ? [value] : []
+      this.render()
+      dispatchEvent(this, 'change', { detail: { value: this._value } })
     }
-
-    this.render()
-    dispatchEvent(this, 'input', { detail: { value } })
   }
 
   get viewDepth() {

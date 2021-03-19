@@ -179,9 +179,7 @@ export default class BlocksTime extends HTMLElement {
           // 因此人工执行动画
           if (value === this[prop]) {
             requestAnimationFrame(() => {
-              forEach(this.$layout.querySelectorAll('.active'), $active => {
-                scrollTo($active.parentElement, $active.offsetTop, { duration: .16 })
-              })
+              this.scrollToActive()
             })
           }
 
@@ -199,7 +197,7 @@ export default class BlocksTime extends HTMLElement {
   }
 
   set hour(value) {
-    intRangeSetter('hour', 0, 23)(this, value)
+    intRangeSetter('hour', 0, 23, null)(this, value)
   }
 
   get minute() {
@@ -207,7 +205,7 @@ export default class BlocksTime extends HTMLElement {
   }
 
   set minute(value) {
-    intRangeSetter('minute', 0, 59)(this, value)
+    intRangeSetter('minute', 0, 59, null)(this, value)
   }
 
   get second() {
@@ -215,37 +213,7 @@ export default class BlocksTime extends HTMLElement {
   }
 
   set second(value) {
-    intRangeSetter('second', 0, 59)(this, value)
-  }
-
-  render() {
-    if (!this.$hours.children.length) {
-      range(0, 23).forEach(n => {
-        const $item = this.$hours.appendChild(document.createElement('div'))
-        $item.className = 'item'
-        $item.textContent = n < 10 ? '0' + n : n
-      })
-      const $bot = this.$hours.appendChild(document.createElement('div'))
-      $bot.className = 'bot'
-    }
-    if (!this.$minutes.children.length) {
-      range(0, 59).forEach(n => {
-        const $item = this.$minutes.appendChild(document.createElement('div'))
-        $item.className = 'item'
-        $item.textContent = n < 10 ? '0' + n : n
-      })
-      const $bot = this.$minutes.appendChild(document.createElement('div'))
-      $bot.className = 'bot'
-    }
-    if (!this.$seconds.children.length) {
-      range(0, 59).forEach(n => {
-        const $item = this.$seconds.appendChild(document.createElement('div'))
-        $item.className = 'item'
-        $item.textContent = n < 10 ? '0' + n : n
-      })
-      const $bot = this.$seconds.appendChild(document.createElement('div'))
-      $bot.className = 'bot'
-    }
+    intRangeSetter('second', 0, 59, null)(this, value)
   }
 
   connectedCallback() {
@@ -287,11 +255,56 @@ export default class BlocksTime extends HTMLElement {
         if (attrName !== 'second' &&!this.second) this.second = 0
       }
 
+      this.scrollToActive()
+
+      dispatchEvent(this, 'change', { detail: { hour: this.hour, minute: this.minute, second: this.second } })
+    }
+  }
+
+  render() {
+    if (!this.$hours.children.length) {
+      range(0, 23).forEach(n => {
+        const $item = this.$hours.appendChild(document.createElement('div'))
+        $item.className = 'item'
+        $item.textContent = n < 10 ? '0' + n : n
+      })
+      const $bot = this.$hours.appendChild(document.createElement('div'))
+      $bot.className = 'bot'
+    }
+    if (!this.$minutes.children.length) {
+      range(0, 59).forEach(n => {
+        const $item = this.$minutes.appendChild(document.createElement('div'))
+        $item.className = 'item'
+        $item.textContent = n < 10 ? '0' + n : n
+      })
+      const $bot = this.$minutes.appendChild(document.createElement('div'))
+      $bot.className = 'bot'
+    }
+    if (!this.$seconds.children.length) {
+      range(0, 59).forEach(n => {
+        const $item = this.$seconds.appendChild(document.createElement('div'))
+        $item.className = 'item'
+        $item.textContent = n < 10 ? '0' + n : n
+      })
+      const $bot = this.$seconds.appendChild(document.createElement('div'))
+      $bot.className = 'bot'
+    }
+  }
+
+  clear() {
+    this.hour = this.minute = this.second = null
+  }
+
+  scrollToActive() {
+    if (this.hour == null && this.minute == null && this.second == null) {
+      forEach([this.$hours, this.$minutes, this.$seconds], $panel => {
+        scrollTo($panel, 0, { duration: .16 })
+      })
+    }
+    else {
       forEach(this.$layout.querySelectorAll('.active'), $active => {
         scrollTo($active.parentElement, $active.offsetTop, { duration: .16 })
       })
-
-      dispatchEvent(this, 'change', { detail: { hour: this.hour, minute: this.minute, second: this.second } })
     }
   }
 }
