@@ -1,4 +1,3 @@
-import { onWheel } from '../../common/onWheel.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
@@ -7,6 +6,9 @@ import { __transition_duration } from '../../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 
 const TEMPLATE_CSS = `<style>
+::-webkit-scrollbar {
+  display: none;
+}
 :host {
   box-sizing: border-box;
   display: block;
@@ -20,9 +22,11 @@ const TEMPLATE_CSS = `<style>
 }
 
 #viewport {
+  position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
 }
 
 .track {
@@ -64,11 +68,6 @@ const TEMPLATE_CSS = `<style>
   user-select: none;
   transition: opacity var(--transition-duration, ${__transition_duration});
   opacity: .3;
-}
-#layout:not(.dragging) .thumb {
-  transition: opacity var(--transition-duration, ${__transition_duration}),
-    /* 非拖拽模式，加上过渡动画 */
-    transform var(--transition-duration, ${__transition_duration});  
 }
 #horizontal .thumb {
   height: 100%;
@@ -171,22 +170,12 @@ class BlocksScrollable extends HTMLElement {
       dispatchEvent(this, 'resize')
     })
 
-    onWheel(this.$viewport, (event, data) => {
-      event.preventDefault()
-      // 触顶
-      if (data.pixelY < 0 && this.$viewport.scrollTop === 0) return
-      // 触底
-      if (data.pixelY > 0 && this.$viewport.scrollHeight - this.$viewport.scrollTop - this.$viewport.clientHeight === 0) return
-
-      // 设置滚动距离，渲染更新
-      this.$viewport.scrollTop += data.pixelY
-
-      this._updateScrollbar()
-    })
-
     this._initMoveEvents()
 
     this.$viewport.onscroll = () => {
+      if (!this._dragging) {
+        this._updateScrollbar()
+      }
       dispatchEvent(this, 'scroll')
     }
   }
@@ -344,6 +333,7 @@ class BlocksScrollable extends HTMLElement {
     const up = (e) => {
       e.preventDefault()
       e.stopImmediatePropagation()
+      this._dragging = false
 
       dispatchEvent(this, 'drag-scroll-end')
       removeEventListener('mousemove', move)
@@ -355,6 +345,7 @@ class BlocksScrollable extends HTMLElement {
     const down = (e) => {
       e.preventDefault()
       e.stopImmediatePropagation()
+      this._dragging = true
 
       isVertical = this.$vertical.contains(e.target)
 

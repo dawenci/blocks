@@ -38,7 +38,7 @@ const TEMPLATE_CSS = `
 }
 
 
-#layout {
+#scrollable {
   box-sizing: border-box;
   display: block;
   position: relative;
@@ -137,9 +137,9 @@ const TEMPLATE_CSS = `
 </style>
 `
 const TMEPLATE_HTML = `
-<bl-scrollable id="layout">
+<bl-scrollable id="scrollable">
   <div id="list-size"></div>
-  <div id="list"></div>
+  <div id="list"></div>  
 </bl-scrollable>
 `
 
@@ -164,7 +164,7 @@ class BlocksList extends HTMLElement {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$layout = shadowRoot.getElementById('layout')
+    this.$scrollable = shadowRoot.getElementById('scrollable')
     this.$listSize = shadowRoot.getElementById('list-size')
     this.$list = shadowRoot.getElementById('list')
 
@@ -191,7 +191,7 @@ class BlocksList extends HTMLElement {
       } 
     }
 
-    this.$layout.onscroll = this.render.bind(this)
+    this.$scrollable.onscroll = this.render.bind(this)
   }
 
   get data() {
@@ -265,12 +265,12 @@ class BlocksList extends HTMLElement {
     const itemHeight = parseInt(getComputedStyle(this).getPropertyValue('--item-height'), 10)
     this.$listSize.style.height = `${this.data.length * itemHeight}px`
 
-    const scrollTop = this.$layout.scrollTop
-    const viewportHeight = this.$layout.clientHeight
+    const scrollTop = this.$scrollable.scrollTop
+    const viewportHeight = this.$scrollable.clientHeight
     const renderCount = Math.ceil(viewportHeight / itemHeight)
     const itemFrom = Math.floor(scrollTop / itemHeight)
 
-    this.$list.style.transform = `translateY(${-scrollTop % itemHeight}px)`
+    this.$list.style.transform = `translateY(${scrollTop - scrollTop % itemHeight}px)`
 
     const dataSlice = this.data.slice(itemFrom, itemFrom + renderCount)
     const idIndexMap = {}
