@@ -1,8 +1,13 @@
-import '../popup/index.js'
-import '../input/index.js'
-import '../date/index.js'
-import '../time/index.js'
+import BlocksPopup from '../popup/index.js'
+import BlocksInput from '../input/index.js'
+import BlocksDate from '../date/index.js'
+import BlocksTime from '../time/index.js'
+
 import { upgradeProperty } from '../../common/upgradeProperty.js'
+import { __height_base } from '../../theme/var.js'
+import { onClickOutside } from '../../common/onClickOutside.js'
+import { dispatchEvent } from '../../common/event.js'
+import { padLeft } from '../../common/utils.js'
 
 const TEMPLATE_CSS = `<style>
 :host {
@@ -29,9 +34,15 @@ const TEMPLATE_HTML_INPUT = `
 
 const TEMPLATE_HTML_POPUP = `
 <bl-popup append-to-body class="datetime-picker-popup" origin="top-start" arrow>
-  <div>
-    <bl-date class="date-picker-panel"></bl-date>
-    <bl-time class="time-picker-panel"></bl-time>
+  <div id="panes" style="display:flex;flex-flow:row nowrap;">
+    <div id="date-pane" style="flex:0 0 auto;">
+      <bl-date class="date-picker-panel"></bl-date>
+    </div>
+
+    <div id="time-pane" style="flex:0 0 auto;display:flex;flex-flow:column nowrap;margin-left:15px;">
+      <div id="time-value" style="flex:0 0 auto;display:flex;align-items:center;justify-content:center;"></div>
+      <bl-time class="time-picker-panel"></bl-time>
+    </div>
   </div>
   <div id="action" style="padding:5px;text-align:center;">
     <bl-button block type="primary" size="small">确定</bl-button>
@@ -47,27 +58,14 @@ popupTemplate.innerHTML = TEMPLATE_HTML_POPUP
 
 class BlocksDateTimePicker extends HTMLElement {
   static get observedAttributes() {
-    return [
-      'disabled',
-      'depth',
-      'hour',
-      'minute',
-      'mindepth',
-      'startdepth',
-      'multiple',
-      'max',
-      'loading',
-      'clearable',
-      'second',
-      'size',
-      'start-week-on',
-    ]
+    return BlocksInput.observedAttributes
+      .concat(BlocksDate.observedAttributes)
+      .concat(BlocksTime.observedAttributes)
+      .concat([])
   }
 
   constructor() {
     super()
-    this.id = `date-picker-${idSeed++}`
-
     this.attachShadow({ mode: 'open' })
 
     // input 部分
@@ -77,15 +75,18 @@ class BlocksDateTimePicker extends HTMLElement {
 
     // 面板部分
     this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup')
-    this.$panel = this.$popup.querySelector('bl-date')
-    this.$popup.setAttribute('anchor', `#${this.id}`)
+    this.$date = this.$popup.querySelector('bl-date')
+    this.$time = this.$popup.querySelector('bl-time')
+    this.$timeValue = this.$popup.querySelector('#time-value')
+
+    this.$popup.anchor = () => this.$input
 
     this.$input.onfocus = this.$input.onclick = (e) => {
       this.$popup.open = true
     }
 
-    this.$panel.addEventListener('input', (e) => {
-      if (!this.$panel.multiple) {
+    this.$date.addEventListener('input', (e) => {
+      if (!this.$date.multiple) {
         this.$popup.open = false
       }
       dispatchEvent(this, 'input', { detail: { value: this.value } })
@@ -93,6 +94,7 @@ class BlocksDateTimePicker extends HTMLElement {
     })
 
     this.$popup.addEventListener('open', () => {
+      this._updateLayout()
       this._initClickOutside()
       dispatchEvent(this, 'open')
     })
@@ -101,88 +103,18 @@ class BlocksDateTimePicker extends HTMLElement {
       this._destroyClickOutside()
       dispatchEvent(this, 'close')
     })
+
+    this.$time.addEventListener('change', () => {
+      this.$timeValue.textContent = `${padLeft('0', 2, this.$time.hour)}:${padLeft('0', 2, this.$time.minute)}:${padLeft('0', 2, this.$time.second)}`
+    })
   }
 
-  render() {
-    if (this.multiple) {
-      this.$input.value = (this.value ?? [])
-        .map((date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
-        .join(', ')
-    } else {
-      this.$input.value = this.value
-        ? `${this.value.getFullYear()}-${this.value.getMonth() + 1}-${this.value.getDate()}`
-        : ''
-    }
-
-    if ([this.hour, this.minute, this.second].some(v => Object.is(v, NaN) || v == null)) {
-      this.value = ''
-      return
-    }
-    this.value = `${padLeft('0', 2, this.hour)}:${padLeft('0', 2, this.minute)}:${padLeft('0', 2, this.second)}`
+  get date() {
+    return this.$date.value
   }
 
-  get value() {
-    return this.$panel.value
-  }
-
-  set value(value) {
-    this.$panel.value = value
-  }
-
-  get clearable() {
-    return this.$input.clearable
-  }
-
-  set clearable(value) {
-    this.$input.clearable = value
-  }
-
-  get depth() {
-    return this.$panel.depth
-  }
-
-  set depth(value) {
-    this.$panel.depth = value
-  }
-
-  get mindepth() {
-    return this.$panel.mindepth
-  }
-
-  set mindepth(value) {
-    this.$panel.mindepth = value
-  }
-
-  get startdepth() {
-    return this.$panel.startdepth
-  }
-
-  set startdepth(value) {
-    this.$panel.startdepth = value
-  }
-
-  get max() {
-    return this.$panel.max
-  }
-
-  set max(value) {
-    this.$panel.max = value
-  }
-
-  get multiple() {
-    return this.$panel.multiple
-  }
-
-  set multiple(value) {
-    this.$panel.multiple = value
-  }
-
-  get disableMethod() {
-    return this.$panel.disableMethod
-  }
-
-  set disableMethod(value) {
-    this.$panel.disableMethod = value
+  set date(value) {
+    this.$date.value = value
   }
 
   connectedCallback() {
@@ -204,14 +136,14 @@ class BlocksDateTimePicker extends HTMLElement {
       this.$input.setAttribute(name, newValue)
     }
     if (['depth', 'mindepth', 'startdepth', 'multiple', 'max', 'loading', 'start-week-on'].includes(name)) {
-      this.$panel.setAttribute(name, newValue)
+      this.$date.setAttribute(name, newValue)
     }
     this.render()
   }
 
   _initClickOutside() {
     if (!this._clearClickOutside) {
-      this._clearClickOutside = onClickOutside([this, this.$panel], () => {
+      this._clearClickOutside = onClickOutside([this, this.$popup], () => {
         if (this.$popup.open) this.$popup.open = false
       })
     }
@@ -223,6 +155,29 @@ class BlocksDateTimePicker extends HTMLElement {
       this._clearClickOutside = undefined
     }
   }
+
+  render() {
+    if (this.multiple) {
+      this.$input.value = (this.value ?? [])
+        .map((date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
+        .join(', ')
+    } else {
+      this.$input.value = this.value
+        ? `${this.value.getFullYear()}-${this.value.getMonth() + 1}-${this.value.getDate()}`
+        : ''
+    }
+
+    if ([this.hour, this.minute, this.second].some(v => Object.is(v, NaN) || v == null)) {
+      this.value = ''
+      return
+    }
+    this.value = `${padLeft('0', 2, this.hour)}:${padLeft('0', 2, this.minute)}:${padLeft('0', 2, this.second)}`
+  }
+
+  _updateLayout() {
+    this.$time.style.height = this.$date.$content.offsetHeight + 'px'
+    this.$timeValue.style.height = this.$date.offsetHeight - this.$date.$content.offsetHeight + 'px'
+  }  
 }
 
 if (!customElements.get('bl-datetime-picker')) {
