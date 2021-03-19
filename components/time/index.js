@@ -174,13 +174,18 @@ export default class BlocksTime extends HTMLElement {
         const target = e.target
         if (target.classList.contains('item')) {
           const value = +target.textContent
-          this[prop] = value
 
-          requestAnimationFrame(() => {
-            forEach(this.$layout.querySelectorAll('.active'), $active => {
-              scrollTo($active.parentElement, $active.offsetTop, { duration: .16 })
+          // 值没有变化，不会触发 attributeChangedCallback，
+          // 因此人工执行动画
+          if (value === this[prop]) {
+            requestAnimationFrame(() => {
+              forEach(this.$layout.querySelectorAll('.active'), $active => {
+                scrollTo($active.parentElement, $active.offsetTop, { duration: .16 })
+              })
             })
-          })
+          }
+
+          this[prop] = value
         }
       }
     }
@@ -281,6 +286,10 @@ export default class BlocksTime extends HTMLElement {
         if (attrName !== 'minute' &&!this.minute) this.minute = 0
         if (attrName !== 'second' &&!this.second) this.second = 0
       }
+
+      forEach(this.$layout.querySelectorAll('.active'), $active => {
+        scrollTo($active.parentElement, $active.offsetTop, { duration: .16 })
+      })
 
       dispatchEvent(this, 'change', { detail: { hour: this.hour, minute: this.minute, second: this.second } })
     }
