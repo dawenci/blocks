@@ -68,23 +68,25 @@ class BlocksDatePicker extends HTMLElement {
       this.$popup.open = true
     }
 
-    this.$date.addEventListener('change', (e) => {
+    this.$date.addEventListener('select', (e) => {
       if (this.$date.mode === null) {
         this._prevValue = null
         this.render()
-        dispatchEvent(this, 'change', { detail: { value: this.value } })
         this.$popup.open = false
       }
       else if (this.$date.mode === 'range') {
-        if (this.$date.value.length === 2) {
-          this._prevValue = null
-          this.render()
-          dispatchEvent(this, 'change', { detail: { value: this.value } })
-          this.$popup.open = false
-        }
+        this._prevValue = null
+        this.render()
+        this.$popup.open = false
       }
       else {
         this.render()
+      }
+    })
+
+    this.$date.addEventListener('change', e => {
+      if (this.$date.mode !== 'multiple') {
+        dispatchEvent(this, 'change', { detail: { value: this.value } })
       }
     })
 
@@ -130,7 +132,7 @@ class BlocksDatePicker extends HTMLElement {
   _confirm() {
     this._prevValue = null
     this.value = this.$date.value.slice()
-    dispatchEvent(this, 'input', { detail: { value: this.value } })
+    dispatchEvent(this, 'change', { detail: { value: this.value } })
     this.render()
     this.$popup.open = false
   }

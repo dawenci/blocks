@@ -178,9 +178,7 @@ export default class BlocksTime extends HTMLElement {
           // 值没有变化，不会触发 attributeChangedCallback，
           // 因此人工执行动画
           if (value === this[prop]) {
-            requestAnimationFrame(() => {
-              this.scrollToActive()
-            })
+            this.scrollToActive()
           }
 
           this[prop] = value
@@ -234,10 +232,9 @@ export default class BlocksTime extends HTMLElement {
         forEach(this.$layout.querySelectorAll('.active'), active => {
           active.classList.remove('active')
         })
-        this.hour = this.minute = this.second = null
-        this.$hours.scrollTop = 0
-        this.$minutes.scrollTop = 0
-        this.$seconds.scrollTop = 0
+        if (attrName !== 'hour' && this.hour !== null) this.hour = null
+        if (attrName !== 'minute' && this.minute !== null) this.minute = null
+        if (attrName !== 'second' && this.second !== null) this.second = null
       }
       else {
         const $list = this[`$${attrName}s`]
@@ -250,14 +247,13 @@ export default class BlocksTime extends HTMLElement {
           $new.classList.add('active')
         }
   
-        if (attrName !== 'hour' && !this.hour) this.hour = 0
-        if (attrName !== 'minute' &&!this.minute) this.minute = 0
-        if (attrName !== 'second' &&!this.second) this.second = 0
+        if (attrName !== 'hour' && !this.hour && this.hour !== 0) this.hour = 0
+        if (attrName !== 'minute' && !this.minute && this.minute !== 0) this.minute = 0
+        if (attrName !== 'second' && !this.second && this.second !== 0) this.second = 0
       }
 
       this.scrollToActive()
-
-      dispatchEvent(this, 'change', { detail: { hour: this.hour, minute: this.minute, second: this.second } })
+      this.triggerChange()
     }
   }
 
@@ -295,7 +291,7 @@ export default class BlocksTime extends HTMLElement {
     this.hour = this.minute = this.second = null
   }
 
-  scrollToActive() {
+  _scrollToActive() {
     if (this.hour == null && this.minute == null && this.second == null) {
       forEach([this.$hours, this.$minutes, this.$seconds], $panel => {
         scrollTo($panel, 0, { duration: .16 })
@@ -304,6 +300,27 @@ export default class BlocksTime extends HTMLElement {
     else {
       forEach(this.$layout.querySelectorAll('.active'), $active => {
         scrollTo($active.parentElement, $active.offsetTop, { duration: .16 })
+      })
+    }
+  }
+
+  scrollToActive() {
+    // 避免多个 h, m, s 同时设置的时候，触发多次
+    if (!this._scrollFlag) {
+      this._scrollFlag = Promise.resolve().then(() => {
+        this._scrollToActive()
+        this._scrollFlag = null
+      })
+    }
+  }
+
+  triggerChange() {
+    // 避免多个 h, m, s 同时设置的时候，触发多次
+    if (!this._batchChange) {
+      this._batchChange = Promise.resolve().then(() => {
+        const detail = { hour: this.hour, minute: this.minute, second: this.second }
+        dispatchEvent(this, 'change', { detail })  
+        this._batchChange = null
       })
     }
   }

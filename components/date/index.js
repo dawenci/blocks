@@ -835,14 +835,18 @@ export default class BlocksDate extends HTMLElement {
         value = value.slice()
       }
 
-
       if (this.max && value.length > this.max) {
         console.error('选择的日期值超过最大数量限制')
         return
       }
 
+      const hasChange = !equal(this._value, value)
       this._value = value
       this.render()
+
+      dispatchEvent(this, 'select', { detail: { value: this.value } })
+      // 完全一致，不触发 change
+      if (!hasChange) return
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
 
@@ -856,6 +860,7 @@ export default class BlocksDate extends HTMLElement {
         value.sort((a, b) => a.getTime() - b.getTime())
       }
 
+      const hasChange = !equal(this._value, value)
       this._value = value
 
       this.maybeRangeTo = null
@@ -868,6 +873,10 @@ export default class BlocksDate extends HTMLElement {
       }
 
       this.render()
+
+      dispatchEvent(this, 'select', { detail: { value: this.value } })
+      // 完全一致，不触发 change
+      if (!hasChange) return
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
 
@@ -875,8 +884,14 @@ export default class BlocksDate extends HTMLElement {
     else {
       if (Array.isArray(value)) value = value[0]
       if (!(value instanceof Date)) value = null
-      this._value = value ? [value] : []
+      value = value ? [value] : []
+      const hasChange = !equal(this._value, value)
+      this._value = value
       this.render()
+
+      dispatchEvent(this, 'select', { detail: { value: this.value } })
+      // 完全一致，不触发 change
+      if (!hasChange) return
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
   }
@@ -1424,7 +1439,7 @@ export default class BlocksDate extends HTMLElement {
 
     // 单选模式
     else {
-      if (this.isActiveLeaf(item)) return
+      // if (this.isActiveLeaf(item)) return
       this.value = date
     }
   }
@@ -1464,7 +1479,7 @@ export default class BlocksDate extends HTMLElement {
     }
     // 单选模式
     else {
-      if (this.isActiveLeaf(item)) return
+      // if (this.isActiveLeaf(item)) return
       this.value = date
     }
   }
@@ -1507,7 +1522,7 @@ export default class BlocksDate extends HTMLElement {
 
     // 单选模式
     else {
-      if (this.isActiveLeaf(item)) return
+      // if (this.isActiveLeaf(item)) return
       this.value = date
     }
   }
@@ -1725,4 +1740,8 @@ export default class BlocksDate extends HTMLElement {
 
 if (!customElements.get('bl-date')) {
   customElements.define('bl-date', BlocksDate)
+}
+
+function equal(arr1, arr2) {
+  return arr1.length === arr2.length && arr1.every((date, index) => date.getTime() === arr2[index].getTime())
 }
