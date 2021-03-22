@@ -16,7 +16,7 @@ export function onContextMenu(el, menuData, dark) {
     $menu.anchor = `[${e.pageX}, ${e.pageY}]`
     $menu.autoflip = true
     $menu.origin = 'top-start'
-    $menu.addEventListener('close', () => {
+    $menu.addEventListener('closed', () => {
       document.body.removeChild($menu)
     })
     $menu.open = true

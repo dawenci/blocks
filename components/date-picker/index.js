@@ -90,28 +90,28 @@ class BlocksDatePicker extends HTMLElement {
 
     this.$popup.querySelector('bl-button').onclick = this._confirm.bind(this)
 
-    this.$popup.addEventListener('open', () => {
-      boolSetter('popup-open')(this, true)
+    this.$popup.addEventListener('open-changed', () => {
+      boolSetter('popup-open')(this, this.$popup.open)
+    })
 
+    this.$popup.addEventListener('opened', () => {
       if (this.$date.mode !== null) {
         this._prevValue = this.$date.value
       }
 
       this.$popup.querySelector('#action').style.display = this.$date.mode === 'multiple' ? 'block' : 'none'
       this._initClickOutside()
-      dispatchEvent(this, 'open')
+      dispatchEvent(this, 'opened')
     })
 
-    this.$popup.addEventListener('close', () => {
-      boolSetter('popup-open')(this, false)
-
+    this.$popup.addEventListener('closed', () => {
       if (this.$date.mode !== null && this._prevValue) {
         this.$date.value = this._prevValue
         this._prevValue = null
       }
 
       this._destroyClickOutside()
-      dispatchEvent(this, 'close')
+      dispatchEvent(this, 'closed')
     })
 
     this.$input.addEventListener('click-clear', () => {

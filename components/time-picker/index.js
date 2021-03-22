@@ -88,8 +88,11 @@ class BlocksTimePicker extends HTMLElement {
       this.render()
     })
 
-    this.$popup.addEventListener('open', () => {
-      boolSetter('popup-open')(this, true)
+    this.$popup.addEventListener('open-changed', () => {
+      boolSetter('popup-open')(this, this.$popup.open)
+    })
+
+    this.$popup.addEventListener('opened', () => {
       this._prevValue = {
         hour: this.$time.hour,
         minute: this.$time.minute,
@@ -98,8 +101,7 @@ class BlocksTimePicker extends HTMLElement {
       this._initClickOutside()
     })
 
-    this.$popup.addEventListener('close', () => {
-      boolSetter('popup-open')(this, false)
+    this.$popup.addEventListener('closed', () => {
       if (this._prevValue) {
         this.$time.hour = this._prevValue.hour
         this.$time.minute = this._prevValue.minute

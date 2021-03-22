@@ -117,11 +117,11 @@ class BlocksColorPicker extends HTMLElement {
       dispatchEvent(this, 'change')
     })
 
-    this.$popup.addEventListener('open', () => {
+    this.$popup.addEventListener('opened', () => {
       this._initClickOutside()
     })
 
-    this.$popup.addEventListener('close', () => {
+    this.$popup.addEventListener('closed', () => {
       this._destroyClickOutside()
     })
   }

@@ -327,13 +327,13 @@ export default class BlocksPopup extends BlocksOpenCloseAnimation {
 
     definePrivate(this, '_anchor')
 
-    this.addEventListener('open', () => {
+    this.addEventListener('opened', () => {
       if (this.autofocus) this._focus()
       // 动画过程可能锚定点移动，动画结束后，更新下位置
       this.updatePosition()
     })
 
-    this.addEventListener('close', () => {
+    this.addEventListener('closed', () => {
       this._blur()
     })
 

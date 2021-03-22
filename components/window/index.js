@@ -518,11 +518,11 @@ class BlocksWindow extends BlocksOpenCloseAnimation {
       this.minimized = !this.minimized
     }
 
-    this.addEventListener('open', () => {
+    this.addEventListener('opened', () => {
       this._focus()
     })
 
-    this.addEventListener('close', () => {
+    this.addEventListener('closed', () => {
       this._blur()
     })
 

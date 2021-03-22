@@ -256,11 +256,11 @@ class BlocksDialog extends BlocksOpenCloseAnimation {
       })
     }
 
-    this.addEventListener('open', () => {
+    this.addEventListener('opened', () => {
       this._focus()
     })
 
-    this.addEventListener('close', () => {
+    this.addEventListener('closed', () => {
       this._blur()
       if (this.remove) {
         this.parentElement && this.parentElement.removeChild(this)

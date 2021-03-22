@@ -843,7 +843,7 @@ export default class BlocksDate extends HTMLElement {
 
       this._value = value
       this.render()
-      dispatchEvent(this, 'change', { detail: { value: this._value } })
+      dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
 
     // 区间
@@ -868,7 +868,7 @@ export default class BlocksDate extends HTMLElement {
       }
 
       this.render()
-      dispatchEvent(this, 'change', { detail: { value: this._value } })
+      dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
 
     // 单选
@@ -877,7 +877,7 @@ export default class BlocksDate extends HTMLElement {
       if (!(value instanceof Date)) value = null
       this._value = value ? [value] : []
       this.render()
-      dispatchEvent(this, 'change', { detail: { value: this._value } })
+      dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
   }
 

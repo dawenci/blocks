@@ -364,12 +364,12 @@ class BlocksDrawer extends HTMLElement {
       }
       if (this.open) {
         doTransitionEnter(this, `open${capitalize(this.placement)}`, () => {
-          dispatchEvent(this, 'open')
+          dispatchEvent(this, 'opened')
         })
       }
       else {
         doTransitionLeave(this, `open${capitalize(this.placement)}`, () => {
-          dispatchEvent(this, 'close')
+          dispatchEvent(this, 'closed')
         })
       }
     }

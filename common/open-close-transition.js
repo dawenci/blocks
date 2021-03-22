@@ -73,15 +73,16 @@ export default class BlocksOpenCloseAnimation extends HTMLElement {
       if (this.open) {
         doTransitionEnter(this, 'open', () => {
           if (this.onOpen) this.onOpen()
-          dispatchEvent(this, 'open')
+          dispatchEvent(this, 'opened')
         })
       }
       else {
         doTransitionLeave(this, 'open', () => {
           if (this.onClose) this.onClose()
-          dispatchEvent(this, 'close')
+          dispatchEvent(this, 'closed')
         })
       }
+      dispatchEvent(this, 'open-changed')
     }
   }
 }

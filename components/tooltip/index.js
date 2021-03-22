@@ -85,10 +85,10 @@ export default class BlocksTooltip extends HTMLElement {
     this.addEventListener('mouseleave', onmouseleave)
     this.$popup.addEventListener('mouseleave', onmouseleave)
 
-    this.$popup.addEventListener('open', () => {
+    this.$popup.addEventListener('opened', () => {
       this._initClickOutside()
     })
-    this.$popup.addEventListener('close', () => {
+    this.$popup.addEventListener('closed', () => {
       this._destroyClickOutside()
     })
   }
