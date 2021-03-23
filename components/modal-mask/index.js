@@ -1,4 +1,4 @@
-import BlocksOpenCloseAnimation from '../../common/open-close-transition.js'
+import BlocksTransitionOpenOpacity from '../transition-open-opacity/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __transition_duration } from '../../theme/var.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
@@ -19,10 +19,6 @@ const TEMPLATE_CSS = `<style>
 :host([open]) {
   display: block;
 }
-:host(.open-enter-transition-active),
-:host(.open-leave-transition-active) {
-  transition-duration: var(--transition-duration, ${__transition_duration}), 0s;
-}
 </style>`
 
 const TEMPLATE_HTML = `
@@ -31,7 +27,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksModalMask extends BlocksOpenCloseAnimation {
+class BlocksModalMask extends BlocksTransitionOpenOpacity {
   static get observedAttributes() {
     return super.observedAttributes.concat(['open', 'z-index'])
   }

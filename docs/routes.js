@@ -51,6 +51,7 @@ export default [
   { category: 'components', title: 'time', url: 'pages/time.html' },
   { category: 'components', title: 'time-picker', url: 'pages/time-picker.html' },
   { category: 'components', title: 'tooltip', url: 'pages/tooltip.html' },
+  { category: 'components', title: 'transition', url: 'pages/transition.html' },
   { category: 'components', title: 'tree', url: 'pages/tree.html' },
   { category: 'components', title: 'tree-select', url: 'pages/tree-select.html' },
   { category: 'components', title: 'upload', url: 'pages/upload.html' },

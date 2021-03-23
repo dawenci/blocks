@@ -1,43 +1,37 @@
-import { __transition_duration } from '../theme/var.js'
-import { openGetter, openSetter } from './propertyAccessor.js'
-import { dispatchEvent } from './event.js'
-import { clearTransition, doTransitionEnter, doTransitionLeave, onTransitionEnd, transitionEnter, transitionLeave } from './animation.js'
+import { dispatchEvent } from '../../common/event.js'
+import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
+import { openGetter, openSetter } from '../../common/propertyAccessor.js'
+import { __transition_duration } from '../../theme/var.js'
 
 const TEMPLATE = `
 <style>
 :host(:not([open])) {
   display: none;
 }
-
 /* 过渡过程持续生效 */
-:host(.open-enter-transition-active),
-:host(.open-leave-transition-active) {
+:host(.opacity-enter-transition-active),
+:host(.opacity-leave-transition-active) {
   display: block;
   transition-delay: 0, 0;
-  transition-property: opacity, transform;
-  transition-duration: var(--transition-duration, ${__transition_duration}), var(--transition-duration, ${__transition_duration});
+  transition-property: opacity;
+  transition-duration: var(--transition-duration, ${__transition_duration});
   transition-timing-function: cubic-bezier(.645, .045, .355, 1), cubic-bezier(.645, .045, .355, 1);
   pointer-events: none;
 }
-
 /* 打开动作，过渡开始时的状态 */
-:host(.open-enter-transition-from) {
+:host(.opacity-enter-transition-from) {
   opacity: 0;
-  transform: scale(0);
 }
 /* 打开动作，过渡结束时的状态 */
-:host(.open-enter-transition-to) {
+:host(.opacity-enter-transition-to) {
   opacity: 1;
-  transform: scale(1);
 }
-
 /* 关闭动作，过渡开始时的状态 */
-:host(.open-leave-transition-from) {
+:host(.opacity-leave-transition-from) {
 }
 /* 关闭动作，过渡结束时的状态 */
-:host(.open-leave-transition-to) {
+:host(.opacity-leave-transition-to) {
   opacity: 0;
-  transform: scale(0);
 }
 </style>
 `
@@ -45,7 +39,7 @@ const TEMPLATE = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE
 
-export default class BlocksOpenCloseAnimation extends HTMLElement {
+export default class BlocksTransitionOpenOpacity extends HTMLElement {
   static get observedAttributes() {
     return ['open']
   }
@@ -71,13 +65,13 @@ export default class BlocksOpenCloseAnimation extends HTMLElement {
   attributeChangedCallback(name) {
     if (name == 'open') {
       if (this.open) {
-        doTransitionEnter(this, 'open', () => {
+        doTransitionEnter(this, 'opacity', () => {
           if (this.onOpen) this.onOpen()
           dispatchEvent(this, 'opened')
         })
       }
       else {
-        doTransitionLeave(this, 'open', () => {
+        doTransitionLeave(this, 'opacity', () => {
           if (this.onClose) this.onClose()
           dispatchEvent(this, 'closed')
         })

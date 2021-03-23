@@ -1,4 +1,4 @@
-import BlocksOpenCloseAnimation from '../../common/open-close-transition.js'
+import BlocksTransitionOpenCollapse from '../transition-open-zoom/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
@@ -288,7 +288,7 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 
-export default class BlocksPopup extends BlocksOpenCloseAnimation {
+export default class BlocksPopup extends BlocksTransitionOpenCollapse {
   static get observedAttributes() {
     return super.observedAttributes.concat([
       // Popup 锚定的布局框，是一个矩形区域

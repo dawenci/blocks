@@ -1,4 +1,4 @@
-import BlocksOpenCloseAnimation from '../../common/open-close-transition.js'
+import BlocksTransitionOpenCollapse from '../transition-open-zoom/index.js'
 import '../button/index.js'
 import '../icon/index.js'
 import {
@@ -25,7 +25,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
-import { clearTransition, doTransitionEnter, doTransitionLeave, onTransitionEnd, transitionEnter, transitionLeave } from '../../common/animation.js'
+import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -462,7 +462,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 const capturefocusGetter = boolGetter('capturefocus')
 const capturefocusSetter = boolSetter('capturefocus')
 
-class BlocksWindow extends BlocksOpenCloseAnimation {
+class BlocksWindow extends BlocksTransitionOpenCollapse {
   static get observedAttributes() {
     return super.observedAttributes.concat([
       // 窗口按钮，'minimize,maximize,close'
