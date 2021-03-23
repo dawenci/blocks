@@ -1,5 +1,5 @@
 import { dispatchEvent } from '../../common/event.js'
-import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
+import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter, numGetter, numSetter } from '../../common/property.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __border_color_base, __border_color_light, __color_primary, __color_primary_light } from '../../theme/var.js'
@@ -214,26 +214,21 @@ export class BlocksSplitter extends HTMLElement {
 
   /** 计算 pane 的尺寸 */
   getPaneSize($pane) {
-    let size = $pane.actualSize || 0
+    let size = $pane.size || 0
     size = Math.max(size, $pane.min, this.splitterStore.panes[0] === $pane ? 0 : this.handleSize)
     size = Math.min(size, $pane.max)
     return size
   }
 
   /** 检测面板是否冻结尺寸不允许调整 */
-  isSizeFrozen(pane) {
-    return pane.max === pane.min
-  }
-
-  /** 检测面板是否可以自动调整尺寸（流体模式的自动调整，否则只允许人工调用接口设置） */
-  isFluidPane(pane) {
-    return !pane.fixed
+  isSizeFrozen($pane) {
+    return $pane.max === $pane.min
   }
 
   /** 计算 pane 的定位 */
-  getPanePosition(pane) {
+  getPanePosition($pane) {
     if (this.splitterStore && this.splitterStore.panes) {
-      const index = this.splitterStore.panes.indexOf(pane)
+      const index = this.splitterStore.panes.indexOf($pane)
       if (index !== -1) {
         return this.splitterStore.panes.slice(0, index)
           .reduce((acc, pane) => {
@@ -255,14 +250,14 @@ export class BlocksSplitter extends HTMLElement {
   }
 
   /** 调整 pane 的尺寸 */
-  resizePane(pane, newSize) {
+  resizePane($pane, newSize) {
     const panes = this.splitterStore.panes
     // 面板是冻结的的，意味着不能调整尺寸，退出
-    if (this.isSizeFrozen(pane)) return
+    if (this.isSizeFrozen($pane)) return
 
     // 1. 当前面板不存在，直接退出
     // 2. 当前是第一个面板，也直接退出（调整当前面板，需要将调整值取反分配给前一个面板，当前没有前一个面板）
-    const index = panes.indexOf(pane)
+    const index = panes.indexOf($pane)
     if (index < 1) return
 
     const prevPane = panes[index - 1]
@@ -270,7 +265,7 @@ export class BlocksSplitter extends HTMLElement {
     if (this.isSizeFrozen(prevPane)) return
 
     // 当前面板与上一个面板的尺寸合计
-    const totalSize = pane.actualSize + prevPane.actualSize
+    const totalSize = $pane.size + prevPane.size
 
     const handleSize = this.handleSize
     const splitterSize = this.splitterStore[this.splitterStore.prop]
@@ -278,8 +273,8 @@ export class BlocksSplitter extends HTMLElement {
     // 确保调整后的尺寸不溢出
     // 1. 面板不能小于拖拽柄，也不能小于面板的 min 设置，上一个面板不能因此大于上个面板的 max
     // 2. 面板不能大于外容器，也不能大于面板的 max 设置，上一个面板不能因此小于上个面板的 min
-    const min = Math.max(handleSize, pane.min || handleSize)
-    const max = Math.min(splitterSize, pane.max || splitterSize)
+    const min = Math.max(handleSize, $pane.min || handleSize)
+    const max = Math.min(splitterSize, $pane.max || splitterSize)
     const prevMin = Math.max((index === 1 ? 0 : handleSize), prevPane?.min ?? 0)
     const prevMax = Math.min(splitterSize, prevPane?.max ?? splitterSize)
 
@@ -302,23 +297,23 @@ export class BlocksSplitter extends HTMLElement {
       newSize = totalSize - prevNewSize
     }
 
-    const offset = newSize - pane.actualSize
-    pane.actualSize = newSize
-    prevPane.actualSize = prevNewSize
+    const offset = newSize - $pane.size
+    $pane.size = newSize
+    prevPane.size = prevNewSize
 
     prevPane.updateStyle()
-    pane.updateStyle()
+    $pane.updateStyle()
 
-    dispatchEvent(this, 'pane-resized', { detail: { offset, pane, prevPane } } )
+    dispatchEvent(this, 'pane-resized', { detail: { offset, pane: $pane, prevPane } } )
 
     // 往 右/下 拖拽
     if (offset < 0) {
       // 面板完全折叠
-      if (pane.actualSize <= min) {
-        dispatchEvent(this, 'pane-close', { detail: { pane } })
+      if ($pane.size <= min) {
+        dispatchEvent(this, 'pane-close', { detail: { pane: $pane } })
       }
       // 前一个面板从折叠到展开
-      if (prevPane.actualSize === prevMin - offset) {
+      if (prevPane.size === prevMin - offset) {
         dispatchEvent(this, 'pane-open', { detail: { pane: prevPane } })
       }
     }
@@ -326,25 +321,25 @@ export class BlocksSplitter extends HTMLElement {
     // 往 左/上 拖拽
     if (offset > 0) {
       // 面板从折叠到展开
-      if (pane.actualSize === offset + min) {
-        dispatchEvent(this, 'pane-open', { detail: { pane } })
+      if ($pane.size === offset + min) {
+        dispatchEvent(this, 'pane-open', { detail: { pane: $pane } })
       }
       // 前一个面板完全折叠
-      if (prevPane.actualSize <= prevMin) {
+      if (prevPane.size <= prevMin) {
         dispatchEvent(this, 'pane-close', { detail: { pane: prevPane } })
       }
     }
   }
 
   // 折叠面板到最小尺寸
-  collapsePane(pane) {
-    pane.collapseSize = pane.actualSize
-    this.resizePane(pane, 0)
+  collapsePane($pane) {
+    $pane.collapseSize = $pane.size
+    this.resizePane($pane, 0)
   }
 
   // 展开面板
-  expandPane(pane) {
-    this.resizePane(pane, pane.collapseSize || 0)
+  expandPane($pane) {
+    this.resizePane($pane, $pane.collapseSize || 0)
   }
 
   layout() {
@@ -358,7 +353,7 @@ export class BlocksSplitter extends HTMLElement {
 
     // 统计当前所有 pane 的尺寸总和
     const sum = splitterStore.panes.reduce((acc, pane) => {
-      return acc + pane.actualSize
+      return acc + pane.size
     }, 0)
 
     // 未分配的尺寸
@@ -372,7 +367,7 @@ export class BlocksSplitter extends HTMLElement {
 
     // 未分配的尺寸大于 0，说明扩张了，则需要将这些尺寸加在各个 pane 上
     if (rest > 0) {
-      this._expandPanes(rest, splitterStore.panes)
+      this._growPanes(rest, splitterStore.panes)
       dispatchEvent(this, 'layout', { detail: { store: this.splitterStore } } )
       return
     }
@@ -384,71 +379,83 @@ export class BlocksSplitter extends HTMLElement {
   }
 
   // 获取面板允许扩张的尺寸
-  _getExpandSize(pane) {
-    if (this.isSizeFrozen(pane)) return 0
-    if (!this.isFluidPane(pane)) return 0
-    return pane.max - Math.max(pane.actualSize, this.handleSize)
+  _getGrowSize($pane) {
+    if (this.isSizeFrozen($pane)) return 0
+    if ($pane.grow <= 0) return 0
+    return $pane.max - Math.max($pane.size, this.handleSize)
   }
 
   // 获取面板允许收缩的尺寸
-  _getShrinkSize(pane) {
-    if (this.isSizeFrozen(pane)) return 0
-    if (!this.isFluidPane(pane)) return 0
-    return pane.max - Math.max(pane.actualSize, this.handleSize)
+  _getShrinkSize($pane) {
+    if (this.isSizeFrozen($pane)) return 0
+    if ($pane.shrink <= 0) return 0
+    return $pane.max - Math.max($pane.size, this.handleSize)
   }
 
   // 将 rest 尺寸分配到 panes 上
-  _expandPanes(rest, $panes) {
+  _growPanes(rest, $panes) {
+    let refresh = false
     // 递归处理，返回一趟处理完毕剩余未分配的尺寸
     const loop = (rest, $panes) => {
       // 找出能接纳扩张的 pane
-      const list = $panes.filter($pane => {
-        return this._getExpandSize($pane) >= 1
+      const $list = $panes.filter($pane => {
+        return this._getGrowSize($pane) >= 1
       })
-      if (!list.length) return
+      if (!$list.length) return
+      refresh = true
 
-      // 均摊的尺寸
-      const expand = rest / list.length
-      list.forEach(pane => {
+      const totalGrow = $list.reduce((acc, $pane) => acc + $pane.grow, 0)
+      const growSizes = $list.map($pane => ($pane.grow / totalGrow) * rest)
+      $list.forEach(($pane, index) => {
+        const growSize = growSizes[index]
         // 实际扩张的尺寸
-        const actual = Math.min(this._getExpandSize(pane), expand)
-        pane.actualSize += actual
+        const actual = Math.min(this._getGrowSize($pane), growSize)
+        $pane.size += actual
         rest -= actual
-        this.updatePaneStyle(pane)
       })
 
       // 还有未分配的尺寸（由于不处理精度问题，不用零判断），下一轮递归
       if (rest >= 1) {
-        loop(rest, list)
+        loop(rest, $list)
       }
     }
     loop(rest, $panes)
+    if (refresh) {
+      $panes.forEach($pane => $pane.updateStyle())
+    }
   }
 
-  _shrinkPanes(rest, panes) {
+  _shrinkPanes(rest, $panes) {
+    let refresh = false
     // 递归处理，返回一趟处理完毕剩余未分配的尺寸
     const loop = (rest, panes) => {
       // 找出能接纳收缩的 pane
-      const list = panes.filter(pane => {
+      const $list = panes.filter(pane => {
         return this._getShrinkSize(pane) >= 1
       })
-      if (!list.length) return
+      if (!$list.length) return
+      refresh = true
 
-      // 均摊的尺寸
-      const shrink = rest / list.length
-      list.forEach(pane => {
+      const totalShrink = $list.reduce((acc, $pane) => acc + $pane.shrink, 0)
+      const shrinkSizes = $list.map($pane => ($pane.shrink / totalShrink) * rest)
+      $list.forEach(($pane, index) => {
+        const shrinkSize = shrinkSizes[index]
         // 实际收缩的尺寸
-        const actual = Math.min(this._getShrinkSize(pane), shrink)
-        pane.actualSize -= actual
+        const actual = Math.min(this._getShrinkSize($pane), shrinkSize)
+        $pane.size -= actual
         rest -= actual
+        $pane.updateStyle()
       })
 
       // 还有未分配的尺寸（由于不处理精度问题，不用零判断），下一轮递归
       if (rest >= 1) {
-        loop(rest, list)
+        loop(rest, $list)
       }
     }
-    loop(rest, panes)
+    loop(rest, $panes)
+    if (refresh) {
+      $panes.forEach($pane => $pane.updateStyle())
+    }
   }
 
   _onDirectionChange(value) {
@@ -469,8 +476,8 @@ export class BlocksSplitter extends HTMLElement {
     })
     this.render()
 
-    this._offSizeObserve = sizeObserve(this, this.layout.bind(this))
     this.layout()
+    this._offSizeObserve = sizeObserve(this, this.layout.bind(this))
   }
 
   disconnectedCallback() {
@@ -491,14 +498,16 @@ export class BlocksSplitter extends HTMLElement {
 export class BlocksSplitterPane extends HTMLElement {
   static get observedAttributes() {
     return [
-      // 是否固定尺寸模式（非流体模式）
-      'fixed',
-      // 初始化尺寸
-      'size',
       // 最大尺寸
       'max',
       // 最小尺寸
       'min',
+      // 弹性尺寸基础值
+      'basis',
+      // 弹性尺寸增长率
+      'grow',
+      // 弹性尺寸收缩率
+      'shrink',
     ]
   }
 
@@ -553,7 +562,7 @@ export class BlocksSplitterPane extends HTMLElement {
       this.resizeStart = {
         x: e.pageX,
         y: e.pageY,
-        size: this.actualSize,
+        size: this.size,
       }
       this.mouseCurrent = {
         x: e.pageX,
@@ -569,12 +578,28 @@ export class BlocksSplitterPane extends HTMLElement {
     this.$handle.onmousedown = onstart
   }
 
-  get fixed() {
-    return boolGetter('fixed')(this)
+  get basis() {
+    return numGetter('basis')(this)
   }
 
-  set fixed(value) {
-    boolSetter('fixed')(this, value)
+  set basis(value) {
+    numSetter('basis')(this, value)
+  }
+
+  get grow() {
+    return numGetter('grow', 1)(this)
+  }
+
+  set grow(value) {
+    numSetter('grow')(this, value)
+  }
+
+  get shrink() {
+    return numGetter('shrink', 1)(this)
+  }
+
+  set shrink(value) {
+    numSetter('shrink')(this, value)
   }
 
   get max() {
@@ -593,24 +618,16 @@ export class BlocksSplitterPane extends HTMLElement {
     intSetter('min')(this, value)
   }
 
-  get size() {
-    return intGetter('size', 0)(this)
-  }
-
-  set size(value) {
-    intSetter('size')(this, value)
-  }
-
   get $splitter() {
     return this.closest('bl-splitter')
   }
 
-  get actualSize() {
-    return this._actualSize ?? this.size
+  get size() {
+    return this._size ?? this.basis
   }
 
-  set actualSize(value) {
-    this._actualSize = value
+  set size(value) {
+    this._size = value
   }
 
   updateStyle() {
