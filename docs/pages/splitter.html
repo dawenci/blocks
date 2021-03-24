@@ -111,12 +111,12 @@
         <bl-splitter style="height:200px;">
           <bl-splitter-pane>
             <div style="overflow:hidden;width:100%;height:100%;">
-              min=100, max=120
+              Pane A
             </div>
           </bl-splitter-pane>
           <bl-splitter-pane min="100" max="120">
             <div style="overflow:hidden;width:100%;height:100%;background:#e8e8e8;">
-              Pane B
+              min=100, max=120
             </div>
           </bl-splitter-pane>
           <bl-splitter-pane>
@@ -157,6 +157,8 @@
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>(bl-splitter) Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -169,11 +171,102 @@
         </thead>
         <tbody>
           <tr>
+            <td>direction</td>
+            <td>'row' | 'column'</td>
+            <td>'row'</td>
+            <td>面板排列方向，默认水平排列。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>handle-size</td>
+            <td>number</td>
+            <td>6</td>
+            <td>拖拽柄的尺寸。</td>
             <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>(bl-splitter-pane) Attrs / Props</h3>
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>basis</td>
+            <td>number</td>
             <td></td>
+            <td>Pane 的基准尺寸。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>grow</td>
+            <td>number</td>
+            <td>1</td>
+            <td>Pane 自动拉伸尺寸的比例因子。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>max</td>
+            <td>number</td>
+            <td>Infinity</td>
+            <td>Pane 的最大尺寸限制。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>min</td>
+            <td>number</td>
+            <td>0</td>
+            <td>Pane 的最小尺寸限制。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>shrink</td>
+            <td>number</td>
+            <td>1</td>
+            <td>Pane 自动收缩尺寸的比例因子。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <h3>(bl-splitter) Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>pane-resized</td>
+            <td>{ detail: { offset, $pane, $prevPane } }</td>
+            <td>Pane 尺寸调整时触发。</td>
+          </tr>
+          <tr>
+            <td>pane-close</td>
+            <td>{ detail: { $pane } }</td>
+            <td>Pane 完全折叠时触发。</td>
+          </tr>
+          <tr>
+            <td>pane-open</td>
+            <td>{ detail: { $pane } }</td>
+            <td>Pane 从折叠状态展开时触发。</td>
+          </tr>
+          <tr>
+            <td>layout</td>
+            <td></td>
+            <td>重新计算布局时触发。</td>
           </tr>
         </tbody>
       </table>
