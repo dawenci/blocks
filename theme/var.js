@@ -169,3 +169,15 @@ export const __z_index_drawer_base = '10'
 
 // --z-index-drawer-focus
 export const __z_index_drawer_focus = '11'
+
+
+// 间距 ****************************** /
+
+// --padding-base
+export const __padding_base = '12px'
+
+// --padding-small
+export const __padding_small = '8px'
+
+// --padding-large
+export const __padding_large = '16px'

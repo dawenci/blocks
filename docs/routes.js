@@ -8,6 +8,7 @@ export default [
   { category: 'components', title: 'button-group', url: 'pages/button-group.html' },
   { category: 'components', title: 'button', url: 'pages/button.html' },
   { category: 'components', title: 'calc', url: 'pages/calc.html' },
+  { category: 'components', title: 'card', url: 'pages/card.html' },
   { category: 'components', title: 'checkbox', url: 'pages/checkbox.html' },
   { category: 'components', title: 'color', url: 'pages/color.html' },
   { category: 'components', title: 'color-picker', url: 'pages/color-picker.html' },
