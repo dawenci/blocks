@@ -222,6 +222,10 @@ export default class BlocksInput extends HTMLElement {
         dispatchEvent(this, 'click-clear')
       }
     }
+
+    this.$input.oninput = this.$input.onchange = () => {
+      this.value = this.$input.value
+    }
   }
 
   render() {
