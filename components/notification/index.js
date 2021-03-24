@@ -9,7 +9,7 @@ const closeableGetter = boolGetter('closeable')
 const closeableSetter = boolSetter('closeable')
 const typeGetter = enumGetter('type', ['message', 'success', 'error', 'info', 'warning'])
 const typeSetter = enumSetter('type', ['message', 'success', 'error', 'info', 'warning'])
-const durationGetter = intGetter('duration')
+const durationGetter = intGetter('duration', 10)
 const durationSetter = intSetter('duration')
 
 const TEMPLATE_CSS = `<style>
@@ -145,7 +145,7 @@ class BlocksNotification extends HTMLElement {
   }
 
   get duration() {
-    return durationGetter(this) || 10
+    return durationGetter(this)
   }
 
   set duration(value) {
@@ -281,7 +281,7 @@ export function blNotify(options = {}) {
   typeSetter(el, options.type)
   darkSetter(el, !!options.dark)
   closeableSetter(el, options.closeable ?? false)
-  if (options.duration) durationSetter(el, options.duration)
+  if (options.duration != null) durationSetter(el, options.duration)
 
   let content = options.content
   if (options.title) {

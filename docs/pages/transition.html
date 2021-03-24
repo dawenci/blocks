@@ -34,8 +34,8 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-zoom id="example-zoom" open><div class="box">zoom</div></bl-zoom>
           <bl-button onclick="document.querySelector('#example-zoom').open = !document.querySelector('#example-zoom').open">Toggle</bl-button>
+          <bl-zoom id="example-zoom" open><div class="box">zoom</div></bl-zoom>
 
           <script type="module">
             import Base from "../../components/transition-open-zoom/index.js"
@@ -55,8 +55,8 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-opacity id="example-opacity" open><div class="box">opacity</div></bl-opacity>
           <bl-button onclick="document.querySelector('#example-opacity').open = !document.querySelector('#example-opacity').open">Toggle</bl-button>
+          <bl-opacity id="example-opacity" open><div class="box">opacity</div></bl-opacity>
 
           <script type="module">
             import Base from "../../components/transition-open-opacity/index.js"
@@ -77,9 +77,9 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-collapse id="example-collapse" open style="height:200px;"><div class="box">collapse</div></bl-collapse>
           <bl-button onclick="document.querySelector('#example-collapse').open = !document.querySelector('#example-collapse').open">Toggle</bl-button>
-
+          <bl-collapse id="example-collapse" open style="height:200px;"><div class="box">collapse</div></bl-collapse>
+          
           <script type="module">
             import Base from "../../components/transition-open-collapse/index.js"
             customElements.define('bl-collapse', class BlZoom extends Base {
