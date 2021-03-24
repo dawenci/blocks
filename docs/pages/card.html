@@ -30,39 +30,128 @@
     </section>
 
     <section class="section">
-      <h2>Header</h2>
+      <h2>默认使用</h2>
 
       <div data-codesource="html">
-        <bl-card>
-          <div slot="header">Header</div>
-          无阴影
+        <bl-card style="width:310px">
+          <strong slot="header" style="margin:0;">header slot</strong>
+          <div>
+            Body 内容<br>
+            Body 内容<br>
+            Body 内容
+          </div>
+          <span slot="footer" style="line-height: 28px;">footer slot</span>
+          <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
         </bl-card>
       </div>
     </section>
 
     <section class="section">
-      <h2>Shadow</h2>
+      <h2>尺寸</h2>
 
       <div data-codesource="html">
-        <bl-row gutter="15">
+        <bl-row gutter="35">
           <bl-col span="8">
             <bl-card>
-              无阴影
+              <strong slot="header" style="margin:0;">正常尺寸</strong>
+              <div>
+                Body 内容<br>
+                Body 内容<br>
+                Body 内容
+              </div>
+              <span slot="footer" style="line-height: 28px;">footer slot</span>
+              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
             </bl-card>
           </bl-col>
-
           <bl-col span="8">
-            <bl-card shadow>
-              有阴影
+            <bl-card size="small">
+              <strong slot="header" style="margin:0;">小尺寸</strong>
+              <div>
+                Body 内容<br>
+                Body 内容<br>
+                Body 内容
+              </div>
+              <span slot="footer" style="line-height: 28px;">footer slot</span>
+              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+            </bl-card>
+          </bl-col>
+          <bl-col span="8">
+            <bl-card size="large">
+              <strong slot="header" style="margin:0;">大尺寸</strong>
+              <div>
+                Body 内容<br>
+                Body 内容<br>
+                Body 内容
+              </div>
+              <span slot="footer" style="line-height: 28px;">footer slot</span>
+              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+            </bl-card>
+          </bl-col>
+        </bl-row>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>阴影</h2>
+
+      <div data-codesource="html">
+        <bl-row gutter="35">
+          <bl-col span="8">
+            <bl-card>
+              <strong slot="header" style="margin:0;">无阴影</strong>
+              <div>
+                Body 内容<br>
+                Body 内容<br>
+                Body 内容
+              </div>
+              <span slot="footer" style="line-height: 28px;">footer slot</span>
+              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
             </bl-card>
           </bl-col>
 
           <bl-col span="8">
             <bl-card shadow="hover">
-              hover 时有阴影
+              <strong slot="header" style="margin:0;">hover 阴影</strong>
+              <div>
+                Body 内容<br>
+                Body 内容<br>
+                Body 内容
+              </div>
+              <span slot="footer" style="line-height: 28px;">footer slot</span>
+              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
             </bl-card>
           </bl-col>
+
+          <bl-col span="8">
+            <bl-card shadow>
+              <strong slot="header" style="margin:0;">有阴影</strong>
+              <div>
+                Body 内容<br>
+                Body 内容<br>
+                Body 内容
+              </div>
+              <span slot="footer" style="line-height: 28px;">footer slot</span>
+              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+            </bl-card>
+          </bl-col>          
         </bl-row>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>图片</h2>
+
+      <div data-codesource="html">
+        <bl-card style="width:310px">
+          <div slot="cover"><img src="../images/p1.jpg" style="width:100%"></div>
+          <h4 slot="header" style="margin:0;">header slot</h4>
+          <div>
+            Body 内容<br>
+            Body 内容<br>
+            Body 内容
+          </div>
+        </bl-card>
       </div>
     </section>
 
