@@ -31,22 +31,14 @@
       <h2>默认使用</h2>
 
       <template data-codesource="html">
+        <style>
+          bl-splitter-pane { overflow: hidden; }
+          bl-splitter-pane:nth-child(even) { background: #f0f0f0; }
+        </style>
         <bl-splitter style="height: 200px;">
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane A
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;background:#e8e8e8;">
-              Pane B
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane C
-            </div>
-          </bl-splitter-pane>
+          <bl-splitter-pane>Pane A</bl-splitter-pane>
+          <bl-splitter-pane>Pane B</bl-splitter-pane>
+          <bl-splitter-pane>Pane C</bl-splitter-pane>
         </bl-splitter>
       </template>
     </section>
@@ -57,21 +49,9 @@
 
       <template data-codesource="html">
         <bl-splitter direction="column" style="height:300px;">
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane A
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;background:#e8e8e8;">
-              Pane B
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane C
-            </div>
-          </bl-splitter-pane>
+          <bl-splitter-pane>Pane A</bl-splitter-pane>
+          <bl-splitter-pane>Pane B</bl-splitter-pane>
+          <bl-splitter-pane>Pane C</bl-splitter-pane>
         </bl-splitter>
       </template>
     </section>
@@ -82,21 +62,9 @@
 
       <template data-codesource="html">
         <bl-splitter handle-size="12" style="height:200px;">
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane A
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;background:#e8e8e8;">
-              Pane B
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane C
-            </div>
-          </bl-splitter-pane>
+          <bl-splitter-pane>Pane A</bl-splitter-pane>
+          <bl-splitter-pane>Pane B</bl-splitter-pane>
+          <bl-splitter-pane>Pane C</bl-splitter-pane>
         </bl-splitter>
       </template>
     </section>
@@ -109,21 +77,9 @@
 
       <template data-codesource="html">
         <bl-splitter style="height:200px;">
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane A
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane min="100" max="120">
-            <div style="overflow:hidden;width:100%;height:100%;background:#e8e8e8;">
-              min=100, max=120
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane C
-            </div>
-          </bl-splitter-pane>
+          <bl-splitter-pane>Pane A</bl-splitter-pane>
+          <bl-splitter-pane min="100" max="120">min=100, max=120</bl-splitter-pane>
+          <bl-splitter-pane>Pane C</bl-splitter-pane>
         </bl-splitter>
       </template>
     </section>
@@ -136,21 +92,9 @@
 
       <template data-codesource="html">
         <bl-splitter style="height:200px;">
-          <bl-splitter-pane basis="100" grow="0" shrink="0">
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane A
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;background:#e8e8e8;">
-              Pane B
-            </div>
-          </bl-splitter-pane>
-          <bl-splitter-pane>
-            <div style="overflow:hidden;width:100%;height:100%;">
-              Pane C
-            </div>
-          </bl-splitter-pane>
+          <bl-splitter-pane basis="100" grow="0" shrink="0">Pane A</bl-splitter-pane>
+          <bl-splitter-pane>Pane B</bl-splitter-pane>
+          <bl-splitter-pane>Pane C</bl-splitter-pane>
         </bl-splitter>
       </template>
     </section>
