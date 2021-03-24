@@ -41,7 +41,15 @@ const TEMPLATE = `<style>
   bottom: 0;
   top: 0;
 }
+:host(:not([direction])) #cover,
+:host([direction="row"]) #cover {
+  cursor: col-resize;
+}
+:host([direction="column"]) #cover {
+  cursor: row-resize;
+}
 
+:host(:not([direction])) #layout,
 :host([direction="row"]) #layout {
   flex-direction: row;
 }
