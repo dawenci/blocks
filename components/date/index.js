@@ -563,11 +563,14 @@ export default class BlocksDate extends HTMLElement {
     // range 选择模式，鼠标移入，渲染选中效果
     $panel.onmouseover = e => {
       if (!this.isLeafDepth()) return
-      if (!e.target.classList.contains('button-item')) return
       if (!this.range) return
       if (!this.rangeFrom) return
       if (this.rangeTo) return
-      this.maybeRangeTo = this._parseItem(e.target)
+      const $button = e.target.classList.contains('button-item') ? e.target
+        : e.target.parentElement.classList.contains('button-item') ? e.target.parentElement
+        : null
+      if (!$button) return
+      this.maybeRangeTo = this._parseItem($button)
       this.render()
     }
   }
