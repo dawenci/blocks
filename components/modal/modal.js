@@ -58,7 +58,7 @@ export function modal(text, options = {}) {
     $dialog.appendChild($confirmButton)
     $dialog.confirm = () => {
       $dialog.open = false
-      const value = options.resolveValue?.()
+      const value = options.resolveValue?.() ?? ''
       if (options.onconfirm) options.onconfirm(value)
       resolve(value)
     }
