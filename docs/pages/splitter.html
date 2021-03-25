@@ -48,7 +48,7 @@
       <h2>垂直方向</h2>
 
       <template data-codesource="html">
-        <bl-splitter direction="column" style="height:300px;">
+        <bl-splitter direction="vertical" style="height:300px;">
           <bl-splitter-pane>Pane A</bl-splitter-pane>
           <bl-splitter-pane>Pane B</bl-splitter-pane>
           <bl-splitter-pane>Pane C</bl-splitter-pane>
@@ -92,7 +92,7 @@
 
       <template data-codesource="html">
         <bl-splitter style="height:200px;">
-          <bl-splitter-pane basis="100" grow="0" shrink="0">Pane A</bl-splitter-pane>
+          <bl-splitter-pane basis="100" grow="0" shrink="0">不自动调整</bl-splitter-pane>
           <bl-splitter-pane>Pane B</bl-splitter-pane>
           <bl-splitter-pane>Pane C</bl-splitter-pane>
         </bl-splitter>
@@ -116,8 +116,8 @@
         <tbody>
           <tr>
             <td>direction</td>
-            <td>'row' | 'column'</td>
-            <td>'row'</td>
+            <td>'horizontal' | 'vertical'</td>
+            <td>'horizontal'</td>
             <td>面板排列方向，默认水平排列。</td>
             <td></td>
           </tr>

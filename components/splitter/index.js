@@ -42,18 +42,18 @@ const TEMPLATE = `<style>
   top: 0;
 }
 :host(:not([direction])) #cover,
-:host([direction="row"]) #cover {
+:host([direction="horizontal"]) #cover {
   cursor: col-resize;
 }
-:host([direction="column"]) #cover {
+:host([direction="vertical"]) #cover {
   cursor: row-resize;
 }
 
 :host(:not([direction])) #layout,
-:host([direction="row"]) #layout {
+:host([direction="horizontal"]) #layout {
   flex-direction: row;
 }
-:host([direction="column"]) #layout {
+:host([direction="vertical"]) #layout {
   flex-direction: column;
 }
 
@@ -101,7 +101,7 @@ const TEMPLATE = `<style>
 }
 
 :host(:not([direction])) .handle,
-:host([direction="row"]) .handle {
+:host([direction="horizontal"]) .handle {
   top: 0;
   right: auto;
   bottom: auto;
@@ -112,10 +112,10 @@ const TEMPLATE = `<style>
   cursor: col-resize;
 }
 :host(:not([direction])) .handle::after,
-:host([direction="row"]) .handle::after {
+:host([direction="horizontal"]) .handle::after {
   height: 100%;
 }
-:host([direction="column"]) .handle {
+:host([direction="vertical"]) .handle {
   top: 0;
   right: auto;
   bottom: auto;
@@ -125,7 +125,7 @@ const TEMPLATE = `<style>
   border-right: 0;
   cursor: row-resize;
 }
-:host([direction="column"]) .handle::after {
+:host([direction="vertical"]) .handle::after {
   width: 100%;
 }
 </style>
@@ -142,11 +142,11 @@ const PANE_TEMPLATE = `<style>
   position: absolute;
   box-sizing: border-box;
 }
-:host(.row) {
+:host(.horizontal) {
   height: 100%;
   width: auto;
 }
-:host(.column) {
+:host(.vertical) {
   width: 100%;
   height: auto;
 }
@@ -190,8 +190,8 @@ export class BlocksSplitter extends HTMLElement {
     this.$slot.addEventListener('slotchange', e => {
       this.panes = this.$slot.assignedElements()
       this.panes.forEach($pane => {
-        $pane.classList.toggle('row', this.direction === 'row')
-        $pane.classList.toggle('column', this.direction === 'column')
+        $pane.classList.toggle('horizontal', this.direction === 'horizontal')
+        $pane.classList.toggle('vertical', this.direction === 'vertical')
       })
       this.layout()
     })
@@ -200,11 +200,11 @@ export class BlocksSplitter extends HTMLElement {
   }
 
   get direction() {
-    return enumGetter('direction', [null, 'row', 'column'])(this) ?? 'row'
+    return enumGetter('direction', [null, 'horizontal', 'vertical'])(this) ?? 'horizontal'
   }
 
   set direction(value) {
-    enumSetter('direction', [null, 'row', 'column'])(this, value)
+    enumSetter('direction', [null, 'horizontal', 'vertical'])(this, value)
   }
 
   get handleSize() {
@@ -216,7 +216,7 @@ export class BlocksSplitter extends HTMLElement {
   }
 
   get size() {
-    return this.$panes[this.direction === 'row' ? 'clientWidth' : 'clientHeight']
+    return this.$panes[this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight']
   }
 
   render() {}
@@ -251,8 +251,8 @@ export class BlocksSplitter extends HTMLElement {
     this.handles = Array.prototype.slice.call(this.$layout.querySelectorAll('.handle'))
     this.handles.forEach(($handle, index) => {
       const offset = this.getPanePosition(this.panes[index + 1]) - this.handleSize / 2
-      const sizeProp = this.direction === 'row' ? 'width' : 'height'
-      const posProp = this.direction === 'row' ? 'left' : 'top'
+      const sizeProp = this.direction === 'horizontal' ? 'width' : 'height'
+      const posProp = this.direction === 'horizontal' ? 'left' : 'top'
       $handle.style.cssText = `${sizeProp}:${this.handleSize}px;${posProp}:${offset}px;`
     })
   }
@@ -458,7 +458,7 @@ export class BlocksSplitter extends HTMLElement {
       }
 
       // 刷新
-      const axis = this.direction === 'row' ? 'x' : 'y'
+      const axis = this.direction === 'horizontal' ? 'x' : 'y'
       const mouseOffset = mouseCurrent[axis] - resizeStart[axis]
       const newSize = resizeStart.size - mouseOffset
       this.resizePane($pane, newSize)
@@ -654,8 +654,8 @@ export class BlocksSplitterPane extends HTMLElement {
   }
 
   updateStyle() {
-    const sizeProp = this.$splitter.direction === 'row' ? 'width' : 'height'
-    const posProp = this.$splitter.direction === 'row' ? 'left' : 'top'
+    const sizeProp = this.$splitter.direction === 'horizontal' ? 'width' : 'height'
+    const posProp = this.$splitter.direction === 'horizontal' ? 'left' : 'top'
     // 宽度/高度 样式计算，外框宽度 - 拖动柄的宽度（如果显示拖动柄）
     this.style[sizeProp] = this.$splitter.getPaneSize(this) + 'px'
     this.style[posProp] = this.$splitter.getPanePosition(this) + 'px'
