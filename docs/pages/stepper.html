@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>stepper</title>
+  <link rel="stylesheet" href="../page.css">
+  <link rel="stylesheet" href="../highlight/styles/default.css">
+  <link rel="stylesheet" href="../highlight/styles/vs2015.css">
+  <script src="../highlight/highlight.pack.js"></script>
+  <script type="module" src="../code-support.js"></script>
+</head>
+<body>
+  <article>
+    <header>
+      <h1>stepper</h1>
+    </header>
+
+    <script type="module" src="../../components/icon/index.js"></script>
+
+    <section class="section">
+      <h2>依赖引入</h2>
+
+      <p>根据自己项目调整 src 的路径</p>
+
+      <div data-codesource="html" data-title="依赖引入" on>
+        <script type="module" src="../../components/stepper/index.js"></script>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>默认使用</h2>
+
+      <template data-codesource="html">
+        <bl-stepper>
+          <bl-step
+            status="success"
+            step-title="Step1"
+            description="Step1 description"></bl-step>
+
+          <bl-step
+            status="process"
+            step-title="Step2"
+            description="Step2 description"></bl-step>
+
+          <bl-step
+            status="wait"
+            step-title="Step3"
+            description="Step3 description"></bl-step>
+        </bl-stepper>
+      </template>
+    </section>
+
+
+    <section class="section">
+      <h2>垂直模式使用</h2>
+
+      <template data-codesource="html">
+        <bl-stepper direction="vertical">
+          <bl-step
+            status="success"
+            step-title="Step1"
+            description="Step1 description"></bl-step>
+
+          <bl-step
+            status="process"
+            step-title="Step2"
+            description="Step2 description"></bl-step>
+
+          <bl-step
+            status="wait"
+            step-title="Step3"
+            description="Step3 description"></bl-step>
+        </bl-stepper>
+      </template>
+    </section>
+
+
+    <section class="section">
+      <h2>自定义 icon</h2>
+
+      <template data-codesource="html">
+        <bl-stepper>
+          <bl-step
+            status="success"
+            icon="check"
+            step-title="Step1"
+            description="Step1 description"></bl-step>
+
+          <bl-step
+            status="error"
+            icon="cross"
+            step-title="Step2"
+            description="Step2 description"></bl-step>
+
+          <bl-step
+            status="wait"
+            step-title="Step3"
+            description="Step3 description"></bl-step>
+        </bl-stepper>
+      </template>
+    </section>
+
+
+
+    <section class="section">
+      <h2>使用 slot</h2>
+
+      <template data-codesource="html">
+        <bl-stepper>
+          <bl-step status="success">
+            <bl-icon slot="icon" value="check"></bl-icon>
+            <strong slot="title">title slot</strong>
+            <span slot="description">description slot</span>
+          </bl-step>
+
+          <bl-step
+            status="process"
+            step-title="Step2"
+            description="Step2 description"></bl-step>
+
+          <bl-step
+            status="wait"
+            step-title="Step3"
+            description="Step3 description"></bl-step>
+        </bl-stepper>
+      </template>
+    </section>
+
+
+    <section class="section">
+      <h2>API</h2>
+
+      <h3>Attrs / Props (bl-stepper)</h3>
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>direction</td>
+            <td>'horizontal' | 'vertical'</td>
+            <td>'horizontal'</td>
+            <td>排版方向。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Attrs / Props (bl-step)</h3>
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>description</td>
+            <td>string</td>
+            <td></td>
+            <td>描述文本。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>icon</td>
+            <td>string</td>
+            <td></td>
+            <td>已注册的图标名称，或者 svg 内容字符串。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>status</td>
+            <td>'wait' | 'process' | 'success' | 'error'</td>
+            <td></td>
+            <td>step 的状态。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>step-title</td>
+            <td>string</td>
+            <td></td>
+            <td>标题文本。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Slots (bl-step)</h3>
+      <table class="api-slots">
+        <thead>
+          <tr>
+            <th>slot 名称</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>description</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>icon</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>title</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+    </section>
+  </article>
+</body>
+</html>

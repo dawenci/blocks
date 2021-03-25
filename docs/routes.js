@@ -47,6 +47,7 @@ export default [
   { category: 'components', title: 'select-result', url: 'pages/select-result.html' },  
   { category: 'components', title: 'slider', url: 'pages/slider.html' },
   { category: 'components', title: 'splitter', url: 'pages/splitter.html' },
+  { category: 'components', title: 'stepper', url: 'pages/stepper.html' },
   { category: 'components', title: 'switch', url: 'pages/switch.html' },
   { category: 'components', title: 'table', url: 'pages/table.html' },
   { category: 'components', title: 'tag', url: 'pages/tag.html' },
