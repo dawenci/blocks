@@ -80,7 +80,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksCard extends HTMLElement {
   static get observedAttributes() {
-    return ['shadow', 'size', 'card-title', ]
+    return ['shadow', 'size', 'card-title']
   }
 
   constructor() {

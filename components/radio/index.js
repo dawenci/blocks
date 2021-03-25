@@ -124,7 +124,7 @@ template.innerHTML = TEMPLATE_CSS + TMEPLATE_HTML
 
 class BlocksRadio extends HTMLElement {
   static get observedAttributes() {
-    return [ 'name', 'value', 'checked', 'disabled' ]
+    return [ 'name', 'checked', 'disabled' ]
   }
 
   constructor() {
