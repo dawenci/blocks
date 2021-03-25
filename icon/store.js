@@ -21,10 +21,15 @@ export function getRegisteredSvgIcon(key, attrs = {}) {
 
 export function parseSvg(str, attrs = {}) {
   const doc = new DOMParser().parseFromString(str, 'image/svg+xml')
-  const children = doc.children
+
+  // 解析错误
+  if (doc.querySelector('parsererror')) return null
+  
   let svg = doc.querySelector('svg')
+  const children = doc.children
   if (!svg && !children.length) return null
 
+  // 传入的 str 可能不包含 svg 标签，而是 svg 标签内部的内容
   if (!svg) {
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     Array.prototype.forEach.call(children, child => {
@@ -37,4 +42,8 @@ export function parseSvg(str, attrs = {}) {
   })
 
   return svg
+}
+
+export function parseIcon(icon, attrs = {}) {
+  return getRegisteredSvgIcon(icon) ?? parseSvg(icon)
 }

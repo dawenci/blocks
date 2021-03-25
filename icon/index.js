@@ -18,4 +18,4 @@ import './svg/time.svg.js'
 import './svg/success.svg.js'
 import './svg/up.svg.js'
 
-export { registerSvgIcon, parseSvg, getRegisteredSvgIcon } from './store.js'
+export { parseIcon, registerSvgIcon, parseSvg, getRegisteredSvgIcon } from './store.js'
