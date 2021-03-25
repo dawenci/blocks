@@ -1,5 +1,6 @@
 import { dispatchEvent } from '../../common/event.js'
-import { intRangeGetter, intRangeSetter, numGetter, numRangeGetter, numRangeSetter, numSetter } from '../../common/property.js'
+import { enumGetter, enumSetter, intRangeGetter, intRangeSetter, numGetter, numRangeGetter, numRangeSetter, numSetter } from '../../common/property.js'
+import { sizeObserve } from '../../common/sizeObserve.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { padLeft, rgbFromHexColor } from '../../common/utils.js'
 import {
@@ -11,18 +12,23 @@ import {
   __height_small,
   __height_large,
   __border_color_base,
+  __border_color_light,
+  __fg_placeholder,
+  __fg_secondary,
 } from '../../theme/var.js'
 
 
 const TEMPLATE_CSS = `<style>
 :host {
-  display: inline-block;
+  display: block;
   box-sizing: border-box;
   user-select: none;
   cursor: default;
   background-color: #fff;
-  width: 234px;
+  width: 100%;
   height: 234px;
+  min-width: 180px;
+  min-height: 180px;
 }
 :host(:focus) {
   outline: 0 none;
@@ -33,7 +39,7 @@ const TEMPLATE_CSS = `<style>
   width: 100%;
   height: 100%;
 }
-#hsv {
+#hsv-picker {
   flex: 1 1 100%;
   position: relative;
   box-sizing: border-box;
@@ -41,26 +47,26 @@ const TEMPLATE_CSS = `<style>
   width: 100%;
 }
 
-#hsv .hue,
-#hsv .saturation,
-#hsv .value {
+#hsv-picker .hue,
+#hsv-picker .saturation,
+#hsv-picker .value {
   position: absolute;
   top: 6px;
   right: 6px;
   bottom: 6px;
   left: 6px;
 }
-#hsv .hue {
+#hsv-picker .hue {
   background: hsl(0, 100%, 50%);
 }
-#hsv .saturation {
+#hsv-picker .saturation {
   background: linear-gradient(to right, #fff, transparent);
 }
-#hsv .value {
+#hsv-picker .value {
   background: linear-gradient(to top, #000, transparent);
 }
 
-#body {
+#controls {
   flex: 0 0 auto;
   display: flex;
   flex-flow: row nowrap;
@@ -92,10 +98,10 @@ const TEMPLATE_CSS = `<style>
   bottom: 6px;
   left: 6px;
 }
-#controls {
+#bars {
   flex: 1 1 auto;
 }
-#controls > div {
+#bars > div {
   margin: 6px 0;
 }
 #hue-bar,
@@ -130,7 +136,7 @@ const TEMPLATE_CSS = `<style>
   background: linear-gradient(to right, transparent, hsl(0,100%,50%));
 }
 
-#hsv button,
+#hsv-picker button,
 #hue-bar button,
 #alpha-bar button {
   position: absolute;
@@ -143,7 +149,7 @@ const TEMPLATE_CSS = `<style>
   border-radius: 6px;
   border: 1px solid rgba(0,0,0,.2);
 }
-#hsv button:focus,
+#hsv-picker button:focus,
 #hue-bar button:focus,
 #alpha-bar button:focus {
   z-index: 2;
@@ -158,6 +164,89 @@ const TEMPLATE_CSS = `<style>
   top: 0;
 }
 
+#models {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  padding: 6px 32px 6px 6px;
+  text-align: center;
+}
+#mode-content {
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  overflow: hidden;
+}
+#mode-content > div {
+  box-sizing: border-box;
+  width: 100%;
+}
+#mode-content > div:not(:first-child) {
+  margin-left: 5px;
+}
+#mode-content input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 24px;
+  line-height: 24px;
+  vertical-align: top;
+  text-align: center;
+  border: 1px solid var(--border-color-base, ${__border_color_base});
+  border-radius: var(--radius-base, ${__radius_base});
+  font-size: 12px;
+}
+#mode-content input:focus {
+  outline: none;
+}
+#mode-content span {
+  display: block;
+  font-size: 10px;
+  color: var(--fg-secondary, ${__fg_secondary});
+}
+#mode-switch {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  bottom: 6px;
+  left: auto;
+  width: 20px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border-color-base, ${__border_color_base});
+  background: none;
+  line-height: 24px;
+  text-align: center;
+  border-radius: var(--radius-base, ${__radius_base});
+}
+#mode-switch:focus {
+  outline: none;
+}
+#mode-switch:hover {
+  background: rgba(0,0,0,.05);
+}
+#mode-switch::before,
+#mode-switch::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  margin: auto;
+  border: 4px solid transparent;
+}
+#mode-switch::before {
+  top: 0px;
+  border-bottom-color: var(--border-color-base, ${__border_color_base});
+}
+#mode-switch::after {
+  bottom: 0;
+  border-top-color: var(--border-color-base, ${__border_color_base});
+}
+
 </style>`
 
 // 内部使用 hsv 表示
@@ -168,17 +257,20 @@ const TEMPLATE_CSS = `<style>
 // alpha（不透明度）： 0 - 1
 const TEMPLATE_HTML = `
 <div id="layout">
-  <div id="hsv">
+  <!-- 颜色选择区域 -->
+  <div id="hsv-picker">
     <div class="hue"></div>
     <div class="saturation"></div>
     <div class="value"></div>
     <button></button>
   </div>
-  <div id="body">
+
+  <!-- 控制条 -->
+  <div id="controls">
     <div id="result">
       <div class="bg"></div>
     </div>
-    <div id="controls">
+    <div id="bars">
       <div id="hue-bar">
         <div class="bg"></div>
         <button></button>
@@ -189,6 +281,17 @@ const TEMPLATE_HTML = `
       </div>    
     </div>
   </div>
+
+  <!-- 输入输出区 -->
+  <div id="models">
+    <div id="mode-content">
+      <div><input data-index="0" /><span></span></div>
+      <div><input data-index="1" /><span></span></div>
+      <div><input data-index="2" /><span></span></div>
+      <div><input data-index="3" /><span></span></div>
+    </div>
+    <button id="mode-switch"></button>
+  </div>
 </div>
 `
 
@@ -198,14 +301,15 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksColor extends HTMLElement {
   static get observedAttributes() {
-    return []
+    return ['mode']
   }
 
   constructor() {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$hsv = shadowRoot.getElementById('hsv')
+    this.$layout = shadowRoot.getElementById('layout')
+    this.$hsv = shadowRoot.getElementById('hsv-picker')
     this.$result = shadowRoot.getElementById('result')
     this.$hueBar = shadowRoot.getElementById('hue-bar')
     this.$alphaBar = shadowRoot.getElementById('alpha-bar')
@@ -215,6 +319,8 @@ class BlocksColor extends HTMLElement {
     this.$alphaButton = this.$alphaBar.querySelector('button')
     this.$alphaBarBg = this.$alphaBar.querySelector('.bg')
     this.$resultBg = this.$result.querySelector('.bg')
+    this.$modeContent = shadowRoot.getElementById('mode-content')
+    this.$modeSwitch = shadowRoot.getElementById('mode-switch')
 
     // 色相
     this._hue = 0
@@ -226,7 +332,42 @@ class BlocksColor extends HTMLElement {
     this._alpha = 1
 
     // 取色事件
-    this._initEvents()
+    this._initPickEvents()
+    this.$modeSwitch.onclick = () => {
+      const modes = ['hex', 'rgb', 'hsl', 'hsv']
+      this.mode = modes[(modes.indexOf(this.mode) + 1) % 4]
+    }
+    this.$modeContent.oninput = e => {
+      const $input = e.target
+      const index = $input.dataset.index
+      const value = $input.value || ''
+      const mode = this.mode
+      if (mode === 'hex') {
+        if (/#[0-9a-fA-F]{3}$|#[0-9a-fA-F]{6}$/.test(value)) {
+          this.hex = value
+        }
+      }
+      else if (mode === 'rgb') {
+        let n = parseInt(value, 10)
+        if (n && n >= 0 && n <= 255) {
+          
+        }
+      }
+      else if (mode === 'hsv') {
+        
+      }
+      else if (mode === 'hsl') {
+        
+      }
+    }
+  }
+
+  get mode() {
+    return enumGetter('mode', ['hex', 'rgb', 'hsl', 'hsv'])(this)
+  }
+
+  set mode(value) {
+    enumSetter('mode', [null, 'hex', 'rgb', 'hsl', 'hsv'])(this, value)
   }
 
   get hex() {
@@ -299,22 +440,29 @@ class BlocksColor extends HTMLElement {
   render() {
     this._updateControls()
     this._updateBg()
+    this._updateModels()
   }
 
   connectedCallback() {
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
-    this.render()
+    this._clearSizeObserve = sizeObserve(this.$layout, this.render.bind(this))
   }
 
-  disconnectedCallback() {}
+  disconnectedCallback() {
+    this._clearSizeObserve()
+  }
 
   adoptedCallback() {}
 
-  attributeChangedCallback(attrName, oldVal, newVal) {}
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    if (attrName === 'mode') {
+      this.render()
+    }
+  }
 
-  _initEvents() {
+  _initPickEvents() {
     this._dragging = false
     let $button = null
     let wrapWidth = null
@@ -338,12 +486,14 @@ class BlocksColor extends HTMLElement {
 
       if (this._updateState()) {
         this._updateBg()
+        this._updateModels()
       }
     }
 
     const onup = (e) => {
       if (this._updateState()) {
         this._updateBg()
+        this._updateModels()
       }
       window.removeEventListener('mousemove', onmove)
       window.removeEventListener('mouseup', onup)
@@ -380,6 +530,7 @@ class BlocksColor extends HTMLElement {
       $button.style.top = y + 'px'
       if (this._updateState()) {
         this._updateBg()
+        this._updateModels()
       }
     }
 
@@ -387,19 +538,6 @@ class BlocksColor extends HTMLElement {
     this.$alphaBar.onmousedown = ondown
     this.$hsv.onmousedown = ondown
   }
-
-  _setStates(hue, saturation, value, alpha) {
-    let changed = this._hue !== hue || this._saturation !== saturation || this._value !== value || this._alpha !== alpha
-    this._hue = hue
-    this._saturation = saturation
-    this._value = value
-    this._alpha = alpha
-
-    if (changed) {
-      dispatchEvent(this, 'change')
-    }
-    return changed
-  }  
 
   _updateControls() {
     // 透明度
@@ -418,6 +556,19 @@ class BlocksColor extends HTMLElement {
     this.$hsvButton.style.top = y + 'px'
     this.$hsvButton.style.left = x + 'px'
   }
+
+  _setStates(hue, saturation, value, alpha) {
+    let changed = this._hue !== hue || this._saturation !== saturation || this._value !== value || this._alpha !== alpha
+    this._hue = hue
+    this._saturation = saturation
+    this._value = value
+    this._alpha = alpha
+
+    if (changed) {
+      dispatchEvent(this, 'change')
+    }
+    return changed
+  }  
 
   _updateState() {
     // 透明度
@@ -445,6 +596,52 @@ class BlocksColor extends HTMLElement {
     this.$alphaBarBg.style.backgroundImage = `linear-gradient(to right, transparent, ${bg})`
     const resultBg = this.hsla
     this.$resultBg.style.backgroundColor = `hsla(${resultBg[0]},${resultBg[1] * 100}%,${resultBg[2] * 100}%,${resultBg[3]})`
+  }
+
+  _updateModels() {
+    const mode = this.mode
+    const children = Array.prototype.slice.call(this.$modeContent.children)
+    const inputs = children.map($el => $el.querySelector('input'))
+    const spans = children.map($el => $el.querySelector('span'))
+    if (mode === 'hex') {
+      children.forEach(($el, index) => $el.style.display = index === 0 ? '' : 'none')
+      children[0].querySelector('input').value = this.hex
+      spans[0].textContent = 'HEX'
+    }
+    else if (mode === 'rgb') {
+      const rgba = this.rgba
+      children.forEach(($el) => $el.style.display = '')
+      inputs[0].value = rgba[0]
+      inputs[1].value = rgba[1]
+      inputs[2].value = rgba[2]
+      inputs[3].value = rgba[3].toFixed(2)
+      spans[0].textContent = 'R'
+      spans[1].textContent = 'G'
+      spans[2].textContent = 'B'
+      spans[3].textContent = 'A'
+    }
+    else if (mode === 'hsv') {
+      const hsv = this.hsv
+      children.forEach(($el, index) => $el.style.display = index === 3 ? 'none' : '')
+      inputs[0].value = hsv[0] % 360
+      inputs[1].value = Math.round(hsv[1] * 100) + '%'
+      inputs[2].value = Math.round(hsv[2] * 100) + '%'
+      spans[0].textContent = 'H'
+      spans[1].textContent = 'S'
+      spans[2].textContent = 'V'
+    }
+    else if (mode === 'hsl') {
+      const hsla = this.hsla
+      children.forEach(($el) => $el.style.display = '')
+      inputs[0].value = hsla[0] % 360
+      inputs[1].value = Math.round(hsla[1] * 100) + '%'
+      inputs[2].value = Math.round(hsla[2] * 100) + '%'
+      inputs[3].value = hsla[3].toFixed(2)
+      spans[0].textContent = 'H'
+      spans[1].textContent = 'S'
+      spans[2].textContent = 'L'
+      spans[3].textContent = 'A'
+    }
   }
 }
 

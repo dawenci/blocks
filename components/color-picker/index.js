@@ -69,7 +69,7 @@ const TEMPLATE_HTML_INPUT = `<div id="result"><bl-icon value="down"></bl-icon></
 
 const TEMPLATE_HTML_POPUP = `
 <bl-popup append-to-body class="color-picker-popup" origin="top-start" arrow autoflip>
-  <bl-color class="color-picker-panel"></bl-color>
+  <bl-color class="color-picker-panel" style="width:234px;"></bl-color>
   <div id="action" style="padding:5px;text-align:center;display:flex;">
     <bl-button type="primary" size="small" style="flex:1 1 auto;">确定</bl-button>
   </div>
