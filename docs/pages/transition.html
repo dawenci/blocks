@@ -21,7 +21,6 @@
       .box {
         width: 400px;
         height: 200px;
-        margin: 30px;
         text-align: center;
         line-height: 200px;
         font-size: 14px;
@@ -35,7 +34,9 @@
       <div class="case">
         <div data-codesource="html">
           <bl-button onclick="document.querySelector('#example-zoom').open = !document.querySelector('#example-zoom').open">Toggle</bl-button>
-          <bl-zoom id="example-zoom" open><div class="box">zoom</div></bl-zoom>
+          <div style="height:250px;padding:30px;">
+            <bl-zoom id="example-zoom" open><div class="box">zoom</div></bl-zoom>
+          </div>
 
           <script type="module">
             import Base from "../../components/transition-open-zoom/index.js"
@@ -56,7 +57,9 @@
       <div class="case">
         <div data-codesource="html">
           <bl-button onclick="document.querySelector('#example-opacity').open = !document.querySelector('#example-opacity').open">Toggle</bl-button>
-          <bl-opacity id="example-opacity" open><div class="box">opacity</div></bl-opacity>
+          <div style="height:250px;padding:30px;">
+            <bl-opacity id="example-opacity" open><div class="box">opacity</div></bl-opacity>
+          </div>
 
           <script type="module">
             import Base from "../../components/transition-open-opacity/index.js"
@@ -78,7 +81,9 @@
       <div class="case">
         <div data-codesource="html">
           <bl-button onclick="document.querySelector('#example-collapse').open = !document.querySelector('#example-collapse').open">Toggle</bl-button>
-          <bl-collapse id="example-collapse" open style="height:200px;"><div class="box">collapse</div></bl-collapse>
+          <div style="height:250px;padding:30px;">
+            <bl-collapse id="example-collapse" open style="height:200px;"><div class="box">collapse</div></bl-collapse>
+          </div>
           
           <script type="module">
             import Base from "../../components/transition-open-collapse/index.js"
