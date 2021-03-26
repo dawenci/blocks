@@ -187,8 +187,15 @@ class BlocksColorPicker extends HTMLElement {
     if (hsla) {
       this.$result.style.backgroundColor = `hsla(${hsla[0]},${hsla[1] * 100}%,${hsla[2] * 100}%,${hsla[3]})`
       // 下拉箭头，根据背景亮度设置深色或浅色
-      const light = hsla[2]
-      this.$icon.fill = `hsla(${hsla[0]},${100}%,${light > 0.5 ? 15 : 85}%,1)`
+      let lightness = hsla[2] * 100
+      // 黄色到青色区间亮度太高，优先使用暗色箭头
+      if (hsla[0] > 50 && hsla[0] < 195) {
+        lightness = lightness > 40 ? 0 : 100
+      }
+      else {
+        lightness = lightness > 50 ? 10 : 90
+      }
+      this.$icon.fill = `hsla(${hsla[0]},${50}%,${lightness}%,1)`
     }
   }
 
