@@ -518,6 +518,10 @@ class BlocksWindow extends BlocksTransitionOpenCollapse {
       this.minimized = !this.minimized
     }
 
+    this.$header.ondblclick = () => {
+      this.maximized = !this.maximized
+    }
+
     this.addEventListener('opened', () => {
       this._focus()
     })
