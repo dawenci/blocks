@@ -1,8 +1,9 @@
 import { dispatchEvent } from '../../common/event.js'
-import { enumGetter, enumSetter, intRangeGetter, intRangeSetter, numGetter, numRangeGetter, numRangeSetter, numSetter } from '../../common/property.js'
+import { enumGetter, enumSetter } from '../../common/property.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { padLeft, rgbFromHexColor } from '../../common/utils.js'
+import { padLeft, round } from '../../common/utils.js'
+import { hsl2hsv, hsv2hsl, hsv2rgb, rgb2hsv, hex2rgba, parse, rgba2hex } from '../../common/color.js'
 import {
   __radius_base,
   __color_primary,
@@ -301,7 +302,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksColor extends HTMLElement {
   static get observedAttributes() {
-    return ['mode']
+    return ['mode', 'color']
   }
 
   constructor() {
@@ -333,33 +334,65 @@ class BlocksColor extends HTMLElement {
 
     // 取色事件
     this._initPickEvents()
+
+    // 切换模式
     this.$modeSwitch.onclick = () => {
       const modes = ['hex', 'rgb', 'hsl', 'hsv']
       this.mode = modes[(modes.indexOf(this.mode) + 1) % 4]
     }
-    this.$modeContent.oninput = e => {
+
+    // 处理输入
+    this.$modeContent.onchange = e => {
       const $input = e.target
-      const index = $input.dataset.index
       const value = $input.value || ''
       const mode = this.mode
       if (mode === 'hex') {
-        if (/#[0-9a-fA-F]{3}$|#[0-9a-fA-F]{6}$/.test(value)) {
-          this.hex = value
+        const rgba = parse(value)
+        if (rgba) {
+          this._preventUpdateModel = true
+          this.rgba = rgba
+          this._preventUpdateModel = false
         }
       }
+
       else if (mode === 'rgb') {
-        let n = parseInt(value, 10)
-        if (n && n >= 0 && n <= 255) {
-          
+        const values = Array.prototype.map.call(this.$modeContent.querySelectorAll('input'), $input => Number($input.value))
+        if (values.every(n => n >= 0 && n <= 255)) {
+          this._preventUpdateModel = true
+          this.rgba = values
+          this._preventUpdateModel = false
         }
       }
+
       else if (mode === 'hsv') {
-        
+        const values = Array.prototype.map.call(this.$modeContent.querySelectorAll('input'), $input => parseFloat($input.value))
+        if (values[0] < 0 || values[0] > 360) return
+        if (values[1] < 0 || values[1] > 100) return
+        if (values[2] < 0 || values[2] > 100) return
+        this._preventUpdateModel = true
+        this.hsv = [values[0], values[1] / 100, values[2] / 100]
+        this._preventUpdateModel = false
       }
+
       else if (mode === 'hsl') {
-        
+        const values = Array.prototype.map.call(this.$modeContent.querySelectorAll('input'), $input => parseFloat($input.value))
+        if (values[0] < 0 || values[0] > 360) return
+        if (values[1] < 0 || values[1] > 100) return
+        if (values[2] < 0 || values[2] > 100) return
+        if (values[3] < 0 || values[3] > 1) return
+        this._preventUpdateModel = true
+        this.hsla = [values[0], values[1] / 100, values[2] / 100, values[3]]
+        this._preventUpdateModel = false
       }
     }
+  }
+
+  get color() {
+    return this.getAttribute('color')
+  }
+
+  set color(value) {
+    this.setAttribute('color', value)
   }
 
   get mode() {
@@ -371,14 +404,14 @@ class BlocksColor extends HTMLElement {
   }
 
   get hex() {
-    const [r, g, b] = this.rgb
-    return `#${padLeft('0', 2, r.toString(16))}${padLeft('0', 2, g.toString(16))}${padLeft('0', 2, b.toString(16))}`
+    return rgba2hex(this.rgba)
   }
 
   set hex(value) {
-    const [r, g, b] = rgbFromHexColor(value)
-    const [h, s, v] = rgb2hsv(r, g, b)    
-    if (this._setStates(h, s, v, this._alpha)) {
+    const [r, g, b, a] = hex2rgba(value)
+    const alpha = value.length > 7 ? a / 255 : this._alpha
+    const [h, s, v] = rgb2hsv(r, g, b)
+    if (this._setStates(h, s, v, alpha)) {
       this.render()
     }
   }
@@ -416,7 +449,7 @@ class BlocksColor extends HTMLElement {
   }
   
   get rgb() {
-    return hsv2rgb(...this.hsv)
+    return hsv2rgb(...this.hsv).map(n => Math.round(n))
   }
 
   set rgb([r, g, b]) {
@@ -434,6 +467,9 @@ class BlocksColor extends HTMLElement {
     const [h, s, v] = rgb2hsv(r, g, b)
     if (this._setStates(h, s, v, a)) {
       this.render()
+    }
+    else {
+      console.log('no update', h, s, v)
     }
   }
 
@@ -459,6 +495,15 @@ class BlocksColor extends HTMLElement {
   attributeChangedCallback(attrName, oldVal, newVal) {
     if (attrName === 'mode') {
       this.render()
+    }
+    if (attrName === 'color') {
+      const oldRgba = this.rgba
+      const newRgba = parse(newVal)
+      const oldHexStr = (oldRgba && rgba2hex(oldRgba)) ?? ''
+      const newHexStr = (newRgba && rgba2hex(newRgba)) ?? ''
+      if (newRgba && oldHexStr !== newHexStr) {
+        this.rgba = newRgba
+      }
     }
   }
 
@@ -565,10 +610,11 @@ class BlocksColor extends HTMLElement {
     this._alpha = alpha
 
     if (changed) {
+      this.color = this.hex
       dispatchEvent(this, 'change')
     }
     return changed
-  }  
+  }
 
   _updateState() {
     // 透明度
@@ -586,7 +632,6 @@ class BlocksColor extends HTMLElement {
     const y = parseInt(getComputedStyle(this.$hsvButton).top, 10) || 0
     const saturation = Math.floor(100 * (x / width)) / 100
     const value = 1 - Math.floor(100 * (y / height)) / 100
-
     return this._setStates(hue, saturation, value, alpha)
   }
 
@@ -599,6 +644,9 @@ class BlocksColor extends HTMLElement {
   }
 
   _updateModels() {
+    // 手输的时候，避免反复触发 update（rgb 和 hsv 相互转换无法一一对应，会出现输入的数字瞬间被覆盖回去的问题）。
+    if (this._preventUpdateModel) return
+
     const mode = this.mode
     const children = Array.prototype.slice.call(this.$modeContent.children)
     const inputs = children.map($el => $el.querySelector('input'))
@@ -614,7 +662,7 @@ class BlocksColor extends HTMLElement {
       inputs[0].value = rgba[0]
       inputs[1].value = rgba[1]
       inputs[2].value = rgba[2]
-      inputs[3].value = rgba[3].toFixed(2)
+      inputs[3].value = round(rgba[3], 2)
       spans[0].textContent = 'R'
       spans[1].textContent = 'G'
       spans[2].textContent = 'B'
@@ -623,7 +671,7 @@ class BlocksColor extends HTMLElement {
     else if (mode === 'hsv') {
       const hsv = this.hsv
       children.forEach(($el, index) => $el.style.display = index === 3 ? 'none' : '')
-      inputs[0].value = hsv[0] % 360
+      inputs[0].value = Math.round(hsv[0] % 360)
       inputs[1].value = Math.round(hsv[1] * 100) + '%'
       inputs[2].value = Math.round(hsv[2] * 100) + '%'
       spans[0].textContent = 'H'
@@ -633,10 +681,10 @@ class BlocksColor extends HTMLElement {
     else if (mode === 'hsl') {
       const hsla = this.hsla
       children.forEach(($el) => $el.style.display = '')
-      inputs[0].value = hsla[0] % 360
+      inputs[0].value = Math.round(hsla[0] % 360)
       inputs[1].value = Math.round(hsla[1] * 100) + '%'
       inputs[2].value = Math.round(hsla[2] * 100) + '%'
-      inputs[3].value = hsla[3].toFixed(2)
+      inputs[3].value = round(hsla[3], 2)
       spans[0].textContent = 'H'
       spans[1].textContent = 'S'
       spans[2].textContent = 'L'
@@ -647,104 +695,4 @@ class BlocksColor extends HTMLElement {
 
 if (!customElements.get('bl-color')) {
   customElements.define('bl-color', BlocksColor)
-}
-
-/**
- * 
- * HSV 转 RGB
- * https://en.wikipedia.org/wiki/HSL_and_HSV
- * 
- * @param {number} h 0 - 360
- * @param {number} s 0 - 1
- * @param {number} v 0 - 1
- */
-function hsv2rgb(hue, saturation, value) {
-  const chroma = value * saturation
-  // 色环中按 60 度分段，当前落在哪一段
-  const H = hue / 60
-  const X = chroma * (1 - Math.abs(H % 2 - 1))
-
-  if (hue < 0 || hue > 360) return [0,0,0]
-  // 计算出的 r，g，b 取值为 0 - 1，转换成 0 - 255 输出
-  let [r, g, b] =
-    (H >= 0 && H <= 1) ? [chroma, X, 0]
-  : (H > 1 && H <= 2) ? [X, chroma, 0]
-  : (H > 2 && H <= 3) ? [0, chroma, X]
-  : (H > 3 && H <= 4) ? [0, X, chroma]
-  : (H > 4 && H <= 5) ? [X, 0, chroma]
-  : (H > 5 && H <= 6) ? [chroma, 0, X]
-  : [0, 0, 0]
-
-  const m = value - chroma
-  return [Math.floor((r + m) * 255), Math.floor((g + m) * 255), Math.floor((b + m) * 255)]
-}
-
-// https://www.rapidtables.com/convert/color/rgb-to-hsv.html
-function rgb2hsv(r, g, b) {
-  // 0 - 255，转换成 0 - 1
-  r = r / 255
-  g = g / 255
-  b = b / 255
-
-  const cMax = Math.max(r, g, b)
-  const cMin = Math.min(r, g, b)
-  const delta = cMax - cMin
-
-  let h
-  if (delta === 0) {
-    h = 0
-  }
-  else if (cMax === r) {
-    h = 60 * (((g - b) / delta) % 6)
-  }
-  else if (cMax === g) {
-    h = 60 * ((b - r) / delta + 2)
-  }
-  else if (cMax === b) {
-    h = 60 * ((r - g) / delta + 4) 
-  }
-  h = Math.floor(h)
-
-  let s
-  if (cMax === 0) {
-    s = 0
-  }
-  else {
-    s = delta / cMax
-  }
-  let v = cMax
-
-  return [h, s, v]
-}
-
-/**
- * 
- * HSV 转 HSL
- * https://en.wikipedia.org/wiki/HSL_and_HSV
- * 
- * @param {number} Hv 0 - 360
- * @param {number} Sv 0 - 1
- * @param {number} V 0 - 1
- */
-function hsv2hsl(Hv, Sv, V) {
-  const Hl = Hv
-  const L = V * (1 - (Sv / 2))
-  const Sl = (L === 0 || L === 1) ? 0 : ((V - L) / Math.min(L, 1 - L))
-  return [Hl, Sl, L]
-}
-
-/**
- * 
- * HSL 转 HSV
- * https://en.wikipedia.org/wiki/HSL_and_HSV
- * 
- * @param {number} Hl 0 - 360
- * @param {number} Sl 0 - 1
- * @param {number} L 0 - 1
- */
-function hsl2hsv(Hl, Sl, L) {
-  const Hv = Hl
-  const V = L + Sl * Math.min(L, 1 - L)
-  const Sv = V === 0 ? 0 : 2 * (1 - (L / V))
-  return [Hv, Sv, V]
 }

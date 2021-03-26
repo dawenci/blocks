@@ -1,7 +1,6 @@
-import { boolGetter, boolSetter } from '../../common/property.js'
 import { disabledGetter, disabledSetter, selectedGetter, selectedSetter } from '../../common/propertyAccessor.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { makeRgbaColor } from '../../common/utils.js'
+import { rgbaFromHex } from '../../common/color.js'
 import {
   __color_primary, __color_primary_light,
 } from '../../theme/var.js'
@@ -19,8 +18,8 @@ const TEMPLATE_CSS = `<style>
   padding: 4px 10px 4px 2em;
 }
 :host(:focus) {
-  outline: 1px solid ${makeRgbaColor(__color_primary, .3)};
-  background: ${makeRgbaColor(__color_primary, .1)};
+  outline: 1px solid ${rgbaFromHex(__color_primary, .3)};
+  background: ${rgbaFromHex(__color_primary, .1)};
 }
 :host([selected]) {
   background-color: var(--color-primary, ${__color_primary});

@@ -11,23 +11,6 @@ export const some = (list, fn) => Array.prototype.some.call(list, fn)
 
 export const propertyEq = (prop, value) => obj => obj[prop] === value
 
-
-export function rgbFromHexColor(hex) {
-  if (!hex.match(/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) return null
-  hex = hex.replace('#', '')
-  if (hex.length === 3) {
-    return hex.split('').map(ch => parseInt(ch + ch, 16))
-  }
-  else {
-    return [parseInt(hex.substr(0, 2), 16), parseInt(hex.substr(2, 2), 16), parseInt(hex.substr(4, 2), 16)]
-  }
-}
-
-export function makeRgbaColor(hexColor, opacity) {
-  return `rgba(${rgbFromHexColor(hexColor).concat([opacity]).join(',')})`
-}
-
-
 function pad(ch, n, str, isRight) {
   str = String(str)
   let count = n - str.length

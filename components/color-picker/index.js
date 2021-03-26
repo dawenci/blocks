@@ -57,11 +57,10 @@ bl-icon {
   padding: 2px;
   margin: auto;
   border-radius: var(--radius-base, ${__radius_base});
-  background: rgba(0,0,0,.1);
-  fill: #fff;
+  fill: rgba(255,255,255,.8);
 }
-:host(:hover) bl-icon {
-  background: none;
+bl-icon.light {
+  fill: rgba(0,0,0,.5);
 }
 </style>`
 
@@ -99,6 +98,7 @@ class BlocksColorPicker extends HTMLElement {
     // input 部分
     const fragment = inputTemplate.content.cloneNode(true)
     this.$result = fragment.querySelector('#result')
+    this.$icon = this.$result.querySelector('bl-icon')
     this.shadowRoot.appendChild(fragment)
 
     // 面板部分
@@ -183,9 +183,12 @@ class BlocksColorPicker extends HTMLElement {
   }
   
   render() {  
-    const resultBg = this.$color.hsla
-    if (resultBg) {
-      this.$result.style.backgroundColor = `hsla(${resultBg[0]},${resultBg[1] * 100}%,${resultBg[2] * 100}%,${resultBg[3]})`
+    const hsla = this.$color.hsla
+    if (hsla) {
+      this.$result.style.backgroundColor = `hsla(${hsla[0]},${hsla[1] * 100}%,${hsla[2] * 100}%,${hsla[3]})`
+      // 下拉箭头，根据背景亮度设置深色或浅色
+      const light = hsla[2]
+      this.$icon.fill = `hsla(${hsla[0]},${100}%,${light > 0.5 ? 15 : 85}%,1)`
     }
   }
 

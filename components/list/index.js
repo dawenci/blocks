@@ -1,8 +1,8 @@
 import '../scrollable/index.js'
-import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { forEach, makeRgbaColor } from '../../common/utils.js'
+import { forEach } from '../../common/utils.js'
+import { rgbaFromHex } from '../../common/color.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import {
   __font_family,
@@ -131,7 +131,7 @@ const TEMPLATE_CSS = `
   transform: rotate(-45deg);
 }
 .item:hover {
-  background-color: ${makeRgbaColor(__color_primary, .1)};
+  background-color: ${rgbaFromHex(__color_primary, .1)};
 }
 
 </style>

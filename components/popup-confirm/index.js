@@ -1,8 +1,5 @@
 import '../popup/index.js'
-import { setDisabled, setRole, setTabindex } from '../../common/accessibility.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { forEach, makeRgbaColor } from '../../common/utils.js'
 import {
   __font_family,
   __color_primary,

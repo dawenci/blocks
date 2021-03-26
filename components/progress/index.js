@@ -1,6 +1,6 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
+import { rgbaFromHex } from '../../common/color.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, numGetter, numSetter } from '../../common/property.js'
-import { makeRgbaColor } from '../../common/utils.js';
 import { __color_danger, __color_primary, __color_success, __color_warning, __radius_base, __transition_duration } from '../../theme/var.js'
 
 const valueGetter = numGetter('value')
@@ -81,19 +81,19 @@ const TEMPLATE_CSS = `<style>
   text-shadow: 1px 1px 0 rgba(255,255,255,.5);
 }
 
-#track { background-color: ${makeRgbaColor(__color_primary, .1)} }
+#track { background-color: ${rgbaFromHex(__color_primary, .1)} }
 #progress { background-color: var(--color-primary, ${__color_primary}) }
 #value { color: var(--color-primary, ${__color_primary}) }
 
-:host([status="success"]) #track { background-color: ${makeRgbaColor(__color_success, .1)} }
+:host([status="success"]) #track { background-color: ${rgbaFromHex(__color_success, .1)} }
 :host([status="success"]) #progress { background-color: var(--color-success, ${__color_success}) }
 :host([status="success"]) #value { color: var(--color-success, ${__color_success}) }
 
-:host([status="error"]) #track { background-color: ${makeRgbaColor(__color_danger, .1)} }
+:host([status="error"]) #track { background-color: ${rgbaFromHex(__color_danger, .1)} }
 :host([status="error"]) #progress { background-color: var(--color-danger, ${__color_danger}) }
 :host([status="error"]) #value { color: var(--color-danger, ${__color_danger}) }
 
-:host([status="warning"]) #track { background-color: ${makeRgbaColor(__color_warning, .1)} }
+:host([status="warning"]) #track { background-color: ${rgbaFromHex(__color_warning, .1)} }
 :host([status="warning"]) #progress { background-color: var(--color-warning, ${__color_warning}) }
 :host([status="warning"]) #value { color: var(--color-warning, ${__color_warning}) }
 </style>`

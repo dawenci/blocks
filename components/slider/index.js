@@ -1,6 +1,7 @@
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { boolGetter, boolSetter, intGetter, intSetter, numGetter, numSetter } from '../../common/property.js';
-import { forEach, makeRgbaColor, round } from '../../common/utils.js';
+import { boolGetter, boolSetter, intGetter, intSetter, numGetter, numSetter } from '../../common/property.js'
+import { forEach, round } from '../../common/utils.js'
+import { rgbaFromHex } from '../../common/color.js'
 import { dispatchEvent } from '../../common/event.js'
 import {
   __font_family,
@@ -155,7 +156,7 @@ button.active {
   z-index: 2;
   border-color: var(--color-primary, ${__color_primary});
   outline: 0 none;
-  box-shadow: 0 0 2px 2px ${makeRgbaColor(__color_primary, .5)};
+  box-shadow: 0 0 2px 2px ${rgbaFromHex(__color_primary, .5)};
 }
 
 :host([disabled]) button,
