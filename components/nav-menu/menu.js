@@ -1,5 +1,5 @@
 import { definePrivate } from '../../common/definePrivate.js'
-import { boolGetter, boolSetter, intGetter, intSetter } from '../../common/property.js'
+import { boolGetter, boolSetter, intGetter, intSetter, numGetter, numSetter } from '../../common/property.js'
 import { darkGetter, darkSetter, sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
@@ -60,7 +60,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 // TODO, collapse 模式，tooltip 显示一级菜单文本
 class BlocksNavMenu extends HTMLElement {
   static get observedAttributes() {
-    return ['horizontal', 'collapse', 'inline', 'submenu', 'level', 'expand', 'size', 'dark']
+    return ['horizontal', 'collapse', 'inline', 'submenu', 'level', 'expand', 'size', 'dark', 'enter-delay', 'leave-delay']
   }
 
   constructor() {
@@ -81,6 +81,22 @@ class BlocksNavMenu extends HTMLElement {
         $item = $item.$hostMenu.$parentItem
       }
     })
+  }
+
+  get enterDelay() {
+    return numGetter('enter-delay', 150)(this)
+  }
+
+  set enterDelay(value) {
+    numSetter('enter-delay')(this, value)
+  }
+
+  get leaveDelay() {
+    return numGetter('leave-delay', 200)(this)
+  }
+
+  set leaveDelay(value) {
+    numSetter('leave-delay')(this, value)
   }
 
   get size() {

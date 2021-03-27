@@ -2,7 +2,7 @@ import BlocksPopup from '../popup/index.js';
 import { definePrivate } from '../../common/definePrivate.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __border_color_light, __color_primary, __font_family } from '../../theme/var.js'
-import { intGetter, intSetter } from '../../common/property.js';
+import { intGetter, intSetter, numGetter, numSetter } from '../../common/property.js';
 import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js';
 import { forEach } from '../../common/utils.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
@@ -10,7 +10,7 @@ import { onClickOutside } from '../../common/onClickOutside.js';
 const itemTemplate = document.createElement('bl-popup-menu-item')
 const groupTemplate = document.createElement('bl-popup-menu-group')
 
-const MENU_ATTRS = ['level', 'size']
+const MENU_ATTRS = ['level', 'size', 'enter-delay', 'leave-delay']
 
 class BlocksPopupMenu extends BlocksPopup {
   static get observedAttributes() {
@@ -30,6 +30,22 @@ class BlocksPopupMenu extends BlocksPopup {
     this.onmouseleave = () => {
       this.leave()
     }
+  }
+
+  get enterDelay() {
+    return numGetter('enter-delay', 150)(this)
+  }
+
+  set enterDelay(value) {
+    numSetter('enter-delay')(this, value)
+  }
+
+  get leaveDelay() {
+    return numGetter('leave-delay', 200)(this)
+  }
+
+  set leaveDelay(value) {
+    numSetter('leave-delay')(this, value)
   }
 
   get size() {
@@ -60,34 +76,38 @@ class BlocksPopupMenu extends BlocksPopup {
   enter() {
     if (this.level === 0) return
 
-    clearTimeout(this._leaveTimer)
-    this.open = true
+    // 转移父 item 的 enter 控制权到 this
+    if (this.$parentItem) clearTimeout(this.$parentItem._enterTimer)
+    clearTimeout(this._enterTimer)
+    this._enterTimer = setTimeout(() => {
+      this.open = true
+    }, this.enterDelay)
+
     if (this.$parentMenu) {
       this.$parentMenu.enter?.()
     }
 
+    clearTimeout(this._leaveTimer)
     // 清理父菜单项目 leave 的 timer，避免当前 menu 被关闭
-    if (this.$parentItem) {
-      clearTimeout(this.$parentItem._leaveTimer)
-    }
+    if (this.$parentItem) clearTimeout(this.$parentItem._leaveTimer)        
   }
 
   leave() {
     if (this.level === 0) return
 
+    // 清理父菜单项目 leave 的 timer，控制权交给 this 的 timer
+    if (this.$parentItem) clearTimeout(this.$parentItem._leaveTimer)
     clearTimeout(this._leaveTimer)
     this._leaveTimer = setTimeout(() => {
       this.open = false
-    }, 200)
+    }, this.leaveDelay)
 
     if (this.$parentMenu) {
       this.$parentMenu.leave?.()
     }
 
-    // 清理父菜单项目 leave 的 timer，控制权交给 this 的 timer
-    if (this.$parentItem) {
-      clearTimeout(this.$parentItem._leaveTimer)
-    }
+    clearTimeout(this._enterTimer)
+    if (this.$parentItem) clearTimeout(this.$parentItem._enterTimer)    
   }
 
   closeAll() {
@@ -165,9 +185,11 @@ class BlocksPopupMenu extends BlocksPopup {
 
   _initClickOutside() {
     if (this._clearClickOutside) return
-    this._clearClickOutside = onClickOutside(this, () => {
+    this._clearClickOutside = onClickOutside(this, (e) => {
       if (this.level === 0 && this.open) {
-        this.open = false
+        if (e.target.$rootMenu !== this) {
+          this.open = false
+        }
       }
     })
   }

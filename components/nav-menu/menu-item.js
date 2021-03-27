@@ -182,6 +182,17 @@ class BlocksNavMenuItem extends HTMLElement {
         if (this.isInlineMode) {
           this.expand = !this.expand
         }
+        else {
+          // 点击立即显示子菜单
+          if (!document.body.contains(this.$submenu)) {
+            document.body.appendChild(this.$submenu)
+          }
+          clearTimeout(this._leaveTimer)
+          clearTimeout(this._enterTimer)
+          clearTimeout(this.$submenu._enterTimer)
+          clearTimeout(this.$submenu._leaveTimer)
+          this.$submenu.open = true
+        }
         return
       }
 
@@ -200,12 +211,18 @@ class BlocksNavMenuItem extends HTMLElement {
 
     this.onmouseenter = () => {
       if (!this.isInlineMode && this.$submenu) {
-        clearTimeout(this._leaveTimer)
         if (!document.body.contains(this.$submenu)) {
           document.body.appendChild(this.$submenu)
         }
 
-        this.$submenu.open = true
+        // 子菜单的 enter 控制权转移到 this
+        clearTimeout(this.$submenu._enterTimer)
+        clearTimeout(this._enterTimer)
+        this._enterTimer = setTimeout(() => {
+          this.$submenu.open = true
+        }, this.$hostMenu.enterDelay)
+
+        clearTimeout(this._leaveTimer)
         // 清理子菜单的 leave timer，避免子菜单被关闭
         clearTimeout(this.$submenu._leaveTimer)
       }
@@ -213,12 +230,16 @@ class BlocksNavMenuItem extends HTMLElement {
 
     this.onmouseleave = () => {
       if (!this.isInlineMode && this.$submenu) {
+        // 清理子菜单 leave 的 timer，控制权交给 this 的 timer
+        clearTimeout(this.$submenu._leaveTimer)
         clearTimeout(this._leaveTimer)
         this._leaveTimer = setTimeout(() => {
           this.$submenu.open = false
-        }, 200)
-        // 清理子菜单 leave 的 timer，控制权交给 this 的 timer
-        clearTimeout(this.$submenu._leaveTimer)
+        }, this.$hostMenu.leaveDelay)
+
+        clearTimeout(this._enterTimer)
+        // 清理子菜单的 enter timer，避免子菜单被打开
+        clearTimeout(this.$submenu._enterTimer)
       }
     }
   }
@@ -326,6 +347,8 @@ class BlocksNavMenuItem extends HTMLElement {
 
       this.$submenu.$parentItem = this
       this.$submenu.$parentMenu = this.$hostMenu
+      this.$submenu.enterDelay = this.$hostMenu.enterDelay
+      this.$submenu.leaveDelay = this.$hostMenu.leaveDelay
       this.$submenu.dark = this.$hostMenu.dark
       this.$submenu.size = this.$hostMenu.size
       this.$submenu.level = this.$hostMenu.level + 1
