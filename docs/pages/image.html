@@ -17,13 +17,23 @@
       <h1>image</h1>
     </header>
 
+    <script type="module" src="../../components/grid/index.js"></script>
+    <script type="module" src="../../components/button/index.js"></script>
+    <style>
+      bl-image {
+        border: 1px solid #e8e8e8;
+        width: 180px;
+        height: 180px;
+      }
+      bl-col {
+        text-align: center;
+      }
+      .fit {
+        margin-bottom: 20px;
+      }
+    </style>
+
     <section class="section">
-      <h2>TODO</h2>
-      组件待实现
-
-    </section>
-
-    <!-- <section class="section">
       <h2>依赖引入</h2>
 
       <p>根据自己项目调整 src 的路径</p>
@@ -31,10 +41,99 @@
       <div data-codesource="html" data-title="依赖引入" on>
         <script type="module" src="../../components/image/index.js"></script>
       </div>
-    </section> -->
+    </section>
+
+    <section class="section">
+      <h2>默认</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <bl-image src="../images/p1.jpg"></bl-image>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>fit</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <bl-row wrap>
+            <bl-col span="8">
+              <bl-image fit="none" src="../images/p1.jpg"></bl-image>
+              <div class="fit">none</div>
+            </bl-col>
+            <bl-col span="8">
+              <bl-image fit="fill" src="../images/p1.jpg"></bl-image>
+              <div class="fit">fill</div>
+            </bl-col>
+            <bl-col span="8">
+              <bl-image fit="contain" src="../images/p1.jpg"></bl-image>
+              <div class="fit">contain</div>
+            </bl-col>
+            <bl-col span="8">
+              <bl-image fit="cover" src="../images/p1.jpg"></bl-image>
+              <div class="fit">cover</div>
+            </bl-col>
+            <bl-col span="8">
+              <bl-image fit="scale-down" src="../images/p1.jpg"></bl-image>
+              <div class="fit">scale-down</div>
+            </bl-col>
+          </bl-row>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>占位图</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <bl-image placeholder="../images/image-loading.png" src="../images/p1.jpg"></bl-image>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>加载失败</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <bl-row>
+            <bl-col span="12">
+              <bl-image src=""></bl-image>
+              <div>默认</div>
+            </bl-col>
+            <bl-col span="12">
+              <bl-image fallback="../images/image-broken.png" src=""></bl-image>
+              <div>自定义</div>
+            </bl-col>
+          </bl-row>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>手工加载</h2>
+
+      <p>使用 `manual` 属性，将图片设置为手工加载。典型用途如配合 intersection 组件实现懒加载。</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <div style="margin-bottom:15px;">
+            <bl-button onclick="document.querySelector('[manual]').load()">加载</bl-button>
+          </div>
+
+          <bl-image manual src="../images/p1.jpg"></bl-image>
+        </template>
+      </div>
+    </section>
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -47,11 +146,74 @@
         </thead>
         <tbody>
           <tr>
+            <td>alt</td>
+            <td>string</td>
             <td></td>
+            <td>img 的 alt。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>fallback</td>
+            <td>string</td>
             <td></td>
+            <td>载入失败时显示的图片 url。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>fit</td>
+            <td>'fill' | 'contain' | 'cover' | 'none' | 'scale-down'</td>
             <td></td>
+            <td>图片如何适应容器空间。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>manual</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否使用手动加载（手动调用 load()，而非自动加载）。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>placeholder</td>
+            <td>string</td>
+            <td></td>
+            <td>占位图片 url。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>src</td>
+            <td>string</td>
+            <td></td>
+            <td>图片的 url。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>error</td>
+            <td></td>
+            <td>加载错误时触发。</td>
+          </tr>  
+          <tr>
+            <td>loaded</td>
+            <td></td>
+            <td>加载完成时触发。</td>
+          </tr>          
+          <tr>
+            <td>loading</td>
+            <td></td>
+            <td>加载时触发。</td>
           </tr>
         </tbody>
       </table>
