@@ -2,7 +2,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { enumGetter, enumSetter } from '../../common/property.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { padLeft, round } from '../../common/utils.js'
+import { round } from '../../common/utils.js'
 import { hsl2hsv, hsv2hsl, hsv2rgb, rgb2hsv, hex2rgba, parse, rgba2hex } from '../../common/color.js'
 import {
   __radius_base,
@@ -17,6 +17,7 @@ import {
   __fg_placeholder,
   __fg_secondary,
 } from '../../theme/var.js'
+import { definePrivate } from '../../common/definePrivate.js'
 
 
 const TEMPLATE_CSS = `<style>
@@ -302,7 +303,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 class BlocksColor extends HTMLElement {
   static get observedAttributes() {
-    return ['mode', 'color']
+    return ['mode', 'value']
   }
 
   constructor() {
@@ -324,24 +325,300 @@ class BlocksColor extends HTMLElement {
     this.$modeSwitch = shadowRoot.getElementById('mode-switch')
 
     // 色相
-    this._hue = 0
+    definePrivate(this, '_hue', 0)
     // 饱和度
-    this._saturation = 1
+    definePrivate(this, '_saturation', 1)
     // 明度
-    this._value = 1
+    definePrivate(this, '_value', 1)
     // 不透明度
-    this._alpha = 1
+    definePrivate(this, '_alpha', 1)
 
-    // 取色事件
+    // resize 处理器清理函数
+    definePrivate(this, '_clearResizeHandler', null)
+
+    // 是否正在拖拽光标取色中
+    definePrivate(this, '_dragging', false)
+    
+    // 处理鼠标取色
     this._initPickEvents()
-
     // 切换模式
+    this._initModeChangeEvent()
+    // 处理输入
+    this._initInputEvents()
+  }
+
+  get value() {
+    return this.getAttribute('value')
+  }
+
+  set value(value) {
+    this.setAttribute('value', value)
+  }
+
+  get mode() {
+    return enumGetter('mode', ['hex', 'rgb', 'hsl', 'hsv'])(this)
+  }
+
+  set mode(value) {
+    enumSetter('mode', [null, 'hex', 'rgb', 'hsl', 'hsv'])(this, value)
+  }
+
+  get hex() {
+    return rgba2hex(this.rgba)
+  }
+
+  set hex(value) {
+    const [r, g, b, a] = hex2rgba(value)
+    const alpha = value.length > 7 ? a / 255 : this._alpha
+    const [h, s, v] = rgb2hsv(r, g, b)
+    this._setStates(h, s, v, alpha)
+  }
+
+  get hsl() {
+    return hsv2hsl(...this.hsv)
+  }
+
+  set hsl([hl, sl, l]) {
+    const [hv, sv, v] = hsl2hsv(hl, sl, l)
+    this._setStates(hv, sv, v, this._alpha)
+  }
+
+  get hsla() {
+    return this.hsl.concat(this._alpha)
+  }
+
+  set hsla([hl, sl, l, a]) {
+    const [hv, sv, v] = hsl2hsv(hl, sl, l)
+    this._setStates(hv, sv, v, a)
+  }
+
+  get hsv() {
+    return [this._hue, this._saturation, this._value]
+  }
+
+  set hsv([h, s, v]) {
+    this._setStates(h, s, v, this._alpha)
+  }
+
+  get hsva() {
+    return [this._hue, this._saturation, this._value, this._alpha]
+  }
+
+  set hsva([h, s, v, a]) {
+    this._setStates(h, s, v, a)
+  }
+  
+  get rgb() {
+    return hsv2rgb(...this.hsv).map(n => Math.round(n))
+  }
+
+  set rgb([r, g, b]) {
+    const [h, s, v] = rgb2hsv(r, g, b)
+    this._setStates(h, s, v, this._alpha)
+  }
+
+  get rgba() {
+    return this.rgb.concat(this._alpha)
+  }
+
+  set rgba([r, g, b, a]) {
+    const [h, s, v] = rgb2hsv(r, g, b)
+    this._setStates(h, s, v, a)
+  }
+
+  connectedCallback() {
+    this.constructor.observedAttributes.forEach(attr => {
+      upgradeProperty(this, attr)
+    })
+    this._clearResizeHandler = sizeObserve(this.$layout, this._updateControls.bind(this))
+    this.render()
+  }
+
+  disconnectedCallback() {
+    if (this._clearResizeHandler) {
+      this._clearResizeHandler()
+    }
+  }
+
+  adoptedCallback() {}
+
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    if (attrName === 'mode') {
+      this.render()
+    }
+    if (attrName === 'value') {
+      if (oldVal === newVal) return
+      const oldRgba = parse(oldVal)
+      const newRgba = parse(newVal)
+      const oldHexStr = (oldRgba && rgba2hex(oldRgba)) ?? ''
+      const newHexStr = (newRgba && rgba2hex(newRgba)) ?? ''
+      if (newRgba && oldHexStr !== newHexStr) {
+        this.rgba = newRgba
+        this.render()
+      }
+    }
+  }
+
+  render() {
+    this._updateControls()
+    this._updateBg()
+    this._updateModels()
+  }
+  
+  toHexString() {
+    return this.hex
+  }
+
+  toRgbString() {
+    const [r, g, b] = this.rgb
+    return `rgb(${round(r)},${round(g)},${round(b)})`
+  }
+
+  toRgbaString() {
+    const [r, g, b, a] = this.rgba
+    return `rgb(${round(r)},${round(g)},${round(b)},${round(a, 2)})`
+  }
+
+  toHslString() {
+    const [h, s, l] = this.hsl
+    return `hsl(${round(h)},${round(s * 100)}%,${round(l * 100)}%)`
+  }
+
+  toHslaString() {
+    const [h, s, l, a] = this.hsla
+    return `hsl(${round(h)},${round(s * 100)}%,${round(l * 100)}%,${round(a, 2)})`
+  }
+
+  toHsvString() {
+    const [h, s, v] = this.hsv
+    return `hsv(${round(h)},${round(s * 100)}%,${round(v * 100)}%)`
+  }
+
+  toHsvaString() {
+    const [h, s, v, a] = this.hsva
+    return `hsva(${round(h)},${round(s * 100)}%,${round(v * 100)}%,${round(a, 2)})`
+  }
+
+  _updateControls() {
+    // 透明度
+    const alphaBarWidth = this.$alphaBar.clientWidth - 12
+    const alphaX = this._alpha * alphaBarWidth
+    this.$alphaButton.style.left = alphaX + 'px'
+    // 色相
+    const hueBarWidth = this.$hueBar.clientWidth - 12
+    const hueX = this._hue / 360 * hueBarWidth
+    this.$hueButton.style.left = hueX + 'px'
+    // HSV
+    const width = this.$hsv.clientWidth - 12
+    const height = this.$hsv.clientHeight - 12
+    const x = this._saturation * width
+    const y = height - this._value * height
+    this.$hsvButton.style.top = y + 'px'
+    this.$hsvButton.style.left = x + 'px'
+  }
+
+  _setStates(hue, saturation, value, alpha) {
+    let changed = this._hue !== hue || this._saturation !== saturation || this._value !== value || this._alpha !== alpha
+    this._hue = hue
+    this._saturation = saturation
+    this._value = value
+    this._alpha = alpha
+
+    if (changed) {
+      this.value = this.hex
+      dispatchEvent(this, 'change')
+    }
+    return changed
+  }
+
+  _updateState() {
+    // 透明度
+    const alphaBarWidth = this.$alphaBar.clientWidth - 12
+    const alphaX = parseInt(getComputedStyle(this.$alphaButton).left, 10) || 0
+    const alpha = alphaX / alphaBarWidth
+    // 色相
+    const hueBarWidth = this.$hueBar.clientWidth - 12
+    const hueX = parseInt(getComputedStyle(this.$hueButton).left, 10) || 0
+    const hue = Math.floor(360 * (hueX / hueBarWidth))
+    // HSV
+    const width = this.$hsv.clientWidth - 12
+    const height = this.$hsv.clientHeight - 12
+    const x = parseInt(getComputedStyle(this.$hsvButton).left, 10) || 0
+    const y = parseInt(getComputedStyle(this.$hsvButton).top, 10) || 0
+    const saturation = Math.floor(100 * (x / width)) / 100
+    const value = 1 - Math.floor(100 * (y / height)) / 100
+    return this._setStates(hue, saturation, value, alpha)
+  }
+
+  _updateBg() {
+    const bg = `hsl(${this._hue}, 100%, 50%)`
+    this.$hsvHue.style.backgroundColor = bg
+    this.$alphaBarBg.style.backgroundImage = `linear-gradient(to right, transparent, ${bg})`
+    const resultBg = this.hsla
+    this.$resultBg.style.backgroundColor = `hsla(${resultBg[0]},${resultBg[1] * 100}%,${resultBg[2] * 100}%,${resultBg[3]})`
+  }
+
+  _updateModels() {
+    // 手输的时候，避免反复触发 update（rgb 和 hsv 相互转换无法一一对应，会出现输入的数字瞬间被覆盖回去的问题）。
+    if (this._preventUpdateModel) return
+
+    const mode = this.mode
+    const children = Array.prototype.slice.call(this.$modeContent.children)
+    const inputs = children.map($el => $el.querySelector('input'))
+    const spans = children.map($el => $el.querySelector('span'))
+    if (mode === 'hex') {
+      children.forEach(($el, index) => $el.style.display = index === 0 ? '' : 'none')
+      children[0].querySelector('input').value = this.hex
+      spans[0].textContent = 'HEX'
+    }
+    else if (mode === 'rgb') {
+      const rgba = this.rgba
+      children.forEach(($el) => $el.style.display = '')
+      inputs[0].value = rgba[0]
+      inputs[1].value = rgba[1]
+      inputs[2].value = rgba[2]
+      inputs[3].value = round(this._alpha, 2)
+      spans[0].textContent = 'R'
+      spans[1].textContent = 'G'
+      spans[2].textContent = 'B'
+      spans[3].textContent = 'A'
+    }
+    else if (mode === 'hsv') {
+      const hsv = this.hsv
+      children.forEach(($el) => $el.style.display = '')
+      inputs[0].value = Math.round(hsv[0] % 360)
+      inputs[1].value = Math.round(hsv[1] * 100) + '%'
+      inputs[2].value = Math.round(hsv[2] * 100) + '%'
+      inputs[3].value = round(this._alpha, 2)
+      spans[0].textContent = 'H'
+      spans[1].textContent = 'S'
+      spans[2].textContent = 'V'
+      spans[3].textContent = 'A'
+    }
+    else if (mode === 'hsl') {
+      const hsla = this.hsla
+      children.forEach(($el) => $el.style.display = '')
+      inputs[0].value = Math.round(hsla[0] % 360)
+      inputs[1].value = Math.round(hsla[1] * 100) + '%'
+      inputs[2].value = Math.round(hsla[2] * 100) + '%'
+      inputs[3].value = round(this._alpha, 2)
+      spans[0].textContent = 'H'
+      spans[1].textContent = 'S'
+      spans[2].textContent = 'L'
+      spans[3].textContent = 'A'
+    }
+  }
+
+  // 切换模式事件
+  _initModeChangeEvent() {
     this.$modeSwitch.onclick = () => {
       const modes = ['hex', 'rgb', 'hsl', 'hsv']
       this.mode = modes[(modes.indexOf(this.mode) + 1) % 4]
     }
+  }
 
-    // 处理输入
+  // 处理输入
+  _initInputEvents() {
     this.$modeContent.onchange = e => {
       const $input = e.target
       const value = $input.value || ''
@@ -369,8 +646,9 @@ class BlocksColor extends HTMLElement {
         if (values[0] < 0 || values[0] > 360) return
         if (values[1] < 0 || values[1] > 100) return
         if (values[2] < 0 || values[2] > 100) return
+        if (values[3] < 0 || values[3] > 1) return
         this._preventUpdateModel = true
-        this.hsv = [values[0], values[1] / 100, values[2] / 100]
+        this.hsva = [values[0], values[1] / 100, values[2] / 100, values[3]]
         this._preventUpdateModel = false
       }
 
@@ -387,126 +665,7 @@ class BlocksColor extends HTMLElement {
     }
   }
 
-  get color() {
-    return this.getAttribute('color')
-  }
-
-  set color(value) {
-    this.setAttribute('color', value)
-  }
-
-  get mode() {
-    return enumGetter('mode', ['hex', 'rgb', 'hsl', 'hsv'])(this)
-  }
-
-  set mode(value) {
-    enumSetter('mode', [null, 'hex', 'rgb', 'hsl', 'hsv'])(this, value)
-  }
-
-  get hex() {
-    return rgba2hex(this.rgba)
-  }
-
-  set hex(value) {
-    const [r, g, b, a] = hex2rgba(value)
-    const alpha = value.length > 7 ? a / 255 : this._alpha
-    const [h, s, v] = rgb2hsv(r, g, b)
-    if (this._setStates(h, s, v, alpha)) {
-      this.render()
-    }
-  }
-
-  get hsl() {
-    return hsv2hsl(...this.hsv)
-  }
-
-  set hsl([hl, sl, l]) {
-    const [hv, sv, v] = hsl2hsv(hl, sl, l)
-    if (this._setStates(hv, sv, v, this._alpha)) {
-      this.render()
-    }
-  }
-
-  get hsla() {
-    return this.hsl.concat(this._alpha)
-  }
-
-  set hsla([hl, sl, l, a]) {
-    const [hv, sv, v] = hsl2hsv(hl, sl, l)
-    if (this._setStates(hv, sv, v, a)) {
-      this.render()
-    }
-  }
-
-  get hsv() {
-    return [this._hue, this._saturation, this._value]
-  }
-
-  set hsv([h, s, v]) {
-    if (this._setStates(h, s, v, this._alpha)) {
-      this.render()
-    }
-  }
-  
-  get rgb() {
-    return hsv2rgb(...this.hsv).map(n => Math.round(n))
-  }
-
-  set rgb([r, g, b]) {
-    const [h, s, v] = rgb2hsv(r, g, b)
-    if (this._setStates(h, s, v, this._alpha)) {
-      this.render()
-    }
-  }
-
-  get rgba() {
-    return this.rgb.concat(this._alpha)
-  }
-
-  set rgba([r, g, b, a]) {
-    const [h, s, v] = rgb2hsv(r, g, b)
-    if (this._setStates(h, s, v, a)) {
-      this.render()
-    }
-    else {
-      console.log('no update', h, s, v)
-    }
-  }
-
-  render() {
-    this._updateControls()
-    this._updateBg()
-    this._updateModels()
-  }
-
-  connectedCallback() {
-    this.constructor.observedAttributes.forEach(attr => {
-      upgradeProperty(this, attr)
-    })
-    this._clearSizeObserve = sizeObserve(this.$layout, this.render.bind(this))
-  }
-
-  disconnectedCallback() {
-    this._clearSizeObserve()
-  }
-
-  adoptedCallback() {}
-
-  attributeChangedCallback(attrName, oldVal, newVal) {
-    if (attrName === 'mode') {
-      this.render()
-    }
-    if (attrName === 'color') {
-      const oldRgba = this.rgba
-      const newRgba = parse(newVal)
-      const oldHexStr = (oldRgba && rgba2hex(oldRgba)) ?? ''
-      const newHexStr = (newRgba && rgba2hex(newRgba)) ?? ''
-      if (newRgba && oldHexStr !== newHexStr) {
-        this.rgba = newRgba
-      }
-    }
-  }
-
+  // 处理鼠标取色
   _initPickEvents() {
     this._dragging = false
     let $button = null
@@ -582,115 +741,7 @@ class BlocksColor extends HTMLElement {
     this.$hueBar.onmousedown = ondown
     this.$alphaBar.onmousedown = ondown
     this.$hsv.onmousedown = ondown
-  }
-
-  _updateControls() {
-    // 透明度
-    const alphaBarWidth = this.$alphaBar.clientWidth - 12
-    const alphaX = this._alpha * alphaBarWidth
-    this.$alphaButton.style.left = alphaX + 'px'
-    // 色相
-    const hueBarWidth = this.$hueBar.clientWidth - 12
-    const hueX = this._hue / 360 * hueBarWidth
-    this.$hueButton.style.left = hueX + 'px'
-    // HSV
-    const width = this.$hsv.clientWidth - 12
-    const height = this.$hsv.clientHeight - 12
-    const x = this._saturation * width
-    const y = height - this._value * height
-    this.$hsvButton.style.top = y + 'px'
-    this.$hsvButton.style.left = x + 'px'
-  }
-
-  _setStates(hue, saturation, value, alpha) {
-    let changed = this._hue !== hue || this._saturation !== saturation || this._value !== value || this._alpha !== alpha
-    this._hue = hue
-    this._saturation = saturation
-    this._value = value
-    this._alpha = alpha
-
-    if (changed) {
-      this.color = this.hex
-      dispatchEvent(this, 'change')
-    }
-    return changed
-  }
-
-  _updateState() {
-    // 透明度
-    const alphaBarWidth = this.$alphaBar.clientWidth - 12
-    const alphaX = parseInt(getComputedStyle(this.$alphaButton).left, 10) || 0
-    const alpha = alphaX / alphaBarWidth
-    // 色相
-    const hueBarWidth = this.$hueBar.clientWidth - 12
-    const hueX = parseInt(getComputedStyle(this.$hueButton).left, 10) || 0
-    const hue = Math.floor(360 * (hueX / hueBarWidth))
-    // HSV
-    const width = this.$hsv.clientWidth - 12
-    const height = this.$hsv.clientHeight - 12
-    const x = parseInt(getComputedStyle(this.$hsvButton).left, 10) || 0
-    const y = parseInt(getComputedStyle(this.$hsvButton).top, 10) || 0
-    const saturation = Math.floor(100 * (x / width)) / 100
-    const value = 1 - Math.floor(100 * (y / height)) / 100
-    return this._setStates(hue, saturation, value, alpha)
-  }
-
-  _updateBg() {
-    const bg = `hsl(${this._hue}, 100%, 50%)`
-    this.$hsvHue.style.backgroundColor = bg
-    this.$alphaBarBg.style.backgroundImage = `linear-gradient(to right, transparent, ${bg})`
-    const resultBg = this.hsla
-    this.$resultBg.style.backgroundColor = `hsla(${resultBg[0]},${resultBg[1] * 100}%,${resultBg[2] * 100}%,${resultBg[3]})`
-  }
-
-  _updateModels() {
-    // 手输的时候，避免反复触发 update（rgb 和 hsv 相互转换无法一一对应，会出现输入的数字瞬间被覆盖回去的问题）。
-    if (this._preventUpdateModel) return
-
-    const mode = this.mode
-    const children = Array.prototype.slice.call(this.$modeContent.children)
-    const inputs = children.map($el => $el.querySelector('input'))
-    const spans = children.map($el => $el.querySelector('span'))
-    if (mode === 'hex') {
-      children.forEach(($el, index) => $el.style.display = index === 0 ? '' : 'none')
-      children[0].querySelector('input').value = this.hex
-      spans[0].textContent = 'HEX'
-    }
-    else if (mode === 'rgb') {
-      const rgba = this.rgba
-      children.forEach(($el) => $el.style.display = '')
-      inputs[0].value = rgba[0]
-      inputs[1].value = rgba[1]
-      inputs[2].value = rgba[2]
-      inputs[3].value = round(rgba[3], 2)
-      spans[0].textContent = 'R'
-      spans[1].textContent = 'G'
-      spans[2].textContent = 'B'
-      spans[3].textContent = 'A'
-    }
-    else if (mode === 'hsv') {
-      const hsv = this.hsv
-      children.forEach(($el, index) => $el.style.display = index === 3 ? 'none' : '')
-      inputs[0].value = Math.round(hsv[0] % 360)
-      inputs[1].value = Math.round(hsv[1] * 100) + '%'
-      inputs[2].value = Math.round(hsv[2] * 100) + '%'
-      spans[0].textContent = 'H'
-      spans[1].textContent = 'S'
-      spans[2].textContent = 'V'
-    }
-    else if (mode === 'hsl') {
-      const hsla = this.hsla
-      children.forEach(($el) => $el.style.display = '')
-      inputs[0].value = Math.round(hsla[0] % 360)
-      inputs[1].value = Math.round(hsla[1] * 100) + '%'
-      inputs[2].value = Math.round(hsla[2] * 100) + '%'
-      inputs[3].value = round(hsla[3], 2)
-      spans[0].textContent = 'H'
-      spans[1].textContent = 'S'
-      spans[2].textContent = 'L'
-      spans[3].textContent = 'A'
-    }
-  }
+  }  
 }
 
 if (!customElements.get('bl-color')) {

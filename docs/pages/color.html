@@ -32,22 +32,61 @@
       <h2>默认使用</h2>
 
       <div class="case">
-        <template data-codesource="html">
-          <div style="padding:30px 10px;">
-            <div>
-              HEX: &nbsp;&nbsp;<span id="hex"></span>
-            </div>
-            <div>
-              HSV: &nbsp;&nbsp;<span id="hsv"></span>
-            </div>
-            <div>
-              RGBA: <span id="rgba"></span>
-            </div>
-            <div>
-              HSLA: <span id="hsla"></span>
-            </div>
-          </div>
+        <style>
+          dl {
+            display: flex;
+            margin: 0;
+            line-height: 32px;
+            border-bottom: 1px solid #e8e8e8;
+          }
+          dl:last-child {
+            border: none;
+          }
+          dt {
+            flex: 0 0 60px;
+            padding-right: 10px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 700;
+          }
+          dd {
+            margin: 0;
+            flex: 1 1 auto;
+            font-size: 14px;
+          }
+        </style>
+        <div style="padding:10px;margin-bottom: 15px;font-size:14px;background:#f3f3f3;">
+          <dl>
+            <dt>HEX:</dt>
+            <dd id="hex"></dd>
+          </dl>
+          <dl>
+            <dt>RGB: </dt>
+            <dd id="rgb"></dd>
+          </dl>     
+          <dl>
+            <dt>RGBA: </dt>
+            <dd id="rgba"></dd>
+          </dl>            
+          <dl>
+            <dt>HSl: </dt>
+            <dd id="hsl"></dd>
+          </dl>
+          <dl>
+            <dt>HSLA:</dt>
+            <dd id="hsla"></dd>
+          </dl>
+          <dl>
+            <dt>HSV:</dt>
+            <dd id="hsv"></dd>
+          </dl>
+          <dl>
+            <dt>HSVA:</dt>
+            <dd id="hsva"></dd>
+          </dl>
+        </div>
 
+        <template data-codesource="html">
           <bl-color id="color" style="border: 1px solid #e8e8e8;"></bl-color>
         </template>
 
@@ -55,10 +94,13 @@
           <script >
             const $color = document.getElementById('color')
             const render = () => {
-              document.getElementById('hex').innerText = $color.hex
-              document.getElementById('hsv').innerText = $color.hsv
-              document.getElementById('rgba').innerText = $color.rgba
-              document.getElementById('hsla').innerText = $color.hsla
+              document.getElementById('hex').innerText = $color.toHexString()
+              document.getElementById('rgb').innerText = $color.toRgbString()
+              document.getElementById('rgba').innerText = $color.toRgbaString()
+              document.getElementById('hsl').innerText = $color.toHslString()
+              document.getElementById('hsla').innerText = $color.toHslaString()
+              document.getElementById('hsv').innerText = $color.toHsvString()
+              document.getElementById('hsva').innerText = $color.toHsvaString()
             }
             $color.onchange = render
             render()
@@ -111,6 +153,13 @@
             <td></td>
           </tr>
           <tr>
+            <td>hsva</td>
+            <td>[number, number, number, number]</td>
+            <td></td>
+            <td>prop，获取、设置 hsva 颜色。</td>
+            <td></td>
+          </tr>
+          <tr>
             <td>rgb</td>
             <td>[number, number, number]</td>
             <td></td>
@@ -123,6 +172,72 @@
             <td></td>
             <td>prop，获取、设置 rgba 颜色。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>value</td>
+            <td>string</td>
+            <td></td>
+            <td>
+              attr / prop，获取、设置颜色。支持的格式：<br>
+              <ul>
+                <li>十六进制，例如：`#f00`, `#ff0000`, `#ff0000ff`</li>
+                <li>rgb，例如：`rgb(255,0,0)`</li>
+                <li>rgba，例如：`rgba(255,0,0,1)`</li>
+                <li>hsl，例如：`hsl(0,100%,50%)`</li>
+                <li>hsla，例如：`hsla(0,100%,50%,1)`</li>
+                <li>hsv，例如：`hsv(0,100%,100%)`</li>
+                <li>hsva，例如：`hsva(0,100%,100%,1)`</li>
+              </ul>
+            </td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Methods</h3>
+      <table class="api-fns">
+        <thead>
+          <tr>
+            <th>函数名称</th>
+            <th>类型</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>toHexString</td>
+            <td>() => string</td>
+            <td>返回十六进制颜色值。</td>
+          </tr>
+          <tr>
+            <td>toRgbString</td>
+            <td>() => string</td>
+            <td>返回 rgb 颜色值。</td>
+          </tr>
+          <tr>
+            <td>toRgbaString</td>
+            <td>() => string</td>
+            <td>返回 rgba 颜色值。</td>
+          </tr>
+          <tr>
+            <td>toHslString</td>
+            <td>() => string</td>
+            <td>返回 hsl 颜色值。</td>
+          </tr>
+          <tr>
+            <td>toHslaString</td>
+            <td>() => string</td>
+            <td>返回 hsla 颜色值。</td>
+          </tr>
+          <tr>
+            <td>toHsvString</td>
+            <td>() => string</td>
+            <td>返回 hsv 颜色值。</td>
+          </tr>
+          <tr>
+            <td>toHsvaString</td>
+            <td>() => string</td>
+            <td>返回 hsva 颜色值。</td>
           </tr>
         </tbody>
       </table>

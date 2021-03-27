@@ -207,8 +207,8 @@ export const parse = (() => {
     if (!input.length) return
     if (input.startsWith('#')) return parseHex
     if (/^rgba?\([,0-9\s\.]+\)$/.test(input)) return parseRgba
-    if (/^hsv\([,0-9\s]+\)$/.test(input)) return parseHsv
-    if (/^hsla?\([,0-9\s\.]+\)$/.test(input)) return parseHsl
+    if (/^hsv\([,0-9\s%]+\)$/.test(input)) return parseHsv
+    if (/^hsla?\([,0-9\s\.%]+\)$/.test(input)) return parseHsl
     return () => null
   }
 

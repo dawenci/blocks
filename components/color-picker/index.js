@@ -84,6 +84,7 @@ popupTemplate.innerHTML = TEMPLATE_HTML_POPUP
 class BlocksColorPicker extends HTMLElement {
   static get observedAttributes() {
     return [
+      'value',
       'disabled',
       'size',
     ]
@@ -113,6 +114,7 @@ class BlocksColorPicker extends HTMLElement {
     }
 
     this.$color.addEventListener('change', (e) => {
+      this.value = this.$color.value
       this.render()
       dispatchEvent(this, 'change')
     })
@@ -166,6 +168,14 @@ class BlocksColorPicker extends HTMLElement {
     this.$color.hsv = value
   }
 
+  get hsva() {
+    return this.$color.hsva
+  }
+
+  set hsva(value) {
+    this.$color.hsva = value
+  }
+
   get rgb() {
     return this.$color.rgb
   }
@@ -181,7 +191,42 @@ class BlocksColorPicker extends HTMLElement {
   set rgba(value) {
     this.$color.rgba = value
   }
-  
+
+  get value() {
+    return this.getAttribute('value')
+  }
+
+  set value(value) {
+    this.setAttribute('value', value)
+  }
+
+  connectedCallback() {
+    this.constructor.observedAttributes.forEach((attr) => {
+      upgradeProperty(this, attr)
+    })
+    document.body.appendChild(this.$popup)
+    this.render()
+  }
+
+  disconnectedCallback() {
+    document.body.removeChild(this.$popup)
+    this._destroyClickOutside()
+  }
+
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    if (['clearable'].includes(attrName)) {
+      this.$result.setAttribute(attrName, newValue)
+    }
+
+    if (attrName === 'value') {
+      if (oldValue !== newValue) {
+        this.$color.setAttribute('value', newValue)
+      }
+    }
+
+    this.render()
+  }
+
   render() {  
     const hsla = this.$color.hsla
     if (hsla) {
@@ -198,25 +243,33 @@ class BlocksColorPicker extends HTMLElement {
       this.$icon.fill = `hsla(${hsla[0]},${50}%,${lightness}%,1)`
     }
   }
-
-  connectedCallback() {
-    this.constructor.observedAttributes.forEach((attr) => {
-      upgradeProperty(this, attr)
-    })
-    document.body.appendChild(this.$popup)
-    this.render()
+  
+  toHexString() {
+    return this.$color.toHexString()
   }
 
-  disconnectedCallback() {
-    document.body.removeChild(this.$popup)
-    this._destroyClickOutside()
+  toRgbString() {
+    return this.$color.toRgbString()
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (['clearable'].includes(name)) {
-      this.$result.setAttribute(name, newValue)
-    }
-    this.render()
+  toRgbaString() {
+    return this.$color.toRgbaString()
+  }
+
+  toHslString() {
+    return this.$color.toHslString()
+  }
+  
+  toHslaString() {
+    return this.$color.toHslaString()
+  }
+  
+  toHsvString() {
+    return this.$color.toHsvString()
+  }
+
+  toHsvaString() {
+    return this.$color.toHsvaString()
   }
 
   _initClickOutside() {
