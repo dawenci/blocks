@@ -60,7 +60,7 @@ class BlocksPopupMenu extends BlocksPopup {
   enter() {
     if (this.level === 0) return
 
-    clearTimeout(this._enterTimer)
+    clearTimeout(this._leaveTimer)
     this.open = true
     if (this.$parentMenu) {
       this.$parentMenu.enter?.()
@@ -68,15 +68,15 @@ class BlocksPopupMenu extends BlocksPopup {
 
     // 清理父菜单项目 leave 的 timer，避免当前 menu 被关闭
     if (this.$parentItem) {
-      clearTimeout(this.$parentItem._enterTimer)
+      clearTimeout(this.$parentItem._leaveTimer)
     }
   }
 
   leave() {
     if (this.level === 0) return
 
-    clearTimeout(this._enterTimer)
-    this._enterTimer = setTimeout(() => {
+    clearTimeout(this._leaveTimer)
+    this._leaveTimer = setTimeout(() => {
       this.open = false
     }, 200)
 
@@ -86,7 +86,7 @@ class BlocksPopupMenu extends BlocksPopup {
 
     // 清理父菜单项目 leave 的 timer，控制权交给 this 的 timer
     if (this.$parentItem) {
-      clearTimeout(this.$parentItem._enterTimer)
+      clearTimeout(this.$parentItem._leaveTimer)
     }
   }
 

@@ -200,28 +200,25 @@ class BlocksNavMenuItem extends HTMLElement {
 
     this.onmouseenter = () => {
       if (!this.isInlineMode && this.$submenu) {
-        clearTimeout(this._enterTimer)
+        clearTimeout(this._leaveTimer)
         if (!document.body.contains(this.$submenu)) {
           document.body.appendChild(this.$submenu)
         }
+
         this.$submenu.open = true
         // 清理子菜单的 leave timer，避免子菜单被关闭
-        clearTimeout(this.$submenu._enterTimer)
+        clearTimeout(this.$submenu._leaveTimer)
       }
     }
 
     this.onmouseleave = () => {
       if (!this.isInlineMode && this.$submenu) {
-        clearTimeout(this._enterTimer)
-
-        this._enterTimer = setTimeout(() => {
+        clearTimeout(this._leaveTimer)
+        this._leaveTimer = setTimeout(() => {
           this.$submenu.open = false
         }, 200)
-
         // 清理子菜单 leave 的 timer，控制权交给 this 的 timer
-        if (this.$parentItem) {
-          clearTimeout(this.$parentItem._enterTimer)
-        }
+        clearTimeout(this.$submenu._leaveTimer)
       }
     }
   }
