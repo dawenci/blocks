@@ -49,6 +49,11 @@ const TEMPLATE_CSS = `<style>
   width: 100%;
 }
 
+#hsv-picker,
+#hsv-picker button {
+  cursor: crosshair;
+}
+
 #hsv-picker .hue,
 #hsv-picker .saturation,
 #hsv-picker .value {
@@ -338,7 +343,11 @@ class BlocksColor extends HTMLElement {
 
     // 是否正在拖拽光标取色中
     definePrivate(this, '_dragging', false)
-    
+    // 是否阻止更新控制点
+    definePrivate(this, '_preventUpdateControl', false)
+    // 是否阻止更新文本输入框
+    definePrivate(this, '_preventUpdateModel', false)
+
     // 处理鼠标取色
     this._initPickEvents()
     // 切换模式
@@ -500,6 +509,8 @@ class BlocksColor extends HTMLElement {
   }
 
   _updateControls() {
+    if (this._preventUpdateControl) return
+
     // 透明度
     const alphaBarWidth = this.$alphaBar.clientWidth - 12
     const alphaX = this._alpha * alphaBarWidth
@@ -673,6 +684,13 @@ class BlocksColor extends HTMLElement {
     let wrapHeight = null
     let moveStart = null
     let positionStart = null
+
+    const update = () => {
+      this._preventUpdateControl = true
+      this._updateState()
+      this._preventUpdateControl = false
+    }
+
     const onmove = (e) => {
       const moveOffset = {
         x: e.pageX - moveStart.x,
@@ -688,17 +706,12 @@ class BlocksColor extends HTMLElement {
       $button.style.left = x + 'px'
       $button.style.top = y + 'px'
 
-      if (this._updateState()) {
-        this._updateBg()
-        this._updateModels()
-      }
+      update()
     }
 
-    const onup = (e) => {
-      if (this._updateState()) {
-        this._updateBg()
-        this._updateModels()
-      }
+    const onup = () => {
+      update()
+
       window.removeEventListener('mousemove', onmove)
       window.removeEventListener('mouseup', onup)
       positionStart = null
@@ -732,10 +745,8 @@ class BlocksColor extends HTMLElement {
 
       $button.style.left = x + 'px'
       $button.style.top = y + 'px'
-      if (this._updateState()) {
-        this._updateBg()
-        this._updateModels()
-      }
+
+      update()
     }
 
     this.$hueBar.onmousedown = ondown
