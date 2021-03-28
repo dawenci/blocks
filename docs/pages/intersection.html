@@ -18,12 +18,6 @@
     </header>
 
     <section class="section">
-      <h2>TODO</h2>
-      组件待实现
-
-    </section>
-
-    <!-- <section class="section">
       <h2>依赖引入</h2>
 
       <p>根据自己项目调整 src 的路径</p>
@@ -31,7 +25,43 @@
       <div data-codesource="html" data-title="依赖引入" on>
         <script type="module" src="../../components/intersection/index.js"></script>
       </div>
-    </section> -->
+    </section>
+
+    <section class="section">
+      <h2>相交检测</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <style>
+            .container {
+              overflow: auto;
+              width: 100%;
+              height: 150px;
+              border: 1px solid #e8e8e8;
+            }
+            .box {
+              height: 100px;
+              line-height: 100px;;
+              text-align: center;
+              font-size: 30px;
+              background-color: #f3f3f3;
+            }
+            bl-intersection:nth-child(even) .box {
+              background-color: #888;
+              color: #fff;
+            }
+          </style>
+          <div class="container">
+            <bl-intersection root=".container" root-margin="30px"><div class="box">0</div></bl-intersection>
+            <bl-intersection root=".container" root-margin="30px"><div class="box">1</div></bl-intersection>
+            <bl-intersection root=".container" root-margin="30px"><div class="box">2</div></bl-intersection>
+            <bl-intersection root=".container" root-margin="30px"><div class="box">3</div></bl-intersection>
+            <bl-intersection root=".container" root-margin="30px"><div class="box">4</div></bl-intersection>
+            <bl-intersection root=".container" root-margin="30px"><div class="box">5</div></bl-intersection>
+          </div>
+        </template>
+      </div>
+    </section>
 
     <section class="section">
       <h2>API</h2>
