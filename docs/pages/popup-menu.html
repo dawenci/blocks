@@ -96,7 +96,8 @@
     
     <section class="section">
       <h2>API</h2>
-      待编写
+
+      <h3>Attrs / Props</h3>
       <table>
         <thead>
           <tr>
@@ -109,10 +110,51 @@
         </thead>
         <tbody>
           <tr>
+            <td>data</td>
             <td></td>
             <td></td>
+            <td>
+              导航的数据，该属性为 prop，非 attr。接受一个 JavaScript 数组。数组中的项可以为菜单项，或者分组。其中菜单项可以有子菜单。
+              菜单项的数据结构：
+<pre>
+interface MenuItem {
+  active?: boolean
+  disabled?: boolean
+  handler?: () => void
+  href?: string
+  icon?: string
+  label: string
+}
+</pre>
+              菜单分组的的数据结构:
+<pre>
+interface MenuGrup {
+  title: string
+  data: MenuItem[]
+}
+</pre>
+            </td>
             <td></td>
+          </tr>
+          <tr>
+            <td>enter-delay</td>
+            <td>number</td>
             <td></td>
+            <td>鼠标移上多少毫秒弹出子菜单。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>leave-delay</td>
+            <td>number</td>
+            <td></td>
+            <td>鼠标移上多少毫秒弹出子菜单。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>size</td>
+            <td>'small'|'large'</td>
+            <td></td>
+            <td>菜单的尺寸。默认不设置为中等尺寸。</td>
             <td></td>
           </tr>
         </tbody>
