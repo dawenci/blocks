@@ -4,6 +4,7 @@ import { setStyles } from '../../common/style.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __transition_duration } from '../../theme/var.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
+import { onDragMove } from '../../common/onDragMove.js'
 
 const TEMPLATE_CSS = `<style>
 ::-webkit-scrollbar {
@@ -303,14 +304,14 @@ class BlocksScrollable extends HTMLElement {
     let startThumbPosition
     let startMousePosition
 
-    const move = (e) => {
-      e.preventDefault()
-      e.stopImmediatePropagation()
+    const onMove = ({ preventDefault, stopImmediatePropagation, current }) => {
+      preventDefault()
+      stopImmediatePropagation()
 
       if (isVertical) {
         const trackHeight = this.$vertical.clientHeight
         const thumbHeight = this.$verticalThumb.offsetHeight
-        let thumbTop = startThumbPosition + (e.pageY - startMousePosition)
+        let thumbTop = startThumbPosition + (current.pageY - startMousePosition)
         if (thumbTop === 0 || thumbTop + thumbHeight === trackHeight) return
         if (thumbTop < 0) thumbTop = 0
         if (thumbTop + thumbHeight > trackHeight) thumbTop = trackHeight - thumbHeight
@@ -319,7 +320,7 @@ class BlocksScrollable extends HTMLElement {
       else {
         const trackWidth = this.$horizontal.clientWidth
         const thumbWidth = this.$horizontalThumb.offsetWidth
-        let thumbLeft = startThumbPosition + (e.pageX - startMousePosition)
+        let thumbLeft = startThumbPosition + (current.pageX - startMousePosition)
         if (thumbLeft === 0 || thumbLeft + thumbWidth === trackWidth) return
         if (thumbLeft < 0) thumbLeft = 0
         if (thumbLeft + thumbWidth > trackWidth) thumbLeft = trackWidth - thumbWidth
@@ -330,30 +331,26 @@ class BlocksScrollable extends HTMLElement {
       this._updateScrollable()
     }
 
-    const up = (e) => {
-      e.preventDefault()
-      e.stopImmediatePropagation()
+    const onEnd = () => {
       this._dragging = false
 
       dispatchEvent(this, 'drag-scroll-end')
-      removeEventListener('mousemove', move)
-      removeEventListener('mouseup', up)
       this.$layout.classList.remove('dragging', 'dragging-vertical')
       this.$layout.classList.remove('dragging', 'dragging-horizontal')
     }
 
-    const down = (e) => {
-      e.preventDefault()
-      e.stopImmediatePropagation()
+    const onStart = ({ preventDefault, stopImmediatePropagation, target, start }) => {
+      preventDefault()
+      stopImmediatePropagation()
       this._dragging = true
 
-      isVertical = this.$vertical.contains(e.target)
+      isVertical = this.$vertical.contains(target)
 
       // 点击的是滑轨，将滑块移动到点击处（滑块中点对准点击处）
-      if (e.target.tagName !== 'B') {
+      if (target.tagName !== 'B') {
         if (isVertical) {
           // 期望滑块的中点座标
-          const middle = e.clientY - this.$vertical.getBoundingClientRect().top
+          const middle = start.clientY - this.$vertical.getBoundingClientRect().top
           // 推算出 top 座标
           const thumbHeight = this.$verticalThumb.offsetHeight
           let thumbTop = middle - thumbHeight / 2
@@ -363,7 +360,7 @@ class BlocksScrollable extends HTMLElement {
         }
         else {
           // 期望滑块的中点座标
-          const center = e.clientX - this.$horizontal.getBoundingClientRect().left
+          const center = start.clientX - this.$horizontal.getBoundingClientRect().left
           // 推算出滑块 left 座标
           const thumbWidth = this.$horizontalThumb.offsetWidth
           let thumbLeft = center - thumbWidth / 2
@@ -381,22 +378,28 @@ class BlocksScrollable extends HTMLElement {
       if (isVertical) {
         this.$layout.classList.add('dragging', 'dragging-vertical')
         startThumbPosition = this._getThumbTop()
-        startMousePosition = e.pageY
+        startMousePosition = start.pageY
       }
       else {
         this.$layout.classList.add('dragging', 'dragging-horizontal')
         startThumbPosition = this._getThumbLeft()
-        startMousePosition = e.pageX
+        startMousePosition = start.pageX
       }
 
       dispatchEvent(this, 'drag-scroll-start')
-
-      addEventListener('mousemove', move)
-      addEventListener('mouseup', up)
     }
 
-    this.$vertical.onmousedown = down
-    this.$horizontal.onmousedown = down
+    onDragMove(this.$vertical, {
+      onStart,
+      onMove,
+      onEnd,
+    })
+
+    onDragMove(this.$horizontal, {
+      onStart,
+      onMove,
+      onEnd,
+    })
   }
 
   connectedCallback() {

@@ -1,4 +1,5 @@
 import { dispatchEvent } from '../../common/event.js'
+import { onDragMove } from '../../common/onDragMove.js'
 import { enumGetter, enumSetter, intGetter, intSetter, numGetter, numSetter } from '../../common/property.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
@@ -431,65 +432,45 @@ export class BlocksSplitter extends HTMLElement {
   _initResizeEvents() {
     // 开始拖拽调整面板尺寸时，鼠标的坐标，以及面板宽度初始值
     // 用于计算偏移
-    let resizeStart = { x: 0, y: 0, size: 0 }
-
-    // 拖拽调整面板尺寸过程，鼠标坐标
-    let mouseCurrent = { x: 0, y: 0 }
-
+    let startSize = 0
     let $handle = null
     let $pane = null
 
-    const clear = () => {
-      document.removeEventListener('mousemove', onmove)
-      document.removeEventListener('mouseup', onup)
-      this.toggleCover(false)
-      $handle.classList.remove('dragging')
-      $handle = null
-      $pane = null
-    }
+    onDragMove(this.$layout, {
+      onStart: ({ stop, target }) => {
+        if (!target.classList.contains('handle')) {
+          return stop()
+        }
+        $handle = target
+        $pane = this.panes[this.gethandleIndex($handle) + 1]
+        startSize = $pane.size,
+        this.toggleCover(true)
+        $handle.classList.add('dragging')
+      },
 
-    const onmove = e => {
-      mouseCurrent = { x: e.pageX, y: e.pageY }
-      // 鼠标离开窗口的时候，退出
-      const $from = e.relatedTarget || e.toElement
-      if (!$from || $from.nodeName === 'HTML') {
-        clear()
-        return
+      onMove: ({ offset }) => {
+        const axis = this.direction === 'horizontal' ? 'x' : 'y'
+        const mouseOffset = offset[axis]
+        const newSize = startSize - mouseOffset
+        this.resizePane($pane, newSize)
+        this.renderHandles()
+      },
+
+      onEnd: () => {
+        this.toggleCover(false)
+        $handle.classList.remove('dragging')
+        $handle = null
+        $pane = null
+      },
+
+      onCancel: () => {
+        this.toggleCover(false)
+        $handle.classList.remove('dragging')
+        $handle = null
+        $pane = null
       }
+    })
 
-      // 刷新
-      const axis = this.direction === 'horizontal' ? 'x' : 'y'
-      const mouseOffset = mouseCurrent[axis] - resizeStart[axis]
-      const newSize = resizeStart.size - mouseOffset
-      this.resizePane($pane, newSize)
-      this.renderHandles()
-    }
-
-    const onup = () => {
-      clear()
-    }
-
-    const onstart = (e) => {
-      if (!e.target.classList.contains('handle')) return
-      $handle = e.target
-      $pane = this.panes[this.gethandleIndex($handle) + 1]
-      resizeStart = {
-        x: e.pageX,
-        y: e.pageY,
-        size: $pane.size,
-      }
-      mouseCurrent = {
-        x: e.pageX,
-        y: e.pageY
-      }
-
-      document.addEventListener('mousemove', onmove)
-      document.addEventListener('mouseup', onup)
-      this.toggleCover(true)
-      $handle.classList.add('dragging')
-    }
-
-    this.$layout.onmousedown = onstart
   }
 
   // 获取面板允许扩张的尺寸

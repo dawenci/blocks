@@ -17,6 +17,7 @@ import { setRole } from '../../common/accessibility.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { closeableGetter, closeableSetter } from '../../common/propertyAccessor.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
+import { onDragMove } from '../../common/onDragMove.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -454,48 +455,41 @@ class BlocksDialog extends BlocksTransitionOpenCollapse {
     this._renderHeader()
     this._renderFooter()
 
+    this._initDragEvents()
+  }
+
+  _initDragEvents() {
     // 拖拽 header 移动
-    {
-      let startX
-      let startY
-      let startPageX
-      let startPageY
+    let startX
+    let startY
 
-      const isHeader = (e) => {
-        if (this.$layout.querySelector('header').contains(e.target)) return true
-        // maybe header slot
-        if (this.contains(e.target)) {
-          let el = e.target
-          while (el && el !== this) {
-            if (el.slot === 'header') return true
-            el = el.parentElement
-          }
+    const isHeader = (target) => {
+      if (this.$layout.querySelector('header').contains(target)) return true
+      // maybe header slot
+      if (this.contains(target)) {
+        let el = target
+        while (el && el !== this) {
+          if (el.slot === 'header') return true
+          el = el.parentElement
         }
-        return false
       }
+      return false
+    }
 
-      const move = (e) => {
-        this.style.left = startX + (e.pageX - startPageX) + 'px'
-        this.style.top = startY + (e.pageY - startPageY) + 'px'
-      }
-
-      const up = () => {
-        removeEventListener('mousemove', move)
-        removeEventListener('mouseup', up)
-      }
-
-      this.$layout.onmousedown = (e) => {
-        if (!isHeader(e)) return
-        startPageX = e.pageX
-        startPageY = e.pageY
+    onDragMove(this.$layout, {
+      onStart: ({ target, stop }) => {
+        if (!isHeader(target)) return stop()
         const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0')
         const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0')
         startX = this.offsetLeft - marginLeft
         startY = this.offsetTop - marginTop
-        addEventListener('mousemove', move)
-        addEventListener('mouseup', up)
-      }
-    }
+      },
+
+      onMove: ({ offset }) => {
+        this.style.left = startX + offset.x + 'px'
+        this.style.top = startY + offset.y + 'px'
+      },
+    })
   }
 
   disconnectedCallback() {

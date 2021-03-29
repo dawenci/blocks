@@ -17,6 +17,7 @@ import {
 } from '../../theme/var.js'
 import { setDisabled, setRole } from '../../common/accessibility.js';
 import { disabledGetter, disabledSetter } from '../../common/propertyAccessor.js';
+import { onDragMove } from '../../common/onDragMove.js'
 
 const [minGetter, maxGetter] = ['min', 'max'].map(prop => numGetter(prop))
 const [minSetter, maxSetter] = ['min', 'max'].map(prop => numSetter(prop))
@@ -340,25 +341,6 @@ class BlocksSlider extends HTMLElement {
     return round(value, this.round)
   }
 
-  // _setPointValue($point, value) {
-  //   if (this._isValidNumber(value)) {
-  //     value = round(value, this.round)
-  //     if (this.range) {
-  //       const values = this.value.slice()
-  //       if ($point === this.$point) {
-  //         values[0] = value
-  //       }
-  //       else {
-  //         values[1] = value
-  //       }
-  //       this.value = values
-  //     }
-  //     else {
-  //       this.value = value
-  //     }
-  //   }
-  // }
-
   _setPointPositionByValue($point, value) {
     if (this._isValidNumber(value)) {
       value = round(value, this.round)
@@ -423,21 +405,13 @@ class BlocksSlider extends HTMLElement {
       this._updateRangeLine()
     }
 
-    this._initDragEvents()
+    this._clearDragEvents = this._initDragEvents()
   }
 
   _initDragEvents() {
-    let isTouch = false
-
     this._dragging = false
-    let moveStart = null
     let positionStart = null
     let $active = null
-
-    const getPageX = e => isTouch ? e.changedTouches[0].pageX : e.pageX
-    const getPageY = e => isTouch ? e.changedTouches[0].pageY : e.pageY
-    const getClientX = e => isTouch ? e.changedTouches[0].clientX : e.clientX
-    const getClientY = e => isTouch ? e.changedTouches[0].clientY : e.clientY
 
     const swap = ($point) => {
       const $p2 = $point === this.$point ? this.$point2 : this.$point
@@ -450,111 +424,83 @@ class BlocksSlider extends HTMLElement {
       this._updateValue()
     }
 
-    const move = (e) => {
-      e.preventDefault()
-      e.stopImmediatePropagation()
-
-      const moveOffset = this.vertical ? moveStart - getPageY(e) : getPageX(e) - moveStart
-      let position = this._normalizePosition(positionStart + moveOffset)
-      if (this.range) {
-        if ($active === this.$point && position > this._getPointPosition(this.$point2)) {
-          swap($active)
+    return onDragMove(this.$track, {
+      onStart: ({ start, target, stop }) => {
+        if (this.disabled) {
+          stop()
+          return
         }
-        else if ($active === this.$point2 && position < this._getPointPosition(this.$point)) {
-          swap($active)
+
+        // 点击轨道，则先将滑块移动过去，再记录移动初始信息
+        if (target === this.$track) {
+          const rect = this.$track.getBoundingClientRect()
+          if (this.vertical) {
+            positionStart = this._getTrackSize() - (this.vertical ? start.clientY - rect.y : start.clientX - rect.x) - 7
+          }
+          else {
+            positionStart = (this.vertical ? start.clientY - rect.y : start.clientX - rect.x) - 7
+          }
+          positionStart = this._normalizePosition(positionStart)
+  
+          // 如果是区间，则需要确定移动哪个控制点
+          // 1. 点击的是 min 点的左侧，则移动 min 点
+          // 2. 点击的是 max 点的右侧，则移动 max 点
+          // 3. 点击的是两点之间，则移动接近点击位置的那个点
+          if (this.range) {
+            const pos1 = this._getPointPosition(this.$point)
+            const pos2 = this._getPointPosition(this.$point2)
+            $active = positionStart < pos1 ? this.$point
+              : positionStart > pos2 ? this.$point2
+              : pos2 - positionStart > positionStart - pos1 ? this.$point
+              : this.$point2
+          }
+          else {
+            $active = this.$point
+          }
+  
+          $active.classList.add('active')
+  
+          this._setPointPosition($active, positionStart)
+          this._updateValue()
         }
-      }
-      this._setPointPosition($active, position)
-      this._updateValue()
-    }
+  
+        // 点击的是滑块，记录移动初始信息
+        else if (target === this.$point || target === this.$point2) {
+          $active = target
+          $active.classList.add('active')
+          positionStart = parseFloat($active.style[this.vertical ? 'bottom' : 'left']) || 0
+        }  
+      },
 
-    const up = (e) => {
-      if (isTouch) {
-        window.removeEventListener('touchmove', move)
-        window.removeEventListener('touchend', up)
-        window.removeEventListener('touchcancel', up)
-      }
-      else {
-        window.removeEventListener('mousemove', move)
-        window.removeEventListener('mouseup', up)
-      }
+      onMove: ({ offset, preventDefault }) => {
+        preventDefault()
+        const moveOffset = this.vertical ? -offset.y : offset.x
 
-      $active.classList.remove('active')
-      positionStart = null
-      moveStart = null
-      $active = null
-      this._updateValue()
-      this._dragging = false
-    }
-
-    const start = (e) => {
-      if (this.disabled) {
-        e.preventDefault()
-        e.stopImmediatePropagation()
-        return
-      }
-      if (this._dragging) return
-      this._dragging = true
-      isTouch = e.type !== 'mousedown'
-
-      // 点击轨道，则先将滑块移动过去，再记录移动初始信息
-      if (e.target === this.$track) {
-        moveStart = this.vertical ? getPageY(e) : getPageX(e)
-        const rect = this.$track.getBoundingClientRect()
-        if (this.vertical) {
-          positionStart = this._getTrackSize() - (this.vertical ? getClientY(e) - rect.y : getClientX(e) - rect.x) - 7
-        }
-        else {
-          positionStart = (this.vertical ? getClientY(e) - rect.y : getClientX(e) - rect.x) - 7
-        }
-        positionStart = this._normalizePosition(positionStart)
-
-        // 如果是区间，则需要确定移动哪个控制点
-        // 1. 点击的是 min 点的左侧，则移动 min 点
-        // 2. 点击的是 max 点的右侧，则移动 max 点
-        // 3. 点击的是两点之间，则移动接近点击位置的那个点
+        let position = this._normalizePosition(positionStart + moveOffset)
         if (this.range) {
-          const pos1 = this._getPointPosition(this.$point)
-          const pos2 = this._getPointPosition(this.$point2)
-          $active = positionStart < pos1 ? this.$point
-            : positionStart > pos2 ? this.$point2
-            : pos2 - positionStart > positionStart - pos1 ? this.$point
-            : this.$point2
+          if ($active === this.$point && position > this._getPointPosition(this.$point2)) {
+            swap($active)
+          }
+          else if ($active === this.$point2 && position < this._getPointPosition(this.$point)) {
+            swap($active)
+          }
         }
-        else {
-          $active = this.$point
-        }
-
-        $active.classList.add('active')
-
-        this._setPointPosition($active, positionStart)
+        this._setPointPosition($active, position)
         this._updateValue()
-      }
+      },
 
-      // 点击的是滑块，记录移动初始信息
-      else if (e.target === this.$point || e.target === this.$point2) {
-        $active = e.target
-        $active.classList.add('active')
-        moveStart = this.vertical ? getPageY(e) : getPageX(e)
-        positionStart = parseFloat($active.style[this.vertical ? 'bottom' : 'left']) || 0
-      }
-
-      if (isTouch) {
-        window.addEventListener('touchmove', move)
-        window.addEventListener('touchend', up)
-        window.addEventListener('touchcancel', up)
-      }
-      else {
-        window.addEventListener('mousemove', move)
-        window.addEventListener('mouseup', up)
-      }
-    }
-
-    this.$track.addEventListener('touchstart', start)
-    this.$track.addEventListener('mousedown', start)
+      onEnd: () => {
+        $active.classList.remove('active')
+        positionStart = null
+        $active = null
+        this._updateValue()
+        this._dragging = false
+      },
+    })
   }
 
   disconnectedCallback() {
+    this._clearDragEvents()
     this.$layout.onmousedown = null
   }
 

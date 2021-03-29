@@ -26,6 +26,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
+import { onDragMove } from '../../common/onDragMove.js'
 
 const TEMPLATE_CSS = `
 <style>
@@ -677,29 +678,19 @@ class BlocksWindow extends BlocksTransitionOpenCollapse {
     // 拖拽 header 移动
     let startLeft
     let startTop
-    let startMouseX
-    let startMouseY
+    onDragMove(this.$header, {
+      onStart: ({ stop }) => {
+        if (this.maximized) return stop()
+        const style = getComputedStyle(this)
+        startLeft = parseFloat(style.left)
+        startTop = parseFloat(style.top)
+      },
 
-    const move = (e) => {
-      this.style.left = startLeft + (e.pageX - startMouseX) + 'px'
-      this.style.top = startTop + (e.pageY - startMouseY) + 'px'
-    }
-
-    const up = () => {
-      removeEventListener('mousemove', move)
-      removeEventListener('mouseup', up)
-    }
-
-    this.$header.onmousedown = (e) => {
-      if (this.maximized) return
-      const style = getComputedStyle(this)
-      startLeft = parseFloat(style.left)
-      startTop = parseFloat(style.top)
-      startMouseX = e.pageX
-      startMouseY = e.pageY
-      addEventListener('mousemove', move)
-      addEventListener('mouseup', up)
-    }
+      onMove: ({ offset }) => {
+        this.style.left = startLeft + offset.x + 'px'
+        this.style.top = startTop + offset.y + 'px'
+      }
+    })
   }
 
   _initResizeEvents() {
@@ -717,16 +708,6 @@ class BlocksWindow extends BlocksTransitionOpenCollapse {
     let updateFn
 
     const callAll = (...fns) => (...args) => fns.forEach(fn => fn(...args))
-
-    const move = (e) => {
-      if (e.pageY > window.innerHeight || e.pageX > window.innerWidth) return
-      updateFn(e.pageX, e.pageY)
-    }
-
-    const up = () => {
-      removeEventListener('mousemove', move)
-      removeEventListener('mouseup', up)
-    }
 
     const resizeTop = (x, y) => {
       // offset > 0:  往下拖拽缩小窗口, top 增加，height 减少
@@ -771,54 +752,62 @@ class BlocksWindow extends BlocksTransitionOpenCollapse {
       this.style.width = newWidth + 'px'
     }
 
-    this.$layout.onmousedown = e => {
-      if (this.maximized || this.minimized) return
-      const $target = e.target
-      if ($target.tagName !== 'B') return
-      const style = getComputedStyle(this)
-      currentLeft = startLeft = parseFloat(style.left)
-      currentTop = startTop = parseFloat(style.top)
-      currentWidth = startWidth = parseFloat(style.width)
-      currentHeight = startHeight = parseFloat(style.height)
-      startMouseX = e.pageX
-      startMouseY = e.pageY
-      switch ($target.id) {
-        case 'resize-top': {
-          updateFn = resizeTop
-          break
+    onDragMove(this.$layout, {
+      onStart: ({ stop, start, target }) => {
+        if (this.maximized || this.minimized) return stop()
+        const $target = target
+        if ($target.tagName !== 'B') return stop()
+
+        const style = getComputedStyle(this)
+        currentLeft = startLeft = parseFloat(style.left)
+        currentTop = startTop = parseFloat(style.top)
+        currentWidth = startWidth = parseFloat(style.width)
+        currentHeight = startHeight = parseFloat(style.height)
+
+        startMouseX = start.pageX
+        startMouseY = start.pageY
+
+        switch ($target.id) {
+          case 'resize-top': {
+            updateFn = resizeTop
+            break
+          }
+          case 'resize-right': {
+            updateFn = resizeRight
+            break
+          }
+          case 'resize-bottom': {
+            updateFn = resizeBottom
+            break
+          }
+          case 'resize-left': {
+            updateFn = resizeLeft
+            break
+          }
+          case 'resize-top-left': {
+            updateFn = callAll(resizeTop, resizeLeft)
+            break
+          }
+          case 'resize-top-right': {
+            updateFn = callAll(resizeTop, resizeRight)
+            break
+          }
+          case 'resize-bottom-right': {
+            updateFn = callAll(resizeBottom, resizeRight)
+            break
+          }
+          case 'resize-bottom-left': {
+            updateFn = callAll(resizeBottom, resizeLeft)
+            break
+          }
         }
-        case 'resize-right': {
-          updateFn = resizeRight
-          break
-        }
-        case 'resize-bottom': {
-          updateFn = resizeBottom
-          break
-        }
-        case 'resize-left': {
-          updateFn = resizeLeft
-          break
-        }
-        case 'resize-top-left': {
-          updateFn = callAll(resizeTop, resizeLeft)
-          break
-        }
-        case 'resize-top-right': {
-          updateFn = callAll(resizeTop, resizeRight)
-          break
-        }
-        case 'resize-bottom-right': {
-          updateFn = callAll(resizeBottom, resizeRight)
-          break
-        }
-        case 'resize-bottom-left': {
-          updateFn = callAll(resizeBottom, resizeLeft)
-          break
-        }
+      },
+
+      onMove: ({ current }) => {
+        if (current.pageY > window.innerHeight || current.pageX > window.innerWidth) return
+        updateFn(current.pageX, current.pageY)
       }
-      addEventListener('mousemove', move)
-      addEventListener('mouseup', up)
-    }
+    })
   }
 
   _renderName() {
