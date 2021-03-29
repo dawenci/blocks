@@ -1,5 +1,5 @@
 import BlocksPopup from '../popup/index.js'
-import { enumGetter, enumSetter } from '../../common/property.js'
+import { enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
 import {
@@ -32,6 +32,8 @@ popupTemplate.innerHTML = '<bl-popup></bl-popup>'
 const ATTRS = [
   'trigger-mode',
   'content',
+  'open-delay',
+  'close-delay',
 ]
 
 const triggerModeGetter = enumGetter('trigger-mode', ['hover', 'click'])
@@ -60,23 +62,27 @@ export default class BlocksTooltip extends HTMLElement {
     })
 
     this.addEventListener('click', (e) => {
-      clearTimeout(this._timer)
+      clearTimeout(this._leaveTimer)
       this.open = true
     })
 
     const onmouseenter = () => {
       if (this.triggerMode === 'hover') {
-        clearTimeout(this._timer)
-        this.open = true
+        clearTimeout(this._leaveTimer)
+        clearTimeout(this._enterTimer)
+        this._enterTimer = setTimeout(() => {
+          this.open = true
+        }, this.openDelay)
       }
     }
 
     const onmouseleave = () => {
       if (this.triggerMode === 'hover') {
-        clearTimeout(this._timer)
-        this._timer = setTimeout(() => {
+        clearTimeout(this._enterTimer)
+        clearTimeout(this._leaveTimer)
+        this._leaveTimer = setTimeout(() => {
           this.open = false
-        }, 200)
+        }, this.closeDelay)
       }
     }
 
@@ -99,6 +105,22 @@ export default class BlocksTooltip extends HTMLElement {
 
   set content(value) {
     this.setAttribute('content', value)
+  }
+
+  get openDelay() {
+    return intGetter('open-delay', 200)(this)
+  }
+
+  set openDelay(value) {
+    intSetter('open-delay')(this, value)
+  }
+
+  get closeDelay() {
+    return intGetter('close-delay', 200)(this)
+  }
+
+  set closeDelay(value) {
+    intSetter('close-delay')(this, value)
   }
 
   get open() {
