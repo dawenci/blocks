@@ -1,3 +1,4 @@
+import { dispatchEvent } from '../../common/event.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 
 const template = document.createElement('template')
@@ -86,7 +87,12 @@ class BlocksIntersection extends HTMLElement {
           this._observer.disconnect()
         }
         this._observer = new IntersectionObserver((entries, observer) => {
-          console.log(entries, observer)
+          dispatchEvent(this, 'intersection', {
+            detail: {
+              entries,
+              observer,
+            }
+          })
         }, {
           root: this.rootElement,
           rootMargin: this.rootMargin,
