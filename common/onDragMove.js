@@ -31,7 +31,7 @@ export function onDragMove($el, options) {
     // TODO, 鼠标离开窗口的时候，退出
     const $from = event.relatedTarget || event.toElement
     if (event.type === 'mousemove' && (!$from || $from.nodeName === 'HTML')) {
-      clear()
+      onMoveCancel(event)
       return
     }
 
