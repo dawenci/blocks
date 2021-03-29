@@ -339,15 +339,15 @@ class BlocksScrollable extends HTMLElement {
       this.$layout.classList.remove('dragging', 'dragging-horizontal')
     }
 
-    const onStart = ({ preventDefault, stopImmediatePropagation, target, start }) => {
+    const onStart = ({ preventDefault, stopImmediatePropagation, $target, start }) => {
       preventDefault()
       stopImmediatePropagation()
       this._dragging = true
 
-      isVertical = this.$vertical.contains(target)
+      isVertical = this.$vertical.contains($target)
 
       // 点击的是滑轨，将滑块移动到点击处（滑块中点对准点击处）
-      if (target.tagName !== 'B') {
+      if ($target.tagName !== 'B') {
         if (isVertical) {
           // 期望滑块的中点座标
           const middle = start.clientY - this.$vertical.getBoundingClientRect().top

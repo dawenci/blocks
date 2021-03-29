@@ -753,9 +753,8 @@ class BlocksWindow extends BlocksTransitionOpenCollapse {
     }
 
     onDragMove(this.$layout, {
-      onStart: ({ stop, start, target }) => {
+      onStart: ({ stop, start, $target }) => {
         if (this.maximized || this.minimized) return stop()
-        const $target = target
         if ($target.tagName !== 'B') return stop()
 
         const style = getComputedStyle(this)

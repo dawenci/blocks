@@ -477,8 +477,8 @@ class BlocksDialog extends BlocksTransitionOpenCollapse {
     }
 
     onDragMove(this.$layout, {
-      onStart: ({ target, stop }) => {
-        if (!isHeader(target)) return stop()
+      onStart: ({ $target, stop }) => {
+        if (!isHeader($target)) return stop()
         const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0')
         const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0')
         startX = this.offsetLeft - marginLeft

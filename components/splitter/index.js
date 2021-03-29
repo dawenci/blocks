@@ -437,11 +437,11 @@ export class BlocksSplitter extends HTMLElement {
     let $pane = null
 
     onDragMove(this.$layout, {
-      onStart: ({ stop, target }) => {
-        if (!target.classList.contains('handle')) {
+      onStart: ({ stop, $target }) => {
+        if (!$target.classList.contains('handle')) {
           return stop()
         }
-        $handle = target
+        $handle = $target
         $pane = this.panes[this.gethandleIndex($handle) + 1]
         startSize = $pane.size,
         this.toggleCover(true)

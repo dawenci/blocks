@@ -425,14 +425,14 @@ class BlocksSlider extends HTMLElement {
     }
 
     return onDragMove(this.$track, {
-      onStart: ({ start, target, stop }) => {
+      onStart: ({ start, $target, stop }) => {
         if (this.disabled) {
           stop()
           return
         }
 
         // 点击轨道，则先将滑块移动过去，再记录移动初始信息
-        if (target === this.$track) {
+        if ($target === this.$track) {
           const rect = this.$track.getBoundingClientRect()
           if (this.vertical) {
             positionStart = this._getTrackSize() - (this.vertical ? start.clientY - rect.y : start.clientX - rect.x) - 7
@@ -465,8 +465,8 @@ class BlocksSlider extends HTMLElement {
         }
   
         // 点击的是滑块，记录移动初始信息
-        else if (target === this.$point || target === this.$point2) {
-          $active = target
+        else if ($target === this.$point || $target === this.$point2) {
+          $active = $target
           $active.classList.add('active')
           positionStart = parseFloat($active.style[this.vertical ? 'bottom' : 'left']) || 0
         }  

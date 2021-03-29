@@ -18,6 +18,7 @@ import {
   __fg_secondary,
 } from '../../theme/var.js'
 import { definePrivate } from '../../common/definePrivate.js'
+import { onDragMove } from '../../common/onDragMove.js'
 
 
 const TEMPLATE_CSS = `<style>
@@ -682,7 +683,6 @@ class BlocksColor extends HTMLElement {
     let $button = null
     let wrapWidth = null
     let wrapHeight = null
-    let moveStart = null
     let positionStart = null
 
     const update = () => {
@@ -691,13 +691,10 @@ class BlocksColor extends HTMLElement {
       this._preventUpdateControl = false
     }
 
-    const onmove = (e) => {
-      const moveOffset = {
-        x: e.pageX - moveStart.x,
-        y: e.pageY - moveStart.y
-      }
-      let x = positionStart.x + moveOffset.x
-      let y = positionStart.y + moveOffset.y
+    const onMove = ({ offset, preventDefault }) => {
+      preventDefault()
+      let x = positionStart.x + offset.x
+      let y = positionStart.y + offset.y
       if (x < 0) x = 0
       if (y < 0) y = 0
       if (x > (wrapWidth - 12)) x = wrapWidth - 12
@@ -709,49 +706,46 @@ class BlocksColor extends HTMLElement {
       update()
     }
 
-    const onup = () => {
+    const onEnd = () => {
       update()
-
-      window.removeEventListener('mousemove', onmove)
-      window.removeEventListener('mouseup', onup)
       positionStart = null
-      moveStart = null
       wrapWidth = null
       wrapHeight = null
       this._dragging = false
     }
 
-    const ondown = (e) => {
+    const onStart = ({ start, $target }) => {
       this._dragging = true
 
-      const $wrap = [this.$hueBar, this.$alphaBar, this.$hsv].find($wrap => $wrap.contains(e.target))
+      const $wrap = [this.$hueBar, this.$alphaBar, this.$hsv].find($wrap => $wrap.contains($target))
       $button = $wrap.querySelector('button')
 
       const rect = $wrap.getBoundingClientRect()
       wrapWidth = rect.width
       wrapHeight = rect.height
-      moveStart = { x: e.pageX, y: e.pageY }
 
-      let x = e.clientX - rect.x - 6
-      let y = e.clientY - rect.y - 6
+      let x = start.clientX - rect.x - 6
+      let y = start.clientY - rect.y - 6
       if (x < 0) x = 0
       if (y < 0) y = 0
       if (x > (wrapWidth - 12)) x = wrapWidth - 12
       if (y > (wrapHeight - 12)) y = wrapHeight - 12
 
       positionStart = { x, y }
-      window.addEventListener('mousemove', onmove)
-      window.addEventListener('mouseup', onup)
-
       $button.style.left = x + 'px'
       $button.style.top = y + 'px'
 
       update()
     }
 
-    this.$hueBar.onmousedown = ondown
-    this.$alphaBar.onmousedown = ondown
-    this.$hsv.onmousedown = ondown
+    const options = {
+      onStart,
+      onMove,
+      onEnd,
+    }
+    onDragMove(this.$hueBar, options)
+    onDragMove(this.$alphaBar, options)
+    onDragMove(this.$hsv, options)
   }  
 }
 

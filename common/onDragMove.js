@@ -97,7 +97,7 @@ export function onDragMove($el, options) {
     if (typeof options.onStart === 'function') {
       options.onStart({
         eventType: event.type,
-        target: event.target,
+        $target: event.target,
         start,
         current,
         offset,
