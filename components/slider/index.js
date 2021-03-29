@@ -423,105 +423,135 @@ class BlocksSlider extends HTMLElement {
       this._updateRangeLine()
     }
 
-    {
-      this._dragging = false
-      let moveStart = null
-      let positionStart = null
-      let $active = null
+    this._initDragEvents()
+  }
 
-      const swap = ($point) => {
-        const $p2 = $point === this.$point ? this.$point2 : this.$point
-        this._setPointPosition($point, this._getPointPosition($p2))
-        $point.classList.remove('active')
-        $point.blur()
-        $p2.classList.add('active')
-        $p2.focus()
-        $active = $p2
-        this._updateValue()
-      }
-      
-      const move = (e) => {
-        const moveOffset = this.vertical ? moveStart - e.pageY : e.pageX - moveStart
-        let position = this._normalizePosition(positionStart + moveOffset)
-        if (this.range) {
-          if ($active === this.$point && position > this._getPointPosition(this.$point2)) {
-            swap($active)
-          }
-          else if ($active === this.$point2 && position < this._getPointPosition(this.$point)) {
-            swap($active)
-          }
+  _initDragEvents() {
+    let isTouch = false
+
+    this._dragging = false
+    let moveStart = null
+    let positionStart = null
+    let $active = null
+
+    const getPageX = e => isTouch ? e.changedTouches[0].pageX : e.pageX
+    const getPageY = e => isTouch ? e.changedTouches[0].pageY : e.pageY
+    const getClientX = e => isTouch ? e.changedTouches[0].clientX : e.clientX
+    const getClientY = e => isTouch ? e.changedTouches[0].clientY : e.clientY
+
+    const swap = ($point) => {
+      const $p2 = $point === this.$point ? this.$point2 : this.$point
+      this._setPointPosition($point, this._getPointPosition($p2))
+      $point.classList.remove('active')
+      $point.blur()
+      $p2.classList.add('active')
+      $p2.focus()
+      $active = $p2
+      this._updateValue()
+    }
+
+    const move = (e) => {
+      e.preventDefault()
+      e.stopImmediatePropagation()
+
+      const moveOffset = this.vertical ? moveStart - getPageY(e) : getPageX(e) - moveStart
+      let position = this._normalizePosition(positionStart + moveOffset)
+      if (this.range) {
+        if ($active === this.$point && position > this._getPointPosition(this.$point2)) {
+          swap($active)
         }
-        this._setPointPosition($active, position)
-        this._updateValue()
+        else if ($active === this.$point2 && position < this._getPointPosition(this.$point)) {
+          swap($active)
+        }
       }
+      this._setPointPosition($active, position)
+      this._updateValue()
+    }
 
-      const up = () => {
+    const up = (e) => {
+      if (isTouch) {
+        window.removeEventListener('touchmove', move)
+        window.removeEventListener('touchend', up)
+        window.removeEventListener('touchcancel', up)
+      }
+      else {
         window.removeEventListener('mousemove', move)
         window.removeEventListener('mouseup', up)
-        $active.classList.remove('active')
-        positionStart = null
-        moveStart = null
-        $active = null
-        this._updateValue()
-        this._dragging = false
       }
 
-      this.$track.onmousedown = (e) => {
-        if (this.disabled) {
-          e.preventDefault()
-          e.stopImmediatePropagation()
-          return
+      $active.classList.remove('active')
+      positionStart = null
+      moveStart = null
+      $active = null
+      this._updateValue()
+      this._dragging = false
+    }
+
+    const start = (e) => {
+      if (this.disabled) {
+        e.preventDefault()
+        e.stopImmediatePropagation()
+        return
+      }
+      if (this._dragging) return
+      this._dragging = true
+      isTouch = e.type !== 'mousedown'
+
+      // 点击轨道，则先将滑块移动过去，再记录移动初始信息
+      if (e.target === this.$track) {
+        moveStart = this.vertical ? getPageY(e) : getPageX(e)
+        const rect = this.$track.getBoundingClientRect()
+        if (this.vertical) {
+          positionStart = this._getTrackSize() - (this.vertical ? getClientY(e) - rect.y : getClientX(e) - rect.x) - 7
         }
-        this._dragging = true
+        else {
+          positionStart = (this.vertical ? getClientY(e) - rect.y : getClientX(e) - rect.x) - 7
+        }
+        positionStart = this._normalizePosition(positionStart)
 
-        // 点击轨道，则先将滑块移动过去，再记录移动初始信息
-        if (e.target === this.$track) {
-          moveStart = this.vertical ? e.pageY : e.pageX
-          const rect = this.$track.getBoundingClientRect()
-          if (this.vertical) {
-            positionStart = this._getTrackSize() - (this.vertical ? e.clientY - rect.y : e.clientX - rect.x) - 7
-          }
-          else {
-            positionStart = (this.vertical ? e.clientY - rect.y : e.clientX - rect.x) - 7
-          }
-          positionStart = this._normalizePosition(positionStart)
-
-          // 如果是区间，则需要确定移动哪个控制点
-          // 1. 点击的是 min 点的左侧，则移动 min 点
-          // 2. 点击的是 max 点的右侧，则移动 max 点
-          // 3. 点击的是两点之间，则移动接近点击位置的那个点
-          if (this.range) {
-            const pos1 = this._getPointPosition(this.$point)
-            const pos2 = this._getPointPosition(this.$point2)
-            $active = positionStart < pos1 ? this.$point
-              : positionStart > pos2 ? this.$point2
-              : pos2 - positionStart > positionStart - pos1 ? this.$point
-              : this.$point2
-          }
-          else {
-            $active = this.$point
-          }
-
-          $active.classList.add('active')
-
-          this._setPointPosition($active, positionStart)
-          this._updateValue()
-
-          window.addEventListener('mousemove', move)
-          window.addEventListener('mouseup', up)
+        // 如果是区间，则需要确定移动哪个控制点
+        // 1. 点击的是 min 点的左侧，则移动 min 点
+        // 2. 点击的是 max 点的右侧，则移动 max 点
+        // 3. 点击的是两点之间，则移动接近点击位置的那个点
+        if (this.range) {
+          const pos1 = this._getPointPosition(this.$point)
+          const pos2 = this._getPointPosition(this.$point2)
+          $active = positionStart < pos1 ? this.$point
+            : positionStart > pos2 ? this.$point2
+            : pos2 - positionStart > positionStart - pos1 ? this.$point
+            : this.$point2
+        }
+        else {
+          $active = this.$point
         }
 
-        // 点击的是滑块，记录移动初始信息
-        else if (e.target === this.$point || e.target === this.$point2) {
-          $active = e.target
-          $active.classList.add('active')
-          moveStart = this.vertical ? e.pageY : e.pageX
-          positionStart = parseFloat($active.style[this.vertical ? 'bottom' : 'left']) || 0
-          window.addEventListener('mousemove', move)
-          window.addEventListener('mouseup', up)
-        }
+        $active.classList.add('active')
+
+        this._setPointPosition($active, positionStart)
+        this._updateValue()
+      }
+
+      // 点击的是滑块，记录移动初始信息
+      else if (e.target === this.$point || e.target === this.$point2) {
+        $active = e.target
+        $active.classList.add('active')
+        moveStart = this.vertical ? getPageY(e) : getPageX(e)
+        positionStart = parseFloat($active.style[this.vertical ? 'bottom' : 'left']) || 0
+      }
+
+      if (isTouch) {
+        window.addEventListener('touchmove', move)
+        window.addEventListener('touchend', up)
+        window.addEventListener('touchcancel', up)
+      }
+      else {
+        window.addEventListener('mousemove', move)
+        window.addEventListener('mouseup', up)
       }
     }
+
+    this.$track.addEventListener('touchstart', start)
+    this.$track.addEventListener('mousedown', start)
   }
 
   disconnectedCallback() {
