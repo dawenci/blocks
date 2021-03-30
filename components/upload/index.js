@@ -106,7 +106,7 @@ bl-progress {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 100%;
+  height: 2px;
 }
 .type {
   position: relative;
@@ -343,23 +343,32 @@ class BlocksUpload extends HTMLElement {
     }
   }
 
-  upload() {
-    this._list
-      .filter(item => item.state === State.Init)
-      .forEach(item => {
-        const { abort } = uploadRequest({
-          file: item.file,
-          url: this.url,
-          name: this.name,
-          data: this.data,
-          progress: this._onProgress,
-          abort: this._onAbort,
-          error: this._onError,
-          success: this._onSuccess,
-        })
+  upload(options = {}) {
+    const items = this._list
+      .filter(item => {
+        if (item.state === State.Init) return true
 
-        item.abort = abort
+        const includesStates = options.includes || []
+        if (includesStates.includes('error') && item.state === State.Error) return true
+        if (includesStates.includes('abort') && item.state === State.Abort) return true
+
+        return false
       })
+
+    items.forEach(item => {
+      const { abort } = uploadRequest({
+        file: item.file,
+        url: this.action,
+        name: this.name,
+        data: this.data,
+        progress: this._onProgress.bind(this),
+        abort: this._onAbort.bind(this),
+        error: this._onError.bind(this),
+        success: this._onSuccess.bind(this),
+      })
+
+      item.abort = abort
+    })
   }
 
   abortAll() {
@@ -440,7 +449,10 @@ class BlocksUpload extends HTMLElement {
       const $item = $items[index]
       $item.querySelector('.name').textContent = item.file.name
       $item.querySelector('.size').textContent = formatSize(item.file.size)
-      $item.querySelector('bl-progress').value = item.progressValue
+      const $progress = $item.querySelector('bl-progress')
+      $progress.value = item.progressValue
+      $progress.status = item.state === State.Success ? 'success' : item.state === State.Error ? 'error' : null
+
       this._renderItemIcon($item, item.type)
     })
   }

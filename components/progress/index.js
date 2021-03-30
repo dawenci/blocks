@@ -71,6 +71,10 @@ const TEMPLATE_CSS = `<style>
   animation: 2s linear infinite light;
   transform-origin: left top;
 }
+:host([value="100"]) #progress:after {
+  animation: none;
+}
+
 #value {
   flex: 0 0 auto;
   box-sizing: border-box;
