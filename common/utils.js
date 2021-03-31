@@ -8,8 +8,15 @@ export const findIndex = (list, fn) => Array.prototype.findIndex.call(list, fn)
 export const includes = (list, fn) => Array.prototype.includes.call(list, fn)
 export const every = (list, fn) => Array.prototype.every.call(list, fn)
 export const some = (list, fn) => Array.prototype.some.call(list, fn)
-
 export const propertyEq = (prop, value) => obj => obj[prop] === value
+
+export function findLast(list, fn) {
+  let len = list?.length
+  if (!len) return
+  while (len--) {
+    if (fn(list[len], len, list)) return list[len]
+  }
+}
 
 function pad(ch, n, str, isRight) {
   str = String(str)

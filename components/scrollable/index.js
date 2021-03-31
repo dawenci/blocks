@@ -189,6 +189,15 @@ class BlocksScrollable extends HTMLElement {
     boolSetter('shadow')(this, value)
   }
 
+  get scrollLeft() {
+    return this.$viewport.scrollLeft
+  }
+
+  set scrollLeft(value) {
+    this.$viewport.scrollLeft = value
+    this._updateScrollbar()
+  }
+
   get scrollTop() {
     return this.$viewport.scrollTop
   }
@@ -232,7 +241,7 @@ class BlocksScrollable extends HTMLElement {
     else {
       this.$horizontal.style.display = 'none'
     }
-    
+
     if (showVertical) {
       this.$vertical.style.display = 'block'
       const trackHeight = this.$vertical.clientHeight

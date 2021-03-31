@@ -138,8 +138,8 @@ export function onTransitionEnd(el, callback) {
   const onEnd = e => {
     if (e.target === el) {
       // 全部属性的动画都执行完成，结束
-      if (++ended >= propCount) {
-          done()
+      if (++ended >= propCount || e.type === 'transitioncancel') {
+        done()
       }
     }
   }
