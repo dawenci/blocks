@@ -1,3 +1,4 @@
+import VList, { VirtualItem } from '../vlist/index.js'
 import '../scrollable/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
@@ -155,22 +156,22 @@ itemTemplate.innerHTML = `
 </div>
 `
 
-class BlocksList extends HTMLElement {
+class BlocksList extends VList {
   static get observedAttributes() {
-    return ['border', 'disabled', 'disabled-field', 'id-field', 'label-field', 'selectable', 'stripe']
+    return super.observedAttributes.concat(['border', 'disabled', 'disabled-field', 'id-field', 'label-field', 'selectable', 'stripe'])
   }
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
+    const shadowRoot = this.shadowRoot
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$scrollable = shadowRoot.getElementById('scrollable')
-    this.$listSize = shadowRoot.getElementById('list-size')
-    this.$list = shadowRoot.getElementById('list')
+    // this.$scrollable = shadowRoot.getElementById('scrollable')
+    // this.$listSize = shadowRoot.getElementById('list-size')
+    // this.$list = shadowRoot.getElementById('list')
 
-    this._$pool = []
+    // this._$pool = []
 
-    definePrivate(this, '_data', [])
+    // definePrivate(this, '_data', [])
     definePrivate(this, '_selected', [])
 
     this.$list.onclick = e => {
@@ -191,17 +192,17 @@ class BlocksList extends HTMLElement {
       } 
     }
 
-    this.$scrollable.onscroll = this.render.bind(this)
+    // this.$scrollable.onscroll = this.render.bind(this)
   }
 
-  get data() {
-    return this._data
-  }
+  // get data() {
+  //   return this._data
+  // }
 
-  set data(value) {
-    this._data = Array.isArray(value) ? value : []
-    this.render()
-  }
+  // set data(value) {
+  //   this._data = Array.isArray(value) ? value : []
+  //   this.render()
+  // }
 
   get disabled() {
     return boolGetter('disabled')(this)
@@ -261,67 +262,32 @@ class BlocksList extends HTMLElement {
     return this.selectable === 'multiple'
   }
 
-  render() {
-    const itemHeight = parseInt(getComputedStyle(this).getPropertyValue('--item-height'), 10)
-    this.$listSize.style.height = `${this.data.length * itemHeight}px`
-
-    const scrollTop = this.$scrollable.scrollTop
-    const viewportHeight = this.$scrollable.clientHeight
-    const renderCount = Math.ceil(viewportHeight / itemHeight)
-    const itemFrom = Math.floor(scrollTop / itemHeight)
-
-    this.$list.style.transform = `translateY(${scrollTop - scrollTop % itemHeight}px)`
-
-    const dataSlice = this.data.slice(itemFrom, itemFrom + renderCount)
-    const idIndexMap = {}
-    dataSlice.forEach((data, i) => idIndexMap[data[this.idField]] = i)
-
-    const $newItems = Array(renderCount)
-    let len = this.$list.children.length
-    while (len--) {
-      const $item = this.$list.removeChild(this.$list.lastElementChild)
-      let index = idIndexMap[$item.dataset.id]
-      // 复用
-      if (index != null) {
-        $newItems[index] = $item
-      }
-      else {
-        this._$pool.push($item)
-      }
-    }
+  itemRender($item, vitem) {
+    const id = vitem.data[this.idField] ?? ''
+    const label = vitem.data[this.labelField] ?? ''
+    const isDisabled = vitem.data[this.disabledField] ?? false
+    $item.classList.add('item')
+    $item.dataset.id = id
+    $item.innerHTML = `<div class="prefix"></div><div class="label"></div><div class="suffix"></div>`
+    $item.children[1].innerHTML = label
 
     const selectedMap = Object.create(null)
     forEach(this._selected, id => {
       selectedMap[id] = true
     })
 
-    const { idField, labelField, disabledField } = this
-    let i = -1;
-    while (++i < renderCount) {
-      const $item = $newItems[i] ?? this._$pool.pop() ?? itemTemplate.content.querySelector('.item').cloneNode(true)
-      const data = dataSlice[i]
-      if (!data) return
-      const id = data[idField] ?? ''
-      const label = data[labelField] ?? ''
-      const isDisabled = data[disabledField] ?? false
-      $item.dataset.id = id
-      $item.children[1].innerHTML = label
-      if (isDisabled) {
-        $item.setAttribute('disabled', '')
-      }
-      else {
-        $item.removeAttribute('disabled')
-      }
-      if (selectedMap[id]) {
-        $item.classList.add('selected')
-      }
-      else {
-        $item.classList.remove('selected')
-      }
-
-      this.$list.appendChild($item)
+    if (isDisabled) {
+      $item.setAttribute('disabled', '')
     }
-    this._$pool = []
+    else {
+      $item.removeAttribute('disabled')
+    }
+    if (selectedMap[id]) {
+      $item.classList.add('selected')
+    }
+    else {
+      $item.classList.remove('selected')
+    }
   }
 
   _selectItem($item) {
@@ -344,24 +310,20 @@ class BlocksList extends HTMLElement {
   }
 
   connectedCallback() {
-    this.constructor.observedAttributes.forEach(attr => {
-      upgradeProperty(this, attr)
-    })
-    this.render()
+    super.connectedCallback()
   }
 
   disconnectedCallback() {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    super.attributeChangedCallback(name, oldValue, newValue)
     // 从多选改成单选，保留最后一个选择的值
     if (name === 'selectable') {
       if (!this.multiple && this._selected.length) {
         this._selected = [this._selected[this._selected.length - 1]]
       }
     }
-
-    this.render()
   }
 }
 

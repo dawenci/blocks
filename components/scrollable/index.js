@@ -101,7 +101,7 @@ const TEMPLATE_CSS = `<style>
   top: -10px;
   right: 0;
   left: 0;
-  box-shadow: 0 3px 7px rgba(0,0,0,.2);
+  box-shadow: 0 3px 7px rgba(0,0,0,.1);
 }
 :host([shadow]) .shadow-right .right {
   display: block;
@@ -109,7 +109,7 @@ const TEMPLATE_CSS = `<style>
   top: 0;
   bottom: 0;
   right: -10px;
-  box-shadow: -3px 0px 7px rgba(0,0,0,.2);
+  box-shadow: -3px 0px 7px rgba(0,0,0,.1);
 }
 :host([shadow]) .shadow-bottom .bottom {
   display: block;
@@ -117,7 +117,7 @@ const TEMPLATE_CSS = `<style>
   right: 0;
   bottom: -10px;
   left: 0;
-  box-shadow: 0 -3px 7px rgba(0,0,0,.2);
+  box-shadow: 0 -3px 7px rgba(0,0,0,.1);
 }
 :host([shadow]) .shadow-left .left {
   display: block;
@@ -125,7 +125,7 @@ const TEMPLATE_CSS = `<style>
   top: 0;
   bottom: 0;
   left: -10px;
-  box-shadow: 3px 0px 7px rgba(0,0,0,.2);
+  box-shadow: 3px 0px 7px rgba(0,0,0,.1);
 }
 </style>`
 
