@@ -18,7 +18,7 @@ import {
   __fg_base,
 } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
-import BinaryIndexedTree from '../../common/binaryIndexedTree.js'
+import BinaryIndexedTree from '../../common/BinaryIndexedTree.js'
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
 
 const FORCE_SLICE = true
