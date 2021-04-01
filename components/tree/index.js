@@ -47,7 +47,6 @@ template.innerHTML = `
 .node-item {
   min-width: var(--item-height);
   width: auto;
-  height: 100%;
   box-sizing: border-box;
   display: flex;
   width: 100%;

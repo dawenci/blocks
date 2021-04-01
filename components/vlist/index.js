@@ -97,12 +97,12 @@ template.innerHTML = `
 }
 .collapse-enter-transition-from,
 .collapse-leave-transition-to {
-  opacity: 1;
+  opacity: 1 !important;
   /* height 使用 js 设置 */
 }
 .collapse-enter-transition-to,
 .collapse-leave-transition-from {
-  opacity: 0;
+  opacity: 0 !important;
   height: 0 !important;
 }
 </style>
@@ -287,6 +287,9 @@ export default class BlocksVList extends HTMLElement {
    * 通过数据 key 列表，设置对应条目的显示状态
    */
   async showByKeys(keys) {
+    // 如果存在未结束的动画，提前结束
+    await this._clearTransition()
+    
     const changes = keys.map((key) => this.virtualItemMap[key])
       .filter((wrappedItem) => wrappedItem?.height <= 0)
       .map((wrappedItem) => {
@@ -296,12 +299,8 @@ export default class BlocksVList extends HTMLElement {
       })
       .filter(item => !!item)
 
-    this.redraw()
-
-    // 如果存在未结束的动画，提前结束
-    if (await this._clearTransition()) {
-      this.redraw()
-    }
+    // 刷新列表
+    this._updateSliceRange(FORCE_SLICE)
 
     // 过渡动画
     const $collapse = document.createElement('div')
@@ -314,13 +313,13 @@ export default class BlocksVList extends HTMLElement {
         items.push($item)
       }
     })
+    const size = items.reduce((acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
     this.$list.insertBefore($collapse, $first)
     items.reverse()
     while (items.length) {
       $collapse.appendChild(items.pop())
     }
     if ($collapse.children.length) {
-      const size = Array.prototype.reduce.call($collapse.children, (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
       $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
       doTransitionLeave($collapse, 'collapse', () => {
         Array.prototype.slice.call($collapse.children).forEach($item => {
@@ -338,6 +337,9 @@ export default class BlocksVList extends HTMLElement {
    * 通过数据 key 列表，设置对应条目的显示状态
    */
    async hideByKeys(keys) {
+    // 如果存在未结束的动画，提前结束
+    await this._clearTransition()
+
     const changes = keys.map((key) => this.virtualItemMap[key])
       .filter(wrappedItem => wrappedItem?.height > 0)
       .map((wrappedItem) => {
@@ -348,11 +350,6 @@ export default class BlocksVList extends HTMLElement {
         return hasChange ? { key: wrappedItem.virtualKey, value: height } : null
       })
       .filter(item => !!item)
-
-    // 如果存在未结束的动画，提前结束
-    if (await this._clearTransition()) {
-      this.redraw()
-    }
 
     // 过渡动画
     const $collapse = document.createElement('div')
@@ -365,13 +362,13 @@ export default class BlocksVList extends HTMLElement {
         items.push($item)
       }
     })
+    const size = items.reduce((acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
     this.$list.insertBefore($collapse, $first)
     items.reverse()
     while (items.length) {
       $collapse.appendChild(items.pop())
     }
     if ($collapse.children.length) {
-      const size = Array.prototype.reduce.call($collapse.children, (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
       $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
       doTransitionEnter($collapse, 'collapse', () => {
         this.$list.removeChild($collapse)
@@ -454,7 +451,7 @@ export default class BlocksVList extends HTMLElement {
     // 渲染条目内部内容
     let i = -1
     let j = -1
-    while (++i < renderCount) {
+    while (++i < this.$list.children.length) {
       const $item = this.$list.children[i]
       if ($item.classList.contains('transition')) continue
       const vitem = sliceItems[++j]
@@ -828,7 +825,7 @@ export default class BlocksVList extends HTMLElement {
     }
 
     const oldSlice = this.virtualSliceItems.slice()
-    this.virtualSliceItems = Object.freeze(slice)
+    this.virtualSliceItems = slice
 
     dispatchEvent(this, SLICE_CHANGE, this._pluckData(slice), this._pluckData(oldSlice))
 

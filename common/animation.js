@@ -5,7 +5,7 @@
  * @param {string} name 过渡的名称
  * @returns
  */
-export function transitionEnter(el, name, onEnd) {
+export function transitionEnter(el, name) {
   el.classList.remove(`${name}-leave-transition-active`)
   el.classList.remove(`${name}-leave-transition-from`)
   el.classList.remove(`${name}-leave-transition-to`)
