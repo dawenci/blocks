@@ -40,14 +40,20 @@
 
           <script>
             (() => {
-              const data = []
-              let i = -1
-              while (i++ < 100) {
-                data.push({
-                  label: !(i % 5) ? `${i} - long long long long long long long long long label` : `${i} - label`,
-                  id: `id${i}`
-                })
+              const makeData = (count, pid) => {
+                const data = []
+                let i = -1
+                while (++i < count) {
+                  const id = `${pid ? pid + '.' : ''}${i}`
+                  const label = !(i % 5) ? `${id} - long long long long long long long long long label` : `${id} - label`
+                  data.push({ label, id, pid })
+                }
+                return data
               }
+
+              const data = makeData(10)
+              data.forEach(data => data.children = makeData(3, data.id))
+
               document.getElementById('default').data = data
             })()
           </script>

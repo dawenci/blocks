@@ -109,34 +109,35 @@ template.innerHTML = `
 
 <bl-scrollable id="scrollable">
   <div id="list-size"></div>
-  <div id="list"></div>  
+  <div id="list"></div>
 </bl-scrollable>
 `
 
 const itemTemplate = document.createElement('div')
 
+// 列表项数据包裹，data 字段存放原始数据
+// 组件所有操作不应该改变 data 的内容，而是修改该包裹对象的属性
 export class VirtualItem {
   constructor(options = {}) {
-    // key
+    // 数据的唯一id，对应 keyMethod 的值，如果没有
+    // 配置 keyMethod 则是初始化数据时候的序号
+    // 每次传入的 data 改变，都会重新生成
     this.virtualKey = options.virtualKey
-    // 父结点的 key
-    this.parentKey = options.parentKey
-    // 节点的高度
-    this.height = options.height
-    // 是否展开状态中
-    this.expanded = !!options.expanded
-    // 是否选中状态中
-    this.checked = !!options.checked
-    // 是否半选中状态
-    this.indeterminate = !!options.indeterminate
-    // 父结点的引用
-    this.parent = null
-    // 子结点列表
-    this.children = []
-    // 原始数据
+    // 条目高度
+    // 1. 正数代表已经计算出来的高度
+    // 2. 0 代表未计算的高度，不显示
+    // 3. 负数代表需要隐藏的高度，隐藏前已计算出来的高度为其绝对值，方便取消隐藏
+    // 用途：
+    // 1. 用于重建高度存储时快速恢复
+    // 2. 用于快速通过数据取高度
+    this.height = options.height >> 0
+    // 记录是否已经根据实际 DOM 计算过高度
+    this.calculated = !!options.calculated
+    // 条目在当前过滤视图中的序号
+    // 每次生成视图数据都刷新
+    this.virtualViewIndex = options.virtualViewIndex ?? -1
+    // 原始数据的引用
     this.data = options.data
-    // 过滤时临时使用
-    this._retain = false
   }
 
   clone() {
@@ -174,7 +175,7 @@ export default class BlocksVList extends HTMLElement {
     definePrivate(this, 'itemHeightStore', null)
 
     // 数据 key --> VItem 的映射，提高访问性能
-    definePrivate(this, 'keyDataMap', null)
+    definePrivate(this, 'virtualItemMap', null)
 
     this.$viewport.onscroll = this._updateSliceRange.bind(this, undefined)
   }
@@ -286,7 +287,7 @@ export default class BlocksVList extends HTMLElement {
    * 通过数据 key 列表，设置对应条目的显示状态
    */
   async showByKeys(keys) {
-    const changes = keys.map((key) => this.keyDataMap[key])
+    const changes = keys.map((key) => this.virtualItemMap[key])
       .filter((wrappedItem) => wrappedItem?.height <= 0)
       .map((wrappedItem) => {
         const height = (-wrappedItem.height || this.defaultItemSize)
@@ -305,21 +306,24 @@ export default class BlocksVList extends HTMLElement {
     // 过渡动画
     const $collapse = document.createElement('div')
     $collapse.classList.add('transition')
-    let firstFlag = false
+    const items = []
+    let $first
     forEach(this.$list.children, $item => {
       if (keys.includes($item.virtualKey)) {
-        if (!firstFlag) {
-          this.$list.insertBefore($collapse, $item)
-          firstFlag = true
-        }
-        $collapse.appendChild($item)
+        if (!$first) $first = $item
+        items.push($item)
       }
     })
+    this.$list.insertBefore($collapse, $first)
+    items.reverse()
+    while (items.length) {
+      $collapse.appendChild(items.pop())
+    }
     if ($collapse.children.length) {
       const size = Array.prototype.reduce.call($collapse.children, (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
       $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
       doTransitionLeave($collapse, 'collapse', () => {
-        forEach($collapse.children, $item => {
+        Array.prototype.slice.call($collapse.children).forEach($item => {
           this.$list.insertBefore($item, $collapse)
         })
         this.$list.removeChild($collapse)
@@ -334,7 +338,7 @@ export default class BlocksVList extends HTMLElement {
    * 通过数据 key 列表，设置对应条目的显示状态
    */
    async hideByKeys(keys) {
-    const changes = keys.map((key) => this.keyDataMap[key])
+    const changes = keys.map((key) => this.virtualItemMap[key])
       .filter(wrappedItem => wrappedItem?.height > 0)
       .map((wrappedItem) => {
         // 设置为负数，表示隐藏
@@ -353,16 +357,19 @@ export default class BlocksVList extends HTMLElement {
     // 过渡动画
     const $collapse = document.createElement('div')
     $collapse.classList.add('transition')
-    let firstFlag = false
+    const items = []
+    let $first
     forEach(this.$list.children, $item => {
       if (keys.includes($item.virtualKey)) {
-        if (!firstFlag) {
-          this.$list.insertBefore($collapse, $item)
-          firstFlag = true
-        }
-        $collapse.appendChild($item)
+        if (!$first) $first = $item
+        items.push($item)
       }
     })
+    this.$list.insertBefore($collapse, $first)
+    items.reverse()
+    while (items.length) {
+      $collapse.appendChild(items.pop())
+    }
     if ($collapse.children.length) {
       const size = Array.prototype.reduce.call($collapse.children, (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
       $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
@@ -374,11 +381,11 @@ export default class BlocksVList extends HTMLElement {
 
     this.nextTick(() => this.redraw())
     if (changes.length) dispatchEvent(this, ITEMS_SIZE_UPDATE, changes)
-  }  
+  }
 
   nextTick(callback) {
     return Promise.resolve().then(callback)
-  }  
+  }
 
   render() {
     if (!this._dataBound) {
@@ -386,7 +393,7 @@ export default class BlocksVList extends HTMLElement {
     }
 
     this._updateListSize()
-    const renderCount = this.sliceTo - this.sliceFrom
+    const renderCount = this.virtualSliceItems.length
 
     // 列表中，存在多少个动画元素
     const transitionItemCount = this.$list.querySelectorAll('.transition').length
@@ -397,11 +404,8 @@ export default class BlocksVList extends HTMLElement {
     else {
       this.$list.style.transform = `translateY(${this._itemOffset(this.sliceFrom)}px)`
     }
-    
-    const sliceItems = this.virtualSliceItems
-    const idIndexMap = {}
-    sliceItems.forEach((node, i) => idIndexMap[node.virtualKey] = i)
 
+    const sliceItems = this.virtualSliceItems
     const getFirst = () => transitionItemCount ? find(this.$list.children, $item => $item.virtualViewIndex != null) : this.$list.firstElementChild
     const getLast = () => transitionItemCount ? findLast(this.$list.children, $item => $item.virtualViewIndex != null) : this.$list.lastElementChild
 
@@ -456,7 +460,7 @@ export default class BlocksVList extends HTMLElement {
       const vitem = sliceItems[++j]
 
       if (!vitem) return
-      $item.virtualKey = $item.dataset.id = vitem.virtualKey
+      $item.virtualKey = $item.dataset.virtualKey = vitem.virtualKey
       $item.virtualViewIndex = vitem.virtualViewIndex
       this.itemRender($item, vitem)
     }
@@ -469,7 +473,7 @@ export default class BlocksVList extends HTMLElement {
   redraw() {
     this._updateListSize()
     this._updateSliceRange(FORCE_SLICE)
-  }  
+  }
 
   convertData(data) {
     const virtualItems = []
@@ -498,37 +502,34 @@ export default class BlocksVList extends HTMLElement {
 
     const virtualItems = this.convertData(data)
 
-    // 构建 keyDataMap，形成 key-data 映射，方便后续快速查找数据
-    const keyDataMap = Object.create(null)
+    // 构建 virtualItemMap，形成 key-data 映射，方便后续快速查找数据
+    const virtualItemMap = Object.create(null)
     let i = virtualItems.length
     while (i--) {
-      keyDataMap[virtualItems[i].virtualKey] = virtualItems[i]
+      virtualItemMap[virtualItems[i].virtualKey] = virtualItems[i]
     }
 
     // 如果存在旧数据，并且配置了自定义 key 字段，
     // 则尝试从旧数据中恢复信息
-    const oldKeyDataMap = this.keyDataMap
+    const oldKeyDataMap = this.virtualItemMap
     if (oldKeyDataMap && this.keyMethod) {
       let i = virtualItems.length
       while (i--) {
         const wrappedItem = virtualItems[i]
         const oldWrappedItem = oldKeyDataMap[wrappedItem.virtualKey]
         if (oldWrappedItem) {
-          wrappedItem.expanded = oldWrappedItem.expanded
           wrappedItem.height = oldWrappedItem.height
-          wrappedItem.checked = oldWrappedItem.checked
-          wrappedItem.indeterminate = oldWrappedItem.indeterminate
         }
       }
     }
 
     this.virtualItems = virtualItems
-    this.keyDataMap = keyDataMap
+    this.virtualItemMap = virtualItemMap
 
     this._dataBound = true
 
     // 完成后，抛出事件
-    dispatchEvent(this, DATA_CHANGE, virtualItems, keyDataMap)
+    dispatchEvent(this, DATA_CHANGE, virtualItems, virtualItemMap)
     this.rebuildViewData()
   }
 
@@ -596,6 +597,7 @@ export default class BlocksVList extends HTMLElement {
   // 在这个波动量范围内，则不重新切片渲染，用于
   // 防止频繁插入内容导致性能压力
   preRenderingCount(viewportSize) {
+    return 0
     // 默认预渲染 1 屏
     const len = this.virtualSliceItems.length
     const defaults = Math.ceil(viewportSize / this.defaultItemSize)
@@ -605,6 +607,7 @@ export default class BlocksVList extends HTMLElement {
   // 滚动到上下方剩下多少个条目时，加载下一批
   // 防止 iOS 快速触摸滚动时的白屏
   preRenderingThreshold(viewportSize) {
+    return 0
     // 默认触达预渲染的一半数量时，加载下一批切片
     return Math.floor(this.preRenderingCount(viewportSize) / 2)
   }
@@ -627,7 +630,7 @@ export default class BlocksVList extends HTMLElement {
    */
   setScrollMain(value) {
     this.$viewport[this.direction === Direction.Horizontal ? 'scrollLeft' : 'scrollTop'] = value
-  }  
+  }
 
   _updateSliceRange(forceUpdate) {
     const viewportSize = this.direction === Direction.Horizontal ? this.$viewport.clientWidth : this.$viewport.clientHeight
@@ -676,7 +679,7 @@ export default class BlocksVList extends HTMLElement {
 
     this.sliceFrom = sliceFrom
     this.sliceTo = sliceTo
-    
+
     if (shouldDoSlice) {
       this._doSlice(sliceFrom, sliceTo)
     }
@@ -838,7 +841,7 @@ export default class BlocksVList extends HTMLElement {
 
     const batch = []
     forEach(nodeItems, ($node) => {
-      const wrappedItem = this._getDataByNode($node)
+      const wrappedItem = this.getVirtualItemByNode($node)
 
       // wrappedItem 在复杂的情况下，可能出现 undefined
       if (!wrappedItem) return
@@ -871,7 +874,7 @@ export default class BlocksVList extends HTMLElement {
     if (batch.length) {
       this._batchUpdateHeight(batch)
     }
-  }  
+  }
 
   // Dom 插入时候，计算高度，然后
   // 批量刷新高度，避免频繁调整列表高度带来性能问题
@@ -914,11 +917,19 @@ export default class BlocksVList extends HTMLElement {
     }
 
     return hasChange
-  }  
+  }
 
   // 通过 DOM Node 获取对应的数据
-  _getDataByNode($node) {
-    return this.keyDataMap[$node.virtualKey]
+  getVirtualItemByNode($node) {
+    return this.virtualItemMap[$node.virtualKey]
+  }
+
+  getVirtualItemByKey(virtualKey) {
+    return this.virtualItemMap[virtualKey]
+  }
+
+  getNodeByVirtualKey(virtualKey) {
+    return this.$list.querySelector(`[data-virtual-key="${virtualKey}"]`)
   }
 
   // 提取 data
@@ -963,7 +974,7 @@ export default class BlocksVList extends HTMLElement {
   _itemOffset(index) {
     // 0 ～ 上一项的高度累加
     return this.itemHeightStore.read(index)
-  }  
+  }
 
   // 提前结束动画
   async _clearTransition() {

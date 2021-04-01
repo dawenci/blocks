@@ -2,7 +2,7 @@ import VList, { VirtualItem } from '../vlist/index.js'
 import '../scrollable/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { find, findLast, forEach } from '../../common/utils.js'
+import { find, findLast, forEach, property } from '../../common/utils.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import {
   __font_family,
@@ -33,6 +33,10 @@ const Direction = {
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
+:host {
+  --height: 28px;
+}
+
 :host([direction="horizontal"]) #list,
 :host(:not([direction="horizontal"])) #list {
   flex-flow: column nowrap;
@@ -40,7 +44,7 @@ template.innerHTML = `
 }
 
 /* 结点容器 */
-.item {
+.node-item {
   min-width: var(--item-height);
   width: auto;
   height: 100%;
@@ -52,10 +56,10 @@ template.innerHTML = `
   line-height: 20px;
   font-size: var(font-size-small, ${__font_size_small});
 }
-.item:hover {
+.node-item:hover {
   background-color: var(--bg-base, ${__bg_base});
 }
-.item.item-active {
+.node-item.node-item-active {
   color: var(--color-primary, ${__color_primary});
   /*background-color: $--color-primary-light-9;*/
 }
@@ -66,7 +70,7 @@ template.innerHTML = `
   position: relative;
   display: block;
   width: 24px;
-  height: $height;
+  height: var(--height);
   text-align: center;
 }
 
@@ -105,9 +109,9 @@ template.innerHTML = `
   flex: 0 0 19px;
   position: relative;
   width: 19px;
-  height: $height;
+  height: var(--height);
   text-align: left;
-  line-height: $height;
+  line-height: var(--height);
 }
 
 .node-check input {
@@ -223,7 +227,7 @@ template.innerHTML = `
 /* 结点 label 文本 */
 .node-label {
   flex: 1 1 100%;
-  padding: (($height - 20) / 2) 0;
+  padding: 4px 0;
   user-select: none;
 }
 
@@ -234,83 +238,113 @@ template.innerHTML = `
 </style>
 `
 
-const itemTemplate = document.createElement('div')
-itemTemplate.innerHTML = `<div
-:key="vlistItemKey"
-:data-tree-node-key="vlistItemData.key"
-:style="_nodeStyle(vlistItemData)"
-:class="{'node-item-active': vlistItemData === activeNode}"
-class="node-item"
-style="user-select:none;">
-<!-- 折叠箭头 -->
-<span
-  v-if="hasChild(vlistItemData) && !vlistItemData.expanded"
-  key="icon"
-  class="node-toggle folded" />
-<span
-  v-else-if="hasChild(vlistItemData) && vlistItemData.expanded"
-  key="icon"
-  class="node-toggle expanded" />
-<span
-  v-else
-  key="icon"
-  class="node-toggle is-leaf" />
+class VirtualNode extends VirtualItem {
+  constructor(options) {
+    super(options)
 
-<!-- 选择区 -->
-<span
-  v-if="checkable !== 'none'"
-  key="node-check"
-  class="node-check">
-  <!-- radio 单选 -->
-  <input
-    v-if="checkable === 'single'"
-    :id="node-check-$ {vlistItemKey}-$ {uniqCid}"
-    type="radio"
-    name="node-check-name"
-    class="node-check-input"
-    :checked="vlistItemData.checked"
-    :disabled="disableCheckMethod(vlistItemData.data)"
-    :data-tree-node-key="vlistItemData.key">
-  <!-- checkbox 多选 -->
-  <input
-    v-else
-    :id="node-check-$ {vlistItemKey}-$ {uniqCid}"
-    type="checkbox"
-    name="node-check-name"
-    class="node-check-input"
-    :class="{indeterminate: !checkStrictly && vlistItemData.indeterminate}"
-    :indeterminate="!checkStrictly && vlistItemData.indeterminate"
-    :checked="vlistItemData.checked"
-    :disabled="disableCheckMethod(vlistItemData.data)"
-    :data-tree-node-key="vlistItemData.key">
-  <label :for="node-check-$ {vlistItemKey}-$ {uniqCid}" />
-</span>
+    // 父结点的 key
+    this.parentKey = options.parentKey
+    // 是否展开状态中
+    this.expanded = !!options.expanded
+    // 是否选中状态中
+    this.checked = !!options.checked
+    // 是否半选中状态
+    this.indeterminate = !!options.indeterminate
+    // 父结点的引用
+    this.parent = null
+    // 子结点列表
+    this.children = []
+    // 过滤时临时使用
+    this._retain = false
+  }
+}
 
-<!-- 内容文本 -->
-<span
-  key="label"
-  class="node-label el-tree-node__label"
-  :class="[labelClassMethod(vlistItemData.data)]">
-  <template v-if="highlightText && highlightText.length">
-    <span
-      v-for="(textSlice, index) in parseHighlight(internalLabelMethod(vlistItemData.data), highlightText)"
-      :key="index"
-      :class="{highlight: textSlice.highlight}">{{ textSlice.text }}</span>
-  </template>
-  <template v-else>
-    {{ internalLabelMethod(vlistItemData.data) }}
-  </template>
-</span>
-</div>`
 
 class BlocksTree extends VList {
   itemRender($item, vitem) {
-    $item.dataset.treeNodeKey = vitem.virtualKey
+    $item.classList.add('node-item')
+    $item.classList.toggle('node-item-active', String(vitem.virtualKey) === this.activeNode)
+    $item.style.paddingLeft = this._indent(vitem) + 'px'
 
+    // 折叠箭头
+    let $toggle = $item.querySelector('.node-toggle')
+    if (!$toggle) {
+      $toggle = document.createElement('span')
+      $toggle.className = 'node-toggle'
+      $item.children.length ? $item.insertBefore($toggle, $item.firstElementChild) : $item.appendChild($toggle)
+    }
+    if (this.hasChild(vitem)) {
+      $toggle.classList.remove('is-leaf')
+      $toggle.classList.toggle('folded', !vitem.expanded)
+      $toggle.classList.toggle('expanded', !!vitem.expanded)
+    }
+    else {
+      $toggle.classList.remove('folded')
+      $toggle.classList.remove('expanded')
+      $toggle.classList.add('is-leaf')
+    }
 
-    const label = vitem.data[this.labelField] ?? ''
-    $item.classList.add('item')
-    $item.innerHTML = label
+    // 选择区
+    let $check = $item.querySelector('.node-check')
+    if (!this.checkable) {
+      if ($check) $item.removeChild($check)
+    }
+    else {
+      let $input
+      let $label
+      if (!$check) {
+        $check = document.createElement('span')
+        $check.className = 'node-check'
+        if ($item.labelClassMethod && $item.lastElementChild.classList.contains('node-label')) {
+          $item.insertBefore($check, $item.lastElementChild)
+        }
+        else {
+          $item.appendChild($check)
+        }
+        $input = $check.appendChild(document.createElement('input'))
+        $input.id = `node-check-${vitem.virtualKey}-${this.uniqCid}`
+        $input.name = 'node-check-name'
+        $input.className = 'node-check-input'
+        $label = $check.appendChild(document.createElement('label'))
+        $label.setAttribute('for', $input.id)
+      }
+      else {
+        $input = $check.querySelector('input')
+      }
+
+      boolSetter('checked')($input, vitem.checked)
+      boolSetter('disabled')($input, this.disableCheckMethod?.(vitem.data) ?? false)
+      $input.setAttribute('data-tree-node-key', vitem.virtualKey)
+
+      // radio 单选
+      if (this.checkable === 'single') {}
+      // 多选
+      else {
+        const isIndeterminate = !this.checkStrictly && vitem.indeterminate
+        $input.classList.toggle('indeterminate', isIndeterminate)
+        $input.indeterminate = isIndeterminate
+      }
+    }
+
+    // 内容文本
+    let $label = $item.querySelector('.node-label')
+    if (!$label) {
+      $label = $item.appendChild(document.createElement('span'))
+      $label.classList.add('node-label')
+    }
+    if (this.labelClassMethod) {
+      $label.classList.add(this.labelClassMethod(vitem.data))
+    }
+
+    const text = this.internalLabelMethod(vitem.data)
+    if (this.highlightText && this.highlightText.length) {
+      $label.innerHTML = this.parseHighlight(text, this.highlightText).forEach(textSlice => {
+        return `<span class="${textSlice.highlight ? 'highlight' : ''}">${textSlice.text}</span>`
+      }).join('')
+    }
+    else {
+      $label.innerHTML = text
+    }
   }
 
   static get observedAttributes() {
@@ -325,6 +359,29 @@ class BlocksTree extends VList {
     this.$scrollable = shadowRoot.getElementById('scrollable')
     this.$listSize = shadowRoot.getElementById('list-size')
     this.$list = shadowRoot.getElementById('list')
+
+    this.uniqCid = String(Math.random()).substr(2)
+
+    this.$list.onclick = this._onClick.bind(this)
+  }
+
+  // 从数据中提取 label 的方法
+  get internalLabelMethod() {
+    return typeof this.labelMethod === 'function' ? this.labelMethod
+      : typeof this.labelField === 'string' ? property(this.labelField)
+      : property('label')
+  }
+
+  get internalIdMethod() {
+    return typeof this.idMethod === 'function' ? this.idMethod
+      : typeof this.idField === 'string' ? property(this.idField)
+      : property('id')
+  }
+
+  get internalParentIdMethod() {
+    return typeof this.parentIdMethod === 'function' ? this.parentIdMethod
+      : typeof this.parentIdField === 'string' ? property(this.parentIdField)
+      : property('pid')
   }
 
   get activeNode() {
@@ -440,29 +497,218 @@ class BlocksTree extends VList {
     super.attributeChangedCallback(name, oldValue, newValue)
   }
 
+  disableActiveMethod(data) {
+    return false
+  }
+
+  disableToggleMethod(data) {
+    return false
+  }
+
+  disableCheckMethod(data) {
+    return false
+  }
+
+  /**
+   * 将某个条目设置为激活（高亮）状态
+   */
+  active(virtualKey, options) {
+    const oldKey = this.activeNode
+    const newItem = this.getVirtualItemByKey(virtualKey)
+    if (!newItem) return
+    this.activeNode = virtualKey
+    const $newNode = this.getNodeByVirtualKey(virtualKey)
+    this.itemRender($newNode, newItem)
+
+    const oldItem = this.getVirtualItemByKey(oldKey)
+    const $oldNode = this.getNodeByVirtualKey(oldKey)
+    if ($oldNode) {
+      this.itemRender($oldNode, oldItem)
+    }
+
+    if (!options || !options.preventEmit) {
+      dispatchEvent(this, 'active', { detail: {treeNodeKey: virtualKey, oldNodeKey: oldKey} } )
+    }
+  }
+
+  /**
+   * 获取当前激活结点的 key
+   */
+  getActive() {
+    return this.activeNode
+  }
+
+  /**
+   * 清空激活的条目
+   */
+  clearActive(options) {
+    if (this.activeNode) {
+      const treeNodeKey = this.activeNode
+      this.activeNode = null
+      if (!options || !options.preventEmit) {
+        dispatchEvent(this, 'inactive', treeNodeKey)
+      }
+    }
+  }
+
+
+  // API，通过 treeNodeKey 展开结点
+  expand(treeNodeKey) {
+    const node = this.getVirtualItemByKey(treeNodeKey)
+    if (node) return this._expand(node)
+  }
+
+  // API，通过 treeNodeKey 折叠结点
+  fold(treeNodeKey) {
+    const node = this.getVirtualItemByKey(treeNodeKey)
+    if (node) return this._fold(node)
+  }
+
+  // API，通过 treeNodeKey 切换结点的展开、折叠状态
+  toggle(treeNodeKey) {
+    console.log('toggle')
+    const node = this.getVirtualItemByKey(treeNodeKey)
+    if (!node) return
+    if (node.expanded) this._fold(node)
+    else this._expand(node)
+  }
+
+  // API，全部结点折叠
+  foldAll() {
+    this.nodes.forEach(node => {
+      if (node.children) node.expanded = false
+    })
+    this._updateFold(this.nodes)
+  }
+
+  // API，全部结点展开
+  expandAll() {
+    this.nodes.forEach(node => {
+      if (node.children) node.expanded = true
+    })
+    this._updateFold(this.nodes)
+  }
+
+  _updateFold(nodes) {
+    const expandNodes = nodes.filter(node => node.expanded)
+    const foldedNodes = nodes.filter(node => !node.expanded)
+    foldedNodes.forEach(node => {
+      this._fold(node)
+    })
+    expandNodes.forEach(node => {
+      this._expand(node)
+    })
+  }
+
+  // 展开结点
+  _expand(node, preventEmit = false) {
+    node.expanded = true
+    const listKeys = this._descendant(node)
+      .filter(child => this.visible(child))
+      .map(child => child.virtualKey)
+
+    if (listKeys.length) {
+      this.showByKeys(listKeys)
+    }
+
+    if (!preventEmit) {
+      dispatchEvent(this, 'expand', node.virtualKey)
+    }
+  }
+
+  // 折叠结点
+ _fold(node, preventEmit = false) {
+    node.expanded = false
+    const children = this._descendant(node)
+    const listKeys = children
+      .map(child => child.virtualKey)
+
+    if (listKeys.length) {
+      this.hideByKeys(listKeys)
+    }
+
+    // 如果折叠的结点，包含当前激活的结点，则取消激活状态
+    if (this.activeNode && children.findIndex(child => child.virtualKey === this.activeNode) !== -1) {
+      const virtualKey = this.activeNode
+      this.activeNode = null
+
+      if (!preventEmit) {
+        dispatchEvent(this, 'inactive', virtualKey)
+      }
+    }
+
+    if (!preventEmit) {
+      dispatchEvent(this, 'fold', node.virtualKey)
+    }
+  }
+
+  /**
+   * 获取指定结点的所有后代结点
+   */
+   _descendant(node) {
+    const pickChild = (node, children) => {
+      children = children || []
+      if (!node.children) return children
+      node.children.forEach((child) => {
+        children.push(child)
+        pickChild(child, children)
+      })
+      return children
+    }
+    return pickChild(node)
+  }
+
+  /**
+   * 获取指定结点的所有祖先结点
+   */
+  _ancestor(node) {
+    const result = []
+    while (node.parent) {
+      result.push(node.parent)
+      node = node.parent
+    }
+    return result
+  }
+
+  /**
+   * 获取指定结点的所有兄弟结点（含自己）
+   */
+  _siblings(node) {
+    const parent = node.parent
+    if (parent) {
+      return parent.children ?? []
+    }
+    // 顶层结点
+    return this.nodes.filter(node => !node.parent)
+  }
+
+
+
   convertData(data) {
     const virtualItems = []
 
     let index = 0
     const convert = data => {
       const virtualKey = this.keyMethod?.(data) ?? index++
-      const vitem = new VirtualItem({
+      const vnode = new VirtualNode({
         virtualKey,
         height: this.defaultItemSize,
         data,
+        checked: false,
+        expanded: true,
         children: [],
       })
-      virtualItems.push(vitem)
+      virtualItems.push(vnode)
       const len = data.children?.length
       if (len) {
         for (let i = 0; i < len; i += 1) {
           const childNode = convert(data.children[i])
-          childNode.parent = vitem
-          childNode.parentKey = vitem.virtualKey
-          vitem.children.push(childNode)
+          childNode.parent = vnode
+          childNode.parentKey = vnode.virtualKey
+          vnode.children.push(childNode)
         }
       }
-      return vitem
+      return vnode
     }
 
     data.forEach(convert)
@@ -471,7 +717,7 @@ class BlocksTree extends VList {
 
   render() {
     super.render()
-  }  
+  }
 
   // 提取 data
   _pluckData(virtualItems) {
@@ -534,6 +780,41 @@ class BlocksTree extends VList {
     }
   }
 
+  // 获取结点的层级
+  level(node) {
+    let level = 1
+    while (node.parent) {
+      level += 1
+      node = node.parent
+    }
+    return level
+  }
+
+  /**
+   * 检查条目是否是顶层条目
+   */
+  isTopLevel(node) {
+    return !!node.parent
+  }
+
+  /**
+   * 检查条目是否拥有子结点
+   */
+  hasChild(node) {
+    return node.children && node.children.length > 0
+  }
+
+  /**
+   * 检查条目当时是否应该可见
+   */
+  visible(node) {
+    if (node.parent && (!node.parent.expanded || !this.visible(node.parent))) {
+      return false
+    }
+    return true
+  }
+
+
   parseHighlight(label, highlightText) {
     return parseHighlight(label, highlightText)
   }
@@ -553,17 +834,15 @@ class BlocksTree extends VList {
 
     while (el) {
       if (el === e.currentTarget) break
-      const className = el.className
-
       // 1. 点击切换按钮
-      if (_.includes(className, 'node-toggle')) {
+      if (el.classList.contains('node-toggle')) {
         nodeItem = el.parentNode
         doToggle = true
         break
       }
 
       // 2. 点击选择框（label 会间接触发 input 的事件，为了避免重复处理，只处理 input 事件）
-      if (_.includes(className, 'node-check-input')) {
+      if (el.classList.contains('node-check-input')) {
         nodeItem = el.parentNode.parentNode
         if (el.disabled) {
           // 取消本次操作
@@ -574,7 +853,7 @@ class BlocksTree extends VList {
       }
 
       // 3. 点击文本区
-      if (_.includes(className, 'node-label')) {
+      if (el.classList.contains('node-label')) {
         nodeItem = el.parentNode
         doActive = true
         // 如果配置了点击结点切换折叠状态
@@ -588,7 +867,7 @@ class BlocksTree extends VList {
         break
       }
 
-      if (_.includes(className, 'node-item')) {
+      if (el.classList.contains('node-item')) {
         nodeItem = el
         doActive = true
         break
@@ -597,25 +876,25 @@ class BlocksTree extends VList {
     }
     if (!nodeItem) return
 
-    // treeNodeKey 必定为 string，number 也会被转换成 string（dataset 中）
-    const treeNodeKey = nodeItem.dataset.treeNodeKey
+    // virtualKey 必定为 string，number 也会被转换成 string（dataset 中）
+    const virtualKey = nodeItem.dataset.virtualKey
     if (doToggle) {
-      if (!this.disableToggleMethod(this._getNodeData(treeNodeKey).data)) {
-        this.toggle(treeNodeKey)
+      if (!this.disableToggleMethod(this.getVirtualItemByKey(virtualKey).data)) {
+        this.toggle(virtualKey)
       }
     }
     if (doCheck) {
-      if (!this.disableCheckMethod(this._getNodeData(treeNodeKey).data)) {
-        this._toggleCheck(treeNodeKey)
+      if (!this.disableCheckMethod(this.getVirtualItemByKey(virtualKey).data)) {
+        this._toggleCheck(virtualKey)
       }
     }
     if (doActive) {
-      if (!this.disableActiveMethod(this._getNodeData(treeNodeKey).data)) {
-        this.active(treeNodeKey)
+      if (!this.disableActiveMethod(this.getVirtualItemByKey(virtualKey).data)) {
+        this.active(virtualKey)
       }
     }
 
-    // this.$emit('click', treeNodeKey)
+    dispatchEvent(this, 'click', virtualKey)
   }
 
   _updateFold(nodes) {
