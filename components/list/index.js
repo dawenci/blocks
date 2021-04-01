@@ -309,6 +309,10 @@ class BlocksList extends VList {
     dispatchEvent(this, 'change', { detail: { value: this.multiple ? this._selected : this._selected[0] } })
   }
 
+  render() {
+    super.render()
+  }
+
   connectedCallback() {
     super.connectedCallback()
   }

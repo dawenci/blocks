@@ -262,12 +262,214 @@ export default class BlocksVList extends HTMLElement {
 
   attributeChangedCallback(attrName, oldValue, newValue) {
     if (BlocksVList.observedAttributes.includes(attrName)) {
-      this._refreshList()
+      this.redraw()
     }
     if (attrName === 'shadow') {
       this.$viewport.shadow = this.shadow
     }
   }
+
+  itemRender($item, vitem) {
+    const label = vitem.data[this.labelField] ?? ''
+    $item.innerHTML = label
+  }
+
+  itemSizeMethod($node, options) {
+    return options.calculated
+      ? options.height
+      : options.direction === Direction.Horizontal
+        ? $node.offsetWidth
+        : $node.offsetHeight
+  }
+
+  /**
+   * 通过数据 key 列表，设置对应条目的显示状态
+   */
+  async showByKeys(keys) {
+    const changes = keys.map((key) => this.keyDataMap[key])
+      .filter((wrappedItem) => wrappedItem?.height <= 0)
+      .map((wrappedItem) => {
+        const height = (-wrappedItem.height || this.defaultItemSize)
+        const hasChange = this._updateSize(wrappedItem, height)
+        return hasChange ? { key: wrappedItem.virtualKey, value: height } : null
+      })
+      .filter(item => !!item)
+
+    this.redraw()
+
+    // 如果存在未结束的动画，提前结束
+    if (await this._clearTransition()) {
+      this.redraw()
+    }
+
+    // 过渡动画
+    const $collapse = document.createElement('div')
+    $collapse.classList.add('transition')
+    let firstFlag = false
+    forEach(this.$list.children, $item => {
+      if (keys.includes($item.virtualKey)) {
+        if (!firstFlag) {
+          this.$list.insertBefore($collapse, $item)
+          firstFlag = true
+        }
+        $collapse.appendChild($item)
+      }
+    })
+    if ($collapse.children.length) {
+      const size = Array.prototype.reduce.call($collapse.children, (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
+      $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
+      doTransitionLeave($collapse, 'collapse', () => {
+        forEach($collapse.children, $item => {
+          this.$list.insertBefore($item, $collapse)
+        })
+        this.$list.removeChild($collapse)
+        this.nextTick(() => this.redraw())
+      })
+    }
+
+    if (changes.length) dispatchEvent(this, ITEMS_SIZE_UPDATE, changes)
+  }
+
+  /**
+   * 通过数据 key 列表，设置对应条目的显示状态
+   */
+   async hideByKeys(keys) {
+    const changes = keys.map((key) => this.keyDataMap[key])
+      .filter(wrappedItem => wrappedItem?.height > 0)
+      .map((wrappedItem) => {
+        // 设置为负数，表示隐藏
+        const height = -wrappedItem.height
+        wrappedItem.height = height
+        const hasChange = this._updateSize(wrappedItem, height)
+        return hasChange ? { key: wrappedItem.virtualKey, value: height } : null
+      })
+      .filter(item => !!item)
+
+    // 如果存在未结束的动画，提前结束
+    if (await this._clearTransition()) {
+      this.redraw()
+    }
+
+    // 过渡动画
+    const $collapse = document.createElement('div')
+    $collapse.classList.add('transition')
+    let firstFlag = false
+    forEach(this.$list.children, $item => {
+      if (keys.includes($item.virtualKey)) {
+        if (!firstFlag) {
+          this.$list.insertBefore($collapse, $item)
+          firstFlag = true
+        }
+        $collapse.appendChild($item)
+      }
+    })
+    if ($collapse.children.length) {
+      const size = Array.prototype.reduce.call($collapse.children, (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
+      $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
+      doTransitionEnter($collapse, 'collapse', () => {
+        this.$list.removeChild($collapse)
+        this.redraw()
+      })
+    }
+
+    this.nextTick(() => this.redraw())
+    if (changes.length) dispatchEvent(this, ITEMS_SIZE_UPDATE, changes)
+  }  
+
+  nextTick(callback) {
+    return Promise.resolve().then(callback)
+  }  
+
+  render() {
+    if (!this._dataBound) {
+      return this.rebuildViewData()
+    }
+
+    this._updateListSize()
+    const renderCount = this.sliceTo - this.sliceFrom
+
+    // 列表中，存在多少个动画元素
+    const transitionItemCount = this.$list.querySelectorAll('.transition').length
+
+    if (this.direction === Direction.Horizontal) {
+      this.$list.style.transform = `translateX(${this._itemOffset(this.sliceFrom)}px)`
+    }
+    else {
+      this.$list.style.transform = `translateY(${this._itemOffset(this.sliceFrom)}px)`
+    }
+    
+    const sliceItems = this.virtualSliceItems
+    const idIndexMap = {}
+    sliceItems.forEach((node, i) => idIndexMap[node.virtualKey] = i)
+
+    const getFirst = () => transitionItemCount ? find(this.$list.children, $item => $item.virtualViewIndex != null) : this.$list.firstElementChild
+    const getLast = () => transitionItemCount ? findLast(this.$list.children, $item => $item.virtualViewIndex != null) : this.$list.lastElementChild
+
+    // 渲染条目 DOM，针对滚动的场景做优化
+    const startKey = sliceItems[0].virtualViewIndex
+    const endKey = sliceItems[sliceItems.length - 1].virtualViewIndex
+    const startItemKey = getFirst()?.virtualViewIndex
+    const endItemKey = getLast()?.virtualViewIndex
+
+    // 上滚
+    if (endKey < endItemKey || (endKey === endItemKey && startKey < startItemKey)) {
+      // 结尾对齐
+      let $last
+      while (this.$list.children.length && ($last = getLast())?.virtualViewIndex !== endKey) {
+        $last && this._$pool.push(this.$list.removeChild($last))
+      }
+
+      // 保证数量一致
+      while (this.$list.children.length > renderCount + transitionItemCount) {
+        this._$pool.push(this.$list.removeChild(this.$list.firstElementChild))
+      }
+      while (this.$list.children.length < renderCount + transitionItemCount) {
+        this.$list.insertBefore(this._$pool.pop() ?? itemTemplate.cloneNode(true), this.$list.firstElementChild)
+      }
+    }
+    else {
+      // 下滚
+      if (startKey > startItemKey || (startKey === startItemKey && endKey > endItemKey)) {
+        // 开头对齐
+        let $first
+        while(this.$list.children.length && ($first = getFirst())?.virtualViewIndex !== startKey) {
+          $first && this._$pool.push(this.$list.removeChild($first))
+        }
+      }
+
+      // 保证数量一致
+      while (this.$list.children.length > renderCount + transitionItemCount) {
+        this._$pool.push(this.$list.removeChild(this.$list.lastElementChild))
+      }
+      while (this.$list.children.length < renderCount + transitionItemCount) {
+        this.$list.appendChild(this._$pool.pop() ?? itemTemplate.cloneNode(true))
+      }
+    }
+    this._$pool = []
+
+    // 渲染条目内部内容
+    let i = -1
+    let j = -1
+    while (++i < renderCount) {
+      const $item = this.$list.children[i]
+      if ($item.classList.contains('transition')) continue
+      const vitem = sliceItems[++j]
+
+      if (!vitem) return
+      $item.virtualKey = $item.dataset.id = vitem.virtualKey
+      $item.virtualViewIndex = vitem.virtualViewIndex
+      this.itemRender($item, vitem)
+    }
+
+    // 过滤出未计算过高度的条目
+    this._updateSizeByItems(this.$list.children)
+  }
+
+  // 刷新列表高度、重新切片渲染
+  redraw() {
+    this._updateListSize()
+    this._updateSliceRange(FORCE_SLICE)
+  }  
 
   convertData(data) {
     const virtualItems = []
@@ -387,6 +589,46 @@ export default class BlocksVList extends HTMLElement {
     dispatchEvent(this, DATA_VIEW_CHANGE, this._pluckData(this.virtualViewItems))
   }
 
+  // 上下两端预先批量渲染的项目波动量
+  // 原理是，每次插入删除都是一个小批量动作，
+  // 而不是每次只插入一条、销毁一条
+  // 计算出的局部渲染数据范围，跟上一次计算出来的结果，差距
+  // 在这个波动量范围内，则不重新切片渲染，用于
+  // 防止频繁插入内容导致性能压力
+  preRenderingCount(viewportSize) {
+    // 默认预渲染 1 屏
+    const len = this.virtualSliceItems.length
+    const defaults = Math.ceil(viewportSize / this.defaultItemSize)
+    return len ? Math.min(len, defaults) : defaults
+  }
+
+  // 滚动到上下方剩下多少个条目时，加载下一批
+  // 防止 iOS 快速触摸滚动时的白屏
+  preRenderingThreshold(viewportSize) {
+    // 默认触达预渲染的一半数量时，加载下一批切片
+    return Math.floor(this.preRenderingCount(viewportSize) / 2)
+  }
+
+  // 滚动到锚定位置，仅在高度都已经计算后才生效，否则滚动到目的地，
+  // 高度经过计算发生变化的话，无法对准
+  scrollToIndex(anchorIndex, anchorOffsetRatio = 0) {
+    if (anchorIndex < this.virtualViewItems.length) {
+      const start = this._itemOffset(anchorIndex)
+      const offset = Math.floor(this._itemSize(anchorIndex) * anchorOffsetRatio)
+      let scroll = start - offset
+      if (scroll < 0) scroll = 0
+      if (scroll > this.canvasMainSize - this.viewportMainSize) scroll = this.canvasMainSize - this.viewportMainSize
+      this.setScrollMain(scroll)
+    }
+  }
+
+  /**
+   * 设置 viewport 主轴方向滚过去的距离
+   */
+  setScrollMain(value) {
+    this.$viewport[this.direction === Direction.Horizontal ? 'scrollLeft' : 'scrollTop'] = value
+  }  
+
   _updateSliceRange(forceUpdate) {
     const viewportSize = this.direction === Direction.Horizontal ? this.$viewport.clientWidth : this.$viewport.clientHeight
     const viewportStart = this.direction === Direction.Horizontal ? this.$viewport.scrollLeft : this.$viewport.scrollTop
@@ -401,10 +643,10 @@ export default class BlocksVList extends HTMLElement {
     this.anchorOffsetRatio = range.anchorOffsetRatio
 
     // 上下方额外多渲染的条目波动量
-    const COUNT = this._preRenderingCount(viewportSize)
+    const COUNT = this.preRenderingCount(viewportSize)
 
     // 预渲染触发阈值
-    const THRESHOLD = this._preRenderingThreshold(viewportSize)
+    const THRESHOLD = this.preRenderingThreshold(viewportSize)
 
     // 数据总量
     const MAX = this.virtualViewItems.length
@@ -572,25 +814,6 @@ export default class BlocksVList extends HTMLElement {
     return { sliceFrom, sliceTo, anchorOffsetRatio }
   }
 
-  // 上下两端预先批量渲染的项目波动量
-  // 原理是，每次插入删除都是一个小批量动作，
-  // 而不是每次只插入一条、销毁一条
-  // 计算出的局部渲染数据范围，跟上一次计算出来的结果，差距
-  // 在这个波动量范围内，则不重新切片渲染，用于
-  // 防止频繁插入内容导致性能压力
-  _preRenderingCount(viewportSize) {
-    // 默认预渲染 1 屏
-    const len = this.virtualSliceItems.length
-    const defaults = Math.ceil(viewportSize / this.defaultItemSize)
-    return len ? Math.min(len, defaults) : defaults
-  }
-
-  // 滚动到上下方剩下多少个条目时，加载下一批
-  // 防止 iOS 快速触摸滚动时的白屏
-  _preRenderingThreshold(viewportSize) {
-    // 默认触达预渲染的一半数量时，加载下一批切片
-    return Math.floor(this._preRenderingCount(viewportSize) / 2)
-  }
 
   _doSlice(fromIndex, toIndex) {
     const virtualViewItems = this.virtualViewItems
@@ -608,16 +831,6 @@ export default class BlocksVList extends HTMLElement {
 
     this.render()
   }
-
-  // 当前渲染出来的条目元素
-  _viewingItems() {
-    const result = []
-    const children = this.$list.children
-    for (let i = 0, len = children.length; i < len; i += 1) {
-      result.push(children[i])
-    }
-    return result
-  }  
 
   // 根据当前屏幕上的条目，更新尺寸
   _updateSizeByItems(nodeItems) {
@@ -708,104 +921,6 @@ export default class BlocksVList extends HTMLElement {
     return this.keyDataMap[$node.virtualKey]
   }
 
-  itemRender($item, vitem) {
-    const label = vitem.data[this.labelField] ?? ''
-    $item.innerHTML = label
-  }
-
-  itemSizeMethod($node, options) {
-    return options.calculated
-      ? options.height
-      : options.direction === Direction.Horizontal
-        ? $node.offsetWidth
-        : $node.offsetHeight
-  }
-
-  render() {
-    if (!this._dataBound) {
-      return this.rebuildViewData()
-    }
-
-    this._updateListSize()
-    const renderCount = this.sliceTo - this.sliceFrom
-
-    // 列表中，存在多少个动画元素
-    const transitionItemCount = this.$list.querySelectorAll('.transition').length
-
-    if (this.direction === Direction.Horizontal) {
-      this.$list.style.transform = `translateX(${this._itemOffset(this.sliceFrom)}px)`
-    }
-    else {
-      this.$list.style.transform = `translateY(${this._itemOffset(this.sliceFrom)}px)`
-    }
-    
-    const sliceItems = this.virtualSliceItems
-    const idIndexMap = {}
-    sliceItems.forEach((node, i) => idIndexMap[node.virtualKey] = i)
-
-    const getFirst = () => transitionItemCount ? find(this.$list.children, $item => $item.virtualViewIndex != null) : this.$list.firstElementChild
-    const getLast = () => transitionItemCount ? findLast(this.$list.children, $item => $item.virtualViewIndex != null) : this.$list.lastElementChild
-
-    // 渲染条目 DOM，针对滚动的场景做优化
-    const startKey = sliceItems[0].virtualViewIndex
-    const endKey = sliceItems[sliceItems.length - 1].virtualViewIndex
-    const startItemKey = getFirst()?.virtualViewIndex
-    const endItemKey = getLast()?.virtualViewIndex
-
-    // 上滚
-    if (endKey < endItemKey || (endKey === endItemKey && startKey < startItemKey)) {
-      // 结尾对齐
-      let $last
-      while (this.$list.children.length && ($last = getLast())?.virtualViewIndex !== endKey) {
-        $last && this._$pool.push(this.$list.removeChild($last))
-      }
-
-      // 保证数量一致
-      while (this.$list.children.length > renderCount + transitionItemCount) {
-        this._$pool.push(this.$list.removeChild(this.$list.firstElementChild))
-      }
-      while (this.$list.children.length < renderCount + transitionItemCount) {
-        this.$list.insertBefore(this._$pool.pop() ?? itemTemplate.cloneNode(true), this.$list.firstElementChild)
-      }
-    }
-    else {
-      // 下滚
-      if (startKey > startItemKey || (startKey === startItemKey && endKey > endItemKey)) {
-        // 开头对齐
-        let $first
-        while(this.$list.children.length && ($first = getFirst())?.virtualViewIndex !== startKey) {
-          $first && this._$pool.push(this.$list.removeChild($first))
-        }
-      }
-
-      // 保证数量一致
-      while (this.$list.children.length > renderCount + transitionItemCount) {
-        this._$pool.push(this.$list.removeChild(this.$list.lastElementChild))
-      }
-      while (this.$list.children.length < renderCount + transitionItemCount) {
-        this.$list.appendChild(this._$pool.pop() ?? itemTemplate.cloneNode(true))
-      }
-    }
-    this._$pool = []
-
-    // 渲染条目内部内容
-    let i = -1
-    let j = -1
-    while (++i < renderCount) {
-      const $item = this.$list.children[i]
-      if ($item.classList.contains('transition')) continue
-      const vitem = sliceItems[++j]
-
-      if (!vitem) return
-      $item.virtualKey = $item.dataset.id = vitem.virtualKey
-      $item.virtualViewIndex = vitem.virtualViewIndex
-      this.itemRender($item, vitem)
-    }
-
-    // 过滤出未计算过高度的条目
-    this._updateSizeByItems(this.$list.children)
-  }  
-
   // 提取 data
   _pluckData(virtualItems) {
     const data = []
@@ -850,26 +965,6 @@ export default class BlocksVList extends HTMLElement {
     return this.itemHeightStore.read(index)
   }  
 
-  // 滚动到锚定位置，仅在高度都已经计算后才生效，否则滚动到目的地，
-  // 高度经过计算发生变化的话，无法对准
-  _scrollToAnchor(anchorIndex, anchorOffsetRatio = 0) {
-    if (anchorIndex < this.virtualViewItems.length) {
-      const start = this._itemOffset(anchorIndex)
-      const offset = Math.floor(this._itemSize(anchorIndex) * anchorOffsetRatio)
-      let scroll = start - offset
-      if (scroll < 0) scroll = 0
-      if (scroll > this.canvasMainSize - this.viewportMainSize) scroll = this.canvasMainSize - this.viewportMainSize
-      this.setScrollMain(scroll)
-    }
-  }
-
-  /**
-   * 设置 viewport 主轴方向滚过去的距离
-   */
-  setScrollMain(value) {
-    this.$viewport[this.direction === Direction.Horizontal ? 'scrollLeft' : 'scrollTop'] = value
-  }
-
   // 提前结束动画
   async _clearTransition() {
     let flag = false
@@ -879,110 +974,6 @@ export default class BlocksVList extends HTMLElement {
     })
     if (!flag) return Promise.resolve(flag)
     return new Promise(resolve => setTimeout(() => resolve(flag), 50))
-  }
-
-  /**
-   * 通过数据 key 列表，设置对应条目的显示状态
-   */
-  async showByKeys(keys) {
-    const changes = keys.map((key) => this.keyDataMap[key])
-      .filter((wrappedItem) => wrappedItem?.height <= 0)
-      .map((wrappedItem) => {
-        const height = (-wrappedItem.height || this.defaultItemSize)
-        const hasChange = this._updateSize(wrappedItem, height)
-        return hasChange ? { key: wrappedItem.virtualKey, value: height } : null
-      })
-      .filter(item => !!item)
-
-    this._refreshList()
-
-    // 如果存在未结束的动画，提前结束
-    if (await this._clearTransition()) {
-      this._refreshList()
-    }
-
-    // 过渡动画
-    const $collapse = document.createElement('div')
-    $collapse.classList.add('transition')
-    let firstFlag = false
-    forEach(this.$list.children, $item => {
-      if (keys.includes($item.virtualKey)) {
-        if (!firstFlag) {
-          this.$list.insertBefore($collapse, $item)
-          firstFlag = true
-        }
-        $collapse.appendChild($item)
-      }
-    })
-    if ($collapse.children.length) {
-      const size = Array.prototype.reduce.call($collapse.children, (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
-      $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
-      doTransitionLeave($collapse, 'collapse', () => {
-        forEach($collapse.children, $item => {
-          this.$list.insertBefore($item, $collapse)
-        })
-        this.$list.removeChild($collapse)
-        this._nextTick(() => this._refreshList())
-      })
-    }
-
-    if (changes.length) dispatchEvent(this, ITEMS_SIZE_UPDATE, changes)
-  }
-
-  /**
-   * 通过数据 key 列表，设置对应条目的显示状态
-   */
-   async hideByKeys(keys) {
-    const changes = keys.map((key) => this.keyDataMap[key])
-      .filter(wrappedItem => wrappedItem?.height > 0)
-      .map((wrappedItem) => {
-        // 设置为负数，表示隐藏
-        const height = -wrappedItem.height
-        wrappedItem.height = height
-        const hasChange = this._updateSize(wrappedItem, height)
-        return hasChange ? { key: wrappedItem.virtualKey, value: height } : null
-      })
-      .filter(item => !!item)
-
-    // 如果存在未结束的动画，提前结束
-    if (await this._clearTransition()) {
-      this._refreshList()
-    }
-
-    // 过渡动画
-    const $collapse = document.createElement('div')
-    $collapse.classList.add('transition')
-    let firstFlag = false
-    forEach(this.$list.children, $item => {
-      if (keys.includes($item.virtualKey)) {
-        if (!firstFlag) {
-          this.$list.insertBefore($collapse, $item)
-          firstFlag = true
-        }
-        $collapse.appendChild($item)
-      }
-    })
-    if ($collapse.children.length) {
-      const size = Array.prototype.reduce.call($collapse.children, (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
-      $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
-      doTransitionEnter($collapse, 'collapse', () => {
-        this.$list.removeChild($collapse)
-        this._refreshList()
-      })
-    }
-
-    this._nextTick(() => this._refreshList())
-    if (changes.length) dispatchEvent(this, ITEMS_SIZE_UPDATE, changes)
-  }  
-
-  // 刷新列表高度、重新切片渲染
-  _refreshList() {
-    this._updateListSize()
-    this._updateSliceRange(FORCE_SLICE)
-  }
-
-  _nextTick(callback) {
-    return Promise.resolve().then(callback)
   }
 }
 

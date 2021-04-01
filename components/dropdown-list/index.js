@@ -113,7 +113,7 @@ export default class BlocksDropDownList extends HTMLElement {
 
     this.$popup.addEventListener('opened', () => {
       this._initClickOutside()
-      this.$list.render()
+      this.$list.redraw()
     })
 
     this.$popup.addEventListener('closed', () => {
