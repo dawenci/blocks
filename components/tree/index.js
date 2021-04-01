@@ -2,7 +2,7 @@ import VList, { VirtualItem } from '../vlist/index.js'
 import '../scrollable/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { find, findLast, forEach, property } from '../../common/utils.js'
+import { find, findLast, forEach, isEmpty, property } from '../../common/utils.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import {
   __font_family,
@@ -112,8 +112,7 @@ template.innerHTML = `
   text-align: left;
   line-height: var(--height);
 }
-
-.node-check input {
+.node-check-input {
   position: absolute;
   overflow: hidden;
   width: 0;
@@ -123,8 +122,8 @@ template.innerHTML = `
   left: -100px;
   visibility: hidden;
 }
-
-.node-check label {
+.node-check-label {
+  box-sizing: border-box;
   position: absolute;
   top: 0;
   right: auto;
@@ -137,67 +136,71 @@ template.innerHTML = `
   border: 1px solid var(--border-color-base, ${__border_color_base});
   background: #fff;
   font-size: 0;
-  &:hover {
-    border-color: var(--color-primary, ${__color_primary});
-  }
 }
+.node-check-label:hover {
+  border-color: var(--color-primary, ${__color_primary});
+}
+
 /* 复选框的圆角 2 px */
-.node-check input[type="checkbox"] + label {
+.node-check-input[type="checkbox"] + .node-check-label {
   border-radius: 2px;
 }
 /* 单选的圆角，正圆形 */
-.node-check input[type="radio"] + label {
+.node-check-input[type="radio"] + .node-check-label {
   border-radius: 50%;
 }
-
 /* 选中状态的，高亮颜色 */
-.node-check input:checked + label {
-  border-color: var(--color-primary, ${__color_primary});
-  background-color: var(--color-primary, ${__color_primary});
-}
 /* 半选中状态的，高亮颜色 */
-.node-check input[type="checkbox"]:indeterminate + label,
-// IE 11
-.node-check input.indeterminate[type="checkbox"] + label {
+.node-check-input[checked] + .node-check-label,
+.node-check-input[type="checkbox"]:indeterminate + .node-check-label,
+.node-check-input.indeterminate[type="checkbox"] + .node-check-label {
   border-color: var(--color-primary, ${__color_primary});
   background-color: var(--color-primary, ${__color_primary});
 }
-
-// 选中状态下的复选框内部样式
-.node-check input:checked[type="checkbox"] + label:after {
-  box-sizing: content-box;
+.node-check-input[type="radio"] + .node-check-label:after {
+  box-sizing: border-box;
   content: "";
-  border: 1px solid #fff;
-  border-left: 0;
-  border-top: 0;
-  height: 7px;
-  left: 4px;
-  position: absolute;
-  top: 1px;
-  transform: rotate(45deg) scaleY(0);
-  width: 3px;
-  transition: transform .15s ease-in .05s;
-  transform: rotate(45deg) scaleY(1);
-  transform-origin: center;
-}
-// 选中状态下的单选框内部样式
-.node-check input:checked[type="radio"] + label:after {
-  content: "";
+  border: 1px solid transparent;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
   margin: auto;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+  transition: transform var(--transition-duration, .16s) ease-in .05s;
+  background-color: transparent;
+}
+.node-check-input[type="checkbox"] + .node-check-label:after {
+  box-sizing: content-box;
+  content: "";
+  border: 1px solid transparent;
+  border-left: 0;
+  border-top: 0;
+  height: 7px;
+  left: 4px;
+  position: absolute;
+  top: 1px;
+  width: 3px;
+  transition: transform .15s ease-in .05s;
+  transform-origin: center;
+  transform: rotate(45deg) scaleY(1);
+}
+// 选中状态下的复选框内部样式
+.node-check-input[type="checkbox"][checked] + .node-check-label:after {
+  border-color: #fff;
+}
+// 选中状态下的单选框内部样式
+.node-check-input[type="radio"][checked] + .node-check-label:after {
+  border-color: #fff;
   background: #fff;
 }
 // 半选中状态下的复选框内部样式
-.node-check input:indeterminate[type="checkbox"] + label:after,
+.node-check-input:indeterminate[type="checkbox"] + .node-check-label:after,
 /* IE 11 */
-.node-check input.indeterminate[type="checkbox"] + label:after {
+.node-check-input.indeterminate[type="checkbox"] + .node-check-label:after {
   content: "";
   position: absolute;
   display: block;
@@ -210,16 +213,16 @@ template.innerHTML = `
 }
 
 /* 禁用状态 */
-.node-check input:disabled + label,
-.node-check input:disabled + label:hover {
+.node-check-input[disabled] + .node-check-label,
+.node-check-input[disabled] + .node-check-label:hover {
   border-color: var(--border-color-base, ${__border_color_base});
   background-color: var(--bg-base, ${__bg_base});
   cursor: not-allowed;
 }
-.node-check input:disabled:checked[type="checkbox"] + label:after {
+.node-check-input[disabled][checked][type="checkbox"] + .node-check-label:after {
   border-color: var(--border-color-base, ${__border_color_base});
 }
-.node-check input:disabled:checked[type="radio"] + label:after {
+.node-check-input[disabled][checked][type="radio"] + .node-check-label:after {
   background: var(--border-color-base, ${__border_color_base});
 }
 
@@ -229,7 +232,6 @@ template.innerHTML = `
   padding: 4px 0;
   user-select: none;
 }
-
 .node-label .highlight {
   color: var(--color-danger, ${__color_danger});
 }
@@ -305,6 +307,7 @@ class BlocksTree extends VList {
         $input.name = 'node-check-name'
         $input.className = 'node-check-input'
         $label = $check.appendChild(document.createElement('label'))
+        $label.classList.add('node-check-label')
         $label.setAttribute('for', $input.id)
       }
       else {
@@ -316,9 +319,12 @@ class BlocksTree extends VList {
       $input.setAttribute('data-tree-node-key', vitem.virtualKey)
 
       // radio 单选
-      if (this.checkable === 'single') {}
+      if (this.checkable === 'single') {
+        $input.setAttribute('type', 'radio')
+      }
       // 多选
       else {
+        $input.setAttribute('type', 'checkbox')
         const isIndeterminate = !this.checkStrictly && vitem.indeterminate
         $input.classList.toggle('indeterminate', isIndeterminate)
         $input.indeterminate = isIndeterminate
@@ -451,11 +457,11 @@ class BlocksTree extends VList {
   }
 
   get checkable() {
-    return enumGetter('checkable', [null, 'multiple' | 'single'])(this)
+    return enumGetter('checkable', [null, 'multiple', 'single'])(this)
   }
 
   set checkable(value) {
-    return enumSetter('checkable', [null, 'multiple' | 'single'])(this, value)
+    return enumSetter('checkable', [null, 'multiple', 'single'])(this, value)
   }
 
   // 是否点击结点的时候，切换展开、折叠状态
@@ -526,7 +532,7 @@ class BlocksTree extends VList {
     }
 
     if (!options || !options.preventEmit) {
-      dispatchEvent(this, 'active', { detail: {treeNodeKey: virtualKey, oldNodeKey: oldKey} } )
+      dispatchEvent(this, 'active', { detail: {virtualKey: virtualKey, oldNodeKey: oldKey} } )
     }
   }
 
@@ -542,31 +548,31 @@ class BlocksTree extends VList {
    */
   clearActive(options) {
     if (this.activeNode) {
-      const treeNodeKey = this.activeNode
+      const virtualKey = this.activeNode
       this.activeNode = null
       if (!options || !options.preventEmit) {
-        dispatchEvent(this, 'inactive', treeNodeKey)
+        dispatchEvent(this, 'inactive', virtualKey)
       }
     }
   }
 
 
-  // API，通过 treeNodeKey 展开结点
-  expand(treeNodeKey) {
-    const node = this.getVirtualItemByKey(treeNodeKey)
+  // API，通过 virtualKey 展开结点
+  expand(virtualKey) {
+    const node = this.getVirtualItemByKey(virtualKey)
     if (node) return this._expand(node)
   }
 
-  // API，通过 treeNodeKey 折叠结点
-  fold(treeNodeKey) {
-    const node = this.getVirtualItemByKey(treeNodeKey)
+  // API，通过 virtualKey 折叠结点
+  fold(virtualKey) {
+    const node = this.getVirtualItemByKey(virtualKey)
     if (node) return this._fold(node)
   }
 
-  // API，通过 treeNodeKey 切换结点的展开、折叠状态
-  toggle(treeNodeKey) {
+  // API，通过 virtualKey 切换结点的展开、折叠状态
+  toggle(virtualKey) {
     console.log('toggle')
-    const node = this.getVirtualItemByKey(treeNodeKey)
+    const node = this.getVirtualItemByKey(virtualKey)
     if (!node) return
     if (node.expanded) this._fold(node)
     else this._expand(node)
@@ -586,6 +592,250 @@ class BlocksTree extends VList {
       if (node.children) node.expanded = true
     })
     this._updateFold(this.nodes)
+  }
+
+  /**
+   * 切换指定 key 的条目的选中状态
+   */
+  _toggleCheck(virtualKey, value, options = {}) {
+    if (this.checkable == null) return
+
+    const node = this.getVirtualItemByKey(virtualKey)
+    if (!node || node.checked === value) return
+
+    // 单选模式
+    if (this.checkable === 'single') {
+      this._toggleRadio(node, options)
+      return
+    }
+
+    // 多选模式
+    this._batchToggleCheck([virtualKey], value, options)
+  }
+
+  // 单选模式
+  _toggleRadio(node, options) {
+    if (this.lastChecked) {
+      // 点击已选中的单选项，不用处理
+      if (this.lastChecked === node) return
+      this._updateCheck(this.lastChecked, false, options.toggleCheckEvent)
+    }
+    this._updateCheck(node, true, options.toggleCheckEvent)
+    this.lastChecked = node
+  }
+
+  // 多选模式
+  // 无需联动的情况
+  _batchToggleCheckStrictly(nodes, value, options = {}) {
+    const disabled = typeof options.disabled === 'boolean' ? options.disabled : false
+
+    const checked = typeof value === 'boolean' ? value : nodes.every(node => node.checked)
+    nodes.forEach(node => {
+      if (disabled || !this.disableCheckMethod(node.data)) {
+        this._updateCheck(node, checked, options.toggleCheckEvent)
+      }
+    })
+  }
+
+  // 需要联动的情况
+  // 所有子孙结点，切换为全选或者全不选，但 disabled 的结点除外
+  _batchToggleCheckNonStrictly(nodes, value, options = {}) {
+    const disabled = typeof options.disabled === 'boolean' ? options.disabled : false
+
+    if (!disabled) {
+      nodes = nodes.filter(node => !this.disableCheckMethod(node.data))
+      if (!nodes.length) return
+    }
+
+    const descendant = nodes
+      .map(this._descendant.bind(this))
+      // .flatten()
+      // .value()
+
+    // 不处理的结点（disabled）
+    const excluded = []
+    // 叶子结点
+    const leaves = []
+
+    // 处理所有结点，包含不可用的
+    if (disabled) {
+      descendant.forEach(node => {
+        if (isEmpty(node.children)) {
+          leaves.push(node)
+        }
+      })
+    }
+    // 排除不可用的结点
+    else {
+      descendant.forEach(node => {
+        if (this.disableCheckMethod(node.data)) {
+          excluded.push(node)
+        }
+        else if (isEmpty(node.children)) {
+          leaves.push(node)
+        }
+      })
+    }
+
+    let checked
+    // value 无传递（如鼠标点击切换的情况），
+    // 本次操作是否 checked 根据 nodes 下所有叶子结点确定，
+    // nodes 下无叶子，则 nodes 已经是叶子，以 nodes 确定
+    if (value == null) {
+      checked = !(leaves.length ? leaves.every(leaf => leaf.checked) : nodes.every(node => node.checked))
+    }
+    else {
+      checked = !!value
+    }
+
+    // 只需更新 nodes 下的叶子结点，所有祖先结点，都通过叶子结点往上推断出状态
+    // （nodes 也可能是叶子结点，因此也需要一并处理）
+    {
+      leaves.forEach(node => {
+        this._updateCheck(node, checked, options.toggleCheckEvent)
+        this._updateIndeterminate(node, false)
+      })
+      nodes.forEach(node => {
+        this._updateCheck(node, checked, options.toggleCheckEvent)
+        this._updateIndeterminate(node, false)
+      })
+    }
+
+    // 从受影响的叶子结点（以及 nodes 自身）往祖先结点方向，更新选中、半选中状态，
+    // excluded 排除的结点，由于没有切换，也需要往上刷新，以确保半选正确
+    {
+      leaves.forEach(node => this._updateAncestorFrom(node, options.toggleCheckEvent))
+      nodes.forEach(node => this._updateAncestorFrom(node, options.toggleCheckEvent))
+      excluded.forEach(node => {
+        if (node.checked !== checked) this._updateAncestorFrom(node, options.toggleCheckEvent)
+      })
+    }
+  }
+
+  _batchToggleCheck(virtualKeys, value, options = {}) {
+    // 单选模式，没有批量选择功能，直接返回
+    if (this.checkable !== 'multiple') return
+
+    const nodes = virtualKeys
+      .map(this.getVirtualItemByKey.bind(this))
+      // .compact()
+      // .value()
+
+    if (!nodes.length) return
+
+    options = Object.assign({}, options, {
+      toggleCheckEvent: {}
+    })
+
+    if (this.checkStrictly) {
+      this._batchToggleCheckStrictly(nodes, value, options)
+    }
+    else {
+      this._batchToggleCheckNonStrictly(nodes, value, options)
+    }
+
+    if (!options.preventEmit && !isEmpty(options.toggleCheckEvent)) {
+      forEach(options.toggleCheckEvent, (virtualKeys, eventName) => {
+        this.$emit(eventName, virtualKeys)
+      })
+    }
+  }
+
+  // 更新指定条目的选中状态（数据 & 视图）
+  _updateCheck(node, checked, event = {}) {
+    if (node.checked !== checked) {
+      const eventName = checked ? 'check' : 'uncheck'
+      if (!event[eventName]) event[eventName] = []
+      event[eventName].push(node.virtualKey)
+    }
+
+    node.checked = checked
+    const item = this.getNodeByVirtualKey(node.virtualKey)
+    if (item) item.querySelector('input').checked = checked
+  }
+
+  // 更新指定条目的半选中状态（数据 & 视图）
+  _updateIndeterminate(node, value) {
+    node.indeterminate = value
+    const item = this.getNodeByVirtualKey(node.virtualKey)
+    if (item) {
+      const input = item.querySelector('input')
+      input.indeterminate = value
+      // 使用 class 是为了兼容 IE11
+      input.classList[value ? 'add' : 'remove']('indeterminate')
+    }
+  }
+
+  // 检查子结点列表的状态
+  // [子结点选中状态 0|1|0.5，有无半选中的子结点]
+  // 1：全部选中
+  // 0：全部没有选中
+  // 0.5：部分选中
+  _childrenStatus(node) {
+    const children = node.children
+    let count = children?.length
+
+    // 1. 无子结点，所以【无选中的子结点，无半选的子结点】
+    if (!count) return [0, false]
+
+    let hasIndeterminateChild = false
+    let checkedCount = 0
+    while (count--) {
+      const child = children[count]
+      if (child.checked) checkedCount += 1
+      else if (child.indeterminate) hasIndeterminateChild = true
+    }
+
+    // 2. 【子节点全选，无半选的子结点】
+    if (checkedCount === children.length) {
+      return [1, false]
+    }
+
+    // 3. 【子节点部分选中】
+    if (checkedCount > 0) {
+      return [0.5, true]
+    }
+
+    // 4. 【子节点全部没有选中】
+    return [0, hasIndeterminateChild]
+  }
+
+  /**
+   * 从指定的结点开始，往祖先结点方向和，
+   * 联动更新祖先结点的选中、半选中状态
+   */
+  _updateAncestorFrom(node, event) {
+    const ancestor = this._ancestor(node).reverse()
+
+    // 子孙级存在半选，则祖先链条往上全部都是半选
+    let hasIndeterminate = false
+
+    while (ancestor.length) {
+      const parent = ancestor.pop()
+      // 已达根级别
+      if (!parent) break
+
+      if (hasIndeterminate) {
+        this._updateCheck(parent, false, event)
+        this._updateIndeterminate(parent, true)
+        continue
+      }
+
+      // 根据子结点的选中状态，更新 parent 自身状态
+      // 更新父结点的半选中状态
+      const [checkedStatus, indeterminate] = this._childrenStatus(parent)
+      if (indeterminate) {
+        hasIndeterminate = true
+        this._updateCheck(parent, false, event)
+        this._updateIndeterminate(parent, true)
+        continue
+      }
+
+      // 所有子结点选中时，父节点也选中
+      this._updateCheck(parent, checkedStatus === 1, event)
+      // 部分子结点未选中时，父结点半选
+      this._updateIndeterminate(parent, checkedStatus === 0.5)
+    }
   }
 
   _updateFold(nodes) {

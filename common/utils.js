@@ -65,3 +65,11 @@ export function range(start, end) {
   }
   return list
 }
+
+export function isEmpty(obj) {
+  if (!obj) return true
+  for (let p in obj) {
+    return false
+  }
+  return true
+}

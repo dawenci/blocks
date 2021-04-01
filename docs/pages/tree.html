@@ -31,7 +31,7 @@
       <h2>实现 ing</h2>
     </section>
 
-    <section class="section">
+    <!-- <section class="section">
       <h2>默认使用</h2>
 
       <div class="case">
@@ -52,9 +52,86 @@
               }
 
               const data = makeData(10)
-              data.forEach(data => data.children = makeData(3, data.id))
+              data.forEach(data => {
+                data.children = makeData(5, data.id)
+                data.children.forEach((data, index) => {
+                  if (index === 0) data.children = makeData(2, data.id)
+                })
+              })
 
               document.getElementById('default').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section> -->
+
+
+    <section class="section">
+      <h2>单选</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree id="single-select" checkable="single" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+
+          <script>
+            (() => {
+              const makeData = (count, pid) => {
+                const data = []
+                let i = -1
+                while (++i < count) {
+                  const id = `${pid ? pid + '.' : ''}${i}`
+                  const label = !(i % 5) ? `${id} - long long long long long long long long long label` : `${id} - label`
+                  data.push({ label, id, pid })
+                }
+                return data
+              }
+
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(5, data.id)
+                data.children.forEach((data, index) => {
+                  if (index === 0) data.children = makeData(2, data.id)
+                })
+              })
+
+              document.getElementById('single-select').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>多选</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree id="multi-select" checkable="multiple" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+
+          <script>
+            (() => {
+              const makeData = (count, pid) => {
+                const data = []
+                let i = -1
+                while (++i < count) {
+                  const id = `${pid ? pid + '.' : ''}${i}`
+                  const label = !(i % 5) ? `${id} - long long long long long long long long long label` : `${id} - label`
+                  data.push({ label, id, pid })
+                }
+                return data
+              }
+
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(5, data.id)
+                data.children.forEach((data, index) => {
+                  if (index === 0) data.children = makeData(2, data.id)
+                })
+              })
+
+              document.getElementById('multi-select').data = data
             })()
           </script>
         </div>
