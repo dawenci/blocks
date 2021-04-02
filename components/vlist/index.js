@@ -151,7 +151,7 @@ export class VirtualItem {
 
 export default class BlocksVList extends HTMLElement {
   static get observedAttributes() {
-    return ['direction', 'default-item-size', 'label-field', 'shadow']
+    return ['direction', 'default-item-size', 'shadow']
   }
 
   constructor() {
@@ -196,14 +196,6 @@ export default class BlocksVList extends HTMLElement {
 
   set direction(value) {
     enumSetter('direction', [null, Direction.Vertical, Direction.Horizontal])(this, value)
-  }
-
-  get labelField() {
-    return this.getAttribute('label-field') || 'label'
-  }
-
-  set labelField(value) {
-    this.setAttribute('label-field', value)
   }
 
   get defaultItemSize() {
@@ -271,8 +263,7 @@ export default class BlocksVList extends HTMLElement {
   }
 
   itemRender($item, vitem) {
-    const label = vitem.data[this.labelField] ?? ''
-    $item.innerHTML = label
+    $item.innerHTML = ''
   }
 
   itemSizeMethod($node, options) {

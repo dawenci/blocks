@@ -106,6 +106,7 @@
     <section class="section">
       <h2>多选</h2>
 
+      <h3>父子节点联动选择</h3>
       <div class="case">
         <div data-codesource="html">
           <bl-tree id="multi-select" checkable="multiple" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
@@ -136,10 +137,46 @@
           </script>
         </div>
       </div>
+
+      <h3>父子节点独立选择</h3>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree id="check-strictly" checkable="multiple" check-strictly style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+
+          <script>
+            (() => {
+              const makeData = (count, pid) => {
+                const data = []
+                let i = -1
+                while (++i < count) {
+                  const id = `${pid ? pid + '.' : ''}${i}`
+                  const label = !(i % 5) ? `${id} - long long long long long long long long long label` : `${id} - label`
+                  data.push({ label, id, pid })
+                }
+                return data
+              }
+
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(5, data.id)
+                data.children.forEach((data, index) => {
+                  if (index === 0) data.children = makeData(2, data.id)
+                })
+              })
+
+              document.getElementById('check-strictly').data = data
+            })()
+          </script>
+        </div>
+      </div>
+      
     </section>
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -151,6 +188,37 @@
           </tr>
         </thead>
         <tbody>
+          disableActiveMethod
+          disableToggleMethod
+          disableCheckMethod
+          labelMethod
+
+          'activable',
+          'active-key',
+          'border',
+          'check-strictly',
+          'data'
+          'default-fold-all'
+          'disabled',
+          'expand-on-click-node',
+          'indent-unit',
+          'level-filter',
+          'stripe',
+
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>selectable</td>
+            <td>boolean</td>
+            <td></td>
+            <td>是否能选中条目。</td>
+            <td></td>
+          </tr>
           <tr>
             <td></td>
             <td></td>

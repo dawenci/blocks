@@ -157,8 +157,6 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TMEPLATE_HTML
 
 class BlocksCheckbox extends HTMLElement {
-  _indeterminate = false
-
   static get observedAttributes() {
     return ['name', 'checked', 'disabled']
   }
@@ -177,6 +175,8 @@ class BlocksCheckbox extends HTMLElement {
     this.$slot.addEventListener('slotchange', (e) => {
       this.$label.classList[this.$slot.assignedNodes().length ? 'remove' : 'add']('empty')
     })
+
+    this._indeterminate = false
 
     this.shadowRoot.addEventListener('click', (e) => {
       if (this.disabled) {
@@ -254,6 +254,9 @@ class BlocksCheckbox extends HTMLElement {
       setTabindex(this, !this.disabled)
     }
     if (name === 'checked') {
+      if (this.checked) {
+        this.indeterminate = false
+      }
       dispatchEvent(this, 'change', { detail: { value: this.checked } })
     }
   }

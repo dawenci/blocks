@@ -73,3 +73,146 @@ export function isEmpty(obj) {
   }
   return true
 }
+
+export const uniqBy = (() => {
+  const has = Object.prototype.hasOwnProperty
+  class _SameValueUniqCache {
+    constructor(initList) {
+      this._strings = Object.create(null)
+      this._primitive = Object.create(null)
+      this._set = new Set()
+      if (initList && initList.length) {
+        const len = initList.length
+        for (let index = 0; index < len; index += 1) {
+          this.add(initList[index])
+        }
+      }
+    }
+  
+    has(item) {
+      const type = typeof item
+      if (type === 'string') {
+        return !!has.call(this._strings, item)
+      }
+      // -0
+      if (type === 'number' && 1 / item === -Infinity) {
+        return has.call(this._primitive, '-0')
+      }
+      if (type === 'number' || item == null || type === 'symbol') {
+        return !!has.call(this._primitive, item)
+      }
+      // 其他对象
+      return this._set.has(item)
+    }
+  
+    add(item) {
+      const type = typeof item
+      if (type === 'string') {
+        this._strings[item] = item
+        return
+      }
+      // -0
+      if (type === 'number' && 1 / item === -Infinity) {
+        this._primitive['-0'] = -0
+        return
+      }
+      if (type === 'number' || item == null || type === 'symbol') {
+        this._primitive[item] = item
+        return
+      }
+      // 其他对象
+      this._set.add(item)
+    }
+  
+    remove(item) {
+      const type = typeof item
+      if (type === 'string') {
+        delete this._strings[item]
+        return
+      }
+      // -0
+      if (type === 'number' && 1 / item === -Infinity) {
+        delete this._primitive['-0']
+        return
+      }
+      if (type === 'number' || item == null || type === 'symbol') {
+        delete this._primitive[item]
+        return
+      }
+      // 其他对象
+      this._set.delete(item)
+    }
+  }
+  
+  return function uniqBy(fn, list) {
+    if (!list || !list.length) list = []
+    const result = []
+    const size = list.length >>> 0
+  
+    const cache = new _SameValueUniqCache()
+    for (let index = 0; index < size; index += 1) {
+      const item = list[index]
+      const value = fn(item)
+      if (cache.has(value)) continue
+      result.push(item)
+      cache.add(value)
+    }
+  
+    return result
+  }
+})()
+
+
+const has = Object.prototype.hasOwnProperty
+export function merge(output, to, from) {
+  const isOutputArray = Array.isArray(output)
+  if (to == null && from == null) return output
+  to = to == null ? isOutputArray ? [] : {} : Object(to)
+  from = from == null ? isOutputArray ? [] : {} : Object(from)
+
+  // 处理 to 的数据
+  for (let prop in to) {
+    const toVal = to[prop]
+
+    // 如果是 from 中没有该属性，使用 to 的值
+    if (!(prop in from)) {
+      output[prop] = toVal
+      continue
+    }
+
+    const fromVal = from[prop]
+
+    // 如果 from 中的属性值是原始类型（ 包括 undefined ），则直接覆盖
+    if ((typeof fromVal !== 'object' && typeof fromVal !== 'function') || fromVal === null) {
+      output[prop] = fromVal
+      continue
+    }
+
+    // 是否使用数组，取决于第一个对象的值是否为数组
+    const propOutput = Array.isArray(toVal) ? [] : {}
+
+    // 对象合并
+    output[prop] = _merge(propOutput, toVal, fromVal)
+  }
+
+  // 处理 from 的数据
+  for (let prop in from) {
+    // 上一轮遍历 from 时，已经合并的值，直接跳过
+    if (has.call(output, prop)) continue
+    output[prop] = from[prop]
+  }
+ 
+  return output
+}
+
+
+export function flatten(list = []) {
+  const result = []
+  const size = list.length
+  for (let index = 0; index < size; index += 1) {
+    const item = list[index]
+    if (!Array.isArray(item)) result.push(item)
+    else result.push.apply(result, item)
+  }
+  return result
+}

@@ -2,7 +2,7 @@ import VList, { VirtualItem } from '../vlist/index.js'
 import '../scrollable/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { find, findLast, forEach, isEmpty, property } from '../../common/utils.js'
+import { find, findLast, forEach, isEmpty, merge, property, uniqBy, flatten } from '../../common/utils.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import {
   __font_family,
@@ -88,7 +88,7 @@ template.innerHTML = `
   border: 4px dashed transparent;
   border-right: 0 none;
   border-left: 5px solid transparent;
-  transition: all .2s;
+  transition: all var(--transition-duration, ${__transition_duration});
 }
 .node-toggle.folded:before {
   border-left-color: #c0c4cc;
@@ -157,6 +157,7 @@ template.innerHTML = `
   border-color: var(--color-primary, ${__color_primary});
   background-color: var(--color-primary, ${__color_primary});
 }
+
 .node-check-input[type="radio"] + .node-check-label:after {
   box-sizing: border-box;
   content: "";
@@ -170,7 +171,7 @@ template.innerHTML = `
   bottom: 0;
   left: 0;
   margin: auto;
-  transition: transform var(--transition-duration, .16s) ease-in .05s;
+  transition: transform var(--transition-duration, ${__transition_duration}) ease-in;
   background-color: transparent;
 }
 .node-check-input[type="checkbox"] + .node-check-label:after {
@@ -184,20 +185,20 @@ template.innerHTML = `
   position: absolute;
   top: 1px;
   width: 3px;
-  transition: transform .15s ease-in .05s;
+  transition: transform var(--transition-duration, ${__transition_duration}) ease-in;
   transform-origin: center;
   transform: rotate(45deg) scaleY(1);
 }
-// 选中状态下的复选框内部样式
+/* 选中状态下的复选框内部样式 */
 .node-check-input[type="checkbox"][checked] + .node-check-label:after {
   border-color: #fff;
 }
-// 选中状态下的单选框内部样式
+/* 选中状态下的单选框内部样式 */
 .node-check-input[type="radio"][checked] + .node-check-label:after {
   border-color: #fff;
   background: #fff;
 }
-// 半选中状态下的复选框内部样式
+/* 半选中状态下的复选框内部样式 */
 .node-check-input:indeterminate[type="checkbox"] + .node-check-label:after,
 /* IE 11 */
 .node-check-input.indeterminate[type="checkbox"] + .node-check-label:after {
@@ -205,11 +206,13 @@ template.innerHTML = `
   position: absolute;
   display: block;
   background-color: #fff;
+  width: 11px;
   height: 2px;
   transform: scale(.5);
   left: 0;
   right: 0;
   top: 5px;
+  transition: none;
 }
 
 /* 禁用状态 */
@@ -262,98 +265,20 @@ class VirtualNode extends VirtualItem {
 
 
 class BlocksTree extends VList {
-  itemRender($item, vitem) {
-    $item.classList.add('node-item')
-    $item.classList.toggle('node-item-active', String(vitem.virtualKey) === this.activeNode)
-    $item.style.paddingLeft = this._indent(vitem) + 'px'
-
-    // 折叠箭头
-    let $toggle = $item.querySelector('.node-toggle')
-    if (!$toggle) {
-      $toggle = document.createElement('span')
-      $toggle.className = 'node-toggle'
-      $item.children.length ? $item.insertBefore($toggle, $item.firstElementChild) : $item.appendChild($toggle)
-    }
-    if (this.hasChild(vitem)) {
-      $toggle.classList.remove('is-leaf')
-      $toggle.classList.toggle('folded', !vitem.expanded)
-      $toggle.classList.toggle('expanded', !!vitem.expanded)
-    }
-    else {
-      $toggle.classList.remove('folded')
-      $toggle.classList.remove('expanded')
-      $toggle.classList.add('is-leaf')
-    }
-
-    // 选择区
-    let $check = $item.querySelector('.node-check')
-    if (!this.checkable) {
-      if ($check) $item.removeChild($check)
-    }
-    else {
-      let $input
-      let $label
-      if (!$check) {
-        $check = document.createElement('span')
-        $check.className = 'node-check'
-        if ($item.labelClassMethod && $item.lastElementChild.classList.contains('node-label')) {
-          $item.insertBefore($check, $item.lastElementChild)
-        }
-        else {
-          $item.appendChild($check)
-        }
-        $input = $check.appendChild(document.createElement('input'))
-        $input.id = `node-check-${vitem.virtualKey}-${this.uniqCid}`
-        $input.name = 'node-check-name'
-        $input.className = 'node-check-input'
-        $label = $check.appendChild(document.createElement('label'))
-        $label.classList.add('node-check-label')
-        $label.setAttribute('for', $input.id)
-      }
-      else {
-        $input = $check.querySelector('input')
-      }
-
-      boolSetter('checked')($input, vitem.checked)
-      boolSetter('disabled')($input, this.disableCheckMethod?.(vitem.data) ?? false)
-      $input.setAttribute('data-tree-node-key', vitem.virtualKey)
-
-      // radio 单选
-      if (this.checkable === 'single') {
-        $input.setAttribute('type', 'radio')
-      }
-      // 多选
-      else {
-        $input.setAttribute('type', 'checkbox')
-        const isIndeterminate = !this.checkStrictly && vitem.indeterminate
-        $input.classList.toggle('indeterminate', isIndeterminate)
-        $input.indeterminate = isIndeterminate
-      }
-    }
-
-    // 内容文本
-    let $label = $item.querySelector('.node-label')
-    if (!$label) {
-      $label = $item.appendChild(document.createElement('span'))
-      $label.classList.add('node-label')
-    }
-    if (this.labelClassMethod) {
-      $label.classList.add(this.labelClassMethod(vitem.data))
-    }
-
-    const text = this.internalLabelMethod(vitem.data)
-    if (this.highlightText && this.highlightText.length) {
-      $label.innerHTML = this.parseHighlight(text, this.highlightText).forEach(textSlice => {
-        return `<span class="${textSlice.highlight ? 'highlight' : ''}">${textSlice.text}</span>`
-      }).join('')
-    }
-    else {
-      $label.innerHTML = text
-    }
-  }
-
   static get observedAttributes() {
-    return super.observedAttributes.concat(['border', 'disabled', 'disabled-field', 'id-field', 'label-field', 'selectable', 'stripe'])
+    return super.observedAttributes.concat([
+      'activable',
+      'active-key',
+      'checkable',
+      'check-strictly',
+      'border',
+      'default-fold-all',
+      'disabled',
+      'expand-on-click-node',
+      'indent-unit',
+      'level-filter',
+      'stripe',
+    ])
   }
 
   constructor() {
@@ -373,38 +298,24 @@ class BlocksTree extends VList {
   // 从数据中提取 label 的方法
   get internalLabelMethod() {
     return typeof this.labelMethod === 'function' ? this.labelMethod
-      : typeof this.labelField === 'string' ? property(this.labelField)
+      : typeof this.labelMethod === 'string' ? property(this.labelMethod)
       : property('label')
   }
 
-  get internalIdMethod() {
-    return typeof this.idMethod === 'function' ? this.idMethod
-      : typeof this.idField === 'string' ? property(this.idField)
-      : property('id')
+  get activeKey() {
+    return this.getAttribute('active-key')
   }
 
-  get internalParentIdMethod() {
-    return typeof this.parentIdMethod === 'function' ? this.parentIdMethod
-      : typeof this.parentIdField === 'string' ? property(this.parentIdField)
-      : property('pid')
+  set activeKey(value) {
+    this.setAttribute('active-key', value)
   }
 
-  get activeNode() {
-    return this.getAttribute('active-node')
+  get activable() {
+    return boolGetter('activable')(this)
   }
 
-  set activeNode(value) {
-    this.setAttribute('active-node', value)
-  }
-
-  get data() {
-    return this._data
-  }
-
-  set data(value) {
-    const data = Array.isArray(value) ? value : []
-    this._data = data
-    this.setData(this.data)
+  set activable(value) {
+    boolSetter('activable')(this, value)
   }
 
   get disabled() {
@@ -413,22 +324,6 @@ class BlocksTree extends VList {
 
   set disabled(value) {
     boolSetter('disabled')(this, value)
-  }
-
-  get disabledField() {
-    return this.getAttribute('disabled-field') ?? 'disabled'
-  }
-
-  set disabledField(value) {
-    this.setAttribute('disabled-field', value)
-  }
-
-  get labelField() {
-    return this.getAttribute('label-field') || 'label'
-  }
-
-  set labelField(value) {
-    this.setAttribute('label-field', value)
   }
 
   get indentUnit() {
@@ -502,6 +397,98 @@ class BlocksTree extends VList {
     super.attributeChangedCallback(name, oldValue, newValue)
   }
 
+  itemRender($item, vitem) {
+    $item.classList.add('node-item')
+    $item.classList.toggle('node-item-active', String(vitem.virtualKey) === this.activeKey)
+    $item.style.paddingLeft = this._indent(vitem) + 'px'
+
+    // 折叠箭头
+    let $toggle = $item.querySelector('.node-toggle')
+    if (!$toggle) {
+      $toggle = document.createElement('span')
+      $toggle.className = 'node-toggle'
+      $item.children.length ? $item.insertBefore($toggle, $item.firstElementChild) : $item.appendChild($toggle)
+    }
+    if (this.hasChild(vitem)) {
+      $toggle.classList.remove('is-leaf')
+      $toggle.classList.toggle('folded', !vitem.expanded)
+      $toggle.classList.toggle('expanded', !!vitem.expanded)
+    }
+    else {
+      $toggle.classList.remove('folded')
+      $toggle.classList.remove('expanded')
+      $toggle.classList.add('is-leaf')
+    }
+
+    // 选择区
+    let $check = $item.querySelector('.node-check')
+    if (!this.checkable) {
+      if ($check) $item.removeChild($check)
+    }
+    else {
+      let $input
+      let $label
+      if (!$check) {
+        $check = document.createElement('span')
+        $check.className = 'node-check'
+        if ($item.labelClassMethod && $item.lastElementChild.classList.contains('node-label')) {
+          $item.insertBefore($check, $item.lastElementChild)
+        }
+        else {
+          $item.appendChild($check)
+        }
+        $input = $check.appendChild(document.createElement('input'))
+        $input.name = 'node-check-name'
+        $input.className = 'node-check-input'
+        $label = $check.appendChild(document.createElement('label'))
+        $label.classList.add('node-check-label')
+      }
+      else {
+        $input = $check.querySelector('input')
+        $label = $check.querySelector('label')
+      }
+
+      $input.id = `node-check-${vitem.virtualKey}-${this.uniqCid}`
+      $label.setAttribute('for', $input.id)
+
+      boolSetter('checked')($input, vitem.checked)
+      boolSetter('disabled')($input, this.disableCheckMethod?.(vitem.data) ?? false)
+      $input.setAttribute('data-tree-node-key', vitem.virtualKey)
+
+      // radio 单选
+      if (this.checkable === 'single') {
+        $input.setAttribute('type', 'radio')
+      }
+      // 多选
+      else {
+        $input.setAttribute('type', 'checkbox')
+        const isIndeterminate = !this.checkStrictly && vitem.indeterminate
+        $input.classList.toggle('indeterminate', isIndeterminate)
+        $input.indeterminate = isIndeterminate
+      }
+    }
+
+    // 内容文本
+    let $label = $item.querySelector('.node-label')
+    if (!$label) {
+      $label = $item.appendChild(document.createElement('span'))
+      $label.classList.add('node-label')
+    }
+    if (this.labelClassMethod) {
+      $label.classList.add(this.labelClassMethod(vitem.data))
+    }
+
+    const text = this.internalLabelMethod(vitem.data)
+    if (this.highlightText && this.highlightText.length) {
+      $label.innerHTML = this.parseHighlight(text, this.highlightText).forEach(textSlice => {
+        return `<span class="${textSlice.highlight ? 'highlight' : ''}">${textSlice.text}</span>`
+      }).join('')
+    }
+    else {
+      $label.innerHTML = text
+    }
+  }
+
   disableActiveMethod(data) {
     return false
   }
@@ -518,10 +505,12 @@ class BlocksTree extends VList {
    * 将某个条目设置为激活（高亮）状态
    */
   active(virtualKey, options) {
-    const oldKey = this.activeNode
+    if (!this.activable) return
+
+    const oldKey = this.activeKey
     const newItem = this.getVirtualItemByKey(virtualKey)
     if (!newItem) return
-    this.activeNode = virtualKey
+    this.activeKey = virtualKey
     const $newNode = this.getNodeByVirtualKey(virtualKey)
     this.itemRender($newNode, newItem)
 
@@ -540,22 +529,21 @@ class BlocksTree extends VList {
    * 获取当前激活结点的 key
    */
   getActive() {
-    return this.activeNode
+    return this.activeKey
   }
 
   /**
    * 清空激活的条目
    */
   clearActive(options) {
-    if (this.activeNode) {
-      const virtualKey = this.activeNode
-      this.activeNode = null
+    if (this.activeKey) {
+      const virtualKey = this.activeKey
+      this.activeKey = null
       if (!options || !options.preventEmit) {
         dispatchEvent(this, 'inactive', virtualKey)
       }
     }
   }
-
 
   // API，通过 virtualKey 展开结点
   expand(virtualKey) {
@@ -571,7 +559,6 @@ class BlocksTree extends VList {
 
   // API，通过 virtualKey 切换结点的展开、折叠状态
   toggle(virtualKey) {
-    console.log('toggle')
     const node = this.getVirtualItemByKey(virtualKey)
     if (!node) return
     if (node.expanded) this._fold(node)
@@ -600,12 +587,12 @@ class BlocksTree extends VList {
   _toggleCheck(virtualKey, value, options = {}) {
     if (this.checkable == null) return
 
-    const node = this.getVirtualItemByKey(virtualKey)
-    if (!node || node.checked === value) return
+    const vitem = this.getVirtualItemByKey(virtualKey)
+    if (!vitem || vitem.checked === value) return
 
     // 单选模式
     if (this.checkable === 'single') {
-      this._toggleRadio(node, options)
+      this._toggleRadio(vitem, options)
       return
     }
 
@@ -614,44 +601,41 @@ class BlocksTree extends VList {
   }
 
   // 单选模式
-  _toggleRadio(node, options) {
+  _toggleRadio(vitem, options) {
     if (this.lastChecked) {
       // 点击已选中的单选项，不用处理
-      if (this.lastChecked === node) return
+      if (this.lastChecked === vitem) return
       this._updateCheck(this.lastChecked, false, options.toggleCheckEvent)
     }
-    this._updateCheck(node, true, options.toggleCheckEvent)
-    this.lastChecked = node
+    this._updateCheck(vitem, true, options.toggleCheckEvent)
+    this.lastChecked = vitem
   }
 
   // 多选模式
   // 无需联动的情况
-  _batchToggleCheckStrictly(nodes, value, options = {}) {
+  _batchToggleCheckStrictly(vitems, value, options = {}) {
     const disabled = typeof options.disabled === 'boolean' ? options.disabled : false
 
-    const checked = typeof value === 'boolean' ? value : nodes.every(node => node.checked)
-    nodes.forEach(node => {
-      if (disabled || !this.disableCheckMethod(node.data)) {
-        this._updateCheck(node, checked, options.toggleCheckEvent)
+    const checked = typeof value === 'boolean' ? value : !vitems.every(vitem => vitem.checked)
+    vitems.forEach(vitem => {
+      if (disabled || !this.disableCheckMethod(vitem.data)) {
+        this._updateCheck(vitem, checked, options.toggleCheckEvent)
       }
     })
   }
 
   // 需要联动的情况
   // 所有子孙结点，切换为全选或者全不选，但 disabled 的结点除外
-  _batchToggleCheckNonStrictly(nodes, value, options = {}) {
+  _batchToggleCheckNonStrictly(vitems, value, options = {}) {
     const disabled = typeof options.disabled === 'boolean' ? options.disabled : false
 
     if (!disabled) {
-      nodes = nodes.filter(node => !this.disableCheckMethod(node.data))
-      if (!nodes.length) return
+      vitems = vitems.filter(vitem => !this.disableCheckMethod(vitem.data))
+      if (!vitems.length) return
     }
 
-    const descendant = nodes
-      .map(this._descendant.bind(this))
-      // .flatten()
-      // .value()
-
+    const descendant = flatten(vitems.map(this._descendant.bind(this)))
+    
     // 不处理的结点（disabled）
     const excluded = []
     // 叶子结点
@@ -659,20 +643,20 @@ class BlocksTree extends VList {
 
     // 处理所有结点，包含不可用的
     if (disabled) {
-      descendant.forEach(node => {
-        if (isEmpty(node.children)) {
-          leaves.push(node)
+      descendant.forEach(vitem => {
+        if (isEmpty(vitem.children)) {
+          leaves.push(vitem)
         }
       })
     }
     // 排除不可用的结点
     else {
-      descendant.forEach(node => {
-        if (this.disableCheckMethod(node.data)) {
-          excluded.push(node)
+      descendant.forEach(vitem => {
+        if (this.disableCheckMethod(vitem.data)) {
+          excluded.push(vitem)
         }
-        else if (isEmpty(node.children)) {
-          leaves.push(node)
+        else if (isEmpty(vitem.children)) {
+          leaves.push(vitem)
         }
       })
     }
@@ -682,7 +666,7 @@ class BlocksTree extends VList {
     // 本次操作是否 checked 根据 nodes 下所有叶子结点确定，
     // nodes 下无叶子，则 nodes 已经是叶子，以 nodes 确定
     if (value == null) {
-      checked = !(leaves.length ? leaves.every(leaf => leaf.checked) : nodes.every(node => node.checked))
+      checked = !(leaves.length ? leaves.every(leaf => leaf.checked) : vitems.every(node => node.checked))
     }
     else {
       checked = !!value
@@ -691,23 +675,23 @@ class BlocksTree extends VList {
     // 只需更新 nodes 下的叶子结点，所有祖先结点，都通过叶子结点往上推断出状态
     // （nodes 也可能是叶子结点，因此也需要一并处理）
     {
-      leaves.forEach(node => {
-        this._updateCheck(node, checked, options.toggleCheckEvent)
-        this._updateIndeterminate(node, false)
+      leaves.forEach(vitem => {
+        this._updateCheck(vitem, checked, options.toggleCheckEvent)
+        this._updateIndeterminate(vitem, false)
       })
-      nodes.forEach(node => {
-        this._updateCheck(node, checked, options.toggleCheckEvent)
-        this._updateIndeterminate(node, false)
+      vitems.forEach(vitem => {
+        this._updateCheck(vitem, checked, options.toggleCheckEvent)
+        this._updateIndeterminate(vitem, false)
       })
     }
 
     // 从受影响的叶子结点（以及 nodes 自身）往祖先结点方向，更新选中、半选中状态，
     // excluded 排除的结点，由于没有切换，也需要往上刷新，以确保半选正确
     {
-      leaves.forEach(node => this._updateAncestorFrom(node, options.toggleCheckEvent))
-      nodes.forEach(node => this._updateAncestorFrom(node, options.toggleCheckEvent))
-      excluded.forEach(node => {
-        if (node.checked !== checked) this._updateAncestorFrom(node, options.toggleCheckEvent)
+      leaves.forEach(vitem => this._updateAncestorFrom(vitem, options.toggleCheckEvent))
+      vitems.forEach(vitem => this._updateAncestorFrom(vitem, options.toggleCheckEvent))
+      excluded.forEach(vitem => {
+        if (vitem.checked !== checked) this._updateAncestorFrom(vitem, options.toggleCheckEvent)
       })
     }
   }
@@ -716,52 +700,46 @@ class BlocksTree extends VList {
     // 单选模式，没有批量选择功能，直接返回
     if (this.checkable !== 'multiple') return
 
-    const nodes = virtualKeys
-      .map(this.getVirtualItemByKey.bind(this))
-      // .compact()
-      // .value()
+    const vitems = uniqBy(vitem => vitem.virtualKey, virtualKeys.map(this.getVirtualItemByKey.bind(this)))
 
-    if (!nodes.length) return
+    if (!vitems.length) return
 
-    options = Object.assign({}, options, {
-      toggleCheckEvent: {}
-    })
+    options = merge({}, options, { toggleCheckEvent: {} })
 
     if (this.checkStrictly) {
-      this._batchToggleCheckStrictly(nodes, value, options)
+      this._batchToggleCheckStrictly(vitems, value, options)
     }
     else {
-      this._batchToggleCheckNonStrictly(nodes, value, options)
+      this._batchToggleCheckNonStrictly(vitems, value, options)
     }
 
     if (!options.preventEmit && !isEmpty(options.toggleCheckEvent)) {
       forEach(options.toggleCheckEvent, (virtualKeys, eventName) => {
-        this.$emit(eventName, virtualKeys)
+        dispatchEvent(this, eventName, { detail: { virtualKeys } })
       })
     }
   }
 
   // 更新指定条目的选中状态（数据 & 视图）
-  _updateCheck(node, checked, event = {}) {
-    if (node.checked !== checked) {
+  _updateCheck(vitem, checked, event = {}) {
+    if (vitem.checked !== checked) {
       const eventName = checked ? 'check' : 'uncheck'
       if (!event[eventName]) event[eventName] = []
-      event[eventName].push(node.virtualKey)
+      event[eventName].push(vitem.virtualKey)
     }
 
-    node.checked = checked
-    const item = this.getNodeByVirtualKey(node.virtualKey)
-    if (item) item.querySelector('input').checked = checked
+    vitem.checked = checked
+    const $item = this.getNodeByVirtualKey(vitem.virtualKey)
+    if ($item) this.itemRender($item, vitem)
   }
 
   // 更新指定条目的半选中状态（数据 & 视图）
-  _updateIndeterminate(node, value) {
-    node.indeterminate = value
-    const item = this.getNodeByVirtualKey(node.virtualKey)
+  _updateIndeterminate(vitem, value) {
+    vitem.indeterminate = value
+    const item = this.getNodeByVirtualKey(vitem.virtualKey)
     if (item) {
       const input = item.querySelector('input')
       input.indeterminate = value
-      // 使用 class 是为了兼容 IE11
       input.classList[value ? 'add' : 'remove']('indeterminate')
     }
   }
@@ -771,8 +749,8 @@ class BlocksTree extends VList {
   // 1：全部选中
   // 0：全部没有选中
   // 0.5：部分选中
-  _childrenStatus(node) {
-    const children = node.children
+  _childrenStatus(vitem) {
+    const children = vitem.children
     let count = children?.length
 
     // 1. 无子结点，所以【无选中的子结点，无半选的子结点】
@@ -877,9 +855,9 @@ class BlocksTree extends VList {
     }
 
     // 如果折叠的结点，包含当前激活的结点，则取消激活状态
-    if (this.activeNode && children.findIndex(child => child.virtualKey === this.activeNode) !== -1) {
-      const virtualKey = this.activeNode
-      this.activeNode = null
+    if (this.activeKey && children.findIndex(child => child.virtualKey === this.activeKey) !== -1) {
+      const virtualKey = this.activeKey
+      this.activeKey = null
 
       if (!preventEmit) {
         dispatchEvent(this, 'inactive', virtualKey)
