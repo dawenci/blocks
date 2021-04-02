@@ -18,6 +18,7 @@
     </header>
 
     <script type="module" src="../../components/input/index.js"></script>
+    <script type="module" src="../../components/button/index.js"></script>
 
     <section class="section">
       <h2>依赖引入</h2>
@@ -30,15 +31,11 @@
     </section>
 
     <section class="section">
-      <h2>实现 ing</h2>
-    </section>
-
-    <section class="section">
       <h2>默认使用</h2>
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="default" style="height:400px;"></bl-tree>
+          <bl-tree id="default" style="height:300px;"></bl-tree>
           <script>
             function makeData(count, pid) {
               const data = []
@@ -67,8 +64,16 @@
       <h2>换行效果</h2>
 
       <div class="case">
+        <bl-button id="toggle-wrap" style="margin-bottom: 10px;">切换换行</bl-button>
+        <script>
+          document.querySelector('#toggle-wrap').onclick = () => {
+            const $tree = document.querySelector('#wrap')
+            $tree.wrap = !$tree.wrap
+          }
+        </script>
+
         <div data-codesource="html">
-          <bl-tree wrap id="wrap" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+          <bl-tree wrap id="wrap" style="width:200px;height:300px;border:1px solid #e8e8e8;"></bl-tree>
 
           <script>
             (() => {
@@ -99,7 +104,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree border id="border" style="height:400px;"></bl-tree>
+          <bl-tree border id="border" style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -120,7 +125,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree stripe id="stripe" style="height:400px;"></bl-tree>
+          <bl-tree stripe id="stripe" style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -141,7 +146,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree activable id="activable" style="height:400px;"></bl-tree>
+          <bl-tree activable id="activable" style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -161,7 +166,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree expand-on-click-node id="expand-on-click-node" style="height:400px;"></bl-tree>
+          <bl-tree expand-on-click-node id="expand-on-click-node" style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -181,7 +186,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree indent-unit="40" id="indent-unit" style="height:400px;"></bl-tree>
+          <bl-tree indent-unit="40" id="indent-unit" style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -206,7 +211,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="single-select" checkable="single" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+          <bl-tree id="single-select" checkable="single" style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -232,7 +237,7 @@
       <h3>父子节点联动选择</h3>
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="multi-select" checkable="multiple" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+          <bl-tree id="multi-select" checkable="multiple" style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -254,7 +259,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="check-strictly" checkable="multiple" check-strictly style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+          <bl-tree id="check-strictly" checkable="multiple" check-strictly style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -280,7 +285,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="foldAll" default-fold-all style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+          <bl-tree id="foldAll" default-fold-all style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -305,12 +310,12 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-input id="input" style="margin-bottom:10px;"></bl-input>
-          <bl-tree id="search" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+          <bl-input id="input" style="margin-bottom:10px;width:100%;"></bl-input>
+          <bl-tree id="search" style="height:300px;"></bl-tree>
 
           <script>
             (() => {
-              const data = makeData(10)
+              const data = makeData(100)
               data.forEach(data => {
                 data.children = makeData(5, data.id)
                 data.children.forEach((data, index) => {

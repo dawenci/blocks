@@ -266,12 +266,18 @@ template.innerHTML = `
 
 /* 结点 label 文本 */
 .node-label {
-  flex: 1 1 100%;
+  flex: 1 1 auto;
+  overflow: hidden;
   padding: 4px 0;
   user-select: none;
 }
-:host(:not([wrap])) .node-label {
+
+:host(:not([wrap])) .node-label > span {
+  display: block;
+  width: 100%;
+  overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .node-label .highlight {
@@ -332,6 +338,14 @@ class BlocksTree extends VList {
     this.uniqCid = String(Math.random()).substr(2)
 
     this.$list.onclick = this._onClick.bind(this)
+
+    const onBound = () => {
+      this.removeEventListener('data-bound', onBound)
+      if (this.defaultFoldAll) {
+        this.foldAll()
+      }
+    }
+    this.addEventListener('data-bound', onBound)
   }
 
   // 从数据中提取 label 的方法
@@ -426,12 +440,16 @@ class BlocksTree extends VList {
     return this.setAttribute('search', value)
   }
 
+  get wrap() {
+    return boolGetter('wrap')(this)
+  }
+
+  set wrap(value) {
+    boolSetter('wrap')(this, value)
+  }
+
   connectedCallback() {
     super.connectedCallback()
-
-    if (this.defaultFoldAll) {
-      this.foldAll()
-    }
   }
 
   disconnectedCallback() {}
@@ -441,34 +459,44 @@ class BlocksTree extends VList {
     if (attrName === 'search') {
       this.generateViewData()
     }
+    else if (attrName === 'wrap') {
+      this._resetCalculated()
+      this.redraw()
+      this.restoreAnchor()
+    }
   }
 
-  filterMethod(data) {
-    if (this.search) {
-      const results = []
-      // 第一遍标记需要保留的条目
-      forEach(data, vItem => {
-        if ((vItem.data.label ?? '').includes(this.search)) {
-          vItem._retain = true
-          let parent = vItem.parent
-          while (parent) {
-            parent._retain = true
-            parent = parent.parent
+  async filterMethod(data) {
+    if (!this.search) return data
+
+    const len = data.length
+    const results = []
+    // 第一遍标记需要保留的条目
+    for (let i = 0; i < len; i += 1) {
+      const vItem = data[i]
+      if ((vItem.data.label ?? '').includes(this.search)) {
+        vItem._retain = true
+        let parent = vItem.parent
+        while (parent) {
+          parent._retain = true
+          parent = parent.parent
+        }
+      }
+    }
+
+    // 第二遍，提取数据，并移除标识
+    return new Promise(resolve => {
+      setTimeout(() => {
+        for (let i = 0; i < len; i += 1) {
+          const vItem = data[i]
+          if (vItem._retain) {
+            results.push(vItem)
+            vItem._retain = undefined
           }
         }
+        resolve(results)
       })
-      // 第二遍，提取数据，并移除标识
-      forEach(data, vItem => {
-        if (vItem._retain) {
-          results.push(vItem)
-          vItem._retain = undefined
-        }
-      })
-      return results
-    }
-    else {
-      return data.slice()
-    }
+    })
   }
 
   itemRender($item, vitem) {
@@ -503,7 +531,7 @@ class BlocksTree extends VList {
       if (!$check) {
         $check = document.createElement('span')
         $check.className = 'node-check'
-        if ($item.labelClassMethod && $item.lastElementChild.classList.contains('node-label')) {
+        if ($item.lastElementChild.classList.contains('node-label')) {
           $item.insertBefore($check, $item.lastElementChild)
         } else {
           $item.appendChild($check)
@@ -540,23 +568,24 @@ class BlocksTree extends VList {
 
     // 内容文本
     let $label = $item.querySelector('.node-label')
+    let $labelText
     if (!$label) {
       $label = $item.appendChild(document.createElement('span'))
+      $labelText = $label.appendChild(document.createElement('span'))
       $label.classList.add('node-label')
     }
-    if (this.labelClassMethod) {
-      $label.classList.add(this.labelClassMethod(vitem.data))
+    else {
+      $labelText = $label.querySelector('span')
     }
-
     const text = this.internalLabelMethod(vitem.data)
     if (this.search && this.search.length) {
-      $label.innerHTML = this.parseHighlight(text, this.search)
+      $labelText.innerHTML = this.parseHighlight(text, this.search)
         .map((textSlice) => {
           return `<span class="${textSlice.highlight ? 'highlight' : ''}">${textSlice.text}</span>`
         })
         .join('')
     } else {
-      $label.innerHTML = text
+      $labelText.innerHTML = text
     }
   }
 
@@ -983,12 +1012,12 @@ class BlocksTree extends VList {
   }
 
   // override，根据树形数据，生成虚拟数据
-  virtualMap(data) {
+  async virtualMap(data) {
     const virtualData = []
 
     let index = 0
     const convert = (data) => {
-      const virtualKey = this.keyMethod?.(data) ?? index++
+      const virtualKey = this.keyMethod?.(data) ?? index
       const vnode = new VirtualNode({
         virtualKey,
         height: this.defaultItemSize,
@@ -998,6 +1027,8 @@ class BlocksTree extends VList {
         children: []
       })
       virtualData.push(vnode)
+      index += 1
+
       const len = data.children?.length
       if (len) {
         for (let i = 0; i < len; i += 1) {
@@ -1007,6 +1038,7 @@ class BlocksTree extends VList {
           vnode.children.push(childNode)
         }
       }
+
       return vnode
     }
 

@@ -1,3 +1,4 @@
+import './svg/busy.svg.js'
 import './svg/check.svg.js'
 import './svg/cross.svg.js'
 import './svg/date.svg.js'
