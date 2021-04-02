@@ -15,7 +15,7 @@ import {
   __transition_duration,
   __height_base,
   __border_color_light,
-  __fg_base,
+  __fg_base
 } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
 import BinaryIndexedTree from '../../common/BinaryIndexedTree.js'
@@ -38,14 +38,9 @@ template.innerHTML = `
 <style>
 :host {
   --item-height: var(--height-base, ${__height_base});
-
   display: block;
   box-sizing: border-box;
-  font-family: var(--font-family, ${__font_family});
-  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
   contain: content;
-  font-size: 14px;
-  color: var(--fg-base, ${__fg_base});
 }
 
 #scrollable {
@@ -156,7 +151,7 @@ export default class BlocksVList extends HTMLElement {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
+    const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template.content.cloneNode(true))
     this.$viewport = shadowRoot.getElementById('scrollable')
     this.$listSize = shadowRoot.getElementById('list-size')
@@ -164,20 +159,30 @@ export default class BlocksVList extends HTMLElement {
 
     definePrivate(this, '_dataBound', false)
     definePrivate(this, '_$pool', [])
+
+    // 原始数据
     definePrivate(this, '_data', [])
-    // 所有条目（包括筛选条件之外的完整数据）
-    definePrivate(this, 'virtualItems', [])
-    // 视图条目（筛选、排序后的所有条目）
-    definePrivate(this, 'virtualViewItems', [])
-    // 切片条目（局部渲染的条目）
-    definePrivate(this, 'virtualSliceItems', [])
+    // 虚拟数据（从原始数据映射而来）
+    definePrivate(this, 'virtualData', [])
+    // 虚拟数据的 key --> Item 映射，提高访问性能
+    definePrivate(this, 'virtualDataMap', null)
+
+    // 视图数据（虚拟数据进行筛选、排序后的条目，是虚拟数据的子集）
+    definePrivate(this, 'virtualViewData', [])
+    // 切片数据（视图数据的子集，局部渲染的条目）
+    definePrivate(this, 'virtualSliceData', [])
     // 视图条目对应的条目高度存储
     definePrivate(this, 'itemHeightStore', null)
 
-    // 数据 key --> VItem 的映射，提高访问性能
-    definePrivate(this, 'virtualItemMap', null)
-
+    // 虚拟列表滚动数据渲染
     this.$viewport.onscroll = this._updateSliceRange.bind(this, undefined)
+
+    // 容器尺寸变化，完全重绘
+    this.$viewport.addEventListener('resize', () => {
+      this._resetCalculated()
+      this.redraw()
+      this.restoreAnchor()
+    })
   }
 
   get data() {
@@ -187,7 +192,7 @@ export default class BlocksVList extends HTMLElement {
   set data(value) {
     const data = Array.isArray(value) ? value : []
     this._data = data
-    this.setData(this.data)
+    this._setData(this.data)
   }
 
   get direction() {
@@ -244,7 +249,7 @@ export default class BlocksVList extends HTMLElement {
 
   connectedCallback() {
     if (!this._dataBound) {
-      this.constructor.observedAttributes.forEach(attr => {
+      this.constructor.observedAttributes.forEach((attr) => {
         upgradeProperty(this, attr)
       })
       upgradeProperty(this, 'data')
@@ -270,41 +275,58 @@ export default class BlocksVList extends HTMLElement {
     return options.calculated
       ? options.height
       : options.direction === Direction.Horizontal
-        ? $node.offsetWidth
-        : $node.offsetHeight
+      ? $node.offsetWidth
+      : $node.offsetHeight
+  }
+
+  /**
+   * 检查树中，是否存在指定 treeNodeKey 的结点
+   */
+  hasKey(virtualKey) {
+    return !!this.virtualDataMap[virtualKey]
   }
 
   /**
    * 通过数据 key 列表，设置对应条目的显示状态
    */
-  async showByKeys(keys) {
+  async showByKeys(keys, withoutAnimation) {
     // 如果存在未结束的动画，提前结束
     await this._clearTransition()
-    
-    const changes = keys.map((key) => this.virtualItemMap[key])
-      .filter((wrappedItem) => wrappedItem?.height <= 0)
-      .map((wrappedItem) => {
-        const height = (-wrappedItem.height || this.defaultItemSize)
-        const hasChange = this._updateSize(wrappedItem, height)
-        return hasChange ? { key: wrappedItem.virtualKey, value: height } : null
+
+    const changes = keys
+      .map((key) => this.virtualDataMap[key])
+      .filter((vItem) => vItem?.height <= 0)
+      .map((vItem) => {
+        const height = -vItem.height || this.defaultItemSize
+        const hasChange = this._updateSize(vItem, height)
+        return hasChange ? { key: vItem.virtualKey, value: height } : null
       })
-      .filter(item => !!item)
+      .filter((item) => !!item)
 
     // 刷新列表
     this._updateSliceRange(FORCE_SLICE)
+
+    if (withoutAnimation) {
+      if (changes.length) dispatchEvent(this, ITEMS_SIZE_UPDATE, changes)
+      this.redraw()
+      return
+    }
 
     // 过渡动画
     const $collapse = document.createElement('div')
     $collapse.classList.add('transition')
     const items = []
     let $first
-    forEach(this.$list.children, $item => {
+    forEach(this.$list.children, ($item) => {
       if (keys.includes($item.virtualKey)) {
         if (!$first) $first = $item
         items.push($item)
       }
     })
-    const size = items.reduce((acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
+    const size = items.reduce(
+      (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'],
+      0
+    )
     this.$list.insertBefore($collapse, $first)
     items.reverse()
     while (items.length) {
@@ -313,7 +335,7 @@ export default class BlocksVList extends HTMLElement {
     if ($collapse.children.length) {
       $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
       doTransitionLeave($collapse, 'collapse', () => {
-        Array.prototype.slice.call($collapse.children).forEach($item => {
+        Array.prototype.slice.call($collapse.children).forEach(($item) => {
           this.$list.insertBefore($item, $collapse)
         })
         this.$list.removeChild($collapse)
@@ -327,33 +349,43 @@ export default class BlocksVList extends HTMLElement {
   /**
    * 通过数据 key 列表，设置对应条目的显示状态
    */
-   async hideByKeys(keys) {
+  async hideByKeys(keys, withoutAnimation) {
     // 如果存在未结束的动画，提前结束
     await this._clearTransition()
 
-    const changes = keys.map((key) => this.virtualItemMap[key])
-      .filter(wrappedItem => wrappedItem?.height > 0)
-      .map((wrappedItem) => {
+    const changes = keys
+      .map((key) => this.virtualDataMap[key])
+      .filter((vItem) => vItem?.height > 0)
+      .map((vItem) => {
         // 设置为负数，表示隐藏
-        const height = -wrappedItem.height
-        wrappedItem.height = height
-        const hasChange = this._updateSize(wrappedItem, height)
-        return hasChange ? { key: wrappedItem.virtualKey, value: height } : null
+        const height = -vItem.height
+        vItem.height = height
+        const hasChange = this._updateSize(vItem, height)
+        return hasChange ? { key: vItem.virtualKey, value: height } : null
       })
-      .filter(item => !!item)
+      .filter((item) => !!item)
+
+    if (withoutAnimation) {
+      if (changes.length) dispatchEvent(this, ITEMS_SIZE_UPDATE, changes)
+      this.redraw()
+      return
+    }
 
     // 过渡动画
     const $collapse = document.createElement('div')
     $collapse.classList.add('transition')
     const items = []
     let $first
-    forEach(this.$list.children, $item => {
+    forEach(this.$list.children, ($item) => {
       if (keys.includes($item.virtualKey)) {
         if (!$first) $first = $item
         items.push($item)
       }
     })
-    const size = items.reduce((acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0)
+    const size = items.reduce(
+      (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'],
+      0
+    )
     this.$list.insertBefore($collapse, $first)
     items.reverse()
     while (items.length) {
@@ -371,31 +403,61 @@ export default class BlocksVList extends HTMLElement {
     if (changes.length) dispatchEvent(this, ITEMS_SIZE_UPDATE, changes)
   }
 
+  /**
+   * 显示所有条目
+   */
+  showAll() {
+    const changes = this.virtualViewData
+      .map((vItem) => {
+        const height = -vItem.height || this.defaultItemSize
+        const hasChange = this._updateSize(vItem, height)
+        return hasChange ? { key: vItem.virtualKey, value: height } : null
+      })
+      .filter(item => !!item)
+
+    this.redraw()
+
+    if (changes.length) {
+      dispatchEvent(this, ITEMS_SIZE_UPDATE, changes)
+    }
+  }
+
   nextTick(callback) {
     return Promise.resolve().then(callback)
   }
 
   render() {
     if (!this._dataBound) {
-      return this.rebuildViewData()
+      return this.generateViewData()
     }
 
     this._updateListSize()
-    const renderCount = this.virtualSliceItems.length
+    const renderCount = this.virtualSliceData.length
+
+    if (renderCount === 0) {
+      this.$list.style.transform = ''
+      this.$list.innerHTML = ''
+      return
+    }
 
     // 列表中，存在多少个动画元素
     const transitionItemCount = this.$list.querySelectorAll('.transition').length
 
     if (this.direction === Direction.Horizontal) {
       this.$list.style.transform = `translateX(${this._itemOffset(this.sliceFrom)}px)`
-    }
-    else {
+    } else {
       this.$list.style.transform = `translateY(${this._itemOffset(this.sliceFrom)}px)`
     }
 
-    const sliceItems = this.virtualSliceItems
-    const getFirst = () => transitionItemCount ? find(this.$list.children, $item => $item.virtualViewIndex != null) : this.$list.firstElementChild
-    const getLast = () => transitionItemCount ? findLast(this.$list.children, $item => $item.virtualViewIndex != null) : this.$list.lastElementChild
+    const sliceItems = this.virtualSliceData
+    const getFirst = () =>
+      transitionItemCount
+        ? find(this.$list.children, ($item) => $item.virtualViewIndex != null)
+        : this.$list.firstElementChild
+    const getLast = () =>
+      transitionItemCount
+        ? findLast(this.$list.children, ($item) => $item.virtualViewIndex != null)
+        : this.$list.lastElementChild
 
     // 渲染条目 DOM，针对滚动的场景做优化
     const startKey = sliceItems[0].virtualViewIndex
@@ -418,13 +480,12 @@ export default class BlocksVList extends HTMLElement {
       while (this.$list.children.length < renderCount + transitionItemCount) {
         this.$list.insertBefore(this._$pool.pop() ?? itemTemplate.cloneNode(true), this.$list.firstElementChild)
       }
-    }
-    else {
+    } else {
       // 下滚
       if (startKey > startItemKey || (startKey === startItemKey && endKey > endItemKey)) {
         // 开头对齐
         let $first
-        while(this.$list.children.length && ($first = getFirst())?.virtualViewIndex !== startKey) {
+        while (this.$list.children.length && ($first = getFirst())?.virtualViewIndex !== startKey) {
           $first && this._$pool.push(this.$list.removeChild($first))
         }
       }
@@ -463,92 +524,54 @@ export default class BlocksVList extends HTMLElement {
     this._updateSliceRange(FORCE_SLICE)
   }
 
-  convertData(data) {
-    const virtualItems = []
+  /**
+   * 映射原始数据列表为虚拟数据列表
+   * 子类根据需要重写该方法
+   */
+  virtualMap(data) {
+    const virtualData = []
     let index = 0
-    const convert = data => {
+    const convert = (data) => {
       const virtualKey = this.keyMethod?.(data) ?? index++
-      const vitem = new VirtualItem({
-        virtualKey,
-        height: this.defaultItemSize,
-        data,
-        children: [],
-      })
-      virtualItems.push(vitem)
+      virtualData.push(
+        new VirtualItem({
+          virtualKey,
+          height: this.defaultItemSize,
+          data,
+          children: []
+        })
+      )
     }
     data.forEach(convert)
-    return virtualItems
+    return virtualData
   }
 
   /**
-   * 包裹一份数据列表作为组件数据，依赖：传入注入数据
+   * 从虚拟列表数据中，提取子集，作为当前过滤、排序条件下的数据。
+   * 修改过滤方法、排序方法后，需要调用该方法重新生成数据。
    */
-  setData(data) {
-    if (this._dataBound && data === this._data) {
-      return
-    }
-
-    const virtualItems = this.convertData(data)
-
-    // 构建 virtualItemMap，形成 key-data 映射，方便后续快速查找数据
-    const virtualItemMap = Object.create(null)
-    let i = virtualItems.length
-    while (i--) {
-      virtualItemMap[virtualItems[i].virtualKey] = virtualItems[i]
-    }
-
-    // 如果存在旧数据，并且配置了自定义 key 字段，
-    // 则尝试从旧数据中恢复信息
-    const oldKeyDataMap = this.virtualItemMap
-    if (oldKeyDataMap && this.keyMethod) {
-      let i = virtualItems.length
-      while (i--) {
-        const wrappedItem = virtualItems[i]
-        const oldWrappedItem = oldKeyDataMap[wrappedItem.virtualKey]
-        if (oldWrappedItem) {
-          wrappedItem.height = oldWrappedItem.height
-        }
-      }
-    }
-
-    this.virtualItems = virtualItems
-    this.virtualItemMap = virtualItemMap
-
-    this._dataBound = true
-
-    // 完成后，抛出事件
-    dispatchEvent(this, DATA_CHANGE, virtualItems, virtualItemMap)
-    this.rebuildViewData()
-  }
-
-  /**
-   * 从组件数据中提取子集作为当前过滤、排序条件下的数据
-   * 依赖：virtualItems, filterMethod, sortMethod, defaultItemSize
-   */
-  rebuildViewData() {
-    const { virtualItems, filterMethod, sortMethod } = this
+  generateViewData() {
+    const { virtualData, filterMethod, sortMethod } = this
     let data = []
 
     // 过滤
     if (typeof filterMethod === 'function') {
-      for (let index = 0, len = virtualItems.length; index < len; index += 1) {
-        if (filterMethod(virtualItems[index].data)) {
-          data.push(virtualItems[index])
-        }
-      }
+      data = this.filterMethod(virtualData)
     }
 
     // 无过滤
     else {
-      data = virtualItems.slice()
+      data = virtualData.slice()
     }
 
     // 排序
-    if (typeof sortMethod === 'function') data.sort(sortMethod)
+    if (typeof sortMethod === 'function') {
+      data = this.sortMethod(data)
+    } 
 
     // 重新记录数据在视图中的位置，用于隐藏部分条目时，可以精确计算高度、坐标
-    let i = virtualItems.length
-    while (i--) virtualItems[i].virtualViewIndex = -1
+    let i = virtualData.length
+    while (i--) virtualData[i].virtualViewIndex = -1
     i = data.length
     while (i--) data[i].virtualViewIndex = i
 
@@ -559,10 +582,10 @@ export default class BlocksVList extends HTMLElement {
     for (let index = 0, size = data.length; index < size; index += 1) {
       const node = data[index]
       // 小于零的需要隐藏，所以高度为 0
-      this.itemHeightStore.writeSingle(index, (1 / node.height > 0) ? node.height : 0)
+      this.itemHeightStore.writeSingle(index, 1 / node.height > 0 ? node.height : 0)
     }
 
-    this.virtualViewItems = data
+    this.virtualViewData = data
 
     // 刷新列表高度
     this._updateListSize()
@@ -575,7 +598,7 @@ export default class BlocksVList extends HTMLElement {
     // 重新切片当前 viewport 需要的数据
     this._updateSliceRange(FORCE_SLICE)
 
-    dispatchEvent(this, DATA_VIEW_CHANGE, this._pluckData(this.virtualViewItems))
+    dispatchEvent(this, DATA_VIEW_CHANGE, this._pluckData(this.virtualViewData))
   }
 
   // 上下两端预先批量渲染的项目波动量
@@ -586,24 +609,24 @@ export default class BlocksVList extends HTMLElement {
   // 防止频繁插入内容导致性能压力
   preRenderingCount(viewportSize) {
     return 0
-    // 默认预渲染 1 屏
-    const len = this.virtualSliceItems.length
-    const defaults = Math.ceil(viewportSize / this.defaultItemSize)
-    return len ? Math.min(len, defaults) : defaults
+    // // 默认预渲染 1 屏
+    // const len = this.virtualSliceData.length
+    // const defaults = Math.ceil(viewportSize / this.defaultItemSize)
+    // return len ? Math.min(len, defaults) : defaults
   }
 
   // 滚动到上下方剩下多少个条目时，加载下一批
   // 防止 iOS 快速触摸滚动时的白屏
   preRenderingThreshold(viewportSize) {
     return 0
-    // 默认触达预渲染的一半数量时，加载下一批切片
-    return Math.floor(this.preRenderingCount(viewportSize) / 2)
+    // // 默认触达预渲染的一半数量时，加载下一批切片
+    // return Math.floor(this.preRenderingCount(viewportSize) / 2)
   }
 
   // 滚动到锚定位置，仅在高度都已经计算后才生效，否则滚动到目的地，
   // 高度经过计算发生变化的话，无法对准
   scrollToIndex(anchorIndex, anchorOffsetRatio = 0) {
-    if (anchorIndex < this.virtualViewItems.length) {
+    if (anchorIndex < this.virtualViewData.length) {
       const start = this._itemOffset(anchorIndex)
       const offset = Math.floor(this._itemSize(anchorIndex) * anchorOffsetRatio)
       let scroll = start - offset
@@ -614,14 +637,93 @@ export default class BlocksVList extends HTMLElement {
   }
 
   /**
+   * 滚动到指定数据 key 的条目位置
+   */
+  scrollToKey(key, anchorOffsetRatio) {
+    const vitem = this.virtualDataMap[key]
+    if (vitem.virtualViewIndex !== -1) {
+      this.scrollToIndex(vitem.virtualViewIndex, anchorOffsetRatio)
+    }
+  }
+
+  /**
+   * 重新滚动到锚点
+   */
+  restoreAnchor() {
+    this.scrollToIndex(this.anchorIndex, this.anchorOffsetRatio)
+  }
+
+  /**
+   * 获取 viewport 主轴方向滚过去的距离
+   */
+  getScrollMain() {
+    return this.$viewport[this.direction === Direction.Horizontal ? 'scrollLeft' : 'scrollTop']
+  }
+
+  /**
+   * 获取 viewport 侧轴方向滚过去的距离
+   */
+  getScrollCross() {
+    return this.$viewport[this.direction === Direction.Horizontal ? 'scrollTop' : 'scrollLeft']
+  }
+
+  /**
    * 设置 viewport 主轴方向滚过去的距离
    */
   setScrollMain(value) {
     this.$viewport[this.direction === Direction.Horizontal ? 'scrollLeft' : 'scrollTop'] = value
   }
 
+  /**
+   * 设置 viewport 侧轴方向滚过去的距离
+   */
+  setScrollCross(value) {
+    this.$viewport[this.direction === Direction.Horizontal ? 'scrollTop' : 'scrollLeft'] = value
+  }
+
+  // 包裹原始数据，并生成一些辅助数据结构，派发事件
+  _setData(data) {
+    if (this._dataBound && data === this._data) {
+      return
+    }
+
+    const virtualData = this.virtualMap(data)
+
+    // 构建 virtualItemMap，形成 key-data 映射，方便后续快速查找数据
+    const virtualDataMap = Object.create(null)
+    let i = virtualData.length
+    while (i--) {
+      virtualDataMap[virtualData[i].virtualKey] = virtualData[i]
+    }
+
+    // 如果存在旧数据，并且配置了自定义 key 字段，
+    // 则尝试从旧数据中恢复信息
+    const oldVirtualDataMap = this.virtualDataMap
+    if (oldVirtualDataMap && this.keyMethod) {
+      let i = virtualData.length
+      while (i--) {
+        const vItem = virtualData[i]
+        const oldVItem = oldVirtualDataMap[vItem.virtualKey]
+        if (oldVItem) {
+          vItem.height = oldVItem.height
+        }
+      }
+    }
+
+    this.virtualData = virtualData
+    this.virtualDataMap = virtualDataMap
+
+    this._dataBound = true
+
+    // 完成后，抛出事件
+    dispatchEvent(this, DATA_CHANGE, virtualData, virtualDataMap)
+    this.generateViewData()
+  }
+
+  // 更新数据切片范围，可以提供 ture 参数强制重新绘制
   _updateSliceRange(forceUpdate) {
-    const viewportSize = this.direction === Direction.Horizontal ? this.$viewport.clientWidth : this.$viewport.clientHeight
+    const viewportSize =
+      this.direction === Direction.Horizontal ? this.$viewport.clientWidth : this.$viewport.clientHeight
     const viewportStart = this.direction === Direction.Horizontal ? this.$viewport.scrollLeft : this.$viewport.scrollTop
 
     // 计算出准确的切片区间
@@ -640,7 +742,7 @@ export default class BlocksVList extends HTMLElement {
     const THRESHOLD = this.preRenderingThreshold(viewportSize)
 
     // 数据总量
-    const MAX = this.virtualViewItems.length
+    const MAX = this.virtualViewData.length
 
     // 检查计算出来的切片范围，是否被当前已经渲染的切片返回包含了
     // 如果是，无需更新切片，（如果 forceUpdate，则无论如何都需要重新切片）
@@ -650,7 +752,7 @@ export default class BlocksVList extends HTMLElement {
     if (toThreshold > MAX) toThreshold = MAX
 
     // 无需强制刷新，且上下两端都没有触达阈值时，无需重新切片
-    if (!forceUpdate && ((this.sliceFrom <= fromThreshold) && (this.sliceTo >= toThreshold))) {
+    if (!forceUpdate && this.sliceFrom <= fromThreshold && this.sliceTo >= toThreshold) {
       // console.log('无需切片', `O(${this.sliceFrom},${this.sliceTo}), N(${fromThreshold},${toThreshold})`)
       return
     }
@@ -663,7 +765,7 @@ export default class BlocksVList extends HTMLElement {
     sliceFrom = sliceFrom > COUNT ? sliceFrom - COUNT : 0
     sliceTo = sliceTo + COUNT > MAX ? MAX : sliceTo + COUNT
 
-    const shouldDoSlice = this.forceUpdate || this.sliceFrom !== sliceFrom || this.sliceTo !== sliceTo
+    const shouldDoSlice = forceUpdate || this.sliceFrom !== sliceFrom || this.sliceTo !== sliceTo
 
     this.sliceFrom = sliceFrom
     this.sliceTo = sliceTo
@@ -675,12 +777,12 @@ export default class BlocksVList extends HTMLElement {
 
   // 计算局部渲染数据切片的起止点
   _calcSliceRange(viewportSize, viewportStart) {
-    if (!this.virtualViewItems.length) {
+    if (!this.virtualViewData.length) {
       return { sliceFrom: 0, sliceTo: 0, anchorOffsetRatio: 0 }
     }
 
     const MIN_INDEX = 0
-    const MAX_INDEX = this.virtualViewItems.length - 1
+    const MAX_INDEX = this.virtualViewData.length - 1
 
     // 视口下边界
     const viewportEnd = viewportStart + viewportSize
@@ -805,18 +907,18 @@ export default class BlocksVList extends HTMLElement {
     return { sliceFrom, sliceTo, anchorOffsetRatio }
   }
 
-
+  // 根据切片返回裁剪数据片段，进行绘制
   _doSlice(fromIndex, toIndex) {
-    const virtualViewItems = this.virtualViewItems
+    const virtualViewItems = this.virtualViewData
     const slice = []
 
     for (let i = fromIndex; i < toIndex; i += 1) {
-      const wrappedItem = virtualViewItems[i]
-      if (wrappedItem.height > 0) slice.push(wrappedItem)
+      const vItem = virtualViewItems[i]
+      if (vItem.height > 0) slice.push(vItem)
     }
 
-    const oldSlice = this.virtualSliceItems.slice()
-    this.virtualSliceItems = slice
+    const oldSlice = this.virtualSliceData.slice()
+    this.virtualSliceData = slice
 
     dispatchEvent(this, SLICE_CHANGE, this._pluckData(slice), this._pluckData(oldSlice))
 
@@ -829,19 +931,20 @@ export default class BlocksVList extends HTMLElement {
 
     const batch = []
     forEach(nodeItems, ($node) => {
-      const wrappedItem = this.getVirtualItemByNode($node)
+      const vItem = this.getVirtualItemByNode($node)
 
-      // wrappedItem 在复杂的情况下，可能出现 undefined
-      if (!wrappedItem) return
+      // vItem 在复杂的情况下，可能出现 undefined
+      if (!vItem) return
 
       // 获取高度
-      const height = this.itemSizeMethod($node, {
-        virtualKey: wrappedItem.virtualKey,
-        height: wrappedItem.height,
-        calculated: wrappedItem.calculated,
-        virtualViewIndex: wrappedItem.virtualViewIndex,
-        direction: this.direction,
-      }) >> 0
+      const height =
+        this.itemSizeMethod($node, {
+          virtualKey: vItem.virtualKey,
+          height: vItem.height,
+          calculated: vItem.calculated,
+          virtualViewIndex: vItem.virtualViewIndex,
+          direction: this.direction
+        }) >> 0
 
       // 可能组件隐藏中
       if (height === 0) return
@@ -849,13 +952,13 @@ export default class BlocksVList extends HTMLElement {
       // 计算出来的高度跟旧高度或默认值一致，
       // 则无需更新，但是设置已经计算状态
       // 以便下次可以直接使用缓存
-      if (wrappedItem.height === height) {
-        wrappedItem.calculated = true
+      if (vItem.height === height) {
+        vItem.calculated = true
       }
 
       // 高度不一致，则设置标识，需要在批处理中进行刷新
       else {
-        batch.push({ wrappedItem, height, calculated: true })
+        batch.push({ vItem, height, calculated: true })
       }
     })
 
@@ -868,11 +971,11 @@ export default class BlocksVList extends HTMLElement {
   // 批量刷新高度，避免频繁调整列表高度带来性能问题
   _batchUpdateHeight(records) {
     const changes = records
-      .map(({ wrappedItem, height, calculated }) => {
-        const hasChange = this._updateSize(wrappedItem, height, calculated)
-        return hasChange ? { key: wrappedItem.virtualKey, value: height } : null
+      .map(({ vItem, height, calculated }) => {
+        const hasChange = this._updateSize(vItem, height, calculated)
+        return hasChange ? { key: vItem.virtualKey, value: height } : null
       })
-      .filter(item => !!item)
+      .filter((item) => !!item)
 
     if (changes.length) {
       this._updateListSize()
@@ -883,24 +986,24 @@ export default class BlocksVList extends HTMLElement {
   }
 
   // 刷新列表项高度
-  _updateSize(wrappedItem, height, calculated) {
+  _updateSize(vItem, height, calculated) {
     height = height >> 0
 
-    const hasChange = height !== wrappedItem.height
+    const hasChange = height !== vItem.height
 
     // 更新结点高度缓存
-    wrappedItem.height = height
+    vItem.height = height
 
     if (calculated != null) {
-      wrappedItem.calculated = calculated
+      vItem.calculated = calculated
     }
 
-    // 如果 wrappedItem 为当前过滤下的项目，
+    // 如果 vItem 为当前过滤下的项目，
     // 则同时刷新高度存储 store
-    const index = wrappedItem.virtualViewIndex
+    const index = vItem.virtualViewIndex
     if (index !== -1) {
       // 小于等于零表示折叠不显示，计算高度为零
-      // 负值存在 wrappedItem 中，用于反折叠时恢复
+      // 负值存在 vItem 中，用于反折叠时恢复
       this.itemHeightStore.writeSingle(index, height > 0 ? height : 0)
     }
 
@@ -909,47 +1012,49 @@ export default class BlocksVList extends HTMLElement {
 
   // 通过 DOM Node 获取对应的数据
   getVirtualItemByNode($node) {
-    return this.virtualItemMap[$node.virtualKey]
+    return this.virtualDataMap[$node.virtualKey]
   }
 
+  // 通过 key 获取对应的数据条目
   getVirtualItemByKey(virtualKey) {
-    return this.virtualItemMap[virtualKey]
+    return this.virtualDataMap[virtualKey]
   }
 
+  // 通过 key 获取对应的数据 DOM
   getNodeByVirtualKey(virtualKey) {
     return this.$list.querySelector(`[data-virtual-key="${virtualKey}"]`)
   }
 
-  // 提取 data
-  _pluckData(virtualItems) {
+  // 将包裹数据列表，转换成原始数据列表
+  _pluckData(virtualData) {
     const data = []
-    for (let i = 0, len = virtualItems.length; i < len; i += 1) {
-      data.push(virtualItems[i].data)
+    for (let i = 0, len = virtualData.length; i < len; i += 1) {
+      data.push(virtualData[i].data)
     }
     return data
   }
 
+  // 刷新列表尺寸
   _updateListSize() {
     const { itemHeightStore } = this
     if (itemHeightStore) {
       if (this.direction === Direction.Horizontal) {
         this.$listSize.style.height = ''
         this.$listSize.style.width = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
-      }
-      else {
+      } else {
         this.$listSize.style.width = ''
         this.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
       }
     }
   }
 
-  // 重置高度的已计算状态，用于已计算出来的值全部失效的情况
-  // 例如垂直滚动时，容器宽度变化，导致每项的换行情况可能发生变化
+  // 重置尺寸的已计算状态，用于已计算出来的值全部失效的情况
+  // 例如组件尺寸变化，导致每项的换行情况发生变化
   // 此时需要彻底重新计算
   _resetCalculated() {
-    const virtualItems = this.virtualItems
-    let i = virtualItems.length
-    while (i--) virtualItems[i].calculated = false
+    const virtualData = this.virtualData
+    let i = virtualData.length
+    while (i--) virtualData[i].calculated = false
   }
 
   // `index`: 数据在 virtualViewItems 中的 index
@@ -967,12 +1072,12 @@ export default class BlocksVList extends HTMLElement {
   // 提前结束动画
   async _clearTransition() {
     let flag = false
-    forEach(this.$list.querySelectorAll('.transition'), $transition => {
+    forEach(this.$list.querySelectorAll('.transition'), ($transition) => {
       flag = true
       $transition.className = 'transition'
     })
     if (!flag) return Promise.resolve(flag)
-    return new Promise(resolve => setTimeout(() => resolve(flag), 50))
+    return new Promise((resolve) => setTimeout(() => resolve(flag), 50))
   }
 }
 

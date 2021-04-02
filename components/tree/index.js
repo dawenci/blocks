@@ -20,7 +20,7 @@ import {
   __font_size_base,
   __font_size_small,
   __bg_base,
-  __color_danger,
+  __color_danger
 } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
 import parseHighlight from '../../common/highlight.js'
@@ -35,6 +35,11 @@ template.innerHTML = `
 <style>
 :host {
   --height: 28px;
+
+  font-family: var(--font-family, ${__font_family});
+  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});  
+  font-size: 14px;
+  color: var(--fg-base, ${__fg_base});
 }
 
 :host([direction="horizontal"]) #list,
@@ -45,6 +50,7 @@ template.innerHTML = `
 
 /* 结点容器 */
 .node-item {
+  position: relative;
   min-width: var(--item-height);
   width: auto;
   box-sizing: border-box;
@@ -62,6 +68,35 @@ template.innerHTML = `
   color: var(--color-primary, ${__color_primary});
   /*background-color: $--color-primary-light-9;*/
 }
+
+:host([stripe]) .node-item:nth-child(even) {
+  background-color: rgba(0,0,0,.025);
+}
+
+:host([border]) .node-item:before,
+:host([border]) .node-item:after {
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: auto;
+  left: 0;
+  display: block;
+  content: '';
+  height: 1px;
+  background: rgba(0,0,0,.05);
+  transform: scale(1, 0.5);
+}
+:host([border]) .node-item:before {
+  top: -0.5px;
+}
+:host([border]) .node-item:after {
+  bottom: -0.5px;
+}
+:host([border]) .node-item:first-child:before,
+:host([border]) .node-item:last-child:after {
+  display: none;
+}
+
 
 /* 子节点折叠、展开箭头 */
 .node-toggle {
@@ -235,6 +270,10 @@ template.innerHTML = `
   padding: 4px 0;
   user-select: none;
 }
+:host(:not([wrap])) .node-label {
+  white-space: nowrap;
+}
+
 .node-label .highlight {
   color: var(--color-danger, ${__color_danger});
 }
@@ -263,7 +302,6 @@ class VirtualNode extends VirtualItem {
   }
 }
 
-
 class BlocksTree extends VList {
   static get observedAttributes() {
     return super.observedAttributes.concat([
@@ -276,8 +314,9 @@ class BlocksTree extends VList {
       'disabled',
       'expand-on-click-node',
       'indent-unit',
-      'level-filter',
+      'search',
       'stripe',
+      'wrap',
     ])
   }
 
@@ -297,8 +336,10 @@ class BlocksTree extends VList {
 
   // 从数据中提取 label 的方法
   get internalLabelMethod() {
-    return typeof this.labelMethod === 'function' ? this.labelMethod
-      : typeof this.labelMethod === 'string' ? property(this.labelMethod)
+    return typeof this.labelMethod === 'function'
+      ? this.labelMethod
+      : typeof this.labelMethod === 'string'
+      ? property(this.labelMethod)
       : property('label')
   }
 
@@ -318,20 +359,21 @@ class BlocksTree extends VList {
     boolSetter('activable')(this, value)
   }
 
-  get disabled() {
-    return boolGetter('disabled')(this)
+  get checkable() {
+    return enumGetter('checkable', [null, 'multiple', 'single'])(this)
   }
 
-  set disabled(value) {
-    boolSetter('disabled')(this, value)
+  set checkable(value) {
+    return enumSetter('checkable', [null, 'multiple', 'single'])(this, value)
   }
 
-  get indentUnit() {
-    return intGetter('indent-unit', 16)(this)
+  // 父子结点是否使用严格不关联模式
+  get checkStrictly() {
+    return boolGetter('check-strictly')(this)
   }
 
-  set indentUnit(value) {
-    intSetter('indent-unit')(this, value)
+  set checkStrictly(value) {
+    boolSetter('check-strictly')(this, value)
   }
 
   get defaultItemSize() {
@@ -349,15 +391,15 @@ class BlocksTree extends VList {
 
   set defaultFoldAll(value) {
     boolSetter('default-fold-all')(this, value)
+  }  
+
+  get disabled() {
+    return boolGetter('disabled')(this)
   }
 
-  get checkable() {
-    return enumGetter('checkable', [null, 'multiple', 'single'])(this)
-  }
-
-  set checkable(value) {
-    return enumSetter('checkable', [null, 'multiple', 'single'])(this, value)
-  }
+  set disabled(value) {
+    boolSetter('disabled')(this, value)
+  }  
 
   // 是否点击结点的时候，切换展开、折叠状态
   get expandOnClickNode() {
@@ -368,33 +410,65 @@ class BlocksTree extends VList {
     boolSetter('expand-on-click-node')(this, value)
   }
 
-  // 父子结点是否使用严格不关联模式
-  get checkStrictly() {
-    return boolGetter('check-strictly')(this)
+  get indentUnit() {
+    return intGetter('indent-unit', 16)(this)
   }
 
-  set checkStrictly(value) {
-    boolSetter('check-strictly')(this, value)
+  set indentUnit(value) {
+    intSetter('indent-unit')(this, value)
+  }  
+
+  get search() {
+    return this.getAttribute('search')
   }
 
-  // 层级过滤器，0 代表不过滤，其他数值代表需要显示到哪一级的数据
-  get levelFilter() {
-    return intGetter('level-filter', 0)(this)
-  }
-
-  set levelFilter(value) {
-    intSetter('level-filter')(this, value)
+  set search(value) {
+    return this.setAttribute('search', value)
   }
 
   connectedCallback() {
     super.connectedCallback()
+
+    if (this.defaultFoldAll) {
+      this.foldAll()
+    }
   }
 
-  disconnectedCallback() {
+  disconnectedCallback() {}
+
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    super.attributeChangedCallback(attrName, oldValue, newValue)
+    if (attrName === 'search') {
+      this.generateViewData()
+    }
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    super.attributeChangedCallback(name, oldValue, newValue)
+  filterMethod(data) {
+    if (this.search) {
+      const results = []
+      // 第一遍标记需要保留的条目
+      forEach(data, vItem => {
+        if ((vItem.data.label ?? '').includes(this.search)) {
+          vItem._retain = true
+          let parent = vItem.parent
+          while (parent) {
+            parent._retain = true
+            parent = parent.parent
+          }
+        }
+      })
+      // 第二遍，提取数据，并移除标识
+      forEach(data, vItem => {
+        if (vItem._retain) {
+          results.push(vItem)
+          vItem._retain = undefined
+        }
+      })
+      return results
+    }
+    else {
+      return data.slice()
+    }
   }
 
   itemRender($item, vitem) {
@@ -413,8 +487,7 @@ class BlocksTree extends VList {
       $toggle.classList.remove('is-leaf')
       $toggle.classList.toggle('folded', !vitem.expanded)
       $toggle.classList.toggle('expanded', !!vitem.expanded)
-    }
-    else {
+    } else {
       $toggle.classList.remove('folded')
       $toggle.classList.remove('expanded')
       $toggle.classList.add('is-leaf')
@@ -424,8 +497,7 @@ class BlocksTree extends VList {
     let $check = $item.querySelector('.node-check')
     if (!this.checkable) {
       if ($check) $item.removeChild($check)
-    }
-    else {
+    } else {
       let $input
       let $label
       if (!$check) {
@@ -433,8 +505,7 @@ class BlocksTree extends VList {
         $check.className = 'node-check'
         if ($item.labelClassMethod && $item.lastElementChild.classList.contains('node-label')) {
           $item.insertBefore($check, $item.lastElementChild)
-        }
-        else {
+        } else {
           $item.appendChild($check)
         }
         $input = $check.appendChild(document.createElement('input'))
@@ -442,8 +513,7 @@ class BlocksTree extends VList {
         $input.className = 'node-check-input'
         $label = $check.appendChild(document.createElement('label'))
         $label.classList.add('node-check-label')
-      }
-      else {
+      } else {
         $input = $check.querySelector('input')
         $label = $check.querySelector('label')
       }
@@ -479,12 +549,13 @@ class BlocksTree extends VList {
     }
 
     const text = this.internalLabelMethod(vitem.data)
-    if (this.highlightText && this.highlightText.length) {
-      $label.innerHTML = this.parseHighlight(text, this.highlightText).forEach(textSlice => {
-        return `<span class="${textSlice.highlight ? 'highlight' : ''}">${textSlice.text}</span>`
-      }).join('')
-    }
-    else {
+    if (this.search && this.search.length) {
+      $label.innerHTML = this.parseHighlight(text, this.search)
+        .map((textSlice) => {
+          return `<span class="${textSlice.highlight ? 'highlight' : ''}">${textSlice.text}</span>`
+        })
+        .join('')
+    } else {
       $label.innerHTML = text
     }
   }
@@ -521,7 +592,7 @@ class BlocksTree extends VList {
     }
 
     if (!options || !options.preventEmit) {
-      dispatchEvent(this, 'active', { detail: {virtualKey: virtualKey, oldNodeKey: oldKey} } )
+      dispatchEvent(this, 'active', { detail: { virtualKey: virtualKey, oldNodeKey: oldKey } })
     }
   }
 
@@ -567,18 +638,24 @@ class BlocksTree extends VList {
 
   // API，全部结点折叠
   foldAll() {
-    this.nodes.forEach(node => {
+    this.virtualData.forEach((node) => {
       if (node.children) node.expanded = false
     })
-    this._updateFold(this.nodes)
+
+    this._batchUpdateFold = true
+    this._updateFold(this.virtualData)
+    this._batchUpdateFold = false
   }
 
   // API，全部结点展开
   expandAll() {
-    this.nodes.forEach(node => {
+    this.virtualData.forEach((node) => {
       if (node.children) node.expanded = true
     })
-    this._updateFold(this.nodes)
+
+    this._batchUpdateFold = true
+    this._updateFold(this.virtualData)
+    this._batchUpdateFold = false
   }
 
   /**
@@ -616,8 +693,8 @@ class BlocksTree extends VList {
   _batchToggleCheckStrictly(vitems, value, options = {}) {
     const disabled = typeof options.disabled === 'boolean' ? options.disabled : false
 
-    const checked = typeof value === 'boolean' ? value : !vitems.every(vitem => vitem.checked)
-    vitems.forEach(vitem => {
+    const checked = typeof value === 'boolean' ? value : !vitems.every((vitem) => vitem.checked)
+    vitems.forEach((vitem) => {
       if (disabled || !this.disableCheckMethod(vitem.data)) {
         this._updateCheck(vitem, checked, options.toggleCheckEvent)
       }
@@ -630,12 +707,12 @@ class BlocksTree extends VList {
     const disabled = typeof options.disabled === 'boolean' ? options.disabled : false
 
     if (!disabled) {
-      vitems = vitems.filter(vitem => !this.disableCheckMethod(vitem.data))
+      vitems = vitems.filter((vitem) => !this.disableCheckMethod(vitem.data))
       if (!vitems.length) return
     }
 
     const descendant = flatten(vitems.map(this._descendant.bind(this)))
-    
+
     // 不处理的结点（disabled）
     const excluded = []
     // 叶子结点
@@ -643,7 +720,7 @@ class BlocksTree extends VList {
 
     // 处理所有结点，包含不可用的
     if (disabled) {
-      descendant.forEach(vitem => {
+      descendant.forEach((vitem) => {
         if (isEmpty(vitem.children)) {
           leaves.push(vitem)
         }
@@ -651,11 +728,10 @@ class BlocksTree extends VList {
     }
     // 排除不可用的结点
     else {
-      descendant.forEach(vitem => {
+      descendant.forEach((vitem) => {
         if (this.disableCheckMethod(vitem.data)) {
           excluded.push(vitem)
-        }
-        else if (isEmpty(vitem.children)) {
+        } else if (isEmpty(vitem.children)) {
           leaves.push(vitem)
         }
       })
@@ -666,20 +742,19 @@ class BlocksTree extends VList {
     // 本次操作是否 checked 根据 nodes 下所有叶子结点确定，
     // nodes 下无叶子，则 nodes 已经是叶子，以 nodes 确定
     if (value == null) {
-      checked = !(leaves.length ? leaves.every(leaf => leaf.checked) : vitems.every(node => node.checked))
-    }
-    else {
+      checked = !(leaves.length ? leaves.every((leaf) => leaf.checked) : vitems.every((node) => node.checked))
+    } else {
       checked = !!value
     }
 
     // 只需更新 nodes 下的叶子结点，所有祖先结点，都通过叶子结点往上推断出状态
     // （nodes 也可能是叶子结点，因此也需要一并处理）
     {
-      leaves.forEach(vitem => {
+      leaves.forEach((vitem) => {
         this._updateCheck(vitem, checked, options.toggleCheckEvent)
         this._updateIndeterminate(vitem, false)
       })
-      vitems.forEach(vitem => {
+      vitems.forEach((vitem) => {
         this._updateCheck(vitem, checked, options.toggleCheckEvent)
         this._updateIndeterminate(vitem, false)
       })
@@ -688,9 +763,9 @@ class BlocksTree extends VList {
     // 从受影响的叶子结点（以及 nodes 自身）往祖先结点方向，更新选中、半选中状态，
     // excluded 排除的结点，由于没有切换，也需要往上刷新，以确保半选正确
     {
-      leaves.forEach(vitem => this._updateAncestorFrom(vitem, options.toggleCheckEvent))
-      vitems.forEach(vitem => this._updateAncestorFrom(vitem, options.toggleCheckEvent))
-      excluded.forEach(vitem => {
+      leaves.forEach((vitem) => this._updateAncestorFrom(vitem, options.toggleCheckEvent))
+      vitems.forEach((vitem) => this._updateAncestorFrom(vitem, options.toggleCheckEvent))
+      excluded.forEach((vitem) => {
         if (vitem.checked !== checked) this._updateAncestorFrom(vitem, options.toggleCheckEvent)
       })
     }
@@ -700,7 +775,7 @@ class BlocksTree extends VList {
     // 单选模式，没有批量选择功能，直接返回
     if (this.checkable !== 'multiple') return
 
-    const vitems = uniqBy(vitem => vitem.virtualKey, virtualKeys.map(this.getVirtualItemByKey.bind(this)))
+    const vitems = uniqBy((vitem) => vitem.virtualKey, virtualKeys.map(this.getVirtualItemByKey.bind(this)))
 
     if (!vitems.length) return
 
@@ -708,8 +783,7 @@ class BlocksTree extends VList {
 
     if (this.checkStrictly) {
       this._batchToggleCheckStrictly(vitems, value, options)
-    }
-    else {
+    } else {
       this._batchToggleCheckNonStrictly(vitems, value, options)
     }
 
@@ -816,14 +890,14 @@ class BlocksTree extends VList {
     }
   }
 
-  _updateFold(nodes) {
-    const expandNodes = nodes.filter(node => node.expanded)
-    const foldedNodes = nodes.filter(node => !node.expanded)
-    foldedNodes.forEach(node => {
-      this._fold(node)
+  _updateFold(vItems) {
+    const expandItems = vItems.filter((vItem) => vItem.expanded)
+    const foldedItems = vItems.filter((vItem) => !vItem.expanded)
+    foldedItems.forEach((vItem) => {
+      this._fold(vItem)
     })
-    expandNodes.forEach(node => {
-      this._expand(node)
+    expandItems.forEach((vItem) => {
+      this._expand(vItem)
     })
   }
 
@@ -831,11 +905,11 @@ class BlocksTree extends VList {
   _expand(node, preventEmit = false) {
     node.expanded = true
     const listKeys = this._descendant(node)
-      .filter(child => this.visible(child))
-      .map(child => child.virtualKey)
+      .filter((child) => this.visible(child))
+      .map((child) => child.virtualKey)
 
     if (listKeys.length) {
-      this.showByKeys(listKeys)
+      this.showByKeys(listKeys, this._batchUpdateFold)
     }
 
     if (!preventEmit) {
@@ -844,18 +918,17 @@ class BlocksTree extends VList {
   }
 
   // 折叠结点
- _fold(node, preventEmit = false) {
+  _fold(node, preventEmit = false) {
     node.expanded = false
     const children = this._descendant(node)
-    const listKeys = children
-      .map(child => child.virtualKey)
+    const listKeys = children.map((child) => child.virtualKey)
 
     if (listKeys.length) {
-      this.hideByKeys(listKeys)
+      this.hideByKeys(listKeys, this._batchUpdateFold)
     }
 
     // 如果折叠的结点，包含当前激活的结点，则取消激活状态
-    if (this.activeKey && children.findIndex(child => child.virtualKey === this.activeKey) !== -1) {
+    if (this.activeKey && children.findIndex((child) => child.virtualKey === this.activeKey) !== -1) {
       const virtualKey = this.activeKey
       this.activeKey = null
 
@@ -872,7 +945,7 @@ class BlocksTree extends VList {
   /**
    * 获取指定结点的所有后代结点
    */
-   _descendant(node) {
+  _descendant(node) {
     const pickChild = (node, children) => {
       children = children || []
       if (!node.children) return children
@@ -906,16 +979,15 @@ class BlocksTree extends VList {
       return parent.children ?? []
     }
     // 顶层结点
-    return this.nodes.filter(node => !node.parent)
+    return this.virtualData.filter((node) => !node.parent)
   }
 
-
-
-  convertData(data) {
-    const virtualItems = []
+  // override，根据树形数据，生成虚拟数据
+  virtualMap(data) {
+    const virtualData = []
 
     let index = 0
-    const convert = data => {
+    const convert = (data) => {
       const virtualKey = this.keyMethod?.(data) ?? index++
       const vnode = new VirtualNode({
         virtualKey,
@@ -923,9 +995,9 @@ class BlocksTree extends VList {
         data,
         checked: false,
         expanded: true,
-        children: [],
+        children: []
       })
-      virtualItems.push(vnode)
+      virtualData.push(vnode)
       const len = data.children?.length
       if (len) {
         for (let i = 0; i < len; i += 1) {
@@ -939,72 +1011,11 @@ class BlocksTree extends VList {
     }
 
     data.forEach(convert)
-    return virtualItems
+    return virtualData
   }
 
   render() {
     super.render()
-  }
-
-  // 提取 data
-  _pluckData(virtualItems) {
-    const data = []
-    for (let i = 0, len = virtualItems.length; i < len; i += 1) {
-      data.push(virtualItems[i].data)
-    }
-    return data
-  }
-
-  _updateListSize() {
-    const { itemHeightStore } = this
-    if (itemHeightStore) {
-      if (this.direction === Direction.Horizontal) {
-        this.$listSize.style.height = ''
-        this.$listSize.style.width = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
-      }
-      else {
-        this.$listSize.style.width = ''
-        this.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
-      }
-    }
-  }
-
-  // 重置高度的已计算状态，用于已计算出来的值全部失效的情况
-  // 例如垂直滚动时，容器宽度变化，导致每项的换行情况可能发生变化
-  // 此时需要彻底重新计算
-  _resetCalculated() {
-    const virtualItems = this.virtualItems
-    let i = virtualItems.length
-    while (i--) virtualItems[i].calculated = false
-  }
-
-  // `index`: 数据在 virtualViewItems 中的 index
-  _itemSize(index) {
-    if (index >= this.itemHeightStore.maxVal) index = this.itemHeightStore.maxVal - 1
-    return this.itemHeightStore.readSingle(index)
-  }
-
-  // `index`: 数据在 virtualViewItems 中的 index
-  _itemOffset(index) {
-    // 0 ～ 上一项的高度累加
-    return this.itemHeightStore.read(index)
-  }  
-
-  /**
-   * 计算层级缩进的像素
-   */
-  _indent(node) {
-    return (this.level(node) - 1) * this.indentUnit
-  }
-
-  /**
-   * 计算节点样式，主要是处理层次缩进
-   */
-  _nodeStyle(node) {
-    const indent = this._indent(node)
-    return {
-      paddingLeft: `${indent}px`
-    }
   }
 
   // 获取结点的层级
@@ -1040,7 +1051,6 @@ class BlocksTree extends VList {
     }
     return true
   }
-
 
   parseHighlight(label, highlightText) {
     return parseHighlight(label, highlightText)
@@ -1125,14 +1135,31 @@ class BlocksTree extends VList {
   }
 
   _updateFold(nodes) {
-    const expandNodes = nodes.filter(node => node.expanded)
-    const foldedNodes = nodes.filter(node => !node.expanded)
-    foldedNodes.forEach(node => {
+    const expandNodes = nodes.filter((node) => node.expanded)
+    const foldedNodes = nodes.filter((node) => !node.expanded)
+    foldedNodes.forEach((node) => {
       this._fold(node)
     })
-    expandNodes.forEach(node => {
+    expandNodes.forEach((node) => {
       this._expand(node)
     })
+  }
+
+  /**
+   * 计算层级缩进的像素
+   */
+  _indent(node) {
+    return (this.level(node) - 1) * this.indentUnit
+  }
+
+  /**
+   * 计算节点样式，主要是处理层次缩进
+   */
+  _nodeStyle(node) {
+    const indent = this._indent(node)
+    return {
+      paddingLeft: `${indent}px`
+    }
   }
 }
 

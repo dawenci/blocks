@@ -17,6 +17,8 @@
       <h1>tree</h1>
     </header>
 
+    <script type="module" src="../../components/input/index.js"></script>
+
     <section class="section">
       <h2>依赖引入</h2>
 
@@ -31,16 +33,46 @@
       <h2>实现 ing</h2>
     </section>
 
-    <!-- <section class="section">
+    <section class="section">
       <h2>默认使用</h2>
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="default" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+          <bl-tree id="default" style="height:400px;"></bl-tree>
+          <script>
+            function makeData(count, pid) {
+              const data = []
+              let i = -1
+              while (++i < count) {
+                const id = `${pid ? pid + '.' : ''}${i}`
+                const label = `${id} - label`
+                data.push({ label, id, pid })
+              }
+              return data
+            }
+
+            (() => {
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(5, data.id)
+              })
+              document.getElementById('default').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>换行效果</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree wrap id="wrap" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
 
           <script>
             (() => {
-              const makeData = (count, pid) => {
+              function makeData(count, pid) {
                 const data = []
                 let i = -1
                 while (++i < count) {
@@ -49,23 +81,125 @@
                   data.push({ label, id, pid })
                 }
                 return data
-              }
-
+              }              
               const data = makeData(10)
               data.forEach(data => {
-                data.children = makeData(5, data.id)
-                data.children.forEach((data, index) => {
-                  if (index === 0) data.children = makeData(2, data.id)
-                })
+                data.children = makeData(2, data.id)
               })
-
-              document.getElementById('default').data = data
+              document.getElementById('wrap').data = data
             })()
           </script>
         </div>
       </div>
-    </section> -->
+    </section>
 
+
+    <section class="section">
+      <h2>分割线</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree border id="border" style="height:400px;"></bl-tree>
+
+          <script>
+            (() => {
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(2, data.id)
+              })
+              document.getElementById('border').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>斑马纹</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree stripe id="stripe" style="height:400px;"></bl-tree>
+
+          <script>
+            (() => {
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(2, data.id)
+              })
+              document.getElementById('stripe').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>高亮选中</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree activable id="activable" style="height:400px;"></bl-tree>
+
+          <script>
+            (() => {
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(2, data.id)
+              })
+              document.getElementById('activable').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>点击结点切换折叠</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree expand-on-click-node id="expand-on-click-node" style="height:400px;"></bl-tree>
+
+          <script>
+            (() => {
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(2, data.id)
+              })
+              document.getElementById('expand-on-click-node').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>缩进尺寸</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree indent-unit="40" id="indent-unit" style="height:400px;"></bl-tree>
+
+          <script>
+            (() => {
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(2, data.id)
+              })
+              document.getElementById('indent-unit').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
+    
+
+    
 
     <section class="section">
       <h2>单选</h2>
@@ -76,17 +210,6 @@
 
           <script>
             (() => {
-              const makeData = (count, pid) => {
-                const data = []
-                let i = -1
-                while (++i < count) {
-                  const id = `${pid ? pid + '.' : ''}${i}`
-                  const label = !(i % 5) ? `${id} - long long long long long long long long long label` : `${id} - label`
-                  data.push({ label, id, pid })
-                }
-                return data
-              }
-
               const data = makeData(10)
               data.forEach(data => {
                 data.children = makeData(5, data.id)
@@ -113,17 +236,6 @@
 
           <script>
             (() => {
-              const makeData = (count, pid) => {
-                const data = []
-                let i = -1
-                while (++i < count) {
-                  const id = `${pid ? pid + '.' : ''}${i}`
-                  const label = !(i % 5) ? `${id} - long long long long long long long long long label` : `${id} - label`
-                  data.push({ label, id, pid })
-                }
-                return data
-              }
-
               const data = makeData(10)
               data.forEach(data => {
                 data.children = makeData(5, data.id)
@@ -146,17 +258,6 @@
 
           <script>
             (() => {
-              const makeData = (count, pid) => {
-                const data = []
-                let i = -1
-                while (++i < count) {
-                  const id = `${pid ? pid + '.' : ''}${i}`
-                  const label = !(i % 5) ? `${id} - long long long long long long long long long label` : `${id} - label`
-                  data.push({ label, id, pid })
-                }
-                return data
-              }
-
               const data = makeData(10)
               data.forEach(data => {
                 data.children = makeData(5, data.id)
@@ -173,6 +274,63 @@
       
     </section>
 
+
+    <section class="section">
+      <h2>默认全部折叠</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-tree id="foldAll" default-fold-all style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+
+          <script>
+            (() => {
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(5, data.id)
+                data.children.forEach((data, index) => {
+                  if (index === 0) data.children = makeData(2, data.id)
+                })
+              })
+
+              document.getElementById('foldAll').data = data
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>内容搜索</h2>
+
+      <div class="case">
+        <div data-codesource="html">
+          <bl-input id="input" style="margin-bottom:10px;"></bl-input>
+          <bl-tree id="search" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-tree>
+
+          <script>
+            (() => {
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(5, data.id)
+                data.children.forEach((data, index) => {
+                  if (index === 0) data.children = makeData(2, data.id)
+                })
+              })
+
+              const $tree = document.getElementById('search')
+              const $input = document.getElementById('input')
+              $tree.data = data
+              $input.onchange = () => {
+                $tree.search = $input.value
+              }
+            })()
+          </script>
+        </div>
+      </div>
+    </section>
+
+
     <section class="section">
       <h2>API</h2>
 
@@ -188,43 +346,120 @@
           </tr>
         </thead>
         <tbody>
-          disableActiveMethod
-          disableToggleMethod
-          disableCheckMethod
-          labelMethod
-
-          'activable',
-          'active-key',
-          'border',
-          'check-strictly',
-          'data'
-          'default-fold-all'
-          'disabled',
-          'expand-on-click-node',
-          'indent-unit',
-          'level-filter',
-          'stripe',
-
           <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>selectable</td>
+            <td>activable</td>
             <td>boolean</td>
-            <td></td>
-            <td>是否能选中条目。</td>
+            <td>false</td>
+            <td>是否可以高亮选中结点。</td>
             <td></td>
           </tr>
           <tr>
+            <td>active-key</td>
+            <td>string | number</td>
             <td></td>
+            <td>当前高亮选中的结点的 key。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>border</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>条目之间是否显示分割线。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>check-strictly</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>多选时，父子结点是否独立选择而不联动。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>data</td>
+            <td>Array</td>
             <td></td>
+            <td>数据源数组，子结点字段为 'children'。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>default-fold-all</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>默认是否全部折叠。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>disabled</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否不可用状态。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>expand-on-click-node</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否在点击条目任意位置时折叠、展开子树。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>indent-unit</td>
+            <td>number</td>
+            <td>16</td>
+            <td>子结点的缩进距离（px）。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>search</td>
+            <td>string</td>
+            <td></td>
+            <td>搜索条目的关键词。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>stripe</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否显示斑马纹背景。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Methods</h3>
+      <table class="api-fns">
+        <thead>
+          <tr>
+            <th>函数名称</th>
+            <th>类型</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>disableActiveMethod</td>
+            <td>(data) => boolean</td>
+            <td>是否禁止条目被高亮选中的检测方法。</td>
+          </tr>
+          <tr>
+            <td>disableCheckMethod</td>
+            <td>(data) => boolean</td>
+            <td>是否禁止条目被单选、复选选中的检测方法。</td>
+          </tr>
+          <tr>
+            <td>disableToggleMethod</td>
+            <td>(data) => boolean</td>
+            <td>是否禁止条目被展开、折叠的检测方法。</td>
+          </tr>
+          <tr>
+            <td>labelMethod</td>
+            <td>(data) => string</td>
+            <td>结点内容的显示方法。默认返回 'label' 字段的值。</td>
+          </tr>
+          <tr>
+            <td>keyMethod</td>
+            <td>(data) => string | number</td>
+            <td>结点的唯一 key 生成方法（通常使用 id）。</td>
           </tr>
         </tbody>
       </table>
