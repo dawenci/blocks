@@ -228,6 +228,10 @@ export default class BlocksInput extends HTMLElement {
     }
   }
 
+  acceptValue(value) {
+    this.value = value?.label ?? ''
+  }
+
   render() {
     const prefixIcon = getRegisteredSvgIcon(this.prefixIcon)
     if (prefixIcon) {

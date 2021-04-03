@@ -1,4 +1,4 @@
-import VList, { VirtualItem } from '../vlist/index.js'
+import VList from '../vlist/index.js'
 import '../scrollable/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
@@ -17,15 +17,14 @@ import {
   __transition_duration,
   __height_base,
   __border_color_light,
-  __fg_base,
+  __fg_base
 } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
 
-const TEMPLATE_CSS = `
+const template = document.createElement('template')
+template.innerHTML = `
 <style>
 :host {
-  --item-height: var(--height-base, ${__height_base});
-
   display: block;
   box-sizing: border-box;
   font-family: var(--font-family, ${__font_family});
@@ -36,29 +35,6 @@ const TEMPLATE_CSS = `
 }
 :host([disabled]) {
   color: var(--fg-disabled, ${__fg_disabled});
-}
-
-
-#scrollable {
-  box-sizing: border-box;
-  display: block;
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-}
-
-#list-size {
-  box-sizing: border-box;
-  width: 100%;
-}
-#list {
-  box-sizing: border-box;
-  position: absolute;
-  top: 0;
-  left: 0;
-  overflow: hidden;
-  width: 100%;
 }
 
 .item {
@@ -103,7 +79,6 @@ const TEMPLATE_CSS = `
   display: none;
 }
 
-
 .label {
   flex: 1 1 auto;
   padding: 4px;
@@ -132,20 +107,11 @@ const TEMPLATE_CSS = `
   transform: rotate(-45deg);
 }
 .item:hover {
-  background-color: ${rgbaFromHex(__color_primary, .1)};
+  background-color: ${rgbaFromHex(__color_primary, 0.1)};
 }
 
 </style>
 `
-const TMEPLATE_HTML = `
-<bl-scrollable id="scrollable">
-  <div id="list-size"></div>
-  <div id="list"></div>  
-</bl-scrollable>
-`
-
-const template = document.createElement('template')
-template.innerHTML = TEMPLATE_CSS + TMEPLATE_HTML
 
 const itemTemplate = document.createElement('template')
 itemTemplate.innerHTML = `
@@ -156,53 +122,18 @@ itemTemplate.innerHTML = `
 </div>
 `
 
-class BlocksList extends VList {
+export default class BlocksList extends VList {
   static get observedAttributes() {
-    return super.observedAttributes.concat(['border', 'disabled', 'disabled-field', 'id-field', 'label-field', 'selectable', 'stripe'])
+    return super.observedAttributes.concat([
+      'border',
+      'disabled',
+      'disabled-field',
+      'id-field',
+      'label-field',
+      'selectable',
+      'stripe'
+    ])
   }
-
-  constructor() {
-    super()
-    const shadowRoot = this.shadowRoot
-    shadowRoot.appendChild(template.content.cloneNode(true))
-    // this.$scrollable = shadowRoot.getElementById('scrollable')
-    // this.$listSize = shadowRoot.getElementById('list-size')
-    // this.$list = shadowRoot.getElementById('list')
-
-    // this._$pool = []
-
-    // definePrivate(this, '_data', [])
-    definePrivate(this, '_selected', [])
-
-    this.$list.onclick = e => {
-      if (this.disabled) return
-
-      let $item = e.target
-      if ($item === this.$list) return
-      while ($item !== this.$list) {
-        if ($item.classList.contains('item')) { break }
-        $item = $item.parentElement
-      }
-      if ($item.hasAttribute('disabled')) return
-
-      dispatchEvent(this, 'click-item', { detail: { id: $item.dataset.id } })
-
-      if (this.selectable) {
-        this._selectItem($item)
-      } 
-    }
-
-    // this.$scrollable.onscroll = this.render.bind(this)
-  }
-
-  // get data() {
-  //   return this._data
-  // }
-
-  // set data(value) {
-  //   this._data = Array.isArray(value) ? value : []
-  //   this.render()
-  // }
 
   get disabled() {
     return boolGetter('disabled')(this)
@@ -249,7 +180,7 @@ class BlocksList extends VList {
   }
 
   set selected(ids) {
-    this._selected = this.multiple ? Array.isArray(ids) ? ids : [ids] : [ids]
+    this._selected = this.multiple ? (Array.isArray(ids) ? ids : [ids]) : [ids]
     this.render()
     dispatchEvent(this, 'change', { detail: { value: this.multiple ? this._selected : this._selected[0] } })
   }
@@ -262,63 +193,41 @@ class BlocksList extends VList {
     return this.selectable === 'multiple'
   }
 
-  itemRender($item, vitem) {
-    const id = vitem.data[this.idField] ?? ''
-    const label = vitem.data[this.labelField] ?? ''
-    const isDisabled = vitem.data[this.disabledField] ?? false
-    $item.classList.add('item')
-    $item.dataset.id = id
-    $item.innerHTML = `<div class="prefix"></div><div class="label"></div><div class="suffix"></div>`
-    $item.children[1].innerHTML = label
+  constructor() {
+    super()
+    const shadowRoot = this.shadowRoot
+    shadowRoot.insertBefore(template.content.cloneNode(true), this.$viewport)
 
-    const selectedMap = Object.create(null)
-    forEach(this._selected, id => {
-      selectedMap[id] = true
-    })
+    definePrivate(this, '_selected', [])
 
-    if (isDisabled) {
-      $item.setAttribute('disabled', '')
-    }
-    else {
-      $item.removeAttribute('disabled')
-    }
-    if (selectedMap[id]) {
-      $item.classList.add('selected')
-    }
-    else {
-      $item.classList.remove('selected')
-    }
-  }
+    this.$list.onclick = (e) => {
+      if (this.disabled) return
 
-  _selectItem($item) {
-    if (this.multiple) {
-      $item.classList.toggle('selected')
-      this._selected.push($item.dataset.id)
-    }
-    else {
-      forEach(this.$list.children, $child => {
-        if ($child !== $item) {
-          $child.classList.remove('selected')
+      let $item = e.target
+      if ($item === this.$list) return
+      while ($item !== this.$list) {
+        if ($item.classList.contains('item')) {
+          break
         }
-        else {
-          $child.classList.add('selected')
-        }
-      })
-      this._selected = [$item.dataset.id]
+        $item = $item.parentElement
+      }
+      if ($item.hasAttribute('disabled')) return
+
+      dispatchEvent(this, 'click-item', { detail: { id: $item.dataset.id, data: this.getVirtualItemByKey($item.dataset.id)?.data } })
+
+      if (this.selectable) {
+        this._selectItem($item)
+      }
     }
-    dispatchEvent(this, 'change', { detail: { value: this.multiple ? this._selected : this._selected[0] } })
   }
 
-  render() {
-    super.render()
-  }
+  // connectedCallback() {
+  //   super.connectedCallback()
+  // }
 
-  connectedCallback() {
-    super.connectedCallback()
-  }
-
-  disconnectedCallback() {
-  }
+  // disconnectedCallback() {
+  //   super.disconnectedCallback()
+  // }
 
   attributeChangedCallback(name, oldValue, newValue) {
     super.attributeChangedCallback(name, oldValue, newValue)
@@ -329,6 +238,59 @@ class BlocksList extends VList {
       }
     }
   }
+
+  keyMethod(data) {
+    return data[this.idField]
+  }
+
+  itemRender($item, vitem) {
+    const id = vitem.data[this.idField] ?? ''
+    const label = vitem.data[this.labelField] ?? ''
+    const isDisabled = vitem.data[this.disabledField] ?? false
+    $item.classList.add('item')
+    $item.dataset.id = id
+    $item.innerHTML = `<div class="prefix"></div><div class="label"></div><div class="suffix"></div>`
+    $item.children[1].innerHTML = label
+
+    const selectedMap = Object.create(null)
+    forEach(this._selected, (id) => {
+      selectedMap[id] = true
+    })
+
+    if (isDisabled) {
+      $item.setAttribute('disabled', '')
+    } else {
+      $item.removeAttribute('disabled')
+    }
+    if (selectedMap[id]) {
+      $item.classList.add('selected')
+    } else {
+      $item.classList.remove('selected')
+    }
+  }
+
+  _selectItem($item) {
+    if (this.multiple) {
+      $item.classList.toggle('selected')
+      this._selected.push($item.dataset.id)
+    } else {
+      forEach(this.$list.children, ($child) => {
+        if ($child !== $item) {
+          $child.classList.remove('selected')
+        } else {
+          $child.classList.add('selected')
+        }
+      })
+      this._selected = [$item.dataset.id]
+    }
+
+    dispatchEvent(this, 'change', {
+      detail: {
+        value: this.multiple ? this._selected.map(id => this.getVirtualItemByKey(id)?.data)
+          : this.getVirtualItemByKey(this._selected[0])?.data,
+      }
+    })
+  }  
 }
 
 if (!customElements.get('bl-list')) {

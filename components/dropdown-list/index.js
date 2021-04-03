@@ -1,6 +1,6 @@
-import '../popup/index.js'
-import '../list/index.js'
 import '../button/index.js'
+import BlocksPopupList from '../popup-list/index.js'
+
 import { enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
@@ -27,36 +27,19 @@ const template = document.createElement('template')
 template.innerHTML = `<slot id="slot"></slot>`
 
 const popupTemplate = document.createElement('template')
-popupTemplate.innerHTML = '<bl-popup></bl-popup>'
+popupTemplate.innerHTML = '<bl-popup-list></bl-popup-list>'
 
 const listTemplate = document.createElement('template')
-listTemplate.innerHTML = '<bl-list></bl-list>'
-
-const POPUP_ATTRS = [
-  'open',
-  'origin',
-  'anchor',
-  'inset',
-  'append-to-body',
-  'arrow',
-  'autoflip',
-  'autofocus',
-  'restorefocus',
-  'capturefocus',
-  'dark',
-  'id-field',
-  'label-field',
-  'multiple',
-  'trigger-mode'
-]
-const LIST_ATTRS = ['border', 'disabled-field', 'id-field', 'label-field', 'multiple', 'stripe']
+listTemplate.innerHTML = '<bl-list selectable="single"></bl-list>'
 
 const triggerModeGetter = enumGetter('trigger-mode', ['hover', 'click'])
 const triggerModeSetter = enumSetter('trigger-mode', ['hover', 'click'])
 
+const ATTRS = BlocksPopupList.observedAttributes.concat(['trigger-mode'])
+
 export default class BlocksDropDownList extends HTMLElement {
   static get observedAttributes() {
-    return POPUP_ATTRS.concat(LIST_ATTRS)
+    return ATTRS
   }
 
   constructor() {
@@ -64,17 +47,13 @@ export default class BlocksDropDownList extends HTMLElement {
     this.attachShadow({ mode: 'open' })
     this.shadowRoot.appendChild(template.content.cloneNode(true))
     this.$slot = this.shadowRoot.getElementById('slot')
-    this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup')
+
+    this.$popup = document.createElement('bl-popup-list')
     this.$popup.anchor = () => this.$slot.assignedElements()?.[0] ?? this
-    this.$popup.origin = 'top-start'
-    this.$list = this.$popup.appendChild(listTemplate.content.cloneNode(true).querySelector('bl-list'))
-    this.$list.style.cssText="width:200px;height:250px;"
+
     forEach(this.attributes, (attr) => {
-      if (POPUP_ATTRS.includes(attr.name)) {
+      if (BlocksPopupList.observedAttributes.includes(attr.name)) {
         this.$popup.setAttribute(attr.name, attr.value)
-      }
-      if (LIST_ATTRS.includes(attr.name)) {
-        this.$list.setAttribute(attr.name, attr.value)
       }
     })
 
@@ -104,21 +83,41 @@ export default class BlocksDropDownList extends HTMLElement {
     this.addEventListener('mouseleave', onleave)
     this.$popup.addEventListener('mouseleave', onleave)
 
-    this.$list.addEventListener('click-item', event => {
-      dispatchEvent(this, 'click-item', { detail: { id: event.detail.id } })
-    })
-    this.$list.addEventListener('change', event => {
-      dispatchEvent(this, 'change', { detail: event.detail })
-    })
-
     this.$popup.addEventListener('opened', () => {
       this._initClickOutside()
-      this.$list.redraw()
+      this.$popup.$list.redraw()
     })
 
     this.$popup.addEventListener('closed', () => {
       this._destroyClickOutside()
     })
+
+    this.$popup.addEventListener('click-item', event => {
+      dispatchEvent(this, 'click-item', { detail: { id: event.detail.id } })
+    })
+    
+    this.$popup.addEventListener('change', event => {
+      const $trigger = this.$slot.assignedElements()?.[0]
+      if ($trigger && $trigger.acceptValue) {
+        const value = event.detail.value
+        if (this.$list.multiple) {
+          $trigger.acceptValue(value.map(item => ({ value: item[this.idField], label: item[this.labelField] })))
+          this.labelField
+        }
+        else {
+          $trigger.acceptValue({
+            value: value[this.idField],
+            label: value[this.labelField],
+          })
+        }
+      }
+
+      dispatchEvent(this, 'change', { detail: event.detail })
+    })    
+  }
+
+  get $list() {
+    return this.$popup.$list
   }
 
   get open() {
@@ -211,11 +210,8 @@ export default class BlocksDropDownList extends HTMLElement {
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {
-    if (POPUP_ATTRS.includes(attrName)) {
+    if (BlocksPopupList.observedAttributes.includes(attrName)) {
       this.$popup.setAttribute(attrName, newValue)
-    }
-    if (LIST_ATTRS.includes(attrName)) {
-      this.$list.setAttribute(attrName, newValue)
     }
     this.render()
   }

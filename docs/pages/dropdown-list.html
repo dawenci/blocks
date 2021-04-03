@@ -16,6 +16,7 @@
     <header>
       <h1>dropdown-list</h1>
     </header>
+    <script type="module" src="../../components/input/index.js"></script>
     <script type="module" src="../../components/button/index.js"></script>
 
     <section class="section">
@@ -29,27 +30,24 @@
     </section>
 
     <section class="section">
-      <div data-codesource="html">
+      <template data-codesource="html">
         <bl-dropdown-list
-          anchor="#button-default"
-          multiple
           arrow
+          selectable="single"
           trigger-mode="click"
           id="default">
-          <bl-button id="button-default">下拉菜单</bl-button>
+          <bl-input>下拉菜单</bl-input>
         </bl-dropdown-list>
-      </div>
+      </template>
 
       <template data-codesource="script">
         <script>
           (() => {
             const widget = document.getElementById('default')
-            const button = document.getElementById('button-default')
             const data = []
             let i = -1
             while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
             widget.data = data
-            button.onclick = () => widget.open = !widget.open
           })()
         </script>
       </template>

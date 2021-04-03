@@ -318,30 +318,6 @@ export default class BlocksPopup extends BlocksTransitionOpenCollapse {
     ])
   }
 
-  constructor() {
-    super()
-    const fragment = template.content.cloneNode(true)
-    this.$layout = fragment.querySelector('#layout')
-    this.$arrow = fragment.querySelector('#arrow')
-    this.shadowRoot.appendChild(fragment)
-
-    definePrivate(this, '_anchor')
-
-    this.addEventListener('opened', () => {
-      if (this.autofocus) this._focus()
-      // 动画过程可能锚定点移动，动画结束后，更新下位置
-      this.updatePosition()
-    })
-
-    this.addEventListener('closed', () => {
-      this._blur()
-    })
-
-    if (this.capturefocus) {
-      this._captureFocus()
-    }
-  }
-
   get origin() {
     return originGetter(this)
   }
@@ -489,6 +465,31 @@ export default class BlocksPopup extends BlocksTransitionOpenCollapse {
     }
 
     return { x1, y1, x2, y2 }
+  }
+
+  constructor() {
+    super()
+    const fragment = template.content.cloneNode(true)
+    this.$layout = fragment.querySelector('#layout')
+    this.$arrow = fragment.querySelector('#arrow')
+    this.$slot = fragment.querySelector('slot')
+    this.shadowRoot.appendChild(fragment)
+
+    definePrivate(this, '_anchor')
+
+    this.addEventListener('opened', () => {
+      if (this.autofocus) this._focus()
+      // 动画过程可能锚定点移动，动画结束后，更新下位置
+      this.updatePosition()
+    })
+
+    this.addEventListener('closed', () => {
+      this._blur()
+    })
+
+    if (this.capturefocus) {
+      this._captureFocus()
+    }
   }
 
   render() {}

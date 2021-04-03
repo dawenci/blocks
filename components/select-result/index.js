@@ -385,6 +385,10 @@ class BlocksSelectResult extends HTMLElement {
     this.render()
   }
 
+  acceptValue(value) {
+    this.value = value
+  }
+
   renderClass() {
     ['single', 'multiple-tag', 'multiple-plain'].forEach(klass => {
       this.$layout.classList.remove(klass)

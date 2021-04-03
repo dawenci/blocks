@@ -1,5 +1,5 @@
+import BlocksList from '../list/index.js';
 import BlocksPopup from '../popup/index.js';
-import '../list/index.js';
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import {
   __font_family,
@@ -12,37 +12,31 @@ import {
   __bg_disabled,
   __transition_duration,
 } from '../../theme/var.js'
+import { dispatchEvent } from '../../common/event.js';
 
-const cssTemplate = document.createElement('template')
-cssTemplate.innerHTML = `
-<style>
+const cssTemplate = document.createElement('style')
+cssTemplate.textContent = `
 ::slotted(bl-list) {
   width: 200px;
   height: 240px;
   font-size: 14px;
 }
-</style>
+bl-list {
+  width: 200px;
+  height: 240px;
+  font-size: 14px;
+}
 `
 
-const template = document.createElement('template')
-template.innerHTML = `
-<bl-list></bl-list>
-`
+// events
+const CLICK_ITEM = 'click-item'
+const CHANGE = 'change'
 
-const LIST_ATTRS = ['border', 'disabled-field', 'id-field', 'label-field', 'multiple', 'stripe']
+const ATTRS = BlocksPopup.observedAttributes.concat(BlocksList.observedAttributes)
 
 export default class BlocksPopupList extends BlocksPopup {
   static get observedAttributes() {
-    return super.observedAttributes.concat(LIST_ATTRS)
-  }
-
-  constructor() {
-    super()
-    this.shadowRoot.appendChild(cssTemplate.content.cloneNode(true))
-    const fragment = template.content.cloneNode(true)
-    this.$list = fragment.querySelector('bl-list')
-    this.origin = this.getAttribute('origin') ?? 'top-start'
-    this.appendChild(this.$list)
+    return ATTRS
   }
 
   get data() {
@@ -83,10 +77,12 @@ export default class BlocksPopupList extends BlocksPopup {
 
   set multiple(value) {
     this.$list.multiple = value
-  }
+  }  
 
-  render() {
-    super.render()
+  constructor() {
+    super()
+    this.shadowRoot.insertBefore(cssTemplate.cloneNode(true), this.$layout)
+    this.$list = this.$layout.insertBefore(document.createElement('bl-list'), this.$slot)
   }
 
   connectedCallback() {
@@ -94,6 +90,9 @@ export default class BlocksPopupList extends BlocksPopup {
     this.constructor.observedAttributes.forEach(attr => {
       upgradeProperty(this, attr)
     })
+    if (!this.hasAttribute('origin')) {
+      this.origin = 'top-start'
+    }
     this.render()
   }
 
@@ -105,7 +104,7 @@ export default class BlocksPopupList extends BlocksPopup {
     if (BlocksPopup.observedAttributes.includes(attrName)) {
       super.attributeChangedCallback(attrName, oldValue, newValue)
     }
-    if (LIST_ATTRS.includes(attrName)) {
+    if (BlocksList.observedAttributes.includes(attrName)) {
       this.$list.setAttribute(attrName, newValue)
     }
     if (attrName === 'open') {

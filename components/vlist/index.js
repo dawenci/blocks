@@ -1089,6 +1089,8 @@ export default class BlocksVList extends HTMLElement {
   }
 
   // 刷新列表尺寸
+  // ! 注意，浏览器支持的元素的尺寸是存在上限的，
+  // ! list 的尺寸超过一定程度后，无法正确滚动到底。
   _updateListSize() {
     const { itemHeightStore } = this
     if (itemHeightStore) {
