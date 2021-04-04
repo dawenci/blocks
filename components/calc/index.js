@@ -3,10 +3,10 @@ import { boolGetter, boolSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __bg_base, __bg_base_header, __border_color_base, __dark_bg_base, __dark_bg_base_active, __dark_border_color_base, __dark_fg_base, __fg_base, __height_base, __radius_base } from '../../theme/var.js'
 
-const makeAdd = (n1) => (n2) => n2 + n1
-const makeSub = (n1) => (n2) => n2 - n1
-const makeMul = (n1) => (n2) => n2 * n1
-const makeDiv = (n1) => (n2) => n2 / n1
+const makeAdd = (n1) => (n2) => +(n2 + n1).toPrecision(12)
+const makeSub = (n1) => (n2) => +(n2 - n1).toPrecision(12)
+const makeMul = (n1) => (n2) => +(n2 * n1).toPrecision(12)
+const makeDiv = (n1) => (n2) => +(n2 / n1).toPrecision(12)
 const makeFn = (op) => (op === '+' ? makeAdd : op === '-' ? makeSub : op === '*' ? makeMul : makeDiv)
 
 const State = {
@@ -635,7 +635,7 @@ export default class BlocksCalc extends HTMLElement {
         // 已存在小数点，再次输入直接忽略
         if (n === '.' && this.screen.indexOf('.') !== -1) return
         if (this.screen === '0' && n === '00') return
-        if (this.screen === '0') {
+        if (this.screen === '0' && n !== '.') {
           this.screen = n
           return
         }
