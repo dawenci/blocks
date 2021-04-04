@@ -2,6 +2,8 @@
 
 纯 Web Components 组件库。
 
+[github 仓库](https://github.com/dawenci/blocks)
+
 ## 特性
 
 - 面向未来，使用标准技术
