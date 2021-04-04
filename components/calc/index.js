@@ -1,7 +1,7 @@
 import { dispatchEvent } from '../../common/event.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __bg_base, __border_color_base, __dark_bg_base, __dark_bg_base_active, __dark_border_color_base, __dark_fg_base, __fg_base, __height_base, __radius_base } from '../../theme/var.js'
+import { __bg_base, __bg_base_header, __border_color_base, __dark_bg_base, __dark_bg_base_active, __dark_border_color_base, __dark_fg_base, __fg_base, __height_base, __radius_base } from '../../theme/var.js'
 
 const makeAdd = (n1) => (n2) => n2 + n1
 const makeSub = (n1) => (n2) => n2 - n1
@@ -67,6 +67,7 @@ template.innerHTML = `<style>
   border-radius: var(--radius-base, ${__radius_base});
   height: calc(var(--height-base, ${__height_base}) * 1.5);
   line-height: calc(var(--height-base, ${__height_base}) * 1.5);
+  background-color: var(--bg-base-header, ${__bg_base_header});
 }
 .Calc-screen-result {
   position: relative;
@@ -174,12 +175,6 @@ template.innerHTML = `<style>
   height: 20%;
 }
 
-.Calc-screen {
-  background-color: #e0e0e0;
-}
-.Calc-keyboard {
-  background-color: #fafafa;
-}
 .Calc-keyboard-key:hover,
 .Calc-keyboard-key:focus {
   z-index: 1;
