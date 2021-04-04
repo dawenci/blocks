@@ -308,7 +308,7 @@ class VirtualNode extends VirtualItem {
   }
 }
 
-class BlocksTree extends VList {
+export default class BlocksTree extends VList {
   static get observedAttributes() {
     return super.observedAttributes.concat([
       'activable',

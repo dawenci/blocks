@@ -323,7 +323,7 @@ export default class BlocksVList extends HTMLElement {
   }
 
   render() {
-    if (!this._dataBound && !this._dataBinding) {
+    if (!this._dataBound && !this._dataBinding && this.virtualData.length) {
       return this.generateViewData()
     }
 

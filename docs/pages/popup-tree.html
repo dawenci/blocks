@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>dropdown-tree</title>
+  <title>popup-tree</title>
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -14,9 +14,8 @@
 <body>
   <article>
     <header>
-      <h1>dropdown-tree</h1>
+      <h1>popup-tree</h1>
     </header>
-    <script type="module" src="../../components/input/index.js"></script>
     <script type="module" src="../../components/button/index.js"></script>
 
     <section class="section">
@@ -25,20 +24,19 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/dropdown-tree/index.js"></script>
+        <script type="module" src="../../components/popup-tree/index.js"></script>
       </div>
     </section>
 
     <section class="section">
-      <template data-codesource="html">
-        <bl-dropdown-tree
+      <div data-codesource="html">
+        <bl-button id="button-default">弹出菜单</bl-button>
+        <bl-popup-tree
+          anchor="#button-default"
           arrow
-          selectable="single"
-          trigger-mode="click"
-          id="default">
-          <bl-input>下拉菜单</bl-input>
-        </bl-dropdown-tree>
-      </template>
+          multiple
+          id="default"></bl-popup-tree>
+      </div>
 
       <template data-codesource="script">
         <script>
@@ -54,12 +52,14 @@
               return data
             }
 
-            const widget = document.getElementById('default')
+            const $widget = document.getElementById('default')
+            const $button = document.getElementById('button-default')
             const data = makeData(10)
             data.forEach(data => {
               data.children = makeData(5, data.id)
             })
-            widget.data = data
+            $widget.data = data
+            $button.onclick = () => $widget.open = !$widget.open
           })()
         </script>
       </template>
@@ -67,11 +67,8 @@
 
     <section class="section">
       <h2>API</h2>
-
-      <h3>Attrs / Props</h3>
-      <p>支持传入 popup 以及 list 的属性。</p>
-
-      <table class="api-props">
+      待编写
+      <table>
         <thead>
           <tr>
             <th>属性名</th>

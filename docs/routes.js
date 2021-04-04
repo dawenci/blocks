@@ -38,6 +38,7 @@ export default [
   { category: 'components', title: 'popup-confirm', url: 'pages/popup-confirm.html' },
   { category: 'components', title: 'popup-list', url: 'pages/popup-list.html' },
   { category: 'components', title: 'popup-menu', url: 'pages/popup-menu.html' },
+  { category: 'components', title: 'popup-tree', url: 'pages/popup-tree.html' },
   { category: 'components', title: 'progress', url: 'pages/progress.html' },
   { category: 'components', title: 'radio', url: 'pages/radio.html' },
   { category: 'components', title: 'rate', url: 'pages/rate.html' },

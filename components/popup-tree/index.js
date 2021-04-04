@@ -1,4 +1,4 @@
-import BlocksList from '../list/index.js';
+import BlocksTree from '../tree/index.js';
 import BlocksPopup from '../popup/index.js';
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import {
@@ -16,7 +16,7 @@ import { dispatchEvent } from '../../common/event.js';
 
 const cssTemplate = document.createElement('style')
 cssTemplate.textContent = `
-bl-list {
+bl-tree {
   width: 200px;
   height: 240px;
   font-size: 14px;
@@ -27,57 +27,57 @@ bl-list {
 const CLICK_ITEM = 'click-item'
 const CHANGE = 'change'
 
-const ATTRS = BlocksPopup.observedAttributes.concat(BlocksList.observedAttributes)
+const ATTRS = BlocksPopup.observedAttributes.concat(BlocksTree.observedAttributes)
 
-export default class BlocksPopupList extends BlocksPopup {
+export default class BlocksPopupTree extends BlocksPopup {
   static get observedAttributes() {
     return ATTRS
   }
 
   get data() {
-    return this.$list.data
+    return this.$tree.data
   }
 
   set data(value) {
-    this.$list.data = value
+    this.$tree.data = value
   }
 
   get selected() {
-    return this.$list.selected
+    return this.$tree.selected
   }
 
   set selected(ids) {
-    this.$list.selected = ids
+    this.$tree.selected = ids
   }
 
   get idField() {
-    return this.$list.idField
+    return this.$tree.idField
   }
 
   set idField(value) {
-    this.$list.idField = value
+    this.$tree.idField = value
   }
 
   get labelField() {
-    return this.$list.labelField
+    return this.$tree.labelField
   }
 
   set labelField(value) {
-    this.$list.labelField = value
+    this.$tree.labelField = value
   }
 
   get multiple() {
-    return this.$list.multiple
+    return this.$tree.multiple
   }
 
   set multiple(value) {
-    this.$list.multiple = value
+    this.$tree.multiple = value
   }  
 
   constructor() {
     super()
     this.shadowRoot.insertBefore(cssTemplate.cloneNode(true), this.$layout)
-    this.$list = this.$layout.insertBefore(document.createElement('bl-list'), this.$slot)
+    this.$tree = this.$layout.insertBefore(document.createElement('bl-tree'), this.$slot)
   }
 
   connectedCallback() {
@@ -99,15 +99,15 @@ export default class BlocksPopupList extends BlocksPopup {
     if (BlocksPopup.observedAttributes.includes(attrName)) {
       super.attributeChangedCallback(attrName, oldValue, newValue)
     }
-    if (BlocksList.observedAttributes.includes(attrName)) {
-      this.$list.setAttribute(attrName, newValue)
+    if (BlocksTree.observedAttributes.includes(attrName)) {
+      this.$tree.setAttribute(attrName, newValue)
     }
     if (attrName === 'open') {
-      if (this.open) this.$list.redraw()
+      if (this.open) this.$tree.redraw()
     }
   }
 }
 
-if (!customElements.get('bl-popup-list')) {
-  customElements.define('bl-popup-list', BlocksPopupList)
+if (!customElements.get('bl-popup-tree')) {
+  customElements.define('bl-popup-tree', BlocksPopupTree)
 }
