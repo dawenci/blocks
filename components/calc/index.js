@@ -1,13 +1,8 @@
 import { dispatchEvent } from '../../common/event.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __bg_base, __bg_base_header, __border_color_base, __dark_bg_base, __dark_bg_base_active, __dark_border_color_base, __dark_fg_base, __fg_base, __height_base, __radius_base } from '../../theme/var.js'
-
-const makeAdd = (n1) => (n2) => +(n2 + n1).toPrecision(12)
-const makeSub = (n1) => (n2) => +(n2 - n1).toPrecision(12)
-const makeMul = (n1) => (n2) => +(n2 * n1).toPrecision(12)
-const makeDiv = (n1) => (n2) => +(n2 / n1).toPrecision(12)
-const makeFn = (op) => (op === '+' ? makeAdd : op === '-' ? makeSub : op === '*' ? makeMul : makeDiv)
+import { forEach } from '../../common/utils.js'
+import { __bg_base, __bg_base_header, __border_color_base, __color_primary, __dark_bg_base, __dark_bg_base_active, __dark_border_color_base, __dark_fg_base, __fg_base, __font_family, __height_base, __radius_base } from '../../theme/var.js'
 
 const State = {
   // 初始化状态
@@ -39,6 +34,7 @@ template.innerHTML = `<style>
   padding: 4px;
   border: 1px solid var(--border-color-base, ${__border_color_base});
   border-radius: var(--radius-base, ${__radius_base});
+  font-family: var(--font-family, ${__font_family});
 }
 
 #layout {
@@ -130,6 +126,10 @@ template.innerHTML = `<style>
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+.Calc-keyboard-key.active {
+  color: var(--color-primary, ${__color_primary});
+}
+
 .Calc-keyboard-memory {
   width: 100%;
   height: 16.6666%;
@@ -173,6 +173,7 @@ template.innerHTML = `<style>
 .Calc-keyboard-operators .Calc-keyboard-key {
   width: 100%;
   height: 20%;
+  font-size: 16px;
 }
 
 .Calc-keyboard-key:hover,
@@ -226,89 +227,6 @@ template.innerHTML = `<style>
 export default class BlocksCalc extends HTMLElement {
   static get observedAttributes() {
     return ['dark', 'screen']
-  }
-
-  constructor() {
-    super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
-    shadowRoot.appendChild(template.content.cloneNode(true))
-
-    this.$layout = shadowRoot.getElementById('layout')
-    this.$result = shadowRoot.querySelector('.Calc-screen-result')
-    this.$input = shadowRoot.querySelector('.Calc-screen-input')
-
-    this.memory = 0
-    this.operand = null
-    this.operator = null
-    this.screen = '0'
-    this.state = State.Init
-    // 连续运算方法，用于连续按 =
-    this.calcFn = null
-    this.inputStyle = {}
-
-    this.$layout.onkeypress = this.onKeyPress.bind(this)
-  }
-
-  render() {
-    this.$input.innerHTML = this.screen
-
-    const $span = document.createElement('span')
-    $span.className = 'Calc-keyboard-key'
-    const makeButton = (data) => {
-      const $button = $span.cloneNode(true)
-      $button.dataset.value = data.value
-      $button.innerHTML = data.label
-      $button.onclick = () => this.input(data.value)
-      return $button
-    }
-
-    // render memory
-    const $memory = this.$layout.querySelector('.Calc-keyboard-memory')
-    if (!$memory.children.length) {
-      this.memoryKeys.forEach(key => {
-        $memory.appendChild(makeButton(key))
-      })
-    }
-
-    const $actions = this.$layout.querySelector('.Calc-keyboard-actions')
-    if (!$actions.children.length) {
-      this.actionKeys.forEach(key => {
-        $actions.appendChild(makeButton(key))
-      })
-    }
-
-    const $numbers = this.$layout.querySelector('.Calc-keyboard-numbers')
-    if (!$numbers.children.length) {
-      this.numberKeys.forEach(key => {
-        $numbers.appendChild(makeButton(key))
-      })
-    }
-
-    const $operators = this.$layout.querySelector('.Calc-keyboard-operators')
-    if (!$operators.children.length) {
-      this.operatorKeys.forEach(key => {
-        $operators.appendChild(makeButton(key))
-      })
-    }
-  }
-
-  connectedCallback() {
-    this.constructor.observedAttributes.forEach(attr => {
-      upgradeProperty(this, attr)
-    })
-    this.render()    
-  }
-
-  disconnectedCallback() {}
-
-  adoptedCallback() {}
-
-  attributeChangedCallback(attrName, oldVal, newVal) {
-    this.render()
-
-    if (attrName === 'screen') {
-      this.onScreenChange()
-    }
   }
 
   get dark() {
@@ -389,7 +307,110 @@ export default class BlocksCalc extends HTMLElement {
       ['ctrl-p', 'M+'],
       ['esc', 'AC'],
       ['enter', '='],
+      ['+', '+'],
+      ['-', '-'],
+      ['*', '*'],
+      ['/', '/'],
+      ['.', '.'],
     ])
+  }
+
+  constructor() {
+    super()
+    const shadowRoot = this.attachShadow({mode: 'open'})
+    shadowRoot.appendChild(template.content.cloneNode(true))
+
+    this.$layout = shadowRoot.getElementById('layout')
+    this.$result = shadowRoot.querySelector('.Calc-screen-result')
+    this.$input = shadowRoot.querySelector('.Calc-screen-input')
+
+    this.memory = 0
+    this.operand = null
+    this.operator = null
+    this.screen = '0'
+    this.state = State.Init
+    // 连续运算方法，用于连续按 =
+    this.calcFn = null
+    this.inputStyle = {}
+
+    this.$layout.onkeypress = this.onKeyPress.bind(this)
+
+    this.makeAdd = (n1) => (n2) => +(n2 + n1).toPrecision(12)
+    this.makeSub = (n1) => (n2) => +(n2 - n1).toPrecision(12)
+    this.makeMul = (n1) => (n2) => +(n2 * n1).toPrecision(12)
+    this.makeDiv = (n1) => (n2) => +(n2 / n1).toPrecision(12)
+    this.makeFn = (op) => (op === '+' ? this.makeAdd : op === '-' ? this.makeSub : op === '*' ? this.makeMul : this.makeDiv)
+  }
+
+  connectedCallback() {
+    this.constructor.observedAttributes.forEach(attr => {
+      upgradeProperty(this, attr)
+    })
+    this.render()    
+  }
+
+  disconnectedCallback() {}
+
+  adoptedCallback() {}
+
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    this.render()
+
+    if (attrName === 'screen') {
+      this.onScreenChange()
+    }
+  }
+
+  render() {
+    this.$input.innerHTML = this.screen
+
+    const $span = document.createElement('span')
+    $span.className = 'Calc-keyboard-key'
+    const makeButton = (data) => {
+      const $button = $span.cloneNode(true)
+      $button.dataset.value = data.value
+      $button.innerHTML = data.label
+      $button.onclick = () => this.input(data.value)
+      return $button
+    }
+
+    // render memory
+    const $memory = this.$layout.querySelector('.Calc-keyboard-memory')
+    if (!$memory.children.length) {
+      this.memoryKeys.forEach(key => {
+        $memory.appendChild(makeButton(key))
+      })
+    }
+
+    const $actions = this.$layout.querySelector('.Calc-keyboard-actions')
+    if (!$actions.children.length) {
+      this.actionKeys.forEach(key => {
+        $actions.appendChild(makeButton(key))
+      })
+    }
+
+    const $numbers = this.$layout.querySelector('.Calc-keyboard-numbers')
+    if (!$numbers.children.length) {
+      this.numberKeys.forEach(key => {
+        $numbers.appendChild(makeButton(key))
+      })
+    }
+
+    const $operators = this.$layout.querySelector('.Calc-keyboard-operators')
+    if (!$operators.children.length) {
+      this.operatorKeys.forEach(key => {
+        $operators.appendChild(makeButton(key))
+      })
+    }
+
+    // 渲染运算符高亮
+    if ([State.Operator, State.OperandRight, State.OperandRightEnd].includes(this.state)) {
+      forEach($operators.querySelectorAll('.active'), $active => $active.classList.remove('active'))
+      $operators.querySelector(`[data-value="${this.operator}"]`).classList.add('active')
+    }
+    else {
+      forEach($operators.querySelectorAll('.active'), $active => $active.classList.remove('active'))
+    }
   }
 
   // 结果显示屏，根据内容自动缩放数字
@@ -585,6 +606,7 @@ export default class BlocksCalc extends HTMLElement {
     switch (key) {
       case '=':
         this.inputEqual()
+        this.render()
         return
 
       case 'DEL':
@@ -604,6 +626,7 @@ export default class BlocksCalc extends HTMLElement {
       case '*':
       case '/':
         this.inputOperator(key)
+        this.render()
         return
 
       case 'MR':
@@ -659,7 +682,7 @@ export default class BlocksCalc extends HTMLElement {
         // 已存在小数点，再次输入直接忽略
         if (n === '.' && this.screen.indexOf('.') !== -1) return
         if (this.screen === '0' && n === '00') return
-        if (this.screen === '0') {
+        if (this.screen === '0' && n !== '.') {
           this.screen = n
           return
         }
@@ -765,7 +788,7 @@ export default class BlocksCalc extends HTMLElement {
       case State.Operator: {
         const operandLeft = this.operand
         const operandRight = this.operand
-        this.calcFn = makeFn(this.operator)(operandRight)
+        this.calcFn = this.makeFn(this.operator)(operandRight)
         const result = this.calcFn(operandLeft)
         this.setScreenValue(result)
         this.operator = null
@@ -776,7 +799,7 @@ export default class BlocksCalc extends HTMLElement {
       case State.OperandRight: {
         const operandLeft = this.operand
         const operandRight = this.getScreenValue()
-        this.calcFn = makeFn(this.operator)(operandRight)
+        this.calcFn = this.makeFn(this.operator)(operandRight)
         const result = this.calcFn(operandLeft)
         this.setScreenValue(result)
         this.operator = null
@@ -787,7 +810,7 @@ export default class BlocksCalc extends HTMLElement {
       case State.OperandRightEnd: {
         const operandLeft = this.operand
         const operandRight = this.getScreenValue()
-        this.calcFn = makeFn(this.operator)(operandRight)
+        this.calcFn = this.makeFn(this.operator)(operandRight)
         const result = this.calcFn(operandLeft)
         this.setScreenValue(result)
         this.operator = null
