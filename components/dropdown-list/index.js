@@ -99,12 +99,13 @@ export default class BlocksDropDownList extends HTMLElement {
     this.$popup.addEventListener('change', event => {
       const $trigger = this.$slot.assignedElements()?.[0]
       if ($trigger && $trigger.acceptValue) {
-        const value = event.detail.value
         if (this.$list.multiple) {
+          const value = this.$popup.checkedData
           $trigger.acceptValue(value.map(item => ({ value: item[this.idField], label: item[this.labelField] })))
           this.labelField
         }
         else {
+          const value = this.$popup.checkedData[0] ?? {}
           $trigger.acceptValue({
             value: value[this.idField],
             label: value[this.labelField],

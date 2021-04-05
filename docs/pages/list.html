@@ -97,7 +97,7 @@
       <div class="case">
         <div data-codesource="html">
           <bl-list
-            selectable="single"
+            checkable="single"
             id="single"
             style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
           <script>
@@ -115,7 +115,7 @@
       <div class="case">
         <div data-codesource="html">
           <bl-list
-            selectable="multiple"
+            checkable="multiple"
             id="multiple"
             style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
           <script>
@@ -140,7 +140,7 @@
           <bl-list
             border
             disabled
-            selectable="multiple"
+            checkable="multiple"
             id="disabled"
             style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
           <script>
@@ -159,7 +159,7 @@
         <div data-codesource="html">
           <bl-list
             border
-            selectable="multiple"
+            checkable="multiple"
             id="item-disabled"
             style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
           <script>
@@ -180,6 +180,7 @@
     <section class="section">
       <h2>API</h2>
 
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -241,7 +242,7 @@
             <td></td>
           </tr>
           <tr>
-            <td>selected</td>
+            <td>checked</td>
             <td></td>
             <td></td>
             <td>选中的 id 或 id 数组（多选模式）。该属性是 prop，非 attr。</td>

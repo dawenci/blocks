@@ -42,12 +42,20 @@ export default class BlocksPopupList extends BlocksPopup {
     this.$list.data = value
   }
 
-  get selected() {
-    return this.$list.selected
+  get checked() {
+    return this.$list.checked
   }
 
-  set selected(ids) {
-    this.$list.selected = ids
+  set checked(ids) {
+    this.$list.checked = ids
+  }
+
+  get checkedData() {
+    return this.$list.checkedData
+  }
+
+  set checkedData(value) {
+    this.$list.checkedData = value
   }
 
   get idField() {

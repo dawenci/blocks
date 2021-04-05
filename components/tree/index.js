@@ -326,28 +326,6 @@ export default class BlocksTree extends VList {
     ])
   }
 
-  constructor() {
-    super()
-    const shadowRoot = this.shadowRoot
-    shadowRoot.appendChild(template.content.cloneNode(true))
-
-    this.$scrollable = shadowRoot.getElementById('scrollable')
-    this.$listSize = shadowRoot.getElementById('list-size')
-    this.$list = shadowRoot.getElementById('list')
-
-    this.uniqCid = String(Math.random()).substr(2)
-
-    this.$list.onclick = this._onClick.bind(this)
-
-    const onBound = () => {
-      this.removeEventListener('data-bound', onBound)
-      if (this.defaultFoldAll) {
-        this.foldAll()
-      }
-    }
-    this.addEventListener('data-bound', onBound)
-  }
-
   // 从数据中提取 label 的方法
   get internalLabelMethod() {
     return typeof this.labelMethod === 'function'
@@ -373,8 +351,21 @@ export default class BlocksTree extends VList {
     boolSetter('activable')(this, value)
   }
 
+  get checked() {
+    const list = [...this._checkedSet]
+    return this.checkable === 'multiple' ? list.map(vitem => vitem.virtualKey) : list[0]?.virtualKey
+  }
+
   get checkable() {
     return enumGetter('checkable', [null, 'multiple', 'single'])(this)
+  }
+
+  get checkedData() {
+    return [...this._checkedSet].map(vitem => vitem.data)
+  }
+
+  set checkedData(value) {
+    this._checkedSet = new Set(value.map(data => this.virtualDataMap[this.keyMethod(data)]).filter(vitem => !!vitem))
   }
 
   set checkable(value) {
@@ -446,6 +437,33 @@ export default class BlocksTree extends VList {
 
   set wrap(value) {
     boolSetter('wrap')(this, value)
+  }
+
+  constructor() {
+    super()
+    const shadowRoot = this.shadowRoot
+    shadowRoot.appendChild(template.content.cloneNode(true))
+
+    this.$scrollable = shadowRoot.getElementById('scrollable')
+    this.$listSize = shadowRoot.getElementById('list-size')
+    this.$list = shadowRoot.getElementById('list')
+
+    this.uniqCid = String(Math.random()).substr(2)
+    definePrivate(this, '_checkedSet', new Set())
+
+    this.$list.onclick = this._onClick.bind(this)
+
+    const onBound = () => {
+      this.removeEventListener('data-bound', onBound)
+      if (this.defaultFoldAll) {
+        this.foldAll()
+      }
+
+      if (this._checkedSet.size) {
+        this._checkedSet = new Set()
+      }
+    }
+    this.addEventListener('data-bound', onBound)
   }
 
   connectedCallback() {
@@ -712,9 +730,12 @@ export default class BlocksTree extends VList {
       // 点击已选中的单选项，不用处理
       if (this.lastChecked === vitem) return
       this._updateCheck(this.lastChecked, false, options.toggleCheckEvent)
+      dispatchEvent(this, 'uncheck', { detail: { value: this.lastChecked.virtualKey } })
     }
     this._updateCheck(vitem, true, options.toggleCheckEvent)
     this.lastChecked = vitem
+    dispatchEvent(this, 'check', { detail: { value: vitem.virtualKey } })
+    dispatchEvent(this, 'change')
   }
 
   // 多选模式
@@ -817,9 +838,11 @@ export default class BlocksTree extends VList {
     }
 
     if (!options.preventEmit && !isEmpty(options.toggleCheckEvent)) {
-      forEach(options.toggleCheckEvent, (virtualKeys, eventName) => {
-        dispatchEvent(this, eventName, { detail: { virtualKeys } })
+      Object.keys(options.toggleCheckEvent).forEach(eventName => {
+        const virtualKeys = options.toggleCheckEvent[eventName]
+        dispatchEvent(this, eventName, { detail: { value: virtualKeys } })
       })
+      dispatchEvent(this, 'change')
     }
   }
 
@@ -832,6 +855,8 @@ export default class BlocksTree extends VList {
     }
 
     vitem.checked = checked
+    this._checkedSet[checked ? 'add' : 'delete'](vitem)
+
     const $item = this.getNodeByVirtualKey(vitem.virtualKey)
     if ($item) this.itemRender($item, vitem)
   }

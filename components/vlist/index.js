@@ -172,44 +172,6 @@ export default class BlocksVList extends HTMLElement {
     return ['direction', 'default-item-size', 'show-busy', 'shadow']
   }
 
-  constructor() {
-    super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
-    shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$viewport = shadowRoot.getElementById('scrollable')
-    this.$listSize = shadowRoot.getElementById('list-size')
-    this.$list = shadowRoot.getElementById('list')
-    this.$busy = shadowRoot.getElementById('loading')
-
-    definePrivate(this, '_dataBound', false)
-    definePrivate(this, '_dataBinding', false)
-    definePrivate(this, '_$pool', [])
-
-    // 原始数据
-    definePrivate(this, '_data', [])
-    // 虚拟数据（从原始数据映射而来）
-    definePrivate(this, 'virtualData', [])
-    // 虚拟数据的 key --> Item 映射，提高访问性能
-    definePrivate(this, 'virtualDataMap', null)
-
-    // 视图数据（虚拟数据进行筛选、排序后的条目，是虚拟数据的子集）
-    definePrivate(this, 'virtualViewData', [])
-    // 切片数据（视图数据的子集，局部渲染的条目）
-    definePrivate(this, 'virtualSliceData', [])
-    // 视图条目对应的条目高度存储
-    definePrivate(this, 'itemHeightStore', null)
-
-    // 虚拟列表滚动数据渲染
-    this.$viewport.onscroll = this._updateSliceRange.bind(this, undefined)
-
-    // 容器尺寸变化，完全重绘
-    this.$viewport.addEventListener('resize', () => {
-      this._resetCalculated()
-      this.redraw()
-      this.restoreAnchor()
-    })
-  }
-
   get data() {
     return this._data
   }
@@ -271,6 +233,44 @@ export default class BlocksVList extends HTMLElement {
   get canvasCrossSize() {
     return this.viewportCrossSize
   }
+
+  constructor() {
+    super()
+    const shadowRoot = this.attachShadow({ mode: 'open' })
+    shadowRoot.appendChild(template.content.cloneNode(true))
+    this.$viewport = shadowRoot.getElementById('scrollable')
+    this.$listSize = shadowRoot.getElementById('list-size')
+    this.$list = shadowRoot.getElementById('list')
+    this.$busy = shadowRoot.getElementById('loading')
+
+    definePrivate(this, '_dataBound', false)
+    definePrivate(this, '_dataBinding', false)
+    definePrivate(this, '_$pool', [])
+
+    // 原始数据
+    definePrivate(this, '_data', [])
+    // 虚拟数据（从原始数据映射而来）
+    definePrivate(this, 'virtualData', [])
+    // 虚拟数据的 key --> Item 映射，提高访问性能
+    definePrivate(this, 'virtualDataMap', null)
+
+    // 视图数据（虚拟数据进行筛选、排序后的条目，是虚拟数据的子集）
+    definePrivate(this, 'virtualViewData', [])
+    // 切片数据（视图数据的子集，局部渲染的条目）
+    definePrivate(this, 'virtualSliceData', [])
+    // 视图条目对应的条目高度存储
+    definePrivate(this, 'itemHeightStore', null)
+
+    // 虚拟列表滚动数据渲染
+    this.$viewport.onscroll = this._updateSliceRange.bind(this, undefined)
+
+    // 容器尺寸变化，完全重绘
+    this.$viewport.addEventListener('resize', () => {
+      this._resetCalculated()
+      this.redraw()
+      this.restoreAnchor()
+    })
+  }  
 
   connectedCallback() {
     if (!this._dataBound) {

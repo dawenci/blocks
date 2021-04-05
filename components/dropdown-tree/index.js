@@ -98,13 +98,15 @@ export default class BlocksDropDownTree extends HTMLElement {
     
     this.$popup.addEventListener('change', event => {
       const $trigger = this.$slot.assignedElements()?.[0]
+      debugger
       if ($trigger && $trigger.acceptValue) {
-        const value = event.detail.value
-        if (this.$tree.multiple) {
+        if (this.$tree.checkable === 'multiple') {
+          const value = this.$tree.checkedData
           $trigger.acceptValue(value.map(item => ({ value: item[this.idField], label: item[this.labelField] })))
           this.labelField
         }
         else {
+          const value = this.$tree.checkedData[0] ?? {}
           $trigger.acceptValue({
             value: value[this.idField],
             label: value[this.labelField],

@@ -92,7 +92,7 @@ template.innerHTML = `
 .suffix {
   flex: 0 0 24px;
 }
-.item.selected .suffix:after {
+.item.checked .suffix:after {
   position: relative;
   display: block;
   content: '';
@@ -130,7 +130,7 @@ export default class BlocksList extends VList {
       'disabled-field',
       'id-field',
       'label-field',
-      'selectable',
+      'checkable',
       'stripe'
     ])
   }
@@ -167,30 +167,39 @@ export default class BlocksList extends VList {
     this.setAttribute('label-field', value)
   }
 
-  get selectable() {
-    return enumGetter('selectable', [null, 'single', 'multiple'])(this)
+  get checkable() {
+    return enumGetter('checkable', [null, 'single', 'multiple'])(this)
   }
 
-  set selectable(value) {
-    enumSetter('selectable', [null, 'single', 'multiple'])(this, value)
+  set checkable(value) {
+    enumSetter('checkable', [null, 'single', 'multiple'])(this, value)
   }
 
-  get selected() {
-    return this.multiple ? this._selected : this._selected[0]
+  get checkedData() {
+    return [...this._checkedSet].map(vitem => vitem.data)
   }
 
-  set selected(ids) {
-    this._selected = this.multiple ? (Array.isArray(ids) ? ids : [ids]) : [ids]
+  set checkedData(value) {
+    this._checkedSet = new Set(value.map(data => this.virtualDataMap[this.keyMethod(data)]).filter(vitem => !!vitem))
+  }
+
+  get checked() {
+    return this.multiple ? this.checkedData.map(vitem => vitem.virtualKey) : this.checkedData[0]?.virtualKey
+  }
+
+  set checked(ids) {
+    const list = this.multiple ? (Array.isArray(ids) ? ids : [ids]) : [ids]
+    this._checkedSet = new Set(list.map(id => this.getVirtualItemByKey(id)).filter(vitem => !!vitem))
     this.render()
-    dispatchEvent(this, 'change', { detail: { value: this.multiple ? this._selected : this._selected[0] } })
+    dispatchEvent(this, 'change')
   }
 
   get single() {
-    return this.selectable === 'single'
+    return this.checkable === 'single'
   }
 
   get multiple() {
-    return this.selectable === 'multiple'
+    return this.checkable === 'multiple'
   }
 
   constructor() {
@@ -198,7 +207,7 @@ export default class BlocksList extends VList {
     const shadowRoot = this.shadowRoot
     shadowRoot.insertBefore(template.content.cloneNode(true), this.$viewport)
 
-    definePrivate(this, '_selected', [])
+    definePrivate(this, '_checkedSet', new Set())
 
     this.$list.onclick = (e) => {
       if (this.disabled) return
@@ -215,26 +224,18 @@ export default class BlocksList extends VList {
 
       dispatchEvent(this, 'click-item', { detail: { id: $item.dataset.id, data: this.getVirtualItemByKey($item.dataset.id)?.data } })
 
-      if (this.selectable) {
+      if (this.checkable) {
         this._selectItem($item)
       }
     }
   }
 
-  // connectedCallback() {
-  //   super.connectedCallback()
-  // }
-
-  // disconnectedCallback() {
-  //   super.disconnectedCallback()
-  // }
-
   attributeChangedCallback(name, oldValue, newValue) {
     super.attributeChangedCallback(name, oldValue, newValue)
     // 从多选改成单选，保留最后一个选择的值
-    if (name === 'selectable') {
-      if (!this.multiple && this._selected.length) {
-        this._selected = [this._selected[this._selected.length - 1]]
+    if (name === 'checkable') {
+      if (!this.multiple && this._checkedSet.size) {
+        this._checkedSet = new Set([...this._checkedSet][this._checkedSet.size - 1])
       }
     }
   }
@@ -252,44 +253,35 @@ export default class BlocksList extends VList {
     $item.innerHTML = `<div class="prefix"></div><div class="label"></div><div class="suffix"></div>`
     $item.children[1].innerHTML = label
 
-    const selectedMap = Object.create(null)
-    forEach(this._selected, (id) => {
-      selectedMap[id] = true
-    })
-
     if (isDisabled) {
       $item.setAttribute('disabled', '')
     } else {
       $item.removeAttribute('disabled')
     }
-    if (selectedMap[id]) {
-      $item.classList.add('selected')
+    if (this._checkedSet.has(vitem)) {
+      $item.classList.add('checked')
     } else {
-      $item.classList.remove('selected')
+      $item.classList.remove('checked')
     }
   }
 
   _selectItem($item) {
+    const vitem = this.virtualDataMap[$item.dataset.id]
     if (this.multiple) {
-      $item.classList.toggle('selected')
-      this._selected.push($item.dataset.id)
+      $item.classList.toggle('checked')
+      this._checkedSet[this._checkedSet.has(vitem) ? 'delete' : 'add'](vitem)
     } else {
       forEach(this.$list.children, ($child) => {
         if ($child !== $item) {
-          $child.classList.remove('selected')
+          $child.classList.remove('checked')
         } else {
-          $child.classList.add('selected')
+          $child.classList.add('checked')
         }
       })
-      this._selected = [$item.dataset.id]
+      this._checkedSet = new Set([vitem])
     }
 
-    dispatchEvent(this, 'change', {
-      detail: {
-        value: this.multiple ? this._selected.map(id => this.getVirtualItemByKey(id)?.data)
-          : this.getVirtualItemByKey(this._selected[0])?.data,
-      }
-    })
+    dispatchEvent(this, 'change')
   }  
 }
 
