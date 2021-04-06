@@ -43,7 +43,6 @@ export default [
   { category: 'COMPONENTS', title: 'progress', url: 'pages/progress.html' },
   { category: 'COMPONENTS', title: 'radio', url: 'pages/radio.html' },
   { category: 'COMPONENTS', title: 'rate', url: 'pages/rate.html' },
-  // { category: 'COMPONENTS', title: 'resizable', url: 'pages/resizable.html' },
   { category: 'COMPONENTS', title: 'scrollable', url: 'pages/scrollable.html' },
   { category: 'COMPONENTS', title: 'select', url: 'pages/select.html' },
   { category: 'COMPONENTS', title: 'select-result', url: 'pages/select-result.html' },  
@@ -58,7 +57,6 @@ export default [
   { category: 'COMPONENTS', title: 'tooltip', url: 'pages/tooltip.html' },
   { category: 'COMPONENTS', title: 'transition', url: 'pages/transition.html' },
   { category: 'COMPONENTS', title: 'tree', url: 'pages/tree.html' },
-  { category: 'COMPONENTS', title: 'tree-select', url: 'pages/tree-select.html' },
   { category: 'COMPONENTS', title: 'upload', url: 'pages/upload.html' },
   { category: 'COMPONENTS', title: 'window', url: 'pages/window.html' },
 ]
