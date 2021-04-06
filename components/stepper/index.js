@@ -368,7 +368,6 @@ class BlocksStep extends HTMLElement {
 
   _renderIcon() {
     let $default = parseIcon(this.icon)
-    console.log($default, this.icon)
     if (!$default) {
       $default = document.createElement('i')
       $default.textContent = this.$stepper.stepIndex(this) + 1

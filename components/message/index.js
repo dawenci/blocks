@@ -2,8 +2,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
-import { __color_primary, __color_danger, __color_success, __color_warning, __transition_duration, __fg_base, __dark_bg_base, __dark_fg_base, __bg_base } from '../../theme/var.js'
-import { darkSetter } from '../../common/propertyAccessor.js'
+import { __color_primary, __color_danger, __color_success, __color_warning, __transition_duration, __fg_base, __dark_bg_base, __dark_fg_base, __bg_base, __radius_base } from '../../theme/var.js'
 
 const closeableGetter = boolGetter('closeable')
 const closeableSetter = boolSetter('closeable')
@@ -14,31 +13,31 @@ const durationSetter = intSetter('duration')
 
 const TEMPLATE_CSS = `<style>
 :host {
-  display: block;
+  display: inline-block;
   box-sizing: border-box;
-  width: 350px;
   margin: 8px 28px;
   box-shadow: 0 0 5px -2px rgb(0,0,0,0.16),
     0 0 16px 0 rgb(0,0,0,0.08),
     0 0 28px 8px rgb(0,0,0,0.05);
   transition: all var(--transition-duration, ${__transition_duration}) ease-out;
+  border-radius: var(--radius-base, ${__radius_base});
   pointer-events: auto;
+  background-color: var(--bg-base, ${__bg_base});
+  color: var(--fg-base, ${__fg_base});
 }
 #layout {
   box-sizing: border-box;
   display: flex;
   flex-flow: row nowrap;  
   width: 100%;
-  padding: 15px;
+  padding: 12px;
   position: relative;
-  background-color: var(--bg-base, ${__bg_base});
-  color: var(--fg-base, ${__fg_base});
 }
 #icon {
   flex: 0 0 auto;
   width: 24px;
   height: 24px;
-  margin: 0 12px 0 0;
+  margin: 0 8px 0 0;
 }
 #icon:empty {
   display: none;
@@ -66,7 +65,7 @@ const TEMPLATE_CSS = `<style>
   display: block;
   width: 18px;
   height: 18px;
-  margin: 0 0 0 12px;
+  margin: 3px 0 0 12px;
   padding: 0;
   border: 0 none;
   background: transparent;
@@ -83,9 +82,25 @@ const TEMPLATE_CSS = `<style>
   height: 100%;
 }
 
-:host([dark]) #layout {
-  background-color: var(--bg-base-dark, ${__dark_bg_base});
-  color: var(--fg-base-dark, ${__dark_fg_base});
+:host([type="success"]) {
+  background-color: var(--color-success, ${__color_success});
+  color: #fff;
+  fill: #fff;
+}
+:host([type="error"]) {
+  background-color: var(--color-danger, ${__color_danger});
+  color: #fff;
+  fill: #fff;
+}
+:host([type="warning"]) {
+  background-color: var(--color-warning, ${__color_warning});
+  color: #fff;
+  fill: #fff;
+}
+:host([type="info"]) {
+  background-color: var(--color-primary, ${__color_primary});
+  color: #fff;
+  fill: #fff;
 }
 </style>`
 
@@ -93,9 +108,6 @@ const TEMPLATE_HTML = `
 <div id="layout">
   <div id="icon"></div>
   <div id="main">
-    <div id="title">
-      <slot name="title"></slot>
-    </div>
     <div id="content">
       <slot></slot>
     </div>
@@ -106,9 +118,9 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksNotification extends HTMLElement {
+class BlocksMessage extends HTMLElement {
   static get observedAttributes() {
-    return ['closeable', 'dark', 'duration', 'type']
+    return ['closeable', 'duration', 'type']
   }
 
   constructor() {
@@ -168,13 +180,8 @@ class BlocksNotification extends HTMLElement {
   }
 
   render() {
-    const fill = this.type === 'success' ? __color_success
-      : this.type === 'error' ? __color_danger
-        : this.type === 'warning' ? __color_warning
-          : this.type === 'info' ? __color_primary
-            : undefined
     const iconName = this.type === 'warning' ? 'info' : this.type
-    const icon = getRegisteredSvgIcon(iconName, { fill })
+    const icon = getRegisteredSvgIcon(iconName)
     if (icon) {
       this.$icon.innerHTML = ''
       this.$icon.appendChild(icon)
@@ -237,81 +244,35 @@ class BlocksNotification extends HTMLElement {
   }
 }
 
-if (!customElements.get('bl-notification')) {
-  customElements.define('bl-notification', BlocksNotification)
+if (!customElements.get('bl-message')) {
+  customElements.define('bl-message', BlocksMessage)
 }
 
-const placementEnum = ['top-right', 'bottom-right', 'bottom-left', 'top-left']
-const normalizePlacement = (value) => placementEnum.includes(value) ? value : placementEnum[0]
 
-function cage(placement) {
-  placement = normalizePlacement(placement)
-  let cage = document.querySelector('.bl-notification-cage' + '.' + placement)
+function cage() {
+  let cage = document.querySelector('.bl-message-cage')
   if (!cage) {
     cage = document.body.appendChild(document.createElement('div'))
-    cage.className = `bl-notification-cage ${placement}`
-    let cssText = "pointer-events:none;overflow:hidden;position:fixed;z-index:100;display:flex;flex-flow:column nowrap;padding:8px 0;"
-
-    switch (placement) {
-      case 'top-right': {
-        cssText += "top:0;right:0;bottom:0;left:auto;justify-content:flex-start;"
-        break
-      }
-      case 'bottom-right': {
-        cssText += "top:0;right:0;bottom:0;left:auto;justify-content:flex-end;"
-        break
-      }
-      case 'bottom-left': {
-        cssText += "top:0;right:auto;bottom:0;left:0;justify-content:flex-end;"
-        break
-      }
-      case 'top-left': {
-        cssText += "top:0;right:auto;bottom:0;left:0;justify-content:flex-start;"
-        break
-      }
-    }
-
+    cage.className = `bl-message-cage`
+    let cssText = "pointer-events:none;overflow:hidden;position:fixed;z-index:100;top:0;bottom:auto;left:0;right:0;display:flex;flex-flow:column nowrap;justify-content:center;align-items:center;padding:8px 0;"
     cage.style.cssText = cssText
   }
   return cage
 }
 
-export function blNotify(options = {}) {
-  const el = document.createElement('bl-notification')
+export function blMessage(options = {}) {
+  const el = document.createElement('bl-message')
   typeSetter(el, options.type)
-  darkSetter(el, !!options.dark)
   closeableSetter(el, options.closeable ?? false)
   if (options.duration != null) durationSetter(el, options.duration)
 
   let content = options.content
-  if (options.title) {
-    content = `<h1 slot="title">${options.title}</h1>` + (content ?? '')
-  }
 
-  el.innerHTML = content
+  el.innerHTML = content  
+  el.style.cssText = `transform:translate(0, -100%);opacity:0;`
 
-  const placement = normalizePlacement(options.placement)
-  const parent = cage(placement)
+  cage().appendChild(el)
 
-  if (placement.endsWith('right')) {
-    el.style.cssText = `transform:translate(100%, 0);opacity:0;`
-  }
-  else {
-    el.style.cssText = `transform:translate(-100%, 0);opacity:0;`
-  }
-
-  if (placement.startsWith('top')) {
-    parent.appendChild(el)
-  }
-  else {
-    if (parent.firstElementChild) {
-      parent.insertBefore(el, parent.firstElementChild)
-    }
-    else {
-      parent.appendChild(el)
-    }
-  }
-  
   el.offsetHeight
   el.style.cssText = `transform:translate(0, 0);opacity:1;`
 

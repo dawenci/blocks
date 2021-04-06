@@ -29,6 +29,7 @@ export default [
   { category: 'components', title: 'intersection', url: 'pages/intersection.html' },
   { category: 'components', title: 'list', url: 'pages/list.html' },
   { category: 'components', title: 'loading', url: 'pages/loading.html' },
+  { category: 'components', title: 'message', url: 'pages/message.html' },
   { category: 'components', title: 'modal', url: 'pages/modal.html' },
   { category: 'components', title: 'nav-menu', url: 'pages/nav-menu.html' },
   { category: 'components', title: 'notification', url: 'pages/notification.html' },
