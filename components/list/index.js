@@ -2,7 +2,7 @@ import VList from '../vlist/index.js'
 import '../scrollable/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { forEach } from '../../common/utils.js'
+import { forEach, property } from '../../common/utils.js'
 import { rgbaFromHex } from '../../common/color.js'
 import { definePrivate } from '../../common/definePrivate.js'
 import {
@@ -45,11 +45,6 @@ template.innerHTML = `
   cursor: default;
   height: var(--item-height);
 }
-:host([disabled]) .item,
-.item[disabled] {
-  cursor: not-allowed;
-  color: var(--fg-disabled, ${__fg_disabled});
-}
 
 :host([stripe]) .item:nth-child(even) {
   background-color: rgba(0,0,0,.025);
@@ -77,6 +72,17 @@ template.innerHTML = `
 :host([border]) .item:first-child:before,
 :host([border]) .item:last-child:after {
   display: none;
+}
+
+:host([checkable]) .item:hover,
+:host([checkable]) .item.checked {
+  color: var(--color-primary, ${__color_primary});
+}
+
+:host([disabled]) .item,
+.item[disabled] {
+  cursor: not-allowed !important;
+  color: var(--fg-disabled, ${__fg_disabled}) !important;
 }
 
 .label {
@@ -180,7 +186,7 @@ export default class BlocksList extends VList {
   }
 
   set checkedData(value) {
-    this._checkedSet = new Set(value.map(data => this.virtualDataMap[this.keyMethod(data)]).filter(vitem => !!vitem))
+    this._checkedSet = new Set(value.map(data => this.virtualDataMap[this.internalKeyMethod(data)]).filter(vitem => !!vitem))
   }
 
   get checked() {
@@ -240,16 +246,24 @@ export default class BlocksList extends VList {
     }
   }
 
-  keyMethod(data) {
-    return data[this.idField]
+  // 从数据中提取 label 的方法
+  internalLabelMethod(data) {
+    if (typeof this.labelMethod === 'function') return this.labelMethod(data)
+    if (typeof this.labelField === 'string') return data[this.labelField]
+    return data.label
+  }
+
+  // 从数据中提取唯一 key 的方法
+  internalKeyMethod(data) {
+    if (typeof this.keyMethod === 'function') return this.keyMethod(data)
+    if (typeof this.idField === 'string') return data[this.idField]
+    return data.id
   }
 
   itemRender($item, vitem) {
-    const id = vitem.data[this.idField] ?? ''
-    const label = vitem.data[this.labelField] ?? ''
+    const label = this.internalLabelMethod(vitem.data) ?? ''
     const isDisabled = vitem.data[this.disabledField] ?? false
     $item.classList.add('item')
-    $item.dataset.id = id
     $item.innerHTML = `<div class="prefix"></div><div class="label"></div><div class="suffix"></div>`
     $item.children[1].innerHTML = label
 
@@ -266,7 +280,7 @@ export default class BlocksList extends VList {
   }
 
   _selectItem($item) {
-    const vitem = this.virtualDataMap[$item.dataset.id]
+    const vitem = this.virtualDataMap[$item.dataset.virtualKey]
     if (this.multiple) {
       $item.classList.toggle('checked')
       this._checkedSet[this._checkedSet.has(vitem) ? 'delete' : 'add'](vitem)

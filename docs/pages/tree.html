@@ -408,12 +408,26 @@
             <td></td>
           </tr>
           <tr>
+            <td>id-field</td>
+            <td>string</td>
+            <td>'id'</td>
+            <td>结点的唯一 key 生成字段（通常使用数据 id）。</td>
+            <td></td>
+          </tr>
+          <tr>
             <td>indent-unit</td>
             <td>number</td>
             <td>16</td>
             <td>子结点的缩进距离（px）。</td>
             <td></td>
           </tr>
+          <tr>
+            <td>label-field</td>
+            <td>string</td>
+            <td>'label'</td>
+            <td>结点的显示文本字段。</td>
+            <td></td>
+          </tr>          
           <tr>
             <td>search</td>
             <td>string</td>
@@ -457,15 +471,15 @@
             <td>是否禁止条目被展开、折叠的检测方法。</td>
           </tr>
           <tr>
-            <td>labelMethod</td>
+            <td>keyMethod</td>
             <td>(data) => string</td>
-            <td>结点内容的显示方法。默认返回 'label' 字段的值。</td>
+            <td>结点的唯一 key 生成方法，优先级高于 id-field 属性。</td>
           </tr>
           <tr>
-            <td>keyMethod</td>
-            <td>(data) => string | number</td>
-            <td>结点的唯一 key 生成方法（通常使用 id）。</td>
-          </tr>
+            <td>labelMethod</td>
+            <td>(data) => string</td>
+            <td>结点内容的显示方法。优先级高于 label-field 属性。</td>
+          </tr>          
         </tbody>
       </table>
 

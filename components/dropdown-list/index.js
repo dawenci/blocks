@@ -101,14 +101,14 @@ export default class BlocksDropDownList extends HTMLElement {
       if ($trigger && $trigger.acceptValue) {
         if (this.$list.multiple) {
           const value = this.$popup.checkedData
-          $trigger.acceptValue(value.map(item => ({ value: item[this.idField], label: item[this.labelField] })))
+          $trigger.acceptValue(value.map(item => ({ value: this.$list.internalKeyMethod(item), label: this.$list.internalLabelMethod(item) })))
           this.labelField
         }
         else {
           const value = this.$popup.checkedData[0] ?? {}
           $trigger.acceptValue({
-            value: value[this.idField],
-            label: value[this.labelField],
+            value: this.$list.internalKeyMethod(value),
+            label: this.$list.internalLabelMethod(value),
           })
         }
       }

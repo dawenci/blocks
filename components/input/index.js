@@ -229,7 +229,7 @@ export default class BlocksInput extends HTMLElement {
   }
 
   acceptValue(value) {
-    this.value = value?.label ?? ''
+    this.value = Array.isArray(value) ? value.map(item => item.label).join(', ') : (value?.label ?? '')
   }
 
   render() {

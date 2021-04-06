@@ -319,20 +319,13 @@ export default class BlocksTree extends VList {
       'default-fold-all',
       'disabled',
       'expand-on-click-node',
+      'id-field',
       'indent-unit',
+      'label-field',
       'search',
       'stripe',
       'wrap',
     ])
-  }
-
-  // 从数据中提取 label 的方法
-  get internalLabelMethod() {
-    return typeof this.labelMethod === 'function'
-      ? this.labelMethod
-      : typeof this.labelMethod === 'string'
-      ? property(this.labelMethod)
-      : property('label')
   }
 
   get activeKey() {
@@ -365,7 +358,7 @@ export default class BlocksTree extends VList {
   }
 
   set checkedData(value) {
-    this._checkedSet = new Set(value.map(data => this.virtualDataMap[this.keyMethod(data)]).filter(vitem => !!vitem))
+    this._checkedSet = new Set(value.map(data => this.virtualDataMap[this.internalKeyMethod(data)]).filter(vitem => !!vitem))
   }
 
   set checkable(value) {
@@ -421,7 +414,23 @@ export default class BlocksTree extends VList {
 
   set indentUnit(value) {
     intSetter('indent-unit')(this, value)
-  }  
+  }
+
+  get idField() {
+    return this.getAttribute('id-field')
+  }
+
+  set idField(value) {
+    this.setAttribute('id-field', value)
+  }
+
+  get labelField() {
+    return this.getAttribute('id-field')
+  }
+
+  set labelField(value) {
+    this.setAttribute('id-field', value)
+  }
 
   get search() {
     return this.getAttribute('search')
@@ -482,6 +491,20 @@ export default class BlocksTree extends VList {
       this.redraw()
       this.restoreAnchor()
     }
+  }
+
+  // 从数据中提取 label 的方法
+  internalLabelMethod(data) {
+    if (typeof this.labelMethod === 'function') return this.labelMethod(data)
+    if (typeof this.labelField === 'string') return data[this.labelField]
+    return data.label
+  }
+
+  // 从数据中提取唯一 key 的方法
+  internalKeyMethod(data) {
+    if (typeof this.keyMethod === 'function') return this.keyMethod(data)
+    if (typeof this.idField === 'string') return data[this.idField]
+    return data.id
   }
 
   async filterMethod(data) {
@@ -1042,7 +1065,7 @@ export default class BlocksTree extends VList {
 
     let index = 0
     const convert = (data) => {
-      const virtualKey = this.keyMethod?.(data) ?? index
+      const virtualKey = this.internalKeyMethod(data) ?? index
       const vnode = new VirtualNode({
         virtualKey,
         height: this.defaultItemSize,
