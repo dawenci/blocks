@@ -18,12 +18,6 @@
     </header>
 
     <section class="section">
-      <h2>TODO</h2>
-      组件待实现
-
-    </section>
-
-    <!-- <section class="section">
       <h2>依赖引入</h2>
 
       <p>根据自己项目调整 src 的路径</p>
@@ -31,7 +25,53 @@
       <div data-codesource="html" data-title="依赖引入" on>
         <script type="module" src="../../components/table/index.js"></script>
       </div>
-    </section> -->
+    </section>
+
+    <section class="section">
+      <h2>默认使用</h2>
+
+      <template data-codesource="html">
+        <bl-table id="default"></bl-table>
+
+        <script>
+          (() => {
+            const $widget = document.getElementById('default')
+            $widget.columns = [
+              {
+                label: '第一列',
+                prop: 'a',
+                align: 'center',
+                width: '',
+                // minWidth: '',
+                // maxWidth: '',
+                fixedLeft: false,
+                fixedRight: false,
+                sortOrder: null,
+                resizable: false,
+                summaryMethod: null,
+                children: [],
+              },
+              {
+                label: '第二列',
+                prop: 'b',
+                align: 'center',
+              }
+            ]
+            $widget.data = [
+              {
+                a: 'aaaa',
+                b: 'bbbbb'
+              },
+              {
+                a: 'aaaa2',
+                b: 'bbbbb2'
+              }
+            ]
+          })()
+          
+        </script>
+      </template>
+    </section>
 
     <section class="section">
       <h2>API</h2>
