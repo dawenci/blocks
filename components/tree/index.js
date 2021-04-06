@@ -314,6 +314,7 @@ export default class BlocksTree extends VList {
       'activable',
       'active-key',
       'checkable',
+      'check-on-click-node',
       'check-strictly',
       'border',
       'default-fold-all',
@@ -363,6 +364,14 @@ export default class BlocksTree extends VList {
 
   set checkable(value) {
     return enumSetter('checkable', [null, 'multiple', 'single'])(this, value)
+  }
+
+  get checkOnClickNode() {
+    return boolGetter('check-on-click-node')(this)
+  }
+
+  set checkOnClickNode(value) {
+    return boolSetter('check-on-click-node')(this, value)
   }
 
   // 父子结点是否使用严格不关联模式

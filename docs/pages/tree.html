@@ -211,7 +211,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="single-select" checkable="single" style="height:300px;"></bl-tree>
+          <bl-tree id="single-select" checkable="single" check-on-click-node style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -237,7 +237,7 @@
       <h3>父子节点联动选择</h3>
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="multi-select" checkable="multiple" style="height:300px;"></bl-tree>
+          <bl-tree id="multi-select" checkable="multiple" check-on-click-node style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -259,7 +259,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="check-strictly" checkable="multiple" check-strictly style="height:300px;"></bl-tree>
+          <bl-tree id="check-strictly" checkable="multiple" check-strictly check-on-click-node style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -370,6 +370,13 @@
             <td>boolean</td>
             <td>false</td>
             <td>条目之间是否显示分割线。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>check-on-click-node</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否在点击结点时选中。</td>
             <td></td>
           </tr>
           <tr>
