@@ -15,6 +15,7 @@ const TEMPLATE_CSS = `<style>
   user-select: none;
 }
 #layout {
+  box-sizing: box-sizing;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -132,16 +133,17 @@ bl-icon {
 }
 
 /* size */
-:host #layout {
-  height: var(--height-base, ${__height_base});
+:host {
+  --height: var(--height-base, ${__height_base});
 }
-:host-context(bl-nav-menu[size="small"]) #layout {
-  height: var(--height-small, ${__height_small});
+:host-context(bl-nav-menu[size="small"]) {
+  --height: var(--height-small, ${__height_small});
 }
-:host-context(bl-nav-menu[size="large"]) #layout {
-  height: var(--height-large, ${__height_large});
+:host-context(bl-nav-menu[size="large"]) {
+  --height: var(--height-large, ${__height_large});
 }
 #layout {
+  height: var(--height);
   padding: 0 12px;
 }
 :host-context([horizontal]) #layout {

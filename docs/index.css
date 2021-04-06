@@ -59,7 +59,14 @@ html, body {
 }
 
 #header bl-nav-menu {
-  margin: 8px 20px 0 200px;
+  position: absolute;
+  top: 0;
+  right: 32px;
+  height: 51px;
+}
+#header bl-nav-menu-item {
+  --height: 49px;
+  margin: 0 12px;
 }
 
 
