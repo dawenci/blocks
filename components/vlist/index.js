@@ -236,6 +236,14 @@ export default class BlocksVList extends HTMLElement {
     numSetter('cross-size')(this, value)
   }
 
+  get hasMainScrollbar() {
+    return this.direction === Direction.Vertical ? this.$viewport.hasVerticalScrollbar : this.$viewport.hasHorizontalScrollbar
+  }
+
+  get hasCrossScrollbar() {
+    return this.direction === Direction.Vertical ? this.$viewport.hasHorizontalScrollbar : this.$viewport.hasVerticalScrollbar
+  }
+
   constructor() {
     super()
     const shadowRoot = this.attachShadow({ mode: 'open' })

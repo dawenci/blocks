@@ -207,6 +207,14 @@ class BlocksScrollable extends HTMLElement {
     this._updateScrollbar()
   }
 
+  get hasVerticalScrollbar() {
+    return this.$viewport.scrollHeight > this.$viewport.clientHeight
+  }
+
+  get hasHorizontalScrollbar() {
+    return this.$viewport.scrollWidth > this.$viewport.clientWidth
+  }
+
   render() {}
 
   _updateScrollbar() {
