@@ -3,6 +3,7 @@ import { boolGetter, boolSetter } from '../../common/property.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import RowColumn from './RowColumn.js'
+import '../scrollable/index.js'
 import './header.js'
 import './body.js'
 import { __border_color_light, __color_danger_light } from '../../theme/var.js'
@@ -20,11 +21,28 @@ cssTemplate.textContent = `
   flex-flow: column nowrap;
   overflow: hidden;
   position: relative;
-  background-color: #fff;
-  color: $--color-text-regular;  
+  background: #f3f3f3;
+  color: $--color-text-regular;
 }
 :host([border]) {
   border: 1px solid var(--border-color-light, ${__border_color_light});
+}
+
+#header {
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+#body {
+  flex: 1 1 100%;
+  overflow: hidden;
+}
+#footer {
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+#body bl-table-body {
+  height: calc(100% - 6px);
 }
 
 /* 合计行区域 */
@@ -61,7 +79,7 @@ cssTemplate.textContent = `
   position: absolute;
   z-index: 1;
   top: 0;
-  bottom: auto;
+  bottom: 6px;
   background: #fff;
   display: flex;
   flex-flow: column nowrap;
@@ -257,17 +275,26 @@ export default class BlocksTable extends HTMLElement {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
+    this.$header = shadowRoot.appendChild(document.createElement('div'))
+    this.$header.id = 'header'
+    this.$body = shadowRoot.appendChild(document.createElement('bl-scrollable'))
+    this.$body.id = 'body'
+    this.$footer = shadowRoot.appendChild(document.createElement('div'))
+    this.$footer.id = 'footer'
 
-    this.$mainHeader = shadowRoot.appendChild(document.createElement('bl-table-header'))
+    this.$mainHeader = this.$header.appendChild(document.createElement('bl-table-header'))
     this.$mainHeader.$host = this
     this.$mainHeader.area = 'main'
 
-    this.$mainBody = shadowRoot.appendChild(document.createElement('bl-table-body'))
+    this.$mainBody = this.$body.appendChild(document.createElement('bl-table-body'))
     this.$mainBody.$host = this
     this.$mainBody.area = 'main'
 
-    this.$mainBody.onscroll = () => {
-      this.$mainHeader.scrollLeft = this.$mainBody.getScrollCross()
+    // 水平滚动
+    this.$body.onscroll = (e) => {
+      if (e.target === this.$body) {
+        this.$mainHeader.scrollLeft = this.$body.scrollLeft
+      }
     }
   }
 
@@ -284,15 +311,16 @@ export default class BlocksTable extends HTMLElement {
         this.$leftHeader.$host = this.$leftBody.$host = this
         this.$leftHeader.area = this.$leftBody.area = 'left'
       }
-      if (!this.$left.parentElement) {
+      if (!this.$left.parentNode) {
         this.shadowRoot.appendChild(this.$left)
       }
+      this.$left.style.width = this.fixedLeftWidth() + 'px'
       this.$leftHeader.render()
       this.$leftBody.render()
     }
     else {
-      if (this.$left && this.$left.parentElement) {
-        this.$left.parentElement.removeChild(this.$left)
+      if (this.$left && this.$left.parentNode) {
+        this.$left.parentNode.removeChild(this.$left)
       }
     }
 
@@ -305,15 +333,16 @@ export default class BlocksTable extends HTMLElement {
         this.$rightHeader.$host = this.$rightBody.$host = this
         this.$rightHeader.area = this.$rightBody.area = 'right'
       }
-      if (!this.$right.parentElement) {
+      if (!this.$right.parentNode) {
         this.shadowRoot.appendChild(this.$right)
       }
+      this.$right.style.width = this.fixedRightWidth() + 'px'
       this.$rightHeader.render()
       this.$rightBody.render()
     }
     else {
-      if (this.$right && this.$right.parentElement) {
-        this.$right.parentElement.removeChild(this.$right)
+      if (this.$right && this.$right.parentNode) {
+        this.$right.parentNode.removeChild(this.$right)
       }
     }
   }
@@ -391,7 +420,7 @@ export default class BlocksTable extends HTMLElement {
   // @Provide()
   shouldShowFixedColumns() {
     // 1. viewport 总宽度足够，无需滚动条就可以显示所有列，则不需要固定列
-    if (!this.$mainBody.hasCrossScrollbar) return false
+    if (!this.$body.hasHorizontalScrollbar) return false
 
     // 2. 所有列都设置成固定列，也没有意义，不需要固定列
     if (this.columns.every(column => column.fixedLeft || column.fixedRight)) {
@@ -400,7 +429,7 @@ export default class BlocksTable extends HTMLElement {
 
     // 3. 固定列的宽度超过 viewport，则不显示固定列，否则会导致主体内容无法被展示
     const fixedWidth = this.fixedLeftWidth() + this.fixedRightWidth()
-    if (fixedWidth >= this.$mainBody.viewportWidth) return false
+    if (fixedWidth >= this.$mainBody.offsetWidth) return false
 
     return true
   }
@@ -442,7 +471,7 @@ export default class BlocksTable extends HTMLElement {
   getCanvasWidth() {
     const columnsMinWidth = this.getFlattenColumns()
       .reduce((acc, column) => acc + column.minWidth, 0)
-    const bodyWidth = this.$mainBody?.clientWidth ?? this.width ?? 400
+    const bodyWidth = this.$body?.clientWidth ?? this.width ?? 400
     return Math.max(bodyWidth, columnsMinWidth)
   }
 
@@ -575,7 +604,7 @@ export default class BlocksTable extends HTMLElement {
 
   // 进行布局，调整各列的宽度以适配排版容器
   layout(canvasWidth) {
-    this.$mainBody.crossSize = canvasWidth
+    this.$mainBody.style.width = canvasWidth + 'px'
 
     // 已分配的宽度
     const sum = this.getFlattenColumns()

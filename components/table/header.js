@@ -7,6 +7,7 @@ import RowColumn from './RowColumn.js'
 const cssTemplate = document.createElement('style')
 cssTemplate.textContent = `
 :host {
+  display: block;
   flex: 1 0 auto;
   overflow: hidden;
   position: relative;
