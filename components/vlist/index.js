@@ -1,6 +1,6 @@
 import '../scrollable/index.js'
 import '../icon/index.js'
-import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
+import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter, numGetter, numSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { find, findLast, forEach } from '../../common/utils.js'
 import { definePrivate } from '../../common/definePrivate.js'
@@ -67,11 +67,9 @@ template.innerHTML = `
 }
 :host(:not([direction="horizontal"])) #list {
   flex-flow: column nowrap;
-  width: 100%;
 }
 :host([direction="horizontal"]) #list {
   flex-flow: row nowrap;
-  height: 100%;
 }
 
 #list > div {
@@ -169,7 +167,7 @@ export class VirtualItem {
 
 export default class BlocksVList extends HTMLElement {
   static get observedAttributes() {
-    return ['direction', 'default-item-size', 'show-busy', 'shadow']
+    return ['cross-size', 'direction', 'default-item-size', 'show-busy', 'shadow']
   }
 
   get data() {
@@ -225,13 +223,17 @@ export default class BlocksVList extends HTMLElement {
   }
 
   // 内容容器主轴方向尺寸
-  get canvasMainSize() {
+  get mainSize() {
     return this.itemHeightStore.read(this.itemHeightStore.maxVal)
   }
 
   // 内容容器侧轴方向尺寸
-  get canvasCrossSize() {
-    return this.viewportCrossSize
+  get crossSize() {
+    return numGetter('cross-size')(this) || this.viewportCrossSize
+  }
+
+  set crossSize(value) {
+    numSetter('cross-size')(this, value)
   }
 
   constructor() {
@@ -724,7 +726,7 @@ export default class BlocksVList extends HTMLElement {
       const offset = Math.floor(this._itemSize(anchorIndex) * anchorOffsetRatio)
       let scroll = start - offset
       if (scroll < 0) scroll = 0
-      if (scroll > this.canvasMainSize - this.viewportMainSize) scroll = this.canvasMainSize - this.viewportMainSize
+      if (scroll > this.mainSize - this.viewportMainSize) scroll = this.mainSize - this.viewportMainSize
       this.setScrollMain(scroll)
     }
   }
@@ -1095,10 +1097,12 @@ export default class BlocksVList extends HTMLElement {
     const { itemHeightStore } = this
     if (itemHeightStore) {
       if (this.direction === Direction.Horizontal) {
-        this.$listSize.style.height = ''
+        this.$list.style.width = ''
+        this.$list.style.height = this.$listSize.style.height = this.crossSize ? `${this.crossSize}px` : ''
         this.$listSize.style.width = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
       } else {
-        this.$listSize.style.width = ''
+        this.$list.style.height = ''
+        this.$list.style.width = this.$listSize.style.width = this.crossSize ? `${this.crossSize}px` : ''
         this.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
       }
     }
