@@ -44,6 +44,9 @@ cssTemplate.textContent = `
   white-space: nowrap;
 }
 
+.viewport > .columns {
+  overflow: visible;
+}
 
 /* 合并单元格（表头中） */
 .group {
@@ -64,7 +67,7 @@ cssTemplate.textContent = `
 }
 
 /* 单元格 */
-.VGrid_cell {
+.cell {
   box-sizing: border-box;
   flex-grow: 0;
   flex-shrink: 0;
@@ -79,7 +82,7 @@ cssTemplate.textContent = `
   white-space: normal;
 }
 /* 单元格内容 */
-.VGrid_cell>.cell {
+.cell>.cell-content {
   box-sizing: border-box;
   width: 100%;
   overflow: hidden;
@@ -93,7 +96,7 @@ cssTemplate.textContent = `
 
 /* border 参数为 true */
 /* 为 cell 绘制竖直方向分割线 */
-:host-context(bl-table[border]) .VGrid_cell {
+:host-context(bl-table[border]) .cell {
   border-right: 1px solid var(--border-color-light, ${__border_color_light});
 }
 `
@@ -106,8 +109,8 @@ template.innerHTML = `
 
 
 const cellTemplate = document.createElement('div')
-cellTemplate.className = 'VGrid_cell'
-cellTemplate.appendChild(document.createElement('div')).className = 'cell'
+cellTemplate.className = 'cell'
+cellTemplate.appendChild(document.createElement('div')).className = 'cell-content'
 
 const groupTemplate = document.createElement('div')
 groupTemplate.className = 'group'
@@ -125,6 +128,7 @@ export default class BlocksTableHeader extends HTMLElement {
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
     shadowRoot.appendChild(template.content.cloneNode(true))
+    this.$viewport = shadowRoot.querySelector('.viewport')
     this.$canvas = shadowRoot.querySelector('.columns')
   }
 
@@ -145,6 +149,14 @@ export default class BlocksTableHeader extends HTMLElement {
     this.render()
   }
 
+  get scrollLeft() {
+    return this.$viewport.scrollLeft
+  }
+
+  set scrollLeft(value) {
+    this.$viewport.scrollLeft = value
+  }
+
   render() {
     let columns
     if (this.area === 'main') {
@@ -156,15 +168,15 @@ export default class BlocksTableHeader extends HTMLElement {
       // 插入左固定列占位
       if (shouldShowFixedColumns && this.$host.hasFixedLeft()) {
         columns.unshift(new RowColumn({
-          cellClass: ['VGrid_cell_padding', 'VGrid_cell_padding-left'],
-          width: this.fixedLeftWidth()
+          cellClass: ['cell_padding', 'cell_padding-left'],
+          width: this.$host.fixedLeftWidth()
         }))
       }
       // 插入右固定列占位
       if (shouldShowFixedColumns && this.$host.hasFixedRight()) {
         columns.push(new RowColumn({
-          cellClass: ['VGrid_cell_padding', 'VGrid_cell_padding-right'],
-          width: this.fixedRightWidth()
+          cellClass: ['cell_padding', 'cell_padding-right'],
+          width: this.$host.fixedRightWidth()
         }))
       }
     }

@@ -14,7 +14,7 @@ cssTemplate.textContent = `
 }
 
 /* 表格行 */
-.VGridBody_row {
+.row {
   display: flex;
   flex-flow: row nowrap;
   overflow: hidden;
@@ -23,13 +23,13 @@ cssTemplate.textContent = `
   background-color: #fff;
 }
 
-.VGridBody_row-active {
+.row-active {
   background-color: #e6f2f9;
   color: #0081c2;
 }
 
 /* 单元格 */
-.VGrid_cell {
+.cell {
   box-sizing: border-box;
   flex-grow: 0;
   flex-shrink: 0;
@@ -44,12 +44,12 @@ cssTemplate.textContent = `
   white-space: normal;
 }
 
-.VGridBody_row:last-child .VGrid_cell {
+.row:last-child .cell {
   border-bottom: none;
 }
 
 /* 单元格内容 */
-.VGrid_cell>.cell {
+.cell>.cell-content {
   box-sizing: border-box;
   width: 100%;
   overflow: hidden;
@@ -61,28 +61,20 @@ cssTemplate.textContent = `
 }
 
 /* border 参数为 true, 为 cell 绘制竖直方向分割线 */
-:host-context(bl-table[border]) .VGrid_cell {
+:host-context(bl-table[border]) .cell {
   border-right: 1px solid var(--border-color-light, ${__border_color_light});
 }
 
 /* 最后一列不要右描边。注：表头有合并格子比较复杂，不在这里处理，最后一列的右描边使用 after 盖住 */
-:host-context(bl-table[border]) .VGridBody_row > .VGrid_cell:last-child {
+:host-context(bl-table[border]) .row > .cell:last-child {
   border-right: 0 none;
 }
 `
 
-const template = document.createElement('template')
-template.innerHTML = `
-<div class="VGridHeaderViewport">
-  <div class="VGridHeaderCanvas">
-    <div class="VGrid_cells"></div>
-  </div>
-</div>`
-
 
 const cellTemplate = document.createElement('div')
-cellTemplate.className = 'VGrid_cell'
-cellTemplate.appendChild(document.createElement('div')).className = 'cell'
+cellTemplate.className = 'cell'
+cellTemplate.appendChild(document.createElement('div')).className = 'cell-content'
 
 class VirtualRow extends VirtualItem {
   constructor(options) {
@@ -118,9 +110,9 @@ export default class BlocksTableBody extends VList {
   }
 
   itemRender($item, vitem) {
-    $item.classList.add('VGridBody_row')
-    $item.classList.toggle('VGridBody_row-even', vitem.virtualViewIndex % 2 === 0)
-    $item.classList.toggle('VGridBody_row-odd', vitem.virtualViewIndex % 2 !== 0)
+    $item.classList.add('row')
+    $item.classList.toggle('row-even', vitem.virtualViewIndex % 2 === 0)
+    $item.classList.toggle('row-odd', vitem.virtualViewIndex % 2 !== 0)
 
     let columns
     if (this.area === 'main') {
@@ -130,18 +122,18 @@ export default class BlocksTableBody extends VList {
         : this.$host.getFlattenColumns()
   
       // 插入左固定列占位
-      if (shouldShowFixedColumns && this.hasFixedLeft()) {
+      if (shouldShowFixedColumns && this.$host.hasFixedLeft()) {
         columns.unshift(new RowColumn({
           width: this.$host.fixedLeftWidth(),
-          cellClass: ['VGrid_cell_padding', 'VGrid_cell_padding-left']
+          cellClass: ['cell_padding', 'cell_padding-left']
         }))
       }
   
       // 插入右固定列占位
-      if (shouldShowFixedColumns && this.hasFixedRight()) {
+      if (shouldShowFixedColumns && this.$host.hasFixedRight()) {
         columns.push(new RowColumn({
           width: this.$host.fixedRightWidth(),
-          cellClass: ['VGrid_cell_padding', 'VGrid_cell_padding-right']
+          cellClass: ['cell_padding', 'cell_padding-right']
         }))
       }
     }
@@ -163,7 +155,7 @@ export default class BlocksTableBody extends VList {
       $cellInner.innerHTML = ''
       $cellInner.appendChild($content)
 
-      $cell.className = 'VGrid_cell'
+      $cell.className = 'cell'
       if (column.cellClass) {
         column.cellClass.forEach(klass => {
           $cell.classList.add(klass)

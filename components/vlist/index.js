@@ -1114,6 +1114,8 @@ export default class BlocksVList extends HTMLElement {
         this.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
       }
     }
+    this.$viewport.$viewport.classList.toggle('main-scrollbar', this.hasMainScrollbar)
+    this.$viewport.$viewport.classList.toggle('cross-scrollbar', this.hasCrossScrollbar)
   }
 
   // 重置尺寸的已计算状态，用于已计算出来的值全部失效的情况

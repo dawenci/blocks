@@ -265,6 +265,10 @@ export default class BlocksTable extends HTMLElement {
     this.$mainBody = shadowRoot.appendChild(document.createElement('bl-table-body'))
     this.$mainBody.$host = this
     this.$mainBody.area = 'main'
+
+    this.$mainBody.onscroll = () => {
+      this.$mainHeader.scrollLeft = this.$mainBody.getScrollCross()
+    }
   }
 
   render() {
@@ -272,11 +276,45 @@ export default class BlocksTable extends HTMLElement {
     this.$mainBody.render()
 
     if (this.hasFixedLeft() && this.shouldShowFixedColumns()) {
-      console.log('渲染左固定列')
+      if (!this.$left) {
+        this.$left = document.createElement('div')
+        this.$left.className = 'VGridFixed VGridFixedLeft'
+        this.$leftHeader = this.$left.appendChild(document.createElement('bl-table-header'))
+        this.$leftBody = this.$left.appendChild(document.createElement('bl-table-body'))
+        this.$leftHeader.$host = this.$leftBody.$host = this
+        this.$leftHeader.area = this.$leftBody.area = 'left'
+      }
+      if (!this.$left.parentElement) {
+        this.shadowRoot.appendChild(this.$left)
+      }
+      this.$leftHeader.render()
+      this.$leftBody.render()
+    }
+    else {
+      if (this.$left && this.$left.parentElement) {
+        this.$left.parentElement.removeChild(this.$left)
+      }
     }
 
     if (this.hasFixedRight() && this.shouldShowFixedColumns()) {
-      console.log('渲染右固定列')
+      if (!this.$right) {
+        this.$right = this.shadowRoot.appendChild(document.createElement('div'))
+        this.$right.className = 'VGridFixed VGridFixedRight'
+        this.$rightHeader = this.$right.appendChild(document.createElement('bl-table-header'))
+        this.$rightBody = this.$right.appendChild(document.createElement('bl-table-body'))
+        this.$rightHeader.$host = this.$rightBody.$host = this
+        this.$rightHeader.area = this.$rightBody.area = 'right'
+      }
+      if (!this.$right.parentElement) {
+        this.shadowRoot.appendChild(this.$right)
+      }
+      this.$rightHeader.render()
+      this.$rightBody.render()
+    }
+    else {
+      if (this.$right && this.$right.parentElement) {
+        this.$right.parentElement.removeChild(this.$right)
+      }
     }
   }
 
@@ -290,9 +328,9 @@ export default class BlocksTable extends HTMLElement {
 
     this.render()
 
-    this.layout(this.clientWidth)
-    this._clearResizeHandler = sizeObserve(this, ({ width }) => {
-      this.layout(width)
+    this.layout(this.getCanvasWidth())
+    this._clearResizeHandler = sizeObserve(this, () => {
+      this.layout(this.getCanvasWidth())
       this.render()
     })
 
@@ -353,7 +391,7 @@ export default class BlocksTable extends HTMLElement {
   // @Provide()
   shouldShowFixedColumns() {
     // 1. viewport 总宽度足够，无需滚动条就可以显示所有列，则不需要固定列
-    if (!this.hasCrossScrollbar) return false
+    if (!this.$mainBody.hasCrossScrollbar) return false
 
     // 2. 所有列都设置成固定列，也没有意义，不需要固定列
     if (this.columns.every(column => column.fixedLeft || column.fixedRight)) {
@@ -362,7 +400,7 @@ export default class BlocksTable extends HTMLElement {
 
     // 3. 固定列的宽度超过 viewport，则不显示固定列，否则会导致主体内容无法被展示
     const fixedWidth = this.fixedLeftWidth() + this.fixedRightWidth()
-    if (fixedWidth >= this.viewportWidth) return false
+    if (fixedWidth >= this.$mainBody.viewportWidth) return false
 
     return true
   }
@@ -404,7 +442,7 @@ export default class BlocksTable extends HTMLElement {
   getCanvasWidth() {
     const columnsMinWidth = this.getFlattenColumns()
       .reduce((acc, column) => acc + column.minWidth, 0)
-    const bodyWidth = this.$el?.querySelector?.('.VGridBody_viewport')?.clientWidth ?? this.width ?? 400
+    const bodyWidth = this.$mainBody?.clientWidth ?? this.width ?? 400
     return Math.max(bodyWidth, columnsMinWidth)
   }
 
@@ -537,6 +575,8 @@ export default class BlocksTable extends HTMLElement {
 
   // 进行布局，调整各列的宽度以适配排版容器
   layout(canvasWidth) {
+    this.$mainBody.crossSize = canvasWidth
+
     // 已分配的宽度
     const sum = this.getFlattenColumns()
       .reduce((acc, column) => acc + column.width, 0)
