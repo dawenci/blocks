@@ -30,6 +30,7 @@ cssTemplate.textContent = `
 
 /* 单元格 */
 .VGrid_cell {
+  box-sizing: border-box;
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
@@ -41,6 +42,10 @@ cssTemplate.textContent = `
   align-items: center;
   justify-items: center;
   white-space: normal;
+}
+
+.VGridBody_row:last-child .VGrid_cell {
+  border-bottom: none;
 }
 
 /* 单元格内容 */
@@ -117,13 +122,6 @@ export default class BlocksTableBody extends VList {
     $item.classList.toggle('VGridBody_row-even', vitem.virtualViewIndex % 2 === 0)
     $item.classList.toggle('VGridBody_row-odd', vitem.virtualViewIndex % 2 !== 0)
 
-    while ($item.children.length > this.columns.length) {
-      $item.removeChild($item.lastElementChild)
-    }
-    while ($item.children.length < this.columns.length) {
-      $item.appendChild(cellTemplate.cloneNode(true))
-    }
-
     let columns
     if (this.area === 'main') {
       const shouldShowFixedColumns = this.$host.shouldShowFixedColumns()
@@ -149,6 +147,13 @@ export default class BlocksTableBody extends VList {
     }
     else {
       columns = this.$host.getFlattenFixedColumns(this.area)
+    }
+
+    while ($item.children.length > columns.length) {
+      $item.removeChild($item.lastElementChild)
+    }
+    while ($item.children.length < columns.length) {
+      $item.appendChild(cellTemplate.cloneNode(true))
     }
 
     columns.forEach((column, index) => {

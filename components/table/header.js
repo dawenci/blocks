@@ -9,47 +9,44 @@ cssTemplate.textContent = `
 :host {
   flex: 1 0 auto;
   overflow: hidden;
-  display: flex;
-  flex-flow: row nowrap;
+  position: relative;
   font-size: 0;
   font-weight: 700;
-  background-color: var(--bg-base-header, ${__bg_base_header});
+  background-color: #f3f3f3;
   color: var(--fg-secondary, ${__fg_secondary});
 }
 
 
 /* 滚动条占位, 顺便盖住最右边的一个 cell 分割竖线 */
 :host::after {
-  position: relative;
-  z-index: 1;
-  left: -1px;
-  flex: 1 1 1px;
-  min-width: 1px;
-  display: block;
   content: '';
-  border-bottom: 1px solid var(--border-color-light, ${__border_color_light});
-  background-color: var(--bg-base-header, ${__bg_base_header});
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background-color: #f3f3f3;
 }
 
 /* 表头区视口 */
-:host .VGridHeaderViewport {
+:host .viewport {
   flex: 0 0 auto;
   overflow: hidden;
   width: 100%;
 }
 
 /* 表头区内容排版容器 */
-.VGridHeaderCanvas {
+.columns {
   display: flex;
   flex-flow: row nowrap;
   overflow: hidden;
   white-space: nowrap;
-  overflow: hidden;
 }
 
 
 /* 合并单元格（表头中） */
-.VGrid_cells {
+.group {
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
@@ -61,19 +58,14 @@ cssTemplate.textContent = `
   white-space: normal;
 }
 /* 合并单元格自己的内容 */
-.VGrid_cells>.VGrid_cells_label {
+.group>.group_label {
   flex: 0 0 auto;
   width: 100%;
-}
-/* 合并单元格下级单元格容器 */
-.VGrid_cells>.VGrid_cells_children {
-  flex: 1 1 100%;
-  display: flex;
-  flex-flow: row nowrap;
 }
 
 /* 单元格 */
 .VGrid_cell {
+  box-sizing: border-box;
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
@@ -108,8 +100,8 @@ cssTemplate.textContent = `
 
 const template = document.createElement('template')
 template.innerHTML = `
-<div class="VGridHeaderViewport">
-  <div class="VGridHeaderCanvas"></div>
+<div class="viewport">
+  <div class="columns"></div>
 </div>`
 
 
@@ -118,9 +110,9 @@ cellTemplate.className = 'VGrid_cell'
 cellTemplate.appendChild(document.createElement('div')).className = 'cell'
 
 const groupTemplate = document.createElement('div')
-groupTemplate.className = 'VGrid_cells'
-groupTemplate.appendChild(document.createElement('div')).className = 'VGrid_cells_label'
-groupTemplate.appendChild(document.createElement('div')).className = 'VGrid_cells_children'
+groupTemplate.className = 'group'
+groupTemplate.appendChild(document.createElement('div')).className = 'group_label'
+groupTemplate.appendChild(document.createElement('div')).className = 'columns'
 
 
 export default class BlocksTableHeader extends HTMLElement {
@@ -133,7 +125,7 @@ export default class BlocksTableHeader extends HTMLElement {
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$canvas = shadowRoot.querySelector('.VGridHeaderCanvas')
+    this.$canvas = shadowRoot.querySelector('.columns')
   }
 
   get area() {
@@ -214,8 +206,10 @@ export default class BlocksTableHeader extends HTMLElement {
       // 嵌套表头
       if (hasChildren) {
         const $group = groupTemplate.cloneNode(true)
-        $group.querySelector('.VGrid_cells_label').appendChild($cell)
-        const $children = $group.querySelector('.VGrid_cells_children')
+        $group.querySelector('.group_label').appendChild($cell)
+        $cell.style.width = ''
+
+        const $children = $group.querySelector('.columns')
         column.children.forEach(child => {
           render(child, $children)
         })

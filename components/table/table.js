@@ -112,31 +112,6 @@ cssTemplate.textContent = `
 const template = document.createElement('template')
 template.innerHTML = `
 <div class="VGrid" :class="{'VGrid-border': border}" :style="styleObject">
-  <VGridHeader
-    ref="mainHeader"
-    :store="store"
-    :viewport-width="viewportWidth"
-    :canvas-width="canvasWidth"
-    :scroll-left="scrollLeft"
-    @enter-cell="_onEnterCell"
-    @leave-cell="_onLeaveCell"
-  />
-
-  <VGridBody
-    ref="mainBody"
-    :store="store"
-    :canvas-width="canvasWidth"
-    :rows="rows"
-    @viewport-main-change="_onViewportHeightChange"
-    @viewport-cross-change="_onViewportWidthChange"
-    @toggle-main-scrollbar="_onToggleMainScrollbar"
-    @toggle-cross-scrollbar="_onToggleCrossScrollbar"
-    @scroll="_onScroll"
-    @items-size-change="_onItemsSizeChange"
-    @click-row="_onClickRow"
-  />
-
-
   <!-- 左固定列 -->
   <template v-if="hasFixedLeft() && shouldShowFixedColumns()">
     <div
@@ -282,7 +257,6 @@ export default class BlocksTable extends HTMLElement {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
-    // shadowRoot.appendChild(template.content.cloneNode(true))
 
     this.$mainHeader = shadowRoot.appendChild(document.createElement('bl-table-header'))
     this.$mainHeader.$host = this
@@ -294,7 +268,16 @@ export default class BlocksTable extends HTMLElement {
   }
 
   render() {
-    
+    this.$mainHeader.render()
+    this.$mainBody.render()
+
+    if (this.hasFixedLeft() && this.shouldShowFixedColumns()) {
+      console.log('渲染左固定列')
+    }
+
+    if (this.hasFixedRight() && this.shouldShowFixedColumns()) {
+      console.log('渲染右固定列')
+    }
   }
 
   connectedCallback() {
@@ -305,14 +288,14 @@ export default class BlocksTable extends HTMLElement {
     upgradeProperty(this, 'columns')
     upgradeProperty(this, 'data')
 
+    this.render()
+
     this.layout(this.clientWidth)
     this._clearResizeHandler = sizeObserve(this, ({ width }) => {
       this.layout(width)
-      this.$mainHeader.render()
-      this.$mainBody.render()
+      this.render()
     })
 
-    this.render()
   }
 
   disconnectedCallback() {
@@ -569,13 +552,13 @@ export default class BlocksTable extends HTMLElement {
 
     // 未分配的尺寸大于 0，需要将这些尺寸加在各个 column 上
     if (remainingWidth > 0) {
-      this._expandColumns(remainingWidth, this.columns)
+      this._expandColumns(remainingWidth, this.getFlattenColumns())
       dispatchEvent(this, 'layout')
       return
     }
 
     // 未分配的尺寸小于 0，需要将这些收缩量分配到 column 上
-    this._shrinkColumns(-remainingWidth, this.columns)
+    this._shrinkColumns(-remainingWidth, this.getFlattenColumns())
 
     dispatchEvent(this, 'layout')
   }
@@ -617,7 +600,7 @@ export default class BlocksTable extends HTMLElement {
   }
 
   // 获取面板允许扩张的尺寸
-  _getExpandSize(column) {
+  _getGrowSize(column) {
     const size = column.maxWidth - column.width
     if (size > 0) return size
     return 0
@@ -635,14 +618,14 @@ export default class BlocksTable extends HTMLElement {
     // 递归处理，返回一趟处理完毕剩余未分配的尺寸
     const loop = (rest, columns) => {
       // 找出能接纳扩张的 column
-      const list = columns.filter(column => this._getExpandSize(column) >= 1)
+      const list = columns.filter(column => this._getGrowSize(column) >= 1)
       if (!list.length) return
 
       // 均摊的尺寸
       const expand = rest / list.length
       list.forEach(column => {
         // 实际扩张的尺寸
-        const actual = Math.min(this._getExpandSize(column), expand)
+        const actual = Math.min(this._getGrowSize(column), expand)
         column.width += actual
         rest -= actual
       })

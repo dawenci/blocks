@@ -31,41 +31,59 @@
       <h2>默认使用</h2>
 
       <template data-codesource="html">
-        <bl-table border id="default"></bl-table>
+        <bl-table border id="default" style="height:300px;"></bl-table>
 
         <script>
           (() => {
             const $widget = document.getElementById('default')
             $widget.columns = [
               {
+                label: 'fixed left',
+                prop: 'b',
+                align: 'center',
+                minWidth: 80,
+                fixedLeft: true,
+              },
+              {
                 label: '第一列',
                 prop: 'a',
-                width: '',
-                // minWidth: '',
-                // maxWidth: '',
-                fixedLeft: false,
-                fixedRight: false,
-                sortOrder: null,
-                resizable: false,
-                summaryMethod: null,
-                children: [],
+                align: 'center',
+                children: [
+                  {
+                    label: '第一列 > child1',
+                    prop: 'b',
+                    align: 'center',
+                    minWidth: 80,
+                  },
+                  {
+                    label: '第一列 > child2',
+                    prop: 'b',
+                    align: 'center',
+                    minWidth: 80,
+                  }
+                ],
               },
               {
                 label: '第二列',
                 prop: 'b',
                 align: 'center',
-              }
-            ]
-            $widget.data = [
-              {
-                a: 'aaaa',
-                b: 'bbbbb'
+                minWidth: 80,
               },
+
               {
-                a: 'aaaa2',
-                b: 'bbbbb2'
+                label: '第三列',
+                prop: 'b',
+                align: 'center',
+                minWidth: 80,
               }
             ]
+
+            const data = []
+            for (let i = 0; i < 100; i += 1) {
+              data.push({ a: 'aaaa' + i, b: 'bbbb' + i })
+            }
+
+            $widget.data = data
           })()
           
         </script>
