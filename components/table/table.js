@@ -14,13 +14,13 @@ cssTemplate.textContent = `
   display: block;
   box-sizing: border-box;
   width: 100%;
-
   width: 100%;
   height: 100%;
   display: flex;
   flex-flow: column nowrap;
   overflow: hidden;
   position: relative;
+  z-index: 0;
   background: #f3f3f3;
   color: $--color-text-regular;
 }
@@ -209,7 +209,7 @@ export default class BlocksTable extends HTMLElement {
     this._columns = (value ?? []).map(options => new RowColumn(options))
     this.$mainHeader.columns = value
     this.$mainBody.columns = value
-    this._updateCanvasWidth()
+    this._updateFiexedColumnShadow()
   }
 
   constructor() {
@@ -239,7 +239,10 @@ export default class BlocksTable extends HTMLElement {
   }
 
   _updateFiexedColumnShadow() {
-    if (this.$mainBody.$viewport.canScrollLeft) {
+    const leftSize = this.$mainBody.getFixedLeftShadowPosition()
+    const rightSize = this.$mainBody.getFixedRightShadowPosition()
+
+    if (leftSize && this.$mainBody.$viewport.canScrollLeft) {
       if (!this.$fixedLeftShadow) {
         this.$fixedLeftShadow = document.createElement('div')
         this.$fixedLeftShadow.className = 'fixed-left-shadow'
@@ -247,7 +250,7 @@ export default class BlocksTable extends HTMLElement {
       if (!this.$fixedLeftShadow.parentNode) {
         this.shadowRoot.appendChild(this.$fixedLeftShadow)
       }
-      this.$fixedLeftShadow.style.left = this.$mainBody.getFixedLeftShadowPosition() - 1 + 'px'
+      this.$fixedLeftShadow.style.left = leftSize - 1 + 'px'
     }
     else {
       if (this.$fixedLeftShadow) {
@@ -257,7 +260,7 @@ export default class BlocksTable extends HTMLElement {
       }
     }
 
-    if (this.$mainBody.$viewport.canScrollRight) {
+    if (rightSize && this.$mainBody.$viewport.canScrollRight) {
       if (!this.$fixedRightShadow) {
         this.$fixedRightShadow = document.createElement('div')
         this.$fixedRightShadow.className = 'fixed-right-shadow'
@@ -265,7 +268,7 @@ export default class BlocksTable extends HTMLElement {
       if (!this.$fixedRightShadow.parentNode) {
         this.shadowRoot.appendChild(this.$fixedRightShadow)
       }
-      this.$fixedRightShadow.style.right = this.$mainBody.getFixedRightShadowPosition() + 'px'
+      this.$fixedRightShadow.style.right = rightSize + 'px'
     }
     else {
       if (this.$fixedRightShadow) {
@@ -274,6 +277,8 @@ export default class BlocksTable extends HTMLElement {
         }
       }
     }
+
+    this.style.minWidth = leftSize + rightSize + 80 + 'px';
   }
 
   render() {
@@ -392,12 +397,7 @@ export default class BlocksTable extends HTMLElement {
       .reduce((acc, column) => acc + column.width, 0)
   }
 
-  // 返回一个 id 获取方法
-  // @Provide()
-  getKeyMethod() {
-    return this.internalKeyMethod
-  }
-
+  
   // 计算用于内容排版的画布尺寸
   // @Provide()
   getCanvasWidth() {
@@ -407,46 +407,6 @@ export default class BlocksTable extends HTMLElement {
     return Math.max(bodyWidth, columnsMinWidth)
   }
 
-  // 计算表头高度
-  // @Provide()
-  getHeaderHeight() {
-    const els = this.$el?.querySelectorAll?.('.VGridHeaderViewport') ?? []
-    const heightArr = Array.prototype.map.call(els, el => el.clientHeight)
-    return Math.max.apply(Math, heightArr) ?? 0
-  }
-
-  // 获取垂直滚动条的宽度
-  // @Provide()
-  getMainScrollbarSize() {
-    const mainBody = this.$refs.mainBody
-    if (!mainBody) return 0
-    return mainBody.getMainScrollbarSize()
-  }
-
-  // 获取水平滚动条的高度
-  // @Provide()
-  getCrossScrollbarSize() {
-    const mainBody = this.$mainBody
-    if (!mainBody) return 0
-    return mainBody.getCrossScrollbarSize()
-  }
-
-  // 计算行高的方法
-  // @Provide()
-  itemSizeMethod(node, options) {
-    const main = this.$mainBody.$table
-    const left = this.$leftBody.$table
-    const right = this.$rightBody.$table
-
-    const values = [options.height]
-    if (main) values.push(main.getSizeByKey(options.key) ?? 0)
-    if (left) values.push(left.getSizeByKey(options.key) ?? 0)
-    if (right) values.push(right.getSizeByKey(options.key) ?? 0)
-    const value = Math.max.apply(null, values)
-    return options.calculated
-      ? value
-      : node.offsetHeight
-  }
 
   // 组件宽度，不设置则为容器的 100%
   // @Prop({ type: Number }) width!: number
@@ -589,18 +549,6 @@ export default class BlocksTable extends HTMLElement {
     this.activeRow = row
   }
 
-  /**
-   * 获取指定 rowKey 的结点数据
-   */
-  getNodeData(rowKey) {
-    return this._getNodeData(rowKey)?.data
-  }
-
-  // 获取当前过滤下的所有行数据
-  getDataView() {
-    return []
-  }
-
   // 获取面板允许扩张的尺寸
   _getGrowSize(column) {
     const size = column.maxWidth - column.width
@@ -670,46 +618,6 @@ export default class BlocksTable extends HTMLElement {
     this.canvasWidth = this.getCanvasWidth()
   }
 
-  // 生成原始数据的包裹
-  _wrapData() {
-    const keyNodeMap = Object.create(null)
-    let data = this.data.slice()
-    data.sort(this.sortMethod || (() => 0))
-
-    data = data.map(data => {
-      const key = this.internalKeyMethod(data)
-      const node = new RowItem({
-        data,
-        key,
-      })
-      keyNodeMap[key] = node
-      return node
-    })
-
-    return { data, keyNodeMap }
-  }
-
-  // 包裹原始数据并应用于当前 VGrid
-  _wrapTableData() {
-    const { data, keyNodeMap } = this._wrapData()
-    this.rows = data
-    this.keyNodeMap = Object.freeze(keyNodeMap)
-    // 首次绑定数据，修改标志
-    if (this.rows.length) {
-      this.isDataBound = true
-    }
-  }
-
-  // 通过 rowKey 获取对应的 node 数据
-  _getNodeData(rowKey) {
-    return this.keyNodeMap[rowKey]
-  }
-
-  // 通过 key 获取结点数据
-  _getNodeElement(rowKey) {
-    return this.$el.querySelector(`[data-row-key="${rowKey}"]`)
-  }
-
   _isFirstColumn(columnId) {
     // 检测入口
     let column = !this.shouldShowFixedColumns() || !this.hasFixedLeft()
@@ -744,60 +652,6 @@ export default class BlocksTable extends HTMLElement {
     return false
   }
 
-  // 监听视口宽度变化
-  _onViewportWidthChange(value) {
-    this.viewportWidth = value
-    this._updateCanvasWidth()
-  }
-
-  // 监听视口高度变化
-  _onViewportHeightChange(value) {
-    this.viewportHeight = value
-  }
-
-  // 监听行高变化，同步主内容区和固定列的对应高度记录
-  _onItemsSizeChange(records) {
-    const main = this.$mainBody.$table
-    const left = this.$leftBody.$table
-    const right = this.$rightBody.$table
-
-    // 取最大值
-    records.forEach(record => {
-      const values = [record.value]
-      if (main) values.push(main.getSizeByKey(record.key))
-      if (left) values.push(left.getSizeByKey(record.key))
-      if (right) values.push(right.getSizeByKey(record.key))
-      record.value = Math.max.apply(null, values)
-    })
-
-    if (main) main.batchUpdateHeight(records)
-    if (left) left.batchUpdateHeight(records)
-    if (right) right.batchUpdateHeight(records)
-  }
-
-  // 在固定列上滚动时，将滚动量应用到主内容区的滚动条上
-  _onFixedMousewheel(e, normalized) {
-    const mainBody = this.$mainBody
-    if (!mainBody) return
-    const scroll = mainBody.getScroll()
-    mainBody.setScroll({
-      main: scroll.main + normalized.pixelY,
-      cross: scroll.cross + normalized.pixelX,
-    })
-  }
-
-  // 滚动时，将滚动同步作用于表头和合计行，以及固定列
-  _onScroll() {
-    const main = this.$el.querySelector('.VGridBody_viewport')
-    if (!main) return
-    const viewports = Array.prototype.slice.call(this.$el.querySelectorAll('.VGridBody_viewport'))
-    const { scrollLeft, scrollTop } = main
-    this.scrollLeft = scrollLeft
-    viewports.forEach(viewport => {
-      viewport.scrollTop = scrollTop
-    })
-  }
-
   _onEnterCell({ el, columnId }) {
     const rect = el.getBoundingClientRect()
     const relative = this.$mainHeader.getBoundingClientRect()
@@ -819,11 +673,6 @@ export default class BlocksTable extends HTMLElement {
       this.resizeHandlerLeft = -5
       this.resizeHandlerRight = -5
     }
-  }
-
-  // 行点击事件
-  _onClickRow(rowKey) {
-    this.active(rowKey)
   }
 
   _onResizeMove(event) {

@@ -2,7 +2,6 @@ import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/pro
 import { setStyles } from '../../common/style.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __bg_base_header, __border_color_light, __fg_secondary } from '../../theme/var.js'
-import RowColumn from './RowColumn.js'
 
 const cssTemplate = document.createElement('style')
 cssTemplate.textContent = `
