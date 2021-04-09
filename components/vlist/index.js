@@ -337,6 +337,11 @@ export default class BlocksVList extends HTMLElement {
       return this.generateViewData()
     }
 
+    if (this.beforeRender) {
+      this.beforeRender()
+    }
+    dispatchEvent(this, 'before-render')
+
     this._updateListSize()
     const renderCount = this.virtualSliceData.length
 
@@ -422,6 +427,11 @@ export default class BlocksVList extends HTMLElement {
 
     // 过滤出未计算过高度的条目
     this._updateSizeByItems(this.$list.children)
+
+    if (this.afterRender) {
+      this.afterRender()
+    }
+    dispatchEvent(this, 'after-render')
   }
 
   // 刷新列表高度、重新切片渲染
