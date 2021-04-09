@@ -1,9 +1,7 @@
 import VList, { VirtualItem } from '../vlist/index.js'
-
-import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setStyles } from '../../common/style.js'
-import RowColumn from './RowColumn.js'
+import { dispatchEvent } from '../../common/event.js'
 import { __border_color_light } from '../../theme/var.js'
 
 const cssTemplate = document.createElement('style')
@@ -17,7 +15,6 @@ cssTemplate.textContent = `
 .row {
   display: flex;
   flex-flow: row nowrap;
-  overflow: hidden;
   white-space: nowrap;
   font-size: 0;
   background-color: #fff;
@@ -42,6 +39,7 @@ cssTemplate.textContent = `
   align-items: center;
   justify-items: center;
   white-space: normal;
+  background: #fff;
 }
 
 .row:last-child .cell {
@@ -99,56 +97,48 @@ export default class BlocksTableBody extends VList {
     this.$scrollable = shadowRoot.getElementById('scrollable')
     this.$listSize = shadowRoot.getElementById('list-size')
     this.$list = shadowRoot.getElementById('list')
+
+    this.flattenColumns = []
+    this.fixedLeftColumns = []
+    this.fixedRightColumns = []
+
+    this.$list.onclick = this._onClick.bind(this)
   }
 
-  get area() {
-    return enumGetter('area', ['main', 'left', 'right'], 'main')(this)
-  }
-
-  set area(value) {
-    enumSetter('area', ['main', 'left', 'right'])(this, value)
+  beforeRender() {
+    this.flattenColumns = this.$host.getFlattenColumns()
+    this.fixedLeftColumns = this.flattenColumns.filter(column => {
+      let col = column
+      while (col) {
+        if (col.fixedLeft) return true
+        col = col.parent
+      }
+      return false
+    })
+    this.fixedRightColumns = this.flattenColumns.filter(column => {
+      let col = column
+      while (col) {
+        if (col.fixedRight) return true
+        col = col.parent
+      }
+      return false
+    }).reverse()
   }
 
   itemRender($item, vitem) {
+    $item.data = vitem.data
     $item.classList.add('row')
     $item.classList.toggle('row-even', vitem.virtualViewIndex % 2 === 0)
     $item.classList.toggle('row-odd', vitem.virtualViewIndex % 2 !== 0)
 
-    let columns
-    if (this.area === 'main') {
-      const shouldShowFixedColumns = this.$host.shouldShowFixedColumns()
-      columns = shouldShowFixedColumns
-        ? this.$host.getFlattenNonfixedColumns()
-        : this.$host.getFlattenColumns()
-  
-      // 插入左固定列占位
-      if (shouldShowFixedColumns && this.$host.hasFixedLeft()) {
-        columns.unshift(new RowColumn({
-          width: this.$host.fixedLeftWidth(),
-          cellClass: ['cell_padding', 'cell_padding-left']
-        }))
-      }
-  
-      // 插入右固定列占位
-      if (shouldShowFixedColumns && this.$host.hasFixedRight()) {
-        columns.push(new RowColumn({
-          width: this.$host.fixedRightWidth(),
-          cellClass: ['cell_padding', 'cell_padding-right']
-        }))
-      }
-    }
-    else {
-      columns = this.$host.getFlattenFixedColumns(this.area)
-    }
-
-    while ($item.children.length > columns.length) {
+    while ($item.children.length > this.flattenColumns.length) {
       $item.removeChild($item.lastElementChild)
     }
-    while ($item.children.length < columns.length) {
+    while ($item.children.length < this.flattenColumns.length) {
       $item.appendChild(cellTemplate.cloneNode(true))
     }
 
-    columns.forEach((column, index) => {
+    this.flattenColumns.forEach((column, index) => {
       const $cell = $item.children[index]
       const $cellInner = $cell.firstElementChild
       const $content = column.render(vitem.data, column, $item.children[index])
@@ -161,16 +151,79 @@ export default class BlocksTableBody extends VList {
           $cell.classList.add(klass)
         })
       }
+      $cell.column = column
 
-      setStyles($cell, {
+      const styles = {
         width: column.width + 'px',
         minWidth: column.minWidth + 'px',
         maxWidth: column.maxWidth + 'px',
-      })
+      }
+
+      if (this.fixedLeftColumns.includes(column)) {
+        styles.position = 'sticky'
+        styles.left = this.getFixedOffsetLeft(column) + 'px'
+        styles.zIndex = '1'
+      }
+      else if (this.fixedRightColumns.includes(column)) {
+        styles.position = 'sticky'
+        styles.right = this.getFixedOffsetRight(column) + 'px'
+        styles.zIndex = '1'
+      }
+      else {
+        styles.position = ''
+        styles.zIndex = ''
+      }
+
+      setStyles($cell, styles)
       setStyles($cellInner, {
         textAlign: column.align
       })
     })
+  }
+
+  getFixedOffsetLeft(column) {
+    let value = 0
+    for (let i = 0; i < this.fixedLeftColumns.length; i += 1) {
+      if (this.fixedLeftColumns[i] === column) return value
+      value += column.width
+    }
+    return value
+  }
+
+  getFixedOffsetRight(column) {
+    let value = 0
+    for (let i = 0; i < this.fixedRightColumns.length; i += 1) {
+      if (this.fixedRightColumns[i] === column) return value
+      value += column.width
+    }
+    return value
+  }
+
+  getFixedLeftShadowPosition() {
+    return this.fixedLeftColumns.reduce((acc, col) => acc + col.width, 0)
+  }
+
+  getFixedRightShadowPosition() {
+    return this.fixedRightColumns.reduce((acc, col) => acc + col.width, 0)
+  }
+
+  _onClick(e) {
+    let $cell
+    let $row
+    let $el = e.target
+    while ($el) {
+      if ($el === e.currentTarget) break
+      if ($el.classList.contains('cell')) {
+        $cell = $el
+        dispatchEvent(this, 'click-cell', { detail: { $el, column: $el.column } })
+      }
+      if ($el.classList.contains('row')) {
+        $row = $el
+        dispatchEvent(this, 'click-row', { detail: { $el, data: $el.data } })
+        break
+      }
+      $el = $el.parentNode
+    }
   }
 
   connectedCallback() {
@@ -179,6 +232,18 @@ export default class BlocksTableBody extends VList {
     upgradeProperty(this, 'area')
     upgradeProperty(this, 'columns')
     upgradeProperty(this, 'data')
+
+    requestAnimationFrame(() => {
+      if (!this.$viewport.shadowRoot.querySelector('style#tableBodyStyle')) {
+        const style = this.$viewport.shadowRoot.insertBefore(document.createElement('style'), this.$viewport.$layout)
+        style.id = 'tableBodyStyle'
+        style.textContent = `
+        #viewport.cross-scrollbar {
+          height: calc(100% - 6px);
+        }
+        `
+      }
+    })
   }
 }
 

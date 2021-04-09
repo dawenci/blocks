@@ -2,12 +2,12 @@ export default class RowColumn {
   constructor(options = {}) {
     if (options instanceof RowColumn) return options
 
-    this.render = options.render || ((data, column, $cell) => {
-      return document.createTextNode(data[column.prop] ?? '')
-    })
-
     this.headRender = options.headRender || ((column) => {
       return document.createTextNode(column.label ?? '')
+    })
+
+    this.render = options.render || ((data, column, $cell) => {
+      return document.createTextNode(data[column.prop] ?? '')
     })
 
     this.label = options.label
@@ -21,10 +21,27 @@ export default class RowColumn {
     this.sortOrder = ['none', 'ascending', 'descending'].includes(options.sortOrder) ? options.sortOrder : 'none'
     this.resizable = !!options.resizable
     this.summaryMethod = options.summaryMethod
+
     this.children = (options.children ?? []).map(child => {
       const childRow = child instanceof RowColumn ? child : new RowColumn(child)
       childRow.parent = this
       return childRow
     })
+  }
+
+  get parent() {
+    return this._parent
+  }
+
+  set parent(value) {
+    this._parent = value
+
+    if (this.fixedLeft) {
+      value.fixedLeft = true
+    }
+
+    else if (this.fixedRight) {
+      value.fixedRight = true
+    }
   }
 }

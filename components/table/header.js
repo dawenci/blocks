@@ -13,7 +13,6 @@ cssTemplate.textContent = `
   position: relative;
   font-size: 0;
   font-weight: 700;
-  background-color: #f3f3f3;
   color: var(--fg-secondary, ${__fg_secondary});
 }
 
@@ -81,6 +80,7 @@ cssTemplate.textContent = `
   align-items: center;
   justify-items: center;
   white-space: normal;
+  background-color: #f3f3f3;
 }
 /* 单元格内容 */
 .cell>.cell-content {
@@ -133,14 +133,6 @@ export default class BlocksTableHeader extends HTMLElement {
     this.$canvas = shadowRoot.querySelector('.columns')
   }
 
-  get area() {
-    return enumGetter('area', ['main', 'left', 'right'], 'main')(this)
-  }
-
-  set area(value) {
-    enumSetter('area', ['main', 'left', 'right'])(this, value)
-  }
-
   get columns() {
     return this._columns
   }
@@ -158,33 +150,38 @@ export default class BlocksTableHeader extends HTMLElement {
     this.$viewport.scrollLeft = value
   }
 
-  render() {
-    let columns
-    if (this.area === 'main') {
-      const shouldShowFixedColumns = this.$host.shouldShowFixedColumns()
-      columns = shouldShowFixedColumns
-        ? this.$host.columns.filter((column) => !column.fixedLeft && !column.fixedRight)
-        : this.$host.columns
-
-      // 插入左固定列占位
-      if (shouldShowFixedColumns && this.$host.hasFixedLeft()) {
-        columns.unshift(new RowColumn({
-          cellClass: ['cell_padding', 'cell_padding-left'],
-          width: this.$host.fixedLeftWidth()
-        }))
-      }
-      // 插入右固定列占位
-      if (shouldShowFixedColumns && this.$host.hasFixedRight()) {
-        columns.push(new RowColumn({
-          cellClass: ['cell_padding', 'cell_padding-right'],
-          width: this.$host.fixedRightWidth()
-        }))
-      }
+  widthSum(column, value = 0) {
+    if (column.children.length) {
+      column.children.forEach(child => this.widthSum(child, value))
     }
     else {
-      const fixed = this.area === 'left' ? 'fixedLeft' : 'fixedRight'
-      columns = this.$host.columns.filter(column => column[fixed])
+      value += column.width
     }
+    return value
+  }
+
+  getFixedOffsetLeft(column) {
+    let value = 0
+    for (let i = 0; i < this.fixedLeftColumns.length; i += 1) {
+      if (this.fixedLeftColumns[i] === column) return value
+      value = this.widthSum(this.fixedLeftColumns[i], value)
+    }
+    return value
+  }
+
+  getFixedOffsetRight(column) {
+    let value = 0
+    for (let i = 0; i < this.fixedRightColumns.length; i += 1) {
+      if (this.fixedRightColumns[i] === column) return value
+      value = this.widthSum(this.fixedRightColumns[i], value)
+    }
+    return value
+  }
+
+  render() {
+    const columns = this.$host.columns
+    this.fixedLeftColumns = columns.filter(column => column.fixedLeft)
+    this.fixedRightColumns = columns.filter(column => column.fixedRight).reverse()
 
     const render = (column, $wrap) => {
       const { columnWidth, minWidth, maxWidth, align } = column
@@ -206,7 +203,7 @@ export default class BlocksTableHeader extends HTMLElement {
       const $cellInner = $cell.firstElementChild
       $cellInner.innerHTML = ''
       $cellInner.appendChild($content)
-
+      
       setStyles($cell, {
         width: column.width + 'px',
         minWidth: column.minWidth + 'px',
@@ -215,6 +212,22 @@ export default class BlocksTableHeader extends HTMLElement {
       setStyles($cellInner, {
         textAlign: column.align
       })
+
+      const styles = {}
+      if (this.fixedLeftColumns.includes(column)) {
+        styles.position = 'sticky'
+        styles.left = this.getFixedOffsetLeft(column) + 'px'
+        styles.zIndex = '1'
+      }
+      else if (this.fixedRightColumns.includes(column)) {
+        styles.position = 'sticky'
+        styles.right = this.getFixedOffsetRight(column) + 'px'
+        styles.zIndex = '1'
+      }
+      else {
+        styles.position = ''
+        styles.zIndex = ''
+      }      
 
       // 嵌套表头
       if (hasChildren) {
@@ -227,9 +240,11 @@ export default class BlocksTableHeader extends HTMLElement {
           render(child, $children)
         })
 
+        setStyles($group, styles)
         $wrap.appendChild($group)
       }
       else {
+        setStyles($cell, styles)
         $wrap.appendChild($cell)
       }
     }

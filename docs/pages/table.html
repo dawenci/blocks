@@ -38,49 +38,73 @@
             const $widget = document.getElementById('default')
             $widget.columns = [
               {
-                label: 'fixed left',
-                prop: 'b',
+                label: 'column 0',
+                prop: 'c0',
                 align: 'center',
                 minWidth: 80,
                 fixedLeft: true,
               },
               {
-                label: '第一列',
-                prop: 'a',
+                label: 'column 1',
+                prop: 'c1',
                 align: 'center',
                 children: [
                   {
-                    label: '第一列 > child1',
-                    prop: 'b',
+                    label: 'column 1-0',
+                    prop: 'c10',
                     align: 'center',
                     minWidth: 80,
+                    fixedLeft: true,
                   },
                   {
-                    label: '第一列 > child2',
-                    prop: 'b',
+                    label: 'column 1-1',
+                    prop: 'c11',
                     align: 'center',
                     minWidth: 80,
                   }
                 ],
               },
               {
-                label: '第二列',
-                prop: 'b',
+                label: 'column 2',
+                prop: 'c2',
                 align: 'center',
                 minWidth: 80,
               },
-
               {
-                label: '第三列',
-                prop: 'b',
+                label: 'column 3',
+                prop: 'c3',
                 align: 'center',
                 minWidth: 80,
+              },
+              {
+                label: 'column 4',
+                prop: 'c4',
+                align: 'center',
+                minWidth: 80,
+                fixedRight: true,
+              },
+
+              {
+                label: 'column 5',
+                prop: 'c5',
+                align: 'center',
+                minWidth: 80,
+                fixedRight: true,
               }
             ]
 
             const data = []
             for (let i = 0; i < 100; i += 1) {
-              data.push({ a: 'aaaa' + i, b: 'bbbb' + i })
+              data.push({
+                c0: 'c0-' + i,
+                c1: 'c1-' + i,
+                c10: 'c1-0-' + i,
+                c11: 'c1-1-' + i,
+                c2: 'c2-' + i,
+                c3: 'c3-' + i,
+                c4: 'c4-' + i,
+                c5: 'c5-' + i,
+              })
             }
 
             $widget.data = data

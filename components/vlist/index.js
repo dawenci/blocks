@@ -44,7 +44,7 @@ template.innerHTML = `
   contain: content;
 }
 
-#scrollable {
+#viewport {
   box-sizing: border-box;
   display: block;
   position: relative;
@@ -122,7 +122,7 @@ template.innerHTML = `
 }
 </style>
 
-<bl-scrollable id="scrollable">
+<bl-scrollable id="viewport">
   <div id="list-size"></div>
   <div id="list"></div>
 </bl-scrollable>
@@ -248,7 +248,7 @@ export default class BlocksVList extends HTMLElement {
     super()
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$viewport = shadowRoot.getElementById('scrollable')
+    this.$viewport = shadowRoot.getElementById('viewport')
     this.$listSize = shadowRoot.getElementById('list-size')
     this.$list = shadowRoot.getElementById('list')
     this.$busy = shadowRoot.getElementById('loading')

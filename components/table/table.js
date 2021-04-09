@@ -28,80 +28,21 @@ cssTemplate.textContent = `
   border: 1px solid var(--border-color-light, ${__border_color_light});
 }
 
-#header {
-  flex: 0 0 auto;
-  overflow: hidden;
-}
-#body {
-  flex: 1 1 100%;
-  overflow: hidden;
-}
-#footer {
-  flex: 0 0 auto;
-  overflow: hidden;
-}
-
-#body bl-table-body {
-  height: calc(100% - 6px);
-}
-
-/* 合计行区域 */
-.VGridFooter {
-  flex: 1 0 auto;
-  overflow: hidden;
-  border-top: 1px solid $--border-color-lighter;
-  font-size: 0;
-  background-color: #F5F7FA;
-  overflow: hidden;
-  position: relative;
-}
-/* 合计行区域视口 */
-.VGridFooter .VGridFooterViewport {
-  position: relative;
-  overflow: hidden;
-}
-
-/* 合计行区内容排版容器 */
-.VGridFooter .VGridFooterViewport .VGridFooterCanvas {
-  display: flex;
-  flex-flow: row nowrap;
-  overflow: hidden;
-  white-space: nowrap;
-  overflow: hidden;
-  min-height: 28px;
-}
-.VGridFooter .VGridFixed {
-  background-color: #F5F7FA;
-}
-
-/* 固定列容器 */
-.VGridFixed {
+.fixed-left-shadow,
+.fixed-right-shadow {
   position: absolute;
-  z-index: 1;
   top: 0;
   bottom: 6px;
-  background: #fff;
-  display: flex;
-  flex-flow: column nowrap;
+  width: 5px;
+  pointer-events: none;
 }
-.VGridFixed.VGridFixedLeft {
-  left: 0;
-  right: auto;
+.fixed-left-shadow {
+  border-left: 1px solid var(--border-color-light, ${__border_color_light});
+  background-image: linear-gradient(to right, rgba(0,0,0,.1), rgba(0,0,0,.0))
 }
-.VGridFixed.VGridFixedLeft.VGridFixedScroll {
-  box-shadow: 1px 0 3px rgba(0, 0, 0, .1);
-}  
-
-.VGridFixed.VGridFixedRight {
-  left: auto;
-}
-.VGridFixed.VGridFixedRight.VGridFixedScroll {
-  box-shadow: -1px 0 3px rgba(0, 0, 0, .1);
-}  
-
-/* 合计行只有单行，因此无需下描边 */
-.VGridFooter .VGrid_cell {
-  border-bottom: 0 none;
+.fixed-right-shadow {
+  border-right: 1px solid var(--border-color-light, ${__border_color_light});
+  background-image: linear-gradient(to left, rgba(0,0,0,.1), rgba(0,0,0,.0))
 }
 
 
@@ -275,25 +216,62 @@ export default class BlocksTable extends HTMLElement {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
-    this.$header = shadowRoot.appendChild(document.createElement('div'))
-    this.$header.id = 'header'
-    this.$body = shadowRoot.appendChild(document.createElement('bl-scrollable'))
-    this.$body.id = 'body'
-    this.$footer = shadowRoot.appendChild(document.createElement('div'))
-    this.$footer.id = 'footer'
 
-    this.$mainHeader = this.$header.appendChild(document.createElement('bl-table-header'))
+    this.$mainHeader = shadowRoot.appendChild(document.createElement('bl-table-header'))
     this.$mainHeader.$host = this
-    this.$mainHeader.area = 'main'
 
-    this.$mainBody = this.$body.appendChild(document.createElement('bl-table-body'))
+    this.$mainBody = shadowRoot.appendChild(document.createElement('bl-table-body'))
     this.$mainBody.$host = this
-    this.$mainBody.area = 'main'
 
     // 水平滚动
-    this.$body.onscroll = (e) => {
-      if (e.target === this.$body) {
-        this.$mainHeader.scrollLeft = this.$body.scrollLeft
+    this.$mainBody.onscroll = (e) => {
+      // 同步 header 的左右滚动
+      this.$mainHeader.scrollLeft = this.$mainBody.getScrollCross()
+    }
+
+    // 如果存在固定列，渲染投影
+    this.$mainBody.addEventListener('can-scroll-left-change', () => {
+      this._updateFiexedColumnShadow()
+    })
+    this.$mainBody.addEventListener('can-scroll-right-change', () => {
+      this._updateFiexedColumnShadow()
+    })
+  }
+
+  _updateFiexedColumnShadow() {
+    if (this.$mainBody.$viewport.canScrollLeft) {
+      if (!this.$fixedLeftShadow) {
+        this.$fixedLeftShadow = document.createElement('div')
+        this.$fixedLeftShadow.className = 'fixed-left-shadow'
+      }
+      if (!this.$fixedLeftShadow.parentNode) {
+        this.shadowRoot.appendChild(this.$fixedLeftShadow)
+      }
+      this.$fixedLeftShadow.style.left = this.$mainBody.getFixedLeftShadowPosition() - 1 + 'px'
+    }
+    else {
+      if (this.$fixedLeftShadow) {
+        if (this.$fixedLeftShadow.parentNode) {
+          this.shadowRoot.removeChild(this.$fixedLeftShadow)
+        }
+      }
+    }
+
+    if (this.$mainBody.$viewport.canScrollRight) {
+      if (!this.$fixedRightShadow) {
+        this.$fixedRightShadow = document.createElement('div')
+        this.$fixedRightShadow.className = 'fixed-right-shadow'
+      }
+      if (!this.$fixedRightShadow.parentNode) {
+        this.shadowRoot.appendChild(this.$fixedRightShadow)
+      }
+      this.$fixedRightShadow.style.right = this.$mainBody.getFixedRightShadowPosition() + 'px'
+    }
+    else {
+      if (this.$fixedRightShadow) {
+        if (this.$fixedRightShadow.parentNode) {
+          this.shadowRoot.removeChild(this.$fixedRightShadow)
+        }
       }
     }
   }
@@ -301,50 +279,6 @@ export default class BlocksTable extends HTMLElement {
   render() {
     this.$mainHeader.render()
     this.$mainBody.render()
-
-    if (this.hasFixedLeft() && this.shouldShowFixedColumns()) {
-      if (!this.$left) {
-        this.$left = document.createElement('div')
-        this.$left.className = 'VGridFixed VGridFixedLeft'
-        this.$leftHeader = this.$left.appendChild(document.createElement('bl-table-header'))
-        this.$leftBody = this.$left.appendChild(document.createElement('bl-table-body'))
-        this.$leftHeader.$host = this.$leftBody.$host = this
-        this.$leftHeader.area = this.$leftBody.area = 'left'
-      }
-      if (!this.$left.parentNode) {
-        this.shadowRoot.appendChild(this.$left)
-      }
-      this.$left.style.width = this.fixedLeftWidth() + 'px'
-      this.$leftHeader.render()
-      this.$leftBody.render()
-    }
-    else {
-      if (this.$left && this.$left.parentNode) {
-        this.$left.parentNode.removeChild(this.$left)
-      }
-    }
-
-    if (this.hasFixedRight() && this.shouldShowFixedColumns()) {
-      if (!this.$right) {
-        this.$right = this.shadowRoot.appendChild(document.createElement('div'))
-        this.$right.className = 'VGridFixed VGridFixedRight'
-        this.$rightHeader = this.$right.appendChild(document.createElement('bl-table-header'))
-        this.$rightBody = this.$right.appendChild(document.createElement('bl-table-body'))
-        this.$rightHeader.$host = this.$rightBody.$host = this
-        this.$rightHeader.area = this.$rightBody.area = 'right'
-      }
-      if (!this.$right.parentNode) {
-        this.shadowRoot.appendChild(this.$right)
-      }
-      this.$right.style.width = this.fixedRightWidth() + 'px'
-      this.$rightHeader.render()
-      this.$rightBody.render()
-    }
-    else {
-      if (this.$right && this.$right.parentNode) {
-        this.$right.parentNode.removeChild(this.$right)
-      }
-    }
   }
 
   connectedCallback() {
@@ -355,14 +289,12 @@ export default class BlocksTable extends HTMLElement {
     upgradeProperty(this, 'columns')
     upgradeProperty(this, 'data')
 
-    this.render()
-
-    this.layout(this.getCanvasWidth())
     this._clearResizeHandler = sizeObserve(this, () => {
       this.layout(this.getCanvasWidth())
       this.render()
+      // 刷新投影座标
+      this._updateFiexedColumnShadow()
     })
-
   }
 
   disconnectedCallback() {
@@ -391,16 +323,16 @@ export default class BlocksTable extends HTMLElement {
     return columns
   }
 
-  // 获取非固定根列下的所有末级列
-  // @Provide()
-  getFlattenNonfixedColumns() {
-    return this.getFlattenColumns((column, parentColumn) => {
-      // 非根节点无需判断全部 true
-      if (parentColumn) return true
-      // 根节点需要判断
-      return !column.fixedLeft && !column.fixedRight
-    })
-  }
+  // // 获取非固定根列下的所有末级列
+  // // @Provide()
+  // getFlattenNonfixedColumns() {
+  //   return this.getFlattenColumns((column, parentColumn) => {
+  //     // 非根节点无需判断全部 true
+  //     if (parentColumn) return true
+  //     // 根节点需要判断
+  //     return !column.fixedLeft && !column.fixedRight
+  //   })
+  // }
 
   // 获取固定根列下的所有末级列
   // @Provide()
@@ -416,23 +348,23 @@ export default class BlocksTable extends HTMLElement {
     })
   }
 
-  // 是否要渲染固定列
-  // @Provide()
-  shouldShowFixedColumns() {
-    // 1. viewport 总宽度足够，无需滚动条就可以显示所有列，则不需要固定列
-    if (!this.$body.hasHorizontalScrollbar) return false
+  // // 是否要渲染固定列
+  // // @Provide()
+  // shouldShowFixedColumns() {
+  //   // 1. viewport 总宽度足够，无需滚动条就可以显示所有列，则不需要固定列
+  //   if (!this.$mainBody.hasCrossScrollbar) return false
 
-    // 2. 所有列都设置成固定列，也没有意义，不需要固定列
-    if (this.columns.every(column => column.fixedLeft || column.fixedRight)) {
-      return false
-    }
+  //   // 2. 所有列都设置成固定列，也没有意义，不需要固定列
+  //   if (this.columns.every(column => column.fixedLeft || column.fixedRight)) {
+  //     return false
+  //   }
 
-    // 3. 固定列的宽度超过 viewport，则不显示固定列，否则会导致主体内容无法被展示
-    const fixedWidth = this.fixedLeftWidth() + this.fixedRightWidth()
-    if (fixedWidth >= this.$mainBody.offsetWidth) return false
+  //   // 3. 固定列的宽度超过 viewport，则不显示固定列，否则会导致主体内容无法被展示
+  //   const fixedWidth = this.fixedLeftWidth() + this.fixedRightWidth()
+  //   if (fixedWidth >= this.$mainBody.offsetWidth) return false
 
-    return true
-  }
+  //   return true
+  // }
 
   // 是否有左固定列
   // @Provide()
@@ -471,7 +403,7 @@ export default class BlocksTable extends HTMLElement {
   getCanvasWidth() {
     const columnsMinWidth = this.getFlattenColumns()
       .reduce((acc, column) => acc + column.minWidth, 0)
-    const bodyWidth = this.$body?.clientWidth ?? this.width ?? 400
+    const bodyWidth = this.$mainBody?.clientWidth ?? this.width ?? 400
     return Math.max(bodyWidth, columnsMinWidth)
   }
 
@@ -604,7 +536,8 @@ export default class BlocksTable extends HTMLElement {
 
   // 进行布局，调整各列的宽度以适配排版容器
   layout(canvasWidth) {
-    this.$mainBody.style.width = canvasWidth + 'px'
+    this.$mainHeader.$canvas.style.width = canvasWidth + 'px'
+    this.$mainBody.crossSize = canvasWidth
 
     // 已分配的宽度
     const sum = this.getFlattenColumns()
@@ -891,16 +824,6 @@ export default class BlocksTable extends HTMLElement {
   // 行点击事件
   _onClickRow(rowKey) {
     this.active(rowKey)
-  }
-
-  // 滚动条切换事件处理器
-  _onToggleMainScrollbar(value) {
-    this.hasMainScrollbar = value
-  }
-
-  // 滚动条切换事件处理器
-  _onToggleCrossScrollbar(value) {
-    this.hasCrossScrollbar = value
   }
 
   _onResizeMove(event) {

@@ -181,6 +181,54 @@ class BlocksScrollable extends HTMLElement {
     }
   }
 
+  get canScrollLeft() {
+    return this._canScrollLeft
+  }
+
+  set canScrollLeft(value) {
+    if (this._canScrollLeft !== value) {
+      this._canScrollLeft = value
+      this.$layout.classList.toggle('shadow-left', value)
+      dispatchEvent(this, 'can-scroll-left-change', { detail: { value } })
+    }
+  }
+
+  get canScrollRight() {
+    return this._canScrollRight
+  }
+
+  set canScrollRight(value) {
+    if (this._canScrollRight !== value) {
+      this._canScrollRight = value
+      this.$layout.classList.toggle('shadow-right', this.canScrollRight)
+      dispatchEvent(this, 'can-scroll-right-change', { detail: { value } })
+    }
+  }
+
+  get canScrollTop() {
+    return this._canScrollTop
+  }
+
+  set canScrollTop(value) {
+    if (this._canScrollTop !== value) {
+      this._canScrollTop = value
+      this.$layout.classList.toggle('shadow-top', this.canScrollTop)
+      dispatchEvent(this, 'can-scroll-top-change', { detail: { value } })
+    }
+  }
+
+  get canScrollBottom() {
+    return this._canScrollBottom
+  }
+
+  set canScrollBottom(value) {
+    if (this._canScrollBottom !== value) {
+      this._canScrollBottom = value
+      this.$layout.classList.toggle('shadow-bottom', this.canScrollBottom)
+      dispatchEvent(this, 'can-scroll-bottom-change', { detail: { value } })
+    }
+  }
+
   get shadow() {
     return boolGetter('shadow')(this)
   }
@@ -304,20 +352,19 @@ class BlocksScrollable extends HTMLElement {
   }
 
   _updateShadow() {
-    const trackWidth = this.$horizontal.clientWidth
-    const trackHeight = this.$vertical.clientHeight
-    const thumbLeft = this._getThumbLeft()
-    const thumbTop = this._getThumbTop()
-    const thumbWidth = this.$horizontalThumb.offsetWidth
-    const thumbHeight = this.$verticalThumb.offsetHeight
-    this.isLeftScrolled = thumbLeft > 0
-    this.isRightScrolled = trackWidth - thumbWidth - thumbLeft > 0
-    this.isTopScrolled = thumbTop > 0
-    this.isBottomScrolled = trackHeight - thumbHeight - thumbTop > 0
-    this.$layout.classList.toggle('shadow-left', this.isLeftScrolled)
-    this.$layout.classList.toggle('shadow-right', this.isRightScrolled)
-    this.$layout.classList.toggle('shadow-top', this.isTopScrolled)
-    this.$layout.classList.toggle('shadow-bottom', this.isBottomScrolled)
+    const {
+      scrollLeft,
+      scrollTop,
+      scrollWidth,
+      scrollHeight,
+      clientWidth,
+      clientHeight,
+    } = this.$viewport
+
+    this.canScrollLeft = scrollLeft > 0
+    this.canScrollRight = scrollWidth - (scrollLeft + clientWidth) > 0
+    this.canScrollTop = scrollTop > 0
+    this.canScrollBottom = scrollHeight - (scrollTop + clientHeight) > 0
   }
 
   _initMoveEvents() {
