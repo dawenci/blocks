@@ -310,10 +310,14 @@ class BlocksScrollable extends HTMLElement {
     const thumbTop = this._getThumbTop()
     const thumbWidth = this.$horizontalThumb.offsetWidth
     const thumbHeight = this.$verticalThumb.offsetHeight
-    this.$layout.classList.toggle('shadow-left', thumbLeft > 0)
-    this.$layout.classList.toggle('shadow-right', trackWidth - thumbWidth - thumbLeft > 0)
-    this.$layout.classList.toggle('shadow-top', thumbTop > 0)
-    this.$layout.classList.toggle('shadow-bottom', trackHeight - thumbHeight - thumbTop > 0)
+    this.isLeftScrolled = thumbLeft > 0
+    this.isRightScrolled = trackWidth - thumbWidth - thumbLeft > 0
+    this.isTopScrolled = thumbTop > 0
+    this.isBottomScrolled = trackHeight - thumbHeight - thumbTop > 0
+    this.$layout.classList.toggle('shadow-left', this.isLeftScrolled)
+    this.$layout.classList.toggle('shadow-right', this.isRightScrolled)
+    this.$layout.classList.toggle('shadow-top', this.isTopScrolled)
+    this.$layout.classList.toggle('shadow-bottom', this.isBottomScrolled)
   }
 
   _initMoveEvents() {
