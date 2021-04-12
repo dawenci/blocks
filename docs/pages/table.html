@@ -333,8 +333,6 @@
     </section>
 
 
-
-
     <section class="section">
       <h2>合计行</h2>
 
@@ -433,6 +431,112 @@
       </template>
     </section>
 
+
+    <section class="section">
+      <h2>可调整列宽</h2>
+
+      <p>列配置中，启用 resizable，即表示允许拖拽调整列宽。</p>
+
+      <template data-codesource="html">
+        <bl-table border id="resize" style="width:480px;height:200px;"></bl-table>
+
+        <script>
+          (() => {
+            const $widget = document.getElementById('resize')
+            const summaryRender = (column, index, data, $cell) => {
+              return data.reduce((acc, item) => acc + item[column.prop], 0)
+            }
+            $widget.columns = [
+              {
+                label: '序号',
+                prop: 'c0',
+                align: 'center',
+                minWidth: 80,
+                maxWidth: 140,
+                fixedLeft: true,
+                resizable: true,
+                summaryRender() {
+                  return '合计'
+                },
+              },
+              {
+                label: 'column 1',
+                prop: 'c1',
+                align: 'center',
+                children: [
+                  {
+                    label: 'column 1-0',
+                    prop: 'c10',
+                    align: 'center',
+                    minWidth: 80,
+                    summaryRender,
+                    resizable: true,
+                  },
+                  {
+                    label: 'column 1-1',
+                    prop: 'c11',
+                    align: 'center',
+                    minWidth: 80,
+                    summaryRender,
+                    resizable: true,
+                  }
+                ],
+              },
+              {
+                label: 'column 2',
+                prop: 'c2',
+                align: 'center',
+                minWidth: 80,
+                summaryRender,
+                resizable: true,
+              },
+              {
+                label: 'column 3',
+                prop: 'c3',
+                align: 'center',
+                minWidth: 80,
+                summaryRender,
+                resizable: true,
+              },
+              {
+                label: 'column 4',
+                prop: 'c4',
+                align: 'center',
+                minWidth: 80,
+                summaryRender,
+                resizable: true,
+              },
+
+              {
+                label: 'column 5',
+                prop: 'c5',
+                align: 'center',
+                minWidth: 80,
+                summaryRender,
+                resizable: true,
+              }
+            ]
+
+            const data = []
+            for (let i = 0; i < 20; i += 1) {
+              data.push({
+                c0: i + 1,
+                c1: 20,
+                c10: 30,
+                c11: 40,
+                c2: 50,
+                c3: 60,
+                c4: 70,
+                c5: 80,
+              })
+            }
+
+            $widget.data = data
+          })()
+          
+        </script>
+      </template>
+    </section>
 
     <section class="section">
       <h2>API</h2>

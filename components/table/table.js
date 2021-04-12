@@ -7,7 +7,9 @@ import '../scrollable/index.js'
 import './header.js'
 import './body.js'
 
-import { __border_color_light, __color_danger_light } from '../../theme/var.js'
+import { __border_color_light, __color_danger_light, __color_primary_light } from '../../theme/var.js'
+import { setStyles } from '../../common/style.js'
+import { onDragMove } from '../../common/onDragMove.js'
 
 const cssTemplate = document.createElement('style')
 cssTemplate.textContent = `
@@ -46,137 +48,46 @@ cssTemplate.textContent = `
   background-image: linear-gradient(to left, rgba(0,0,0,.1), rgba(0,0,0,.0))
 }
 
-
 /* 列宽调整柄 */
-.VGrid_resize_handler {
+#resize-handle {
   position: absolute;
   z-index: 2;
   top: 0;
   right: auto;
   bottom: auto;
-  left: -5px;
-  width: 5px;
-  user-select: text;
+  left: -6px;
+  width: 6px;
+  user-select: none;
   cursor: col-resize;
 }
-.VGrid_resize_handler.VGrid_resize_handler-resizing {
-  background-color: #f00;
+#resize-handle::before,
+#resize-handle::after {
+  position: absolute;
+  content: '';
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
 }
-
-/* 拖拽过程，避免选中文本 */
-.VGrid.VGrid-resizing {
-  user-select: none;
+#resize-handle::before {
+  width: 100%;
+  height: 100%;
+}
+#resize-handle::after {
+  width: 1px;
+  height: 100%;
+}
+#resize-handle:hover::before,
+:host(.resizing) #resize-handle::before {
+  background-color: var(--color-primary-light, ${__color_primary_light});
+  opacity: .5;
+}
+#resize-handle:hover::after,
+:host(.resizing) #resize-handle::after {
+  background-color: var(--color-primary-light, ${__color_primary_light});
 }
 `
-
-const template = document.createElement('template')
-template.innerHTML = `
-<div class="VGrid" :class="{'VGrid-border': border}" :style="styleObject">
-  <!-- 左固定列 -->
-  <template v-if="hasFixedLeft() && shouldShowFixedColumns()">
-    <div
-      v-mousewheel="_onFixedMousewheel"
-      class="VGridFixed VGridFixedLeft"
-      :class="{VGridFixedScroll: scrollLeft}"
-      :style="{
-        width: fixedLeftWidth() - 1 + 'px',
-        height: getHeaderHeight() + viewportHeight + 'px'
-      }">
-      <!-- 表头 -->
-      <VGridHeader
-        ref="leftHeader"
-        area="left"
-        :store="store"
-        :viewport-width="fixedLeftWidth()"
-        :canvas-width="fixedLeftWidth()"
-        @enter-cell="_onEnterCell"
-        @leave-cell="_onLeaveCell"
-      />
-
-      <!-- 内容 -->
-      <VGridBody
-        ref="leftBody"
-        area="left"
-        :store="store"
-        :canvas-width="fixedLeftWidth()"
-        :rows="rows"
-        @items-size-change="_onItemsSizeChange"
-        @click-row="_onClickRow"
-      />
-    </div>
-  </template>
-
-  <!-- 右固定列 -->
-  <template v-if="hasFixedRight() && shouldShowFixedColumns()">
-    <div
-      v-mousewheel="_onFixedMousewheel"
-      class="VGridFixed VGridFixedRight"
-      :class="{VGridFixedScroll: scrollLeft + viewportWidth !== canvasWidth}"
-      :style="{
-        width: fixedRightWidth() + 'px',
-        height: getHeaderHeight() + viewportHeight + 'px',
-        right: (hasMainScrollbar ? getMainScrollbarSize() : 0) + 'px'
-      }">
-      <!-- 表头 -->
-      <VGridHeader
-        ref="rightHeader"
-        area="right"
-        :store="store"
-        :viewport-width="fixedRightWidth()"
-        :canvas-width="fixedRightWidth()"
-        @enter-cell="_onEnterCell"
-        @leave-cell="_onLeaveCell"
-      />
-
-      <!-- 内容 -->
-      <VGridBody
-        ref="rightBody"
-        area="right"
-        :store="store"
-        :canvas-width="fixedRightWidth()"
-        :rows="rows"
-        @items-size-change="_onItemsSizeChange"
-        @click-row="_onClickRow"
-      />
-    </div>
-  </template>
-
-  <!-- 页脚，合计行 -->
-  <template v-if="summary">
-    <VGridFooter
-      ref="footer"
-      :store="store"
-      :viewport-width="viewportWidth"
-      :canvas-width="canvasWidth"
-      :scroll-left="scrollLeft"
-    />
-  </template>
-
-  <!-- 列宽调整 -->
-  <template>
-    <div
-      class="VGrid_resize_handler VGrid_resize_handler-left"
-      :style="{
-        left: resizeHandlerLeft + 'px',
-        height: getHeaderHeight() + 'px'
-      }"
-      @mousedown="_onResizeStart"
-    />
-    <div
-      class="VGrid_resize_handler VGrid_resize_handler-right"
-      :style="{
-        left: resizeHandlerRight + 'px',
-        height: getHeaderHeight() + 'px'
-      }"
-      @mousedown="_onResizeStart"
-    />
-  </template>
-
-  <!-- 列定义 -->
-  <slot />
-</div>
-`
-
 
 let gridId = 0
 
@@ -213,20 +124,46 @@ export default class BlocksTable extends HTMLElement {
     this._updateFiexedColumnShadow()
   }
 
+  // 数据排序方法
+  // @Prop({ type: Function }) sortMethod?: (a: any, b: any) => number
+
+  // 数据禁止切换激活的检查方法
+  // @Prop({ type: Function, default: () => false })
+  // disableActiveMethod
+
+  // 当前的激活行
+  activeRow = null
+
+  resizeHandlerLeft = -5
+
+  resizeHandlerRight = -5
+
+  // 当前实例是否 VGrid
+  gridId = ++gridId
+
+  resizehandler = null
+
+  resizeStartOffset = 0
+
   constructor() {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
 
+    // 表头
     this.$mainHeader = shadowRoot.appendChild(document.createElement('bl-table-header'))
     this.$mainHeader.$host = this
 
+    // 表身
     this.$mainBody = shadowRoot.appendChild(document.createElement('bl-table-body'))
     this.$mainBody.$host = this
 
-    // 水平滚动
-    this.$mainBody.onscroll = (e) => {
-      // 同步 header 的左右滚动
+    // 列宽拖拽柄
+    this.$resizeHandle = shadowRoot.appendChild(document.createElement('div'))
+    this.$resizeHandle.id = 'resize-handle'
+
+    // 水平滚动，同步 header 的左右滚动
+    this.$mainBody.onscroll = e => {
       this.$mainHeader.scrollLeft = this.$mainBody.getScrollCross()
     }
 
@@ -237,6 +174,23 @@ export default class BlocksTable extends HTMLElement {
     this.$mainBody.addEventListener('can-scroll-right-change', () => {
       this._updateFiexedColumnShadow()
     })
+
+    // hover header 渲染拖拽柄
+    this.$mainHeader.addEventListener('enter-cell', e => {
+      const { $cell, column } = e.detail
+      // 只允许拖拽调整末级列
+      if (column.resizable && !column.children?.length && !this.classList.contains('resizing')) {
+        this.$resizeHandle.$cell = $cell
+        this.$resizeHandle.column = column
+        setStyles(this.$resizeHandle, {
+          height: $cell.offsetHeight + 'px',
+          left: $cell.offsetLeft + $cell.clientWidth - this.$mainHeader.scrollLeft - 3 + 'px',
+          top: $cell.offsetTop + 'px',
+        })
+      }
+    })
+
+    this._initResizeEvent()
   }
 
   _updateFiexedColumnShadow() {
@@ -384,33 +338,6 @@ export default class BlocksTable extends HTMLElement {
     return Math.max(bodyWidth, columnsMinWidth)
   }
 
-  // 显示合计行
-  // @Prop({ type: Boolean, default: false }) summary!
-
-  // 数据列表
-  // @Prop({ type: Array, default: () => ([]) }) data!: any[]
-
-  // 数据排序方法
-  // @Prop({ type: Function }) sortMethod?: (a: any, b: any) => number
-
-  // 数据禁止切换激活的检查方法
-  // @Prop({ type: Function, default: () => false })
-  // disableActiveMethod
-
-  // 当前的激活行
-  activeRow = null
-
-  resizeHandlerLeft = -5
-
-  resizeHandlerRight = -5
-
-  // 当前实例是否 VGrid
-  gridId = ++gridId
-
-  resizehandler = null
-
-  resizeStartOffset = 0
-
   // 进行布局，调整各列的宽度以适配排版容器
   layout(canvasWidth) {
     this.$mainHeader.$canvas.style.width = canvasWidth + 'px'
@@ -468,6 +395,7 @@ export default class BlocksTable extends HTMLElement {
 
   // 获取面板允许扩张的尺寸
   _getGrowSize(column) {
+    if (column.resizable) return 0
     const size = column.maxWidth - column.width
     if (size > 0) return size
     return 0
@@ -475,6 +403,7 @@ export default class BlocksTable extends HTMLElement {
 
   // 获取面板允许收缩的尺寸
   _getShrinkSize(column) {
+    if (column.resizable) return 0
     const size = column.width - column.minWidth
     if (size > 0) return size
     return 0
@@ -564,64 +493,52 @@ export default class BlocksTable extends HTMLElement {
     return false
   }
 
-  _onEnterCell({ el, columnId }) {
-    const rect = el.getBoundingClientRect()
-    const relative = this.$mainHeader.getBoundingClientRect()
-    // cell 左侧距离 header 左侧的距离
-    const left = rect.left - relative.left
-    const right = left + rect.width
+  _initResizeEvent() {
+    let startX
+    let column
+    let $cell
 
-    if (!this._isFirstColumn(columnId)) {
-      this.resizeHandlerLeft = left - 3
+    const update = offset => {
+      let newX = startX + offset.x
+      if (offset.x < 0) {
+        if (column.width + offset.x < column.minWidth) {
+          newX = startX - (column.width - column.minWidth)
+        }
+      }
+      else {
+        if (column.width + offset.x > column.maxWidth) {
+          newX = startX - (column.width - column.maxWidth)
+        }
+      }
+      return newX
     }
 
-    if (!this._isLastColumn(columnId)) {
-      this.resizeHandlerRight = right - 3
-    }
+    onDragMove(this.$resizeHandle, {
+      onStart: () => {
+        this.classList.add('resizing')
+        startX = parseInt(this.$resizeHandle.style.left, 10)
+        column = this.$resizeHandle.column
+        $cell = this.$resizeHandle.$cell
+      },
+
+      onMove: ({ offset }) => {
+        const newX = update(offset)
+        this.$resizeHandle.style.left = newX + 'px'
+      },
+
+      onEnd: ({ offset }) => {
+        this.classList.remove('resizing')
+        const newX = update(offset)
+        const offsetX = (newX - startX)
+        column.width += offsetX
+        this.render()
+      },
+
+      onCancel: () => {
+        this.classList.remove('resizing')
+      }      
+    })
   }
-
-  _onLeaveCell({ to }) {
-    if (!to?.classList?.contains?.('VGrid_resize_handler')) {
-      this.resizeHandlerLeft = -5
-      this.resizeHandlerRight = -5
-    }
-  }
-
-  _onResizeMove(event) {
-    const isLeft = this.resizehandler.classList.contains('VGrid_resize_handler-left')
-    if (isLeft) {
-      this.resizeHandlerLeft = event.pageX - this.resizeStartOffset
-    }
-    else {
-      this.resizeHandlerRight = event.pageX - this.resizeStartOffset
-    }
-  }
-
-  _onResizeEnd(event) {
-    removeEventListener('mousemove', this._onResizeMove)
-    removeEventListener('mouseup', this._onResizeEnd)
-    const isLeft = this.resizehandler.classList.contains('VGrid_resize_handler-left')
-    this.$el.classList.remove('VGrid-resizing')
-    this.resizehandler.classList.remove('VGrid_resize_handler-resizing')
-    this.resizehandler = null
-    if (isLeft) {
-      this.resizeHandlerLeft = event.pageX - this.resizeStartOffset
-    }
-    else {
-      this.resizeHandlerRight = event.pageX - this.resizeStartOffset
-    }
-  }
-
-  _onResizeStart(event) {
-    addEventListener('mouseup', this._onResizeEnd)
-    addEventListener('mousemove', this._onResizeMove)
-    this.resizehandler = event.target
-    const isLeft = this.resizehandler.classList.contains('VGrid_resize_handler-left')
-    this.$el.classList.add('VGrid-resizing')
-    this.resizehandler.classList.add('VGrid_resize_handler-resizing')
-    this.resizeStartOffset = event.pageX - (isLeft ? this.resizeHandlerLeft : this.resizeHandlerRight)
-  }
-
 }
 
 if (!customElements.get('bl-table')) {

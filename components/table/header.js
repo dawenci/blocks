@@ -1,4 +1,4 @@
-import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
+import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __bg_base_header, __border_color_light, __fg_secondary } from '../../theme/var.js'
@@ -123,15 +123,6 @@ export default class BlocksTableHeader extends HTMLElement {
     return []
   }
 
-  constructor() {
-    super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
-    shadowRoot.appendChild(cssTemplate.cloneNode(true))
-    shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$viewport = shadowRoot.querySelector('.viewport')
-    this.$canvas = shadowRoot.querySelector('.columns')
-  }
-
   get columns() {
     return this._columns
   }
@@ -148,6 +139,32 @@ export default class BlocksTableHeader extends HTMLElement {
   set scrollLeft(value) {
     this.$viewport.scrollLeft = value
   }
+
+  constructor() {
+    super()
+    const shadowRoot = this.attachShadow({mode: 'open'})
+    shadowRoot.appendChild(cssTemplate.cloneNode(true))
+    shadowRoot.appendChild(template.content.cloneNode(true))
+    this.$viewport = shadowRoot.querySelector('.viewport')
+    this.$canvas = shadowRoot.querySelector('.columns')
+
+    this._initHoverEvent()
+  }
+
+  _initHoverEvent() {
+    this.$canvas.addEventListener('mouseover', e => {
+      let $cell = e.target
+      while ($cell && $cell !== this.$canvas) {
+        if ($cell.classList.contains('cell')) {
+          if ($cell === this._$cell) return
+          this._$cell = $cell
+          dispatchEvent(this, 'enter-cell', { detail: { $cell, column: $cell.column } })
+          return
+        }
+        $cell = $cell.parentNode
+      }
+    })
+  }  
 
   widthSum(column, value = 0) {
     if (column.children.length) {
@@ -206,6 +223,8 @@ export default class BlocksTableHeader extends HTMLElement {
       const $cellInner = $cell.firstElementChild
       $cellInner.innerHTML = ''
       $cellInner.appendChild($content)
+      
+      $cell.column = column
       
       setStyles($cell, {
         width: column.width + 'px',
