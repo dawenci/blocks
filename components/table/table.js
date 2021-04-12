@@ -6,6 +6,7 @@ import RowColumn from './RowColumn.js'
 import '../scrollable/index.js'
 import './header.js'
 import './body.js'
+
 import { __border_color_light, __color_danger_light } from '../../theme/var.js'
 
 const cssTemplate = document.createElement('style')
@@ -310,16 +311,15 @@ export default class BlocksTable extends HTMLElement {
 
   attributeChangedCallback(attrName, oldVal, newVal) {}
 
-
-  // 获取指定条件的末级列
-  // @Provide()
-  getFlattenColumns(pred) {
+  // 获取（可选过滤条件的）末级列
+  getLeafColumnsWith(pred) {
     const columns = []
     const flat = (column, parentColumn) => {
       if (pred && !pred(column, parentColumn)) return
       if (column?.children?.length) {
         column.children.forEach(child => flat(child, column))
       }
+      // leaf
       else {
         columns.push(column)
       }
@@ -328,72 +328,49 @@ export default class BlocksTable extends HTMLElement {
     return columns
   }
 
-  // // 获取非固定根列下的所有末级列
-  // // @Provide()
-  // getFlattenNonfixedColumns() {
-  //   return this.getFlattenColumns((column, parentColumn) => {
-  //     // 非根节点无需判断全部 true
-  //     if (parentColumn) return true
-  //     // 根节点需要判断
-  //     return !column.fixedLeft && !column.fixedRight
-  //   })
-  // }
-
-  // 获取固定根列下的所有末级列
-  // @Provide()
-  // 'left' | 'right'
-  getFlattenFixedColumns(area) {
-    return this.getFlattenColumns((column, parentColumn) => {
-      // 非根节点，无需判断，全部 true
-      if (parentColumn) return true
-      // 根节点，需要判断
-      if (area === 'left') return column.fixedLeft
-      if (area === 'right') return column.fixedRight
-      return column.fixedLeft || column.fixedRight
+  // 获取所有固定末级列
+  // undefined | 'left' | 'right'
+  getFixedLeafColumns(area) {
+    if (area === 'left' || area === 'right') {
+      const prop = area === 'left' ? 'fixedLeft' : 'fixedRight'
+      return this.getLeafColumnsWith(column => {
+        let col = column
+        while (col) {
+          if (col[prop]) return true
+          col = col.parent
+        }
+        return false
+      })
+    }
+    return this.getLeafColumnsWith(column => {
+      let col = column
+        while (col) {
+          if (col.fixedLeft || col.fixedRight) return true
+          col = col.parent
+        }
+        return false
     })
   }
 
-  // // 是否要渲染固定列
-  // // @Provide()
-  // shouldShowFixedColumns() {
-  //   // 1. viewport 总宽度足够，无需滚动条就可以显示所有列，则不需要固定列
-  //   if (!this.$mainBody.hasCrossScrollbar) return false
-
-  //   // 2. 所有列都设置成固定列，也没有意义，不需要固定列
-  //   if (this.columns.every(column => column.fixedLeft || column.fixedRight)) {
-  //     return false
-  //   }
-
-  //   // 3. 固定列的宽度超过 viewport，则不显示固定列，否则会导致主体内容无法被展示
-  //   const fixedWidth = this.fixedLeftWidth() + this.fixedRightWidth()
-  //   if (fixedWidth >= this.$mainBody.offsetWidth) return false
-
-  //   return true
-  // }
-
   // 是否有左固定列
-  // @Provide()
   hasFixedLeft() {
     return this.columns.some(column => !!column.fixedLeft)
   }
 
   // 是否有右固定列
-  // @Provide()
   hasFixedRight() {
     return this.columns.some(column => !!column.fixedRight)
   }
 
   // 计算左固定列的宽度
-  // @Provide()
   fixedLeftWidth() {
-    return this.getFlattenFixedColumns('left')
+    return this.getFixedLeafColumns('left')
       .reduce((acc, column) => acc + column.width, 0)
   }
 
   // 计算右固定列的宽度
-  // @Provide()
   fixedRightWidth() {
-    return this.getFlattenFixedColumns('right')
+    return this.getFixedLeafColumns('right')
       .reduce((acc, column) => acc + column.width, 0)
   }
 
@@ -401,21 +378,11 @@ export default class BlocksTable extends HTMLElement {
   // 计算用于内容排版的画布尺寸
   // @Provide()
   getCanvasWidth() {
-    const columnsMinWidth = this.getFlattenColumns()
+    const columnsMinWidth = this.getLeafColumnsWith()
       .reduce((acc, column) => acc + column.minWidth, 0)
     const bodyWidth = this.$mainBody?.clientWidth ?? this.width ?? 400
     return Math.max(bodyWidth, columnsMinWidth)
   }
-
-
-  // 组件宽度，不设置则为容器的 100%
-  // @Prop({ type: Number }) width!: number
-
-  // 组件高度，不设置则为容器的 100%
-  // @Prop({ type: Number }) height?: number
-
-  // 显示框线
-  // @Prop({ type: Boolean, default: true }) border!
 
   // 显示合计行
   // @Prop({ type: Boolean, default: false }) summary!
@@ -426,45 +393,12 @@ export default class BlocksTable extends HTMLElement {
   // 数据排序方法
   // @Prop({ type: Function }) sortMethod?: (a: any, b: any) => number
 
-  // 数据 id，生成 rowKey 的字段
-  // @Prop({ type: String, default: 'id' }) idField!: string
-
-  // 数据提取 id 的方法，优先级比 labelField 高
-  // @Prop({ type: Function }) idMethod!: ((data: any) => string)
-
   // 数据禁止切换激活的检查方法
   // @Prop({ type: Function, default: () => false })
   // disableActiveMethod
 
-  // 包裹后的行数据
-  rows = []
-
-  // 映射：key --> 行数据，方便快速定位行
-  keyNodeMap = Object.freeze(Object.create(null))
-
-  // 是否已经绑定了数据（首次加载数据）
-  isDataBound = false
-
-  // 视口宽度
-  viewportWidth = 0
-
-  // 视口高度
-  viewportHeight = 0
-
-  // 内容布局宽度
-  canvasWidth = 0
-
-  // 当前的水平滚动偏移值
-  scrollLeft = 0
-
   // 当前的激活行
   activeRow = null
-
-  // 当前是否有垂直滚动条
-  hasMainScrollbar = false
-
-  // 当前是否有水平滚动条
-  hasCrossScrollbar = false
 
   resizeHandlerLeft = -5
 
@@ -477,30 +411,13 @@ export default class BlocksTable extends HTMLElement {
 
   resizeStartOffset = 0
 
-  // 样式
-  get styleObject() {
-    return {
-      width: this.width ? `${this.width}px` : '100%',
-      height: this.height ? `${this.height}px` : '100%',
-    }
-  }
-
-  // ID 获取方法
-  get internalKeyMethod() {
-    return typeof this.idMethod === 'function'
-      ? this.idMethod
-      : typeof this.idField === 'string'
-        ? (data) => data[this.idField]
-        : (data) => data.id
-  }
-
   // 进行布局，调整各列的宽度以适配排版容器
   layout(canvasWidth) {
     this.$mainHeader.$canvas.style.width = canvasWidth + 'px'
     this.$mainBody.crossSize = canvasWidth
 
     // 已分配的宽度
-    const sum = this.getFlattenColumns()
+    const sum = this.getLeafColumnsWith()
       .reduce((acc, column) => acc + column.width, 0)
 
     // 剩余未分配的宽度
@@ -514,20 +431,20 @@ export default class BlocksTable extends HTMLElement {
 
     // 未分配的尺寸大于 0，需要将这些尺寸加在各个 column 上
     if (remainingWidth > 0) {
-      this._expandColumns(remainingWidth, this.getFlattenColumns())
+      this._expandColumns(remainingWidth, this.getLeafColumnsWith())
       dispatchEvent(this, 'layout')
       return
     }
 
     // 未分配的尺寸小于 0，需要将这些收缩量分配到 column 上
-    this._shrinkColumns(-remainingWidth, this.getFlattenColumns())
+    this._shrinkColumns(-remainingWidth, this.getLeafColumnsWith())
 
     dispatchEvent(this, 'layout')
   }
 
   // 激活某行
   active(rowKey) {
-    const row = this.keyNodeMap[rowKey]
+    const row = this.getVirtualItemByKey(rowKey)
 
     // 目标行不存在，则清除当前激活行后退出
     if (!row) {
@@ -537,7 +454,7 @@ export default class BlocksTable extends HTMLElement {
     }
 
     // 目标行不允许激活，直接退出
-    if (this.disableActiveMethod(row)) {
+    if (this.disableActiveMethod && this.disableActiveMethod(row)) {
       return
     }
 
@@ -611,11 +528,6 @@ export default class BlocksTable extends HTMLElement {
       }
     }
     loop(rest, columns)
-  }
-
-  // 更新内容排版画布的尺寸
-  _updateCanvasWidth() {
-    this.canvasWidth = this.getCanvasWidth()
   }
 
   _isFirstColumn(columnId) {

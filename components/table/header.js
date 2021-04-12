@@ -197,7 +197,11 @@ export default class BlocksTableHeader extends HTMLElement {
       }
 
       // 渲染自定义模板 OR 渲染 label
-      const $content = column.headRender(column)
+      let $content = column.headRender(column)
+      if (!($content instanceof Node)) {
+        $content = document.createTextNode($content ?? '')
+      }
+
       const $cell = cellTemplate.cloneNode(true)
       const $cellInner = $cell.firstElementChild
       $cellInner.innerHTML = ''

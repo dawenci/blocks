@@ -35,6 +35,7 @@ const TEMPLATE_CSS = `<style>
   display: block;
   box-sizing: border-box;
   position: absolute;
+  z-index: 1;
   border-radius: 3px;
   user-select: none;
   transition: opacity var(--transition-duration, ${__transition_duration});
@@ -292,7 +293,8 @@ class BlocksScrollable extends HTMLElement {
         transform: `translateX(${thumbLeft}px)`,
         width: `${thumbWidth}px`
       })
-      this._updateShadow()
+      this._updateShadowState()
+      this._udpateScrollbarState()
     }
     else {
       this.$horizontal.style.display = 'none'
@@ -310,7 +312,8 @@ class BlocksScrollable extends HTMLElement {
         transform: `translateY(${thumbTop}px)`,
         height: `${thumbHeight}px`
       })
-      this._updateShadow()
+      this._updateShadowState()
+      this._udpateScrollbarState()
     }
     else {
       this.$vertical.style.display = 'none'
@@ -351,7 +354,7 @@ class BlocksScrollable extends HTMLElement {
     return parseFloat((this.$horizontalThumb.style.transform ?? '').slice(11, -3)) || 0
   }
 
-  _updateShadow() {
+  _updateShadowState() {
     const {
       scrollLeft,
       scrollTop,
@@ -365,6 +368,11 @@ class BlocksScrollable extends HTMLElement {
     this.canScrollRight = scrollWidth - (scrollLeft + clientWidth) > 0
     this.canScrollTop = scrollTop > 0
     this.canScrollBottom = scrollHeight - (scrollTop + clientHeight) > 0
+  }
+
+  _udpateScrollbarState() {
+    this.$layout.classList.toggle('vertical-scrollbar', this.hasVerticalScrollbar)
+    this.$layout.classList.toggle('horizontal-scrollbar', this.hasHorizontalScrollbar)
   }
 
   _initMoveEvents() {
@@ -395,7 +403,8 @@ class BlocksScrollable extends HTMLElement {
         this.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
       }
 
-      this._updateShadow()
+      this._updateShadowState()
+      this._udpateScrollbarState()
       this._updateScrollable()
     }
 
@@ -437,7 +446,8 @@ class BlocksScrollable extends HTMLElement {
           this.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
         }
 
-        this._updateShadow()
+        this._updateShadowState()
+        this._udpateScrollbarState()
         this._updateScrollable()
         return
       }

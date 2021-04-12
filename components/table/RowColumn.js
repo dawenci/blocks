@@ -10,6 +10,8 @@ export default class RowColumn {
       return document.createTextNode(data[column.prop] ?? '')
     })
 
+    this.summaryRender = options.summaryRender
+
     this.label = options.label
     this.prop = options.prop
     this.align = options.align
@@ -20,7 +22,6 @@ export default class RowColumn {
     this.fixedRight = !!options.fixedRight
     this.sortOrder = ['none', 'ascending', 'descending'].includes(options.sortOrder) ? options.sortOrder : 'none'
     this.resizable = !!options.resizable
-    this.summaryMethod = options.summaryMethod
 
     this.children = (options.children ?? []).map(child => {
       const childRow = child instanceof RowColumn ? child : new RowColumn(child)

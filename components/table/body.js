@@ -3,14 +3,18 @@ import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setStyles } from '../../common/style.js'
 import { dispatchEvent } from '../../common/event.js'
 import { __border_color_light } from '../../theme/var.js'
+import { intGetter, intSetter } from '../../common/property.js'
 
-const cssTemplate = document.createElement('style')
-cssTemplate.textContent = `
+// 表格 table 部分样式
+const CSS1 = `
 :host {
   flex: 1 1 100%;
   overflow: hidden;
 }
+`
 
+// 表格行、合计行共用样式
+const CSS2 = `
 /* 表格行 */
 .row {
   display: flex;
@@ -69,6 +73,38 @@ cssTemplate.textContent = `
 }
 `
 
+// 覆盖 scrollable 排版样式，新增合计行样式
+const CSS3 = `
+#layout {
+  display: flex;
+  flex-flow: column nowrap;
+}
+#layout.has-summary #summary {
+  display: block;
+}
+#viewport {
+  flex: 1 1 auto;
+}
+#layout:not(.has-summary) #viewport.cross-scrollbar {
+  margin-bottom: 6px;
+}
+#summary {
+  overflow: hidden;
+  display: none;
+  position: relative;
+  z-index: 0;
+  flex: 0 0 auto;
+  width: 100%;
+  margin-bottom: 6px;
+  box-shadow: 0 -2px 3px rgba(0,0,0,.1);
+}
+`
+
+const cssTemplate = document.createElement('style')
+cssTemplate.textContent = CSS1 + CSS2
+
+const cssTemplate2 = document.createElement('style')
+cssTemplate2.textContent = CSS2 + CSS3
 
 const cellTemplate = document.createElement('div')
 cellTemplate.className = 'cell'
@@ -86,8 +122,20 @@ class VirtualRow extends VirtualItem {
 
 export default class BlocksTableBody extends VList {
   static get observedAttributes() {
-    return VList.observedAttributes.concat([])
+    return VList.observedAttributes.concat(['summary-height'])
   }
+
+  get summaryHeight() {
+    return intGetter('summary-height')(this) || 0
+  }
+
+  set summaryHeight(value) {
+    intSetter('summary-height')(this, value)
+  }
+
+  get shouldRenderSummary() {
+    return this.flattenColumns.some(column => typeof column.summaryRender === 'function')
+  }  
 
   constructor() {
     super()
@@ -103,26 +151,23 @@ export default class BlocksTableBody extends VList {
     this.fixedRightColumns = []
 
     this.$list.onclick = this._onClick.bind(this)
+
+    this.addEventListener('scroll', () => {
+      // 同步合计行的左右滚动
+      if (this.$summary) {
+        this.$summary.scrollLeft = this.getScrollCross()
+      }
+    })
   }
 
   beforeRender() {
-    this.flattenColumns = this.$host.getFlattenColumns()
-    this.fixedLeftColumns = this.flattenColumns.filter(column => {
-      let col = column
-      while (col) {
-        if (col.fixedLeft) return true
-        col = col.parent
-      }
-      return false
-    })
-    this.fixedRightColumns = this.flattenColumns.filter(column => {
-      let col = column
-      while (col) {
-        if (col.fixedRight) return true
-        col = col.parent
-      }
-      return false
-    }).reverse()
+    this.flattenColumns = this.$host.getLeafColumnsWith()
+    this.fixedLeftColumns = this.$host.getFixedLeafColumns('left')
+    this.fixedRightColumns = this.$host.getFixedLeafColumns('right').reverse()
+  }
+
+  afterRender() {
+    this._renderSummaryRow()
   }
 
   itemRender($item, vitem) {
@@ -141,7 +186,10 @@ export default class BlocksTableBody extends VList {
     this.flattenColumns.forEach((column, index) => {
       const $cell = $item.children[index]
       const $cellInner = $cell.firstElementChild
-      const $content = column.render(vitem.data, column, $item.children[index])
+      let $content = column.render(vitem.data, column, $item.children[index])
+      if (!($content instanceof Node)) {
+        $content = document.createTextNode($content ?? '')
+      }
       $cellInner.innerHTML = ''
       $cellInner.appendChild($content)
 
@@ -180,6 +228,73 @@ export default class BlocksTableBody extends VList {
       })
     })
   }
+
+  _renderSummaryRow() {
+    if (this.shouldRenderSummary) {
+      if (!this.$summary) return
+      this.$viewport.$layout.classList.toggle('has-summary', true)
+
+      const data = this.$host.data
+      const $items = this.$summary.firstElementChild
+
+      while ($items.children.length > this.flattenColumns.length) {
+        $items.removeChild($items.lastElementChild)
+      }
+      while ($items.children.length < this.flattenColumns.length) {
+        $items.appendChild(cellTemplate.cloneNode(true))
+      }
+  
+      this.flattenColumns.forEach((column, index) => {
+        const $cell = $items.children[index]
+        const $cellInner = $cell.firstElementChild
+        let $content = column.summaryRender && column.summaryRender(column, index, data, $items.children[index])
+        if (!($content instanceof Node)) {
+          $content = document.createTextNode($content ?? '')
+        }
+        $cellInner.innerHTML = ''
+        $cellInner.appendChild($content)
+  
+        $cell.className = 'cell'
+        if (column.cellClass) {
+          column.cellClass.forEach(klass => {
+            $cell.classList.add(klass)
+          })
+        }
+        $cell.column = column
+  
+        const styles = {
+          width: column.width + 'px',
+          minWidth: column.minWidth + 'px',
+          maxWidth: column.maxWidth + 'px',
+        }
+  
+        if (this.fixedLeftColumns.includes(column)) {
+          styles.position = 'sticky'
+          styles.left = this.getFixedOffsetLeft(column) + 'px'
+          styles.zIndex = '1'
+        }
+        else if (this.fixedRightColumns.includes(column)) {
+          styles.position = 'sticky'
+          styles.right = this.getFixedOffsetRight(column) + 'px'
+          styles.zIndex = '1'
+        }
+        else {
+          styles.position = ''
+          styles.zIndex = ''
+        }
+  
+        setStyles($cell, styles)
+        setStyles($cellInner, {
+          textAlign: column.align
+        })
+      })
+
+
+    }
+    else {
+      this.$viewport.$layout.classList.toggle('has-summary', false)
+    }
+  }  
 
   getFixedOffsetLeft(column) {
     let value = 0
@@ -229,21 +344,31 @@ export default class BlocksTableBody extends VList {
   connectedCallback() {
     super.connectedCallback()
 
-    upgradeProperty(this, 'area')
     upgradeProperty(this, 'columns')
     upgradeProperty(this, 'data')
 
     requestAnimationFrame(() => {
       if (!this.$viewport.shadowRoot.querySelector('style#tableBodyStyle')) {
-        const style = this.$viewport.shadowRoot.insertBefore(document.createElement('style'), this.$viewport.$layout)
-        style.id = 'tableBodyStyle'
-        style.textContent = `
-        #viewport.cross-scrollbar {
-          height: calc(100% - 6px);
-        }
-        `
+        this.$viewport.shadowRoot.insertBefore(cssTemplate2.cloneNode(true), this.$viewport.$layout)
+      }
+
+      if (!this.$viewport.$layout.querySelector('#summary')) {
+        this.$summary = document.createElement('div')
+        this.$summary.id = 'summary'
+        this.$summary.appendChild(document.createElement('div')).className = 'row'
+        this.$viewport.$layout.appendChild(this.$summary)
       }
     })
+  }
+
+  attributeChangedCallback(attrName, oldVal, newVal) {
+    super.attributeChangedCallback(attrName, oldVal, newVal)
+
+    if (attrName === 'cross-size') {
+      if (this.$summary) {
+        this.$summary.firstElementChild.style.width = this.crossSize + 'px'
+      }
+    }
   }
 }
 
