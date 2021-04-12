@@ -530,8 +530,12 @@ export default class BlocksTable extends HTMLElement {
         this.classList.remove('resizing')
         const newX = update(offset)
         const offsetX = (newX - startX)
-        column.width += offsetX
-        this.render()
+        if (offsetX !== 0) {
+          column.width += offsetX
+          this.$mainHeader.render()
+          this.$mainBody._resetCalculated()
+          this.$mainBody.redraw()
+        }
       },
 
       onCancel: () => {
