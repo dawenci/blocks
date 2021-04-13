@@ -25,7 +25,7 @@ export default [
   { category: 'COMPONENTS', title: 'icon', url: 'pages/icon.html' },
   { category: 'COMPONENTS', title: 'image', url: 'pages/image.html' },
   { category: 'COMPONENTS', title: 'input', url: 'pages/input.html' },
-  { category: 'COMPONENTS', title: 'item', url: 'pages/item.html' },
+  // { category: 'COMPONENTS', title: 'item', url: 'pages/item.html' },
   { category: 'COMPONENTS', title: 'intersection', url: 'pages/intersection.html' },
   { category: 'COMPONENTS', title: 'list', url: 'pages/list.html' },
   { category: 'COMPONENTS', title: 'loading', url: 'pages/loading.html' },
