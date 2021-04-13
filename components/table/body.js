@@ -1,4 +1,4 @@
-import VList, { VirtualItem } from '../vlist/index.js'
+import VList from '../vlist/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setStyles } from '../../common/style.js'
 import { dispatchEvent } from '../../common/event.js'
@@ -110,19 +110,25 @@ const cellTemplate = document.createElement('div')
 cellTemplate.className = 'cell'
 cellTemplate.appendChild(document.createElement('div')).className = 'cell-content'
 
-class VirtualRow extends VirtualItem {
-  constructor(options) {
-    super(options)
-
-    // 过滤时临时使用
-    this._retain = false
-  }
-}
-
-
 export default class BlocksTableBody extends VList {
   static get observedAttributes() {
-    return VList.observedAttributes.concat(['summary-height'])
+    return VList.observedAttributes.concat(['sort-field', 'sort-order', 'summary-height'])
+  }
+
+  get sortField() {
+    return this.getAttribute('sort-field')
+  }
+
+  set sortField(value) {
+    this.setAttribute('sort-field', value)
+  }
+
+  get sortOrder() {
+    return this.getAttribute('sort-order')
+  }
+
+  set sortOrder(value) {
+    this.setAttribute('sort-order', value)
   }
 
   get summaryHeight() {
@@ -135,7 +141,7 @@ export default class BlocksTableBody extends VList {
 
   get shouldRenderSummary() {
     return this.flattenColumns.some(column => typeof column.summaryRender === 'function')
-  }  
+  }
 
   constructor() {
     super()
@@ -158,6 +164,26 @@ export default class BlocksTableBody extends VList {
         this.$summary.scrollLeft = this.getScrollCross()
       }
     })
+  }
+
+  async sortMethod(data) {
+    const column = this.flattenColumns.find(column => column.prop == this.sortField)
+    if (!column || column.sortOrder === 'none') return data
+
+    const $cell = document.createElement('div')
+    data.sort((a, b) => {
+      if (column.sortMethod) {
+        const value = column.sortMethod(a.data, b.data)
+        return value * (column.sortOrder === 'ascending' ? 1 : -1)
+      }
+      // 如果没有自定义排序方法，则默认以字符串的字典序排列
+      const labelA = column.render(a.data, column, $cell)
+      const labelB = column.render(b.data, column, $cell)
+      const va = labelA instanceof Node ? labelA.textContent : labelA
+      const vb = labelB instanceof Node ? labelB.textContent : labelB
+      return va.localeCompare(vb) * (column.sortOrder === 'ascending' ? 1 : -1)
+    })
+    return data
   }
 
   beforeRender() {
@@ -368,6 +394,19 @@ export default class BlocksTableBody extends VList {
       if (this.$summary) {
         this.$summary.firstElementChild.style.width = this.crossSize + 'px'
       }
+    }
+
+    else if (attrName === 'sort-field' || attrName === 'sort-order') {
+      this.doSort()
+    }
+  }
+
+  doSort() {
+    if (!this._sortFlag) {
+      this._sortFlag = Promise.resolve().then(() => {
+        this.generateViewData()
+        this._sortFlag = null
+      })
     }
   }
 }

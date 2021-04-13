@@ -12,6 +12,8 @@ export default class RowColumn {
 
     this.summaryRender = options.summaryRender
 
+    this.sortMethod = options.sortMethod
+
     this.label = options.label
     this.prop = options.prop
     this.align = options.align
@@ -20,7 +22,7 @@ export default class RowColumn {
     this.maxWidth = +options.maxWidth || Infinity
     this.fixedLeft = !!options.fixedLeft
     this.fixedRight = !!options.fixedRight
-    this.sortOrder = ['none', 'ascending', 'descending'].includes(options.sortOrder) ? options.sortOrder : 'none'
+    this.sortOrder = ['none', 'ascending', 'descending'].includes(options.sortOrder) ? options.sortOrder : null
     this.resizable = !!options.resizable
 
     this.children = (options.children ?? []).map(child => {

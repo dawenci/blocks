@@ -1,7 +1,7 @@
 import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { __bg_base_header, __border_color_light, __fg_secondary } from '../../theme/var.js'
+import { __bg_base_header, __border_color_light, __color_primary, __fg_placeholder, __fg_secondary } from '../../theme/var.js'
 
 const cssTemplate = document.createElement('style')
 cssTemplate.textContent = `
@@ -93,6 +93,35 @@ cssTemplate.textContent = `
   line-height: 20px;
 }
 
+/* 排序 */
+.cell.sortable {
+  cursor: pointer;
+}
+.sort {
+  margin-right: 8px;
+}
+.sort::before,
+.sort::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  margin: 2px 0;
+  border: 3px solid transparent;
+}
+.sort::before {
+  border-bottom: 4px solid var(--fg-placeholder, ${__fg_placeholder});
+}
+.sort::after {
+  border-top: 4px solid var(--fg-placeholder, ${__fg_placeholder});
+}
+.sort.ascending::before {
+  border-bottom-color: var(--color-primary, ${__color_primary});
+}
+.sort.descending::after {
+  border-top-color: var(--color-primary, ${__color_primary});
+}
+
 
 /* border 参数为 true */
 /* 为 cell 绘制竖直方向分割线 */
@@ -147,6 +176,38 @@ export default class BlocksTableHeader extends HTMLElement {
     this.$canvas = shadowRoot.querySelector('.columns')
 
     this._initHoverEvent()
+
+    this.$canvas.onclick = e => {
+      let $el = e.target
+      while ($el !== this.$canvas) {
+        if ($el.classList.contains('sortable')) {
+          const column = $el.column
+          switch(column.sortOrder) {
+            case 'none': {
+              column.sortOrder = 'ascending'
+              break
+            }
+            case 'ascending': {
+              column.sortOrder = 'descending'
+              break
+            }
+            case 'descending': {
+              column.sortOrder = 'none'
+              break
+            }
+          }
+          this.$host.getLeafColumnsWith().forEach(col => {
+            if (col.sortOrder && col !== column) {
+              col.sortOrder = 'none'
+            }
+          })
+          this.render()
+          dispatchEvent(this, 'sort', { detail: { column } })
+          break
+        }        
+        $el = $el.parentNode
+      }
+    }
   }
 
   _initHoverEvent() {
@@ -221,6 +282,21 @@ export default class BlocksTableHeader extends HTMLElement {
       const $cellInner = $cell.firstElementChild
       $cellInner.innerHTML = ''
       $cellInner.appendChild($content)
+
+      if (!column.children?.length && column.sortOrder != null) {
+        $cell.classList.add('sortable')
+        if (!$cell.querySelector('.sort')) {
+          const $sort = $cell.appendChild(document.createElement('div'))
+          $sort.className = `sort ${column.sortOrder}`
+        }
+      }
+      else {
+        $cell.classList.remove('sortable')
+        const $sort = $cell.querySelector('.sort')
+        if ($sort) {
+          $cell.removeChild($sort)
+        }
+      }
       
       $cell.column = column
       

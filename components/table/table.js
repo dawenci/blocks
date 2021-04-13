@@ -190,6 +190,12 @@ export default class BlocksTable extends HTMLElement {
       }
     })
 
+    this.$mainHeader.addEventListener('sort', e => {
+      const column = e.detail.column
+      this.$mainBody.sortField = column.prop
+      this.$mainBody.sortOrder = column.sortOrder
+    })
+
     this._initResizeEvent()
   }
 

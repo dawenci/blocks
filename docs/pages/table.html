@@ -538,6 +538,98 @@
       </template>
     </section>
 
+
+    <section class="section">
+      <h2>排序</h2>
+
+      <p>列配置中，配置 sortOrder，可以启用列排序功能。</p>
+
+      <template data-codesource="html">
+        <bl-table border id="sort" style="height:200px;"></bl-table>
+
+        <script>
+          (() => {
+            const $widget = document.getElementById('sort')
+            $widget.columns = [
+              {
+                label: '序号',
+                prop: 'c0',
+                align: 'center',
+                minWidth: 80,
+                maxWidth: 140,
+                sortOrder: 'none',
+                sortMethod: (a, b) => a.c0 - b.c0
+              },
+              {
+                label: 'column 1',
+                prop: 'c1',
+                align: 'center',
+                children: [
+                  {
+                    label: 'column 1-0',
+                    prop: 'c10',
+                    align: 'center',
+                    minWidth: 80,
+                    sortOrder: 'none',
+                  },
+                  {
+                    label: 'column 1-1',
+                    prop: 'c11',
+                    align: 'center',
+                    minWidth: 80,
+                    sortOrder: 'none',
+                  }
+                ],
+              },
+              {
+                label: 'column 2',
+                prop: 'c2',
+                align: 'center',
+                minWidth: 80,
+                sortOrder: 'none',
+              },
+              {
+                label: 'column 3',
+                prop: 'c3',
+                align: 'center',
+                minWidth: 80,
+              },
+              {
+                label: 'column 4',
+                prop: 'c4',
+                align: 'center',
+                minWidth: 80,
+              },
+
+              {
+                label: 'column 5',
+                prop: 'c5',
+                align: 'center',
+                minWidth: 80,
+              }
+            ]
+
+            const data = []
+            for (let i = 0; i < 20; i += 1) {
+              data.push({
+                c0: i + 1,
+                c1: 20 + i,
+                c10: 30 + i,
+                c11: 40 + i,
+                c2: 50 + i,
+                c3: 60 + i,
+                c4: 70 + i,
+                c5: 80 + i,
+              })
+            }
+
+            $widget.data = data
+          })()
+          
+        </script>
+      </template>
+    </section>
+
     <section class="section">
       <h2>API</h2>
       <table class="api-props">
