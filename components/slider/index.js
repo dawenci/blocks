@@ -186,13 +186,13 @@ class BlocksSlider extends HTMLElement {
   }
 
   get value() {
-    const attrValue = this.getAttribute('value')?.trim?.()
+    const attrValue = this.getAttribute('value')?.trim?.() ?? ''
     if (!this.range) {
       const value = parseFloat(attrValue)
       return value == value ? value : 0
     }
-    const values = (attrValue || '').split(',').map(n => parseFloat(n))
-    return values.every(n => this._isValidNumber(n)) ? values : [0, 0]
+    const values = attrValue.split(',').map(n => parseFloat(n))
+    return values.every(n => this._isValidNumber(n)) ? values.sort((a, b) => a - b) : [0, 0]
   }
 
   set value(value) {
@@ -201,7 +201,7 @@ class BlocksSlider extends HTMLElement {
       if (value.some(n => !this._isValidNumber(n))) return
       if (value.every((n, i) => n === this.value[i])) return
       value = value.slice()
-      value.sort()
+      value.sort((a, b) => a - b)
     }
     else {
       if (!this._isValidNumber(value) || this.value === value) return
@@ -298,27 +298,6 @@ class BlocksSlider extends HTMLElement {
     this.$point = shadowRoot.querySelector('.point')
   }
 
-  _updatePoints() {
-    if (this.range) {
-      this.$point2 = this.$point2 ?? document.createElement('button')
-      this.$point2.className = 'point'
-      this.$range = this.$range ?? document.createElement('span')
-      this.$range.className = 'line'
-      this.$track.appendChild(this.$point2)
-      this.$track.appendChild(this.$range)
-    }
-    else {
-      if (this.$point2) {
-        this.$track.removeChild(this.$point2)
-        this.$point2 = null
-      }
-      if (this.$range) {
-        this.$track.removeChild(this.$range)
-        this.$range = null
-      }
-    }
-  }
-
   render() {}
 
   connectedCallback() {
@@ -331,10 +310,6 @@ class BlocksSlider extends HTMLElement {
     })
 
     this._updatePositionByValue()
-    if (this.range) {
-      this._updateRangeLine()
-    }
-
     this._clearDragEvents = this._initDragEvents()
   }
 
@@ -358,10 +333,35 @@ class BlocksSlider extends HTMLElement {
       if (!this._dragging) {
         this._updatePositionByValue()
       }
+      if (!this.vertical && this.value.length === 1) {
+        debugger
+        console.log('dispatch:', this.value)
+      } 
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
 
     this.render()
+  }
+
+  _updatePoints() {
+    if (this.range) {
+      this.$point2 = this.$point2 ?? document.createElement('button')
+      this.$point2.className = 'point'
+      this.$range = this.$range ?? document.createElement('span')
+      this.$range.className = 'line'
+      this.$track.appendChild(this.$point2)
+      this.$track.appendChild(this.$range)
+    }
+    else {
+      if (this.$point2) {
+        this.$track.removeChild(this.$point2)
+        this.$point2 = null
+      }
+      if (this.$range) {
+        this.$track.removeChild(this.$range)
+        this.$range = null
+      }
+    }
   }
 
   _initDragEvents() {
@@ -416,7 +416,7 @@ class BlocksSlider extends HTMLElement {
           else {
             $active = this.$point
           }
-  
+
           this[$active === this.$point ? 'p1' : 'p2'] = this._percentByPosition(positionStart)
 
           positionStart = null
@@ -457,6 +457,9 @@ class BlocksSlider extends HTMLElement {
         positionStart = null
         $active = null
         this._dragging = false
+
+        // 确保 step
+        this._updatePositionByValue()
       },
     })
   }
@@ -515,16 +518,12 @@ class BlocksSlider extends HTMLElement {
   }
 
   _updateValue() {
-    if (this.range) {
-      const value1 = this._getPointValue(this.$point)
-      const value2 = this._getPointValue(this.$point2)
-      const value = [round(value1, this.round), round(value2, this.round)]
-      value.sort()
-      this.value = value
-    }
-    else {
-      this.value = this._getPointValue(this.$point)
-    }
+    const value = this.range ? [
+        round(this._getPointValue(this.$point), this.round),
+        round(this._getPointValue(this.$point2), this.round)
+      ].sort((a, b) => a - b)
+      : round(this._getPointValue(this.$point), this.round)
+    this.value = value
   }
 
   _updatePointPosition() {
@@ -560,6 +559,7 @@ class BlocksSlider extends HTMLElement {
   }
 
   _updatePositionByValue() {
+    console.log('update pos by value')
     if (this.value) {
       if (this.range) {
         this._setPointPositionByValue(this.$point, this.value[0])
@@ -568,6 +568,9 @@ class BlocksSlider extends HTMLElement {
       else {
         this._setPointPositionByValue(this.$point, this.value)
       }
+    }
+    else {
+      this._updatePointPosition()
     }
   }
 }
