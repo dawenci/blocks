@@ -88,15 +88,15 @@ const TEMPLATE_CSS = `<style>
   opacity: 1;
 }
 
-.top,
-.right,
-.bottom,
-.left {
+#top,
+#right,
+#bottom,
+#left {
   display: none;
   position: absolute;
   pointer-events: none;
 }
-:host([shadow]) .shadow-top .top {
+:host([shadow]) .shadow-top #top {
   display: block;
   height: 10px;
   top: -10px;
@@ -104,7 +104,7 @@ const TEMPLATE_CSS = `<style>
   left: 0;
   box-shadow: 0 3px 7px rgba(0,0,0,.1);
 }
-:host([shadow]) .shadow-right .right {
+:host([shadow]) .shadow-right #right {
   display: block;
   width: 10px;
   top: 0;
@@ -112,7 +112,7 @@ const TEMPLATE_CSS = `<style>
   right: -10px;
   box-shadow: -3px 0px 7px rgba(0,0,0,.1);
 }
-:host([shadow]) .shadow-bottom .bottom {
+:host([shadow]) .shadow-bottom #bottom {
   display: block;
   height: 10px;
   right: 0;
@@ -120,7 +120,7 @@ const TEMPLATE_CSS = `<style>
   left: 0;
   box-shadow: 0 -3px 7px rgba(0,0,0,.1);
 }
-:host([shadow]) .shadow-left .left {
+:host([shadow]) .shadow-left #left {
   display: block;
   width: 10px;
   top: 0;
@@ -137,10 +137,10 @@ const TEMPLATE_HTML = `
   </div>
   <div class="track" id="horizontal"><b class="thumb"></b></div>
   <div class="track" id="vertical"><b class="thumb"></b></div>
-  <b class="top"></b>
-  <b class="right"></b>
-  <b class="bottom"></b>
-  <b class="left"></b>
+  <b id="top"></b>
+  <b id="right"></b>
+  <b id="bottom"></b>
+  <b id="left"></b>
 </div>
 `
 

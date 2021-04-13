@@ -107,7 +107,7 @@ const TEMPLATE_CSS = `
 }
 
 /* 按钮 */
-button {
+.point {
   box-sizing: border-box;
   overflow: hidden;
   display: block;
@@ -126,13 +126,13 @@ button {
   background: #fff;
   transition: border-color var(--transition-duration, ${__transition_duration});
 }
-:host([vertical]) button {
+:host([vertical]) .point {
   top: auto;
   right: 0;
 }
 
 /* range 控制点之间连线 */
-span {
+.line {
   position: absolute;
   z-index: 1;
   top: 5px;
@@ -142,28 +142,27 @@ span {
   height: 4px;
   background: var(--color-primary, ${__color_primary});
 }
-:host([vertical]) span {
+:host([vertical]) .line {
   top: auto;
   left: 5px;
 }
-:host([disabled]) span {
+:host([disabled]) .line {
   display: none;
 }
 
-
-button:hover,
-button:focus,
-button.active {
+.point:hover,
+.point:focus,
+.point.active {
   z-index: 2;
   border-color: var(--color-primary, ${__color_primary});
   outline: 0 none;
   box-shadow: 0 0 2px 2px ${rgbaFromHex(__color_primary, .5)};
 }
 
-:host([disabled]) button,
-:host([disabled]) button:hover,
-:host([disabled]) button:focus,
-:host([disabled]) button:active {
+:host([disabled]) .point,
+:host([disabled]) .point:hover,
+:host([disabled]) .point:focus,
+:host([disabled]) .point:active {
   border: 2px solid var(--border-color-base, ${__border_color_base});
   box-shadow: none;
 }
@@ -172,7 +171,7 @@ button.active {
 const TEMPLATE_HTML = `
 <div id="layout">
   <div id="track">
-    <button></button>
+    <button class="point"></button>
   </div>
 </div>
 `
@@ -192,7 +191,7 @@ class BlocksSlider extends HTMLElement {
     shadowRoot.appendChild(fragment)
     this.$layout = shadowRoot.getElementById('layout')
     this.$track = shadowRoot.getElementById('track')
-    this.$point = shadowRoot.querySelector('button')
+    this.$point = shadowRoot.querySelector('.point')
   }
 
   get value() {
@@ -280,7 +279,7 @@ class BlocksSlider extends HTMLElement {
   }
 
   _updateTabindex() {
-    const $buttons = this.shadowRoot.querySelectorAll('button')
+    const $buttons = this.shadowRoot.querySelectorAll('.point')
     if (this.disabled) {
       forEach($buttons, button => {
         button.removeAttribute('tabindex')
@@ -378,7 +377,9 @@ class BlocksSlider extends HTMLElement {
   render() {
     if (this.range) {
       this.$point2 = this.$point2 ?? document.createElement('button')
+      this.$point2.className = 'point'
       this.$range = this.$range ?? document.createElement('span')
+      this.$range.className = 'line'
       this.$track.appendChild(this.$point2)
       this.$track.appendChild(this.$range)
     }

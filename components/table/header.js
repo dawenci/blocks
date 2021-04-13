@@ -29,7 +29,7 @@ cssTemplate.textContent = `
 }
 
 /* 表头区视口 */
-:host .viewport {
+#viewport {
   flex: 0 0 auto;
   overflow: hidden;
   width: 100%;
@@ -43,7 +43,7 @@ cssTemplate.textContent = `
   white-space: nowrap;
 }
 
-.viewport > .columns {
+#viewport > .columns {
   overflow: visible;
 }
 
@@ -60,7 +60,7 @@ cssTemplate.textContent = `
   white-space: normal;
 }
 /* 合并单元格自己的内容 */
-.group>.group_label {
+.group_label {
   flex: 0 0 auto;
   width: 100%;
 }
@@ -82,7 +82,7 @@ cssTemplate.textContent = `
   background-color: #f3f3f3;
 }
 /* 单元格内容 */
-.cell>.cell-content {
+.cell-content {
   box-sizing: border-box;
   width: 100%;
   overflow: hidden;
@@ -103,9 +103,7 @@ cssTemplate.textContent = `
 
 const template = document.createElement('template')
 template.innerHTML = `
-<div class="viewport">
-  <div class="columns"></div>
-</div>`
+<div id="viewport"><div class="columns"></div></div>`
 
 
 const cellTemplate = document.createElement('div')
@@ -145,7 +143,7 @@ export default class BlocksTableHeader extends HTMLElement {
     const shadowRoot = this.attachShadow({mode: 'open'})
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
     shadowRoot.appendChild(template.content.cloneNode(true))
-    this.$viewport = shadowRoot.querySelector('.viewport')
+    this.$viewport = shadowRoot.querySelector('#viewport')
     this.$canvas = shadowRoot.querySelector('.columns')
 
     this._initHoverEvent()

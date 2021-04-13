@@ -51,7 +51,7 @@ const CSS2 = `
 }
 
 /* 单元格内容 */
-.cell>.cell-content {
+.cell-content {
   box-sizing: border-box;
   width: 100%;
   overflow: hidden;
@@ -67,8 +67,8 @@ const CSS2 = `
   border-right: 1px solid var(--border-color-light, ${__border_color_light});
 }
 
-/* 最后一列不要右描边。注：表头有合并格子比较复杂，不在这里处理，最后一列的右描边使用 after 盖住 */
-:host-context(bl-table[border]) .row > .cell:last-child {
+/* 最后一列不要右描边。 */
+:host-context(bl-table[border]) .cell:last-child {
   border-right: 0 none;
 }
 `

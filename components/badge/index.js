@@ -8,11 +8,11 @@ const TEMPLATE_CSS = `<style>
   box-sizing: border-box;
   position: relative;
 }
-div {
+#layout {
   position: relative;
   display: inline-block;
 }
-sup {
+#badge {
   position: relative;
   top: -4px;
   left: -4px;
@@ -27,7 +27,7 @@ sup {
 }
 </style>`
 
-const TEMPLATE_HTML = `<div><slot></slot></div><sup>999+</sup>`
+const TEMPLATE_HTML = `<div id="layout"><slot></slot></div><sup id="badge">999+</sup>`
 
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML

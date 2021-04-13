@@ -31,19 +31,19 @@ cssTemplate.textContent = `
   border: 1px solid var(--border-color-light, ${__border_color_light});
 }
 
-.fixed-left-shadow,
-.fixed-right-shadow {
+#fixed-left-shadow,
+#fixed-right-shadow {
   position: absolute;
   top: 0;
   bottom: 6px;
   width: 5px;
   pointer-events: none;
 }
-.fixed-left-shadow {
+#fixed-left-shadow {
   border-left: 1px solid var(--border-color-light, ${__border_color_light});
   background-image: linear-gradient(to right, rgba(0,0,0,.1), rgba(0,0,0,.0))
 }
-.fixed-right-shadow {
+#fixed-right-shadow {
   border-right: 1px solid var(--border-color-light, ${__border_color_light});
   background-image: linear-gradient(to left, rgba(0,0,0,.1), rgba(0,0,0,.0))
 }
@@ -200,7 +200,7 @@ export default class BlocksTable extends HTMLElement {
     if (leftSize && this.$mainBody.$viewport.canScrollLeft) {
       if (!this.$fixedLeftShadow) {
         this.$fixedLeftShadow = document.createElement('div')
-        this.$fixedLeftShadow.className = 'fixed-left-shadow'
+        this.$fixedLeftShadow.id = 'fixed-left-shadow'
       }
       if (!this.$fixedLeftShadow.parentNode) {
         this.shadowRoot.appendChild(this.$fixedLeftShadow)
@@ -218,7 +218,7 @@ export default class BlocksTable extends HTMLElement {
     if (rightSize && this.$mainBody.$viewport.canScrollRight) {
       if (!this.$fixedRightShadow) {
         this.$fixedRightShadow = document.createElement('div')
-        this.$fixedRightShadow.className = 'fixed-right-shadow'
+        this.$fixedRightShadow.id = 'fixed-right-shadow'
       }
       if (!this.$fixedRightShadow.parentNode) {
         this.shadowRoot.appendChild(this.$fixedRightShadow)
