@@ -434,11 +434,11 @@ export default class BlocksTree extends VList {
   }
 
   get labelField() {
-    return this.getAttribute('id-field')
+    return this.getAttribute('label-field')
   }
 
   set labelField(value) {
-    this.setAttribute('id-field', value)
+    this.setAttribute('label-field', value)
   }
 
   get search() {
@@ -504,9 +504,9 @@ export default class BlocksTree extends VList {
 
   // 从数据中提取 label 的方法
   internalLabelMethod(data) {
-    if (typeof this.labelMethod === 'function') return this.labelMethod(data)
-    if (typeof this.labelField === 'string') return data[this.labelField]
-    return data.label
+    if (typeof this.labelMethod === 'function') return this.labelMethod(data) ?? ''
+    if (typeof this.labelField === 'string') return data[this.labelField] ?? ''
+    return data.label ?? ''
   }
 
   // 从数据中提取唯一 key 的方法
@@ -524,7 +524,7 @@ export default class BlocksTree extends VList {
     // 第一遍标记需要保留的条目
     for (let i = 0; i < len; i += 1) {
       const vItem = data[i]
-      if ((vItem.data.label ?? '').includes(this.search)) {
+      if (this.internalLabelMethod(vItem.data).includes(this.search)) {
         vItem._retain = true
         let parent = vItem.parent
         while (parent) {

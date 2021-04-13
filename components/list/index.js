@@ -17,9 +17,11 @@ import {
   __transition_duration,
   __height_base,
   __border_color_light,
-  __fg_base
+  __fg_base,
+  __color_danger
 } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
+import parseHighlight from '../../common/highlight.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -116,6 +118,10 @@ template.innerHTML = `
   background-color: ${rgbaFromHex(__color_primary, 0.1)};
 }
 
+.label .highlight {
+  color: var(--color-danger, ${__color_danger});
+}
+
 </style>
 `
 
@@ -137,7 +143,8 @@ export default class BlocksList extends VList {
       'id-field',
       'label-field',
       'checkable',
-      'stripe'
+      'search',
+      'stripe',
     ])
   }
 
@@ -166,7 +173,7 @@ export default class BlocksList extends VList {
   }
 
   get labelField() {
-    return this.getAttribute('label-field') || 'label'
+    return this.getAttribute('label-field')
   }
 
   set labelField(value) {
@@ -198,6 +205,14 @@ export default class BlocksList extends VList {
     this._checkedSet = new Set(list.map(id => this.getVirtualItemByKey(id)).filter(vitem => !!vitem))
     this.render()
     dispatchEvent(this, 'change')
+  }
+
+  get search() {
+    return this.getAttribute('search')
+  }
+
+  set search(value) {
+    return this.setAttribute('search', value)
   }
 
   get single() {
@@ -236,10 +251,13 @@ export default class BlocksList extends VList {
     }
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    super.attributeChangedCallback(name, oldValue, newValue)
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    super.attributeChangedCallback(attrName, oldValue, newValue)
+    if (attrName === 'search') {
+      this.generateViewData()
+    }
     // 从多选改成单选，保留最后一个选择的值
-    if (name === 'checkable') {
+    else if (attrName === 'checkable') {
       if (!this.multiple && this._checkedSet.size) {
         this._checkedSet = new Set([...this._checkedSet][this._checkedSet.size - 1])
       }
@@ -248,9 +266,9 @@ export default class BlocksList extends VList {
 
   // 从数据中提取 label 的方法
   internalLabelMethod(data) {
-    if (typeof this.labelMethod === 'function') return this.labelMethod(data)
-    if (typeof this.labelField === 'string') return data[this.labelField]
-    return data.label
+    if (typeof this.labelMethod === 'function') return this.labelMethod(data) ?? ''
+    if (typeof this.labelField === 'string') return data[this.labelField] ?? ''
+    return data.label ?? ''
   }
 
   // 从数据中提取唯一 key 的方法
@@ -260,12 +278,43 @@ export default class BlocksList extends VList {
     return data.id
   }
 
+  async filterMethod(data) {
+    if (!this.search) return data
+    const len = data.length
+    const results = []
+    // 第二遍，提取数据，并移除标识
+    return new Promise(resolve => {
+      setTimeout(() => {
+        for (let i = 0; i < len; i += 1) {
+          const vItem = data[i]
+          if (this.internalLabelMethod(vItem.data).includes(this.search)) {
+            results.push(vItem)
+          }
+        }
+        resolve(results)
+      })
+    })
+  }
+
+  parseHighlight(label, highlightText) {
+    return parseHighlight(label, highlightText)
+  }
+
   itemRender($item, vitem) {
     const label = this.internalLabelMethod(vitem.data) ?? ''
     const isDisabled = vitem.data[this.disabledField] ?? false
     $item.classList.add('item')
     $item.innerHTML = `<div class="prefix"></div><div class="label"></div><div class="suffix"></div>`
-    $item.children[1].innerHTML = label
+
+    if (this.search && this.search.length) {
+      $item.children[1].innerHTML = this.parseHighlight(label, this.search)
+        .map((textSlice) => {
+          return `<span class="${textSlice.highlight ? 'highlight' : ''}">${textSlice.text}</span>`
+        })
+        .join('')
+    } else {
+      $item.children[1].innerHTML = label
+    }
 
     if (isDisabled) {
       $item.setAttribute('disabled', '')
