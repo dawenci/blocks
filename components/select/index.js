@@ -110,7 +110,6 @@ class BlocksSelect extends HTMLElement {
       const target = e.target
       // 单选模式
       if (!this.multiple) {
-        console.log('单选选中')
         const newValue = { value: target.value, label: target.label ?? target.textContent ?? target.value }
         this.$result.value = newValue
         this.$popup.open = false
@@ -119,7 +118,6 @@ class BlocksSelect extends HTMLElement {
 
       // 多选模式
       else {
-        console.log('多选选中')
         const newValue = this.$result.value.slice()
         newValue.push({ value: target.value, label: target.label ?? target.textContent ?? target.value })
         this.$result.value = newValue
@@ -130,13 +128,11 @@ class BlocksSelect extends HTMLElement {
       const target = e.target
       // 单选模式
       if (!this.multiple) {
-        console.log('单选取消选中')
         this.$result.value = null
       }
 
       // 多选模式
       else {
-        console.log('多选取消选中')
         const newValue = this.$result.value.filter((item) => item.value !== target.value)
         this.$result.value = newValue
       }
@@ -328,7 +324,6 @@ class BlocksSelect extends HTMLElement {
         prev.focus()
         currentFocusValue = prev.value
       }
-      console.log('prev', prev)
     }
 
     const focusNext = () => {
@@ -340,7 +335,6 @@ class BlocksSelect extends HTMLElement {
         next.focus()
         currentFocusValue = next.value
       }
-      console.log('next', next)
     }
 
     // 在 result 上按 tab、上下方向键，foucs 第一个选项

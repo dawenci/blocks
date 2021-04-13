@@ -333,10 +333,6 @@ class BlocksSlider extends HTMLElement {
       if (!this._dragging) {
         this._updatePositionByValue()
       }
-      if (!this.vertical && this.value.length === 1) {
-        debugger
-        console.log('dispatch:', this.value)
-      } 
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
 
@@ -559,7 +555,6 @@ class BlocksSlider extends HTMLElement {
   }
 
   _updatePositionByValue() {
-    console.log('update pos by value')
     if (this.value) {
       if (this.range) {
         this._setPointPositionByValue(this.$point, this.value[0])
