@@ -26,8 +26,8 @@ const [rangeSetter, verticalSetter] = ['range', 'vertical'].map(prop => boolSett
 const roundGetter = intGetter('round')
 const roundSetter = intSetter('round')
 
-const TEMPLATE_CSS = `
-<style>
+const cssTemplate = document.createElement('style')
+cssTemplate.textContent = `
 :host, :host * {
   box-sizing: border-box;
 }
@@ -63,6 +63,7 @@ const TEMPLATE_CSS = `
 :host([vertical]) #layout {
   height: 100%;
   width: 18px;
+  transform: rotate(180deg);
 }
 
 /* 滑轨，button 的容器 */
@@ -119,7 +120,7 @@ const TEMPLATE_CSS = `
   z-index: 2;
   width: 14px;
   height: 14px;
-  margin: auto;
+  margin: auto 0;
   padding: 0;
   border-radius: 50%;
   border: 2px solid var(--color-primary, ${__color_primary});
@@ -129,6 +130,7 @@ const TEMPLATE_CSS = `
 :host([vertical]) .point {
   top: auto;
   right: 0;
+  margin: 0 auto;
 }
 
 /* range 控制点之间连线 */
@@ -141,6 +143,7 @@ const TEMPLATE_CSS = `
   width: 4px;
   height: 4px;
   background: var(--color-primary, ${__color_primary});
+  pointer-events: none;
 }
 :host([vertical]) .line {
   top: auto;
@@ -153,7 +156,7 @@ const TEMPLATE_CSS = `
 .point:hover,
 .point:focus,
 .point.active {
-  z-index: 2;
+  z-index: 3;
   border-color: var(--color-primary, ${__color_primary});
   outline: 0 none;
   box-shadow: 0 0 2px 2px ${rgbaFromHex(__color_primary, .5)};
@@ -166,9 +169,10 @@ const TEMPLATE_CSS = `
   border: 2px solid var(--border-color-base, ${__border_color_base});
   box-shadow: none;
 }
-</style>
 `
-const TEMPLATE_HTML = `
+
+const template = document.createElement('template')
+template.innerHTML = `
 <div id="layout">
   <div id="track">
     <button class="point"></button>
@@ -176,22 +180,9 @@ const TEMPLATE_HTML = `
 </div>
 `
 
-const template = document.createElement('template')
-template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
-
 class BlocksSlider extends HTMLElement {
   static get observedAttributes() {
     return ['disabled', 'max', 'min', 'range', 'size', 'step', 'round', 'value', 'vertical']
-  }
-
-  constructor() {
-    super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
-    const fragment = template.content.cloneNode(true)
-    shadowRoot.appendChild(fragment)
-    this.$layout = shadowRoot.getElementById('layout')
-    this.$track = shadowRoot.getElementById('track')
-    this.$point = shadowRoot.querySelector('.point')
   }
 
   get value() {
@@ -267,6 +258,209 @@ class BlocksSlider extends HTMLElement {
     roundSetter(this, value)
   }
 
+  get p1() {
+    return this._p1 || 0
+  }
+
+  set p1(value) {
+    value = value < 0 ? 0 : value > 1 ? 1 : value
+    if (!value) value = 0
+    if (this._p1 !== value) {
+      this._p1 = value
+
+      this._updatePointPosition()
+      this._updateValue()
+    }
+  }
+
+  get p2() {
+    return this._p2 || 0
+  }
+
+  set p2(value) {
+    value = value < 0 ? 0 : value > 1 ? 1 : value
+    if (!value) value = 0
+    if (this._p2 !== value) {
+      this._p2 = value
+
+      this._updatePointPosition()
+      this._updateValue()
+    }
+  }
+
+  constructor() {
+    super()
+    const shadowRoot = this.attachShadow({ mode: 'open' })
+    shadowRoot.appendChild(cssTemplate.cloneNode(true))
+    shadowRoot.appendChild(template.content.cloneNode(true))
+    this.$layout = shadowRoot.getElementById('layout')
+    this.$track = shadowRoot.getElementById('track')
+    this.$point = shadowRoot.querySelector('.point')
+  }
+
+  _updatePoints() {
+    if (this.range) {
+      this.$point2 = this.$point2 ?? document.createElement('button')
+      this.$point2.className = 'point'
+      this.$range = this.$range ?? document.createElement('span')
+      this.$range.className = 'line'
+      this.$track.appendChild(this.$point2)
+      this.$track.appendChild(this.$range)
+    }
+    else {
+      if (this.$point2) {
+        this.$track.removeChild(this.$point2)
+        this.$point2 = null
+      }
+      if (this.$range) {
+        this.$track.removeChild(this.$range)
+        this.$range = null
+      }
+    }
+  }
+
+  render() {}
+
+  connectedCallback() {
+    setRole(this, 'slider')
+    setDisabled(this, this.disabled)
+    this._updateTabindex()
+
+    this.constructor.observedAttributes.forEach(attr => {
+      upgradeProperty(this, attr)
+    })
+
+    this._updatePositionByValue()
+    if (this.range) {
+      this._updateRangeLine()
+    }
+
+    this._clearDragEvents = this._initDragEvents()
+  }
+
+  disconnectedCallback() {
+    this._clearDragEvents()
+    this.$layout.onmousedown = null
+  }
+
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    if (attrName === 'disabled') {
+      setDisabled(this, this.disabled)
+      this._updateTabindex()
+    }
+
+
+    if (attrName === 'range') {
+      this._updatePoints()
+    }
+
+    if (attrName === 'value') {
+      if (!this._dragging) {
+        this._updatePositionByValue()
+      }
+      dispatchEvent(this, 'change', { detail: { value: this.value } })
+    }
+
+    this.render()
+  }
+
+  _initDragEvents() {
+    this._dragging = false
+    let positionStart = null
+    let $active = null
+
+    const swap = ($p1, $p2) => {
+      $active = $p2
+
+      $p1.classList.remove('active')
+      $p1.blur()
+
+      $p2.classList.add('active')
+      $p2.focus()
+
+      const position = this._getPointPosition($p2)
+      this[$p1 === this.$point ? 'p1' : 'p2'] = this._percentByPosition(position)
+    }
+
+    return onDragMove(this.$track, {
+      onStart: ({ start, $target, stop }) => {
+        if (this.disabled) {
+          stop()
+          return
+        }
+
+        // 点击轨道，则一次性移动滑块
+        if ($target === this.$track) {
+          const rect = this.$track.getBoundingClientRect()
+          if (this.vertical) {
+            positionStart = this._getTrackSize() - (start.clientY - rect.y) - 7
+          }
+          else {
+            positionStart = (start.clientX - rect.x) - 7
+          }
+
+          // 如果是区间，则需要确定移动哪个控制点
+          // 1. 点击的是 min 点的左侧，则移动 min 点
+          // 2. 点击的是 max 点的右侧，则移动 max 点
+          // 3. 点击的是两点之间，则移动接近点击位置的那个点
+          if (this.range) {
+            const pos1 = this._getPointPosition(this.$point)
+            const pos2 = this._getPointPosition(this.$point2)
+            const min = Math.min(pos1, pos2)
+            const max = Math.max(pos1, pos2)
+            $active = positionStart < min ? this.$point
+              : positionStart > max ? this.$point2
+              : Math.abs(max - positionStart) > Math.abs(positionStart - min) ? this.$point
+              : this.$point2
+          }
+          else {
+            $active = this.$point
+          }
+  
+          this[$active === this.$point ? 'p1' : 'p2'] = this._percentByPosition(positionStart)
+
+          positionStart = null
+          $active = null
+          this._dragging = false
+          return stop()
+        }
+
+        // 点击的是滑块，记录移动初始信息
+        if ($target === this.$point || $target === this.$point2) {
+          this._dragging = true
+          $active = $target
+          $active.classList.add('active')
+          positionStart = parseFloat($active.style[this.vertical ? 'top' : 'left']) || 0
+          return
+        }
+      },
+
+      onMove: ({ offset, preventDefault }) => {
+        preventDefault()
+        const moveOffset = this.vertical ? -offset.y : offset.x
+
+        let position = positionStart + moveOffset
+        if (this.range) {
+          if ($active === this.$point && position > this._getPointPosition(this.$point2)) {
+            swap(this.$point, this.$point2)
+          }
+          else if ($active === this.$point2 && position < this._getPointPosition(this.$point)) {
+            swap(this.$point2, this.$point)
+          }
+        }
+
+        this[$active === this.$point ? 'p1' : 'p2'] = this._percentByPosition(position)
+      },
+
+      onEnd: () => {
+        $active.classList.remove('active')
+        positionStart = null
+        $active = null
+        this._dragging = false
+      },
+    })
+  }
+
   _isValidNumber(n) {
     return typeof n === 'number'
       && n === n
@@ -292,73 +486,32 @@ class BlocksSlider extends HTMLElement {
     }
   }
 
-  _positionRange() {
-    return [0, this._getTrackSize() - 14]
+  _positionTotal() {
+    return this._getTrackSize() - 14
   }
 
-  _normalizePosition(position) {
-    const positionRange = this._positionRange()
-    if (position < positionRange[0]) {
-      position = positionRange[0]
-    }
-    else if (position > positionRange[1]) {
-      position = positionRange[1]
-    }
-    return position
+  _valueTotal() {
+    return this.max - this.min
   }
 
-  _getPointPosition($point) {
-    return parseFloat($point.style[this.vertical ? 'bottom' : 'left']) || 0
+  _percentByPosition(position) {
+    return position / this._positionTotal()
   }
 
-  _setPointPosition($point, value) {
-    const axis = this.vertical ? 'bottom' : 'left'
-    $point.style[axis] = `${value}px`
-
-    if (this.range) {
-      this._updateRangeLine()
-    }
-  }
-
-  _updateRangeLine() {
-    const p1 = this._getPointPosition(this.$point)
-    const p2 = this._getPointPosition(this.$point2)
-    if (this.vertical) {
-      this.$range.style.bottom = p1 + 'px'
-      this.$range.style.height = p2 - p1 + 'px'
-    }
-    else {
-      this.$range.style.left = p1 + 'px'
-      this.$range.style.width = p2 - p1 + 'px'
-    }
+  _percentByValue(value) {
+    return (value - this.min) / this._valueTotal()
   }
 
   _getPointValue($point) {
-    const total = this._getTrackSize() - 14
-    const pos = parseFloat($point.style[this.vertical ? 'bottom' : 'left']) || 0
-    const value = this.min + (this.max - this.min) * (pos / total)
+    const percent = ($point === this.$point ? this.p1 : this.p2)
+    const offset = (this.max - this.min) * percent
+    const value = this.min + offset
     return round(value, this.round)
   }
 
-  _setPointPositionByValue($point, value) {
-    if (this._isValidNumber(value)) {
-      value = round(value, this.round)
-      const total = this._getTrackSize() - 14
-      const pos = total * ((value - this.min) / (this.max - this.min))
-      $point.style[this.vertical ? 'bottom' : 'left'] = pos + 'px'
-    }
-  }
-
-  _updatePositionByValue() {
-    if (this.value) {
-      if (this.range) {
-        this._setPointPositionByValue(this.$point, this.value[0])
-        this._setPointPositionByValue(this.$point2, this.value[1])
-      }
-      else {
-        this._setPointPositionByValue(this.$point, this.value)
-      }
-    }
+  _getPointPosition($point) {
+    const max = this._positionTotal()
+    return $point === this.$point ? max * this.p1 : max * this.p2
   }
 
   _updateValue() {
@@ -374,154 +527,48 @@ class BlocksSlider extends HTMLElement {
     }
   }
 
-  render() {
+  _updatePointPosition() {
+    const total = this._positionTotal()
+    const p1 = total * this.p1
+    this.$point.style[this.vertical ? 'top' : 'left'] = `${p1}px`
     if (this.range) {
-      this.$point2 = this.$point2 ?? document.createElement('button')
-      this.$point2.className = 'point'
-      this.$range = this.$range ?? document.createElement('span')
-      this.$range.className = 'line'
-      this.$track.appendChild(this.$point2)
-      this.$track.appendChild(this.$range)
-    }
-    else {
-      if (this.$point2) {
-        this.$track.removeChild(this.$point2)
-        this.$point2 = null
-      }
-    }
-  }
-
-  connectedCallback() {
-    setRole(this, 'slider')
-    setDisabled(this, this.disabled)
-    this._updateTabindex()
-
-    this.constructor.observedAttributes.forEach(attr => {
-      upgradeProperty(this, attr)
-    })
-
-    this.render()
-    this._updatePositionByValue()
-    if (this.range) {
+      const p2 = total * this.p2
+      this.$point2.style[this.vertical ? 'top' : 'left'] = `${p2}px`
       this._updateRangeLine()
     }
-
-    this._clearDragEvents = this._initDragEvents()
   }
 
-  _initDragEvents() {
-    this._dragging = false
-    let positionStart = null
-    let $active = null
-
-    const swap = ($point) => {
-      const $p2 = $point === this.$point ? this.$point2 : this.$point
-      this._setPointPosition($point, this._getPointPosition($p2))
-      $point.classList.remove('active')
-      $point.blur()
-      $p2.classList.add('active')
-      $p2.focus()
-      $active = $p2
-      this._updateValue()
+  _updateRangeLine() {
+    const max = this._positionTotal()
+    const p1 = max * this.p1
+    const p2 = max * this.p2
+    if (this.vertical) {
+      this.$range.style.top = p1 + 'px'
+      this.$range.style.height = p2 - p1 + 'px'
     }
-
-    return onDragMove(this.$track, {
-      onStart: ({ start, $target, stop }) => {
-        if (this.disabled) {
-          stop()
-          return
-        }
-
-        // 点击轨道，则先将滑块移动过去，再记录移动初始信息
-        if ($target === this.$track) {
-          const rect = this.$track.getBoundingClientRect()
-          if (this.vertical) {
-            positionStart = this._getTrackSize() - (this.vertical ? start.clientY - rect.y : start.clientX - rect.x) - 7
-          }
-          else {
-            positionStart = (this.vertical ? start.clientY - rect.y : start.clientX - rect.x) - 7
-          }
-          positionStart = this._normalizePosition(positionStart)
-  
-          // 如果是区间，则需要确定移动哪个控制点
-          // 1. 点击的是 min 点的左侧，则移动 min 点
-          // 2. 点击的是 max 点的右侧，则移动 max 点
-          // 3. 点击的是两点之间，则移动接近点击位置的那个点
-          if (this.range) {
-            const pos1 = this._getPointPosition(this.$point)
-            const pos2 = this._getPointPosition(this.$point2)
-            $active = positionStart < pos1 ? this.$point
-              : positionStart > pos2 ? this.$point2
-              : pos2 - positionStart > positionStart - pos1 ? this.$point
-              : this.$point2
-          }
-          else {
-            $active = this.$point
-          }
-  
-          $active.classList.add('active')
-  
-          this._setPointPosition($active, positionStart)
-          this._updateValue()
-        }
-  
-        // 点击的是滑块，记录移动初始信息
-        else if ($target === this.$point || $target === this.$point2) {
-          $active = $target
-          $active.classList.add('active')
-          positionStart = parseFloat($active.style[this.vertical ? 'bottom' : 'left']) || 0
-        }  
-      },
-
-      onMove: ({ offset, preventDefault }) => {
-        preventDefault()
-        const moveOffset = this.vertical ? -offset.y : offset.x
-
-        let position = this._normalizePosition(positionStart + moveOffset)
-        if (this.range) {
-          if ($active === this.$point && position > this._getPointPosition(this.$point2)) {
-            swap($active)
-          }
-          else if ($active === this.$point2 && position < this._getPointPosition(this.$point)) {
-            swap($active)
-          }
-        }
-        this._setPointPosition($active, position)
-        this._updateValue()
-      },
-
-      onEnd: () => {
-        $active.classList.remove('active')
-        positionStart = null
-        $active = null
-        this._updateValue()
-        this._dragging = false
-      },
-    })
-  }
-
-  disconnectedCallback() {
-    this._clearDragEvents()
-    this.$layout.onmousedown = null
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'disabled') {
-      setDisabled(this, this.disabled)
-      this._updateTabindex()
+    else {
+      this.$range.style.left = p1 + 'px'
+      this.$range.style.width = p2 - p1 + 'px'
     }
+  }
 
-    if (name === 'value') {
-      if (!this._dragging) {
-        this._updatePositionByValue()
-        if (this.range) {
-          this._updateRangeLine()
-        }
+  _setPointPositionByValue($point, value) {
+    if (this._isValidNumber(value)) {
+      value = round(value, this.round)
+      this[$point === this.$point ? 'p1' : 'p2'] = this._percentByValue(value)
+    }
+  }
+
+  _updatePositionByValue() {
+    if (this.value) {
+      if (this.range) {
+        this._setPointPositionByValue(this.$point, this.value[0])
+        this._setPointPositionByValue(this.$point2, this.value[1])
       }
-      dispatchEvent(this, 'change', { detail: { value: this.value } })
+      else {
+        this._setPointPositionByValue(this.$point, this.value)
+      }
     }
-
-    this.render()
   }
 }
 
