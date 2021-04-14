@@ -7,135 +7,75 @@ import { __fg_placeholder, __height_base, __transition_duration } from '../../th
 import { dispatchEvent } from '../../common/event.js'
 import { makeMessages } from '../../i18n/makeMessages.js'
 
-const getMessage = makeMessages('image', {
-  placeholderText: '加载中',
-  fallbackText: '加载失败',
+const getMessage = makeMessages('image-viewer', {
 })
 
-const template = document.createElement('template')
-template.innerHTML = `<style>
+const cssTemplate = document.createElement('style')
+cssTemplate.textContent = `
 :host {
-  overflow: hidden;
-  display: inline-block;
   box-sizing: border-box;
-  min-width: calc(var(--height-base, ${__height_base}) * 2);
-  min-height: calc(var(--height-base, ${__height_base}) * 2);
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,.5);
 }
 #layout {
-  overflow: hidden;
-  position: relative;
   width: 100%;
   height: 100%;
-  text-align: center;
-}
-#img {
   position: relative;
-  overflow: hidden;
-  display: block;
+}
+#content {
   width: 100%;
   height: 100%;
-  transition: opacity var(--transition-duration, ${__transition_duration});
-}
-
-#placeholder,
-#fallback {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
+}
+#toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: auto;
+  left: 0;
   width: 100%;
-  height: 100%;
-  background: #fff;
-  pointer-events: none;
+  height: 44px;
+  background: rgba(0,0,0,.1);
 }
-
-#placeholder img,
-#fallback img {
-  width: 100%;
-  height: 100%;
-  object-fit: scale-down;
+#prev,
+#next {
+  position: absolute;
+  top: 0;
+  bottom: 0;
 }
+`
 
-#placeholder .default,
-#fallback .default {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-}
-
-#placeholder .custom,
-#fallback .custom {
-  width: 100%;
-  height: 100%;
-}
-
-:host([placeholder]) #placeholder .default,
-:host([fallback]) #fallback .default {
-  display: none;
-}
-
-:host(:not([placeholder])) #placeholder .custom,
-:host(:not([fallback])) #fallback .custom {
-  display: none;
-}
-
-#placeholder bl-loading,
-#fallback bl-icon {
-  position: relative;
-  margin: 0;
-  width: var(--height-base, ${__height_base});
-  height: var(--height-base, ${__height_base});
-  fill: #aaa;
-}
-
-.placeholderText,
-.fallbackText {
-  margin-top: 5px;
-  font-size: 12px;
-  color: var(--fg-placeholder, ${__fg_placeholder});
-}
-</style>
-
+const template = document.createElement('template')
+template.innerHTML = `
 <div id="layout">
-  <img id="img" style="opacity:0;" />
+  <div id="content"><div>
+  <div id="toolbar"></div>
+  <div id="prev"></div>
+  <div id="next"></div>
 </div>
 `
 
-const placeholderTemplate = document.createElement('template')
-placeholderTemplate.innerHTML = `
-<div id="placeholder">
-  <div class="default">
-    <bl-loading></bl-loading>
-    <div class="placeholderText"></div>  
-  </div>
-  <div class="custom"><img></div>
-</div>
-`
 
-const fallbackTemplate = document.createElement('template')
-fallbackTemplate.innerHTML = `
-<div id="fallback">
-  <div class="default">
-    <bl-icon value="file-image"></bl-icon>
-    <div class="fallbackText"></div>
-  </div>
-  <div class="custom"><img></div>
-</div>
-`
-
-class BlocksImage extends HTMLElement {
+class BlocksImageViewer extends HTMLElement {
   static get observedAttributes() {
-    return ['alt', 'fallback', 'fit', 'manual', 'placeholder', 'src']
+    return []
   }
 
   constructor() {
     super()
     const shadowRoot = this.attachShadow({mode: 'open'})
+    shadowRoot.appendChild(cssTemplate.cloneNode(true))
     shadowRoot.appendChild(template.content.cloneNode(true))
+
     this.$layout = shadowRoot.getElementById('layout')
     this.$img = shadowRoot.getElementById('img')
 
@@ -317,6 +257,6 @@ class BlocksImage extends HTMLElement {
   }
 }
 
-if (!customElements.get('bl-image')) {
-  customElements.define('bl-image', BlocksImage)
+if (!customElements.get('bl-image-viewer')) {
+  customElements.define('bl-image-viewer', BlocksImageViewer)
 }

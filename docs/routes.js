@@ -24,6 +24,7 @@ export default [
   { category: 'COMPONENTS', title: 'grid', url: 'pages/grid.html' },
   { category: 'COMPONENTS', title: 'icon', url: 'pages/icon.html' },
   { category: 'COMPONENTS', title: 'image', url: 'pages/image.html' },
+  { category: 'COMPONENTS', title: 'image-viewer', url: 'pages/image-viewer.html' },
   { category: 'COMPONENTS', title: 'input', url: 'pages/input.html' },
   // { category: 'COMPONENTS', title: 'item', url: 'pages/item.html' },
   { category: 'COMPONENTS', title: 'intersection', url: 'pages/intersection.html' },

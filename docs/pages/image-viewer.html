@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>image-viewer</title>
+  <link rel="stylesheet" href="../page.css">
+  <link rel="stylesheet" href="../highlight/styles/default.css">
+  <link rel="stylesheet" href="../highlight/styles/vs2015.css">
+  <script src="../highlight/highlight.pack.js"></script>
+  <script type="module" src="../code-support.js"></script>
+</head>
+<body>
+  <article>
+    <header>
+      <h1>image-viewer</h1>
+    </header>
+
+    <section class="section">
+      <h2>依赖引入</h2>
+
+      <p>根据自己项目调整 src 的路径</p>
+
+      <div data-codesource="html" data-title="依赖引入" on>
+        <script type="module" src="../../components/image-viewer/index.js"></script>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>默认</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <bl-image-viewer>
+            <img src="../images/p1.jpg">
+            <img src="../images/p1.jpg">
+            <img src="../images/p1.jpg">
+          </bl-image-viewer>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
+      <table class="api-props">
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>alt</td>
+            <td>string</td>
+            <td></td>
+            <td>img 的 alt。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>fallback</td>
+            <td>string</td>
+            <td></td>
+            <td>载入失败时显示的图片 url。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>fit</td>
+            <td>'fill' | 'contain' | 'cover' | 'none' | 'scale-down'</td>
+            <td></td>
+            <td>图片如何适应容器空间。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>manual</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否使用手动加载（手动调用 load()，而非自动加载）。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>placeholder</td>
+            <td>string</td>
+            <td></td>
+            <td>占位图片 url。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>src</td>
+            <td>string</td>
+            <td></td>
+            <td>图片的 url。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件参数</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>error</td>
+            <td></td>
+            <td>加载错误时触发。</td>
+          </tr>  
+          <tr>
+            <td>loaded</td>
+            <td></td>
+            <td>加载完成时触发。</td>
+          </tr>          
+          <tr>
+            <td>loading</td>
+            <td></td>
+            <td>加载时触发。</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </section>
+  </article>
+</body>
+</html>
