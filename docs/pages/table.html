@@ -659,8 +659,6 @@
               ColumnSetting 的可配置项如下：
 <pre>
 <div>label: 表头文字。</div>
-<div>headRender：表头自定义渲染函数。函数类型：(column) => string | number | Node。</div>
-<div>render：单元格内容自定义渲染函数。函数类型：(data, column, $cell) => string | number | Node。</div>
 <div>prop：单元格内容对应的数据字段。</div>
 <div>align：水平对齐方式。</div>
 <div>width：列宽。</div>
@@ -668,10 +666,13 @@
 <div>maxWidth：最大列宽。</div>
 <div>fixedLeft：是否左固定列。</div>
 <div>fixedRight：是否右固定列。</div>
-<div>sortOrder：排序顺序（未实现），可选值为 'none', 'ascending', 'descending'。</div>
-<div>resizable：是否可以调整尺寸（未实现）。</div>
-<div>summaryRender：合计行单元格内容渲染方法。函数类型：(column, index, data, $cell) => string | number | Node。</div>
+<div>resizable：是否可以调整尺寸。</div>
 <div>children：嵌套列定义。</div>
+<div>sortOrder：排序顺序，可选值为 'none', 'ascending', 'descending'。</div>
+<div>sortMethod：自定义排序方法。函数类型：(row1, row2) => number。</div>
+<div>headRender：表头自定义渲染函数。函数类型：(column) => string | number | Node。</div>
+<div>render：单元格内容自定义渲染函数。函数类型：(data, column, $cell) => string | number | Node。</div>
+<div>summaryRender：合计行单元格内容渲染方法。函数类型：(column, index, data, $cell) => string | number | Node。</div>
 </pre>
             </td>
             <td></td>
