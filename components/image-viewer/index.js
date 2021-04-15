@@ -1,12 +1,12 @@
 import '../loading/index.js'
 import '../icon/index.js'
-import { definePrivate } from '../../common/definePrivate.js'
+import BlocksTransitionOpenZoom from '../transition-open-zoom/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { __fg_placeholder, __height_base, __transition_duration } from '../../theme/var.js'
-import { dispatchEvent } from '../../common/event.js'
 import { makeMessages } from '../../i18n/makeMessages.js'
 import { disabledSetter } from '../../common/propertyAccessor.js'
+import { onWheel } from '../../common/onWheel.js'
+import { forEach } from '../../common/utils.js'
 
 const getMessage = makeMessages('image-viewer', {
 })
@@ -21,13 +21,11 @@ cssTemplate.textContent = `
   right: 0;
   bottom: 0;
   left: 0;
-  background: rgba(0,0,0,.5);
   z-index: 10;
 }
 ::slotted(*) {
   display: none;
 }
-
 #layout {
   overflow: hidden;
   width: 100%;
@@ -47,11 +45,62 @@ cssTemplate.textContent = `
   align-items: center;
   justify-content: center;
 }
+#mask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,.5);
+}
 #active {
   margin: 0;
   max-width: 100%;
   max-height: 100%;
   transition: transform var(--transition-duration, ${__transition_duration});
+}
+
+.button {
+  overflow: hidden;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.button:focus {
+  outline: none;
+}
+
+.button[disabled] {
+  cursor: default;
+}
+
+.button bl-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  margin: auto;
+  fill: #fff;
+  opacity: .7;
+  cursor: pointer;
+}
+
+.button:hover bl-icon {
+  opacity: 1;
+}
+
+.button[disabled] bl-icon {
+  opacity: .2;
+  cursor: default;
 }
 
 #toolbar {
@@ -69,31 +118,6 @@ cssTemplate.textContent = `
   justify-content: flex-end;
 }
 
-.toolbar-button {
-  overflow: hidden;
-  width: 18px;
-  height: 18px;
-  margin: 0 12px;
-  padding: 0;
-  border: none;
-  background: none;
-}
-.toolbar-button:focus {
-  outline: none;
-}
-.toolbar-button bl-icon {
-  fill: #fff;
-  width: 100%;
-  height: 100%;
-  opacity: .7;
-}
-.toolbar-button:hover bl-icon {
-  opacity: 1;
-}
-.toolbar-button[disabled] bl-icon {
-  opacity: .2;
-}
-
 #prev,
 #next {
   overflow: hidden;
@@ -101,25 +125,9 @@ cssTemplate.textContent = `
   top: 0;
   bottom: 0;
   margin: auto;
-  width: 44px;
-  height: 44px;
   border-radius: 50%;
   background-color: rgba(0,0,0,.1);
   cursor: pointer;
-}
-#prev::before,
-#next::before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  width: 10px;
-  height: 10px;
-  border-top: 1px solid #fff;
-  border-right: 1px solid #fff;
-  opacity: .3;
 }
 #prev {
   left: 12px;
@@ -127,53 +135,32 @@ cssTemplate.textContent = `
 #next {
   right: 12px;
 }
-#prev::before {
-  left: 18px;
-  transform: rotate(-135deg);
-}
-#next::before {
-  right: 18px;
-  transform: rotate(45deg);
-}
-#prev:hover::before,
-#next:hover::before {
-  opacity: .8;
-}
-
-#prev[disabled]::before,
-#next[disabled]::before,
-#prev[disabled]:hover::before,
-#next[disabled]:hover::before {
-  opacity: .3;
-  cursor: default;
-}
-
 `
 
 const template = document.createElement('template')
 template.innerHTML = `
-<div id="layout">
+<div id="layout" tabindex="0">
   <div id="content">
+    <div id="mask"></div>
     <img id="active" />
-  <div>
+  </div>
   <div id="thumbnails"></div>
   <div id="toolbar">
-    <button class="toolbar-button" id="rotate-left"><bl-icon value="rotate-left"></bl-icon></button>
-    <button class="toolbar-button" id="rotate-right"><bl-icon value="rotate-right"></bl-icon></button>
-    <button class="toolbar-button" id="zoom-out"><bl-icon value="zoom-out"></bl-icon></button>
-    <button class="toolbar-button" id="zoom-in"><bl-icon value="zoom-in"></bl-icon></button>
-    <button class="toolbar-button" id="close"><bl-icon value="cross"></bl-icon></button>
+    <button class="button" id="rotate-left"><bl-icon value="rotate-left"></bl-icon></button>
+    <button class="button" id="rotate-right"><bl-icon value="rotate-right"></bl-icon></button>
+    <button class="button" id="zoom-out"><bl-icon value="zoom-out"></bl-icon></button>
+    <button class="button" id="zoom-in"><bl-icon value="zoom-in"></bl-icon></button>
+    <button class="button" id="close"><bl-icon value="cross"></bl-icon></button>
   </div>
-  <div id="prev"></div>
-  <div id="next"></div>
+  <button class="button" id="prev"><bl-icon value="left"></bl-icon></button>
+  <button class="button" id="next"><bl-icon value="right"></bl-icon></button>
   <slot></slot>
 </div>
 `
 
-
-class BlocksImageViewer extends HTMLElement {
+class BlocksImageViewer extends BlocksTransitionOpenZoom {
   static get observedAttributes() {
-    return []
+    return super.observedAttributes.concat([])
   }
 
   get imgs() {
@@ -196,13 +183,16 @@ class BlocksImageViewer extends HTMLElement {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({mode: 'open'})
+    const shadowRoot = this.shadowRoot
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
     shadowRoot.appendChild(template.content.cloneNode(true))
 
     this.$slot = shadowRoot.querySelector('slot')
-    this.$content = shadowRoot.getElementById('content')
+    this.$mask = shadowRoot.getElementById('mask')
+    this.$layout = shadowRoot.getElementById('layout')
+    this.$toolbar = shadowRoot.getElementById('toolbar')
     this.$thumbnails = shadowRoot.getElementById('thumbnails')
+    this.$content = shadowRoot.getElementById('content')
     this.$active = shadowRoot.getElementById('active')
     this.$prev = shadowRoot.getElementById('prev')
     this.$next = shadowRoot.getElementById('next')
@@ -233,57 +223,55 @@ class BlocksImageViewer extends HTMLElement {
     })
 
     this.$prev.onclick = e => {
-      if (this.imgs.length && this.activeImg !== this.imgs[0]) {
-        const index = this.imgs.indexOf(this.activeImg)
-        this.activeImg = this.imgs[index - 1]
-
-        disabledSetter(this.$next, false)
-        if (index === 1) {
-          disabledSetter(this.$prev, true)
-        }
-      }
+      this.prev()
     }
-    this.$next.onclick = e => {
-      if (this.imgs.length && this.activeImg !== this.imgs[this.imgs.length - 1]) {
-        const index = this.imgs.indexOf(this.activeImg)
-        this.activeImg = this.imgs[index + 1]
 
-        disabledSetter(this.$prev, false)
-        if (index === this.imgs.length - 2) {
-          disabledSetter(this.$next, true)
-        }        
-      }
+    this.$next.onclick = e => {
+      this.next()
     }
 
     this.$rotateLeftButton.onclick = e => {
-      if (!this.activeImg) return
-      this.imgMap.get(this.activeImg).rotate -= 90
-      this._renderCurrent()
+      this.rotateLeft()
     }
 
     this.$rotateRightButton.onclick = e => {
-      if (!this.activeImg) return
-      this.imgMap.get(this.activeImg).rotate += 90
-      this._renderCurrent()
+      this.rotateRight()
     }
 
     this.$zoomInButton.onclick = e => {
-      if (!this.activeImg) return
-      this.imgMap.get(this.activeImg).scale += 1
-      this._renderCurrent()
+      this.zoomIn()
     }
 
     this.$zoomOutButton.onclick = e => {
-      if (!this.activeImg) return
-      if (this.imgMap.get(this.activeImg).scale > 1) {
-        this.imgMap.get(this.activeImg).scale -= 1
-      }
-      this._renderCurrent()
+      this.zoomOut()
     }
 
     this.$closeButton.onclick = e => {
-      
+      this.open = false
     }
+
+    this.$mask.onclick = e => {
+      this.open = false
+    }
+
+    onWheel(this, (e, data) => {
+      if (data.spinY > 0) {
+        this.zoomIn()
+      }
+      else {
+        this.zoomOut()
+      }
+    })
+
+    this.addEventListener('opened', e => {
+      this.$layout.focus()
+    })
+
+    this.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        this.open = false
+      }
+    })
   }
 
   connectedCallback() {
@@ -293,24 +281,86 @@ class BlocksImageViewer extends HTMLElement {
     this.render()
   }
 
-  disconnectedCallback() {}
+  disconnectedCallback() {
+    super.disconnectedCallback()
+  }
 
-  adoptedCallback() {}
+  adoptedCallback() {
+    super.adoptedCallback()
+  }
 
   attributeChangedCallback(attrName, oldVal, newVal) {
+    super.attributeChangedCallback(attrName, oldVal, newVal)
     this.render()
   }
 
-  render() {
-    this._renderNavButton()
+  zoomIn() {
+    if (!this.activeImg) return
+    this.imgMap.get(this.activeImg).scale += 1
     this._renderCurrent()
+    this._renderToolbar()
+  }
+
+  zoomOut() {
+    if (!this.activeImg) return
+    if (this.imgMap.get(this.activeImg).scale > 1) {
+      this.imgMap.get(this.activeImg).scale -= 1
+    }
+    this._renderCurrent()
+    this._renderToolbar()
+  }
+
+  rotateRight() {
+    if (!this.activeImg) return
+    this.imgMap.get(this.activeImg).rotate += 90
+    this._renderCurrent()
+  }
+
+  rotateLeft() {
+    if (!this.activeImg) return
+    this.imgMap.get(this.activeImg).rotate -= 90
+    this._renderCurrent()
+  }
+
+  next() {
+    if (this.imgs.length && this.activeImg !== this.imgs[this.imgs.length - 1]) {
+      const index = this.imgs.indexOf(this.activeImg)
+      this.activeImg = this.imgs[index + 1]
+    }
+    this._renderNavButton()
+    this._renderToolbar()
+  }
+
+  prev() {
+    if (this.imgs.length && this.activeImg !== this.imgs[0]) {
+      const index = this.imgs.indexOf(this.activeImg)
+      this.activeImg = this.imgs[index - 1]
+    }
+    this._renderNavButton()
+    this._renderToolbar()
+  }
+
+  render() {
+    this._renderCurrent()
+    this._renderNavButton()
+    this._renderToolbar()
   }
 
   _renderCurrent() {
     if (this.activeImg) {
-      const { scale, rotate } = this.imgMap.get(this.activeImg)
-      this.$active.src = this.activeImg.src
-      this.$active.style.transform = `scale3d(${scale}, ${scale}, 1) rotate(${rotate}deg)`
+      if (this.$active.src !== this.activeImg.src) {
+        this.$active.style.opacity = '0'
+        this.$active.src = this.activeImg.src
+        this.$active.onload = () => {
+          this.$active.style.opacity = ''
+          const { scale, rotate } = this.imgMap.get(this.activeImg)
+          this.$active.style.transform = `scale3d(${scale}, ${scale}, 1) rotate(${rotate}deg)`
+        }
+      }
+      else {
+        const { scale, rotate } = this.imgMap.get(this.activeImg)
+        this.$active.style.transform = `scale3d(${scale}, ${scale}, 1) rotate(${rotate}deg)`
+      }
     }
   }
 
@@ -320,6 +370,21 @@ class BlocksImageViewer extends HTMLElement {
 
     disabledSetter(this.$prev, !!this.activeImg && this.activeImg === this.imgs[0])
     disabledSetter(this.$next, !!this.activeImg && this.activeImg === this.imgs[this.imgs.length - 1])
+  }
+
+  _renderToolbar() {
+    if (!this.activeImg) {
+      forEach(this.$toolbar.querySelectorAll('.button'), $button => {
+        disabledSetter($button, true)
+      })
+      return
+    }
+
+    forEach(this.$toolbar.querySelectorAll('.button'), $button => {
+      disabledSetter($button, false)
+    })
+    const { scale } = this.imgMap.get(this.activeImg)
+    disabledSetter(this.$zoomOutButton, scale === 1)
   }
 }
 

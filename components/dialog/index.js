@@ -1,4 +1,4 @@
-import BlocksTransitionOpenCollapse from '../transition-open-zoom/index.js'
+import BlocksTransitionOpenZoom from '../transition-open-zoom/index.js'
 import '../button/index.js'
 import '../modal-mask/index.js'
 import {
@@ -16,7 +16,6 @@ import { boolGetter, boolSetter } from '../../common/property.js'
 import { setRole } from '../../common/accessibility.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { closeableGetter, closeableSetter } from '../../common/propertyAccessor.js'
-import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
 import { onDragMove } from '../../common/onDragMove.js'
 
 const TEMPLATE_CSS = `
@@ -213,7 +212,7 @@ const capturefocusSetter = boolSetter('capturefocus')
 const appendToBodyGetter = boolGetter('append-to-body')
 const appendToBodySetter = boolSetter('append-to-body')
 
-class BlocksDialog extends BlocksTransitionOpenCollapse {
+class BlocksDialog extends BlocksTransitionOpenZoom {
   static get observedAttributes() {
     return super.observedAttributes.concat([
       // 显示状态
