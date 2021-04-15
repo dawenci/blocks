@@ -256,10 +256,10 @@ class BlocksImageViewer extends BlocksTransitionOpenZoom {
 
     onWheel(this, (e, data) => {
       if (data.spinY > 0) {
-        this.zoomIn()
+        this.zoomOut()
       }
       else {
-        this.zoomOut()
+        this.zoomIn()
       }
     })
 
@@ -268,8 +268,27 @@ class BlocksImageViewer extends BlocksTransitionOpenZoom {
     })
 
     this.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        this.open = false
+      switch (e.key) {
+        case 'Escape': {
+          this.open = false
+          break
+        }
+        case 'ArrowLeft': {
+          this.prev()
+          break
+        }
+        case 'ArrowRight': {
+          this.next()
+          break
+        }
+        case 'ArrowUp': {
+          this.zoomIn()
+          break
+        }
+        case 'ArrowDown': {
+          this.zoomOut()
+          break
+        }
       }
     })
   }
@@ -296,16 +315,30 @@ class BlocksImageViewer extends BlocksTransitionOpenZoom {
 
   zoomIn() {
     if (!this.activeImg) return
-    this.imgMap.get(this.activeImg).scale += 1
+
+    const obj = this.imgMap.get(this.activeImg)
+    if (obj.scale >= 1) {
+      obj.scale += 1
+    }
+    else if (obj.scale < 1) {
+      obj.scale += 0.2
+    }
+
     this._renderCurrent()
     this._renderToolbar()
   }
 
   zoomOut() {
     if (!this.activeImg) return
-    if (this.imgMap.get(this.activeImg).scale > 1) {
-      this.imgMap.get(this.activeImg).scale -= 1
+
+    const obj = this.imgMap.get(this.activeImg)
+    if (obj.scale > 1) {
+      obj.scale -= 1
     }
+    else if (obj.scale <= 1 && obj.scale >= 0.4) {
+      obj.scale -= 0.2
+    }
+
     this._renderCurrent()
     this._renderToolbar()
   }
@@ -384,7 +417,7 @@ class BlocksImageViewer extends BlocksTransitionOpenZoom {
       disabledSetter($button, false)
     })
     const { scale } = this.imgMap.get(this.activeImg)
-    disabledSetter(this.$zoomOutButton, scale === 1)
+    disabledSetter(this.$zoomOutButton, scale === 0.2)
   }
 }
 
