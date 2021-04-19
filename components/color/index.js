@@ -433,7 +433,11 @@ class BlocksColor extends HTMLElement {
 
   set rgba([r, g, b, a]) {
     const [h, s, v] = rgb2hsv(r, g, b)
-    this._setStates(h, s, v, a)
+    // value attributeChanged 的时候，如果 change 为 灰色，
+    // 灰色，从灰色 rgba 到 hsv 的转换，会导致 hue 变成红色，
+    // 所以在变灰色的场景，不修改 hue 值
+    const hue = r === g && r === b ? this._hue : h
+    this._setStates(hue, s, v, a)
   }
 
   connectedCallback() {
@@ -564,6 +568,7 @@ class BlocksColor extends HTMLElement {
 
   _updateBg() {
     const bg = `hsl(${this._hue}, 100%, 50%)`
+    console.log(bg)
     this.$hsvHue.style.backgroundColor = bg
     this.$alphaBarBg.style.backgroundImage = `linear-gradient(to right, transparent, ${bg})`
     const resultBg = this.hsla
