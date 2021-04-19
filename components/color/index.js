@@ -568,7 +568,6 @@ class BlocksColor extends HTMLElement {
 
   _updateBg() {
     const bg = `hsl(${this._hue}, 100%, 50%)`
-    console.log(bg)
     this.$hsvHue.style.backgroundColor = bg
     this.$alphaBarBg.style.backgroundImage = `linear-gradient(to right, transparent, ${bg})`
     const resultBg = this.hsla
