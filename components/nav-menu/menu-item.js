@@ -164,7 +164,7 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 
-class BlocksNavMenuItem extends HTMLElement {
+export class BlocksNavMenuItem extends HTMLElement {
   static get observedAttributes() {
     return ['disabled', 'link', 'expand', 'active']
   }

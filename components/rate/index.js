@@ -110,7 +110,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 const $STAR_ICON = getRegisteredSvgIcon('star')
 
-class BlocksRate extends HTMLElement {
+export class BlocksRate extends HTMLElement {
   static get observedAttributes() {
     return [
       // model 值

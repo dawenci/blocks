@@ -122,7 +122,7 @@ const TMEPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TMEPLATE_HTML
 
-class BlocksRadio extends HTMLElement {
+export class BlocksRadio extends HTMLElement {
   static get observedAttributes() {
     return [ 'name', 'checked', 'disabled' ]
   }

@@ -12,7 +12,7 @@ const groupTemplate = document.createElement('bl-popup-menu-group')
 
 const MENU_ATTRS = ['level', 'size', 'enter-delay', 'leave-delay']
 
-class BlocksPopupMenu extends BlocksPopup {
+export class BlocksPopupMenu extends BlocksPopup {
   static get observedAttributes() {
     return BlocksPopup.observedAttributes.concat(MENU_ATTRS)
   }

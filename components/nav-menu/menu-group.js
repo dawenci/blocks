@@ -29,7 +29,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 const itemTemplate = document.createElement('bl-nav-menu-item')
 
-class BlocksNavMenuGroup extends HTMLElement {
+export class BlocksNavMenuGroup extends HTMLElement {
   static get observedAttributes() {
     return ['title', 'horizontal', 'collapse']
   }

@@ -11,7 +11,7 @@ template.innerHTML = `<style>
 </style>
 <slot></slot>`
 
-class BlocksIntersection extends HTMLElement {
+export class BlocksIntersection extends HTMLElement {
   static get observedAttributes() {
     return ['root', 'root-margin', 'threshold']
   }

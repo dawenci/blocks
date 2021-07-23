@@ -58,7 +58,7 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 // TODO, collapse 模式，tooltip 显示一级菜单文本
-class BlocksNavMenu extends HTMLElement {
+export class BlocksNavMenu extends HTMLElement {
   static get observedAttributes() {
     return ['horizontal', 'collapse', 'inline', 'submenu', 'level', 'expand', 'size', 'dark', 'enter-delay', 'leave-delay']
   }

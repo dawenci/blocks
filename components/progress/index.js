@@ -114,7 +114,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksProgress extends HTMLElement {
+export class BlocksProgress extends HTMLElement {
   static get observedAttributes() {
     return ['value', 'status', 'percentage']
   }

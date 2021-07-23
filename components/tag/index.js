@@ -196,7 +196,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksTag extends HTMLElement {
+export class BlocksTag extends HTMLElement {
   static get observedAttributes() {
     return [ 'type', 'size', 'closeable', 'round' ]
   }

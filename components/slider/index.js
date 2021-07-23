@@ -180,7 +180,7 @@ template.innerHTML = `
 </div>
 `
 
-class BlocksSlider extends HTMLElement {
+export class BlocksSlider extends HTMLElement {
   static get observedAttributes() {
     return ['disabled', 'max', 'min', 'range', 'size', 'step', 'round', 'value', 'vertical']
   }

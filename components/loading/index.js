@@ -53,7 +53,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksLoading extends HTMLElement {
+export class BlocksLoading extends HTMLElement {
   static get observedAttributes() {
     return []
   }

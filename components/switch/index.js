@@ -118,7 +118,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksSwitch extends HTMLElement {
+export class BlocksSwitch extends HTMLElement {
   static get observedAttributes() {
     return ['checked', 'disabled', 'size']
   }

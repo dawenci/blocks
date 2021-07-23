@@ -29,7 +29,7 @@ const STEPS_TEMPLATE = `<style>
 const stepperTemplate = document.createElement('template')
 stepperTemplate.innerHTML = STEPS_TEMPLATE
 
-class BlocksSteps extends HTMLElement {
+export class BlocksSteps extends HTMLElement {
   static get observedAttributes() {
     return ['direction', 'size']
   }
@@ -254,7 +254,7 @@ const STEP_TEMPLATE = `<style>
 const stepTemplate = document.createElement('template')
 stepTemplate.innerHTML = STEP_TEMPLATE
 
-class BlocksStep extends HTMLElement {
+export class BlocksStep extends HTMLElement {
   static get observedAttributes() {
     return ['step-title', 'description', 'icon', 'status']
   }

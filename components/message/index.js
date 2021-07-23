@@ -118,7 +118,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksMessage extends HTMLElement {
+export class BlocksMessage extends HTMLElement {
   static get observedAttributes() {
     return ['closeable', 'duration', 'type']
   }

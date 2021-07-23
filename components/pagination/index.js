@@ -108,7 +108,7 @@ const itemTemplate = document.createElement('button')
 const moreTemplate = document.createElement('bl-icon')
 moreTemplate.value = 'more'
 
-class BlocksPagination extends HTMLElement {
+export class BlocksPagination extends HTMLElement {
   static get observedAttributes() {
     return ['current', 'disabled', 'page-size', 'page-sizes', 'order', 'size', 'total']
   }

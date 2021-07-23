@@ -242,7 +242,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksSelectResult extends HTMLElement {
+export class BlocksSelectResult extends HTMLElement {
   static get observedAttributes() {
     return ['clearable', 'multiple', 'multiple-mode', 'prefix-icon', 'searchable', 'size', 'suffix-icon', 'tag-clearable']
   }

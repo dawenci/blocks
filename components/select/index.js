@@ -47,7 +47,7 @@ inputTemplate.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML_INPUT
 const popupTemplate = document.createElement('template')
 popupTemplate.innerHTML = TEMPLATE_HTML_POPUP
 
-class BlocksSelect extends HTMLElement {
+export class BlocksSelect extends HTMLElement {
   static get observedAttributes() {
     return [
       // 是否多选

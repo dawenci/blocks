@@ -85,7 +85,7 @@ const TEMPLATE_HTML = `<div id="layout">
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksItem extends HTMLElement {
+export class BlocksItem extends HTMLElement {
   static get observedAttributes() {
     return [
       'prefix-icon',

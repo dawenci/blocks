@@ -27,7 +27,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksModalMask extends BlocksTransitionOpenOpacity {
+export class BlocksModalMask extends BlocksTransitionOpenOpacity {
   static get observedAttributes() {
     return super.observedAttributes.concat(['open', 'z-index'])
   }
