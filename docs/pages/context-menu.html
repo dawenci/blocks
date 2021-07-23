@@ -27,8 +27,8 @@
         </div>
 
         <script type="module">
-          import { onContextMenu } from '../../components/context-menu/index.js'
-          onContextMenu(document.getElementById('box'), () => [
+          import { blBindContextMenu } from '../../components/context-menu/index.js'
+          blBindContextMenu(document.getElementById('box'), () => [
             { label: '菜单1', handler() { console.log('点击菜单1') } },
             { label: '菜单2', handler() { console.log('点击菜单2') } }
           ])
@@ -49,7 +49,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>onContextMenu</td>
+            <td>blBindContextMenu</td>
             <td>(element: Element, menus: any[] | () => any[]) => () => void</td>
             <td>
               接受两个参数，第一个参数是需要自定义上下文菜单的元素；

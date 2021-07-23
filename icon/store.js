@@ -2,7 +2,8 @@ const icons = new Map()
 
 /**
  * @param {string} key
- * @param {{ width: number, height: number, viewBox: string, data: string, [key: string]: any }} options 
+ * @param {string} data
+ * @param {Record<string, any>} [attrs]
  */
 export function registerSvgIcon(key, data, attrs = {}) {
   icons.set(key, { data, attrs })
@@ -10,6 +11,7 @@ export function registerSvgIcon(key, data, attrs = {}) {
 
 /**
  * @param {string} key
+ * @param {Record<string, any>} [attrs]
  */
 export function getRegisteredSvgIcon(key, attrs = {}) {
   if (!key) return null
@@ -19,6 +21,10 @@ export function getRegisteredSvgIcon(key, attrs = {}) {
   return parseSvg(iconData.data, Object.assign({}, iconData.attrs, attrs))
 }
 
+/**
+ * @param {string} str
+ * @param {Record<string, any>} [attrs]
+ */
 export function parseSvg(str, attrs = {}) {
   const doc = new DOMParser().parseFromString(str, 'image/svg+xml')
 
@@ -44,6 +50,10 @@ export function parseSvg(str, attrs = {}) {
   return svg
 }
 
+/**
+ * @param {string} icon
+ * @param {Record<string, any>} [attrs]
+ */
 export function parseIcon(icon, attrs = {}) {
   return getRegisteredSvgIcon(icon) ?? parseSvg(icon)
 }

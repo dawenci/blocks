@@ -56,6 +56,7 @@ export function doTransitionEnter(el, name, onEnd) {
  * @export
  * @param {Element} el 执行过渡动画的元素
  * @param {string} name 过渡的名称
+ * @param {() => void} [onEnd]
  * @returns
  */
 export function doTransitionLeave(el, name, onEnd) {

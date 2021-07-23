@@ -7,7 +7,7 @@ import '../input/index.js'
  *
  * @export
  * @param {string} text 消息内容
- * @param {{ cancel?: boolean, richMode?: boolean, cancelText?: string, confirmText?: string, oncancel?: () => any, onconfirm?: () => any, resolveValue?: () => any, rejectValue?: () => any }} [options={}]
+ * @param {{ cancel?: boolean, richMode?: boolean, cancelText?: string, confirmText?: string, oncancel?: (err: any) => any, onconfirm?: (value: any) => any, resolveValue?: () => any, rejectValue?: () => any }} [options={}]
  * @returns {Promise<void>}
  */
 export function modal(text, options = {}) {

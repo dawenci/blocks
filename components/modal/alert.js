@@ -7,7 +7,7 @@ import { modal } from './modal.js'
  *
  * @export
  * @param {string} text 消息内容
- * @param {{ richMode: boolean, cancelText: string, confirmText: string, onconfirm: () => any }} [options={}]
+ * @param {{ richMode?: boolean, cancelText?: string, confirmText?: string, onconfirm?: (value: any) => any }} [options={}]
  * @returns {Promise<void>}
  */
 export function blAlert(text, options = {}) {

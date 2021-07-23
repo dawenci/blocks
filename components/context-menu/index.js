@@ -5,9 +5,10 @@ import '../popup-menu/index.js'
  *
  * @export
  * @param {Element} el
- * @param {any[] | () => any[]} menuData
+ * @param {any[] | (e: MouseEvent) => any[]} menuData
+ * @param {boolean} [dark]
  */
-export function onContextMenu(el, menuData, dark) {
+export function blBindContextMenu(el, menuData, dark) {
   const handler = (e) => {
     e.preventDefault()
     const $menu = document.body.appendChild(document.createElement('bl-popup-menu'))
