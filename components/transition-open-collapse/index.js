@@ -46,7 +46,7 @@ const TEMPLATE = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE
 
-export default class BlocksTransitionOpenCollapse extends HTMLElement {
+export class BlocksTransitionOpenCollapse extends HTMLElement {
   static get observedAttributes() {
     return ['open']
   }

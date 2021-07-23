@@ -39,7 +39,7 @@ const TEMPLATE = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE
 
-export default class BlocksTransitionOpenOpacity extends HTMLElement {
+export class BlocksTransitionOpenOpacity extends HTMLElement {
   static get observedAttributes() {
     return ['open']
   }

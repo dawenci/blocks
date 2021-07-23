@@ -17,7 +17,7 @@ function mostSignificantBit(value) {
 /**
  * Class BinaryIndexedTree
  */
-class BinaryIndexedTree {
+export class BinaryIndexedTree {
   /**
    * @param {Object} options
    * @param {number} options.maxVal - The maximum value which will have non-zero frequency
@@ -213,5 +213,3 @@ class BinaryIndexedTree {
     return this._find(sum, (x, y) => x <= y)
   }
 }
-
-export default BinaryIndexedTree

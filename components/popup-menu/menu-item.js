@@ -127,7 +127,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 const menuTemplate = document.createElement('bl-popup-menu')
 
-class BlocksPopupMenuItem extends HTMLElement {
+export class BlocksPopupMenuItem extends HTMLElement {
   static get observedAttributes() {
     return ['disabled', 'link', 'active']
   }

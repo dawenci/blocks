@@ -1,2 +1,2 @@
-import './breadcrumb.js'
-import './item.js'
+export { BlocksBreadcrumb } from './breadcrumb.js'
+export { BlocksBreadcrumbItem } from './item.js'

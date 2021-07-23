@@ -1,4 +1,4 @@
-import BlocksPopup from '../popup/index.js';
+import { BlocksPopup } from '../popup/index.js';
 import { definePrivate } from '../../common/definePrivate.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __border_color_light, __color_primary, __font_family } from '../../theme/var.js'

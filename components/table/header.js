@@ -145,7 +145,7 @@ groupTemplate.appendChild(document.createElement('div')).className = 'group_labe
 groupTemplate.appendChild(document.createElement('div')).className = 'columns'
 
 
-export default class BlocksTableHeader extends HTMLElement {
+export class BlocksTableHeader extends HTMLElement {
   static get observedAttributes() {
     return []
   }

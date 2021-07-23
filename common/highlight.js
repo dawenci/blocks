@@ -53,7 +53,7 @@ function makeSlices(text, highlightRanges) {
   return results
 }
 
-export default function parseHighlight(text, highlights) {
+export function parseHighlight(text, highlights) {
   if (typeof text !== 'string') return []
 
   const ranges = []

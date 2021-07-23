@@ -127,7 +127,7 @@ fallbackTemplate.innerHTML = `
 </div>
 `
 
-class BlocksImage extends HTMLElement {
+export class BlocksImage extends HTMLElement {
   static get observedAttributes() {
     return ['alt', 'fallback', 'fit', 'manual', 'placeholder', 'src']
   }

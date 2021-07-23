@@ -182,17 +182,17 @@
         <tbody>
           <tr>
             <td>blAlert</td>
-            <td>(text:string, options: { richMode: boolean, confirmText: string, onconfirm: () => any }) => Promise&lt;void&gt;</td>
+            <td>(text:string, options: { richMode: boolean, confirmText: string, onconfirm: (value: any) => any }) => Promise&lt;any&gt;</td>
             <td></td>
           </tr>
           <tr>
             <td>blConfirm</td>
-            <td>(text:string, options: { cancel: boolean, richMode: boolean, cancelText: string, confirmText: string, oncancel: () => any, onconfirm: () => any }) => Promise&lt;void&gt;</td>
+            <td>(text:string, options: { cancel: boolean, richMode: boolean, cancelText: string, confirmText: string, oncancel: (error: any) => any, onconfirm: (value: any) => any }) => Promise&lt;any&gt;</td>
             <td></td>
           </tr>
           <tr>
             <td>blPrompt</td>
-            <td>(text:string, options: {cancel: boolean, richMode: boolean, cancelText: string, confirmText: string, oncancel: (error) => any, onconfirm: (value) => any}) => Promise&lt;any&gt;</td>
+            <td>(text:string, options: {cancel: boolean, richMode: boolean, cancelText: string, confirmText: string, oncancel: (error: any) => any, onconfirm: (value: any) => any}) => Promise&lt;any&gt;</td>
             <td></td>
           </tr>
         </tbody>

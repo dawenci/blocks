@@ -39,8 +39,8 @@
           </div>
 
           <script type="module">
-            import Base from "../../components/transition-open-zoom/index.js"
-            customElements.define('bl-zoom', class BlZoom extends Base {
+            import { BlocksTransitionOpenZoom } from "../../components/transition-open-zoom/index.js"
+            customElements.define('bl-zoom', class BlZoom extends BlocksTransitionOpenZoom {
               constructor() {
                 super()
                 this.shadowRoot.appendChild(document.createElement('slot'))
@@ -62,8 +62,8 @@
           </div>
 
           <script type="module">
-            import Base from "../../components/transition-open-opacity/index.js"
-            customElements.define('bl-opacity', class BlZoom extends Base {
+            import { BlocksTransitionOpenOpacity } from "../../components/transition-open-opacity/index.js"
+            customElements.define('bl-opacity', class BlOpacity extends BlocksTransitionOpenOpacity {
               constructor() {
                 super()
                 this.shadowRoot.appendChild(document.createElement('slot'))
@@ -86,8 +86,8 @@
           </div>
           
           <script type="module">
-            import Base from "../../components/transition-open-collapse/index.js"
-            customElements.define('bl-collapse', class BlZoom extends Base {
+            import { BlocksTransitionOpenCollapse } from "../../components/transition-open-collapse/index.js"
+            customElements.define('bl-collapse', class BlCollapse extends BlocksTransitionOpenCollapse {
               constructor() {
                 super()
                 this.shadowRoot.appendChild(document.createElement('slot'))

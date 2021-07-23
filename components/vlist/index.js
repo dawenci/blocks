@@ -19,7 +19,7 @@ import {
   __fg_base
 } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
-import BinaryIndexedTree from '../../common/BinaryIndexedTree.js'
+import { BinaryIndexedTree } from '../../common/BinaryIndexedTree.js'
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
 
 const FORCE_SLICE = true
@@ -165,7 +165,7 @@ export class VirtualItem {
   }
 }
 
-export default class BlocksVList extends HTMLElement {
+export class BlocksVList extends HTMLElement {
   static get observedAttributes() {
     return ['cross-size', 'direction', 'default-item-size', 'show-busy', 'shadow']
   }

@@ -1,4 +1,4 @@
-import VList from '../vlist/index.js'
+import { BlocksVList } from '../vlist/index.js'
 import '../scrollable/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
@@ -21,7 +21,7 @@ import {
   __color_danger
 } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
-import parseHighlight from '../../common/highlight.js'
+import { parseHighlight } from '../../common/highlight.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -134,7 +134,7 @@ itemTemplate.innerHTML = `
 </div>
 `
 
-export default class BlocksList extends VList {
+export class BlocksList extends BlocksVList {
   static get observedAttributes() {
     return super.observedAttributes.concat([
       'border',

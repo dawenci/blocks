@@ -1,4 +1,4 @@
-import BlocksTransitionOpenOpacity from '../transition-open-opacity/index.js'
+import { BlocksTransitionOpenOpacity } from '../transition-open-opacity/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __transition_duration } from '../../theme/var.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'

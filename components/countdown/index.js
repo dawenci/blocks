@@ -16,7 +16,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksCountdown extends HTMLElement {
+export class BlocksCountdown extends HTMLElement {
   static get observedAttributes() {
     return ['format', 'value']
   }

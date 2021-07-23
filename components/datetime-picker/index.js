@@ -1,7 +1,7 @@
-import BlocksPopup from '../popup/index.js'
-import BlocksInput from '../input/index.js'
-import BlocksDate from '../date/index.js'
-import BlocksTime from '../time/index.js'
+import { BlocksPopup } from '../popup/index.js'
+import { BlocksInput } from '../input/index.js'
+import { BlocksDate } from '../date/index.js'
+import { BlocksTime } from '../time/index.js'
 
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __border_color_base, __color_primary, __height_base, __height_large, __height_small, __radius_base, __transition_duration } from '../../theme/var.js'
@@ -198,7 +198,7 @@ inputTemplate.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML_INPUT
 const popupTemplate = document.createElement('template')
 popupTemplate.innerHTML = TEMPLATE_HTML_POPUP
 
-class BlocksDateTimePicker extends HTMLElement {
+export class BlocksDateTimePicker extends HTMLElement {
   static get observedAttributes() {
     return BlocksInput.observedAttributes
       .concat(BlocksDate.observedAttributes)

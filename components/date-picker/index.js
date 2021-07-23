@@ -1,6 +1,6 @@
 import '../popup/index.js'
-import BlocksInput from '../input/index.js'
-import BlocksDate from '../date/index.js'
+import { BlocksInput } from '../input/index.js'
+import { BlocksDate } from '../date/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { __height_base } from '../../theme/var.js'
@@ -44,7 +44,7 @@ inputTemplate.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML_INPUT
 const popupTemplate = document.createElement('template')
 popupTemplate.innerHTML = TEMPLATE_HTML_POPUP
 
-class BlocksDatePicker extends HTMLElement {
+export class BlocksDatePicker extends HTMLElement {
   static get observedAttributes() {
     return BlocksDate.observedAttributes.concat(BlocksInput.observedAttributes)
   }

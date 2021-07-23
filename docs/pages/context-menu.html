@@ -50,7 +50,7 @@
         <tbody>
           <tr>
             <td>blBindContextMenu</td>
-            <td>(element: Element, menus: any[] | () => any[]) => () => void</td>
+            <td>(element: Element, menus: any[] | ((e: MouseEvent) => any[])) => () => void</td>
             <td>
               接受两个参数，第一个参数是需要自定义上下文菜单的元素；
               第二个参数是菜单数据，为数组类型，或者接受事件对象并返回菜单数组的函数。

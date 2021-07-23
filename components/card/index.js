@@ -78,7 +78,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksCard extends HTMLElement {
+export class BlocksCard extends HTMLElement {
   static get observedAttributes() {
     return ['shadow', 'size', 'card-title']
   }

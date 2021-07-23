@@ -12,7 +12,7 @@ const TEMPLATE_HTML = `<slot></slot>`
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksBreadcrumb extends HTMLElement {
+export class BlocksBreadcrumb extends HTMLElement {
   static get observedAttributes() {
     return ['separator']
   }

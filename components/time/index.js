@@ -155,7 +155,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-export default class BlocksTime extends HTMLElement {
+export class BlocksTime extends HTMLElement {
   static get observedAttributes() {
     return ['hour', 'minute', 'second', 'size']
   }

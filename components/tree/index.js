@@ -1,4 +1,4 @@
-import VList, { VirtualItem } from '../vlist/index.js'
+import { BlocksVList, VirtualItem } from '../vlist/index.js'
 import '../scrollable/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
@@ -23,7 +23,7 @@ import {
   __color_danger
 } from '../../theme/var.js'
 import { dispatchEvent } from '../../common/event.js'
-import parseHighlight from '../../common/highlight.js'
+import { parseHighlight } from '../../common/highlight.js'
 
 const Direction = {
   Vertical: 'vertical',
@@ -287,7 +287,7 @@ template.innerHTML = `
 </style>
 `
 
-class VirtualNode extends VirtualItem {
+export class VirtualNode extends VirtualItem {
   constructor(options) {
     super(options)
 
@@ -308,7 +308,7 @@ class VirtualNode extends VirtualItem {
   }
 }
 
-export default class BlocksTree extends VList {
+export class BlocksTree extends BlocksVList {
   static get observedAttributes() {
     return super.observedAttributes.concat([
       'activable',

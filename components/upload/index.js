@@ -168,7 +168,7 @@ const State = Object.freeze({
   Abort: 4,
 })
 
-class BlocksUpload extends HTMLElement {
+export class BlocksUpload extends HTMLElement {
   static get observedAttributes() {
     return [
       'accept',

@@ -46,7 +46,7 @@ const TEMPLATE_HTML = `<slot></slot>`
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksRow extends HTMLElement {
+export class BlocksRow extends HTMLElement {
   static get observedAttributes() {
     return [
       // 子元素垂直对齐方式

@@ -1,4 +1,4 @@
-import VList from '../vlist/index.js'
+import { BlocksVList } from '../vlist/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setStyles } from '../../common/style.js'
 import { dispatchEvent } from '../../common/event.js'
@@ -110,9 +110,9 @@ const cellTemplate = document.createElement('div')
 cellTemplate.className = 'cell'
 cellTemplate.appendChild(document.createElement('div')).className = 'cell-content'
 
-export default class BlocksTableBody extends VList {
+export class BlocksTableBody extends BlocksVList {
   static get observedAttributes() {
-    return VList.observedAttributes.concat(['sort-field', 'sort-order', 'summary-height'])
+    return BlocksVList.observedAttributes.concat(['sort-field', 'sort-order', 'summary-height'])
   }
 
   get sortField() {

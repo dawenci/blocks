@@ -224,7 +224,7 @@ template.innerHTML = `<style>
 </div>
 `
 
-export default class BlocksCalc extends HTMLElement {
+export class BlocksCalc extends HTMLElement {
   static get observedAttributes() {
     return ['dark', 'screen']
   }

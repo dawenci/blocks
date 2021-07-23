@@ -27,7 +27,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 const itemTemplate = document.createElement('bl-popup-menu-item')
 
-class BlocksPopupMenuGroup extends HTMLElement {
+export class BlocksPopupMenuGroup extends HTMLElement {
   static get observedAttributes() {
     return ['title']
   }

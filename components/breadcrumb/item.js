@@ -48,7 +48,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksBreadcrumbItem extends HTMLElement {
+export class BlocksBreadcrumbItem extends HTMLElement {
   static get observedAttributes() {
     return ['href']
   }

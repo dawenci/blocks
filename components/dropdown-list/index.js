@@ -1,5 +1,5 @@
 import '../button/index.js'
-import BlocksPopupList from '../popup-list/index.js'
+import { BlocksPopupList } from '../popup-list/index.js'
 
 import { enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
@@ -37,7 +37,7 @@ const triggerModeSetter = enumSetter('trigger-mode', ['hover', 'click'])
 
 const ATTRS = BlocksPopupList.observedAttributes.concat(['trigger-mode'])
 
-export default class BlocksDropDownList extends HTMLElement {
+export class BlocksDropDownList extends HTMLElement {
   static get observedAttributes() {
     return ATTRS
   }

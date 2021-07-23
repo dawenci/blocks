@@ -1,6 +1,6 @@
 import '../loading/index.js'
 import '../icon/index.js'
-import BlocksTransitionOpenZoom from '../transition-open-zoom/index.js'
+import { BlocksTransitionOpenZoom } from '../transition-open-zoom/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { __fg_placeholder, __height_base, __transition_duration } from '../../theme/var.js'
 import { makeMessages } from '../../i18n/makeMessages.js'
@@ -158,7 +158,7 @@ template.innerHTML = `
 </div>
 `
 
-class BlocksImageViewer extends BlocksTransitionOpenZoom {
+export class BlocksImageViewer extends BlocksTransitionOpenZoom {
   static get observedAttributes() {
     return super.observedAttributes.concat([])
   }

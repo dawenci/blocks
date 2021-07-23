@@ -1,4 +1,4 @@
-import BlocksTransitionOpenCollapse from '../transition-open-zoom/index.js'
+import { BlocksTransitionOpenZoom } from '../transition-open-zoom/index.js'
 import '../button/index.js'
 import '../icon/index.js'
 import {
@@ -463,7 +463,7 @@ template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 const capturefocusGetter = boolGetter('capturefocus')
 const capturefocusSetter = boolSetter('capturefocus')
 
-class BlocksWindow extends BlocksTransitionOpenCollapse {
+export class BlocksWindow extends BlocksTransitionOpenZoom {
   static get observedAttributes() {
     return super.observedAttributes.concat([
       // 窗口按钮，'minimize,maximize,close'

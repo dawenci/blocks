@@ -1,4 +1,4 @@
-import BlocksTransitionOpenZoom from '../transition-open-zoom/index.js'
+import { BlocksTransitionOpenZoom } from '../transition-open-zoom/index.js'
 import '../button/index.js'
 import '../modal-mask/index.js'
 import {
@@ -212,7 +212,7 @@ const capturefocusSetter = boolSetter('capturefocus')
 const appendToBodyGetter = boolGetter('append-to-body')
 const appendToBodySetter = boolSetter('append-to-body')
 
-class BlocksDialog extends BlocksTransitionOpenZoom {
+export class BlocksDialog extends BlocksTransitionOpenZoom {
   static get observedAttributes() {
     return super.observedAttributes.concat([
       // 显示状态

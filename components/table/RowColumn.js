@@ -1,4 +1,4 @@
-export default class RowColumn {
+export class RowColumn {
   constructor(options = {}) {
     if (options instanceof RowColumn) return options
 

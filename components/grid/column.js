@@ -324,7 +324,7 @@ const TEMPLATE_HTML = `<slot></slot>`
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksColumn extends HTMLElement {
+export class BlocksColumn extends HTMLElement {
   static get observedAttributes() {
     return [
       // 左侧空出多少个栅格列

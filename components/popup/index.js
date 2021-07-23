@@ -1,4 +1,4 @@
-import BlocksTransitionOpenZoom from '../transition-open-zoom/index.js'
+import { BlocksTransitionOpenZoom } from '../transition-open-zoom/index.js'
 import { boolGetter, boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { setRole } from '../../common/accessibility.js'
@@ -288,7 +288,7 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 
-export default class BlocksPopup extends BlocksTransitionOpenZoom {
+export class BlocksPopup extends BlocksTransitionOpenZoom {
   static get observedAttributes() {
     return super.observedAttributes.concat([
       // Popup 锚定的布局框，是一个矩形区域

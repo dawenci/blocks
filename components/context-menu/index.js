@@ -5,7 +5,7 @@ import '../popup-menu/index.js'
  *
  * @export
  * @param {Element} el
- * @param {any[] | (e: MouseEvent) => any[]} menuData
+ * @param {any[] | ((e: MouseEvent) => any[])} menuData
  * @param {boolean} [dark]
  */
 export function blBindContextMenu(el, menuData, dark) {

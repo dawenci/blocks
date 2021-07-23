@@ -32,7 +32,7 @@ const TEMPLATE_HTML = `<div id="layout"><slot></slot></div><sup id="badge">999+<
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksBadge extends HTMLElement {
+export class BlocksBadge extends HTMLElement {
   static get observedAttributes() {
     return []
   }

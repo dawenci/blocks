@@ -182,7 +182,7 @@ const INPUT_ATTRS = [
 ]
 
 
-export default class BlocksInput extends HTMLElement {
+export class BlocksInput extends HTMLElement {
   static get observedAttributes() {
     return INPUT_ATTRS.concat([
       'prefix-icon',

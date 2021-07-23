@@ -81,7 +81,7 @@ inputTemplate.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML_INPUT
 const popupTemplate = document.createElement('template')
 popupTemplate.innerHTML = TEMPLATE_HTML_POPUP
 
-class BlocksColorPicker extends HTMLElement {
+export class BlocksColorPicker extends HTMLElement {
   static get observedAttributes() {
     return [
       'value',

@@ -156,7 +156,7 @@ const TMEPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TMEPLATE_HTML
 
-class BlocksCheckbox extends HTMLElement {
+export class BlocksCheckbox extends HTMLElement {
   static get observedAttributes() {
     return ['name', 'checked', 'disabled']
   }

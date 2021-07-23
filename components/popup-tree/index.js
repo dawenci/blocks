@@ -1,5 +1,5 @@
-import BlocksTree from '../tree/index.js';
-import BlocksPopup from '../popup/index.js';
+import { BlocksTree } from '../tree/index.js';
+import { BlocksPopup } from '../popup/index.js';
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import {
   __font_family,
@@ -29,7 +29,7 @@ const CHANGE = 'change'
 
 const ATTRS = BlocksPopup.observedAttributes.concat(BlocksTree.observedAttributes)
 
-export default class BlocksPopupTree extends BlocksPopup {
+export class BlocksPopupTree extends BlocksPopup {
   static get observedAttributes() {
     return ATTRS
   }

@@ -307,7 +307,7 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 
-class BlocksColor extends HTMLElement {
+export class BlocksColor extends HTMLElement {
   static get observedAttributes() {
     return ['mode', 'value']
   }

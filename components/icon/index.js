@@ -1,5 +1,3 @@
-import { } from '../../theme/var.js'
-
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 
@@ -32,7 +30,7 @@ const TEMPLATE_HTML = `<div id="layout"></div>`
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksIcon extends HTMLElement {
+export class BlocksIcon extends HTMLElement {
   static get observedAttributes() {
     return [
       'value',

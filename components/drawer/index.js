@@ -214,7 +214,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksDrawer extends HTMLElement {
+export class BlocksDrawer extends HTMLElement {
   static get observedAttributes() {
     return ['capturefocus', 'close-on-click-outside', 'close-on-escape', 'mask', 'name', 'open', 'placement', 'size']
   }

@@ -1,4 +1,4 @@
-import BlocksPopup from '../popup/index.js'
+import { BlocksPopup } from '../popup/index.js'
 import { enumGetter, enumSetter, intGetter, intSetter } from '../../common/property.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
 import { forEach } from '../../common/utils.js'
@@ -39,7 +39,7 @@ const ATTRS = [
 const triggerModeGetter = enumGetter('trigger-mode', ['hover', 'click'])
 const triggerModeSetter = enumSetter('trigger-mode', ['hover', 'click'])
 
-export default class BlocksTooltip extends HTMLElement {
+export class BlocksTooltip extends HTMLElement {
   static get observedAttributes() {
     return BlocksPopup.observedAttributes.concat(ATTRS)
   }

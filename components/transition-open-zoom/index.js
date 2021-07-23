@@ -45,7 +45,7 @@ const TEMPLATE = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE
 
-export default class BlocksTransitionOpenZoom extends HTMLElement {
+export class BlocksTransitionOpenZoom extends HTMLElement {
   static get observedAttributes() {
     return ['open']
   }

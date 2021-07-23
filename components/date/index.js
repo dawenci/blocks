@@ -467,7 +467,7 @@ const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
 
-export default class BlocksDate extends HTMLElement {
+export class BlocksDate extends HTMLElement {
   static get Depth() {
     return Depth
   }

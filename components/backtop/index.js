@@ -45,7 +45,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksBackTop extends HTMLElement {
+export class BlocksBackTop extends HTMLElement {
   static get observedAttributes() {
     return ['duration', 'target', 'visibility-height']
   }

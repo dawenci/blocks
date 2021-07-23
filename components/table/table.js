@@ -2,7 +2,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { boolGetter, boolSetter } from '../../common/property.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import RowColumn from './RowColumn.js'
+import { RowColumn } from './RowColumn.js'
 import '../scrollable/index.js'
 import './header.js'
 import './body.js'
@@ -91,7 +91,7 @@ cssTemplate.textContent = `
 
 let gridId = 0
 
-export default class BlocksTable extends HTMLElement {
+export class BlocksTable extends HTMLElement {
   static get observedAttributes() {
     return ['border']
   }
