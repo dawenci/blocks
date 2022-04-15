@@ -1077,7 +1077,11 @@ export class BlocksDate extends HTMLElement {
     if (!this.yearList.length) return
     this._ensureItemCount(10).forEach(($el, i) => {
       const item = this.yearList[i]
-      boolSetter('disabled')($el, false)
+      if (this.depth === Depth.Decade) {
+        boolSetter('disabled')($el, !this.isActiveLeaf(item) && this.isDisabledLeaf(item))
+      } else {
+        boolSetter('disabled')($el, false)
+      }
       $el.classList.toggle('button-item--otherMonth', false)
       $el.classList.toggle('button-item--today', false)
       $el.classList.toggle('button-item--active', this.isActiveLeaf(item))
@@ -1109,8 +1113,11 @@ export class BlocksDate extends HTMLElement {
       $el.classList.toggle('button-item--rangeFrom', this.range && this.isRangeFrom(item))
       $el.classList.toggle('button-item--rangeTo', this.range && this.isRangeTo(item))
       $el.classList.toggle('button-item--rangeIn', this.range && this.isInRange(item))
-
-      boolSetter('disabled')($el, false)
+      if (this.depth === Depth.Year) {
+        boolSetter('disabled')($el, !this.isActiveLeaf(item) && this.isDisabledLeaf(item))
+      } else {
+        boolSetter('disabled')($el, false)
+      }
       $el.dataset.century = item.century
       $el.dataset.decade = item.decade
       $el.dataset.year = item.year
