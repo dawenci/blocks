@@ -30,7 +30,7 @@ const TEMPLATE_HTML = `
 const template = document.createElement('template')
 template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
 
-class BlocksOptGroup extends HTMLElement {
+export class BlocksOptGroup extends HTMLElement {
   static get observedAttributes() {
     return [
       'disabled',
