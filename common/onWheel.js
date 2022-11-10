@@ -1,3 +1,5 @@
+/// <reference path="../types/common/onWheel.d.ts" />
+
 // https://github.com/basilfx/normalize-wheel/blob/master/src/normalizeWheel.js
 // Reasonable defaults
 const PIXEL_STEP = 10

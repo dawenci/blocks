@@ -1,3 +1,5 @@
+/// <reference path="../types/common/sizeObserve.d.ts" />
+
 // 对于现代浏览器，优先使用 ResizeObserver
 // 
 // 否则使用滚动检测，原理：

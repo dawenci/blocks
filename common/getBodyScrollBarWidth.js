@@ -1,3 +1,5 @@
+/// <reference path="../types/common/getBodyScrollBarWidth.d.ts" />
+
 export function getBodyScrollBarWidth() {
   const $outer = document.createElement('div')
   const $inner = $outer.cloneNode()

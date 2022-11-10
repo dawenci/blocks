@@ -1,3 +1,5 @@
+/// <reference path="../types/common/scrollTo.d.ts" />
+
 /**
  * 设置滚动容器 scrollable 的滚动位置，以将 element 显示在顶部的位置
  * @param {HTMLElement} scrollable 可以滚动的容器

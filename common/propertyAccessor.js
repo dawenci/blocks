@@ -1,3 +1,5 @@
+/// <reference path="../types/common/propertyAccessor.d.ts" />
+
 import { boolGetter, boolSetter, enumGetter, enumSetter } from './property.js'
 
 export const activeGetter = boolGetter('active')

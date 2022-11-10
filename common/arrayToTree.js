@@ -1,3 +1,5 @@
+/// <reference path="../types/common/arrayToTree.d.ts" />
+
 /**
  * 生成树
  *

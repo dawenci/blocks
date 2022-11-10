@@ -1,3 +1,5 @@
+/// <reference path="../types/common/BinaryIndexedTree.d.ts" />
+
 const isInteger = Number.isInteger || ((v) => typeof v === 'number' && isFinite(v) && Math.floor(v) === v)
 
 function mostSignificantBit(value) {

@@ -1,3 +1,5 @@
+/// <reference path="../types/common/utils.d.ts" />
+
 export const property = (prop) => obj => obj[prop]
 
 export const forEach = (list, fn) => Array.prototype.forEach.call(list, fn)

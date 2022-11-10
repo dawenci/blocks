@@ -1,3 +1,5 @@
+/// <reference path="../types/common/property.d.ts" />
+
 /**
  * @export
  * @param {string} attr

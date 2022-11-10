@@ -1,3 +1,5 @@
+/// <reference path="../types/common/onClickOutside.d.ts" />
+
 /**
  * @param {Element} el 元素
  * @param {(e: MouseEvent) => void} handler 事件处理器

@@ -1,3 +1,5 @@
+/// <reference path="../types/common/style.d.ts" />
+
 import { camelCase } from "./utils.js"
 
 export function getStyle(el, prop) {

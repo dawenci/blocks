@@ -1,3 +1,5 @@
+/// <reference path="../types/common/highlight.d.ts" />
+
 function highlightRange(text, highlight, ranges = []) {
   let index = text.indexOf(highlight)
   let end

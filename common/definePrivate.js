@@ -1,3 +1,5 @@
+/// <reference path="../types/common/definePrivate.d.ts" />
+
 export function definePrivate(obj, name, initValue) {
   Object.defineProperty(obj, name, {
     enumerable: false,

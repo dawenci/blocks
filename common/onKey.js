@@ -1,3 +1,4 @@
+/// <reference path="../types/common/onKey.d.ts" />
 
 export function onKey(key, handler) {
   const internalHandler = e => {

@@ -1,3 +1,5 @@
+/// <reference path="../types/common/animation.d.ts" />
+
 /**
  * 执行 enter 过渡
  * @export

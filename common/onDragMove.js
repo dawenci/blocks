@@ -1,3 +1,4 @@
+/// <reference path="../types/common/onDragMove.d.ts" />
 
 export function onDragMove($el, options) {
   let start = null

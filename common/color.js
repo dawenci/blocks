@@ -1,3 +1,5 @@
+/// <reference path="../types/common/color.d.ts" />
+
 import { round } from './utils.js'
 
 /**
