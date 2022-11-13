@@ -73,7 +73,7 @@ document.querySelectorAll('div.code').forEach((block) => {
 В основном скрипте:
 
 ```js
-addEventListener('load', () => {
+override addEventListener('load', () => {
   const code = document.querySelector('#code');
   const worker = new Worker('worker.js');
   worker.onmessage = (event) => { code.innerHTML = event.data; }

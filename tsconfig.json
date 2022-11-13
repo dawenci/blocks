@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
+    "baseUrl": ".",
+    "allowJs": false,
+    "strict": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "noImplicitOverride": true,
+    "sourceMap": false,
+    "outDir": "dist",
+    "lib": ["DOM", "ESNext", ]
+  },
+  "include": [
+    "src",
+    "types",
+  ],
+}

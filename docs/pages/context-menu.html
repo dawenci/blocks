@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>context-menu</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -17,7 +18,7 @@
       <h1>context-menu</h1>
     </header>
 
-    <script type="module" src="../../components/button/index.js"></script>
+    <script type="module" src="../../dist/components/button/index.js"></script>
 
     <section class="section">
       <h2>默认</h2>
@@ -27,7 +28,7 @@
         </div>
 
         <script type="module">
-          import { blBindContextMenu } from '../../components/context-menu/index.js'
+          import { blBindContextMenu } from '../../dist/components/context-menu/index.js'
           blBindContextMenu(document.getElementById('box'), () => [
             { label: '菜单1', handler() { console.log('点击菜单1') } },
             { label: '菜单2', handler() { console.log('点击菜单2') } }

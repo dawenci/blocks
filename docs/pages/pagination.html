@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>pagination</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -23,7 +24,7 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/pagination/index.js"></script>
+        <script type="module" src="../../dist/components/pagination/index.js"></script>
       </div>
     </section>
 
@@ -31,7 +32,7 @@
       <h2>默认使用</h2>
 
       <div class="case">
-        <template data-codesource="html">          
+        <template data-codesource="html">
           <div style="margin:10px;">
             <bl-pagination total="70" page-size="10" current="1"></bl-pagination>
           </div>
@@ -71,6 +72,8 @@
 
     <section class="section">
       <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
       <table class="api-props">
         <thead>
           <tr>
@@ -83,10 +86,45 @@
         </thead>
         <tbody>
           <tr>
+            <td>current</td>
+            <td>number</td>
+            <td>1</td>
+            <td>当前页码。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>disabled</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否禁用。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>page-size</td>
+            <td>number</td>
+            <td>10</td>
+            <td>每页大小。</td>
             <td></td>
+          </tr>
+          <tr>
+            <td>page-sizes</td>
+            <td>number</td>
             <td></td>
+            <td>可选的每页大小数组（未实现）。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>size</td>
+            <td>'small' | 'large'</td>
+            <td></td>
+            <td>组件尺寸，不设置则为中等尺寸。</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>total</td>
+            <td>number</td>
+            <td>0</td>
+            <td>总记录数。</td>
             <td></td>
           </tr>
         </tbody>

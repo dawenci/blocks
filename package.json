@@ -1,14 +1,16 @@
 {
   "name": "@dawenci/blocks",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Web Components",
-  "main": "index.js",
+  "main": "dist/index.js",
   "directories": {
     "doc": "docs",
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write \"src/{components,commmon,icon,theme}/**/*.{ts,js}\""
   },
   "repository": {
     "type": "git",
@@ -22,5 +24,14 @@
   "bugs": {
     "url": "https://github.com/dawenci/blocks/issues"
   },
-  "homepage": "https://github.com/dawenci/blocks#readme"
+  "homepage": "https://github.com/dawenci/blocks#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
+    "eslint": "^8.27.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.7.1",
+    "typescript": "^4.8.4"
+  }
 }

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>dropdown-list</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -16,8 +17,7 @@
     <header>
       <h1>dropdown-list</h1>
     </header>
-    <script type="module" src="../../components/input/index.js"></script>
-    <script type="module" src="../../components/button/index.js"></script>
+    <script type="module" src="../../dist/components/button/index.js"></script>
 
     <section class="section">
       <h2>依赖引入</h2>
@@ -25,29 +25,47 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/dropdown-list/index.js"></script>
+        <script type="module" src="../../dist/components/select-result/index.js"></script>
+        <script type="module" src="../../dist/components/dropdown-list/index.js"></script>
+        <script type="module" src="../../dist/components/input/index.js"></script>
       </div>
     </section>
 
     <section class="section">
-      <template data-codesource="html">
+      <div data-codesource="html">
         <bl-dropdown-list
+          checkable
           arrow
-          checkable="single"
-          trigger-mode="click"
+          multiple
           id="default">
-          <bl-input placeholder="下拉列表"></bl-input>
+          <bl-select-result
+            multiple
+            clearable
+            max-tag-count="1"
+            placeholder="请选择">
+          </bl-select-result>
         </bl-dropdown-list>
-      </template>
+
+        <bl-dropdown-list
+          checkable
+          arrow
+          multiple
+          id="default2">
+          <bl-input
+            clearable
+            placeholder="请选择">
+          </bl-input>
+        </bl-dropdown-list>
+      </div>
 
       <template data-codesource="script">
         <script>
           (() => {
-            const widget = document.getElementById('default')
             const data = []
             let i = -1
             while (i++ < 20) data.push({ label: `label ${i}`, id: `id${i}` })
-            widget.data = data
+            document.getElementById('default').data = data
+            document.getElementById('default2').data = data
           })()
         </script>
       </template>
@@ -55,11 +73,8 @@
 
     <section class="section">
       <h2>API</h2>
-
-      <h3>Attrs / Props</h3>
-      <p>支持传入 popup 以及 list 的属性。</p>
-
-      <table class="api-props">
+      待编写
+      <table>
         <thead>
           <tr>
             <th>属性名</th>

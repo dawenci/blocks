@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>button</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -23,7 +24,7 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/button/index.js"></script>
+        <script type="module" src="../../dist/components/button/index.js"></script>
       </div>
     </section>
 
@@ -85,6 +86,7 @@
           <bl-button type="danger" disabled>danger</bl-button>
           <bl-button type="warning" disabled>warning</bl-button>
           <bl-button type="success" disabled>success</bl-button>
+          <bl-button type="link" disabled>link</bl-button>
         </template>
       </div>
 
@@ -105,33 +107,53 @@
       <h2>icon</h2>
 
       <div class="case">
-        <h3>color</h3>
+        <h3>前后缀图标</h3>
         <template data-codesource="html">
-          <bl-button icon="date">default</bl-button>
-          <bl-button icon="date" type="primary">primary</bl-button>
-          <bl-button icon="date" type="danger">danger</bl-button>
-          <bl-button icon="date" type="warning">warning</bl-button>
-          <bl-button icon="date" type="success">success</bl-button>
+          <bl-button prefix-icon="date" suffix-icon="date">default</bl-button>
+          <bl-button prefix-icon="date" suffix-icon="date" type="primary">primary</bl-button>
+          <bl-button prefix-icon="date" suffix-icon="date" type="danger">danger</bl-button>
+          <bl-button prefix-icon="date" suffix-icon="date" type="warning">warning</bl-button>
+          <bl-button prefix-icon="date" suffix-icon="date" type="success">success</bl-button>
         </template>
       </div>
 
       <div class="case">
-        <h3>outline</h3>
+        <h3>纯图标（使用前后缀均可）</h3>
         <template data-codesource="html">
-          <bl-button icon="date" outline>default</bl-button>
-          <bl-button icon="date" outline type="primary">primary</bl-button>
-          <bl-button icon="date" outline type="danger">danger</bl-button>
-          <bl-button icon="date" outline type="warning">warning</bl-button>
-          <bl-button icon="date" outline type="success">success</bl-button>
+          <bl-button prefix-icon="date"></bl-button>
+          <bl-button prefix-icon="date" type="primary"></bl-button>
+          <bl-button prefix-icon="date" type="danger"></bl-button>
+          <bl-button prefix-icon="date" type="warning"></bl-button>
+          <bl-button prefix-icon="date" type="success"></bl-button>
+        </template>
+      </div>
+
+      <div class="case">
+        <h3>outline 风格</h3>
+        <template data-codesource="html">
+          <bl-button prefix-icon="date" outline>default</bl-button>
+          <bl-button prefix-icon="date" outline type="primary">primary</bl-button>
+          <bl-button prefix-icon="date" outline type="danger">danger</bl-button>
+          <bl-button prefix-icon="date" outline type="warning">warning</bl-button>
+          <bl-button prefix-icon="date" outline type="success">success</bl-button>
+
+          <bl-button prefix-icon="date" outline></bl-button>
+          <bl-button prefix-icon="date" outline type="primary"></bl-button>
+          <bl-button prefix-icon="date" outline type="danger"></bl-button>
+          <bl-button prefix-icon="date" outline type="warning"></bl-button>
+          <bl-button prefix-icon="date" outline type="success"></bl-button>
         </template>
       </div>
 
       <div class="case">
         <h3>size</h3>
         <template data-codesource="html">
-          <bl-button icon="date" size="small">small</bl-button>
-          <bl-button icon="date">default</bl-button>
-          <bl-button icon="date" size="large">large</bl-button>
+          <bl-button prefix-icon="date" size="small">small</bl-button>
+          <bl-button prefix-icon="date">default</bl-button>
+          <bl-button prefix-icon="date" size="large">large</bl-button>
+          <bl-button prefix-icon="date" size="small"></bl-button>
+          <bl-button prefix-icon="date"></bl-button>
+          <bl-button prefix-icon="date" size="large"></bl-button>
         </template>
       </div>
     </section>
@@ -159,12 +181,12 @@
           <bl-button round>round</bl-button>
           <bl-button size="large" round>round</bl-button>
 
-          <bl-button size="small" round icon="date">带图标</bl-button>
-          <bl-button round icon="date">带图标</bl-button>
-          <bl-button size="large" round icon="date">带图标</bl-button>
-          <bl-button size="small" round icon="date"></bl-button>
-          <bl-button round icon="date"></bl-button>
-          <bl-button size="large" round icon="date"></bl-button>
+          <bl-button size="small" round prefix-icon="date">带图标</bl-button>
+          <bl-button round prefix-icon="date">带图标</bl-button>
+          <bl-button size="large" round prefix-icon="date">带图标</bl-button>
+          <bl-button size="small" round prefix-icon="date"></bl-button>
+          <bl-button round prefix-icon="date"></bl-button>
+          <bl-button size="large" round prefix-icon="date"></bl-button>
         </template>
       </div>
     </section>
@@ -178,6 +200,8 @@
       <div class="case">
         <template data-codesource="html">
           <bl-button block type="primary">block 按钮</bl-button>
+          <bl-button loading block type="primary">block 按钮</bl-button>
+          <bl-button prefix-icon="date" block type="primary">block 按钮</bl-button>
         </template>
       </div>
     </section>

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -23,7 +24,7 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/select/index.js"></script>
+        <script type="module" src="../../dist/components/select/index.js"></script>
       </div>
     </section>
 
@@ -75,6 +76,25 @@
       <h2>多选</h2>
 
       <template data-codesource="html">
+        <bl-select
+          multiple
+          multiple-mode="plain"
+          clearable
+          tag-clearable>
+          <bl-optgroup label="Group A">
+            <bl-option value="A">选项A</bl-option>
+            <bl-option value="B">选项B</bl-option>
+          </bl-optgroup>
+
+          <bl-optgroup label="Group B">
+            <bl-option value="C" disabled>选项C</bl-option>
+            <bl-option value="D">选项D</bl-option>
+            <bl-option value="E">选项E</bl-option>
+            <bl-option value="F">选项F</bl-option>
+            <bl-option value="G">选项G</bl-option>
+          </bl-optgroup>
+        </bl-select>
+
         <bl-select
           multiple
           multiple-mode="tag"

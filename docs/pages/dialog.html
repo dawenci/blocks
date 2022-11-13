@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>dialog</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -25,7 +26,7 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/dialog/index.js"></script>
+        <script type="module" src="../../dist/components/dialog/index.js"></script>
       </div>
     </section>
 
@@ -108,7 +109,7 @@
         <bl-button onclick="document.getElementById('dark').open = !document.getElementById('dark').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
-          <bl-dialog id="dark" dark closeable title="Dark mode">
+          <bl-dialog id="dark" blocks-theme="dark" closeable title="Dark mode">
             <div style="padding: 50px 100px;">
               这里是对话框的内容。
             </div>
@@ -251,7 +252,7 @@
         <thead>
           <tr>
             <th>事件名称</th>
-            <th>事件参数</th>
+            <th>事件对象</th>
             <th>说明</th>
           </tr>
         </thead>

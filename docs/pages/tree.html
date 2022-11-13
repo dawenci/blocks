@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>tree</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -17,8 +18,8 @@
       <h1>tree</h1>
     </header>
 
-    <script type="module" src="../../components/input/index.js"></script>
-    <script type="module" src="../../components/button/index.js"></script>
+    <script type="module" src="../../dist/components/input/index.js"></script>
+    <script type="module" src="../../dist/components/button/index.js"></script>
 
     <section class="section">
       <h2>依赖引入</h2>
@@ -26,7 +27,7 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/tree/index.js"></script>
+        <script type="module" src="../../dist/components/tree/index.js"></script>
       </div>
     </section>
 
@@ -211,7 +212,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="single-select" checkable="single" check-on-click-node style="height:300px;"></bl-tree>
+          <bl-tree id="single-select" checkable check-on-click-node style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -237,7 +238,7 @@
       <h3>父子节点联动选择</h3>
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="multi-select" checkable="multiple" check-on-click-node style="height:300px;"></bl-tree>
+          <bl-tree id="multi-select" checkable multiple check-on-click-node style="height:300px;"></bl-tree>
 
           <script>
             (() => {
@@ -259,7 +260,7 @@
 
       <div class="case">
         <div data-codesource="html">
-          <bl-tree id="check-strictly" checkable="multiple" check-strictly check-on-click-node style="height:300px;"></bl-tree>
+          <bl-tree id="check-strictly" checkable multiple check-strictly check-on-click-node style="height:300px;"></bl-tree>
 
           <script>
             (() => {

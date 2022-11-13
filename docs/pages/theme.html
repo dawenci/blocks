@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>主题</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -17,11 +18,14 @@
       <h1>主题定制</h1>
     </header>
 
-    <script type="module" src="../../components/button/index.js"></script>
+    <script type="module" src="../../dist/components/button/index.js"></script>
 
     <section class="section">
       <p>
-      可以使用 css 变量定制主题，支持的变量名称，可以查看 `/components/theme/var.js`，文件里面有所有的全局 css 变量名称以及默认值。
+      可以使用 css 变量定制主题，支持的变量名称，可以查看 `/src/theme/var.css`，文件里面有所有的全局 css 变量名称以及默认值。
+      </p>
+      <p>
+      直接引入默认的 `/src/theme/var.css` 文件的话，在祖先元素或组件上设置 `blocks-theme="dark"` attribute 可以开启 dark 模式。
       </p>
       <p>
       另外，部分组件也有组件级别的 css 变量，可以通过具体组件的 API 文档查看变量详情。
@@ -37,9 +41,9 @@
           <bl-button type="primary">全局定制效果</bl-button>
           <style>
             :root {
-              --color-primary: #083;
-              --color-primary-light: #094;
-              --color-primary-dark: #072;
+              --bl-color-primary-base: #083;
+              --bl-color-primary-hover: #094;
+              --bl-color-primary-active: #072;
             }
           </style>
         </template>
@@ -56,9 +60,9 @@
         <template data-codesource="html" on>
           <style>
             #custom {
-              --color-primary: #F33;
-              --color-primary-light: #F55;
-              --color-primary-dark: #F22;
+              --bl-color-primary-base: #F33;
+              --bl-color-primary-hover: #F55;
+              --bl-color-primary-active: #F22;
             }
           </style>
 
@@ -75,7 +79,7 @@
         <template data-codesource="html" on>
           <bl-button
             type="primary"
-            style="--color-primary:#f80;--color-primary-light:#f90;--color-primary-dark:#f70;">
+            style="--bl-color-primary-base:#f80;--bl-color-primary-hover:#f90;--bl-color-primary-active:#f70;">
             内联 style 定制效果
           </bl-button>
         </template>
@@ -90,9 +94,9 @@
           <bl-button id="setProperty" type="primary">setProperty</bl-button>
           <script>
             const button = document.getElementById('setProperty')
-            button.style.setProperty('--color-primary', '#f33')
-            button.style.setProperty('--color-primary-light', '#F55')
-            button.style.setProperty('--color-primary-dark', '#F22')
+            button.style.setProperty('--bl-color-primary-base', '#f33')
+            button.style.setProperty('--bl-color-primary-hover', '#F55')
+            button.style.setProperty('--bl-color-primary-active', '#F22')
           </script>
         </template>
       </div>

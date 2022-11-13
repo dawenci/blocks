@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>list</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -17,7 +18,7 @@
       <h1>list</h1>
     </header>
 
-    <script type="module" src="../../components/input/index.js"></script>
+    <script type="module" src="../../dist/components/input/index.js"></script>
 
     <section class="section">
       <h2>依赖引入</h2>
@@ -25,7 +26,7 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/list/index.js"></script>
+        <script type="module" src="../../dist/components/list/index.js"></script>
       </div>
     </section>
 
@@ -99,7 +100,7 @@
       <div class="case">
         <div data-codesource="html">
           <bl-list
-            checkable="single"
+            checkable
             id="single"
             style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
           <script>
@@ -117,7 +118,8 @@
       <div class="case">
         <div data-codesource="html">
           <bl-list
-            checkable="multiple"
+            checkable
+            multiple
             id="multiple"
             style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
           <script>
@@ -142,7 +144,8 @@
           <bl-list
             border
             disabled
-            checkable="multiple"
+            checkable
+            multiple
             id="disabled"
             style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
           <script>
@@ -161,7 +164,8 @@
         <div data-codesource="html">
           <bl-list
             border
-            checkable="multiple"
+            checkable
+            multiple
             id="item-disabled"
             style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
           <script>
@@ -305,7 +309,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>keyMethod</td>
+            <td>idMethod</td>
             <td>(data) => string</td>
             <td>结点的唯一 key 生成方法，优先级高于 id-field 属性。</td>
           </tr>
@@ -314,6 +318,35 @@
             <td>(data) => string</td>
             <td>结点内容的显示方法。优先级高于 label-field 属性。</td>
           </tr>          
+        </tbody>
+      </table>
+
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件对象</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>select-list:select</td>
+            <td>CustomEvent<{ value: ISelected }></td>
+            <td>选择单个条目。</td>
+          </tr>
+          <tr>
+            <td>select-list:deselect</td>
+            <td>CustomEvent<{ value: ISelected }></td>
+            <td>取消单个条目的选择。</td>
+          </tr>
+          <tr>
+            <td>select-list:change</td>
+            <td>CustomEvent<{ value: ISelected[] }></td>
+            <td>选择结果变化。</td>
+          </tr>
         </tbody>
       </table>
     </section>

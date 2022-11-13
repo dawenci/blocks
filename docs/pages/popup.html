@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Popup</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -18,21 +19,21 @@
     </header>
 
     <section class="section" style="position:relative">
-      <script type="module" src="../../components/button/index.js"></script>
-      <script type="module" src="../../components/switch/index.js"></script>
+      <script type="module" src="../../dist/components/button/index.js"></script>
+      <script type="module" src="../../dist/components/switch/index.js"></script>
       <h2>依赖引入</h2>
 
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/popup/index.js"></script>
+        <script type="module" src="../../dist/components/popup/index.js"></script>
       </div>
     </section>
 
     <section class="section">
       <h2>默认</h2>
 
-      <p>默认以中心点为原点，相对于 offsetParent 的中心点进行定位。</p>
+      <p>通过 `open` 属性控制显示。默认以 Popup 的中心点为原点，相对于 offsetParent 的中心点进行定位。</p>
 
       <div class="case">
         <bl-button
@@ -52,63 +53,11 @@
     </section>
 
     <section class="section">
-      <h2>箭头</h2>
+      <h2>指定定位</h2>
 
-      <div class="case">
-        <bl-button
-          style="margin-bottom:15px;"
-          onclick="document.querySelector('.popup-arrow1').open = !document.querySelector('.popup-arrow1').hasAttribute('open')">
-          显示/隐藏 popup
-        </bl-button>
-        <template data-codesource="html">
-          <div style="position:relative;height:200px;background:#e8e8e8;">
-            <bl-popup origin="top-center" arrow class="popup-arrow1" inset>
-              <div style="height:50px;padding:15px;">
-                显示箭头
-              </div>
-            </bl-popup>
-          </div>
-        </template>
-      </div>
-    </section>    
-
-    <section class="section">
-      <h2>限制焦点</h2>
-
-      <p>限制 tab 键只会让焦点在 popup 内部移动</p>
-
-      <div class="case">
-        <bl-button
-          style="margin-bottom: 15px;"
-          onclick="document.querySelector('.popup-capturefocus1').open = !document.querySelector('.popup-capturefocus1').hasAttribute('open')">
-          显示/隐藏 popup
-        </bl-button>
-
-        <bl-button
-          style="margin-bottom: 15px;"
-          onclick="document.querySelector('.popup-capturefocus1').capturefocus = !document.querySelector('.popup-capturefocus1').capturefocus">
-          启用禁用限制
-        </bl-button>
-
-        <template data-codesource="html">
-          <div style="position:relative;height:200px;background:#e8e8e8;">
-            <bl-popup
-              capturefocus
-              class="popup-capturefocus1">
-              <div style="padding:15px;">
-                <input type="text">
-                <input type="text">
-              </div>
-            </bl-popup>
-          </div>
-        </template>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>吸附座标区域</h2>
-
-      <p>通过 `anchor` 属性，传入需要吸附的目标位置座标点、或两个座标点框定的区域，可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
+      <p>Popup 的定位，通过 `anchor`（锚定矩形，注意是个矩形）、 `origin`（原点）、`offset`（偏移）以及 `inset`（内部吸附）4 个属性来共同确定。</p>
+      <p>Popup 会根据 `origin` 和 `inset` 的不同，吸附在 `anchor` 矩形的不同边上（或中心上）。 </p>
+      <p>默认未作设置的情况，`anchor` 为 `offsetParent`，即 Popup 的祖先元素中，最近的拥有定位属性的元素；而 `origin` 默认为 `center`，表示默认中心对齐，即 Popup 的中心点和 `offsetParent` 的中心点对齐；`inset` 默认为 false，该属性决定 Popup 是吸附在矩形的外侧，还是内部。</p>
 
       <div class="case">
         <bl-button
@@ -121,7 +70,7 @@
           <div style="position:relative;height:200px;background:#e8e8e8;">
             <div style="width:100px;height:100px;line-height:100px;text-align:center;background:#888;">100 * 100</div>
 
-            <bl-popup class="popup-anchor1" origin="left-start" anchor="[100,100]">
+            <bl-popup class="popup-anchor1" origin="left-start" inset offset="[100,100]">
               <div style="padding:15px;">起始座标：[100,100]</div>
             </bl-popup>
           </div>
@@ -130,32 +79,9 @@
     </section>
 
     <section class="section">
-      <h2>渲染在 anchor 内部</h2>
+      <h2>吸附（锚定）其他元素</h2>
 
-      <p>通过 `inset` 属性，让 Popup 在布局区域的内测渲染。</p>
-
-      <div class="case">
-        <bl-button
-          style="margin-bottom:15px;"
-          onclick="document.querySelector('.popup-anchor-inset1').open = !document.querySelector('.popup-anchor-inset1').hasAttribute('open')">
-          显示/隐藏 popup
-        </bl-button>
-        <template data-codesource="html">
-          <div style="position:relative;height:200px;background:#e8e8e8;">
-            <div style="width:150px;height:150px;background:#888;">渲染在内部 (10,10) 处</div>
-  
-            <bl-popup class="popup-anchor-inset1" origin="top-start" anchor="[10,10]" inset>
-              <div style="padding:15px;">座标：[10,10]</div>
-            </bl-popup>
-          </div>
-        </template>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>吸附其他元素</h2>
-
-      <p>通过 `anchor` 属性，传入需要吸附的目标元素 selector，可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
+      <p>通过 `anchor` 属性，传入需要吸附的目标元素 selector（或 DOM 元素，或者自定义函数），可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
 
       <div class="case">
         <bl-button
@@ -167,8 +93,54 @@
           <div style="height:100px;padding:15px;background:#e8e8e8;">
             <div class="popup-selector1-anchor" style="width:100px;height:100px;line-height:100px;background:#888;text-align:center;">吸附我</div>
 
-            <bl-popup class="popup-selector1" arrow origin="left-start" anchor=".popup-selector1-anchor">
+            <bl-popup class="popup-selector1" origin="left-start" anchor=".popup-selector1-anchor">
               <div style="padding:15px;">左上角吸附于 anchor 右侧</div>
+            </bl-popup>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>渲染在 anchor 内部</h2>
+
+      <p>通过 `inset` 属性，让 Popup 渲染在 anchor 的内部（而不是吸附在 anchor 的外面）。</p>
+
+      <div class="case">
+        <bl-button
+          style="margin-bottom:15px;"
+          onclick="document.querySelector('.popup-anchor-inset1').open = !document.querySelector('.popup-anchor-inset1').hasAttribute('open')">
+          显示/隐藏 popup
+        </bl-button>
+        <template data-codesource="html">
+          <div style="position:relative;height:200px;background:#e8e8e8;">
+            <div style="width:150px;height:150px;background:#888;">渲染在内部 (10,10) 处</div>
+  
+            <bl-popup class="popup-anchor-inset1" origin="top-start" offset="[10,10]" inset>
+              <div style="padding:15px;">座标：[10,10]</div>
+            </bl-popup>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>箭头</h2>
+
+      <p>通过 `arrow` 属性控制是否显示箭头。</p>
+
+      <div class="case">
+        <bl-button
+          style="margin-bottom:15px;"
+          onclick="document.querySelector('.popup-arrow1').open = !document.querySelector('.popup-arrow1').hasAttribute('open')">
+          显示/隐藏 popup
+        </bl-button>
+        <template data-codesource="html">
+          <div style="position:relative;height:200px;background:#e8e8e8;">
+            <bl-popup origin="top-center" arrow inset class="popup-arrow1">
+              <div style="height:50px;padding:15px;">
+                显示箭头
+              </div>
             </bl-popup>
           </div>
         </template>
@@ -278,6 +250,31 @@
     </section>
 
     <section class="section">
+      <h2>自动翻转</h2>
+
+      <p>通过 `autoflip` 属性，启用自动翻转功能，在 offsetParent 不足以容纳 popup 时，尝试翻转方向显示。</p>
+
+      <div class="case">
+        <bl-button
+          style="margin-bottom:15px;"
+          onclick="document.querySelector('.popup-autoflip1').open = !document.querySelector('.popup-autoflip1').hasAttribute('open')">
+          显示/隐藏 popup
+        </bl-button>
+
+        <template data-codesource="html">
+          <div style="position:relative;width:250px;height:180px;background:#e8e8e8;">
+            <div
+              class="popup-autoflip1-anchor"
+              style="position:absolute;left:150px;top:80px;width:60px;height:60px;line-height:60px;text-align:center;background:#888;">吸附我</div>
+            <bl-popup autoflip arrow class="popup-autoflip1" origin="left-start" anchor=".popup-autoflip1-anchor">
+              <div style="width:100px;height:100px;">往右下会溢出<br>故往左上翻转</div>
+            </bl-popup>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
       <h2>插入到 body</h2>
 
       <p>可以使用 `append-to-body` 属性，将组件插入到 `document.body`，以确保层叠次序精确。</p>
@@ -308,55 +305,38 @@
     </section>
 
     <section class="section">
-      <h2>自动翻转</h2>
+      <h2>限制焦点</h2>
 
-      <p>通过 `autoflip` 属性，启用自动翻转功能，在 offsetParent 不足以容纳 popup 时，尝试翻转方向显示。</p>
+      <p>限制 tab 键只会让焦点在 popup 内部移动</p>
 
       <div class="case">
         <bl-button
-          style="margin-bottom:15px;"
-          onclick="document.querySelector('.popup-autoflip1').open = !document.querySelector('.popup-autoflip1').hasAttribute('open')">
+          style="margin-bottom: 15px;"
+          onclick="document.querySelector('.popup-capturefocus1').open = !document.querySelector('.popup-capturefocus1').hasAttribute('open')">
           显示/隐藏 popup
         </bl-button>
 
+        <bl-button
+          style="margin-bottom: 15px;"
+          onclick="document.querySelector('.popup-capturefocus1').capturefocus = !document.querySelector('.popup-capturefocus1').capturefocus">
+          启用禁用限制
+        </bl-button>
+
         <template data-codesource="html">
-          <div style="position:relative;width:250px;height:180px;background:#e8e8e8;">
-            <div
-              class="popup-autoflip1-anchor"
-              style="position:absolute;left:150px;top:80px;width:60px;height:60px;line-height:60px;text-align:center;background:#888;">吸附我</div>
-            <bl-popup autoflip arrow class="popup-autoflip1" origin="left-start" anchor=".popup-autoflip1-anchor">
-              <div style="width:100px;height:100px;">往右下会溢出<br>故往左上翻转</div>
+          <div style="position:relative;height:200px;background:#e8e8e8;">
+            <bl-popup
+              capturefocus
+              class="popup-capturefocus1">
+              <div style="padding:15px;">
+                <input type="text">
+                <input type="text">
+              </div>
             </bl-popup>
           </div>
         </template>
       </div>
     </section>
 
-
-    <section class="section">
-      <h2>dark</h2>
-
-      <p>通过 `dark` 属性，启用暗色主题。</p>
-
-      <div class="case">
-        <bl-button
-          style="margin-bottom:15px;"
-          onclick="document.querySelector('.popup-dark').open = !document.querySelector('.popup-dark').hasAttribute('open')">
-          显示/隐藏 popup
-        </bl-button>
-        <template data-codesource="html">
-          <div style="position:relative;height:150px;background:#e8e8e8;">
-            <bl-popup dark open origin="top-center" arrow class="popup-dark" anchor="[100,10]">
-              <div style="height:50px;padding:15px;">
-                dark 主题
-              </div>
-            </bl-popup>
-          </div>
-        </template>        
-      </div>
-    </section>
-
-    
     <section class="section">
       <h2>API</h2>
 
@@ -421,13 +401,6 @@
             <td></td>
           </tr>
           <tr>
-            <td>dark</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否使用 dark 主题</td>
-            <td></td>
-          </tr>
-          <tr>
             <td>inset</td>
             <td>false</td>
             <td></td>
@@ -463,7 +436,7 @@
         <thead>
           <tr>
             <th>事件名称</th>
-            <th>事件参数</th>
+            <th>事件对象</th>
             <th>说明</th>
           </tr>
         </thead>
@@ -493,12 +466,12 @@
         <tbody>
           <tr>
             <td>--z-index</td>
-            <td>--z-index-popup-base</td>
+            <td>--bl-z-index-popup-base</td>
             <td>z-index 的值，默认值取自全局样式变量。</td>
           </tr>
           <tr>
             <td>--z-index-focus</td>
-            <td>--z-index-popup-focus</td>
+            <td>--bl-z-index-popup-focus</td>
             <td>Popup 聚焦状态下的 z-index 值，默认取值自全局样式变量。</td>
           </tr>
         </tbody>

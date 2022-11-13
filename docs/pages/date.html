@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>date</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -23,7 +24,7 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/date/index.js"></script>
+        <script type="module" src="../../dist/components/date/index.js"></script>
       </div>
     </section>
 
@@ -74,7 +75,6 @@
       <h2>选择深度</h2>
 
       <p>'depth' 设置为选择的深度，支持月、年、年代。</p>
-      <p>此外，可以设置初始化显示的面板深度（startdepth，默认等于 depth），以及往上最多可以切换到多浅的深度（mindepth：默认世纪，century）</p>
 
       <div class="case">
         <template data-codesource="html">
@@ -82,6 +82,40 @@
             <bl-date depth="month" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
             <bl-date depth="year" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
             <bl-date depth="decade" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>面板起始深度</h2>
+
+      <p>'startdepth' 设置为初始化时展示的面板深度，支持月、年、年代、世纪。默认等于 `depth` 的取值</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <div style="padding: 50px 0; text-align:center;">
+            <bl-date startdepth="month" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+            <bl-date startdepth="year" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+            <bl-date startdepth="decade" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+            <bl-date startdepth="century" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>面板最上层深度</h2>
+
+      <p>'mindepth' 设置面板最多可以上卷到哪个层级的深度，支持月、年、年代、世纪。默认为 `century`</p>
+
+      <div class="case">
+        <template data-codesource="html">
+          <div style="padding: 50px 0; text-align:center;">
+            <bl-date mindepth="month" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+            <bl-date mindepth="year" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+            <bl-date mindepth="decade" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
+            <bl-date mindepth="century" style="float:left;border:1px solid #e8e8e8;margin:10px;"></bl-date>
           </div>
         </template>
       </div>
@@ -140,7 +174,7 @@
             <td></td>
           </tr>
           <tr>
-            <td>disableMethod</td>
+            <td>disabledDate</td>
             <td>(data: { year: number, month?: number, date?: number }) => boolean</td>
             <td></td>
             <td>校验（depth 末级）选项是否禁用的检查方法。该属性无对应 attr，只能作为 prop 传入。</td>
@@ -190,9 +224,9 @@
           </tr>
           <tr>
             <td>value</td>
+            <td>Date | Date[] | null</td>
             <td></td>
-            <td></td>
-            <td>model 值。</td>
+            <td>model 值。`single` 模式，接受 `Date | null` 读写；`range` 模式，支持 `[Date, Date] | null` 读写；`multiple` 模式，支持 `Date[] | null` 读写。</td>
             <td></td>
           </tr>
         </tbody>
@@ -203,60 +237,134 @@
         <thead>
           <tr>
             <th>事件名称</th>
-            <th>事件参数</th>
+            <th>事件对象</th>
             <th>说明</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>change</td>
-            <td>{ detail: { value } }</td>
+            <td>CustomEvent<{ value: Date[] }></td>
             <td>value 变化时触发。</td>
           </tr>
           <tr>
             <td>next-century</td>
-            <td>{ detail: { century }}</td>
+            <td>CustomEvent<{ century: number }></td>
             <td>面板切换到下个世纪时触发。</td>
           </tr>
           <tr>
             <td>next-decade</td>
-            <td>{ detail: { century, decade } }</td>
+            <td>CustomEvent<{ century: number; decade: number }></td>
             <td>面板切换到下个十年时触发。</td>
           </tr>
           <tr>
             <td>next-month</td>
-            <td>{ detail: { century, decade, year, month } }</td>
+            <td>CustomEvent<{ century: number; decade: number; year: number; month: number }></td>
             <td>面板切换到下月时触发。</td>
           </tr>
           <tr>
             <td>next-year</td>
-            <td>{ detail: { century, decade, year } }</td>
+            <td>CustomEvent<{ century: number; decade: number; year: number; }></td>
             <td>面板切换到下一年时触发。</td>
           </tr>
           <tr>
             <td>panel-change</td>
-            <td>{ detail: { viewDepth } }</td>
+            <td>CustomEvent<{ viewDepth: 'century' | 'decade' | 'year' | 'month' }></td>
             <td>面板层级变化时触发。</td>
           </tr>
           <tr>
             <td>prev-century</td>
-            <td>{ detail: { century }}</td>
+            <td>CustomEvent<{ century: number }></td>
             <td>面板切换到上个世纪时触发。</td>
           </tr>
           <tr>
             <td>prev-decade</td>
-            <td>{ detail: { century, decade } }</td>
+            <td>CustomEvent<{ century: number; decade: number }></td>
             <td>面板切换到上个十年时触发。</td>
           </tr>
           <tr>
             <td>prev-month</td>
-            <td>{ detail: { century, decade, year, month } }</td>
+            <td>CustomEvent<{ century: number; decade: number; year: number; month: number }></td>
             <td>面板切换到上月时触发。</td>
           </tr>
           <tr>
             <td>prev-year</td>
-            <td>{ detail: { century, decade, year } }</td>
+            <td>CustomEvent<{ century: number; decade: number; year: number }></td>
             <td>面板切换到上一年时触发。</td>
+          </tr>
+          <tr>
+            <td>select</td>
+            <td>CustomEvent<{ value: Date[] }></td>
+            <td>日期选中时触发。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Methods</h3>
+      <table class="api-fns">
+        <thead>
+          <tr>
+            <th>函数名称</th>
+            <th>类型</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>clearValue</td>
+            <td><pre>() => void</pre></td>
+            <td>清空值</td>
+          </tr>
+
+          <tr>
+            <td>getValue</td>
+            <td><pre>() => Date | null</pre></td>
+            <td>获取单选模式值</td>
+          </tr>
+          <tr>
+            <td>setValue</td>
+            <td><pre>(value: Date | null) => void</pre></td>
+            <td>设置单选模式值</td>
+          </tr>
+
+          <tr>
+            <td>getValues</td>
+            <td><pre>() => Date[]</pre></td>
+            <td>获取多选模式值</td>
+          </tr>
+          <tr>
+            <td>setValues</td>
+            <td><pre>(value: Date[]) => void</pre></td>
+            <td>设置多选模式值</td>
+          </tr>
+
+          <tr>
+            <td>getRange</td>
+            <td><pre>() => [Date, Date] | null</pre></td>
+            <td>获取区间起始、结束值</td>
+          </tr>
+          <tr>
+            <td>setRange</td>
+            <td><pre>(value: [Date, Date] | null) => void</pre></td>
+            <td>设置区间其实、结束值</td>
+          </tr>
+
+          <tr>
+            <td>switchViewByDate</td>
+            <td><pre>(date: Date) => void</pre></td>
+            <td>切换当前视图显示的内容范围，以包含传入日期</td>
+          </tr>
+
+          <tr>
+            <td>selectDate</td>
+            <td><pre>(date: Date) => void</pre></td>
+            <td>选中某一个日期项</td>
+          </tr>
+
+          <tr>
+            <td>selectByModel</td>
+            <td><pre>(model: { label: string; century: number; decade: number; year: number; month?: number; date?: number }) => void</pre></td>
+            <td>选中某一个日期项</td>
           </tr>
         </tbody>
       </table>

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>color</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -19,12 +20,12 @@
 
     <section class="section">
       <h2>依赖引入</h2>
-      <script type="module" src="../../components/input/index.js"></script>
+      <script type="module" src="../../dist/components/input/index.js"></script>
 
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/color/index.js"></script>
+        <script type="module" src="../../dist/components/color/index.js"></script>
       </div>
     </section>
 
@@ -247,14 +248,14 @@
         <thead>
           <tr>
             <th>事件名称</th>
-            <th>事件参数</th>
+            <th>事件对象</th>
             <th>说明</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>change</td>
-            <td></td>
+            <td>CustomEvent<{ value: string }></td>
             <td>颜色变化时触发。</td>
           </tr>
         </tbody>

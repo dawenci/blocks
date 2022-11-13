@@ -1,5 +1,5 @@
-import { forEach } from '../common/utils.js'
-import '../components/button/index.js'
+import { forEach } from '../dist/common/utils.js'
+import '../dist/components/button/index.js'
 
 
 // html 由于缩进，每行前面有固定的空格，使用该方法移除掉每行的开头 count 个空格

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>window</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -19,12 +20,12 @@
 
     <section class="section">
       <h2>依赖引入</h2>
-      <script type="module" src="../../components/button/index.js"></script>
+      <script type="module" src="../../dist/components/button/index.js"></script>
 
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/window/index.js"></script>
+        <script type="module" src="../../dist/components/window/index.js"></script>
       </div>
     </section>
 
@@ -106,31 +107,6 @@
           <bl-window id="status-bar" capturefocus name="状态栏">
             <div style="padding:50px;">
               正文内容
-            </div>
-            <div slot="status-bar">
-              状态栏内容
-            </div>
-          </bl-window>
-        </template>
-      </div>
-    </section>
-
-
-    <section class="section">
-      <h2>dark</h2>
-
-      <div class="case" id="dark-case">
-        <bl-button>显示/隐藏</bl-button>
-        <script>
-          document.querySelector('#dark-case bl-button').onclick = () => {
-            document.querySelector('#dark').open = !document.querySelector('#dark').open
-          }
-        </script>
-
-        <template data-codesource="html">
-          <bl-window id="dark" dark name="dark">
-            <div style="padding:50px;">
-              dark mode
             </div>
             <div slot="status-bar">
               状态栏内容
@@ -239,7 +215,7 @@
         <thead>
           <tr>
             <th>事件名称</th>
-            <th>事件参数</th>
+            <th>事件对象</th>
             <th>说明</th>
           </tr>
         </thead>
@@ -256,7 +232,7 @@
           </tr>          
           <tr>
             <td>resize</td>
-            <td>{ detail: { data } }</td>
+            <td>CustomEvent<{ width: number; height: number }></td>
             <td>窗口尺寸变化触发。</td>
           </tr>
         </tbody>

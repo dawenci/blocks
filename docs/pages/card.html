@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>card</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -17,7 +18,7 @@
       <h1>card</h1>
     </header>
 
-    <script type="module" src="../../components/grid/index.js"></script>
+    <script type="module" src="../../dist/components/grid/index.js"></script>
 
     <section class="section">
       <h2>依赖引入</h2>
@@ -25,7 +26,7 @@
       <p>根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../components/card/index.js"></script>
+        <script type="module" src="../../dist/components/card/index.js"></script>
       </div>
     </section>
 
@@ -33,7 +34,7 @@
       <h2>默认使用</h2>
 
       <div data-codesource="html">
-        <bl-card style="width:310px">
+        <bl-card style="width:310px" card-title="?????">
           <strong slot="header" style="margin:0;">header slot</strong>
           <div>
             Body 内容<br>
@@ -171,13 +172,6 @@
         </thead>
         <tbody>
           <tr>
-            <td>card-title</td>
-            <td>string</td>
-            <td></td>
-            <td>卡片标题</td>
-            <td></td>
-          </tr>
-          <tr>
             <td>shadow</td>
             <td>boolean | 'hover'</td>
             <td></td>
@@ -193,6 +187,35 @@
           </tr>
         </tbody>
       </table>
+
+      <h3>Slots</h3>
+      <table class="api-slots">
+        <thead>
+          <tr>
+            <th>slot 名称</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>cover</td>
+            <td>封面图</td>
+          </tr>
+          <tr>
+            <td>header</td>
+            <td>标题栏</td>
+          </tr>
+          <tr>
+            <td>footer</td>
+            <td>底部容器</td>
+          </tr>
+          <tr>
+            <td>default</td>
+            <td>主体内容</td>
+          </tr>
+        </tbody>
+      </table>
+
     </section>
   </article>
 </body>

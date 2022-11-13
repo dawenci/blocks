@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>notification</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -17,7 +18,7 @@
       <h1>notification</h1>
     </header>
 
-    <script type="module" src="../../components/button/index.js"></script>
+    <script type="module" src="../../dist/components/button/index.js"></script>
 
     <section class="section">
       <h2>默认</h2>
@@ -26,9 +27,8 @@
         <bl-button id="default">消息</bl-button>
 
         <script type="module">
-          import { blNotify } from '../../components/notification/index.js'
-          const $ = (id) => document.getElementById(id)
-          $('default').onclick = () => {
+          import { blNotify } from '../../dist/components/notification/index.js'
+          document.getElementById('default').onclick = () => {
             blNotify({ title: '消息通知', content: '这里是消息内容' })
           }
         </script>
@@ -46,29 +46,30 @@
         <bl-button id="placement-bottomLeft">bottom-left</bl-button>
         <bl-button id="placement-bottomRight">bottom-right</bl-button>
         <script type="module">
-          import { blNotify } from '../../components/notification/index.js'
-          const $ = (id) => document.getElementById(id)
-          const title = '消息通知'
-          const content = '这里是消息内容'
-          $('placement-topLeft').onclick = () => {
-            blNotify({ title, content, placement: 'top-left' })
-          }
-          $('placement-topRight').onclick = () => {
-            blNotify({ title, content, placement: 'top-right' })
-          }
-          $('placement-bottomLeft').onclick = () => {
-            blNotify({ title, content, placement: 'bottom-left' })
-          }
-          $('placement-bottomRight').onclick = () => {
-            blNotify({ title, content, placement: 'bottom-right' })
-          }
+          import { blNotify } from '../../dist/components/notification/index.js'
+          (() => {
+            const title = '消息通知'
+            const content = '这里是消息内容'
+            document.getElementById('placement-topLeft').onclick = () => {
+              blNotify({ title, content, placement: 'top-left' })
+            }
+            document.getElementById('placement-topRight').onclick = () => {
+              blNotify({ title, content, placement: 'top-right' })
+            }
+            document.getElementById('placement-bottomLeft').onclick = () => {
+              blNotify({ title, content, placement: 'bottom-left' })
+            }
+            document.getElementById('placement-bottomRight').onclick = () => {
+              blNotify({ title, content, placement: 'bottom-right' })
+            }
+          })()
         </script>
       </div>
     </section>
 
 
     <section class="section">
-      <script type="module" src="../../components/button/index.js"></script>
+      <script type="module" src="../../dist/components/button/index.js"></script>
       <h2>类别</h2>
 
       <p>使用 'type' 配置通知类型，支持 'success'、'error'、'warning'、'info'</p>
@@ -79,28 +80,29 @@
         <bl-button id="info">信息</bl-button>
         <bl-button id="warning">警告</bl-button>
         <script type="module">
-          import { blNotify } from '../../components/notification/index.js'
-          const $ = (id) => document.getElementById(id)
-          const title = '消息通知'
-          const content = '这里是消息内容'
-          $('success').onclick = () => {
-            blNotify({ type: 'success', title, content })
-          }
-          $('error').onclick = () => {
-            blNotify({ type: 'error', title, content })
-          }
-          $('info').onclick = () => {
-            blNotify({ type: 'info', title, content })
-          }
-          $('warning').onclick = () => {
-            blNotify({ type: 'warning', title, content })
-          }
+          import { blNotify } from '../../dist/components/notification/index.js'
+          (() => {
+            const title = '消息通知'
+            const content = '这里是消息内容'
+            document.getElementById('success').onclick = () => {
+              blNotify({ type: 'success', title, content })
+            }
+            document.getElementById('error').onclick = () => {
+              blNotify({ type: 'error', title, content })
+            }
+            document.getElementById('info').onclick = () => {
+              blNotify({ type: 'info', title, content })
+            }
+            document.getElementById('warning').onclick = () => {
+              blNotify({ type: 'warning', title, content })
+            }
+          })()
         </script>
       </div>
     </section>
 
     <section class="section">
-      <script type="module" src="../../components/button/index.js"></script>
+      <script type="module" src="../../dist/components/button/index.js"></script>
       <h2>可手动关闭</h2>
 
       <p>使用 'closeable' 可以配置手动关闭功能。</p>
@@ -108,13 +110,14 @@
       <div data-codesource="html">
         <bl-button id="closeable">成功</bl-button>
         <script type="module">
-          import { blNotify } from '../../components/notification/index.js'
-          const $ = (id) => document.getElementById(id)
-          const title = '消息通知'
-          const content = '这里是消息内容'
-          $('closeable').onclick = () => {
-            blNotify({ closeable: true, title, content })
-          }
+          import { blNotify } from '../../dist/components/notification/index.js'
+          (() => {
+            const title = '消息通知'
+            const content = '这里是消息内容'
+            document.getElementById('closeable').onclick = () => {
+              blNotify({ closeable: true, title, content })
+            }
+          })()
         </script>
       </div>
     </section>
@@ -129,16 +132,17 @@
         <bl-button id="duration0">永远不自动关闭</bl-button>
 
         <script type="module">
-          import { blNotify } from '../../components/notification/index.js'
-          const $ = (id) => document.getElementById(id)
-          const title = '消息通知'
-          const content = '这里是消息内容'
-          $('duration3').onclick = () => {
-            blNotify({ duration: 3, title, content })
-          }
-          $('duration0').onclick = () => {
-            blNotify({ duration: 0, title, content, closeable: true })
-          }
+          import { blNotify } from '../../dist/components/notification/index.js'
+          (() => {
+            const title = '消息通知'
+            const content = '这里是消息内容'
+            document.getElementById('duration3').onclick = () => {
+              blNotify({ duration: 3, title, content })
+            }
+            document.getElementById('duration0').onclick = () => {
+              blNotify({ duration: 0, title, content, closeable: true })
+            }
+          })()
         </script>
       </div>
     </section>
@@ -152,16 +156,17 @@
         <bl-button id="onclose">onclose消息</bl-button>
 
         <script type="module">
-          import { blNotify } from '../../components/notification/index.js'
-          const $ = (id) => document.getElementById(id)
-          const title = '消息通知'
-          const content = '这里是消息内容'
-          $('onclose').onclick = () => {
-            blNotify({ title, content, closeable: true, duration: 3 })
-              .onclose(() => {
-                blNotify({ title: '上个通知关闭了' })
-              })
-          }
+          import { blNotify } from '../../dist/components/notification/index.js'
+          (() => {
+            const title = '消息通知'
+            const content = '这里是消息内容'
+            document.getElementById('onclose').onclick = () => {
+              blNotify({ title, content, closeable: true, duration: 3 })
+                .onclose(() => {
+                  blNotify({ title: '上个通知关闭了' })
+                })
+            }
+          })()
         </script>
       </div>
     </section>
@@ -173,17 +178,18 @@
         <bl-button id="dark">dark</bl-button>
 
         <script type="module">
-          import { blNotify } from '../../components/notification/index.js'
-          const $ = (id) => document.getElementById(id)
-          const title = '消息通知'
-          const content = '这里是消息内容'
-          $('dark').onclick = () => {
-            blNotify({ title, content, closeable: true, duration: 3, dark: true })
-            blNotify({ type: 'success', title, content, closeable: true, duration: 3, dark: true })
-            blNotify({ type: 'error', title, content, closeable: true, duration: 3, dark: true })
-            blNotify({ type: 'info', title, content, closeable: true, duration: 3, dark: true })
-            blNotify({ type: 'warn', title, content, closeable: true, duration: 3, dark: true })
-          }
+          import { blNotify } from '../../dist/components/notification/index.js'
+          (() => {
+            const title = '消息通知'
+            const content = '这里是消息内容'
+            document.getElementById('dark').onclick = () => {
+              blNotify({ title, content, closeable: true, duration: 3, dark: true })
+              blNotify({ type: 'success', title, content, closeable: true, duration: 3, dark: true })
+              blNotify({ type: 'error', title, content, closeable: true, duration: 3, dark: true })
+              blNotify({ type: 'info', title, content, closeable: true, duration: 3, dark: true })
+              blNotify({ type: 'warn', title, content, closeable: true, duration: 3, dark: true })
+            }
+          })()
         </script>
       </div>
     </section>

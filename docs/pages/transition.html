@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>transition</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
   <link rel="stylesheet" href="../page.css">
   <link rel="stylesheet" href="../highlight/styles/default.css">
   <link rel="stylesheet" href="../highlight/styles/vs2015.css">
@@ -39,7 +40,7 @@
           </div>
 
           <script type="module">
-            import { BlocksTransitionOpenZoom } from "../../components/transition-open-zoom/index.js"
+            import { BlocksTransitionOpenZoom } from "../../dist/components/transition-open-zoom/index.js"
             customElements.define('bl-zoom', class BlZoom extends BlocksTransitionOpenZoom {
               constructor() {
                 super()
@@ -62,7 +63,7 @@
           </div>
 
           <script type="module">
-            import { BlocksTransitionOpenOpacity } from "../../components/transition-open-opacity/index.js"
+            import { BlocksTransitionOpenOpacity } from "../../dist/components/transition-open-opacity/index.js"
             customElements.define('bl-opacity', class BlOpacity extends BlocksTransitionOpenOpacity {
               constructor() {
                 super()
@@ -86,7 +87,7 @@
           </div>
           
           <script type="module">
-            import { BlocksTransitionOpenCollapse } from "../../components/transition-open-collapse/index.js"
+            import { BlocksTransitionOpenCollapse } from "../../dist/components/transition-open-collapse/index.js"
             customElements.define('bl-collapse', class BlCollapse extends BlocksTransitionOpenCollapse {
               constructor() {
                 super()
