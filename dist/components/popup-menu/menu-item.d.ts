@@ -1,0 +1,38 @@
+import '../../components/popup/index.js';
+import '../../components/icon/index.js';
+import { BlocksPopupMenu } from './menu.js';
+import { Component } from '../Component.js';
+import { BlocksNavMenu } from '../nav-menu/menu.js';
+export declare class BlocksPopupMenuItem extends Component {
+    #private;
+    _enterTimer?: number;
+    _leaveTimer?: number;
+    $layout: HTMLElement;
+    $label: HTMLElement;
+    $icon: HTMLElement;
+    $arrow: HTMLElement;
+    constructor();
+    get $submenu(): BlocksPopupMenu | undefined;
+    set $submenu($menu: BlocksPopupMenu | undefined);
+    get $hostMenu(): BlocksNavMenu | BlocksPopupMenu | undefined;
+    set $hostMenu($menu: BlocksNavMenu | BlocksPopupMenu | undefined);
+    get $rootMenu(): BlocksNavMenu | BlocksPopupMenu;
+    get hasSubmenu(): boolean;
+    get isLeaf(): boolean;
+    get disabled(): boolean;
+    set disabled(value: boolean);
+    get link(): boolean;
+    set link(value: boolean);
+    get active(): boolean;
+    set active(value: boolean);
+    _data?: any;
+    get data(): any;
+    set data(value: any);
+    render(): void;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    clearEnterTimer(): void;
+    clearLeaveTimer(): void;
+    clearActive(): void;
+    static get observedAttributes(): string[];
+}

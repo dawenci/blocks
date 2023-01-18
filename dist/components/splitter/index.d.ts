@@ -1,0 +1,65 @@
+import { Component } from '../Component.js';
+export declare class BlocksSplitter extends Component {
+    ref: {
+        $layout: HTMLElement;
+        $panes: HTMLElement;
+        $cover: HTMLElement;
+        $slot: HTMLSlotElement;
+    };
+    panes: BlocksSplitterPane[];
+    handles: HTMLElement[];
+    static get observedAttributes(): string[];
+    constructor();
+    _renderDirection(): void;
+    get direction(): "horizontal" | "vertical";
+    set direction(value: "horizontal" | "vertical");
+    get handleSize(): number;
+    set handleSize(value: number);
+    get size(): number;
+    _offSizeObserve?: () => void;
+    connectedCallback(): void;
+    disconnectedCallback(): void;
+    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
+    renderHandles(): void;
+    getPaneSize($pane: BlocksSplitterPane): number;
+    isSizeFrozen($pane: BlocksSplitterPane): boolean;
+    getPanePosition($pane: BlocksSplitterPane): number;
+    getHandlerSize(): number;
+    getPaneIndex($pane: BlocksSplitterPane): number;
+    resizePane($pane: BlocksSplitterPane, newSize: number): void;
+    collapsePane($pane: BlocksSplitterPane): void;
+    expandPane($pane: BlocksSplitterPane): void;
+    layout(): void;
+    setActiveHandle($pane: BlocksSplitterPane): void;
+    clearActiveHandle(): void;
+    getHandleIndex($handle: HTMLElement): number;
+    _initResizeEvents(): void;
+    _getGrowSize($pane: BlocksSplitterPane): number;
+    _getShrinkSize($pane: BlocksSplitterPane): number;
+    _growPanes(rest: number, panes: BlocksSplitterPane[]): void;
+    _shrinkPanes(rest: number, panes: BlocksSplitterPane[]): void;
+    toggleCover(visible: boolean): void;
+}
+export declare class BlocksSplitterPane extends Component {
+    collapseSize?: number;
+    constructor();
+    get basis(): number;
+    set basis(value: number);
+    get grow(): number;
+    set grow(value: number);
+    get shrink(): number;
+    set shrink(value: number);
+    get max(): number;
+    set max(value: number);
+    get min(): number;
+    set min(value: number);
+    _size?: number | null;
+    get size(): number;
+    set size(value: number);
+    getSplitter(): BlocksSplitter;
+    updateStyle(): void;
+    connectedCallback(): void;
+    collapse(): void;
+    expand(): void;
+    static get observedAttributes(): string[];
+}

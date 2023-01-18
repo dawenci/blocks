@@ -1,0 +1,12 @@
+declare type ColorTuple3 = [number, number, number];
+declare type ColorTuple4 = [number, number, number, number];
+export declare function hsv2rgb(h: number, s: number, v: number): ColorTuple3;
+export declare function rgb2hsv(r: number, g: number, b: number): ColorTuple3;
+export declare function hsv2hsl(Hv: number, Sv: number, V: number): ColorTuple3;
+export declare function hsl2hsv(Hl: number, Sl: number, L: number): ColorTuple3;
+export declare function hex2rgba(hex: string): ColorTuple4 | null;
+export declare function rgba2hex(rgba: ColorTuple3 | ColorTuple4): string | null;
+export declare const parse: (input: string) => ColorTuple4 | null;
+export declare function rgbaFromHex(hexColor: string, opacity: number): string;
+export declare function useColorWithOpacity(color: string, opacity: number): string;
+export {};

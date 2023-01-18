@@ -17,7 +17,7 @@ import {
   ISelectListEventMap,
 } from '../../common/connectSelectable.js'
 
-type NodeData = {
+export type NodeData = {
   [index: number]: any
   [key: string]: any
   children?: NodeData[]

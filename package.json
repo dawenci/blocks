@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -d",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write \"src/{components,commmon,icon,theme}/**/*.{ts,js}\""
   },

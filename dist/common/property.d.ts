@@ -1,0 +1,12 @@
+export declare function strGetter(attr: string): (element: Element) => string | null;
+export declare function strSetter(attr: string): (element: Element, value: any) => void;
+export declare function boolGetter(attr: string): (element: Element) => boolean;
+export declare function boolSetter(attr: string): (element: Element, value: any) => void;
+export declare function numGetter(attr: string): (element: Element) => number | null;
+export declare function numSetter(attr: string): (element: Element, value: any) => void;
+export declare function intGetter(attr: string): (element: Element) => number | null;
+export declare function intSetter(attr: string): (element: Element, value: any) => void;
+export declare function intRangeGetter(attr: string, min: number, max: number): (element: Element) => number | null;
+export declare function intRangeSetter(attr: string, min: number, max: number): (element: Element, value: any) => void;
+export declare function enumGetter<T extends string>(attr: string, values: readonly T[]): (element: Element) => T | null;
+export declare function enumSetter<T extends string>(attr: string, values: readonly T[]): (element: Element, value: any) => void;
