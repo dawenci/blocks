@@ -10,6 +10,6 @@ export interface ModalOptions {
     rejectValue?: () => any;
 }
 export declare function modal(text: string, options?: ModalOptions): {
-    promise: Promise<any> | undefined;
+    promise: Promise<any>;
     $dialog: import("./modal.js").BlocksModal;
 };

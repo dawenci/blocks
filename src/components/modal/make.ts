@@ -1,4 +1,5 @@
 import { unmount } from '../../common/mount.js'
+import { BlocksDialog } from '../dialog/index.js'
 import './modal.js'
 
 export interface ModalOptions {
@@ -28,7 +29,7 @@ export function modal(text: string, options: ModalOptions = {}) {
   if (options.onCancel) $dialog.onCancel = options.onCancel
   $dialog.open = true
   $dialog.content = text
-  const promise = $dialog.promise
+  const promise = $dialog.promise!
   $dialog.addEventListener('closed', () => {
     unmount($dialog)
   })

@@ -1,2 +1,2 @@
 import { ModalOptions } from './make.js';
-export declare function blAlert(text: string, options?: ModalOptions): Promise<any> | undefined;
+export declare function blAlert(text: string, options?: ModalOptions): Promise<any>;
