@@ -1,0 +1,330 @@
+import { boolGetter, boolSetter, intGetter, intRangeGetter, intRangeSetter, intSetter, numGetter, numSetter, strGetter, strSetter, } from '../../common/property.js';
+import { forEach, round } from '../../common/utils.js';
+import { dispatchEvent } from '../../common/event.js';
+import { disabledGetter, disabledSetter, } from '../../common/propertyAccessor.js';
+import { onDragMove } from '../../common/onDragMove.js';
+import { Component } from '../Component.js';
+import { template } from './template.js';
+import { setStyles } from '../../common/style.js';
+export class BlocksRangeSlider extends Component {
+    static get role() {
+        return 'slider';
+    }
+    static get observedAttributes() {
+        return [
+            'disabled',
+            'max',
+            'min',
+            'size',
+            'step',
+            'round',
+            'value',
+            'vertical',
+        ];
+    }
+    ref;
+    constructor() {
+        super();
+        const { comTemplate, cssTemplate } = template();
+        const shadowRoot = this.attachShadow({ mode: 'open' });
+        shadowRoot.appendChild(cssTemplate.cloneNode(true));
+        shadowRoot.appendChild(comTemplate.content.cloneNode(true));
+        const $layout = shadowRoot.getElementById('layout');
+        const $track = shadowRoot.getElementById('track');
+        const $trackBg = shadowRoot.getElementById('track__bg');
+        const $point = shadowRoot.querySelector('.point1');
+        const $point2 = shadowRoot.querySelector('.point2');
+        const $range = shadowRoot.querySelector('.line');
+        this.ref = {
+            $layout,
+            $track,
+            $point,
+            $point2,
+            $range,
+            $trackBg,
+        };
+    }
+    #dragging = false;
+    get value() {
+        const attrValue = (strGetter('value')(this) ?? '').trim();
+        const values = attrValue.split(',').map(n => parseFloat(n));
+        return values.every(n => this.#validate(n))
+            ? values.sort((a, b) => a - b).map(n => round(n, this.round))
+            : [this.min, this.min];
+    }
+    set value(value) {
+        if (!Array.isArray(value))
+            return;
+        if (value.some(n => !this.#validate(n)))
+            return;
+        if (value.every((n, i) => n === this.value[i]))
+            return;
+        strSetter('value')(this, value
+            .slice()
+            .map(n => round(n, this.round))
+            .sort((a, b) => a - b)
+            .join(','));
+    }
+    get shadowSize() {
+        return intRangeGetter('shadow-size', 1, 10)(this) ?? 2;
+    }
+    set shadowSize(value) {
+        intRangeSetter('shadow-size', 1, 10)(this, value);
+    }
+    get size() {
+        return intRangeGetter('size', 14, 100)(this) ?? 14;
+    }
+    set size(value) {
+        intRangeSetter('size', 14, 100)(this, value);
+    }
+    get min() {
+        return numGetter('min')(this) ?? 0;
+    }
+    set min(value) {
+        numSetter('min')(this, value);
+    }
+    get max() {
+        return numGetter('max')(this) ?? 100;
+    }
+    set max(value) {
+        numSetter('max')(this, value);
+    }
+    get disabled() {
+        return disabledGetter(this);
+    }
+    set disabled(value) {
+        disabledSetter(this, value);
+    }
+    get vertical() {
+        return boolGetter('vertical')(this);
+    }
+    set vertical(value) {
+        boolSetter('vertical')(this, value);
+    }
+    get round() {
+        return intGetter('round')(this) ?? 2;
+    }
+    set round(value) {
+        intSetter('round')(this, value);
+    }
+    render() {
+        const { $layout, $point, $point2, $trackBg } = this.ref;
+        const layoutSize = this.size + this.shadowSize * 2;
+        const layoutPadding = this.shadowSize;
+        const trackSize = this.size / 4 >= 2 ? this.size / 4 : 2;
+        $layout.style.padding = layoutPadding + 'px';
+        $point.style.width = $point.style.height = this.size + 'px';
+        $point2.style.width = $point.style.height = this.size + 'px';
+        if (this.vertical) {
+            setStyles($layout, {
+                width: layoutSize + 'px',
+                height: '100%',
+            });
+            setStyles($trackBg, {
+                width: `${trackSize}px`,
+                height: 'auto',
+                right: '0',
+                top: `${this.size / 2}px`,
+                bottom: `${this.size / 2}px`,
+            });
+        }
+        else {
+            setStyles($layout, {
+                height: layoutSize + 'px',
+                width: 'auto',
+            });
+            setStyles($trackBg, {
+                height: `${trackSize}px`,
+                width: 'auto',
+                top: '0',
+                left: `${this.size / 2}px`,
+                right: `${this.size / 2}px`,
+            });
+        }
+        this.#renderPoint();
+        this.#renderRangeLine();
+        this._renderDisabled();
+    }
+    _renderDisabled() {
+        if (this.disabled) {
+            this.setAttribute('aria-disabled', 'true');
+        }
+        else {
+            this.setAttribute('aria-disabled', 'false');
+        }
+    }
+    #renderPoint() {
+        const pos1 = fromRatio(getRatio(this.value[0], this.min, this.max), this.#posMin(), this.#posMax());
+        const pos2 = fromRatio(getRatio(this.value[1], this.min, this.max), this.#posMin(), this.#posMax());
+        this.ref.$point.style[this.vertical ? 'top' : 'left'] = `${pos1}px`;
+        this.ref.$point2.style[this.vertical ? 'top' : 'left'] = `${pos2}px`;
+    }
+    #renderRangeLine() {
+        const p1 = this.#posMax() * getRatio(this.value[0], this.min, this.max);
+        const p2 = this.#posMax() * getRatio(this.value[1], this.min, this.max);
+        if (this.vertical) {
+            this.ref.$range.style.top = p1 + 'px';
+            this.ref.$range.style.height = p2 - p1 + 'px';
+        }
+        else {
+            this.ref.$range.style.left = p1 + 'px';
+            this.ref.$range.style.width = p2 - p1 + 'px';
+        }
+    }
+    #clearDragEvents;
+    connectedCallback() {
+        super.connectedCallback();
+        this._renderDisabled();
+        this.#updateTabindex();
+        this.render();
+        this.#clearDragEvents = this.#initDragEvents();
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        if (this.#clearDragEvents)
+            this.#clearDragEvents();
+        this.ref.$layout.onmousedown = null;
+    }
+    attributeChangedCallback(attrName, oldValue, newValue) {
+        super.attributeChangedCallback(attrName, oldValue, newValue);
+        if (attrName === 'disabled') {
+            this._renderDisabled();
+            this.#updateTabindex();
+        }
+        if (attrName === 'value') {
+            this.#renderPoint();
+            this.#renderRangeLine();
+            dispatchEvent(this, 'change', { detail: { value: this.value } });
+        }
+    }
+    #initDragEvents() {
+        this.#dragging = false;
+        let positionStart;
+        let $active;
+        const update = (pos) => {
+            if ($active === this.ref.$point) {
+                this.value = [
+                    fromRatio(getRatio(pos, this.#posMin(), this.#posMax()), this.min, this.max),
+                    this.value[1],
+                ];
+            }
+            else {
+                this.value = [
+                    this.value[0],
+                    fromRatio(getRatio(pos, this.#posMin(), this.#posMax()), this.min, this.max),
+                ];
+            }
+        };
+        return onDragMove(this.ref.$track, {
+            onStart: ({ start, $target, stop }) => {
+                if (this.disabled) {
+                    stop();
+                    return;
+                }
+                if ($target === this.ref.$track) {
+                    const rect = this.ref.$track.getBoundingClientRect();
+                    if (this.vertical) {
+                        positionStart = this.#trackSize() - (start.clientY - rect.y) - 7;
+                    }
+                    else {
+                        positionStart = start.clientX - rect.x - 7;
+                    }
+                    const pos1 = getPosition(this.ref.$point, this.vertical);
+                    const pos2 = getPosition(this.ref.$point2, this.vertical);
+                    const min = Math.min(pos1, pos2);
+                    const max = Math.max(pos1, pos2);
+                    $active =
+                        positionStart < min
+                            ? this.ref.$point
+                            : positionStart > max
+                                ? this.ref.$point2
+                                : Math.abs(max - positionStart) > Math.abs(positionStart - min)
+                                    ? this.ref.$point
+                                    : this.ref.$point2;
+                    update(positionStart);
+                    positionStart = undefined;
+                    $active = undefined;
+                    this.#dragging = false;
+                    return stop();
+                }
+                if ($target === this.ref.$point || $target === this.ref.$point2) {
+                    this.#dragging = true;
+                    $active = $target;
+                    $active.classList.add('active');
+                    positionStart = getPosition($active, this.vertical);
+                    return;
+                }
+            },
+            onMove: ({ offset, preventDefault }) => {
+                preventDefault();
+                const moveOffset = this.vertical ? -offset.y : offset.x;
+                const position = positionStart + moveOffset;
+                if ($active === this.ref.$point &&
+                    position > getPosition(this.ref.$point2, this.vertical)) {
+                    this.ref.$point.classList.remove('active');
+                    this.ref.$point.blur();
+                    this.ref.$point2.classList.add('active');
+                    this.ref.$point2.focus();
+                    $active = this.ref.$point2;
+                }
+                else if ($active === this.ref.$point2 &&
+                    position < getPosition(this.ref.$point, this.vertical)) {
+                    this.ref.$point2.classList.remove('active');
+                    this.ref.$point2.blur();
+                    this.ref.$point.classList.add('active');
+                    this.ref.$point.focus();
+                    $active = this.ref.$point;
+                }
+                update(position);
+            },
+            onEnd: ({ offset }) => {
+                const moveOffset = this.vertical ? -offset.y : offset.x;
+                const position = positionStart + moveOffset;
+                update(position);
+                $active.classList.remove('active');
+                positionStart = undefined;
+                $active = undefined;
+                this.#dragging = false;
+            },
+        });
+    }
+    #validate(n) {
+        return typeof n === 'number' && n === n && n >= this.min && n <= this.max;
+    }
+    #posMin() {
+        return 0;
+    }
+    #posMax() {
+        return this.#trackSize() - this.size;
+    }
+    #trackSize() {
+        return parseFloat(getComputedStyle(this.ref.$track).getPropertyValue(this.vertical ? 'height' : 'width'));
+    }
+    #updateTabindex() {
+        const $buttons = this.shadowRoot.querySelectorAll('.point');
+        if (this.disabled) {
+            forEach($buttons, button => {
+                button.removeAttribute('tabindex');
+            });
+        }
+        else {
+            forEach($buttons, button => {
+                button.setAttribute('tabindex', '0');
+            });
+        }
+    }
+}
+if (!customElements.get('bl-range-slider')) {
+    customElements.define('bl-range-slider', BlocksRangeSlider);
+}
+function getRatio(current, min, max) {
+    const span = max - min;
+    const offset = current - min;
+    return offset / span;
+}
+function fromRatio(ratio, min, max) {
+    return ratio * (max - min) - min;
+}
+function getPosition($point, vertical) {
+    return parseFloat($point.style[vertical ? 'top' : 'left']) || 0;
+}
