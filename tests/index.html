@@ -12,23 +12,6 @@
   <div id="mocha"></div>
   <!-- RESULT OUTPUT END -->
   
-  <script type="module">
-    import "./libs/chai.min.js"
-    import "./libs/mocha.min.js"
-    mocha.setup('bdd')
-
-    // TEST CODE START
-
-    describe('TEST', function () {
-      it('CASS', function () {
-        chai.expect(1).to.equal(1)
-      })
-    })
-
-    // TEST CODE END
-
-    mocha.checkLeaks()
-    mocha.run()
-  </script>
+  <script type="module" src="./index.js"></script>
 </body>
 </html>
