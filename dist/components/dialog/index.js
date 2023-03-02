@@ -9,6 +9,16 @@ import { applyMixins } from '../../common/applyMixins.js';
 import { Control } from '../base-control/index.js';
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
 class BlocksDialog extends Control {
+    static get observedAttributes() {
+        return super.observedAttributes.concat([
+            'append-to-body',
+            'open',
+            'title',
+            'closeable',
+            'capturefocus',
+            'mask',
+        ]);
+    }
     static get role() {
         return 'dialog';
     }
@@ -265,16 +275,6 @@ class BlocksDialog extends Control {
                 this._stopCaptureFocus();
             }
         }
-    }
-    static get observedAttributes() {
-        return super.observedAttributes.concat([
-            'open',
-            'title',
-            'closeable',
-            'capturefocus',
-            'mask',
-            'dark',
-        ]);
     }
 }
 applyMixins(BlocksDialog, [WithOpenTransition]);

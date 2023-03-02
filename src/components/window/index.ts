@@ -43,7 +43,6 @@ class BlocksWindow extends Control {
       'actions',
       // 捕获焦点，tab 键不会将焦点移出 Dialog
       'capturefocus',
-      'dark',
       // 标题图标
       'icon',
       'maximized',

@@ -33,7 +33,7 @@ const typeSetter = enumSetter('type', notificationTypes);
 export class BlocksNotification extends Component {
     ref;
     static get observedAttributes() {
-        return ['closeable', 'dark', 'duration', 'type'];
+        return ['closeable', 'duration', 'type'];
     }
     constructor() {
         super();

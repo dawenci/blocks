@@ -55,7 +55,7 @@ export class BlocksNotification extends Component {
   ref: DomRef
 
   static override get observedAttributes() {
-    return ['closeable', 'dark', 'duration', 'type']
+    return ['closeable', 'duration', 'type']
   }
 
   constructor() {

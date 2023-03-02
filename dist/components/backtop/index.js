@@ -92,9 +92,13 @@ export class BlocksBackTop extends Component {
                 this.render();
             }
         };
-        document.addEventListener('scroll', onTargetScroll, true);
+        const scrollEventOptions = {
+            capture: true,
+            passive: true,
+        };
+        document.addEventListener('scroll', onTargetScroll, scrollEventOptions);
         this.#clearup = () => {
-            document.removeEventListener('scroll', onTargetScroll, true);
+            document.removeEventListener('scroll', onTargetScroll, scrollEventOptions);
         };
     }
     disconnectedCallback() {

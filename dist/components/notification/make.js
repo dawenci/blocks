@@ -46,9 +46,6 @@ function cage(placement) {
 }
 export function blNotify(options = {}) {
     const $el = document.createElement('bl-notification');
-    if (options.dark) {
-        $el.setAttribute('blocks-theme', 'dark');
-    }
     enumSetter('type', notificationTypes)($el, options.type);
     boolSetter('closeable')($el, options.closeable ?? false);
     if (options.duration != null)

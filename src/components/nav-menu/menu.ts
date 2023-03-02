@@ -7,12 +7,7 @@ import {
   numGetter,
   numSetter,
 } from '../../common/property.js'
-import {
-  darkGetter,
-  darkSetter,
-  sizeGetter,
-  sizeSetter,
-} from '../../common/propertyAccessor.js'
+import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { forEach } from '../../common/utils.js'
 import { BlocksNavMenuItem } from './menu-item.js'
 import {
@@ -136,14 +131,6 @@ export class BlocksNavMenu extends Component {
     this.render()
   }
 
-  get dark() {
-    return darkGetter(this)
-  }
-
-  set dark(value) {
-    darkSetter(this, value)
-  }
-
   clearEnterTimer() {
     //
   }
@@ -250,7 +237,6 @@ export class BlocksNavMenu extends Component {
       'level',
       'expand',
       'size',
-      'dark',
       'enter-delay',
       'leave-delay',
     ]

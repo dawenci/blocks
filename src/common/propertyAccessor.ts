@@ -12,14 +12,8 @@ export const clearableSetter = boolSetter('clearable')
 export const closeableGetter = boolGetter('closeable')
 export const closeableSetter = boolSetter('closeable')
 
-export const darkGetter = boolGetter('dark')
-export const darkSetter = boolSetter('dark')
-
 export const disabledGetter = boolGetter('disabled')
 export const disabledSetter = boolSetter('disabled')
-
-export const multipleGetter = boolGetter('multiple')
-export const multipleSetter = boolSetter('multiple')
 
 export const openGetter = boolGetter('open')
 export const openSetter = boolSetter('open')

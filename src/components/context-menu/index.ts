@@ -8,8 +8,6 @@ export function blBindContextMenu(
   menuData:
     | (MenuItem | MenuGroup)[]
     | ((e: MouseEvent) => (MenuItem | MenuGroup)[]),
-  /** 是否深色模式，TODO，移除该参数，使用样式变量实现 */
-  dark: boolean
 ) {
   const handler = (e: MouseEvent) => {
     e.preventDefault()

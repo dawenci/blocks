@@ -38,6 +38,22 @@ interface BlocksDialog extends Control, WithOpenTransition {
 }
 
 class BlocksDialog extends Control {
+  static override get observedAttributes() {
+    return super.observedAttributes.concat([
+      'append-to-body',
+      // 显示状态
+      'open',
+      // 标题
+      'title',
+      // 是否提供关闭按钮
+      'closeable',
+      // 捕获焦点，tab 键不会将焦点移出 Dialog
+      'capturefocus',
+      // 显示遮罩
+      'mask',
+    ])
+  }
+
   static get role() {
     return 'dialog'
   }
@@ -348,22 +364,6 @@ class BlocksDialog extends Control {
         this._stopCaptureFocus()
       }
     }
-  }
-
-  static override get observedAttributes() {
-    return super.observedAttributes.concat([
-      // 显示状态
-      'open',
-      // 标题
-      'title',
-      // 是否提供关闭按钮
-      'closeable',
-      // 捕获焦点，tab 键不会将焦点移出 Dialog
-      'capturefocus',
-      // 显示遮罩
-      'mask',
-      'dark',
-    ])
   }
 }
 

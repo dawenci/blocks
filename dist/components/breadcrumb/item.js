@@ -32,7 +32,7 @@ export class BlocksBreadcrumbItem extends Component {
     attributeChangedCallback(attrName, oldValue, newValue) {
         super.attributeChangedCallback(attrName, oldValue, newValue);
         if (attrName === 'href') {
-            strSetter('href')(this, this.href || null);
+            strSetter('href')(this._ref.$link, newValue);
         }
     }
 }

@@ -55,7 +55,6 @@ function cage(placement: unknown) {
 
 type NotifyOptions = {
   type?: any
-  dark?: any // todo, remove
   closeable?: boolean
   duration?: number
   content?: string
@@ -64,9 +63,6 @@ type NotifyOptions = {
 }
 export function blNotify(options: NotifyOptions = {}) {
   const $el = document.createElement('bl-notification')
-  if (options.dark) {
-    $el.setAttribute('blocks-theme', 'dark')
-  }
   enumSetter('type', notificationTypes)($el, options.type)
   boolSetter('closeable')($el, options.closeable ?? false)
   if (options.duration != null) intSetter('duration')($el, options.duration)

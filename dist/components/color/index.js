@@ -2,7 +2,6 @@ import { dispatchEvent } from '../../common/event.js';
 import { enumGetter, enumSetter, intGetter, intSetter, } from '../../common/property.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
 import { round } from '../../common/utils.js';
-import { parse } from '../../common/color.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { Component, } from '../Component.js';
 import { template } from './template.js';
@@ -56,17 +55,17 @@ export class BlocksColor extends Component {
         this._initModeChangeEvent();
         this._initInputEvents();
     }
-    get value() {
-        return intGetter('value')(this);
-    }
-    set value(value) {
-        intSetter('value')(this, value);
-    }
     get mode() {
         return enumGetter('mode', ['hex', 'rgb', 'hsl', 'hsv'])(this) ?? 'hex';
     }
     set mode(value) {
         enumSetter('mode', ['hex', 'rgb', 'hsl', 'hsv'])(this, value);
+    }
+    get value() {
+        return intGetter('value')(this);
+    }
+    set value(value) {
+        intSetter('value')(this, value);
     }
     get hex() {
         return this._color.toString('hex');
@@ -273,10 +272,9 @@ export class BlocksColor extends Component {
             const value = $input.value || '';
             const mode = this.mode;
             if (mode === 'hex') {
-                const rgba = parse(value);
-                if (rgba) {
+                if (/^#?(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)) {
                     this._preventUpdateModel = true;
-                    this.rgba = rgba;
+                    this.value = Color.fromHex(value).value;
                     this._preventUpdateModel = false;
                 }
             }

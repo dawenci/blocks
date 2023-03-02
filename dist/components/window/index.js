@@ -23,7 +23,6 @@ class BlocksWindow extends Control {
         return super.observedAttributes.concat([
             'actions',
             'capturefocus',
-            'dark',
             'icon',
             'maximized',
             'minimized',

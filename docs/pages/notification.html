@@ -172,29 +172,6 @@
     </section>
 
     <section class="section">
-      <h2>dark</h2>
-
-      <div data-codesource="html">
-        <bl-button id="dark">dark</bl-button>
-
-        <script type="module">
-          import { blNotify } from '../../dist/components/notification/index.js'
-          (() => {
-            const title = '消息通知'
-            const content = '这里是消息内容'
-            document.getElementById('dark').onclick = () => {
-              blNotify({ title, content, closeable: true, duration: 3, dark: true })
-              blNotify({ type: 'success', title, content, closeable: true, duration: 3, dark: true })
-              blNotify({ type: 'error', title, content, closeable: true, duration: 3, dark: true })
-              blNotify({ type: 'info', title, content, closeable: true, duration: 3, dark: true })
-              blNotify({ type: 'warn', title, content, closeable: true, duration: 3, dark: true })
-            }
-          })()
-        </script>
-      </div>
-    </section>
-    
-    <section class="section">
       <h2>API</h2>
 
       <h3>Methods</h3>
@@ -213,7 +190,6 @@
 <pre>
 (options: {
   type: 'message' | 'success' | 'error' | 'info' | 'warning',
-  dark: boolean,
   closeable: boolean,
   title: string,
   content: string,

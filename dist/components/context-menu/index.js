@@ -1,6 +1,6 @@
 import '../popup-menu/index.js';
 import { PopupOrigin } from '../popup/index.js';
-export function blBindContextMenu(el, menuData, dark) {
+export function blBindContextMenu(el, menuData) {
     const handler = (e) => {
         e.preventDefault();
         const $menu = document.body.appendChild(document.createElement('bl-popup-menu'));
