@@ -8,8 +8,11 @@ const durationSetter = numSetter('duration')
 const visibilityHeightGetter = numGetter('visibility-height')
 const visibilityHeightSetter = numSetter('visibility-height')
 
+export interface BlocksBackTop extends Component {
+  _ref: { $layout: HTMLElement }
+}
+
 export class BlocksBackTop extends Component {
-  ref: { $layout: HTMLElement }
   #clearup?: () => void
   #target?: () => Node
 
@@ -24,7 +27,7 @@ export class BlocksBackTop extends Component {
 
     const $layout = shadowRoot.querySelector('#layout') as HTMLDivElement
 
-    this.ref = { $layout }
+    this._ref = { $layout }
 
     this.addEventListener('click', () => {
       scrollTo(this.targetElement as HTMLElement, 0, {

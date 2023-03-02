@@ -1,5 +1,4 @@
 import { dispatchEvent } from '../../common/event.js';
-import { boolGetter, boolSetter } from '../../common/property.js';
 import { forEach } from '../../common/utils.js';
 import { Component, } from '../Component.js';
 import { template } from './template.js';
@@ -14,6 +13,9 @@ var State;
     State["Result"] = "Result";
 })(State || (State = {}));
 export class BlocksCalc extends Component {
+    static get observedAttributes() {
+        return ['screen'];
+    }
     memory = 0;
     operand = null;
     operator = null;
@@ -40,12 +42,6 @@ export class BlocksCalc extends Component {
         const $input = shadowRoot.querySelector('.Calc-screen-input');
         this._ref = { $layout, $result, $input };
         this.screen = '0';
-    }
-    get dark() {
-        return boolGetter('dark')(this);
-    }
-    set dark(value) {
-        boolSetter('dark')(this, value);
     }
     get screen() {
         return this.getAttribute('screen') ?? '';
@@ -194,9 +190,9 @@ export class BlocksCalc extends Component {
                 this._ref.$input.style.transform = '';
             }
         });
-        dispatchEvent(this, 'screen', { detail: { value: this.getScreenValue() } });
+        dispatchEvent(this, 'bl:calc:screen', { detail: { value: this.getScreenValue() } });
         if (this.state === State.Result) {
-            dispatchEvent(this, 'result', {
+            dispatchEvent(this, 'bl:calc:result', {
                 detail: { value: this.getScreenValue() },
             });
         }
@@ -518,9 +514,6 @@ export class BlocksCalc extends Component {
                 this.state = State.Result;
             }
         }
-    }
-    static get observedAttributes() {
-        return ['dark', 'screen'];
     }
 }
 if (!customElements.get('bl-calc')) {

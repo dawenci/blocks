@@ -4,10 +4,16 @@ import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
 import { ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { Control } from '../base-control/index.js'
 import { checkboxTemplate, labelTemplate, styleTemplate } from './template.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
+import {
+  boolGetter,
+  boolSetter,
+  strGetter,
+  strSetter,
+} from '../../common/property.js'
 
 interface CheckboxEventMap extends ComponentEventMap {
   change: CustomEvent<{ checked: boolean }>
+  'bl:checkbox:change': CustomEvent<{ checked: boolean }>
 }
 
 export interface BlocksCheckbox extends Control {
@@ -31,6 +37,10 @@ export interface BlocksCheckbox extends Control {
 }
 
 export class BlocksCheckbox extends Control {
+  static override get observedAttributes() {
+    return super.observedAttributes.concat(['name', 'checked', 'indeterminate'])
+  }
+
   static get role() {
     return 'checkbox'
   }
@@ -64,6 +74,14 @@ export class BlocksCheckbox extends Control {
         e.preventDefault()
       }
     })
+  }
+
+  get name() {
+    return strGetter('name')(this)
+  }
+
+  set name(value) {
+    strSetter('name')(this, value)
   }
 
   get checked() {
@@ -110,16 +128,15 @@ export class BlocksCheckbox extends Control {
       }
       this._renderIndeterminate()
     }
+
     if (attrName === 'checked') {
       if (this.checked) {
         this.indeterminate = false
       }
-      dispatchEvent(this, 'change', { detail: { checked: this.checked } })
+      const payload = { detail: { checked: this.checked } }
+      dispatchEvent(this, 'bl:checkbox:change', payload)
+      dispatchEvent(this, 'change', payload)
     }
-  }
-
-  static override get observedAttributes() {
-    return super.observedAttributes.concat(['name', 'checked', 'indeterminate'])
   }
 }
 

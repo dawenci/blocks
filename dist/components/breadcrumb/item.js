@@ -2,12 +2,14 @@ import { strGetter, strSetter } from '../../common/property.js';
 import { Component } from '../Component.js';
 import { template } from './item-template.js';
 export class BlocksBreadcrumbItem extends Component {
-    ref;
+    static get observedAttributes() {
+        return ['href'];
+    }
     constructor() {
         super();
         const shadowRoot = this.attachShadow({ mode: 'open' });
         shadowRoot.appendChild(template().content.cloneNode(true));
-        this.ref = {
+        this._ref = {
             $link: shadowRoot.getElementById('link'),
             $separator: shadowRoot.getElementById('separator'),
         };
@@ -18,10 +20,10 @@ export class BlocksBreadcrumbItem extends Component {
     set href(value) {
         strSetter('href')(this, value);
     }
-    renderSeparator(separator) {
+    _renderSeparator(separator) {
         if (this.parentElement?.lastElementChild === this)
             return;
-        this.ref.$separator.textContent = separator;
+        this._ref.$separator.textContent = separator;
     }
     connectedCallback() {
         super.connectedCallback();
@@ -32,9 +34,6 @@ export class BlocksBreadcrumbItem extends Component {
         if (attrName === 'href') {
             strSetter('href')(this, this.href || null);
         }
-    }
-    static get observedAttributes() {
-        return ['href'];
     }
 }
 if (!customElements.get('bl-breadcrumb-item')) {

@@ -2,17 +2,23 @@ import { strGetter, strSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './item-template.js'
 
-export class BlocksBreadcrumbItem extends Component {
-  ref: {
+export interface BlocksBreadcrumbItem extends Component {
+  _ref: {
     $link: HTMLAnchorElement
     $separator: HTMLDivElement
+  }
+}
+
+export class BlocksBreadcrumbItem extends Component {
+  static override get observedAttributes() {
+    return ['href']
   }
 
   constructor() {
     super()
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template().content.cloneNode(true))
-    this.ref = {
+    this._ref = {
       $link: shadowRoot.getElementById('link') as HTMLAnchorElement,
       $separator: shadowRoot.getElementById('separator') as HTMLDivElement,
     }
@@ -26,9 +32,9 @@ export class BlocksBreadcrumbItem extends Component {
     strSetter('href')(this, value)
   }
 
-  renderSeparator(separator: string) {
+  _renderSeparator(separator: string) {
     if (this.parentElement?.lastElementChild === this) return
-    this.ref.$separator.textContent = separator
+    this._ref.$separator.textContent = separator
   }
 
   override connectedCallback() {
@@ -45,10 +51,6 @@ export class BlocksBreadcrumbItem extends Component {
     if (attrName === 'href') {
       strSetter('href')(this, this.href || null)
     }
-  }
-
-  static override get observedAttributes() {
-    return ['href']
   }
 }
 

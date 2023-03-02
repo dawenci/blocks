@@ -4,6 +4,7 @@ import { uniqId } from '../../common/uniqId.js';
 import { disabledGetter, disabledSetter, } from '../../common/propertyAccessor.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
+import { intGetter, intSetter } from '../../common/property.js';
 export class BlocksColorPicker extends Component {
     #clearClickOutside;
     static get observedAttributes() {
@@ -33,10 +34,12 @@ export class BlocksColorPicker extends Component {
             $popup.open = true;
             $color.render();
         };
-        $color.addEventListener('change', () => {
+        $color.addEventListener('bl:color:change', () => {
             this.value = $color.value;
             this.render();
-            dispatchEvent(this, 'change');
+            const payload = { detail: $color.value };
+            dispatchEvent(this, 'bl:color-picker:change', payload);
+            dispatchEvent(this, 'change', payload);
         });
         $popup.addEventListener('opened', () => {
             this.#initClickOutside();
@@ -94,11 +97,10 @@ export class BlocksColorPicker extends Component {
         this._ref.$color.rgba = value;
     }
     get value() {
-        return this.getAttribute('value');
+        return intGetter('value')(this);
     }
     set value(value) {
-        if (value !== null)
-            this.setAttribute('value', value);
+        intSetter('value')(this, value);
     }
     connectedCallback() {
         super.connectedCallback();
@@ -138,26 +140,8 @@ export class BlocksColorPicker extends Component {
             this._ref.$icon.fill = `hsla(${hsla[0]},${50}%,${lightness}%,1)`;
         }
     }
-    toHexString() {
-        return this._ref.$color.toHexString();
-    }
-    toRgbString() {
-        return this._ref.$color.toRgbString();
-    }
-    toRgbaString() {
-        return this._ref.$color.toRgbaString();
-    }
-    toHslString() {
-        return this._ref.$color.toHslString();
-    }
-    toHslaString() {
-        return this._ref.$color.toHslaString();
-    }
-    toHsvString() {
-        return this._ref.$color.toHsvString();
-    }
-    toHsvaString() {
-        return this._ref.$color.toHsvaString();
+    format(fmt) {
+        return this._ref.$color.format(fmt);
     }
     #initClickOutside() {
         if (!this.#clearClickOutside) {

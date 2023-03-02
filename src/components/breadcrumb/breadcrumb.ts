@@ -10,6 +10,10 @@ export interface BlocksBreadcrumb extends Component {
 }
 
 export class BlocksBreadcrumb extends Component {
+  static override get observedAttributes() {
+    return ['separator']
+  }
+
   #clearup?: () => void
 
   constructor() {
@@ -34,7 +38,7 @@ export class BlocksBreadcrumb extends Component {
   override render() {
     this._ref.$slot.assignedElements().forEach($item => {
       if (isItem($item)) {
-        $item.renderSeparator(this.separator)
+        $item._renderSeparator(this.separator)
       }
     })
   }
@@ -66,10 +70,6 @@ export class BlocksBreadcrumb extends Component {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
   }
-
-  static override get observedAttributes() {
-    return ['separator']
-  }
 }
 
 if (!customElements.get('bl-breadcrumb')) {
@@ -77,5 +77,5 @@ if (!customElements.get('bl-breadcrumb')) {
 }
 
 function isItem(item: Element): item is BlocksBreadcrumbItem {
-  return !!(item as BlocksBreadcrumbItem).renderSeparator
+  return !!(item as BlocksBreadcrumbItem)._renderSeparator
 }

@@ -2,6 +2,9 @@ import { Component } from '../Component.js';
 import { template } from './breadcrumb-template.js';
 import { strGetter, strSetter } from '../../common/property.js';
 export class BlocksBreadcrumb extends Component {
+    static get observedAttributes() {
+        return ['separator'];
+    }
     #clearup;
     constructor() {
         super();
@@ -20,7 +23,7 @@ export class BlocksBreadcrumb extends Component {
     render() {
         this._ref.$slot.assignedElements().forEach($item => {
             if (isItem($item)) {
-                $item.renderSeparator(this.separator);
+                $item._renderSeparator(this.separator);
             }
         });
     }
@@ -43,13 +46,10 @@ export class BlocksBreadcrumb extends Component {
         super.attributeChangedCallback(attrName, oldValue, newValue);
         this.render();
     }
-    static get observedAttributes() {
-        return ['separator'];
-    }
 }
 if (!customElements.get('bl-breadcrumb')) {
     customElements.define('bl-breadcrumb', BlocksBreadcrumb);
 }
 function isItem(item) {
-    return !!item.renderSeparator;
+    return !!item._renderSeparator;
 }

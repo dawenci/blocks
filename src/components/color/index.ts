@@ -1,16 +1,13 @@
 import { dispatchEvent } from '../../common/event.js'
-import { enumGetter, enumSetter } from '../../common/property.js'
+import {
+  enumGetter,
+  enumSetter,
+  intGetter,
+  intSetter,
+} from '../../common/property.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { round } from '../../common/utils.js'
-import {
-  hsl2hsv,
-  hsv2hsl,
-  hsv2rgb,
-  rgb2hsv,
-  hex2rgba,
-  parse,
-  rgba2hex,
-} from '../../common/color.js'
+import { parse } from '../../common/color.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import {
   Component,
@@ -18,6 +15,7 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { template } from './template.js'
+import { Color, ColorFormat, ColorTuple4 } from './Color.js'
 
 interface ColorEventMap extends ComponentEventMap {
   change: CustomEvent<{ value: string }>
@@ -55,14 +53,22 @@ export interface BlocksColor extends Component {
 
 // TODO, 拆分 Rgb、HSV、HSL 为多个组件实现
 export class BlocksColor extends Component {
-  // 色相
-  private _hue = 0
-  // 饱和度
-  private _saturation = 1
-  // 明度
-  private _value = 1
-  // 不透明度
-  private _alpha = 1
+  static override get observedAttributes() {
+    return ['mode', 'value']
+  }
+
+  // 设置为灰色（饱和度 s 为 0）的时候，
+  // 新生成的颜色的 hue 为 0（红色），会导致面板底色突然切换到红色，
+  // 所以要记住设置成灰色前的 hue，在设置灰色的时候，可以正确渲染之前的底色
+  private _lastHue = 0
+
+  private _color = Color.fromRgb(255, 0, 0)
+
+  // alpha 通道
+  get _alpha() {
+    return this._color.alpha
+  }
+
   // resize 处理器清理函数
   private _clearResizeHandler?: () => void
   // 是否正在拖拽光标取色中
@@ -120,11 +126,11 @@ export class BlocksColor extends Component {
   }
 
   get value() {
-    return this.getAttribute('value')
+    return intGetter('value')(this)
   }
 
   set value(value) {
-    if (value !== null) this.setAttribute('value', value)
+    intSetter('value')(this, value)
   }
 
   get mode() {
@@ -136,37 +142,57 @@ export class BlocksColor extends Component {
   }
 
   get hex() {
-    return rgba2hex(this.rgba)
+    return this._color.toString('hex')
   }
 
   set hex(value) {
-    const [r, g, b, a] = hex2rgba(value!)!
-    const alpha = value!.length > 7 ? a / 255 : this._alpha
-    const [h, s, v] = rgb2hsv(r, g, b)
+    const newColor = Color.fromHex(value)
+    const [h, s, v, alpha] = newColor.toHsva()
     this._setStates(h, s, v, alpha)
   }
 
+  get rgb() {
+    return this._color.toRgb()
+  }
+
+  set rgb([r, g, b]) {
+    const newColor = Color.fromRgb(r, g, b)
+    const [h, s, v] = newColor.toHsv()
+    this._setStates(h, s, v, this._alpha)
+  }
+
+  get rgba(): ColorTuple4 {
+    return this._color.toRgba()
+  }
+
+  set rgba([r, g, b, a]: ColorTuple4) {
+    const newColor = Color.fromRgb(r, g, b, a)
+    const [h, s, v] = newColor.toHsv()
+    this._setStates(h, s, v, a)
+  }
+
   get hsl() {
-    const [h, s, v] = this.hsv
-    return hsv2hsl(h, s, v)
+    return this._color.toHsl()
   }
 
   set hsl([hl, sl, l]) {
-    const [hv, sv, v] = hsl2hsv(hl, sl, l)
+    const newColor = Color.fromHsl(hl, sl, l)
+    const [hv, sv, v] = newColor.toHsv()
     this._setStates(hv, sv, v, this._alpha)
   }
 
   get hsla() {
-    return this.hsl.concat(this._alpha)
+    return this._color.toHsla()
   }
 
   set hsla([hl, sl, l, a]) {
-    const [hv, sv, v] = hsl2hsv(hl, sl, l)
-    this._setStates(hv, sv, v, a)
+    const newColor = Color.fromHsl(hl, sl, l, a)
+    const [hv, sv, v, a2] = newColor.toHsva()
+    this._setStates(hv, sv, v, a2)
   }
 
   get hsv() {
-    return [this._hue, this._saturation, this._value]
+    return this._color.toHsv()
   }
 
   set hsv([h, s, v]) {
@@ -174,38 +200,16 @@ export class BlocksColor extends Component {
   }
 
   get hsva() {
-    return [this._hue, this._saturation, this._value, this._alpha]
+    return this._color.toHsva()
   }
 
   set hsva([h, s, v, a]) {
     this._setStates(h, s, v, a)
   }
 
-  get rgb() {
-    const [h, s, v] = this.hsv
-    return hsv2rgb(h, s, v).map(n => Math.round(n))
-  }
-
-  set rgb([r, g, b]) {
-    const [h, s, v] = rgb2hsv(r, g, b)
-    this._setStates(h, s, v, this._alpha)
-  }
-
-  get rgba(): [number, number, number, number] {
-    return this.rgb.concat(this._alpha) as [number, number, number, number]
-  }
-
-  set rgba([r, g, b, a]: [number, number, number, number]) {
-    const [h, s, v] = rgb2hsv(r, g, b)
-    // value attributeChanged 的时候，如果 change 为 灰色，
-    // 灰色，从灰色 rgba 到 hsv 的转换，会导致 hue 变成红色，
-    // 所以在变灰色的场景，不修改 hue 值
-    const hue = r === g && r === b ? this._hue : h
-    this._setStates(hue, s, v, a)
-  }
-
   override connectedCallback() {
     super.connectedCallback()
+
     this._clearResizeHandler = sizeObserve(
       this._ref.$layout,
       this._updateControls.bind(this)
@@ -229,16 +233,15 @@ export class BlocksColor extends Component {
     if (attrName === 'mode') {
       this.render()
     }
+
     if (attrName === 'value') {
-      if (oldValue === newValue) return
-      const oldRgba = parse(oldValue)
-      const newRgba = parse(newValue)
-      const oldHexStr = (oldRgba && rgba2hex(oldRgba)) ?? ''
-      const newHexStr = (newRgba && rgba2hex(newRgba)) ?? ''
-      if (newRgba && oldHexStr !== newHexStr) {
-        this.rgba = newRgba
-        this.render()
+      if (oldValue === newValue) {
+        return
       }
+      const newColor = new Color(+newValue)
+      const [h, s, l, v] = newColor.toHsva()
+      this._setStates(h, s, l, v)
+      this.render()
     }
   }
 
@@ -248,80 +251,49 @@ export class BlocksColor extends Component {
     this._updateModels()
   }
 
-  toHexString() {
-    return this.hex
-  }
-
-  toRgbString() {
-    const [r, g, b] = this.rgb
-    return `rgb(${round(r)},${round(g)},${round(b)})`
-  }
-
-  toRgbaString() {
-    const [r, g, b, a] = this.rgba
-    return `rgb(${round(r)},${round(g)},${round(b)},${round(a, 2)})`
-  }
-
-  toHslString() {
-    const [h, s, l] = this.hsl
-    return `hsl(${round(h)},${round(s * 100)}%,${round(l * 100)}%)`
-  }
-
-  toHslaString() {
-    const [h, s, l, a] = this.hsla
-    return `hsl(${round(h)},${round(s * 100)}%,${round(l * 100)}%,${round(
-      a,
-      2
-    )})`
-  }
-
-  toHsvString() {
-    const [h, s, v] = this.hsv
-    return `hsv(${round(h)},${round(s * 100)}%,${round(v * 100)}%)`
-  }
-
-  toHsvaString() {
-    const [h, s, v, a] = this.hsva
-    return `hsva(${round(h)},${round(s * 100)}%,${round(v * 100)}%,${round(
-      a,
-      2
-    )})`
+  format(fmt: ColorFormat) {
+    return this._color.toString(fmt)
   }
 
   _updateControls() {
     if (this._preventUpdateControl) return
 
+    const [_hue, _saturation, _value, _alpha] = this._color.toHsva()
+
     // 透明度
     const alphaBarWidth = this._ref.$alphaBar.clientWidth - 12
-    const alphaX = this._alpha * alphaBarWidth
+    const alphaX = _alpha * alphaBarWidth
     this._ref.$alphaButton.style.left = alphaX + 'px'
     // 色相
     const hueBarWidth = this._ref.$hueBar.clientWidth - 12
-    const hueX = (this._hue / 360) * hueBarWidth
+    const hueX = (_hue / 360) * hueBarWidth
     this._ref.$hueButton.style.left = hueX + 'px'
     // HSV
     const width = this._ref.$hsv.clientWidth - 12
     const height = this._ref.$hsv.clientHeight - 12
-    const x = this._saturation * width
-    const y = height - this._value * height
+    const x = _saturation * width
+    const y = height - _value * height
     this._ref.$hsvButton.style.top = y + 'px'
     this._ref.$hsvButton.style.left = x + 'px'
   }
 
   _setStates(hue: number, saturation: number, value: number, alpha: number) {
-    const changed =
-      this._hue !== hue ||
-      this._saturation !== saturation ||
-      this._value !== value ||
-      this._alpha !== alpha
-    this._hue = hue
-    this._saturation = saturation
-    this._value = value
-    this._alpha = alpha
+    // saturation 0 表示灰色，维持 hue 不变
+    if (saturation === 0) {
+      hue = this._lastHue
+    } else {
+      this._lastHue = hue
+    }
+
+    const color = Color.fromHsv(hue, saturation, value, alpha)
+    const changed = !Color.equals(this._color, color)
+    this._color = color
 
     if (changed) {
-      this.value = this.hex
-      dispatchEvent(this, 'change', { detail: { value: this.value } })
+      this.value = color.value
+      const payload = { detail: { value: this.value } }
+      dispatchEvent(this, 'bl:color:change', payload)
+      dispatchEvent(this, 'change', payload)
     }
     return changed
   }
@@ -343,15 +315,16 @@ export class BlocksColor extends Component {
     const y = parseInt(getComputedStyle(this._ref.$hsvButton).top, 10) || 0
     const saturation = Math.floor(100 * (x / width)) / 100
     const value = 1 - Math.floor(100 * (y / height)) / 100
+
     return this._setStates(hue, saturation, value, alpha)
   }
 
   _updateBg() {
-    const bg = `hsl(${this._hue}, 100%, 50%)`
+    const bg = `hsl(${this._lastHue}, 100%, 50%)`
     this._ref.$hsvHue.style.backgroundColor = bg
     this._ref.$alphaBarBg.style.backgroundImage = `linear-gradient(to right, transparent, ${bg})`
     const resultBg = this.hsla
-    this._ref.$resultBg.style.backgroundColor = `hsla(${resultBg[0]},${
+    this._ref.$resultBg.style.backgroundColor = `hsla(${this._lastHue},${
       resultBg[1] * 100
     }%,${resultBg[2] * 100}%,${resultBg[3]})`
   }
@@ -539,10 +512,6 @@ export class BlocksColor extends Component {
     onDragMove(this._ref.$hueBar, options)
     onDragMove(this._ref.$alphaBar, options)
     onDragMove(this._ref.$hsv, options)
-  }
-
-  static override get observedAttributes() {
-    return ['mode', 'value']
   }
 }
 

@@ -2,12 +2,14 @@ import { strGetter, strSetter } from '../../common/property.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
 export class BlocksBadge extends Component {
-    ref;
+    static get observedAttributes() {
+        return ['value'];
+    }
     constructor() {
         super();
         const shadowRoot = this.attachShadow({ mode: 'open' });
         shadowRoot.appendChild(template().content.cloneNode(true));
-        this.ref = {
+        this._ref = {
             $slot: shadowRoot.querySelector('slot'),
             $badge: shadowRoot.getElementById('badge'),
         };
@@ -19,14 +21,11 @@ export class BlocksBadge extends Component {
         strSetter('value')(this, value);
     }
     render() {
-        this.ref.$badge.textContent = this.value;
+        this._ref.$badge.textContent = this.value;
     }
     attributeChangedCallback(attrName, oldValue, newValue) {
         super.attributeChangedCallback(attrName, oldValue, newValue);
         this.render();
-    }
-    static get observedAttributes() {
-        return ['value'];
     }
 }
 if (!customElements.get('bl-badge')) {

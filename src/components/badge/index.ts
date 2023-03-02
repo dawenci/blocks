@@ -2,10 +2,16 @@ import { strGetter, strSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 
-export class BlocksBadge extends Component {
-  ref: {
+export interface BlocksBadge extends Component {
+  _ref: {
     $slot: HTMLSlotElement
     $badge: HTMLElement
+  }
+}
+
+export class BlocksBadge extends Component {
+  static override get observedAttributes() {
+    return ['value']
   }
 
   constructor() {
@@ -13,7 +19,7 @@ export class BlocksBadge extends Component {
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template().content.cloneNode(true))
 
-    this.ref = {
+    this._ref = {
       $slot: shadowRoot.querySelector('slot')!,
       $badge: shadowRoot.getElementById('badge')!,
     }
@@ -28,7 +34,7 @@ export class BlocksBadge extends Component {
   }
 
   override render() {
-    this.ref.$badge.textContent = this.value
+    this._ref.$badge.textContent = this.value
   }
 
   override attributeChangedCallback(
@@ -39,10 +45,6 @@ export class BlocksBadge extends Component {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     this.render()
-  }
-
-  static override get observedAttributes() {
-    return ['value']
   }
 }
 

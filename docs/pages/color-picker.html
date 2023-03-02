@@ -54,7 +54,7 @@
 
       <h3>Attrs / Props</h3>
 
-      <p>支持 color 组件的以下属性：</p>
+      <p>支持 color 组件的以下 getter/setter：</p>
       <ul>
         <li>hex</li>
         <li>hsl</li>
@@ -91,13 +91,7 @@
       <h3>Methods</h3>
       <p>支持 color 组件以下方法：</p>
       <ul>
-        <li>toHexString</li>
-        <li>toRgbString</li>
-        <li>toRgbaString</li>
-        <li>toHslString</li>
-        <li>toHslaString</li>
-        <li>toHsvString</li>
-        <li>toHsvaString</li>
+        <li>format</li>
       </ul>
       <p>更多信息查看 color 组件文档。</p>
 
@@ -111,6 +105,11 @@
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td>bl:color-picker:change</td>
+            <td></td>
+            <td>颜色变化时触发。</td>
+          </tr>
           <tr>
             <td>change</td>
             <td></td>

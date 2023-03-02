@@ -3,8 +3,11 @@ import { checkedGetter, checkedSetter } from '../../common/propertyAccessor.js';
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
 import { Control } from '../base-control/index.js';
 import { checkboxTemplate, labelTemplate, styleTemplate } from './template.js';
-import { boolGetter, boolSetter } from '../../common/property.js';
+import { boolGetter, boolSetter, strGetter, strSetter, } from '../../common/property.js';
 export class BlocksCheckbox extends Control {
+    static get observedAttributes() {
+        return super.observedAttributes.concat(['name', 'checked', 'indeterminate']);
+    }
     static get role() {
         return 'checkbox';
     }
@@ -32,6 +35,12 @@ export class BlocksCheckbox extends Control {
                 e.preventDefault();
             }
         });
+    }
+    get name() {
+        return strGetter('name')(this);
+    }
+    set name(value) {
+        strSetter('name')(this, value);
     }
     get checked() {
         return checkedGetter(this);
@@ -71,11 +80,10 @@ export class BlocksCheckbox extends Control {
             if (this.checked) {
                 this.indeterminate = false;
             }
-            dispatchEvent(this, 'change', { detail: { checked: this.checked } });
+            const payload = { detail: { checked: this.checked } };
+            dispatchEvent(this, 'bl:checkbox:change', payload);
+            dispatchEvent(this, 'change', payload);
         }
-    }
-    static get observedAttributes() {
-        return super.observedAttributes.concat(['name', 'checked', 'indeterminate']);
     }
 }
 if (!customElements.get('bl-checkbox')) {

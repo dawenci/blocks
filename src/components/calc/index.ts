@@ -26,8 +26,8 @@ enum State {
 }
 
 interface CalcEventMap extends ComponentEventMap {
-  screen: CustomEvent<{ value: number }>
-  result: CustomEvent<{ value: number }>
+  'bl:calc:screen': CustomEvent<{ value: number }>
+  'bl:calc:result': CustomEvent<{ value: number }>
 }
 
 export interface BlocksCalc extends Component {
@@ -51,6 +51,10 @@ export interface BlocksCalc extends Component {
 }
 
 export class BlocksCalc extends Component {
+  static override get observedAttributes() {
+    return ['screen']
+  }
+
   memory = 0
   operand: number | null = null
   operator: string | null = null
@@ -86,14 +90,6 @@ export class BlocksCalc extends Component {
     this._ref = { $layout, $result, $input }
 
     this.screen = '0'
-  }
-
-  get dark() {
-    return boolGetter('dark')(this)
-  }
-
-  set dark(value) {
-    boolSetter('dark')(this, value)
   }
 
   get screen() {
@@ -286,9 +282,9 @@ export class BlocksCalc extends Component {
       }
     })
 
-    dispatchEvent(this, 'screen', { detail: { value: this.getScreenValue() } })
+    dispatchEvent(this, 'bl:calc:screen', { detail: { value: this.getScreenValue() } })
     if (this.state === State.Result) {
-      dispatchEvent(this, 'result', {
+      dispatchEvent(this, 'bl:calc:result', {
         detail: { value: this.getScreenValue() },
       })
     }
@@ -687,10 +683,6 @@ export class BlocksCalc extends Component {
         this.state = State.Result
       }
     }
-  }
-
-  static override get observedAttributes() {
-    return ['dark', 'screen']
   }
 }
 

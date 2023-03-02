@@ -1,5 +1,6 @@
 import { Component } from '../Component.js'
 import { enumGetter, enumSetter } from '../../common/property.js'
+import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { template } from './template.js'
 
 export interface BlocksCard extends Component {
@@ -10,6 +11,10 @@ export interface BlocksCard extends Component {
 }
 
 export class BlocksCard extends Component {
+  static override get observedAttributes() {
+    return ['shadow', 'size']
+  }
+
   constructor() {
     super()
 
@@ -44,13 +49,17 @@ export class BlocksCard extends Component {
     enumSetter('shadow', ['hover', 'always'] as const)(this, value)
   }
 
+  get size() {
+    return sizeGetter(this)
+  }
+
+  set size(value) {
+    sizeSetter(this, value)
+  }
+
   override connectedCallback() {
     super.connectedCallback()
     this.render()
-  }
-
-  static override get observedAttributes() {
-    return ['shadow', 'size']
   }
 }
 

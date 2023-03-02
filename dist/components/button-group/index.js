@@ -3,22 +3,21 @@ import { BlocksButton } from '../button/index.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
 export class BlocksButtonGroup extends Component {
-    ref;
     constructor() {
         super();
         const shadowRoot = this.attachShadow({ mode: 'open' });
         shadowRoot.appendChild(template().content.cloneNode(true));
-        this.ref = {
+        this._ref = {
             $slot: shadowRoot.querySelector('slot'),
         };
-        this.ref.$slot.addEventListener('slotchange', this.render.bind(this));
+        this._ref.$slot.addEventListener('slotchange', this.render.bind(this));
     }
     connectedCallback() {
         super.connectedCallback();
         this.render();
     }
     render() {
-        this.ref.$slot.assignedElements().forEach($item => {
+        this._ref.$slot.assignedElements().forEach($item => {
             if ($item instanceof BlocksButton) {
                 $item.setAttribute('group-context', '');
             }

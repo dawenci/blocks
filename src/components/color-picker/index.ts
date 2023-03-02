@@ -1,5 +1,6 @@
 import { BlocksPopup } from '../popup/index.js'
 import { BlocksColor } from '../color/index.js'
+import { ColorFormat } from '../color/Color.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { dispatchEvent } from '../../common/event.js'
 import { uniqId } from '../../common/uniqId.js'
@@ -9,6 +10,7 @@ import {
 } from '../../common/propertyAccessor.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { intGetter, intSetter } from '../../common/property.js'
 
 export interface BlocksColorPicker extends Component {
   _ref: {
@@ -60,10 +62,12 @@ export class BlocksColorPicker extends Component {
       $color.render()
     }
 
-    $color.addEventListener('change', () => {
+    $color.addEventListener('bl:color:change', () => {
       this.value = $color.value
       this.render()
-      dispatchEvent(this, 'change')
+      const payload = { detail: $color.value }
+      dispatchEvent(this, 'bl:color-picker:change', payload)
+      dispatchEvent(this, 'change', payload)
     })
 
     $popup.addEventListener('opened', () => {
@@ -140,11 +144,11 @@ export class BlocksColorPicker extends Component {
   }
 
   get value() {
-    return this.getAttribute('value')
+    return intGetter('value')(this)
   }
 
   set value(value) {
-    if (value !== null) this.setAttribute('value', value)
+    intSetter('value')(this, value)
   }
 
   override connectedCallback() {
@@ -199,32 +203,8 @@ export class BlocksColorPicker extends Component {
     }
   }
 
-  toHexString() {
-    return this._ref.$color.toHexString()
-  }
-
-  toRgbString() {
-    return this._ref.$color.toRgbString()
-  }
-
-  toRgbaString() {
-    return this._ref.$color.toRgbaString()
-  }
-
-  toHslString() {
-    return this._ref.$color.toHslString()
-  }
-
-  toHslaString() {
-    return this._ref.$color.toHslaString()
-  }
-
-  toHsvString() {
-    return this._ref.$color.toHsvString()
-  }
-
-  toHsvaString() {
-    return this._ref.$color.toHsvaString()
+  format(fmt: ColorFormat) {
+    return this._ref.$color.format(fmt)
   }
 
   #initClickOutside() {

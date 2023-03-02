@@ -95,13 +95,13 @@
           <script >
             const $color = document.getElementById('color')
             const render = () => {
-              document.getElementById('hex').innerText = $color.toHexString()
-              document.getElementById('rgb').innerText = $color.toRgbString()
-              document.getElementById('rgba').innerText = $color.toRgbaString()
-              document.getElementById('hsl').innerText = $color.toHslString()
-              document.getElementById('hsla').innerText = $color.toHslaString()
-              document.getElementById('hsv').innerText = $color.toHsvString()
-              document.getElementById('hsva').innerText = $color.toHsvaString()
+              document.getElementById('hex').innerText = $color.format('hex')
+              document.getElementById('rgb').innerText = $color.format('rgb')
+              document.getElementById('rgba').innerText = $color.format('rgba')
+              document.getElementById('hsl').innerText = $color.format('hsl')
+              document.getElementById('hsla').innerText = $color.format('hsla')
+              document.getElementById('hsv').innerText = $color.format('hsv')
+              document.getElementById('hsva').innerText = $color.format('hsva')
             }
             $color.onchange = render
             render()
@@ -176,19 +176,11 @@
           </tr>
           <tr>
             <td>value</td>
-            <td>string</td>
+            <td>number</td>
             <td></td>
             <td>
-              attr / prop，获取、设置颜色。支持的格式：<br>
-              <ul>
-                <li>十六进制，例如：`#f00`, `#ff0000`, `#ff0000ff`</li>
-                <li>rgb，例如：`rgb(255,0,0)`</li>
-                <li>rgba，例如：`rgba(255,0,0,1)`</li>
-                <li>hsl，例如：`hsl(0,100%,50%)`</li>
-                <li>hsla，例如：`hsla(0,100%,50%,1)`</li>
-                <li>hsv，例如：`hsv(0,100%,100%)`</li>
-                <li>hsva，例如：`hsva(0,100%,100%,1)`</li>
-              </ul>
+              attr / prop，获取、设置颜色的 rgba 数值。<br>
+              32 位整数，每 8 位存储一个通道，从高到低位，按照 a,b,g,r 通道的顺序存储。
             </td>
             <td></td>
           </tr>
@@ -206,39 +198,9 @@
         </thead>
         <tbody>
           <tr>
-            <td>toHexString</td>
-            <td>() => string</td>
-            <td>返回十六进制颜色值。</td>
-          </tr>
-          <tr>
-            <td>toRgbString</td>
-            <td>() => string</td>
-            <td>返回 rgb 颜色值。</td>
-          </tr>
-          <tr>
-            <td>toRgbaString</td>
-            <td>() => string</td>
-            <td>返回 rgba 颜色值。</td>
-          </tr>
-          <tr>
-            <td>toHslString</td>
-            <td>() => string</td>
-            <td>返回 hsl 颜色值。</td>
-          </tr>
-          <tr>
-            <td>toHslaString</td>
-            <td>() => string</td>
-            <td>返回 hsla 颜色值。</td>
-          </tr>
-          <tr>
-            <td>toHsvString</td>
-            <td>() => string</td>
-            <td>返回 hsv 颜色值。</td>
-          </tr>
-          <tr>
-            <td>toHsvaString</td>
-            <td>() => string</td>
-            <td>返回 hsva 颜色值。</td>
+            <td>format</td>
+            <td>(fmt: 'rgba' | 'rgb' | 'hex' | '#rgb' | '#rrggbb' | '#rrggbbaa' | 'hsl' | 'hsla' | 'hsv' | 'hsva') => string</td>
+            <td>返回格式化后的颜色值。</td>
           </tr>
         </tbody>
       </table>
@@ -254,8 +216,13 @@
         </thead>
         <tbody>
           <tr>
+            <td>bl:color:change</td>
+            <td>CustomEvent<{ value: number }></td>
+            <td>颜色变化时触发。</td>
+          </tr>
+          <tr>
             <td>change</td>
-            <td>CustomEvent<{ value: string }></td>
+            <td>CustomEvent<{ value: number }></td>
             <td>颜色变化时触发。</td>
           </tr>
         </tbody>

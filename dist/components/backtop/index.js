@@ -7,7 +7,6 @@ const durationSetter = numSetter('duration');
 const visibilityHeightGetter = numGetter('visibility-height');
 const visibilityHeightSetter = numSetter('visibility-height');
 export class BlocksBackTop extends Component {
-    ref;
     #clearup;
     #target;
     static get observedAttributes() {
@@ -18,7 +17,7 @@ export class BlocksBackTop extends Component {
         const shadowRoot = this.attachShadow({ mode: 'open' });
         shadowRoot.appendChild(template().content.cloneNode(true));
         const $layout = shadowRoot.querySelector('#layout');
-        this.ref = { $layout };
+        this._ref = { $layout };
         this.addEventListener('click', () => {
             scrollTo(this.targetElement, 0, {
                 duration: this.duration ?? undefined,

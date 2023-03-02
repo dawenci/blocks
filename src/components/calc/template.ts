@@ -4,7 +4,6 @@ import {
   __border_color_base,
   __color_primary,
   __fg_base,
-  __focus_shadow,
   __font_family,
   __height_base,
   __radius_base,

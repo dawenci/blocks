@@ -1,7 +1,11 @@
 import { Component } from '../Component.js';
 import { enumGetter, enumSetter } from '../../common/property.js';
+import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js';
 import { template } from './template.js';
 export class BlocksCard extends Component {
+    static get observedAttributes() {
+        return ['shadow', 'size'];
+    }
     constructor() {
         super();
         const shadowRoot = this.attachShadow({ mode: 'open' });
@@ -30,12 +34,15 @@ export class BlocksCard extends Component {
     set shadow(value) {
         enumSetter('shadow', ['hover', 'always'])(this, value);
     }
+    get size() {
+        return sizeGetter(this);
+    }
+    set size(value) {
+        sizeSetter(this, value);
+    }
     connectedCallback() {
         super.connectedCallback();
         this.render();
-    }
-    static get observedAttributes() {
-        return ['shadow', 'size'];
     }
 }
 if (!customElements.get('bl-card')) {
