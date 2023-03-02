@@ -19,12 +19,12 @@ export class BlocksBackTop extends Component {
         shadowRoot.appendChild(template().content.cloneNode(true));
         const $layout = shadowRoot.querySelector('#layout');
         this.ref = { $layout };
-        $layout.onclick = () => {
+        this.addEventListener('click', () => {
             scrollTo(this.targetElement, 0, {
                 duration: this.duration ?? undefined,
                 done: () => this.render(),
             });
-        };
+        });
     }
     get duration() {
         return durationGetter(this);

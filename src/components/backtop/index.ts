@@ -26,12 +26,12 @@ export class BlocksBackTop extends Component {
 
     this.ref = { $layout }
 
-    $layout.onclick = () => {
+    this.addEventListener('click', () => {
       scrollTo(this.targetElement as HTMLElement, 0, {
         duration: this.duration ?? undefined,
         done: () => this.render(),
       })
-    }
+    })
   }
 
   get duration() {

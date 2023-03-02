@@ -22,7 +22,7 @@ describe('backtop', () => {
 
     $scrollable.scrollTo(0, $backtop.visibilityHeight)
     await delay(50)
-    $backtop.ref.$layout.dispatchEvent(new MouseEvent('click'))
+    $backtop.dispatchEvent(new MouseEvent('click'))
     await delay($backtop.duration * 1000 + 50)
     chai.expect(0).to.equal($scrollable.scrollTop)
     unmount($test)
