@@ -191,12 +191,12 @@ export function enumSetter<T extends string>(
     if ((element.getAttribute(attr) as any) === value) {
       return
     }
-    if (!values.includes(value as any)) {
-      value = values[0]
-    }
     if (value === null) {
       element.removeAttribute(attr)
     } else {
+      if (!values.includes(value as any)) {
+        return
+      }
       element.setAttribute(attr, value as unknown as string)
     }
   }

@@ -113,13 +113,13 @@ export abstract class Component extends HTMLElement {
   }
 
   /**
-   * 对指定 attribute 对应的 property 执行 upgrade 逻辑
+   * 对指定的 property 执行 upgrade 逻辑
    */
-  upgradeProperty(attrs?: string[]) {
-    if (!attrs) {
-      attrs = ((this.constructor as any).observedAttributes as string[]) ?? []
+  upgradeProperty(props?: string[]) {
+    if (!props) {
+      props = ((this.constructor as any).upgradeProperties as string[]) ?? []
     }
-    attrs.forEach(attr => {
+    props.forEach(attr => {
       upgradeProperty(this, attr)
     })
   }

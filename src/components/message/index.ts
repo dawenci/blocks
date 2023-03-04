@@ -1,25 +1,13 @@
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-  intGetter,
-  intSetter,
-} from '../../common/property.js'
+import { boolSetter, enumSetter, intSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { NullableEnumAttr } from '../../decorators/attr.js'
 
-const closeableGetter = boolGetter('closeable')
 const closeableSetter = boolSetter('closeable')
-const typeGetter = enumGetter('type', [
-  'message',
-  'success',
-  'error',
-  'info',
-  'warning',
-])
 const typeSetter = enumSetter('type', [
   'message',
   'success',
@@ -37,10 +25,22 @@ export interface BlocksMessage extends Component {
   }
 }
 
+@customElement('bl-message')
 export class BlocksMessage extends Component {
   static override get observedAttributes() {
     return ['closeable', 'duration', 'type']
   }
+
+  @attr('boolean') accessor closeable!: boolean
+
+  @attr('number') accessor duration = 10
+
+  @attr('enum', {
+    enumValues: ['message', 'success', 'error', 'info', 'warning'],
+  })
+  accessor type!: NullableEnumAttr<
+    ['message', 'success', 'error', 'info', 'warning']
+  >
 
   constructor() {
     super()
@@ -63,30 +63,6 @@ export class BlocksMessage extends Component {
     $layout.onmouseleave = () => {
       this._setAutoClose()
     }
-  }
-
-  get closeable() {
-    return closeableGetter(this)
-  }
-
-  set closeable(value) {
-    closeableSetter(this, value)
-  }
-
-  get type() {
-    return typeGetter(this)
-  }
-
-  set type(value) {
-    typeSetter(this, value)
-  }
-
-  get duration() {
-    return intGetter('duration')(this) ?? 10
-  }
-
-  set duration(value) {
-    intSetter('duration')(this, value)
   }
 
   close() {
@@ -170,10 +146,6 @@ export class BlocksMessage extends Component {
       }, this.duration * 1000)
     }
   }
-}
-
-if (!customElements.get('bl-message')) {
-  customElements.define('bl-message', BlocksMessage)
 }
 
 function cage() {

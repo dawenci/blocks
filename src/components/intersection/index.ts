@@ -1,11 +1,18 @@
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
+@customElement('bl-intersection')
 export class BlocksIntersection extends Component {
   static override get observedAttributes() {
     return ['root', 'root-margin', 'threshold']
   }
+
+  @attr('string') accessor rootMargin = '0px'
+
+  @attr('string') accessor threshold = '0'
 
   constructor() {
     super()
@@ -50,22 +57,6 @@ export class BlocksIntersection extends Component {
       }
     }
     return root ?? undefined
-  }
-
-  get rootMargin() {
-    return this.getAttribute('root-margin') ?? '0px'
-  }
-
-  set rootMargin(value) {
-    this.setAttribute('root-margin', value)
-  }
-
-  get threshold() {
-    return this.getAttribute('threshold') ?? '0'
-  }
-
-  set threshold(value) {
-    this.setAttribute('threshold', value)
   }
 
   _flag?: any
@@ -124,8 +115,4 @@ export class BlocksIntersection extends Component {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this._initObserver()
   }
-}
-
-if (!customElements.get('bl-intersection')) {
-  customElements.define('bl-intersection', BlocksIntersection)
 }

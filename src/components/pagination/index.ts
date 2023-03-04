@@ -1,12 +1,5 @@
 import '../icon/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { intGetter, intSetter } from '../../common/property.js'
-import {
-  disabledGetter,
-  disabledSetter,
-  sizeGetter,
-  sizeSetter,
-} from '../../common/propertyAccessor.js'
 import { forEach } from '../../common/utils.js'
 import {
   Component,
@@ -14,6 +7,9 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
 
 export interface PaginationEventMap extends ComponentEventMap {
   'bl:pagination:current-change': CustomEvent<{ current: number }>
@@ -44,6 +40,7 @@ export interface BlocksPagination extends Component {
   ): void
 }
 
+@customElement('bl-pagination')
 export class BlocksPagination extends Component {
   static override get observedAttributes() {
     return [
@@ -58,6 +55,18 @@ export class BlocksPagination extends Component {
   }
 
   _itemPool: HTMLElement[] = []
+
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('int') accessor current = 1
+
+  @attr('int') accessor pageSize = 10
+
+  @attr('int') accessor total = 0
+
+  @attr('string') accessor pageSizes!: string | null
+
+  @attrs.size accessor size!: EnumAttrs['size']
 
   constructor() {
     super()
@@ -104,38 +113,6 @@ export class BlocksPagination extends Component {
     }
   }
 
-  get current() {
-    return intGetter('current')(this) ?? 1
-  }
-
-  set current(value) {
-    intSetter('current')(this, value)
-  }
-
-  get disabled() {
-    return disabledGetter(this)
-  }
-
-  set disabled(value) {
-    disabledSetter(this, value)
-  }
-
-  get pageSize() {
-    return intGetter('page-size')(this) ?? 10
-  }
-
-  set pageSize(value) {
-    intSetter('page-size')(this, value)
-  }
-
-  get pageSizes() {
-    return this.getAttribute('page-sizes')
-  }
-
-  set pageSizes(value) {
-    this.setAttribute('page-sizes', value!)
-  }
-
   get showQuickJumper() {
     return
   }
@@ -146,22 +123,6 @@ export class BlocksPagination extends Component {
 
   get showTotal() {
     return
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
-  }
-
-  get total() {
-    return intGetter('total')(this) ?? 0
-  }
-
-  set total(value) {
-    intSetter('total')(this, value)
   }
 
   get itemCount() {
@@ -320,10 +281,6 @@ export class BlocksPagination extends Component {
     const num = this.current + 5
     this.current = num <= this.itemCount ? num : this.itemCount
   }
-}
-
-if (!customElements.get('bl-pagination')) {
-  customElements.define('bl-pagination', BlocksPagination)
 }
 
 function setTextContent(element: HTMLElement, value: any) {

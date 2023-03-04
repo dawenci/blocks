@@ -1,7 +1,8 @@
 import { Component } from '../Component.js'
-import { enumGetter, enumSetter } from '../../common/property.js'
-import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js'
 
 export interface BlocksCard extends Component {
   _ref: {
@@ -10,10 +11,17 @@ export interface BlocksCard extends Component {
   }
 }
 
+@customElement('bl-card')
 export class BlocksCard extends Component {
   static override get observedAttributes() {
     return ['shadow', 'size']
   }
+
+  @attr('enum', { enumValues: ['hover', 'always'] as const })
+  accessor shadow!: NullableEnumAttr<['hover', 'always']>
+
+  @attrs.size
+  accessor size!: EnumAttrs['size']
 
   constructor() {
     super()
@@ -41,28 +49,8 @@ export class BlocksCard extends Component {
     })
   }
 
-  get shadow() {
-    return enumGetter('shadow', ['hover', 'always'] as const)(this)
-  }
-
-  set shadow(value) {
-    enumSetter('shadow', ['hover', 'always'] as const)(this, value)
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
-  }
-
   override connectedCallback() {
     super.connectedCallback()
     this.render()
   }
-}
-
-if (!customElements.get('bl-card')) {
-  customElements.define('bl-card', BlocksCard)
 }

@@ -1,6 +1,5 @@
 import '../button/index.js'
 import '../modal-mask/index.js'
-import { boolGetter, boolSetter, strGetter } from '../../common/property.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import { dialogStyleTemplate, dialogTemplate } from './template.js'
@@ -13,6 +12,8 @@ import { applyMixins } from '../../common/applyMixins.js'
 import { Control } from '../base-control/index.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
 import { ComponentEventListener } from '../Component.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 type BlocksDialogEventMap = WithOpenTransitionEventMap
 
@@ -37,6 +38,7 @@ interface BlocksDialog extends Control, WithOpenTransition {
   ): void
 }
 
+@customElement('bl-dialog')
 class BlocksDialog extends Control {
   static override get observedAttributes() {
     return super.observedAttributes.concat([
@@ -44,7 +46,7 @@ class BlocksDialog extends Control {
       // 显示状态
       'open',
       // 标题
-      'title',
+      'title-text',
       // 是否提供关闭按钮
       'closeable',
       // 捕获焦点，tab 键不会将焦点移出 Dialog
@@ -57,6 +59,12 @@ class BlocksDialog extends Control {
   static get role() {
     return 'dialog'
   }
+
+  @attr('boolean') accessor mask!: boolean
+  @attr('boolean') accessor closeable!: boolean
+  @attr('boolean') accessor capturefocus!: boolean
+  @attr('boolean') accessor appendToBody!: boolean
+  @attr('string') accessor titleText = ''
 
   removeAfterClose = false
 
@@ -102,47 +110,6 @@ class BlocksDialog extends Control {
     if (this.capturefocus) {
       this._captureFocus()
     }
-  }
-
-  get mask() {
-    return boolGetter('mask')(this)
-  }
-
-  set mask(value) {
-    boolSetter('mask')(this, value)
-  }
-
-  get titleText() {
-    return strGetter('title')(this) ?? ''
-  }
-
-  set titleText(value) {
-    this.setAttribute('title', value)
-    this._renderHeader()
-  }
-
-  get closeable() {
-    return boolGetter('closeable')(this)
-  }
-
-  set closeable(value) {
-    boolSetter('closeable')(this, value)
-  }
-
-  get capturefocus() {
-    return boolGetter('capturefocus')(this)
-  }
-
-  set capturefocus(value) {
-    boolSetter('capturefocus')(this, value)
-  }
-
-  get appendToBody() {
-    return boolGetter('append-to-body')(this)
-  }
-
-  set appendToBody(value) {
-    boolSetter('append-to-body')(this, value)
   }
 
   override render() {
@@ -344,6 +311,7 @@ class BlocksDialog extends Control {
     newValue: any
   ) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
+
     if (attrName == 'open' && this.shadowRoot) {
       this._onOpenAttributeChange()
       this._updateVisible()
@@ -357,6 +325,10 @@ class BlocksDialog extends Control {
       }
     }
 
+    if (attrName === 'title-text') {
+      this._renderHeader()
+    }
+
     if (attrName === 'capturefocus') {
       if (this.capturefocus) {
         this._captureFocus()
@@ -368,9 +340,5 @@ class BlocksDialog extends Control {
 }
 
 applyMixins(BlocksDialog, [WithOpenTransition])
-
-if (!customElements.get('bl-dialog')) {
-  customElements.define('bl-dialog', BlocksDialog)
-}
 
 export { BlocksDialog }

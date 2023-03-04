@@ -6,10 +6,13 @@ import { BlocksButton } from '../button/index.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { __color_warning } from '../../theme/var-light.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 const POPUP_ATTRS = ['open', 'origin']
 const CONFIRM_ATTRS = ['message', 'icon']
 
+@customElement('bl-popup-confirm')
 export class BlocksPopupConfirm extends Component {
   private $popup: BlocksPopup
   private $message: HTMLElement
@@ -22,6 +25,10 @@ export class BlocksPopupConfirm extends Component {
   static override get observedAttributes() {
     return POPUP_ATTRS.concat(CONFIRM_ATTRS)
   }
+
+  @attr('string') accessor icon = ''
+
+  @attr('string') accessor message = ''
 
   constructor() {
     super()
@@ -55,22 +62,6 @@ export class BlocksPopupConfirm extends Component {
     this.$confirm.addEventListener('click', () => {
       this._confirm()
     })
-  }
-
-  get icon() {
-    return this.getAttribute('icon') ?? ''
-  }
-
-  set icon(value: string) {
-    this.setAttribute('icon', value)
-  }
-
-  get message() {
-    return this.getAttribute('message') ?? ''
-  }
-
-  set message(value) {
-    this.setAttribute('message', value)
   }
 
   get origin() {
@@ -173,8 +164,4 @@ export class BlocksPopupConfirm extends Component {
       this.render()
     }
   }
-}
-
-if (!customElements.get('bl-popup-confirm')) {
-  customElements.define('bl-popup-confirm', BlocksPopupConfirm)
 }

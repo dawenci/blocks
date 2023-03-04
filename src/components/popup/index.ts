@@ -1,20 +1,16 @@
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
+import { strGetter, strSetter } from '../../common/property.js'
 import { popupStyleTemplate, popupTemplate } from './template.js'
 import { Control } from '../base-control/index.js'
 import {
   WithOpenTransition,
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
-import { applyMixins } from '../../common/applyMixins.js'
 import { ComponentEventListener } from '../Component.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { EnumAttr } from '../../decorators/attr.js'
+import { mixins } from '../../decorators/mixins.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -49,22 +45,7 @@ export enum PopupOrigin {
   LeftStart = 'left-start',
 }
 
-const insetGetter = boolGetter('inset')
-const insetSetter = boolSetter('inset')
-const autofocusGetter = boolGetter('autofocus')
-const autofocusSetter = boolSetter('autofocus')
-const capturefocusGetter = boolGetter('capturefocus')
-const capturefocusSetter = boolSetter('capturefocus')
-const appendToBodyGetter = boolGetter('append-to-body')
-const appendToBodySetter = boolSetter('append-to-body')
-const autoflipGetter = boolGetter('autoflip')
-const autoflipSetter = boolSetter('autoflip')
-const restorefocusGetter = boolGetter('restorefocus')
-const restorefocusSetter = boolSetter('restorefocus')
-const arrowGetter = boolGetter('arrow')
-const arrowSetter = boolSetter('arrow')
-const originGetter = enumGetter('origin', Object.values(PopupOrigin))
-const originSetter = enumSetter('origin', Object.values(PopupOrigin))
+const originArray = Object.values(PopupOrigin)
 
 type AnchorFn = () => null | string | Element
 type Anchor = null | string | Element | AnchorFn
@@ -93,6 +74,8 @@ export interface BlocksPopup extends Control, WithOpenTransition {
   ): void
 }
 
+@customElement('bl-popup')
+@mixins([WithOpenTransition])
 export class BlocksPopup extends Control {
   static get role() {
     return 'popup'
@@ -131,6 +114,23 @@ export class BlocksPopup extends Control {
     ])
   }
 
+  @attr('enum', { enumValues: originArray })
+  accessor origin: EnumAttr<typeof originArray> = PopupOrigin.Center
+
+  @attr('boolean') accessor inset!: boolean
+
+  @attr('boolean') accessor appendToBody!: boolean
+
+  @attr('boolean') accessor arrow!: boolean
+
+  @attr('boolean') override accessor autofocus!: boolean
+
+  @attr('boolean') accessor capturefocus!: boolean
+
+  @attr('boolean') accessor autoflip!: boolean
+
+  @attr('boolean') accessor restorefocus!: boolean
+
   constructor() {
     super()
 
@@ -162,20 +162,14 @@ export class BlocksPopup extends Control {
     }
   }
 
-  get origin() {
-    return originGetter(this) ?? PopupOrigin.Center
+  get offset(): [number, number] {
+    const value = strGetter('offset')(this)
+    if (value) return JSON.parse(value)
+    return [0, 0]
   }
 
-  set origin(value) {
-    originSetter(this, value)
-  }
-
-  get inset() {
-    return insetGetter(this)
-  }
-
-  set inset(value) {
-    insetSetter(this, value)
+  set offset(value: [number, number]) {
+    strSetter('offset')(this, JSON.stringify(value))
   }
 
   #getAnchorFn?: AnchorFn
@@ -196,64 +190,6 @@ export class BlocksPopup extends Control {
       }
     }
     this.updatePositionAndDirection()
-  }
-
-  get offset(): [number, number] {
-    const value = strGetter('offset')(this)
-    if (value) return JSON.parse(value)
-    return [0, 0]
-  }
-
-  set offset(value: [number, number]) {
-    strSetter('offset')(this, JSON.stringify(value))
-  }
-
-  get appendToBody() {
-    return appendToBodyGetter(this)
-  }
-
-  set appendToBody(value) {
-    appendToBodySetter(this, value)
-  }
-
-  get arrow() {
-    return arrowGetter(this)
-  }
-
-  set arrow(value) {
-    arrowSetter(this, value)
-  }
-
-  override get autofocus() {
-    return autofocusGetter(this)
-  }
-
-  override set autofocus(value) {
-    autofocusSetter(this, value)
-  }
-
-  get capturefocus() {
-    return capturefocusGetter(this)
-  }
-
-  set capturefocus(value) {
-    capturefocusSetter(this, value)
-  }
-
-  get autoflip() {
-    return autoflipGetter(this)
-  }
-
-  set autoflip(value) {
-    autoflipSetter(this, value)
-  }
-
-  get restorefocus() {
-    return restorefocusGetter(this)
-  }
-
-  set restorefocus(value) {
-    restorefocusSetter(this, value)
   }
 
   // Popup 锚定一个矩形框进行定位，根据设置不同，可以吸附在该矩形框的四条边上，或者与该框的中心点对齐
@@ -749,12 +685,6 @@ export class BlocksPopup extends Control {
     this._setOriginClass(`origin-${y}-${x}`)
     this.style.transformOrigin = `${y} ${x}`
   }
-}
-
-applyMixins(BlocksPopup, [WithOpenTransition])
-
-if (!customElements.get('bl-popup')) {
-  customElements.define('bl-popup', BlocksPopup)
 }
 
 // // 等腰直角三角形，根据高求腰（矩形的边）

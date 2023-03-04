@@ -1,6 +1,5 @@
 import '../icon/index.js'
 import '../popup-menu/index.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { PopupOrigin } from '../popup/index.js'
@@ -8,8 +7,15 @@ import { styleTemplate, contentTemplate } from './menu-item-template.js'
 import { BlocksPopupMenu } from '../popup-menu/index.js'
 import type { BlocksNavMenu } from './menu.js'
 import { BlocksIcon } from '../icon/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
+@customElement('bl-nav-menu-item')
 export class BlocksNavMenuItem extends Component {
+  static override get observedAttributes() {
+    return ['disabled', 'link', 'expand', 'active']
+  }
+
   private $layout: HTMLElement
   private $label: HTMLElement
   private $icon: BlocksIcon
@@ -18,6 +24,14 @@ export class BlocksNavMenuItem extends Component {
   private _leaveTimer?: number
   private _enterTimer?: number
   private _data!: MenuItem
+
+  @attr('boolean') accessor expand!: boolean
+
+  @attr('boolean') accessor active!: boolean
+
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('boolean') accessor link!: boolean
 
   constructor() {
     super()
@@ -139,40 +153,8 @@ export class BlocksNavMenuItem extends Component {
     return this.$rootMenu.collapse
   }
 
-  get expand() {
-    return boolGetter('expand')(this)
-  }
-
-  set expand(value) {
-    boolSetter('expand')(this, value)
-  }
-
-  get active() {
-    return boolGetter('active')(this)
-  }
-
-  set active(value) {
-    boolSetter('active')(this, value)
-  }
-
   get hasSubmenu() {
     return !!this.data.children?.length
-  }
-
-  get disabled() {
-    return boolGetter('disabled')(this)
-  }
-
-  set disabled(value) {
-    boolSetter('disabled')(this, value)
-  }
-
-  get link() {
-    return boolGetter('link')(this)
-  }
-
-  set link(value) {
-    boolSetter('link')(this, value)
   }
 
   get data() {
@@ -277,12 +259,4 @@ export class BlocksNavMenuItem extends Component {
     this.active = false
     if (this.$submenu) this.$submenu.clearActive()
   }
-
-  static override get observedAttributes() {
-    return ['disabled', 'link', 'expand', 'active']
-  }
-}
-
-if (!customElements.get('bl-nav-menu-item')) {
-  customElements.define('bl-nav-menu-item', BlocksNavMenuItem)
 }

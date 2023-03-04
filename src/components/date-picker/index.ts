@@ -3,7 +3,6 @@ import '../button/index.js'
 import { BlocksPopup } from '../popup/index.js'
 import { BlocksInput } from '../input/index.js'
 import { BlocksDate } from '../date/index.js'
-
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { dispatchEvent } from '../../common/event.js'
 import { boolSetter } from '../../common/property.js'
@@ -13,6 +12,8 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { inputTemplate, popupTemplate, styleTemplate } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 interface DatePickerEventMap extends ComponentEventMap {
   opened: CustomEvent
@@ -40,6 +41,7 @@ export interface BlocksDatePicker extends Component {
   ): void
 }
 
+@customElement('bl-date-picker')
 export class BlocksDatePicker extends Component {
   #prevValue: any
   #clearClickOutside?: () => void
@@ -249,8 +251,4 @@ export class BlocksDatePicker extends Component {
   static override get observedAttributes() {
     return BlocksDate.observedAttributes.concat(BlocksInput.observedAttributes)
   }
-}
-
-if (!customElements.get('bl-date-picker')) {
-  customElements.define('bl-date-picker', BlocksDatePicker)
 }

@@ -1,13 +1,6 @@
 import '../loading/index.js'
 import '../icon/index.js'
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
+import { strGetter, strSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 import { makeMessages } from '../../i18n/makeMessages.js'
 import { Component } from '../Component.js'
@@ -17,6 +10,9 @@ import {
   placeholderTemplate,
   styleTemplate,
 } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { NullableEnumAttr } from '../../decorators/attr.js'
 
 const getMessage = makeMessages('image', {
   placeholderText: '加载中',
@@ -34,10 +30,28 @@ export interface BlocksImage extends Component {
   _status: 'init' | 'loading' | 'loaded' | 'error'
 }
 
+@customElement('bl-image')
 export class BlocksImage extends Component {
   static override get observedAttributes() {
     return ['alt', 'fallback', 'fit', 'manual', 'placeholder', 'src'] as const
   }
+
+  @attr('string') accessor alt!: string | null
+
+  @attr('string') accessor fallback!: string | null
+
+  @attr('boolean') accessor manual!: boolean
+
+  @attr('string') accessor placeholder!: string | null
+
+  @attr('string') accessor src!: string | null
+
+  @attr('enum', {
+    enumValues: ['none', 'fill', 'contain', 'cover', 'scale-down'],
+  })
+  accessor fit!: NullableEnumAttr<
+    ['none', 'fill', 'contain', 'cover', 'scale-down']
+  >
 
   constructor() {
     super()
@@ -70,55 +84,6 @@ export class BlocksImage extends Component {
         dispatchEvent(this, 'error')
       }
     })
-  }
-
-  get alt() {
-    return strGetter('alt')(this)
-  }
-
-  set alt(value) {
-    strSetter('alt')(this, value)
-  }
-
-  get fallback() {
-    return strGetter('fallback')(this)
-  }
-
-  set fallback(value) {
-    strSetter('fallback')(this, value)
-  }
-
-  get manual() {
-    return boolGetter('manual')(this)
-  }
-
-  set manual(value) {
-    boolSetter('manual')(this, value)
-  }
-
-  get placeholder() {
-    return strGetter('placeholder')(this)
-  }
-
-  set placeholder(value) {
-    strSetter('placeholder')(this, value)
-  }
-
-  #fitEnum = ['none', 'fill', 'contain', 'cover', 'scale-down'] as const
-  get fit() {
-    return enumGetter('fit', this.#fitEnum)(this)
-  }
-
-  set fit(value) {
-    enumSetter('fit', this.#fitEnum)(this, value)
-  }
-
-  get src() {
-    return strGetter('src')(this)
-  }
-
-  set src(value) {
-    strSetter('src')(this, value)
   }
 
   _renderLoading() {
@@ -241,8 +206,4 @@ export class BlocksImage extends Component {
       this.render()
     }
   }
-}
-
-if (!customElements.get('bl-image')) {
-  customElements.define('bl-image', BlocksImage)
 }

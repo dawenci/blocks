@@ -1,17 +1,7 @@
 import '../popup/index.js'
 import '../date/index.js'
-import {
-  disabledSetter,
-  sizeGetter,
-  sizeSetter,
-} from '../../common/propertyAccessor.js'
+import { disabledSetter } from '../../common/propertyAccessor.js'
 import { dispatchEvent } from '../../common/event.js'
-import {
-  boolGetter,
-  boolSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
 import { styleTemplate, inputTemplate } from './template.js'
 import {
   ClearableControlBox,
@@ -23,6 +13,9 @@ import {
   ISelectResultEventMap,
   ISelectResultComponent,
 } from '../../common/connectSelectable.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
 
 const INPUT_ATTRS = [
   'value',
@@ -68,6 +61,7 @@ export interface BlocksInput
   ): void
 }
 
+@customElement('bl-input')
 export class BlocksInput extends ClearableControlBox {
   static get role() {
     return 'input'
@@ -79,6 +73,32 @@ export class BlocksInput extends ClearableControlBox {
       'autofocus',
     ])
   }
+
+  @attr('string') accessor value!: string | null
+
+  @attr('string') accessor type!: string | null
+
+  @attr('string') accessor step!: string | null
+
+  @attr('boolean') accessor readonly!: boolean
+
+  @attr('string') accessor placeholder!: string | null
+
+  @attr('string') accessor name!: string | null
+
+  @attr('string') accessor min!: string | null
+
+  @attr('string') accessor max!: string | null
+
+  @attr('string') accessor minlength!: string | null
+
+  @attr('string') accessor maxlength!: string | null
+
+  @attr('boolean') accessor autocomplete!: boolean
+
+  @attr('boolean') override accessor autofocus!: boolean
+
+  @attrs.size accessor size!: EnumAttrs['size']
 
   constructor() {
     super()
@@ -103,110 +123,6 @@ export class BlocksInput extends ClearableControlBox {
         detail: { searchString: '' },
       })
     })
-  }
-
-  get value() {
-    return strGetter('value')(this)
-  }
-
-  set value(value) {
-    strSetter('value')(this, value)
-  }
-
-  get type() {
-    return strGetter('type')(this)
-  }
-
-  set type(value) {
-    strSetter('type')(this, value)
-  }
-
-  get step() {
-    return strGetter('step')(this)
-  }
-
-  set step(value) {
-    strSetter('step')(this, value)
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
-  }
-
-  get readonly() {
-    return boolGetter('readonly')(this)
-  }
-
-  set readonly(value) {
-    boolSetter('readonly')(this, value)
-  }
-
-  get placeholder() {
-    return strGetter('placeholder')(this)
-  }
-
-  set placeholder(value) {
-    strSetter('placeholder')(this, value)
-  }
-
-  get name() {
-    return strGetter('name')(this)
-  }
-
-  set name(value) {
-    strSetter('name')(this, value)
-  }
-
-  get min() {
-    return strGetter('min')(this)
-  }
-
-  set min(value) {
-    strSetter('min')(this, value)
-  }
-
-  get max() {
-    return strGetter('max')(this)
-  }
-
-  set max(value) {
-    strSetter('max')(this, value)
-  }
-
-  get minlength() {
-    return strGetter('minlength')(this)
-  }
-
-  set minlength(value) {
-    strSetter('minlength')(this, value)
-  }
-
-  get maxlength() {
-    return strGetter('maxlength')(this)
-  }
-
-  set maxlength(value) {
-    strSetter('maxlength')(this, value)
-  }
-
-  override get autofocus() {
-    return boolGetter('autofocus')(this)
-  }
-
-  override set autofocus(value) {
-    boolSetter('autofocus')(this, value)
-  }
-
-  get autocomplete() {
-    return boolGetter('autocomplete')(this)
-  }
-
-  set autocomplete(value) {
-    boolSetter('autocomplete')(this, value)
   }
 
   // 实现 ISelectResultComponent 方法
@@ -261,8 +177,4 @@ export class BlocksInput extends ClearableControlBox {
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     }
   }
-}
-
-if (!customElements.get('bl-input')) {
-  customElements.define('bl-input', BlocksInput)
 }

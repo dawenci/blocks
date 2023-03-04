@@ -1,6 +1,5 @@
 import '../scrollable/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { intRangeGetter, intRangeSetter } from '../../common/property.js'
 import { scrollTo } from '../../common/scrollTo.js'
 import { find, forEach, range } from '../../common/utils.js'
 import {
@@ -10,6 +9,9 @@ import {
 } from '../Component.js'
 import { template } from './template.js'
 import { BlocksScrollable } from '../scrollable/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
 
 interface TimeEventMap extends ComponentEventMap {
   change: CustomEvent<{
@@ -20,21 +22,45 @@ interface TimeEventMap extends ComponentEventMap {
 }
 
 const mutableAttrs = ['hour', 'minute', 'second', 'size'] as const
-type MutableAttrs = typeof mutableAttrs[number]
+type MutableAttrs = (typeof mutableAttrs)[number]
 
-export class BlocksTime extends Component {
-  ref: {
+export interface BlocksTime extends Component {
+  _ref: {
     $layout: HTMLElement
     $hours: BlocksScrollable
     $minutes: BlocksScrollable
     $seconds: BlocksScrollable
   }
+
+  addEventListener<K extends keyof TimeEventMap>(
+    type: K,
+    listener: ComponentEventListener<TimeEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof TimeEventMap>(
+    type: K,
+    listener: ComponentEventListener<TimeEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+}
+
+@customElement('bl-time')
+export class BlocksTime extends Component {
   #scrollFlag?: Promise<void>
   #batchChange?: Promise<void>
 
   static override get observedAttributes() {
     return mutableAttrs
   }
+
+  @attr('intRange', { min: 0, max: 23 }) accessor hour!: number | null
+
+  @attr('intRange', { min: 0, max: 59 }) accessor minute!: number | null
+
+  @attr('intRange', { min: 0, max: 59 }) accessor second!: number | null
+
+  @attrs.size accessor size!: EnumAttrs['size']
 
   constructor() {
     super()
@@ -48,7 +74,7 @@ export class BlocksTime extends Component {
     const $minutes = shadowRoot.getElementById('minutes') as BlocksScrollable
     const $seconds = shadowRoot.getElementById('seconds') as BlocksScrollable
 
-    this.ref = {
+    this._ref = {
       $layout,
       $hours,
       $minutes,
@@ -87,6 +113,7 @@ export class BlocksTime extends Component {
       component: BlocksTime
     }
   ) => boolean
+
   get disabledHour() {
     return this.#disabledHour
   }
@@ -129,30 +156,6 @@ export class BlocksTime extends Component {
     this.#renderDisabled()
   }
 
-  get hour() {
-    return intRangeGetter('hour', 0, 23)(this)
-  }
-
-  set hour(value) {
-    intRangeSetter('hour', 0, 23)(this, value)
-  }
-
-  get minute() {
-    return intRangeGetter('minute', 0, 59)(this)
-  }
-
-  set minute(value) {
-    intRangeSetter('minute', 0, 59)(this, value)
-  }
-
-  get second() {
-    return intRangeGetter('second', 0, 59)(this)
-  }
-
-  set second(value) {
-    intRangeSetter('second', 0, 59)(this, value)
-  }
-
   get value(): [number, number, number] | null {
     if (this.hour == null || this.minute == null || this.second == null) {
       return null
@@ -185,7 +188,7 @@ export class BlocksTime extends Component {
 
     if (['hour', 'minute', 'second'].includes(attrName)) {
       if (newValue === null) {
-        forEach(this.ref.$layout.querySelectorAll('.active'), active => {
+        forEach(this._ref.$layout.querySelectorAll('.active'), active => {
           active.classList.remove('active')
         })
         if (attrName !== 'hour' && this.hour !== null) this.hour = null
@@ -193,7 +196,8 @@ export class BlocksTime extends Component {
         if (attrName !== 'second' && this.second !== null) this.second = null
         this.render()
       } else {
-        const $list = this.ref[`$${attrName as Exclude<MutableAttrs, 'size'>}s`]
+        const $list =
+          this._ref[`$${attrName as Exclude<MutableAttrs, 'size'>}s`]
 
         const $old = $list.querySelector('.active')
         if ($old) {
@@ -223,7 +227,7 @@ export class BlocksTime extends Component {
   }
 
   #renderDisabled() {
-    const { $hours, $minutes, $seconds } = this.ref
+    const { $hours, $minutes, $seconds } = this._ref
     const ctx = {
       hour: this.hour,
       minute: this.minute,
@@ -248,7 +252,7 @@ export class BlocksTime extends Component {
   }
 
   override render() {
-    const { $hours, $minutes, $seconds } = this.ref
+    const { $hours, $minutes, $seconds } = this._ref
     if (!$hours.children.length) {
       range(0, 23).forEach(n => {
         const $item = $hours.appendChild(document.createElement('div'))
@@ -287,7 +291,7 @@ export class BlocksTime extends Component {
   }
 
   _scrollToActive() {
-    const { $layout, $hours, $minutes, $seconds } = this.ref
+    const { $layout, $hours, $minutes, $seconds } = this._ref
     if (this.hour == null && this.minute == null && this.second == null) {
       forEach([$hours, $minutes, $seconds], $panel => {
         scrollTo($panel, 0, { property: 'viewportScrollTop', duration: 0.16 })
@@ -329,24 +333,4 @@ export class BlocksTime extends Component {
       })
     }
   }
-
-  override addEventListener<K extends keyof TimeEventMap>(
-    type: K,
-    listener: ComponentEventListener<TimeEventMap[K]>,
-    options?: boolean | AddEventListenerOptions
-  ): void {
-    super.addEventListener(type, listener, options)
-  }
-
-  override removeEventListener<K extends keyof TimeEventMap>(
-    type: K,
-    listener: ComponentEventListener<TimeEventMap[K]>,
-    options?: boolean | EventListenerOptions
-  ): void {
-    super.removeEventListener(type, listener, options)
-  }
-}
-
-if (!customElements.get('bl-time')) {
-  customElements.define('bl-time', BlocksTime)
 }

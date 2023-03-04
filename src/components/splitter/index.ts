@@ -11,21 +11,32 @@ import {
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { EnumAttr } from '../../decorators/attr.js'
 
-export class BlocksSplitter extends Component {
-  ref: {
+export interface BlocksSplitter extends Component {
+  _ref: {
     $layout: HTMLElement
     $panes: HTMLElement
     $cover: HTMLElement
     $slot: HTMLSlotElement
   }
+}
 
+@customElement('bl-splitter')
+export class BlocksSplitter extends Component {
   panes: BlocksSplitterPane[] = []
   handles: HTMLElement[] = []
 
   static override get observedAttributes() {
     return ['direction', 'handle-size']
   }
+
+  @attr('enum', { enumValues: ['horizontal', 'vertical'] })
+  accessor direction: EnumAttr<['horizontal', 'vertical']> = 'horizontal'
+
+  @attr('int') accessor handleSize = 6
 
   constructor() {
     super()
@@ -38,7 +49,7 @@ export class BlocksSplitter extends Component {
     const $cover = shadowRoot.getElementById('cover') as HTMLElement
     const $slot = $panes.querySelector('slot')!
 
-    this.ref = { $layout, $panes, $cover, $slot }
+    this._ref = { $layout, $panes, $cover, $slot }
 
     $slot.addEventListener('slotchange', () => {
       this.panes = $slot
@@ -61,26 +72,8 @@ export class BlocksSplitter extends Component {
     })
   }
 
-  get direction() {
-    return (
-      enumGetter('direction', ['horizontal', 'vertical'])(this) ?? 'horizontal'
-    )
-  }
-
-  set direction(value) {
-    enumSetter('direction', ['horizontal', 'vertical'])(this, value)
-  }
-
-  get handleSize() {
-    return intGetter('handle-size')(this) ?? 6
-  }
-
-  set handleSize(value) {
-    intSetter('handle-size')(this, value)
-  }
-
   get size() {
-    return this.ref.$panes[
+    return this._ref.$panes[
       this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight'
     ]
   }
@@ -106,13 +99,17 @@ export class BlocksSplitter extends Component {
     newValue: any
   ) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
+
     if (attrName === 'direction') {
       this._renderDirection()
+    }
+    if (attrName === 'handle-size') {
+      this.layout()
     }
   }
 
   renderHandles() {
-    const { $layout, $cover } = this.ref
+    const { $layout, $cover } = this._ref
     const count = this.panes.length - 1
     let len = $layout.querySelectorAll('.handle').length
     const { $handleTemplate } = template()
@@ -305,7 +302,7 @@ export class BlocksSplitter extends Component {
 
   getHandleIndex($handle: HTMLElement) {
     return Array.prototype.indexOf.call(
-      this.ref.$layout.querySelectorAll('.handle'),
+      this._ref.$layout.querySelectorAll('.handle'),
       $handle
     )
   }
@@ -317,7 +314,7 @@ export class BlocksSplitter extends Component {
     let $handle: HTMLElement | null = null
     let $pane: BlocksSplitterPane | null = null
 
-    onDragMove(this.ref.$layout, {
+    onDragMove(this._ref.$layout, {
       onStart: ({ stop, $target }) => {
         if (!$target.classList.contains('handle')) {
           return stop()
@@ -434,11 +431,37 @@ export class BlocksSplitter extends Component {
 
   // 显示遮罩，这是为了避免某个 pane 里面存在 iframe， 捕获了鼠标，导致 mousemove 事件无法正确工作
   toggleCover(visible: boolean) {
-    this.ref.$cover.style.display = visible ? 'block' : 'none'
+    this._ref.$cover.style.display = visible ? 'block' : 'none'
   }
 }
 
+@customElement('bl-splitter-pane')
 export class BlocksSplitterPane extends Component {
+  static override get observedAttributes() {
+    return [
+      // 弹性尺寸基础值
+      'basis',
+      // 弹性尺寸增长率
+      'grow',
+      // 最大尺寸
+      'max',
+      // 最小尺寸
+      'min',
+      // 弹性尺寸收缩率
+      'shrink',
+    ]
+  }
+
+  @attr('number') accessor basis = 0
+
+  @attr('number') accessor grow = 1
+
+  @attr('number') accessor shrink = 1
+
+  @attr('number') accessor max = Infinity
+
+  @attr('number') accessor min = 0
+
   collapseSize?: number
 
   constructor() {
@@ -449,46 +472,6 @@ export class BlocksSplitterPane extends Component {
     this.addEventListener('mouseenter', () => {
       this.getSplitter().setActiveHandle(this)
     })
-  }
-
-  get basis() {
-    return numGetter('basis')(this) ?? 0
-  }
-
-  set basis(value) {
-    numSetter('basis')(this, value)
-  }
-
-  get grow() {
-    return numGetter('grow')(this) ?? 1
-  }
-
-  set grow(value) {
-    numSetter('grow')(this, value)
-  }
-
-  get shrink() {
-    return numGetter('shrink')(this) ?? 1
-  }
-
-  set shrink(value) {
-    numSetter('shrink')(this, value)
-  }
-
-  get max() {
-    return intGetter('max')(this) ?? Infinity
-  }
-
-  set max(value) {
-    intSetter('max')(this, value)
-  }
-
-  get min() {
-    return intGetter('min')(this) ?? 0
-  }
-
-  set min(value) {
-    intSetter('min')(this, value)
   }
 
   _size?: number | null
@@ -526,27 +509,4 @@ export class BlocksSplitterPane extends Component {
   expand() {
     this.getSplitter().expandPane(this)
   }
-
-  static override get observedAttributes() {
-    return [
-      // 弹性尺寸基础值
-      'basis',
-      // 弹性尺寸增长率
-      'grow',
-      // 最大尺寸
-      'max',
-      // 最小尺寸
-      'min',
-      // 弹性尺寸收缩率
-      'shrink',
-    ]
-  }
-}
-
-if (!customElements.get('bl-splitter')) {
-  customElements.define('bl-splitter', BlocksSplitter)
-}
-
-if (!customElements.get('bl-splitter-pane')) {
-  customElements.define('bl-splitter-pane', BlocksSplitterPane)
 }

@@ -15,6 +15,8 @@ import { contentTemplate, popupTemplate, styleTemplate } from './template.js'
 import { BlocksButton } from '../button/index.js'
 import { makeDate, makeDateFrom } from '../../common/date.js'
 import { ClearableControlBox } from '../base-clearable-control-box/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface BlocksDateTimePicker extends ClearableControlBox {
   _ref: ClearableControlBox['_ref'] & {
@@ -29,6 +31,7 @@ export interface BlocksDateTimePicker extends ClearableControlBox {
   }
 }
 
+@customElement('bl-datetime-picker')
 export class BlocksDateTimePicker extends ClearableControlBox {
   // model
   #valueFrom: Date | null = null
@@ -40,6 +43,12 @@ export class BlocksDateTimePicker extends ClearableControlBox {
   #activeInput: BlocksInput | null = null
 
   #clearClickOutside?: () => void
+
+  @attr('boolean') accessor range!: boolean
+
+  @attr('string') accessor placeholderFrom = '选择日期时间'
+
+  @attr('string') accessor placeholderTo = '选择日期时间'
 
   constructor() {
     super()
@@ -278,30 +287,6 @@ export class BlocksDateTimePicker extends ClearableControlBox {
   }
   set disabledSecond(value) {
     this.#disabledSecond = value
-  }
-
-  get range() {
-    return boolGetter('range')(this)
-  }
-
-  set range(value) {
-    boolSetter('range')(this, value)
-  }
-
-  get placeholderFrom() {
-    return strGetter('placeholder-from')(this)
-  }
-
-  set placeholderFrom(value) {
-    strSetter('placeholder-from')(this, value)
-  }
-
-  get placeholderTo() {
-    return strGetter('placeholder-to')(this)
-  }
-
-  set placeholderTo(value) {
-    strSetter('placeholder-to')(this, value)
   }
 
   get activeValue() {
@@ -608,10 +593,6 @@ export class BlocksDateTimePicker extends ClearableControlBox {
       .concat(BlocksTime.observedAttributes)
       .concat(['range', 'placeholder-from', 'placeholder-to'])
   }
-}
-
-if (!customElements.get('bl-datetime-picker')) {
-  customElements.define('bl-datetime-picker', BlocksDateTimePicker)
 }
 
 function copyDate(date: Date) {

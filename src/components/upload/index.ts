@@ -1,20 +1,13 @@
 import '../button/index.js'
 import '../progress/index.js'
 import { uploadRequest } from './uploadRequest.js'
-import {
-  boolGetter,
-  boolSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
-import {
-  disabledGetter,
-  disabledSetter,
-} from '../../common/propertyAccessor.js'
+import { strSetter } from '../../common/property.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 const DEFAULT_ICON_MAP = Object.freeze({
   'file-image': /^image\//,
@@ -69,16 +62,30 @@ enum State {
   Abort = 4,
 }
 
-type DomRef = {
-  $layout: HTMLElement
-  $list: HTMLElement
-  $dropZone: HTMLElement
-  $fileInput: HTMLInputElement
-  $chooseButton: HTMLButtonElement
+export interface BlocksUpload extends Component {
+  ref: {
+    $layout: HTMLElement
+    $list: HTMLElement
+    $dropZone: HTMLElement
+    $fileInput: HTMLInputElement
+    $chooseButton: HTMLButtonElement
+  }
 }
 
+@customElement('bl-upload')
 export class BlocksUpload extends Component {
-  ref: DomRef
+  static override get observedAttributes() {
+    return [
+      'accept',
+      'action',
+      'auto-upload',
+      'disabled',
+      'drag-drop',
+      'multiple',
+      'name',
+      'with-credentials',
+    ]
+  }
 
   _list: Array<{
     file: File
@@ -95,6 +102,22 @@ export class BlocksUpload extends Component {
   onAbort?: (error: Error, options: Options) => void
   onError?: (error: Error, options: Options) => void
   onSuccess?: (data: any, options: Options) => void
+
+  @attr('string') accessor accept!: string | null
+
+  @attr('string') accessor action = ''
+
+  @attr('boolean') accessor autoUpload!: boolean
+
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('boolean') accessor dragDrop!: boolean
+
+  @attr('boolean') accessor multiple!: boolean
+
+  @attr('boolean') accessor withCredentials!: boolean
+
+  @attr('string') accessor name = 'file'
 
   constructor() {
     super()
@@ -156,52 +179,12 @@ export class BlocksUpload extends Component {
     }
   }
 
-  get accept() {
-    return strGetter('accept')(this)
-  }
-
-  set accept(value) {
-    strSetter('accept')(this, value)
-  }
-
-  get action() {
-    return strGetter('action')(this) ?? ''
-  }
-
-  set action(value) {
-    strSetter('action')(this, value)
-  }
-
-  get autoUpload() {
-    return boolGetter('auto-upload')(this)
-  }
-
-  set autoUpload(value) {
-    boolSetter('auto-upload')(this, value)
-  }
-
   get data() {
     return this._data
   }
 
   set data(value) {
     this._data = value && Object(value)
-  }
-
-  get disabled() {
-    return disabledGetter(this)
-  }
-
-  set disabled(value) {
-    disabledSetter(this, value)
-  }
-
-  get dragDrop() {
-    return boolGetter('drag-drop')(this)
-  }
-
-  set dragDrop(value) {
-    boolSetter('drag-drop')(this, value)
   }
 
   _headers: any
@@ -226,30 +209,6 @@ export class BlocksUpload extends Component {
 
   get list() {
     return this._list ?? []
-  }
-
-  get multiple() {
-    return boolGetter('multiple')(this)
-  }
-
-  set multiple(value) {
-    boolSetter('multiple')(this, value)
-  }
-
-  get name() {
-    return this.getAttribute('name') ?? 'file'
-  }
-
-  set name(value) {
-    this.setAttribute('name', value)
-  }
-
-  get withCredentials() {
-    return boolGetter('with-credentials')(this)
-  }
-
-  set withCredentials(value) {
-    boolSetter('with-credentials')(this, value)
   }
 
   override connectedCallback() {
@@ -388,7 +347,7 @@ export class BlocksUpload extends Component {
   }
 
   _parseType(input: string) {
-    const map = this.iconMap ?? DEFAULT_ICON_MAP
+    const map = (this.iconMap ?? DEFAULT_ICON_MAP) as any
     const types = Object.keys(map)
     for (let i = 0; i < types.length; i += 1) {
       const fileType = types[i]
@@ -470,21 +429,4 @@ export class BlocksUpload extends Component {
       this.render()
     }
   }
-
-  static override get observedAttributes() {
-    return [
-      'accept',
-      'action',
-      'auto-upload',
-      'disabled',
-      'drag-drop',
-      'multiple',
-      'name',
-      'with-credentials',
-    ]
-  }
-}
-
-if (!customElements.get('bl-upload')) {
-  customElements.define('bl-upload', BlocksUpload)
 }

@@ -9,16 +9,21 @@ import {
 } from './menu-group-template.js'
 import { BlocksPopupMenuItem } from './menu-item.js'
 import { BlocksPopupMenu } from './menu.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
+@customElement('bl-popup-menu-group')
 export class BlocksPopupMenuGroup extends Component {
   static override get observedAttributes() {
-    return ['title']
+    return ['title-text']
   }
 
   _data!: MenuGroup
 
   $head: HTMLElement
   $body: HTMLElement
+
+  @attr('string') accessor titleText = ''
 
   constructor() {
     super()
@@ -37,14 +42,6 @@ export class BlocksPopupMenuGroup extends Component {
   }
   set $hostMenu($menu) {
     this.#hostMenu = $menu
-  }
-
-  get titleText() {
-    return strGetter('title')(this) ?? ''
-  }
-
-  set titleText(value) {
-    strSetter('title')(this, value)
   }
 
   get data() {
@@ -105,8 +102,4 @@ export class BlocksPopupMenuGroup extends Component {
       if (child.clearActive) child.clearActive()
     })
   }
-}
-
-if (!customElements.get('bl-popup-menu-group')) {
-  customElements.define('bl-popup-menu-group', BlocksPopupMenuGroup)
 }

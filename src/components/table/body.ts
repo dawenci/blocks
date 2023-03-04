@@ -11,6 +11,8 @@ import { template } from './body-template.js'
 import { BlocksTable } from './table.js'
 import { RowColumn } from './RowColumn.js'
 import { ComponentEventListener } from '../Component.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 export type CellElement = HTMLElement & { column: RowColumn; data: any }
 
@@ -40,13 +42,28 @@ export interface BlocksTableBody extends BlocksVList {
   ): void
 }
 
+@customElement('bl-table-body')
 export class BlocksTableBody extends BlocksVList {
+  static override get observedAttributes() {
+    return BlocksVList.observedAttributes.concat([
+      'sort-field',
+      'sort-order',
+      'summary-height',
+    ])
+  }
+
   #sortFlag?: Promise<void>
 
   columns: RowColumn[] = []
   flattenColumns: RowColumn[] = []
   fixedLeftColumns: RowColumn[] = []
   fixedRightColumns: RowColumn[] = []
+
+  @attr('string') accessor sortField!: string | null
+
+  @attr('string') accessor sortOrder!: string | null
+
+  @attr('int') accessor summaryHeight = 0
 
   constructor() {
     super()
@@ -72,30 +89,6 @@ export class BlocksTableBody extends BlocksVList {
 
   set $host(table: BlocksTable) {
     this._ref.$host = table
-  }
-
-  get sortField() {
-    return strGetter('sort-field')(this)
-  }
-
-  set sortField(value) {
-    strSetter('sort-field')(this, value)
-  }
-
-  get sortOrder() {
-    return strGetter('sort-order')(this)
-  }
-
-  set sortOrder(value) {
-    strSetter('sort-order')(this, value)
-  }
-
-  get summaryHeight() {
-    return intGetter('summary-height')(this) || 0
-  }
-
-  set summaryHeight(value) {
-    intSetter('summary-height')(this, value)
   }
 
   get shouldRenderSummary() {
@@ -360,16 +353,4 @@ export class BlocksTableBody extends BlocksVList {
       })
     }
   }
-
-  static override get observedAttributes() {
-    return BlocksVList.observedAttributes.concat([
-      'sort-field',
-      'sort-order',
-      'summary-height',
-    ])
-  }
-}
-
-if (!customElements.get('bl-table-body')) {
-  customElements.define('bl-table-body', BlocksTableBody)
 }

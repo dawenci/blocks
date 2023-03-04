@@ -1,15 +1,29 @@
-import { strGetter, strSetter } from '../../common/property.js'
-import {
-  disabledGetter,
-  disabledSetter,
-  selectedGetter,
-  selectedSetter,
-} from '../../common/propertyAccessor.js'
+import { selectedSetter } from '../../common/propertyAccessor.js'
 import { Component } from '../Component.js'
 import { template } from './option-template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
+@customElement('bl-option')
 export class BlocksOption extends Component {
+  static override get observedAttributes() {
+    return ['value', 'disabled', 'selected', 'label']
+  }
+
   #silentFlag?: boolean
+
+  @attr('string') accessor value!: string | null
+
+  @attr('string', {
+    defaults: (self: BlocksOption) => {
+      return self.textContent || String(self.value)
+    },
+  })
+  accessor label!: string | null
+
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('boolean') accessor selected!: boolean
 
   constructor() {
     super()
@@ -18,38 +32,6 @@ export class BlocksOption extends Component {
 
     const fragment = template().content.cloneNode(true)
     shadowRoot.appendChild(fragment)
-  }
-
-  get value() {
-    return strGetter('value')(this)
-  }
-
-  set value(value) {
-    strSetter('value')(this, value)
-  }
-
-  get label() {
-    return strGetter('label')(this) ?? (this.textContent || String(this.value))
-  }
-
-  set label(value) {
-    strSetter('label')(this, value)
-  }
-
-  get disabled() {
-    return disabledGetter(this)
-  }
-
-  set disabled(value) {
-    disabledSetter(this, value)
-  }
-
-  get selected() {
-    return selectedGetter(this)
-  }
-
-  set selected(value) {
-    selectedSetter(this, value)
   }
 
   silentSelected(value: boolean) {
@@ -83,12 +65,4 @@ export class BlocksOption extends Component {
     }
     this.render()
   }
-
-  static override get observedAttributes() {
-    return ['value', 'disabled', 'selected', 'label']
-  }
-}
-
-if (!customElements.get('bl-option')) {
-  customElements.define('bl-option', BlocksOption)
 }

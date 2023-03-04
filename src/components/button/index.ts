@@ -1,17 +1,10 @@
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-} from '../../common/property.js'
-import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { labelTemplate, styleTemplate } from './template.js'
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
 import { ControlBox } from '../base-control-box/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 const types = ['primary', 'danger', 'warning', 'success', 'link'] as const
-const typeGetter = enumGetter('type', types)
-const typeSetter = enumSetter('type', types)
 
 export interface BlocksButton extends ControlBox {
   _ref: ControlBox['_ref'] & {
@@ -23,6 +16,7 @@ export interface BlocksButton extends ControlBox {
   _observer: MutationObserver
 }
 
+@customElement('bl-button')
 export class BlocksButton extends ControlBox {
   static get role() {
     return 'button'
@@ -31,6 +25,18 @@ export class BlocksButton extends ControlBox {
   static override get observedAttributes() {
     return super.observedAttributes.concat(['type', 'size'])
   }
+
+  @attr('string') accessor icon!: string | null
+
+  @attr('boolean') accessor block!: boolean
+
+  @attr('enum', {
+    enumValues: types,
+  })
+  accessor type!: typeof types | null
+
+  @attr('enum', { enumValues: ['small', 'large'] })
+  accessor size!: 'small' | 'large' | null
 
   constructor() {
     super()
@@ -62,38 +68,6 @@ export class BlocksButton extends ControlBox {
     this._observer = new MutationObserver(() => {
       this.setAttribute('aria-label', this.textContent ?? '')
     })
-  }
-
-  get block() {
-    return boolGetter('block')(this)
-  }
-
-  set block(value) {
-    boolSetter('block')(this, value)
-  }
-
-  get type() {
-    return typeGetter(this)
-  }
-
-  set type(value) {
-    typeSetter(this, value)
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
-  }
-
-  get icon() {
-    return this.getAttribute('icon')
-  }
-
-  set icon(value) {
-    this.setAttribute('icon', value ?? '')
   }
 
   override render() {
@@ -138,8 +112,4 @@ export class BlocksButton extends ControlBox {
       }
     }
   }
-}
-
-if (!customElements.get('bl-button')) {
-  customElements.define('bl-button', BlocksButton)
 }

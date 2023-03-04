@@ -5,24 +5,13 @@ import {
 } from '../../common/connectSelectable.js'
 import { dispatchEvent } from '../../common/event.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
 import { Component } from '../Component.js'
 import { BlocksList } from '../list/index.js'
 import { BlocksPopup, PopupOrigin } from '../popup/index.js'
 import { listTemplate, popupTemplate, styleTemplate } from './template.js'
-
-const originGetter = enumGetter('origin', Object.values(PopupOrigin))
-const originSetter = enumSetter('origin', Object.values(PopupOrigin))
-
-const triggerModeGetter = enumGetter('trigger-mode', ['hover', 'click'])
-const triggerModeSetter = enumSetter('trigger-mode', ['hover', 'click'])
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { EnumAttr } from '../../decorators/attr.js'
 
 const ATTRS = BlocksPopup.observedAttributes.concat(
   BlocksList.observedAttributes
@@ -37,10 +26,22 @@ export interface BlocksDropdownList extends Component {
   _hideTimer: number
 }
 
+@customElement('bl-dropdown-list')
 export class BlocksDropdownList extends Component {
   static override get observedAttributes() {
     return ATTRS
   }
+
+  @attr('enum', { enumValues: ['hover', 'click'] })
+  accessor triggerMode: EnumAttr<['hover', 'click']> = 'click'
+  @attr('boolean') accessor open!: boolean
+  @attr('enum', { enumValues: Object.values(PopupOrigin) })
+  accessor origin!: PopupOrigin | null
+  @attr('string') accessor disabledField = 'disabled'
+  @attr('string') accessor idField = 'id'
+  @attr('string') accessor labelField!: string | null
+  @attr('boolean') accessor checkable!: boolean
+  @attr('boolean') accessor multiple!: boolean
 
   constructor() {
     super()
@@ -146,30 +147,6 @@ export class BlocksDropdownList extends Component {
     }
   }
 
-  get triggerMode() {
-    return triggerModeGetter(this) ?? 'click'
-  }
-
-  set triggerMode(value) {
-    triggerModeSetter(this, value)
-  }
-
-  get open() {
-    return boolGetter('open')(this)
-  }
-
-  set open(value) {
-    boolSetter('open')(this, value)
-  }
-
-  get origin() {
-    return originGetter(this)
-  }
-
-  set origin(value) {
-    originSetter(this, value)
-  }
-
   get data() {
     return this._ref.$list.data
   }
@@ -192,46 +169,6 @@ export class BlocksDropdownList extends Component {
 
   set checkedData(value) {
     this._ref.$list.checkedData = value
-  }
-
-  get disabledField() {
-    return this.getAttribute('disabled-field') ?? 'disabled'
-  }
-
-  set disabledField(value) {
-    this.setAttribute('disabled-field', value)
-  }
-
-  get idField() {
-    return this.getAttribute('id-field') || 'id'
-  }
-
-  set idField(value) {
-    this.setAttribute('id-field', value)
-  }
-
-  get labelField() {
-    return strGetter('label-field')(this)
-  }
-
-  set labelField(value) {
-    strSetter('label-field')(this, value)
-  }
-
-  get checkable() {
-    return boolGetter('checkable')(this)
-  }
-
-  set checkable(value) {
-    boolSetter('checkable')(this, value)
-  }
-
-  get multiple() {
-    return boolGetter('multiple')(this)
-  }
-
-  set multiple(value) {
-    boolSetter('multiple')(this, value)
   }
 
   #anchorGetter?: () => Element
@@ -309,8 +246,4 @@ export class BlocksDropdownList extends Component {
       this.#clearClickOutside = undefined
     }
   }
-}
-
-if (!customElements.get('bl-dropdown-list')) {
-  customElements.define('bl-dropdown-list', BlocksDropdownList)
 }

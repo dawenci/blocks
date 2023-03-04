@@ -13,6 +13,8 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 interface CountDownEventMap extends ComponentEventMap {
   start: CustomEvent<void>
@@ -38,10 +40,18 @@ export interface BlocksCountdown extends Component {
   ): void
 }
 
+@customElement('bl-countdown')
 export class BlocksCountdown extends Component {
   static override get observedAttributes() {
     return ['format', 'value']
   }
+
+  // timestamp
+  @attr('number', { defaults: () => Date.now() })
+  accessor value!: number
+
+  @attr('string')
+  accessor format = 'H:mm:ss'
 
   constructor() {
     super()
@@ -50,23 +60,6 @@ export class BlocksCountdown extends Component {
     this._ref = {
       $layout: shadowRoot.querySelector('#layout') as HTMLDivElement,
     }
-  }
-
-  // timestamp
-  get value() {
-    return numGetter('value')(this) ?? Date.now()
-  }
-
-  set value(value) {
-    numSetter('value')(this, value)
-  }
-
-  get format() {
-    return strGetter('format')(this) ?? 'H:mm:ss'
-  }
-
-  set format(value) {
-    strSetter('format')(this, value)
   }
 
   // 根据当前显示的最小值，决定计时的调整值
@@ -200,10 +193,6 @@ export class BlocksCountdown extends Component {
       this.render()
     }
   }
-}
-
-if (!customElements.get('bl-countdown')) {
-  customElements.define('bl-countdown', BlocksCountdown)
 }
 
 type VarName = 'day' | 'hour' | 'minute' | 'second' | 'millisecond'

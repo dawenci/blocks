@@ -54,6 +54,11 @@ export function camelCase(str) {
         .replace(/[-_]+([\S])/g, (_, char) => char.toUpperCase())
         .replace(/^([A-Z])/, (_, char) => char.toLowerCase());
 }
+export function kebabCase(str) {
+    return str
+        .replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())
+        .replace(/[-_\s]{2,}/g, '-');
+}
 export function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
 }

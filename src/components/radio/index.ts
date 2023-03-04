@@ -1,24 +1,37 @@
-import { strGetter, strSetter } from '../../common/property.js'
-import { checkedGetter, checkedSetter } from '../../common/propertyAccessor.js'
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
 import { ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { labelTemplate, radioTemplate, styleTemplate } from './template.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Control } from '../base-control/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 interface RadioEventMap extends ComponentEventMap {
   change: CustomEvent<{ checked: boolean }>
 }
 
-interface BlocksRadio extends Control {
+export interface BlocksRadio extends Control {
   _ref: Control['_ref'] & {
     $radio: HTMLElement
     $label: HTMLLabelElement
     $slot: HTMLSlotElement
   }
+
+  addEventListener<K extends keyof RadioEventMap>(
+    type: K,
+    listener: ComponentEventListener<RadioEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof RadioEventMap>(
+    type: K,
+    listener: ComponentEventListener<RadioEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
 }
 
-class BlocksRadio extends Control {
+@customElement('bl-radio')
+export class BlocksRadio extends Control {
   static get role() {
     return 'radio'
   }
@@ -26,6 +39,10 @@ class BlocksRadio extends Control {
   static override get observedAttributes() {
     return super.observedAttributes.concat(['name', 'checked'])
   }
+
+  @attr('string') accessor name!: string
+
+  @attr('boolean') accessor checked!: boolean
 
   constructor() {
     super()
@@ -63,22 +80,6 @@ class BlocksRadio extends Control {
     })
   }
 
-  get name() {
-    return strGetter('name')(this)
-  }
-
-  set name(value) {
-    strSetter('name')(this, value)
-  }
-
-  get checked() {
-    return checkedGetter(this)
-  }
-
-  set checked(value) {
-    checkedSetter(this, value)
-  }
-
   override connectedCallback() {
     super.connectedCallback()
     this.internalTabIndex = '0'
@@ -95,26 +96,4 @@ class BlocksRadio extends Control {
       dispatchEvent(this, 'change', { detail: { checked: this.checked } })
     }
   }
-
-  override addEventListener<K extends keyof RadioEventMap>(
-    type: K,
-    listener: ComponentEventListener<RadioEventMap[K]>,
-    options?: boolean | AddEventListenerOptions
-  ): void {
-    return super.addEventListener(type, listener, options)
-  }
-
-  override removeEventListener<K extends keyof RadioEventMap>(
-    type: K,
-    listener: ComponentEventListener<RadioEventMap[K]>,
-    options?: boolean | EventListenerOptions
-  ): void {
-    return super.removeEventListener(type, listener, options)
-  }
 }
-
-if (!customElements.get('bl-radio')) {
-  customElements.define('bl-radio', BlocksRadio)
-}
-
-export { BlocksRadio }

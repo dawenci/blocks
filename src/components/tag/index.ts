@@ -1,25 +1,28 @@
 import { dispatchEvent } from '../../common/event.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
-import {
-  closeableGetter,
-  closeableSetter,
-  sizeGetter,
-  sizeSetter,
-} from '../../common/propertyAccessor.js'
 import { Component } from '../Component.js'
 import { getElementTarget } from '../../common/getElementTarget.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
 
-type DomRef = {
-  $layout: HTMLElement
+export interface BlocksTag extends Component {
+  ref: {
+    $layout: HTMLElement
+  }
 }
 
+@customElement('bl-tag')
 export class BlocksTag extends Component {
-  ref: DomRef
-
   static override get observedAttributes() {
-    return ['type', 'size', 'closeable', 'round']
+    return ['type', 'size', 'closeable', 'round', 'outline']
   }
+
+  @attr('boolean') accessor closeable!: boolean
+
+  @attr('boolean') accessor outline!: boolean
+
+  @attrs.size accessor size!: EnumAttrs['size']
 
   constructor() {
     super()
@@ -39,32 +42,6 @@ export class BlocksTag extends Component {
     this.ref = {
       $layout,
     }
-  }
-
-  get closeable() {
-    return closeableGetter(this)
-  }
-
-  set closeable(value) {
-    closeableSetter(this, value)
-    this.render()
-  }
-
-  get outline() {
-    return boolGetter('outline')(this)
-  }
-
-  set outline(value) {
-    boolSetter('outline')(this, value)
-    this.render()
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
   }
 
   override render() {
@@ -96,8 +73,4 @@ export class BlocksTag extends Component {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
   }
-}
-
-if (!customElements.get('bl-tag')) {
-  customElements.define('bl-tag', BlocksTag)
 }

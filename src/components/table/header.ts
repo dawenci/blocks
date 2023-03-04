@@ -1,13 +1,18 @@
 import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
-import { Component } from '../Component.js'
+import {
+  Component,
+  ComponentEventListener,
+  ComponentEventMap,
+} from '../Component.js'
 import { template } from './header-template.js'
 import { RowColumn } from './RowColumn.js'
 import { BlocksTable } from './table.js'
+import { customElement } from '../../decorators/customElement.js'
 
 export type CellElement = HTMLElement & { column: RowColumn }
 
-export interface TableHeaderEventMap {
+export interface TableHeaderEventMap extends ComponentEventMap {
   'enter-cell': CustomEvent<{ $cell: CellElement; column: RowColumn }>
   sort: CustomEvent<{ column: RowColumn }>
 }
@@ -18,9 +23,25 @@ export interface BlocksTableHeader extends Component {
     $viewport: HTMLElement
     $canvas: HTMLElement
   }
+
+  addEventListener<K extends keyof TableHeaderEventMap>(
+    type: K,
+    listener: ComponentEventListener<TableHeaderEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+  removeEventListener<K extends keyof TableHeaderEventMap>(
+    type: K,
+    listener: ComponentEventListener<TableHeaderEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
 }
 
+@customElement('bl-table-header')
 export class BlocksTableHeader extends Component {
+  static override get observedAttributes() {
+    return []
+  }
+
   _columns: RowColumn[] = []
   fixedLeftColumns: RowColumn[] = []
   fixedRightColumns: RowColumn[] = []
@@ -256,30 +277,4 @@ export class BlocksTableHeader extends Component {
     super.connectedCallback()
     this.upgradeProperty(['area', 'columns'])
   }
-
-  override addEventListener<K extends keyof TableHeaderEventMap>(
-    type: K,
-    listener: (this: this, ev: TableHeaderEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions
-  ): void
-  override addEventListener(
-    type: string,
-    listener: (this: this, ev: Event) => any,
-    options?: boolean | AddEventListenerOptions
-  ): void
-  override addEventListener(
-    type: any,
-    listener: (this: this, ev: Event) => any,
-    options?: boolean | AddEventListenerOptions
-  ): void {
-    super.addEventListener(type, listener, options)
-  }
-
-  static override get observedAttributes() {
-    return []
-  }
-}
-
-if (!customElements.get('bl-table-header')) {
-  customElements.define('bl-table-header', BlocksTableHeader)
 }

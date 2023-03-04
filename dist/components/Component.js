@@ -40,11 +40,11 @@ export class Component extends HTMLElement {
             this.appendChild(nodes[i]);
         }
     }
-    upgradeProperty(attrs) {
-        if (!attrs) {
-            attrs = this.constructor.observedAttributes ?? [];
+    upgradeProperty(props) {
+        if (!props) {
+            props = this.constructor.upgradeProperties ?? [];
         }
-        attrs.forEach(attr => {
+        props.forEach(attr => {
             upgradeProperty(this, attr);
         });
     }

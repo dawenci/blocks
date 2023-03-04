@@ -2,21 +2,28 @@ import { BlocksInput } from '../input/index.js'
 import { BlocksTime } from '../time/index.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { padLeft } from '../../common/utils.js'
-import {
-  boolSetter,
-  intRangeGetter,
-  intRangeSetter,
-} from '../../common/property.js'
+import { boolSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { BlocksPopup } from '../popup/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
-export class BlocksTimePicker extends Component {
-  ref: {
+// TODO, placeholder
+
+export interface BlocksTimePicker extends Component {
+  _ref: {
     $popup: BlocksPopup
     $input: BlocksInput
     $time: BlocksTime
+  }
+}
+
+@customElement('bl-time-picker')
+export class BlocksTimePicker extends Component {
+  static override get observedAttributes() {
+    return [...BlocksTime.observedAttributes, ...BlocksInput.observedAttributes]
   }
 
   #clearup?: () => void
@@ -31,9 +38,11 @@ export class BlocksTimePicker extends Component {
     second: null,
   }
 
-  static override get observedAttributes() {
-    return [...BlocksTime.observedAttributes, ...BlocksInput.observedAttributes]
-  }
+  @attr('intRange', { min: 0, max: 23 }) accessor hour!: number | null
+
+  @attr('intRange', { min: 0, max: 59 }) accessor minute!: number | null
+
+  @attr('intRange', { min: 0, max: 59 }) accessor second!: number | null
 
   constructor() {
     super()
@@ -52,7 +61,7 @@ export class BlocksTimePicker extends Component {
     ).querySelector('bl-popup')!
 
     const $time = $popup.querySelector('bl-time')!
-    this.ref = {
+    this._ref = {
       $popup,
       $input,
       $time,
@@ -109,39 +118,15 @@ export class BlocksTimePicker extends Component {
     $confirm!.onclick = onConfirm
   }
 
-  get hour() {
-    return intRangeGetter('hour', 0, 23)(this)
-  }
-
-  set hour(value) {
-    intRangeSetter('hour', 0, 23)(this, value)
-  }
-
-  get minute() {
-    return intRangeGetter('minute', 0, 59)(this)
-  }
-
-  set minute(value) {
-    intRangeSetter('minute', 0, 59)(this, value)
-  }
-
-  get second() {
-    return intRangeGetter('second', 0, 59)(this)
-  }
-
-  set second(value) {
-    intRangeSetter('second', 0, 59)(this, value)
-  }
-
   override connectedCallback() {
     super.connectedCallback()
-    document.body.appendChild(this.ref.$popup)
+    document.body.appendChild(this._ref.$popup)
     this.render()
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback()
-    document.body.removeChild(this.ref.$popup)
+    document.body.removeChild(this._ref.$popup)
     this._destroyClickOutside()
   }
 
@@ -152,16 +137,16 @@ export class BlocksTimePicker extends Component {
   ) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (BlocksInput.observedAttributes.includes(attrName)) {
-      this.ref.$input.setAttribute(attrName, newValue)
+      this._ref.$input.setAttribute(attrName, newValue)
     }
     if (BlocksTime.observedAttributes.includes(attrName as any)) {
-      this.ref.$time.setAttribute(attrName, newValue)
+      this._ref.$time.setAttribute(attrName, newValue)
     }
     this.render()
   }
 
   override render() {
-    const { $input, $time } = this.ref
+    const { $input, $time } = this._ref
     if (
       [$time.hour, $time.minute, $time.second].some(
         v => Object.is(v, NaN) || v == null
@@ -177,7 +162,7 @@ export class BlocksTimePicker extends Component {
   }
 
   _confirm() {
-    const { $popup, $time } = this.ref
+    const { $popup, $time } = this._ref
     this._prevValue = null
     dispatchEvent(this, 'change', {
       detail: {
@@ -191,8 +176,8 @@ export class BlocksTimePicker extends Component {
 
   _initClickOutside() {
     if (!this.#clearup) {
-      this.#clearup = onClickOutside([this, this.ref.$popup], () => {
-        if (this.ref.$popup.open) this.ref.$popup.open = false
+      this.#clearup = onClickOutside([this, this._ref.$popup], () => {
+        if (this._ref.$popup.open) this._ref.$popup.open = false
       })
     }
   }
@@ -203,8 +188,4 @@ export class BlocksTimePicker extends Component {
       this.#clearup = undefined
     }
   }
-}
-
-if (!customElements.get('bl-time-picker')) {
-  customElements.define('bl-time-picker', BlocksTimePicker)
 }

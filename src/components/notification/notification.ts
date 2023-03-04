@@ -1,13 +1,5 @@
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-  intGetter,
-  intSetter,
-} from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import {
@@ -16,6 +8,9 @@ import {
   __color_warning,
   __color_primary,
 } from '../../theme/var-light.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { NullableEnumAttr } from '../../decorators/attr.js'
 
 export enum NotificationPlacement {
   TopRight = 'top-right',
@@ -39,24 +34,27 @@ export const notificationTypes = [
   NotificationType.Warning,
 ]
 
-const closeableGetter = boolGetter('closeable')
-const closeableSetter = boolSetter('closeable')
-const typeGetter = enumGetter('type', notificationTypes)
-const typeSetter = enumSetter('type', notificationTypes)
-
-type DomRef = {
-  $layout: HTMLElement
-  $icon: HTMLElement
-  $content: HTMLElement
-  $close?: HTMLButtonElement
+export interface BlocksNotification extends Component {
+  ref: {
+    $layout: HTMLElement
+    $icon: HTMLElement
+    $content: HTMLElement
+    $close?: HTMLButtonElement
+  }
 }
 
+@customElement('bl-notification')
 export class BlocksNotification extends Component {
-  ref: DomRef
-
   static override get observedAttributes() {
     return ['closeable', 'duration', 'type']
   }
+
+  @attr('boolean') accessor closeable!: boolean
+
+  @attr('number') accessor duration = 10
+
+  @attr('enum', { enumValues: notificationTypes })
+  accessor type!: NullableEnumAttr<typeof notificationTypes>
 
   constructor() {
     super()
@@ -79,30 +77,6 @@ export class BlocksNotification extends Component {
     $layout.onmouseleave = () => {
       this._setAutoClose()
     }
-  }
-
-  get closeable() {
-    return closeableGetter(this)
-  }
-
-  set closeable(value) {
-    closeableSetter(this, value)
-  }
-
-  get type() {
-    return typeGetter(this)
-  }
-
-  set type(value) {
-    typeSetter(this, value)
-  }
-
-  get duration() {
-    return intGetter('duration')(this) ?? 10
-  }
-
-  set duration(value) {
-    intSetter('duration')(this, value)
   }
 
   close() {
@@ -196,8 +170,4 @@ export class BlocksNotification extends Component {
       }, this.duration * 1000)
     }
   }
-}
-
-if (!customElements.get('bl-notification')) {
-  customElements.define('bl-notification', BlocksNotification)
 }

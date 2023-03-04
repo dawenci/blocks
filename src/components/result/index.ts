@@ -1,5 +1,7 @@
 import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { ClearableControlBox } from '../base-clearable-control-box/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface BlocksResult extends ClearableControlBox {
   _ref: ClearableControlBox['_ref'] & {
@@ -8,10 +10,14 @@ export interface BlocksResult extends ClearableControlBox {
   }
 }
 
+@customElement('bl-result')
 export class BlocksResult extends ClearableControlBox {
   static override get observedAttributes() {
-    return ['size'].concat(super.observedAttributes)
+    return ['size', 'placeholder'].concat(super.observedAttributes)
   }
+
+  // TODO, placeholder 实现
+  @attr('string') accessor placeholder!: string | null
 
   constructor() {
     super()
@@ -32,8 +38,4 @@ export class BlocksResult extends ClearableControlBox {
   set size(value) {
     sizeSetter(this, value)
   }
-}
-
-if (!customElements.get('bl-result')) {
-  customElements.define('bl-result', BlocksResult)
 }

@@ -16,6 +16,8 @@ import {
   ISelectableListComponent,
   ISelectListEventMap,
 } from '../../common/connectSelectable.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 export type NodeData = {
   [index: number]: any
@@ -76,13 +78,66 @@ export interface BLocksTree extends BlocksVList, ISelectableListComponent {
   ): void
 }
 
+@customElement('bl-tree')
 export class BlocksTree extends BlocksVList {
+  static override get observedAttributes() {
+    return super.observedAttributes.concat([
+      'activable',
+      'active-key',
+      'checkable',
+      'check-on-click-node',
+      'check-strictly',
+      'border',
+      'default-fold-all',
+      'disabled',
+      'expand-on-click-node',
+      'id-field',
+      'indent-unit',
+      'label-field',
+      'multiple',
+      'search',
+      'stripe',
+      'wrap',
+    ])
+  }
+
   labelMethod?: (data: any) => string
   uniqCid: string
   _checkedSet: Set<VirtualNode>
 
   #batchUpdateFold?: boolean
   #lastChecked?: VirtualNode
+
+  @attr('string') accessor activeKey!: string | null
+
+  @attr('boolean') accessor activable!: boolean
+
+  @attr('boolean') accessor checkable!: boolean
+
+  @attr('boolean') accessor checkOnClickNode!: boolean
+
+  // 父子结点是否使用严格不关联模式
+  @attr('boolean') accessor checkStrictly!: boolean
+
+  // 默认是否折叠所有树结点
+  @attr('boolean') accessor defaultFoldAll!: boolean
+
+  @attr('boolean') accessor disabled!: boolean
+
+  // 是否点击结点的时候，切换展开、折叠状态
+  @attr('boolean') accessor expandOnClickNode!: boolean
+
+  @attr('boolean') accessor wrap!: boolean
+
+  @attr('boolean') accessor multiple!: boolean
+
+  @attr('int') accessor indentUnit = 16
+
+  @attr('string') accessor idField!: string | null
+
+  @attr('string') accessor labelField!: string | null
+
+  @attr('string') accessor search!: string | null
 
   constructor() {
     super()
@@ -105,43 +160,6 @@ export class BlocksTree extends BlocksVList {
       }
     }
     this.addEventListener('data-bound', onBound)
-  }
-
-  static override get observedAttributes() {
-    return super.observedAttributes.concat([
-      'activable',
-      'active-key',
-      'checkable',
-      'check-on-click-node',
-      'check-strictly',
-      'border',
-      'default-fold-all',
-      'disabled',
-      'expand-on-click-node',
-      'id-field',
-      'indent-unit',
-      'label-field',
-      'multiple',
-      'search',
-      'stripe',
-      'wrap',
-    ])
-  }
-
-  get activeKey() {
-    return strGetter('active-key')(this)
-  }
-
-  set activeKey(value) {
-    strSetter('active-key')(this, value)
-  }
-
-  get activable() {
-    return boolGetter('activable')(this)
-  }
-
-  set activable(value) {
-    boolSetter('activable')(this, value)
   }
 
   get checkedData(): NodeData[] {
@@ -188,105 +206,6 @@ export class BlocksTree extends BlocksVList {
         }),
       },
     })
-  }
-
-  get checkable() {
-    return boolGetter('checkable')(this)
-  }
-
-  set checkable(value) {
-    boolSetter('checkable')(this, value)
-  }
-
-  get checkOnClickNode() {
-    return boolGetter('check-on-click-node')(this)
-  }
-
-  set checkOnClickNode(value) {
-    boolSetter('check-on-click-node')(this, value)
-  }
-
-  // 父子结点是否使用严格不关联模式
-  get checkStrictly() {
-    return boolGetter('check-strictly')(this)
-  }
-
-  set checkStrictly(value) {
-    boolSetter('check-strictly')(this, value)
-  }
-
-  // 默认是否折叠所有树结点
-  get defaultFoldAll() {
-    return boolGetter('default-fold-all')(this)
-  }
-
-  set defaultFoldAll(value) {
-    boolSetter('default-fold-all')(this, value)
-  }
-
-  get disabled() {
-    return boolGetter('disabled')(this)
-  }
-
-  set disabled(value) {
-    boolSetter('disabled')(this, value)
-  }
-
-  // 是否点击结点的时候，切换展开、折叠状态
-  get expandOnClickNode() {
-    return boolGetter('expand-on-click-node')(this)
-  }
-
-  set expandOnClickNode(value) {
-    boolSetter('expand-on-click-node')(this, value)
-  }
-
-  get indentUnit() {
-    return intGetter('indent-unit')(this) ?? 16
-  }
-
-  set indentUnit(value) {
-    intSetter('indent-unit')(this, value)
-  }
-
-  get idField() {
-    return strGetter('id-field')(this)
-  }
-
-  set idField(value) {
-    strSetter('id-field')(this, value)
-  }
-
-  get labelField() {
-    return strGetter('label-field')(this)
-  }
-
-  set labelField(value) {
-    strSetter('label-field')(this, value)
-  }
-
-  get search() {
-    return strGetter('search')(this)
-  }
-
-  set search(value) {
-    strSetter('search')(this, value)
-  }
-
-  get wrap() {
-    return boolGetter('wrap')(this)
-  }
-
-  set wrap(value) {
-    boolSetter('wrap')(this, value)
-  }
-
-  get multiple() {
-    return boolGetter('multiple')(this)
-  }
-
-  set multiple(value) {
-    boolSetter('multiple')(this, value)
   }
 
   select(data: NodeData) {
@@ -1155,8 +1074,4 @@ export class BlocksTree extends BlocksVList {
       paddingLeft: `${indent}px`,
     }
   }
-}
-
-if (!customElements.get('bl-tree')) {
-  customElements.define('bl-tree', BlocksTree)
 }

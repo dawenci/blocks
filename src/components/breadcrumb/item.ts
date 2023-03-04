@@ -1,6 +1,8 @@
 import { strGetter, strSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './item-template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface BlocksBreadcrumbItem extends Component {
   _ref: {
@@ -9,6 +11,7 @@ export interface BlocksBreadcrumbItem extends Component {
   }
 }
 
+@customElement('bl-breadcrumb-item')
 export class BlocksBreadcrumbItem extends Component {
   static override get observedAttributes() {
     return ['href']
@@ -24,13 +27,7 @@ export class BlocksBreadcrumbItem extends Component {
     }
   }
 
-  get href() {
-    return strGetter('href')(this) ?? 'javascript(void 0)'
-  }
-
-  set href(value) {
-    strSetter('href')(this, value)
-  }
+  @attr('string') accessor href = 'javascript(void 0)'
 
   _renderSeparator(separator: string) {
     if (this.parentElement?.lastElementChild === this) return
@@ -52,8 +49,4 @@ export class BlocksBreadcrumbItem extends Component {
       strSetter('href')(this._ref.$link, newValue)
     }
   }
-}
-
-if (!customElements.get('bl-breadcrumb-item')) {
-  customElements.define('bl-breadcrumb-item', BlocksBreadcrumbItem)
 }

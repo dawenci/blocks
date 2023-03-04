@@ -1,13 +1,6 @@
 import { dispatchEvent } from '../../common/event.js'
-import {
-  enumGetter,
-  enumSetter,
-  intGetter,
-  intSetter,
-} from '../../common/property.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { round } from '../../common/utils.js'
-import { parse } from '../../common/color.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import {
   Component,
@@ -16,6 +9,9 @@ import {
 } from '../Component.js'
 import { template } from './template.js'
 import { Color, ColorFormat, ColorTuple4 } from './Color.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { EnumAttr } from '../../decorators/attr.js'
 
 interface ColorEventMap extends ComponentEventMap {
   change: CustomEvent<{ value: string }>
@@ -52,10 +48,17 @@ export interface BlocksColor extends Component {
 }
 
 // TODO, 拆分 Rgb、HSV、HSL 为多个组件实现
+// TODO, Firefox 拖拽 BUG
+@customElement('bl-color')
 export class BlocksColor extends Component {
   static override get observedAttributes() {
     return ['mode', 'value']
   }
+
+  @attr('int') accessor value!: number | null
+
+  @attr('enum', { enumValues: ['hex', 'rgb', 'hsl', 'hsv'] })
+  accessor mode: EnumAttr<['hex', 'rgb', 'hsl', 'hsv']> = 'hex'
 
   // 设置为灰色（饱和度 s 为 0）的时候，
   // 新生成的颜色的 hue 为 0（红色），会导致面板底色突然切换到红色，
@@ -123,22 +126,6 @@ export class BlocksColor extends Component {
     this._initModeChangeEvent()
     // 处理输入
     this._initInputEvents()
-  }
-
-  get mode() {
-    return enumGetter('mode', ['hex', 'rgb', 'hsl', 'hsv'])(this) ?? 'hex'
-  }
-
-  set mode(value) {
-    enumSetter('mode', ['hex', 'rgb', 'hsl', 'hsv'])(this, value)
-  }
-
-  get value() {
-    return intGetter('value')(this)
-  }
-
-  set value(value) {
-    intSetter('value')(this, value)
   }
 
   get hex() {
@@ -514,8 +501,4 @@ export class BlocksColor extends Component {
     onDragMove(this._ref.$alphaBar, options)
     onDragMove(this._ref.$hsv, options)
   }
-}
-
-if (!customElements.get('bl-color')) {
-  customElements.define('bl-color', BlocksColor)
 }

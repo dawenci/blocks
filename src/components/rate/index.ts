@@ -1,17 +1,10 @@
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { forEach } from '../../common/utils.js'
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-} from '../../common/property.js'
-import {
-  clearableGetter,
-  clearableSetter,
-} from '../../common/propertyAccessor.js'
+import { enumGetter, enumSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 const halfValueGetter = enumGetter('value', [
   '1',
@@ -38,20 +31,16 @@ const halfValueSetter = enumSetter('value', [
 const valueGetter = enumGetter('value', ['1', '2', '3', '4', '5'])
 const valueSetter = enumSetter('value', ['1', '2', '3', '4', '5'])
 
-const halfGetter = boolGetter('half')
-const halfSetter = boolSetter('half')
-
 const $STAR_ICON = getRegisteredSvgIcon('star')!
 
-type DomRef = {
-  $layout: HTMLElement
+export interface BlocksRate extends Component {
+  ref: {
+    $layout: HTMLElement
+  }
 }
 
+@customElement('bl-rate')
 export class BlocksRate extends Component {
-  ref: DomRef
-
-  _hoverValue?: number
-
   static override get observedAttributes() {
     return [
       // model 值
@@ -64,6 +53,14 @@ export class BlocksRate extends Component {
       'result-mode',
     ]
   }
+
+  _hoverValue?: number
+
+  @attr('boolean') accessor clearable!: boolean
+
+  @attr('boolean') accessor half!: boolean
+
+  @attr('boolean') accessor resultMode!: boolean
 
   constructor() {
     super()
@@ -114,14 +111,6 @@ export class BlocksRate extends Component {
     }
   }
 
-  get clearable() {
-    return clearableGetter(this)
-  }
-
-  set clearable(value) {
-    clearableSetter(this, value)
-  }
-
   get value() {
     const value = this.resultMode
       ? this.getAttribute('value')
@@ -141,22 +130,6 @@ export class BlocksRate extends Component {
     } else {
       valueSetter(this, '' + value)
     }
-  }
-
-  get half() {
-    return halfGetter(this)
-  }
-
-  set half(value) {
-    halfSetter(this, value)
-  }
-
-  get resultMode() {
-    return boolGetter('result-mode')(this)
-  }
-
-  set resultMode(value) {
-    boolSetter('result-mode')(this, value)
   }
 
   updateSelect() {
@@ -236,8 +209,4 @@ export class BlocksRate extends Component {
     this.render()
     this.updateSelect()
   }
-}
-
-if (!customElements.get('bl-rate')) {
-  customElements.define('bl-rate', BlocksRate)
 }

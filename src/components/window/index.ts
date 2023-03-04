@@ -18,8 +18,10 @@ import {
   WithOpenTransition,
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
-import { applyMixins } from '../../common/applyMixins.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import { mixins } from '../../decorators/mixins.js'
 
 const capturefocusGetter = boolGetter('capturefocus')
 const capturefocusSetter = boolSetter('capturefocus')
@@ -28,14 +30,42 @@ interface WinEventMap extends WithOpenTransitionEventMap {
   'bl:resize': CustomEvent<{ width: number; height: number }>
 }
 
-class BlocksWindow extends Control {
+export interface BlocksWindow extends Control, WithOpenTransition {
+  _ref: Control['_ref'] & {
+    $header: HTMLElement
+    $body: HTMLElement
+    $content: HTMLElement
+    $statusBar: HTMLElement
+    $statusBarSlot: HTMLSlotElement
+    $actions: HTMLElement
+    $closeButton: HTMLButtonElement
+    $maximizeButton: HTMLButtonElement
+    $minimizeButton: HTMLButtonElement
+    $icon: HTMLElement
+    $name: HTMLElement
+    $firstFocusable?: HTMLButtonElement
+    $lastFocusable?: HTMLButtonElement
+  }
+
+  addEventListener<K extends keyof WinEventMap>(
+    type: K,
+    listener: ComponentEventListener<WinEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof WinEventMap>(
+    type: K,
+    listener: ComponentEventListener<WinEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+}
+
+@customElement('bl-window')
+@mixins([WithOpenTransition])
+export class BlocksWindow extends Control {
   static get role() {
     return 'window'
   }
-
-  #prevFocus?: any
-
-  #onResize?: (data: { width: number; height: number }) => void
 
   static override get observedAttributes() {
     return super.observedAttributes.concat([
@@ -53,6 +83,20 @@ class BlocksWindow extends Control {
       'open',
     ])
   }
+
+  #prevFocus?: any
+
+  #onResize?: (data: { width: number; height: number }) => void
+
+  @attr('boolean') accessor capturefocus!: boolean
+
+  @attr('boolean') accessor maximized!: boolean
+
+  @attr('boolean') accessor minimized!: boolean
+
+  @attr('string') accessor icon!: string | null
+
+  @attr('string') accessor name!: string | null
 
   constructor() {
     super()
@@ -166,46 +210,6 @@ class BlocksWindow extends Control {
           .join(',') || null
     }
     strSetter('actions')(this, newValue)
-  }
-
-  get capturefocus() {
-    return capturefocusGetter(this)
-  }
-
-  set capturefocus(value) {
-    capturefocusSetter(this, value)
-  }
-
-  get icon() {
-    return strGetter('icon')(this)
-  }
-
-  set icon(value) {
-    strSetter('icon')(this, value)
-  }
-
-  get maximized() {
-    return boolGetter('maximized')(this)
-  }
-
-  set maximized(value) {
-    boolSetter('maximized')(this, value)
-  }
-
-  get minimized() {
-    return boolGetter('minimized')(this)
-  }
-
-  set minimized(value) {
-    boolSetter('minimized')(this, value)
-  }
-
-  get name() {
-    return strGetter('name')(this)
-  }
-
-  set name(value) {
-    strSetter('name')(this, value)
   }
 
   override connectedCallback() {
@@ -500,45 +504,4 @@ class BlocksWindow extends Control {
       this.#prevFocus = undefined
     }
   }
-
-  override addEventListener<K extends keyof WinEventMap>(
-    type: K,
-    listener: ComponentEventListener<WinEventMap[K]>,
-    options?: boolean | AddEventListenerOptions
-  ): void {
-    return super.addEventListener(type, listener, options)
-  }
-
-  override removeEventListener<K extends keyof WinEventMap>(
-    type: K,
-    listener: ComponentEventListener<WinEventMap[K]>,
-    options?: boolean | EventListenerOptions
-  ): void {
-    return super.removeEventListener(type, listener, options)
-  }
 }
-
-interface BlocksWindow extends Control, WithOpenTransition {
-  _ref: Control['_ref'] & {
-    $header: HTMLElement
-    $body: HTMLElement
-    $content: HTMLElement
-    $statusBar: HTMLElement
-    $statusBarSlot: HTMLSlotElement
-    $actions: HTMLElement
-    $closeButton: HTMLButtonElement
-    $maximizeButton: HTMLButtonElement
-    $minimizeButton: HTMLButtonElement
-    $icon: HTMLElement
-    $name: HTMLElement
-    $firstFocusable?: HTMLButtonElement
-    $lastFocusable?: HTMLButtonElement
-  }
-}
-applyMixins(BlocksWindow, [WithOpenTransition])
-
-if (!customElements.get('bl-window')) {
-  customElements.define('bl-window', BlocksWindow)
-}
-
-export { BlocksWindow }

@@ -11,6 +11,8 @@ import {
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { intGetter, intSetter } from '../../common/property.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface BlocksColorPicker extends Component {
   _ref: {
@@ -21,12 +23,15 @@ export interface BlocksColorPicker extends Component {
   }
 }
 
+@customElement('bl-color-picker')
 export class BlocksColorPicker extends Component {
   #clearClickOutside?: () => void
 
   static override get observedAttributes() {
     return ['value', 'disabled', 'size']
   }
+
+  @attr('boolean') accessor disabled!: boolean
 
   constructor() {
     super()
@@ -77,14 +82,6 @@ export class BlocksColorPicker extends Component {
     $popup.addEventListener('closed', () => {
       this.#destroyClickOutside()
     })
-  }
-
-  get disabled() {
-    return disabledGetter(this)
-  }
-
-  set disabled(value) {
-    disabledSetter(this, value)
   }
 
   get hex() {
@@ -221,8 +218,4 @@ export class BlocksColorPicker extends Component {
       this.#clearClickOutside = undefined
     }
   }
-}
-
-if (!customElements.get('bl-color-picker')) {
-  customElements.define('bl-color-picker', BlocksColorPicker)
 }

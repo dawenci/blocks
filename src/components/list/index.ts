@@ -1,12 +1,6 @@
 import { BlocksVList, VirtualItem, VListEventMap } from '../vlist/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { parseHighlight } from '../../common/highlight.js'
-import {
-  boolGetter,
-  boolSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
 import { template } from './template.js'
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
 import {
@@ -15,6 +9,8 @@ import {
   ISelectableListComponent,
 } from '../../common/connectSelectable.js'
 import { ComponentEventListener } from '../Component.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 interface BlocksListEventMap extends VListEventMap, ISelectListEventMap {}
 
@@ -35,6 +31,7 @@ export interface BlocksList extends BlocksVList, ISelectableListComponent {
   ): void
 }
 
+@customElement('bl-list')
 export class BlocksList extends BlocksVList {
   #checkedSet: Set<VirtualItem>
 
@@ -51,6 +48,20 @@ export class BlocksList extends BlocksVList {
       'stripe',
     ])
   }
+
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('string') accessor disabledField = 'disabled'
+
+  @attr('string') accessor idField = 'id'
+
+  @attr('string') accessor labelField!: string | null
+
+  @attr('boolean') accessor checkable!: boolean
+
+  @attr('boolean') accessor multiple!: boolean
+
+  @attr('string') accessor search!: string | null
 
   constructor() {
     super()
@@ -143,54 +154,6 @@ export class BlocksList extends BlocksVList {
     })
   }
 
-  get disabled() {
-    return boolGetter('disabled')(this)
-  }
-
-  set disabled(value) {
-    boolSetter('disabled')(this, value)
-  }
-
-  get disabledField() {
-    return this.getAttribute('disabled-field') ?? 'disabled'
-  }
-
-  set disabledField(value) {
-    this.setAttribute('disabled-field', value)
-  }
-
-  get idField() {
-    return this.getAttribute('id-field') || 'id'
-  }
-
-  set idField(value) {
-    this.setAttribute('id-field', value)
-  }
-
-  get labelField() {
-    return strGetter('label-field')(this)
-  }
-
-  set labelField(value) {
-    strSetter('label-field')(this, value)
-  }
-
-  get checkable() {
-    return boolGetter('checkable')(this)
-  }
-
-  set checkable(value) {
-    boolSetter('checkable')(this, value)
-  }
-
-  get multiple() {
-    return boolGetter('multiple')(this)
-  }
-
-  set multiple(value) {
-    boolSetter('multiple')(this, value)
-  }
-
   get checkedData() {
     return [...(this.#checkedSet ?? [])].map((vitem: VirtualItem) => vitem.data)
   }
@@ -230,14 +193,6 @@ export class BlocksList extends BlocksVList {
         })),
       },
     })
-  }
-
-  get search() {
-    return strGetter('search')(this)
-  }
-
-  set search(value) {
-    strSetter('search')(this, value)
   }
 
   select(data: ISelected) {
@@ -431,8 +386,4 @@ export class BlocksList extends BlocksVList {
 
     this._renderItemDisabled($item, vitem)
   }
-}
-
-if (!customElements.get('bl-list')) {
-  customElements.define('bl-list', BlocksList)
 }

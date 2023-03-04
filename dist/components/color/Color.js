@@ -9,7 +9,7 @@ export function clamp(val, min, max) {
     }
     return val < min ? min : val > max ? max : val;
 }
-export class Color {
+class Color {
     static TRANSPARENT = Object.freeze(new Color(0, 0, 0, 0));
     static WHITE = Object.freeze(new Color(255, 255, 255, 255));
     static BLACK = Object.freeze(new Color(0, 0, 0, 255));
@@ -191,6 +191,7 @@ export class Color {
         return this.toHsl().concat(this.alpha);
     }
 }
+export { Color };
 function hsv2rgb(h, s, v) {
     const C = v * s;
     const X = C * (1 - Math.abs(((h / 60) % 2) - 1));

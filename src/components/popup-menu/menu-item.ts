@@ -18,8 +18,15 @@ import {
 } from './menu-item-template.js'
 import { BlocksIcon } from '../../components/icon/index.js'
 import { PopupOrigin } from '../../components/popup/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
+@customElement('bl-popup-menu-item')
 export class BlocksPopupMenuItem extends Component {
+  static override get observedAttributes() {
+    return ['disabled', 'link', 'active']
+  }
+
   _enterTimer?: number
   _leaveTimer?: number
 
@@ -27,6 +34,12 @@ export class BlocksPopupMenuItem extends Component {
   $label: HTMLElement
   $icon: HTMLElement
   $arrow: HTMLElement
+
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('boolean') accessor link!: boolean
+
+  @attr('boolean') accessor active!: boolean
 
   constructor() {
     super()
@@ -136,30 +149,6 @@ export class BlocksPopupMenuItem extends Component {
     return !this.hasSubmenu
   }
 
-  get disabled() {
-    return disabledGetter(this)
-  }
-
-  set disabled(value) {
-    disabledSetter(this, value)
-  }
-
-  get link() {
-    return boolGetter('link')(this)
-  }
-
-  set link(value) {
-    boolSetter('link')(this, value)
-  }
-
-  get active() {
-    return activeGetter(this)
-  }
-
-  set active(value) {
-    activeSetter(this, value)
-  }
-
   _data?: any
   get data() {
     return this._data ?? {}
@@ -232,12 +221,4 @@ export class BlocksPopupMenuItem extends Component {
     this.active = false
     if (this.$submenu) this.$submenu.clearActive()
   }
-
-  static override get observedAttributes() {
-    return ['disabled', 'link', 'active']
-  }
-}
-
-if (!customElements.get('bl-popup-menu-item')) {
-  customElements.define('bl-popup-menu-item', BlocksPopupMenuItem)
 }

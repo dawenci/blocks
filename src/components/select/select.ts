@@ -22,13 +22,14 @@ import {
   ISelectableListComponent,
 } from '../../common/connectSelectable.js'
 import { dispatchEvent } from '../../common/event.js'
+import { customElement } from '../../decorators/customElement.js'
 
 const isOption = ($el: Element): $el is BlocksOption =>
   $el instanceof BlocksOption
 const isGroup = ($el: Element): $el is BlocksOptGroup =>
   $el instanceof BlocksOptGroup
 
-interface BlocksSelect extends BlocksSelectResult {
+export interface BlocksSelect extends BlocksSelectResult {
   _ref: BlocksSelectResult['_ref'] & {
     $optionSlot: HTMLSlotElement
     $popup: BlocksPopup
@@ -36,12 +37,15 @@ interface BlocksSelect extends BlocksSelectResult {
   }
 }
 
-class BlocksSelect extends BlocksSelectResult {
+@customElement('bl-select')
+export class BlocksSelect extends BlocksSelectResult {
+  static override get observedAttributes() {
+    return BlocksSelectResult.observedAttributes.concat([])
+  }
+
   static get role() {
     return 'select'
   }
-
-  searchString = ''
 
   constructor() {
     super()
@@ -128,6 +132,8 @@ class BlocksSelect extends BlocksSelectResult {
     this.#initKeymap()
   }
 
+  searchString = ''
+
   get selectedOptions() {
     return this.value
   }
@@ -142,14 +148,6 @@ class BlocksSelect extends BlocksSelectResult {
     forEach(this.options, option => {
       option.silentSelected(!!valueMap[option.value])
     })
-  }
-
-  get max() {
-    return intGetter('max')(this) ?? 0
-  }
-
-  set max(value) {
-    intSetter('max')(this, value)
   }
 
   #optionFilter?: (option: any, searchString: string) => boolean
@@ -369,14 +367,4 @@ class BlocksSelect extends BlocksSelectResult {
       this.#clearClickOutside = undefined
     }
   }
-
-  static override get observedAttributes() {
-    return BlocksSelectResult.observedAttributes.concat([])
-  }
 }
-
-if (!customElements.get('bl-select')) {
-  customElements.define('bl-select', BlocksSelect)
-}
-
-export { BlocksSelect }

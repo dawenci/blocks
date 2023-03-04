@@ -1,27 +1,35 @@
-import { numGetter, numSetter } from '../../common/property.js'
 import { scrollTo } from '../../common/scrollTo.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-
-const durationGetter = numGetter('duration')
-const durationSetter = numSetter('duration')
-const visibilityHeightGetter = numGetter('visibility-height')
-const visibilityHeightSetter = numSetter('visibility-height')
+import { make as makeModel } from './model.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import { model } from '../../decorators/model.js'
 
 export interface BlocksBackTop extends Component {
   _ref: { $layout: HTMLElement }
 }
 
+@customElement('bl-backtop')
 export class BlocksBackTop extends Component {
   #clearup?: () => void
   #target?: () => Node
+  _model = makeModel()
 
   static override get observedAttributes() {
-    return ['duration', 'target', 'visibility-height']
+    return ['target']
   }
+
+  // @model()
+  @attr('number')
+  accessor duration = 0
+
+  @attr('number')
+  accessor threshold = 400
 
   constructor() {
     super()
+
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template().content.cloneNode(true))
 
@@ -31,18 +39,12 @@ export class BlocksBackTop extends Component {
 
     this.addEventListener('click', () => {
       scrollTo(this.targetElement as HTMLElement, 0, {
-        duration: this.duration ?? undefined,
+        duration: this._model.get('duration'),
         done: () => this.render(),
       })
     })
-  }
 
-  get duration() {
-    return durationGetter(this)
-  }
-
-  set duration(value) {
-    durationSetter(this, value)
+    this._model.on('update:visible', this.render, this)
   }
 
   get target(): string | Node | null {
@@ -84,17 +86,9 @@ export class BlocksBackTop extends Component {
     return window
   }
 
-  get visibilityHeight(): number {
-    return visibilityHeightGetter(this) || 400
-  }
-
-  set visibilityHeight(value) {
-    visibilityHeightSetter(this, value)
-  }
-
   override render() {
-    const scrollTop = (this.targetElement as any).scrollTop
-    if (scrollTop >= this.visibilityHeight) {
+    const scrollTop = this._model.get('scrolled')
+    if (scrollTop >= this.threshold) {
       this.style.display = ''
     } else {
       this.style.display = 'none'
@@ -103,14 +97,14 @@ export class BlocksBackTop extends Component {
 
   override connectedCallback() {
     super.connectedCallback()
+
     this.render()
 
     const onTargetScroll = (e: Event) => {
       if (e.target === this.targetElement) {
-        this.render()
+        this._model.set('scrolled', (this.targetElement as any).scrollTop)
       }
     }
-
     const scrollEventOptions = {
       capture: true,
       passive: true,
@@ -121,6 +115,21 @@ export class BlocksBackTop extends Component {
     }
   }
 
+  override attributeChangedCallback(
+    attrName: string,
+    oldValue: any,
+    newValue: any
+  ): void {
+    super.attributeChangedCallback(attrName, oldValue, newValue)
+
+    if (attrName === 'duration') {
+      this._model.set('duration', this.duration)
+    }
+    if (attrName === 'threshold') {
+      this._model.set('threshold', this.threshold)
+    }
+  }
+
   override disconnectedCallback() {
     super.disconnectedCallback()
 
@@ -128,8 +137,4 @@ export class BlocksBackTop extends Component {
       this.#clearup()
     }
   }
-}
-
-if (!customElements.get('bl-backtop')) {
-  customElements.define('bl-backtop', BlocksBackTop)
 }

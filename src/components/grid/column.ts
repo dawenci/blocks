@@ -1,14 +1,16 @@
-import { intRangeGetter, intRangeSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './column-template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
-type DomRef = {
-  $slot: HTMLSlotElement
+export interface BlocksColumn extends Component {
+  _ref: {
+    $slot: HTMLSlotElement
+  }
 }
 
+@customElement('bl-col')
 export class BlocksColumn extends Component {
-  ref: DomRef
-
   static override get observedAttributes() {
     return [
       // 左侧空出多少个栅格列
@@ -22,51 +24,23 @@ export class BlocksColumn extends Component {
     ]
   }
 
+  @attr('intRange', { min: 1, max: 23 }) accessor pull!: number
+
+  @attr('intRange', { min: 1, max: 23 }) accessor push!: number
+
+  @attr('intRange', { min: 1, max: 24 }) accessor span!: number
+
+  @attr('intRange', { min: 1, max: 23 }) accessor offset!: number
+
   constructor() {
     super()
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template().content.cloneNode(true))
-    this.ref = { $slot: shadowRoot.querySelector('slot')! }
-  }
-
-  get pull() {
-    return intRangeGetter('pull', 1, 23)(this)
-  }
-
-  set pull(value) {
-    intRangeSetter('pull', 1, 23)(this, value)
-  }
-
-  get push() {
-    return intRangeGetter('push', 1, 23)(this)
-  }
-
-  set push(value) {
-    intRangeSetter('push', 1, 23)(this, value)
-  }
-
-  get span() {
-    return intRangeGetter('span', 1, 24)(this)
-  }
-
-  set span(value) {
-    intRangeSetter('span', 1, 24)(this, value)
-  }
-
-  get offset() {
-    return intRangeGetter('offset', 1, 23)(this)
-  }
-
-  set offset(value) {
-    intRangeSetter('offset', 1, 23)(this, value)
+    this._ref = { $slot: shadowRoot.querySelector('slot')! }
   }
 
   override connectedCallback() {
     super.connectedCallback()
     this.render()
   }
-}
-
-if (!customElements.get('bl-col')) {
-  customElements.define('bl-col', BlocksColumn)
 }

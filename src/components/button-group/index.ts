@@ -2,6 +2,7 @@ import '../button/index.js'
 import { BlocksButton } from '../button/index.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
 
 export interface BlocksButtonGroup extends Component {
   _ref: {
@@ -9,6 +10,7 @@ export interface BlocksButtonGroup extends Component {
   }
 }
 
+@customElement('bl-button-group')
 export class BlocksButtonGroup extends Component {
   constructor() {
     super()
@@ -32,8 +34,4 @@ export class BlocksButtonGroup extends Component {
       }
     })
   }
-}
-
-if (!customElements.get('bl-button-group')) {
-  customElements.define('bl-button-group', BlocksButtonGroup)
 }

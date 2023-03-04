@@ -1,9 +1,3 @@
-import {
-  boolGetter,
-  boolSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
 import { forEach } from '../../common/utils.js'
 import { Component } from '../Component.js'
 import {
@@ -13,12 +7,25 @@ import {
 } from './menu-group-template.js'
 import './menu-item.js'
 import { BlocksNavMenu } from './menu.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
+@customElement('bl-nav-menu-group')
 export class BlocksNavMenuGroup extends Component {
+  static override get observedAttributes() {
+    return ['title-text', 'horizontal', 'collapse']
+  }
+
   private _data!: MenuGroup
 
   $head: HTMLElement
   $body: HTMLElement
+
+  @attr('string') accessor titleText = ''
+
+  @attr('boolean') accessor horizontal!: boolean
+
+  @attr('boolean') accessor collapse!: boolean
 
   constructor() {
     super()
@@ -39,30 +46,6 @@ export class BlocksNavMenuGroup extends Component {
   }
   set $hostMenu($menu) {
     this.#hostMenu = $menu
-  }
-
-  get titleText() {
-    return strGetter('title')(this) ?? ''
-  }
-
-  set titleText(value) {
-    strSetter('title')(this, value)
-  }
-
-  get horizontal() {
-    return boolGetter('horizontal')(this)
-  }
-
-  set horizontal(value) {
-    boolSetter('horizontal')(this, value)
-  }
-
-  get collapse() {
-    return boolGetter('collapse')(this)
-  }
-
-  set collapse(value) {
-    boolSetter('collapse')(this, value)
   }
 
   get data() {
@@ -117,12 +100,4 @@ export class BlocksNavMenuGroup extends Component {
       if (child.clearActive) child.clearActive()
     })
   }
-
-  static override get observedAttributes() {
-    return ['title', 'horizontal', 'collapse']
-  }
-}
-
-if (!customElements.get('bl-nav-menu-group')) {
-  customElements.define('bl-nav-menu-group', BlocksNavMenuGroup)
 }

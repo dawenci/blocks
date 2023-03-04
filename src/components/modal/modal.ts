@@ -1,13 +1,10 @@
 import { BlocksDialog } from '../dialog/index.js'
-import {
-  boolGetter,
-  boolSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
+import { strGetter, strSetter } from '../../common/property.js'
 import { cancelButtonTemplate, confirmButtonTemplate } from './template.js'
 import { BlocksButton } from '../button/index.js'
 import { append, prepend, unmount } from '../../common/mount.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface BlocksModal extends BlocksDialog {
   _ref: BlocksDialog['_ref'] & {
@@ -20,6 +17,7 @@ export interface BlocksModal extends BlocksDialog {
   onCancel?: (value: any) => any
 }
 
+@customElement('bl-modal')
 export class BlocksModal extends BlocksDialog {
   #promise?: Promise<any>
   #resolve?: any
@@ -38,6 +36,18 @@ export class BlocksModal extends BlocksDialog {
     ])
   }
 
+  @attr('boolean') accessor withConfirm!: boolean
+
+  @attr('boolean') accessor withCancel!: boolean
+
+  @attr('boolean') accessor rich!: boolean
+
+  @attr('string') accessor confirmText!: string | null
+
+  @attr('string') accessor cancelText!: string | null
+
+  @attr('string') accessor content!: string | null
+
   constructor() {
     super()
 
@@ -50,38 +60,6 @@ export class BlocksModal extends BlocksDialog {
         }
       }
     })
-  }
-
-  get withConfirm() {
-    return boolGetter('with-confirm')(this)
-  }
-
-  set withConfirm(value) {
-    boolSetter('with-confirm')(this, value)
-  }
-
-  get withCancel() {
-    return boolGetter('with-cancel')(this)
-  }
-
-  set withCancel(value) {
-    boolSetter('with-cancel')(this, value)
-  }
-
-  get confirmText() {
-    return strGetter('confirm-text')(this)
-  }
-
-  set confirmText(value) {
-    strSetter('confirm-text')(this, value)
-  }
-
-  get cancelText() {
-    return strGetter('cancel-text')(this)
-  }
-
-  set cancelText(value) {
-    strSetter('cancel-text')(this, value)
   }
 
   #resolveValue?: () => any
@@ -108,22 +86,6 @@ export class BlocksModal extends BlocksDialog {
     } else {
       strSetter('reject-value')(this, value)
     }
-  }
-
-  get rich() {
-    return boolGetter('rich')(this)
-  }
-
-  set rich(value) {
-    boolSetter('rich')(this, value)
-  }
-
-  get content() {
-    return strGetter('content')(this)
-  }
-
-  set content(value) {
-    strSetter('content')(this, value)
   }
 
   get promise() {
@@ -255,8 +217,4 @@ export class BlocksModal extends BlocksDialog {
     }
     this.render()
   }
-}
-
-if (!customElements.get('bl-modal')) {
-  customElements.define('bl-modal', BlocksModal)
 }

@@ -20,7 +20,7 @@ describe('backtop', () => {
     const { $test, $scrollable, $backtop } = makeEl()
     mount($test)
 
-    $scrollable.scrollTo(0, $backtop.visibilityHeight)
+    $scrollable.scrollTo(0, $backtop.threshold)
     await delay(50)
     $backtop.dispatchEvent(new MouseEvent('click'))
     await delay($backtop.duration * 1000 + 50)
@@ -28,14 +28,14 @@ describe('backtop', () => {
     unmount($test)
   })
 
-  it('visibilityHeight', async () => {
+  it('threshold', async () => {
     const { $test, $scrollable, $backtop } = makeEl()
     mount($test)
-    $scrollable.scrollTo(0, $backtop.visibilityHeight)
+    $scrollable.scrollTo(0, $backtop.threshold)
     await delay(50)
     chai.expect('none').not.equal(getComputedStyle($backtop).display)
     await delay(50)
-    $scrollable.scrollTo(0, $backtop.visibilityHeight - 1)
+    $scrollable.scrollTo(0, $backtop.threshold - 1)
     await delay(50)
     chai.expect('none').to.equal(getComputedStyle($backtop).display)
     unmount($test)

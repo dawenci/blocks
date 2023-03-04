@@ -10,6 +10,8 @@ import {
   strGetter,
   strSetter,
 } from '../../common/property.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 interface CheckboxEventMap extends ComponentEventMap {
   change: CustomEvent<{ checked: boolean }>
@@ -36,6 +38,7 @@ export interface BlocksCheckbox extends Control {
   ): void
 }
 
+@customElement('bl-checkbox')
 export class BlocksCheckbox extends Control {
   static override get observedAttributes() {
     return super.observedAttributes.concat(['name', 'checked', 'indeterminate'])
@@ -44,6 +47,10 @@ export class BlocksCheckbox extends Control {
   static get role() {
     return 'checkbox'
   }
+
+  @attr('string') accessor name!: string | null
+  @attr('boolean') accessor checked!: boolean
+  @attr('boolean') accessor indeterminate!: boolean
 
   constructor() {
     super()
@@ -74,30 +81,6 @@ export class BlocksCheckbox extends Control {
         e.preventDefault()
       }
     })
-  }
-
-  get name() {
-    return strGetter('name')(this)
-  }
-
-  set name(value) {
-    strSetter('name')(this, value)
-  }
-
-  get checked() {
-    return checkedGetter(this)
-  }
-
-  set checked(value) {
-    checkedSetter(this, value)
-  }
-
-  get indeterminate() {
-    return boolGetter('indeterminate')(this)
-  }
-
-  set indeterminate(v) {
-    boolSetter('indeterminate')(this, v)
   }
 
   _renderIndeterminate() {
@@ -138,8 +121,4 @@ export class BlocksCheckbox extends Control {
       dispatchEvent(this, 'change', payload)
     }
   }
-}
-
-if (!customElements.get('bl-checkbox')) {
-  customElements.define('bl-checkbox', BlocksCheckbox)
 }

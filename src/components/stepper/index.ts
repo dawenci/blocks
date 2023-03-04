@@ -8,16 +8,29 @@ import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { parseIcon } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { stepperTemplate, stepTemplate } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js'
 
-export class BlocksSteps extends Component {
-  ref: {
+const statusEnum = ['wait', 'process', 'success', 'error']
+
+export interface BlocksSteps extends Component {
+  _ref: {
     $slot: HTMLSlotElement
     $layout: HTMLElement
   }
+}
 
+@customElement('bl-stepper')
+export class BlocksSteps extends Component {
   static override get observedAttributes() {
     return ['direction', 'size']
   }
+
+  @attr('enum', { enumValues: ['horizontal', 'vertical'] })
+  accessor direction!: NullableEnumAttr<['horizontal', 'vertical']>
+
+  @attrs.size accessor size!: EnumAttrs['size']
 
   constructor() {
     super()
@@ -26,26 +39,10 @@ export class BlocksSteps extends Component {
     const $slot = shadowRoot.querySelector('slot') as HTMLSlotElement
     const $layout = shadowRoot.getElementById('layout') as HTMLElement
 
-    this.ref = {
+    this._ref = {
       $slot,
       $layout,
     }
-  }
-
-  get direction() {
-    return enumGetter('direction', ['horizontal', 'vertical'])(this)
-  }
-
-  set direction(value) {
-    enumSetter('direction', ['horizontal', 'vertical'])(this, value)
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
   }
 
   override connectedCallback() {
@@ -54,25 +51,33 @@ export class BlocksSteps extends Component {
   }
 
   stepIndex($step: HTMLElement) {
-    return this.ref.$slot.assignedElements().findIndex($el => $el === $step)
+    return this._ref.$slot.assignedElements().findIndex($el => $el === $step)
   }
 }
 
-if (!customElements.get('bl-stepper')) {
-  customElements.define('bl-stepper', BlocksSteps)
-}
-
-export class BlocksStep extends Component {
-  ref: {
+export interface BlocksStep extends Component {
+  _ref: {
     $layout: HTMLElement
     $icon: HTMLElement
     $title: HTMLElement
     $description: HTMLElement
   }
+}
 
+@customElement('bl-step')
+export class BlocksStep extends Component {
   static override get observedAttributes() {
     return ['step-title', 'description', 'icon', 'status']
   }
+
+  @attr('string') accessor stepTitle!: string
+
+  @attr('string') accessor description!: string
+
+  @attr('string') accessor icon!: string
+
+  @attr('enum', { enumValues: statusEnum })
+  accessor status!: NullableEnumAttr<typeof statusEnum>
 
   constructor() {
     super()
@@ -84,7 +89,7 @@ export class BlocksStep extends Component {
     const $title = shadowRoot.getElementById('title') as HTMLElement
     const $description = shadowRoot.getElementById('description') as HTMLElement
 
-    this.ref = {
+    this._ref = {
       $layout,
       $icon,
       $title,
@@ -111,38 +116,6 @@ export class BlocksStep extends Component {
 
   get $stepper() {
     return this.closest('bl-stepper')! as BlocksSteps
-  }
-
-  get stepTitle() {
-    return strGetter('step-title')(this)
-  }
-
-  set stepTitle(value) {
-    strSetter('step-title')(this, value)
-  }
-
-  get description() {
-    return strGetter('description')(this)
-  }
-
-  set description(value) {
-    strSetter('description')(this, value)
-  }
-
-  get icon() {
-    return strGetter('icon')(this)
-  }
-
-  set icon(value) {
-    strSetter('icon')(this, value)
-  }
-
-  get status() {
-    return enumGetter('status', ['wait', 'process', 'success', 'error'])(this)
-  }
-
-  set status(value) {
-    enumSetter('status', ['wait', 'process', 'success', 'error'])(this, value)
   }
 
   override render() {
@@ -207,22 +180,18 @@ export class BlocksStep extends Component {
       $default = document.createElement('i')
       $default.textContent = String(this.$stepper.stepIndex(this) + 1)
     }
-    this._renderContent(this.ref.$icon, $default)
+    this._renderContent(this._ref.$icon, $default)
   }
 
   _renderTitle() {
     this._renderContent(
-      this.ref.$title,
+      this._ref.$title,
       document.createTextNode(this.stepTitle!)
     )
   }
 
   _renderDescription() {
     const $text = document.createTextNode(this.description ?? '')
-    this._renderContent(this.ref.$description, $text)
+    this._renderContent(this._ref.$description, $text)
   }
-}
-
-if (!customElements.get('bl-step')) {
-  customElements.define('bl-step', BlocksStep)
 }

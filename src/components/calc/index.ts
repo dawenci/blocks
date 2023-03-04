@@ -1,5 +1,4 @@
 import { dispatchEvent } from '../../common/event.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
 import { forEach } from '../../common/utils.js'
 import {
   Component,
@@ -7,6 +6,8 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 enum State {
   // 初始化状态
@@ -50,10 +51,13 @@ export interface BlocksCalc extends Component {
   ): void
 }
 
+@customElement('bl-calc')
 export class BlocksCalc extends Component {
   static override get observedAttributes() {
     return ['screen']
   }
+
+  @attr('string') accessor screen = ''
 
   memory = 0
   operand: number | null = null
@@ -90,14 +94,6 @@ export class BlocksCalc extends Component {
     this._ref = { $layout, $result, $input }
 
     this.screen = '0'
-  }
-
-  get screen() {
-    return this.getAttribute('screen') ?? ''
-  }
-
-  set screen(value) {
-    this.setAttribute('screen', value ?? '')
   }
 
   get memoryKeys() {
@@ -282,7 +278,9 @@ export class BlocksCalc extends Component {
       }
     })
 
-    dispatchEvent(this, 'bl:calc:screen', { detail: { value: this.getScreenValue() } })
+    dispatchEvent(this, 'bl:calc:screen', {
+      detail: { value: this.getScreenValue() },
+    })
     if (this.state === State.Result) {
       dispatchEvent(this, 'bl:calc:result', {
         detail: { value: this.getScreenValue() },
@@ -684,8 +682,4 @@ export class BlocksCalc extends Component {
       }
     }
   }
-}
-
-if (!customElements.get('bl-calc')) {
-  customElements.define('bl-calc', BlocksCalc)
 }

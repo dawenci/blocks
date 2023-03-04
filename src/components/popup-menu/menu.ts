@@ -14,8 +14,21 @@ import { BlocksNavMenu } from '../nav-menu/menu.js'
 import { BlocksNavMenuItem } from '../nav-menu/menu-item.js'
 import { BlocksNavMenuGroup } from '../nav-menu/menu-group.js'
 import { itemTemplate, groupTemplate } from './menu-template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
 
+@customElement('bl-popup-menu')
 export class BlocksPopupMenu extends BlocksPopup {
+  static override get observedAttributes() {
+    return BlocksPopup.observedAttributes.concat([
+      'level',
+      'size',
+      'enter-delay',
+      'leave-delay',
+    ])
+  }
+
   private _data: (MenuItem | MenuGroup)[]
   private _leaveTimer?: number
   private _enterTimer?: number
@@ -23,6 +36,14 @@ export class BlocksPopupMenu extends BlocksPopup {
 
   $parentItem?: BlocksPopupMenuItem | BlocksNavMenuItem
   $parentMenu?: BlocksPopupMenu | BlocksNavMenu
+
+  @attr('number') accessor enterDelay = 150
+
+  @attr('number') accessor leaveDelay = 200
+
+  @attrs.size accessor size!: EnumAttrs['size']
+
+  @attr('int') accessor level = 0
 
   constructor() {
     super()
@@ -36,38 +57,6 @@ export class BlocksPopupMenu extends BlocksPopup {
     this.onmouseleave = () => {
       this.leave()
     }
-  }
-
-  get enterDelay() {
-    return numGetter('enter-delay')(this) ?? 150
-  }
-
-  set enterDelay(value) {
-    numSetter('enter-delay')(this, value)
-  }
-
-  get leaveDelay() {
-    return numGetter('leave-delay')(this) ?? 200
-  }
-
-  set leaveDelay(value) {
-    numSetter('leave-delay')(this, value)
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
-  }
-
-  get level() {
-    return intGetter('level')(this) ?? 0
-  }
-
-  set level(value) {
-    intSetter('level')(this, value)
   }
 
   get data() {
@@ -237,17 +226,4 @@ export class BlocksPopupMenu extends BlocksPopup {
       this._clearClickOutside = undefined
     }
   }
-
-  static override get observedAttributes() {
-    return BlocksPopup.observedAttributes.concat([
-      'level',
-      'size',
-      'enter-delay',
-      'leave-delay',
-    ])
-  }
-}
-
-if (!customElements.get('bl-popup-menu')) {
-  customElements.define('bl-popup-menu', BlocksPopupMenu)
 }

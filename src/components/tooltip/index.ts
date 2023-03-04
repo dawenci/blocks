@@ -1,20 +1,15 @@
 import { BlocksPopup } from '../popup/index.js'
-import {
-  enumGetter,
-  enumSetter,
-  intGetter,
-  intSetter,
-} from '../../common/property.js'
 import { forEach } from '../../common/utils.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { EnumAttr } from '../../decorators/attr.js'
 
 const ATTRS = ['trigger-mode', 'content', 'open-delay', 'close-delay']
 
-const triggerModeGetter = enumGetter('trigger-mode', ['hover', 'click'])
-const triggerModeSetter = enumSetter('trigger-mode', ['hover', 'click'])
-
+@customElement('bl-tooltip')
 export class BlocksTooltip extends Component {
   static override get observedAttributes() {
     return BlocksPopup.observedAttributes.concat(ATTRS)
@@ -25,6 +20,15 @@ export class BlocksTooltip extends Component {
   private _enterTimer?: number
   private _leaveTimer?: number
   private _clearClickOutside?: () => void
+
+  @attr('string') accessor content = ''
+
+  @attr('int') accessor openDelay = 200
+
+  @attr('int') accessor closeDelay = 200
+
+  @attr('enum', { enumValues: ['hover', 'click'] })
+  accessor triggerMode: EnumAttr<['hover', 'click']> = 'hover'
 
   constructor() {
     super()
@@ -88,44 +92,12 @@ export class BlocksTooltip extends Component {
     })
   }
 
-  get content() {
-    return this.getAttribute('content') ?? ''
-  }
-
-  set content(value) {
-    this.setAttribute('content', value)
-  }
-
-  get openDelay() {
-    return intGetter('open-delay')(this) ?? 200
-  }
-
-  set openDelay(value) {
-    intSetter('open-delay')(this, value)
-  }
-
-  get closeDelay() {
-    return intGetter('close-delay')(this) ?? 200
-  }
-
-  set closeDelay(value) {
-    intSetter('close-delay')(this, value)
-  }
-
   get open() {
     return this.$popup.open
   }
 
   set open(value) {
     this.$popup.open = value
-  }
-
-  get triggerMode() {
-    return triggerModeGetter(this) ?? 'hover'
-  }
-
-  set triggerMode(value) {
-    triggerModeSetter(this, value)
   }
 
   override render() {
@@ -171,8 +143,4 @@ export class BlocksTooltip extends Component {
       this._clearClickOutside = undefined
     }
   }
-}
-
-if (!customElements.get('bl-tooltip')) {
-  customElements.define('bl-tooltip', BlocksTooltip)
 }

@@ -1,18 +1,19 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "target": "ESNext",
+    "target": "ES2022",
     "baseUrl": ".",
     "allowJs": false,
     "strict": true,
-    "experimentalDecorators": true,
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "noImplicitOverride": true,
     "sourceMap": false,
     "outDir": "dist",
-    "lib": ["DOM", "ESNext", ]
+    "lib": ["DOM", "ESNext", ],
+    "jsx": "react",
+    "jsxFactory": "Bl.createElement"
   },
   "include": [
     "src",

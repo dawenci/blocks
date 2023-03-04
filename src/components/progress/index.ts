@@ -1,33 +1,30 @@
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-  numGetter,
-  numSetter,
-} from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { NullableEnumAttr, attr } from '../../decorators/attr.js'
 
-const valueGetter = numGetter('value')
-const valueSetter = numSetter('value')
-const percentageGetter = boolGetter('percentage')
-const percentageSetter = boolSetter('percentage')
 const status = ['success', 'error', 'warning']
-const statusGetter = enumGetter('status', status)
-const statusSetter = enumSetter('status', status)
 
-type DomRef = {
-  $progress: HTMLElement
-  $value: HTMLElement
+export interface BlocksProgress extends Component {
+  _ref: {
+    $progress: HTMLElement
+    $value: HTMLElement
+  }
 }
 
+@customElement('bl-progress')
 export class BlocksProgress extends Component {
-  ref: DomRef
-
   static override get observedAttributes() {
     return ['value', 'status', 'percentage']
   }
+
+  @attr('number') accessor value!: number | null
+
+  @attr('enum', { enumValues: status }) accessor status!: NullableEnumAttr<
+    typeof status
+  >
+
+  @attr('boolean') accessor percentage!: boolean
 
   constructor() {
     super()
@@ -36,43 +33,19 @@ export class BlocksProgress extends Component {
     const $progress = shadowRoot.querySelector('#progress') as HTMLElement
     const $value = shadowRoot.querySelector('#value') as HTMLElement
 
-    this.ref = {
+    this._ref = {
       $progress,
       $value,
     }
   }
 
-  get value() {
-    return valueGetter(this)
-  }
-
-  set value(value) {
-    valueSetter(this, value)
-  }
-
-  get status() {
-    return statusGetter(this)
-  }
-
-  set status(value) {
-    statusSetter(this, value)
-  }
-
-  get percentage() {
-    return percentageGetter(this)
-  }
-
-  set percentage(value) {
-    percentageSetter(this, value)
-  }
-
   override render() {
-    this.ref.$progress.style.width = `${this.value}%`
+    this._ref.$progress.style.width = `${this.value}%`
     if (this.percentage) {
-      this.ref.$value.style.display = 'block'
-      this.ref.$value.textContent = `${this.value}%`
+      this._ref.$value.style.display = 'block'
+      this._ref.$value.textContent = `${this.value}%`
     } else {
-      this.ref.$value.style.display = 'none'
+      this._ref.$value.style.display = 'none'
     }
   }
 
@@ -89,8 +62,4 @@ export class BlocksProgress extends Component {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
   }
-}
-
-if (!customElements.get('bl-progress')) {
-  customElements.define('bl-progress', BlocksProgress)
 }

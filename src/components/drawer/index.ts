@@ -22,6 +22,9 @@ import {
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
 import { ComponentEventListener } from '../Component.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { EnumAttr } from '../../decorators/attr.js'
 
 type BlocksDrawerEventMap = WithOpenTransitionEventMap
 
@@ -47,7 +50,31 @@ export interface BlocksDrawer extends Control, WithOpenTransition {
   ): void
 }
 
+@customElement('bl-drawer')
 export class BlocksDrawer extends Control {
+  static override get observedAttributes() {
+    return [
+      'capturefocus',
+      'close-on-click-outside',
+      'close-on-escape',
+      'mask',
+      'name',
+      'open',
+      'placement',
+      'size',
+    ]
+  }
+
+  @attr('boolean') accessor capturefocus!: boolean
+  @attr('boolean') accessor closeOnClickOutside!: boolean
+  @attr('boolean') accessor closeOnEscape!: boolean
+  @attr('boolean') accessor mask!: boolean
+  @attr('boolean') accessor open!: boolean
+  @attr('string') accessor name!: string
+  @attr('string') accessor size = '30%'
+  @attr('enum', { enumValues: ['right', 'left', 'bottom', 'top'] })
+  accessor placement: EnumAttr<['right', 'left', 'bottom', 'top']> = 'right'
+
   constructor() {
     super()
 
@@ -63,73 +90,6 @@ export class BlocksDrawer extends Control {
     if (this.capturefocus) {
       this._captureFocus()
     }
-  }
-
-  get capturefocus() {
-    return boolGetter('capturefocus')(this)
-  }
-
-  set capturefocus(value) {
-    boolSetter('capturefocus')(this, value)
-  }
-
-  get closeOnClickOutside() {
-    return boolGetter('close-on-click-outside')(this)
-  }
-
-  set closeOnClickOutside(value) {
-    boolSetter('close-on-click-outside')(this, value)
-  }
-
-  get closeOnEscape() {
-    return boolGetter('close-on-escape')(this)
-  }
-
-  set closeOnEscape(value) {
-    boolSetter('close-on-escape')(this, value)
-  }
-
-  get mask() {
-    return boolGetter('mask')(this)
-  }
-
-  set mask(value) {
-    boolSetter('mask')(this, value)
-  }
-
-  get name() {
-    return strGetter('name')(this)
-  }
-
-  set name(value) {
-    strSetter('name')(this, value)
-  }
-
-  get open() {
-    return openGetter(this)
-  }
-
-  set open(value) {
-    openSetter(this, value)
-  }
-
-  get placement() {
-    return (
-      enumGetter('placement', ['right', 'left', 'bottom', 'top'])(this) ??
-      'right'
-    )
-  }
-
-  set placement(value) {
-    enumSetter('placement', ['right', 'left', 'bottom', 'top'])(this, value)
-  }
-
-  get size() {
-    return strGetter('size')(this) || '30%'
-  }
-
-  set size(value) {
-    strSetter('size')(this, value)
   }
 
   override render() {
@@ -341,23 +301,6 @@ export class BlocksDrawer extends Control {
       this._ref.$layout.removeChild(this._ref.$lastFocusable)
     }
   }
-
-  static override get observedAttributes() {
-    return [
-      'capturefocus',
-      'close-on-click-outside',
-      'close-on-escape',
-      'mask',
-      'name',
-      'open',
-      'placement',
-      'size',
-    ]
-  }
 }
 
 applyMixins(BlocksDrawer, [WithOpenTransition])
-
-if (!customElements.get('bl-drawer')) {
-  customElements.define('bl-drawer', BlocksDrawer)
-}

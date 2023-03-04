@@ -1,23 +1,43 @@
 import { ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { dispatchEvent } from '../../common/event.js'
-import {
-  checkedGetter,
-  checkedSetter,
-  sizeGetter,
-  sizeSetter,
-} from '../../common/propertyAccessor.js'
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
 import { switchStyleTemplate } from './template.js'
 import { Control } from '../base-control/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
 
 export interface SwitchEventMap extends ComponentEventMap {
   change: CustomEvent<{ checked: boolean }>
 }
 
+export interface BlocksSwitch extends Control {
+  addEventListener<K extends keyof SwitchEventMap>(
+    type: K,
+    listener: ComponentEventListener<SwitchEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof SwitchEventMap>(
+    type: K,
+    listener: ComponentEventListener<SwitchEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+}
+
+@customElement('bl-switch')
 export class BlocksSwitch extends Control {
+  static override get observedAttributes() {
+    return ['checked', 'disabled', 'size']
+  }
+
   static get role() {
     return 'switch'
   }
+
+  @attr('boolean') accessor checked!: boolean
+
+  @attrs.size accessor size!: EnumAttrs['size']
 
   constructor() {
     super()
@@ -34,22 +54,6 @@ export class BlocksSwitch extends Control {
     })
   }
 
-  get checked() {
-    return checkedGetter(this)
-  }
-
-  set checked(value) {
-    checkedSetter(this, value)
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
-  }
-
   override connectedCallback() {
     super.connectedCallback()
   }
@@ -64,28 +68,4 @@ export class BlocksSwitch extends Control {
       dispatchEvent(this, 'change', { detail: { value: this.checked } })
     }
   }
-
-  override addEventListener<K extends keyof SwitchEventMap>(
-    type: K,
-    listener: ComponentEventListener<SwitchEventMap[K]>,
-    options?: boolean | AddEventListenerOptions
-  ): void {
-    super.addEventListener(type, listener, options)
-  }
-
-  override removeEventListener<K extends keyof SwitchEventMap>(
-    type: K,
-    listener: ComponentEventListener<SwitchEventMap[K]>,
-    options?: boolean | EventListenerOptions
-  ): void {
-    super.removeEventListener(type, listener, options)
-  }
-
-  static override get observedAttributes() {
-    return ['checked', 'disabled', 'size']
-  }
-}
-
-if (!customElements.get('bl-switch')) {
-  customElements.define('bl-switch', BlocksSwitch)
 }

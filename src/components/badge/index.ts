@@ -1,6 +1,7 @@
-import { strGetter, strSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface BlocksBadge extends Component {
   _ref: {
@@ -9,10 +10,9 @@ export interface BlocksBadge extends Component {
   }
 }
 
+@customElement('bl-badge')
 export class BlocksBadge extends Component {
-  static override get observedAttributes() {
-    return ['value']
-  }
+  @attr('string') accessor value = ''
 
   constructor() {
     super()
@@ -23,14 +23,6 @@ export class BlocksBadge extends Component {
       $slot: shadowRoot.querySelector('slot')!,
       $badge: shadowRoot.getElementById('badge')!,
     }
-  }
-
-  get value() {
-    return strGetter('value')(this) ?? ''
-  }
-
-  set value(value) {
-    strSetter('value')(this, value)
   }
 
   override render() {
@@ -46,8 +38,4 @@ export class BlocksBadge extends Component {
 
     this.render()
   }
-}
-
-if (!customElements.get('bl-badge')) {
-  customElements.define('bl-badge', BlocksBadge)
 }

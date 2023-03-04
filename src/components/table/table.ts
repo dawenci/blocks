@@ -16,6 +16,8 @@ import { template } from './table-template.js'
 import { BlocksTableHeader, CellElement as HeaderCell } from './header.js'
 import { BlocksTableBody, CellElement } from './body.js'
 import { VirtualItem } from '../vlist/index.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 let gridId = 0
 
@@ -50,6 +52,7 @@ export interface BlocksTable extends Component {
   ): void
 }
 
+@customElement('bl-table')
 export class BlocksTable extends Component {
   _data: any
   _columns: RowColumn[] = []
@@ -60,6 +63,8 @@ export class BlocksTable extends Component {
   static override get observedAttributes() {
     return ['border']
   }
+
+  @attr('boolean') accessor border!: boolean
 
   constructor() {
     super()
@@ -138,14 +143,6 @@ export class BlocksTable extends Component {
     }
 
     this._initResizeEvent()
-  }
-
-  get border() {
-    return boolGetter('border')(this)
-  }
-
-  set border(value) {
-    boolSetter('border')(this, value)
   }
 
   get data() {
@@ -546,8 +543,4 @@ export class BlocksTable extends Component {
       },
     })
   }
-}
-
-if (!customElements.get('bl-table')) {
-  customElements.define('bl-table', BlocksTable)
 }

@@ -9,6 +9,8 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { contentTemplate, styleTemplate } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface ScrollableEventMap extends ComponentEventMap {
   'bl:scroll': CustomEvent
@@ -42,6 +44,7 @@ export interface BlocksScrollable extends Component {
   ): void
 }
 
+@customElement('bl-scrollable')
 export class BlocksScrollable extends Component {
   static override get observedAttributes() {
     return ['shadow']
@@ -52,6 +55,8 @@ export class BlocksScrollable extends Component {
   #canScrollRight?: boolean
   #canScrollTop?: boolean
   #canScrollBottom?: boolean
+
+  @attr('boolean') accessor shadow!: boolean
 
   constructor() {
     super()
@@ -92,14 +97,6 @@ export class BlocksScrollable extends Component {
       }
       dispatchEvent(this, 'bl:scroll')
     }
-  }
-
-  get shadow() {
-    return boolGetter('shadow')(this)
-  }
-
-  set shadow(value) {
-    boolSetter('shadow')(this, value)
   }
 
   get canScrollLeft() {
@@ -462,8 +459,4 @@ export class BlocksScrollable extends Component {
     super.connectedCallback()
     this.render()
   }
-}
-
-if (!customElements.get('bl-scrollable')) {
-  customElements.define('bl-scrollable', BlocksScrollable)
 }

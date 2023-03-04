@@ -1,14 +1,5 @@
 import '../tag/index.js'
-import {
-  boolGetter,
-  boolSetter,
-  intGetter,
-  intSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
-import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import {
   contentTemplate,
   moreTemplate,
@@ -30,6 +21,9 @@ import {
   ISelectResultComponent,
   ISelectResultEventMap,
 } from '../../common/connectSelectable.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import { EnumAttrs } from '../../decorators/attr.js'
 
 interface BlocksSelectResultEventMap
   extends ClearableControlBoxEventMap,
@@ -60,6 +54,7 @@ export interface BlocksSelectResult
   ): void
 }
 
+@customElement('bl-select-result')
 export class BlocksSelectResult extends ClearableControlBox {
   static override get observedAttributes() {
     return super.observedAttributes.concat([
@@ -73,6 +68,16 @@ export class BlocksSelectResult extends ClearableControlBox {
       'suffix-icon',
     ])
   }
+
+  @attrs.size accessor size!: EnumAttrs['size']
+
+  @attr('boolean') accessor multiple!: boolean
+
+  @attr('boolean') accessor searchable!: boolean
+
+  @attr('int') accessor maxTagCount = Infinity
+
+  @attr('string') accessor placeholder!: string | null
 
   constructor() {
     super()
@@ -98,47 +103,6 @@ export class BlocksSelectResult extends ClearableControlBox {
       const value = $tag.dataset.value
       this.deselect({ value, label })
     }
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
-    this.render()
-  }
-
-  get multiple() {
-    return boolGetter('multiple')(this)
-  }
-
-  set multiple(value) {
-    boolSetter('multiple')(this, value)
-  }
-
-  get maxTagCount() {
-    return intGetter('max-tag-count')(this) ?? Infinity
-  }
-
-  set maxTagCount(value) {
-    intSetter('max-tag-count')(this, value)
-  }
-
-  get searchable() {
-    return boolGetter('searchable')(this)
-  }
-
-  set searchable(value) {
-    boolSetter('searchable')(this, value)
-  }
-
-  get placeholder() {
-    return strGetter('placeholder')(this)
-  }
-
-  set placeholder(value) {
-    strSetter('placeholder')(this, value)
   }
 
   #formatter?: (item: ISelected) => string
@@ -434,11 +398,12 @@ export class BlocksSelectResult extends ClearableControlBox {
       case 'prefix-icon':
       case 'loading': {
         this._renderPlaceholder()
+        break
+      }
+      case 'size': {
+        this.render()
+        break
       }
     }
   }
-}
-
-if (!customElements.get('bl-select-result')) {
-  customElements.define('bl-select-result', BlocksSelectResult)
 }

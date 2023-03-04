@@ -1,13 +1,17 @@
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
 
-export class BlocksLoading extends Component {
+export interface BlocksLoading extends Component {
   _ref: {
     $layout: HTMLElement
     $icon?: SVGElement
   }
+}
 
+@customElement('bl-loading')
+export class BlocksLoading extends Component {
   constructor() {
     super()
     const shadowRoot = this.attachShadow({ mode: 'open' })
@@ -28,8 +32,4 @@ export class BlocksLoading extends Component {
     super.connectedCallback()
     this.render()
   }
-}
-
-if (!customElements.get('bl-loading')) {
-  customElements.define('bl-loading', BlocksLoading)
 }

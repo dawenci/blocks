@@ -1,24 +1,14 @@
-import {
-  boolGetter,
-  boolSetter,
-  intGetter,
-  intRangeGetter,
-  intRangeSetter,
-  intSetter,
-  numGetter,
-  numSetter,
-} from '../../common/property.js'
+import { numGetter, numSetter } from '../../common/property.js'
 import { forEach, round } from '../../common/utils.js'
 import { dispatchEvent } from '../../common/event.js'
-import {
-  disabledGetter,
-  disabledSetter,
-} from '../../common/propertyAccessor.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { setStyles } from '../../common/style.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
 
+@customElement('bl-slider')
 export class BlocksSlider extends Component {
   static get role() {
     return 'slider'
@@ -44,6 +34,20 @@ export class BlocksSlider extends Component {
     $point: HTMLButtonElement
   }
   #dragging = false
+
+  @attr('intRange', { min: 1, max: 10 }) accessor shadowSize = 2
+
+  @attr('intRange', { min: 14, max: 100 }) accessor size = 14
+
+  @attr('number') accessor min = 0
+
+  @attr('number') accessor max = 100
+
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('boolean') accessor vertical!: boolean
+
+  @attr('int') accessor round = 2
 
   constructor() {
     super()
@@ -74,62 +78,6 @@ export class BlocksSlider extends Component {
   set value(value) {
     if (!this.#validate(value) || this.value === value) return
     numSetter('value')(this, round(value, this.round))
-  }
-
-  get shadowSize() {
-    return intRangeGetter('shadow-size', 1, 10)(this) ?? 2
-  }
-
-  set shadowSize(value) {
-    intRangeSetter('shadow-size', 1, 10)(this, value)
-  }
-
-  get size() {
-    return intRangeGetter('size', 14, 100)(this) ?? 14
-  }
-
-  set size(value) {
-    intRangeSetter('size', 14, 100)(this, value)
-  }
-
-  get min() {
-    return numGetter('min')(this) ?? 0
-  }
-
-  set min(value) {
-    numSetter('min')(this, value)
-  }
-
-  get max() {
-    return numGetter('max')(this) ?? 100
-  }
-
-  set max(value) {
-    numSetter('max')(this, value)
-  }
-
-  get disabled() {
-    return disabledGetter(this)
-  }
-
-  set disabled(value) {
-    disabledSetter(this, value)
-  }
-
-  get vertical() {
-    return boolGetter('vertical')(this)
-  }
-
-  set vertical(value) {
-    boolSetter('vertical')(this, value)
-  }
-
-  get round() {
-    return intGetter('round')(this) ?? 2
-  }
-
-  set round(value) {
-    intSetter('round')(this, value)
   }
 
   override render() {
@@ -328,10 +276,6 @@ export class BlocksSlider extends Component {
       })
     }
   }
-}
-
-if (!customElements.get('bl-slider')) {
-  customElements.define('bl-slider', BlocksSlider)
 }
 
 function getRatio(current: number, min: number, max: number) {

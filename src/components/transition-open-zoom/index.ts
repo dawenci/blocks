@@ -1,8 +1,8 @@
 import { dispatchEvent } from '../../common/event.js'
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
-import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { attr } from '../../decorators/attr.js'
 
 export class BlocksTransitionOpenZoom extends Component {
   onOpen?: () => void
@@ -12,18 +12,12 @@ export class BlocksTransitionOpenZoom extends Component {
     return ['open']
   }
 
+  @attr('boolean') accessor open!: boolean
+
   constructor() {
     super()
     this.attachShadow({ mode: 'open' })
     this.shadowRoot!.appendChild(template().content.cloneNode(true))
-  }
-
-  get open() {
-    return openGetter(this)
-  }
-
-  set open(value) {
-    openSetter(this, value)
   }
 
   override attributeChangedCallback(

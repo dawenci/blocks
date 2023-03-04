@@ -1,13 +1,4 @@
 import { Component } from '../Component.js'
-import {
-  boolGetter,
-  boolSetter,
-  intGetter,
-  intSetter,
-  numGetter,
-  numSetter,
-} from '../../common/property.js'
-import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { forEach } from '../../common/utils.js'
 import { BlocksNavMenuItem } from './menu-item.js'
 import {
@@ -16,17 +7,53 @@ import {
   groupTemplate,
   itemTemplate,
 } from './menu-template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
 
 // TODO, collapse 模式，tooltip 显示一级菜单文本
+@customElement('bl-nav-menu')
 export class BlocksNavMenu extends Component {
   static get role() {
     return 'navigation'
+  }
+
+  static override get observedAttributes() {
+    return [
+      'horizontal',
+      'collapse',
+      'inline',
+      'submenu',
+      'level',
+      'expand',
+      'size',
+      'enter-delay',
+      'leave-delay',
+    ]
   }
 
   _data: (MenuItem | MenuGroup)[]
 
   $parentMenu?: BlocksNavMenu
   $parentItem?: BlocksNavMenuItem
+
+  @attr('number') accessor enterDelay = 150
+
+  @attr('number') accessor leaveDelay = 200
+
+  @attrs.size accessor size!: EnumAttrs['size']
+
+  @attr('int') accessor level = 0
+
+  @attr('boolean') accessor submenu!: boolean
+
+  @attr('boolean') accessor expand!: boolean
+
+  @attr('boolean') accessor inline!: boolean
+
+  @attr('boolean') accessor horizontal!: boolean
+
+  @attr('boolean') accessor collapse!: boolean
 
   constructor() {
     super()
@@ -48,78 +75,6 @@ export class BlocksNavMenu extends Component {
         $item = $item.$hostMenu.$parentItem
       }
     })
-  }
-
-  get enterDelay() {
-    return numGetter('enter-delay')(this) ?? 150
-  }
-
-  set enterDelay(value) {
-    numSetter('enter-delay')(this, value)
-  }
-
-  get leaveDelay() {
-    return numGetter('leave-delay')(this) ?? 200
-  }
-
-  set leaveDelay(value) {
-    numSetter('leave-delay')(this, value)
-  }
-
-  get size() {
-    return sizeGetter(this)
-  }
-
-  set size(value) {
-    sizeSetter(this, value)
-  }
-
-  get level() {
-    return intGetter('level')(this) ?? 0
-  }
-
-  set level(value) {
-    intSetter('level')(this, value)
-  }
-
-  get submenu() {
-    return boolGetter('submenu')(this)
-  }
-
-  set submenu(value) {
-    boolSetter('submenu')(this, value)
-  }
-
-  get expand() {
-    return boolGetter('expand')(this)
-  }
-
-  set expand(value) {
-    boolSetter('expand')(this, value)
-  }
-
-  get inline() {
-    return boolGetter('inline')(this)
-  }
-
-  set inline(value) {
-    boolSetter('inline')(this, value)
-  }
-
-  get horizontal() {
-    return boolGetter('horizontal')(this)
-  }
-
-  set horizontal(value) {
-    boolSetter('horizontal')(this, value)
-  }
-
-  get collapse() {
-    return boolGetter('collapse')(this)
-  }
-
-  set collapse(value) {
-    boolSetter('collapse')(this, value)
   }
 
   get data() {
@@ -227,24 +182,6 @@ export class BlocksNavMenu extends Component {
     // collapse 和 inline 互斥，inline 和 horizontal 互斥
     this.render()
   }
-
-  static override get observedAttributes() {
-    return [
-      'horizontal',
-      'collapse',
-      'inline',
-      'submenu',
-      'level',
-      'expand',
-      'size',
-      'enter-delay',
-      'leave-delay',
-    ]
-  }
-}
-
-if (!customElements.get('bl-nav-menu')) {
-  customElements.define('bl-nav-menu', BlocksNavMenu)
 }
 
 function isGroup(data: MenuItem | MenuGroup): data is MenuGroup {

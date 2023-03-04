@@ -44,6 +44,9 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { template } from './template.js'
+import { customElement } from '../../decorators/customElement.js'
+import { attr } from '../../decorators/attr.js'
+import type { EnumAttr } from '../../decorators/attr.js'
 
 interface DateEventMap extends ComponentEventMap {
   select: CustomEvent<{ value: Date[] | [Date, Date] | null }>
@@ -100,6 +103,7 @@ export interface BlocksDate extends Component {
   ): void
 }
 
+@customElement('bl-date')
 export class BlocksDate extends Component {
   // 按钮元素池
   #$pool: HTMLButtonElement[]
@@ -241,13 +245,14 @@ export class BlocksDate extends Component {
     this.#disabledDate = value
   }
 
-  get disabled() {
-    return disabledGetter(this)
-  }
+  @attr('boolean') accessor disabled!: boolean
 
-  set disabled(value) {
-    disabledSetter(this, value)
-  }
+  @attr('boolean') accessor loading!: boolean
+
+  @attr('int') accessor max!: number | null
+
+  @attr('enum', { enumValues: ['single', 'multiple', 'range'] })
+  accessor mode: EnumAttr<['single', 'multiple', 'range']> = 'single'
 
   /**
    * 用于确定哪一层级深度的面板是最终层级，用于 emit 值，具体：
@@ -255,16 +260,9 @@ export class BlocksDate extends Component {
    * 值为 Depth.Year 时，该组件用于选择月份
    * 值为 Depth.Decade 时，该组件用于选择年份
    */
-  get depth(): Depth {
-    return (
-      enumGetter('depth', [Depth.Month, Depth.Year, Depth.Decade])(this) ??
-      Depth.Month
-    )
-  }
-
-  set depth(value) {
-    enumSetter('depth', [Depth.Month, Depth.Year, Depth.Decade])(this, value)
-  }
+  @attr('enum', { enumValues: [Depth.Month, Depth.Year, Depth.Decade] })
+  accessor depth: EnumAttr<[Depth.Month, Depth.Year, Depth.Decade]> =
+    Depth.Month
 
   /**
    * 往上最小层级深度，如：
@@ -296,30 +294,6 @@ export class BlocksDate extends Component {
         normalizeViewDepth(value, this.mindepth, this.depth)
       )
     }
-  }
-
-  get loading() {
-    return boolGetter('loading')(this)
-  }
-
-  set loading(value) {
-    boolSetter('loading')(this, value)
-  }
-
-  get max() {
-    return intGetter('max')(this) || null
-  }
-
-  set max(value) {
-    intSetter('max')(this, value)
-  }
-
-  get mode() {
-    return enumGetter('mode', ['single', 'multiple', 'range'])(this) ?? 'single'
-  }
-
-  set mode(value) {
-    enumSetter('mode', ['single', 'multiple', 'range'])(this, value)
   }
 
   #badges?: Badge[]
@@ -1607,8 +1581,4 @@ export class BlocksDate extends Component {
       'value',
     ]
   }
-}
-
-if (!customElements.get('bl-date')) {
-  customElements.define('bl-date', BlocksDate)
 }
