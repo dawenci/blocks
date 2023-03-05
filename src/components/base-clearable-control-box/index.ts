@@ -1,12 +1,10 @@
-import {
-  clearableGetter,
-  clearableSetter,
-} from '../../common/propertyAccessor.js'
 import { ComponentEventListener } from '../Component.js'
 import { ControlBox, ControlBoxEventMap } from '../base-control-box/index.js'
 import { clearTemplate, styleTemplate } from './template.js'
 import { dispatchEvent } from '../../common/event.js'
 import { unmount } from '../../common/mount.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface ClearableControlBoxEventMap extends ControlBoxEventMap {
   'click-clear': CustomEvent
@@ -28,10 +26,9 @@ export interface ClearableControlBox extends ControlBox {
   ): void
 }
 
-export abstract class ClearableControlBox extends ControlBox {
-  static override get observedAttributes() {
-    return super.observedAttributes.concat(['clearable'])
-  }
+@defineClass
+export class ClearableControlBox extends ControlBox {
+  @attr('boolean') accessor clearable!: boolean
 
   constructor() {
     super()
@@ -45,14 +42,6 @@ export abstract class ClearableControlBox extends ControlBox {
         return
       }
     })
-  }
-
-  get clearable() {
-    return clearableGetter(this)
-  }
-
-  set clearable(value) {
-    clearableSetter(this, value)
   }
 
   // 检测内容是否为空，子类覆盖该实现

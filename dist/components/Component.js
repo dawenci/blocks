@@ -1,6 +1,34 @@
 import { append, mountAfter, mountBefore, prepend, unmount, } from '../common/mount.js';
 import { upgradeProperty } from '../common/upgradeProperty.js';
 export class Component extends HTMLElement {
+    static get observedAttributes() {
+        return [];
+    }
+    constructor() {
+        super();
+        const ctor = this.constructor;
+        if (ctor.hasOwnProperty('_shadowRootInit')) {
+            this.attachShadow(ctor._shadowRootInit);
+        }
+        if (ctor.hasOwnProperty('_$style') && this.shadowRoot) {
+            const $style = ctor._$style.cloneNode(true);
+            const $lastStyle = this._$lastStyle;
+            if ($lastStyle) {
+                mountAfter($style, this._$lastStyle);
+            }
+            else {
+                const styles = this.shadowRoot.children.length
+                    ? this.shadowRoot.querySelectorAll('style')
+                    : [];
+                if (styles.length) {
+                    mountAfter($style, styles[styles.length - 1]);
+                }
+                else {
+                    prepend($style, this.shadowRoot);
+                }
+            }
+        }
+    }
     connectedCallback() {
         this.initRole();
         this.upgradeProperty();
@@ -65,8 +93,5 @@ export class Component extends HTMLElement {
     }
     querySelectorAllShadow(selector) {
         return this.shadowRoot?.querySelectorAll?.(selector) ?? null;
-    }
-    static get observedAttributes() {
-        return [];
     }
 }

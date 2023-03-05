@@ -14,7 +14,7 @@ import {
   __height_large,
   __font_size_small,
   __font_size_large,
-  __color_primary_shadow,
+  // __color_primary_shadow,
   __fg_disabled,
   __border_color_disabled,
   __bg_disabled,
@@ -29,7 +29,7 @@ import {
 export const styleTemplate = makeStyleTemplate(
   /*css*/
   `
-/* <abstract component>base-control-box */
+/* <component>base-control-box */
 /* 变量 */
 :host {
   --bg-base: var(--bl-bg-base, ${__bg_base});

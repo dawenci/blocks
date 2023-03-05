@@ -109,7 +109,7 @@ export function attr(
       name: String(ctx.name),
       attrName,
       upgrade: true,
-      reactive: options.reactive,
+      observed: options.observed,
     })
 
     return {

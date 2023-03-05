@@ -1,7 +1,10 @@
 import { Component } from '../Component.js'
-import { template } from './template.js'
+import { style, template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
 import { attr } from '../../decorators/attr.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
+import { ref } from '../../decorators/ref.js'
 
 export interface BlocksBadge extends Component {
   _ref: {
@@ -11,17 +14,24 @@ export interface BlocksBadge extends Component {
 }
 
 @customElement('bl-badge')
+@attachShadow
+@applyStyle(style)
 export class BlocksBadge extends Component {
   @attr('string') accessor value = ''
 
+  @ref('#badge')
+  get $badge(): Element | null {
+    return null
+  }
+
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
-    shadowRoot.appendChild(template().content.cloneNode(true))
+
+    this.shadowRoot!.appendChild(template())
 
     this._ref = {
-      $slot: shadowRoot.querySelector('slot')!,
-      $badge: shadowRoot.getElementById('badge')!,
+      $slot: this.shadowRoot!.querySelector('slot')!,
+      $badge: this.shadowRoot!.getElementById('badge')!,
     }
   }
 

@@ -1,8 +1,9 @@
 import { makeStyleTemplate, makeTemplate } from '../../common/template.js';
 export const styleTemplate = makeStyleTemplate(`
-:host(:focus),
-:host(:focus-within),
-:host(:hover) {
+/* <component>input */
+:host(:focus:not([disabled])),
+:host(:focus-within:not([disabled])),
+:host(:hover:not([disabled])) {
   --fg: var(--fg-base);
   --bg: var(--bg-base);
 }

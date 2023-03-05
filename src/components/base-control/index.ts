@@ -1,10 +1,8 @@
 import { append, mountBefore } from '../../common/mount.js'
 import { strSetter } from '../../common/property.js'
-import {
-  disabledGetter,
-  disabledSetter,
-} from '../../common/propertyAccessor.js'
 import { Component } from '../Component.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface Control extends Component {
   _ref: {
@@ -12,10 +10,9 @@ export interface Control extends Component {
   }
 }
 
+@defineClass
 export class Control extends Component {
-  static override get observedAttributes() {
-    return super.observedAttributes.concat(['disabled'])
-  }
+  @attr('boolean') accessor disabled!: boolean
 
   constructor() {
     super()
@@ -55,14 +52,6 @@ export class Control extends Component {
   set internalTabIndex(value: `${number}` | null) {
     this.#internalTabIndex = value
     this._renderDisabled()
-  }
-
-  get disabled() {
-    return disabledGetter(this)
-  }
-
-  set disabled(value) {
-    disabledSetter(this, value)
   }
 
   _renderDisabled() {

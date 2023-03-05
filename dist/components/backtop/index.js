@@ -34,12 +34,16 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 };
 import { scrollTo } from '../../common/scrollTo.js';
 import { Component } from '../Component.js';
-import { template } from './template.js';
 import { make as makeModel } from './model.js';
 import { customElement } from '../../decorators/customElement.js';
 import { attr } from '../../decorators/attr.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
+import { template } from './template.js';
+import { style } from './style.js';
+import { strSetter } from '../../common/property.js';
 export let BlocksBackTop = (() => {
-    let _classDecorators = [customElement('bl-backtop')];
+    let _classDecorators = [customElement('bl-backtop'), attachShadow, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -61,9 +65,6 @@ export let BlocksBackTop = (() => {
         #clearup = (__runInitializers(this, _instanceExtraInitializers), void 0);
         #target;
         _model = makeModel();
-        static get observedAttributes() {
-            return ['target'];
-        }
         #duration_accessor_storage = __runInitializers(this, _duration_initializers, 0);
         get duration() { return this.#duration_accessor_storage; }
         set duration(value) { this.#duration_accessor_storage = value; }
@@ -72,10 +73,8 @@ export let BlocksBackTop = (() => {
         set threshold(value) { this.#threshold_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            const $layout = shadowRoot.querySelector('#layout');
-            this._ref = { $layout };
+            const shadowRoot = this.shadowRoot;
+            shadowRoot.appendChild(template());
             this.addEventListener('click', () => {
                 scrollTo(this.targetElement, 0, {
                     duration: this._model.get('duration'),
@@ -92,7 +91,7 @@ export let BlocksBackTop = (() => {
         }
         set target(value) {
             if (typeof value === 'string' || value === null) {
-                this.setAttribute('target', value);
+                strSetter('target')(this, value);
                 this.#target = undefined;
                 return;
             }

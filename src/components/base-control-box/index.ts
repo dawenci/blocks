@@ -1,9 +1,3 @@
-import {
-  boolGetter,
-  boolSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Control } from '../base-control/index.js'
@@ -21,6 +15,8 @@ import {
   prepend,
   unmount,
 } from '../../common/mount.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 
 export interface ControlBoxEventMap extends ComponentEventMap {
   'click-prefix-icon': CustomEvent
@@ -48,14 +44,13 @@ export interface ControlBox extends Control {
   ): void
 }
 
-export abstract class ControlBox extends Control {
-  static override get observedAttributes() {
-    return super.observedAttributes.concat([
-      'loading',
-      'prefix-icon',
-      'suffix-icon',
-    ])
-  }
+@defineClass
+export class ControlBox extends Control {
+  @attr('boolean') accessor loading!: boolean
+
+  @attr('string') accessor prefixIcon!: string | null
+
+  @attr('string') accessor suffixIcon!: string | null
 
   constructor() {
     super()
@@ -73,30 +68,6 @@ export abstract class ControlBox extends Control {
         return
       }
     })
-  }
-
-  get loading() {
-    return boolGetter('loading')(this)
-  }
-
-  set loading(value) {
-    boolSetter('loading')(this, value)
-  }
-
-  get prefixIcon() {
-    return strGetter('prefix-icon')(this)
-  }
-
-  set prefixIcon(value) {
-    strSetter('prefix-icon')(this, value)
-  }
-
-  get suffixIcon() {
-    return strGetter('suffix-icon')(this)
-  }
-
-  set suffixIcon(value) {
-    strSetter('suffix-icon')(this, value)
   }
 
   override _appendContent<T extends HTMLElement | DocumentFragment>($el: T) {

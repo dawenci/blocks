@@ -1,26 +1,22 @@
 import { scrollTo } from '../../common/scrollTo.js'
 import { Component } from '../Component.js'
-import { template } from './template.js'
 import { make as makeModel } from './model.js'
 import { customElement } from '../../decorators/customElement.js'
 import { attr } from '../../decorators/attr.js'
-import { model } from '../../decorators/model.js'
-
-export interface BlocksBackTop extends Component {
-  _ref: { $layout: HTMLElement }
-}
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
+import { template } from './template.js'
+import { style } from './style.js'
+import { strSetter } from '../../common/property.js'
 
 @customElement('bl-backtop')
+@attachShadow
+@applyStyle(style)
 export class BlocksBackTop extends Component {
   #clearup?: () => void
   #target?: () => Node
   _model = makeModel()
 
-  static override get observedAttributes() {
-    return ['target']
-  }
-
-  // @model()
   @attr('number')
   accessor duration = 0
 
@@ -30,12 +26,8 @@ export class BlocksBackTop extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
-    shadowRoot.appendChild(template().content.cloneNode(true))
-
-    const $layout = shadowRoot.querySelector('#layout') as HTMLDivElement
-
-    this._ref = { $layout }
+    const shadowRoot = this.shadowRoot!
+    shadowRoot.appendChild(template())
 
     this.addEventListener('click', () => {
       scrollTo(this.targetElement as HTMLElement, 0, {
@@ -56,7 +48,7 @@ export class BlocksBackTop extends Component {
 
   set target(value: string | null | Node | (() => Node)) {
     if (typeof value === 'string' || value === null) {
-      this.setAttribute('target', value as string)
+      strSetter('target')(this, value)
       this.#target = undefined
       return
     }

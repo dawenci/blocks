@@ -3,7 +3,7 @@ import { makeStyleTemplate, makeTemplate } from '../../common/template.js'
 export const styleTemplate = makeStyleTemplate(
   /*css*/
   `
-/* <abstract component>base-clearable-control-box */
+/* <component>base-clearable-control-box */
 :host([clearable]:hover) #layout:not(.empty) #suffix {
   opacity: 0;
   pointer-events: none;

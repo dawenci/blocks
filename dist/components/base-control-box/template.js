@@ -1,7 +1,7 @@
 import { makeStyleTemplate, makeTemplate } from '../../common/template.js';
 import { __transition_duration, __radius_base, __font_size_base, __fg_base, __fg_active, __fg_hover, __border_color_base, __border_color_hover, __border_color_active, __height_base, __height_small, __height_large, __font_size_small, __font_size_large, __fg_disabled, __border_color_disabled, __bg_disabled, __bg_hover, __bg_active, __bg_base, __radius_small, __radius_large, __focus_shadow, } from '../../theme/var-light.js';
 export const styleTemplate = makeStyleTemplate(`
-/* <abstract component>base-control-box */
+/* <component>base-control-box */
 /* 变量 */
 :host {
   --bg-base: var(--bl-bg-base, ${__bg_base});

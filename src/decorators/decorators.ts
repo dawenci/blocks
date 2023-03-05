@@ -8,7 +8,7 @@ export type AttrType =
 
 export type AttrOptions = {
   /** 不为 false，则会自动添加到组件类的 observedAttributes 数组中 */
-  reactive?: boolean
+  observed?: boolean
 
   /** 对于 enum 类型，需要提供 enum 的项 */
   enumValues?: any[] | readonly any[]
@@ -27,7 +27,7 @@ export type DecoratorRecord = {
   type: string
   attrName?: string
   upgrade?: boolean
-  reactive?: boolean
+  observed?: boolean
 }
 
 /**

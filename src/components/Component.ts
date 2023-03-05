@@ -38,6 +38,39 @@ export interface Component extends HTMLElement {
 }
 
 export abstract class Component extends HTMLElement {
+  static get observedAttributes(): readonly string[] | string[] {
+    return []
+  }
+
+  constructor() {
+    super()
+
+    const ctor = this.constructor as any
+
+    // 应用 @attachShadow 的结果
+    if (ctor.hasOwnProperty('_shadowRootInit')) {
+      this.attachShadow(ctor._shadowRootInit)
+    }
+
+    // 应用 @applyStyle 的结果
+    if (ctor.hasOwnProperty('_$style') && this.shadowRoot) {
+      const $style = ctor._$style.cloneNode(true)
+      const $lastStyle: HTMLStyleElement = (this as any)._$lastStyle
+      if ($lastStyle) {
+        mountAfter($style, (this as any)._$lastStyle)
+      } else {
+        const styles = this.shadowRoot.children.length
+          ? this.shadowRoot.querySelectorAll('style')
+          : []
+        if (styles.length) {
+          mountAfter($style, styles[styles.length - 1])
+        } else {
+          prepend($style, this.shadowRoot)
+        }
+      }
+    }
+  }
+
   /**
    * 附加到 DOM 的时候，自动执行属性 upgrade
    */
@@ -157,9 +190,5 @@ export abstract class Component extends HTMLElement {
    */
   querySelectorAllShadow<T extends Element>(selector: string) {
     return this.shadowRoot?.querySelectorAll?.<T>(selector) ?? null
-  }
-
-  static get observedAttributes(): readonly string[] | string[] {
-    return []
   }
 }
