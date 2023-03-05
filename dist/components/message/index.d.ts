@@ -1,4 +1,5 @@
 import { Component } from '../Component.js';
+import type { NullableEnumAttr } from '../../decorators/attr.js';
 export interface BlocksMessage extends Component {
     _ref: {
         $layout: HTMLElement;
@@ -9,13 +10,16 @@ export interface BlocksMessage extends Component {
 }
 export declare class BlocksMessage extends Component {
     static get observedAttributes(): string[];
+    accessor closeable: boolean;
+    accessor duration: number;
+    accessor type: NullableEnumAttr<[
+        'message',
+        'success',
+        'error',
+        'info',
+        'warning'
+    ]>;
     constructor();
-    get closeable(): boolean;
-    set closeable(value: boolean);
-    get type(): "error" | "message" | "success" | "info" | "warning" | null;
-    set type(value: "error" | "message" | "success" | "info" | "warning" | null);
-    get duration(): number;
-    set duration(value: number);
     close(): void;
     render(): void;
     destroy(): void;

@@ -1,8 +1,5 @@
 import { Component } from '../Component.js';
-export declare class BlocksRangeSlider extends Component {
-    #private;
-    static get role(): string;
-    static get observedAttributes(): string[];
+export interface BlocksRangeSlider extends Component {
     ref: {
         $layout: HTMLElement;
         $track: HTMLElement;
@@ -11,23 +8,21 @@ export declare class BlocksRangeSlider extends Component {
         $point2: HTMLButtonElement;
         $range: HTMLElement;
     };
+}
+export declare class BlocksRangeSlider extends Component {
+    #private;
+    static get role(): string;
+    static get observedAttributes(): string[];
+    accessor shadowSize: number;
+    accessor size: number;
+    accessor min: number;
+    accessor max: number;
+    accessor disabled: boolean;
+    accessor vertical: boolean;
+    accessor round: number;
     constructor();
     get value(): [number, number];
     set value(value: [number, number]);
-    get shadowSize(): number;
-    set shadowSize(value: number);
-    get size(): number;
-    set size(value: number);
-    get min(): number;
-    set min(value: number);
-    get max(): number;
-    set max(value: number);
-    get disabled(): boolean;
-    set disabled(value: boolean);
-    get vertical(): boolean;
-    set vertical(value: boolean);
-    get round(): number;
-    set round(value: number);
     render(): void;
     _renderDisabled(): void;
     connectedCallback(): void;

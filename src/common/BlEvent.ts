@@ -224,19 +224,19 @@ let _listening: any
 export class BlEvent {
   // 记录实践绑定
   // 只有需要的时候才生成
-  private __events__?: any
+  __events__?: any
 
   // id，监听时，用来辨识对象，
   // 只有需要的时候才生成
-  private __listenId__?: string
+  __listenId__?: string
 
   // 记录监听本事件对象的其他对象
   // 只有需要的时候才生成
-  private __listeners__?: any
+  __listeners__?: any
 
   // 记录监听中的其他事件对象的引用
   // 只有需要的时候才生成
-  private __listeningTo__?: any
+  __listeningTo__?: any
 
   /**
    * 绑定事件

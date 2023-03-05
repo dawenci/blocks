@@ -1,6 +1,7 @@
 import '../loading/index.js';
 import '../icon/index.js';
 import { Component } from '../Component.js';
+import type { NullableEnumAttr } from '../../decorators/attr.js';
 export interface BlocksImage extends Component {
     _ref: {
         $layout: HTMLElement;
@@ -11,21 +12,20 @@ export interface BlocksImage extends Component {
     _status: 'init' | 'loading' | 'loaded' | 'error';
 }
 export declare class BlocksImage extends Component {
-    #private;
     static get observedAttributes(): readonly ["alt", "fallback", "fit", "manual", "placeholder", "src"];
+    accessor alt: string | null;
+    accessor fallback: string | null;
+    accessor manual: boolean;
+    accessor placeholder: string | null;
+    accessor src: string | null;
+    accessor fit: NullableEnumAttr<[
+        'none',
+        'fill',
+        'contain',
+        'cover',
+        'scale-down'
+    ]>;
     constructor();
-    get alt(): string | null;
-    set alt(value: string | null);
-    get fallback(): string | null;
-    set fallback(value: string | null);
-    get manual(): boolean;
-    set manual(value: boolean);
-    get placeholder(): string | null;
-    set placeholder(value: string | null);
-    get fit(): "fill" | "none" | "contain" | "cover" | "scale-down" | null;
-    set fit(value: "fill" | "none" | "contain" | "cover" | "scale-down" | null);
-    get src(): string | null;
-    set src(value: string | null);
     _renderLoading(): void;
     _renderFail(): void;
     _renderSuccess(): void;

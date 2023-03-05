@@ -1,4 +1,4 @@
-declare type ScrollToOptions = {
+type ScrollToOptions = {
     duration?: number;
     done?: () => void;
     smoother?: (t: number) => number;

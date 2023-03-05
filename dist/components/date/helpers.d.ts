@@ -1,4 +1,4 @@
-export declare type WeekNumber = 1 | 2 | 3 | 4 | 5 | 6 | 0;
+export type WeekNumber = 1 | 2 | 3 | 4 | 5 | 6 | 0;
 export declare enum Depth {
     Month = "month",
     Year = "year",
@@ -19,7 +19,7 @@ export declare function getLastDateOfPrevMonth(year: number, month: number): Dat
 export declare function getClosestDate(dates?: Date[]): Date | null;
 export declare function normalizeMinDepth(min: Depth, depth: Depth): Depth;
 export declare function normalizeViewDepth(view: Depth, min: Depth, depth: Depth): Depth;
-export declare type DateModel = {
+export type DateModel = {
     label: string;
     century: number;
     decade: number;

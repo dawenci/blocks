@@ -7,11 +7,10 @@ export declare class BlocksPopupMenuGroup extends Component {
     _data: MenuGroup;
     $head: HTMLElement;
     $body: HTMLElement;
+    accessor titleText: string;
     constructor();
     get $hostMenu(): BlocksNavMenu | BlocksPopupMenu;
     set $hostMenu($menu: BlocksNavMenu | BlocksPopupMenu);
-    get titleText(): string;
-    set titleText(value: string);
     get data(): MenuGroup;
     set data(value: MenuGroup);
     connectedCallback(): void;

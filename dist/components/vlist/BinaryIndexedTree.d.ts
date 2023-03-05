@@ -1,4 +1,4 @@
-declare type BinaryIndexedTreeOptions = {
+type BinaryIndexedTreeOptions = {
     maxVal: number;
     defaultFrequency?: number;
 };

@@ -6,7 +6,7 @@ import { Component, ComponentEventListener, ComponentEventMap } from '../Compone
 import { BlocksTableHeader, CellElement as HeaderCell } from './header.js';
 import { BlocksTableBody } from './body.js';
 import { VirtualItem } from '../vlist/index.js';
-declare type ResizeHandler = HTMLElement & {
+type ResizeHandler = HTMLElement & {
     $cell: HeaderCell;
     column: RowColumn;
 };
@@ -31,9 +31,8 @@ export declare class BlocksTable extends Component {
     disableActiveMethod?: (vitem: VirtualItem) => boolean;
     shouldShowFixedColumns?: () => boolean;
     static get observedAttributes(): string[];
+    accessor border: boolean;
     constructor();
-    get border(): boolean;
-    set border(value: boolean);
     get data(): any;
     set data(value: any);
     get columns(): RowColumn[];

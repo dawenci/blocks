@@ -2,26 +2,25 @@ import { BlocksInput } from '../input/index.js';
 import { BlocksTime } from '../time/index.js';
 import { Component } from '../Component.js';
 import { BlocksPopup } from '../popup/index.js';
-export declare class BlocksTimePicker extends Component {
-    #private;
-    ref: {
+export interface BlocksTimePicker extends Component {
+    _ref: {
         $popup: BlocksPopup;
         $input: BlocksInput;
         $time: BlocksTime;
     };
+}
+export declare class BlocksTimePicker extends Component {
+    #private;
+    static get observedAttributes(): string[];
     _prevValue: {
         hour: number | null;
         minute: number | null;
         second: number | null;
     } | null;
-    static get observedAttributes(): string[];
+    accessor hour: number | null;
+    accessor minute: number | null;
+    accessor second: number | null;
     constructor();
-    get hour(): number | null;
-    set hour(value: number | null);
-    get minute(): number | null;
-    set minute(value: number | null);
-    get second(): number | null;
-    set second(value: number | null);
     connectedCallback(): void;
     disconnectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;

@@ -3,7 +3,7 @@ import '../scrollable/index.js';
 import { BlocksScrollable } from '../scrollable/index.js';
 import { BinaryIndexedTree } from './BinaryIndexedTree.js';
 import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
-declare type ElementWithData = HTMLElement & {
+type ElementWithData = HTMLElement & {
     virtualKey: string;
     virtualViewIndex: number;
 };
@@ -24,7 +24,7 @@ export interface VListEventMap extends ComponentEventMap {
     'before-render': CustomEvent;
     'after-render': CustomEvent;
 }
-declare type ItemOptions = {
+type ItemOptions = {
     virtualKey?: string;
     height?: number;
     calculated?: boolean;

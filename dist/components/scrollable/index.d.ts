@@ -34,9 +34,8 @@ export interface BlocksScrollable extends Component {
 export declare class BlocksScrollable extends Component {
     #private;
     static get observedAttributes(): string[];
+    accessor shadow: boolean;
     constructor();
-    get shadow(): boolean;
-    set shadow(value: boolean);
     get canScrollLeft(): boolean | undefined;
     set canScrollLeft(value: boolean | undefined);
     get canScrollRight(): boolean | undefined;

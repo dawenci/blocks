@@ -2,11 +2,11 @@ import '../loading/index.js';
 import '../icon/index.js';
 import { Component, ComponentEventListener } from '../Component.js';
 import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js';
-declare type ImageTransformStates = Map<HTMLImageElement, {
+type ImageTransformStates = Map<HTMLImageElement, {
     scale: number;
     rotate: number;
 }>;
-export declare type BlocksImageViewerEventMap = WithOpenTransitionEventMap;
+export type BlocksImageViewerEventMap = WithOpenTransitionEventMap;
 export interface BlocksImageViewer extends Component, WithOpenTransition {
     _ref: {
         $slot: HTMLSlotElement;

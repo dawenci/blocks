@@ -6,12 +6,10 @@ export interface Control extends Component {
 }
 export declare class Control extends Component {
     #private;
-    static get observedAttributes(): string[];
+    accessor disabled: boolean;
     constructor();
     get internalTabIndex(): `${number}` | null;
     set internalTabIndex(value: `${number}` | null);
-    get disabled(): boolean;
-    set disabled(value: boolean);
     _renderDisabled(): void;
     _appendStyle($style: HTMLStyleElement): void;
     _appendContent<T extends HTMLElement | DocumentFragment>($el: T): T;

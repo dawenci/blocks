@@ -1,4 +1,5 @@
 import { Component } from '../Component.js';
+import type { EnumAttr } from '../../decorators/attr.js';
 export declare class BlocksTooltip extends Component {
     static get observedAttributes(): string[];
     private $slot;
@@ -6,17 +7,13 @@ export declare class BlocksTooltip extends Component {
     private _enterTimer?;
     private _leaveTimer?;
     private _clearClickOutside?;
+    accessor content: string;
+    accessor openDelay: number;
+    accessor closeDelay: number;
+    accessor triggerMode: EnumAttr<['hover', 'click']>;
     constructor();
-    get content(): string;
-    set content(value: string);
-    get openDelay(): number;
-    set openDelay(value: number);
-    get closeDelay(): number;
-    set closeDelay(value: number);
     get open(): boolean;
     set open(value: boolean);
-    get triggerMode(): "click" | "hover";
-    set triggerMode(value: "click" | "hover");
     render(): void;
     connectedCallback(): void;
     disconnectedCallback(): void;

@@ -2,6 +2,7 @@ import '../tag/index.js';
 import { ComponentEventListener } from '../Component.js';
 import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js';
 import { ISelected, ISelectResultComponent, ISelectResultEventMap } from '../../common/connectSelectable.js';
+import { EnumAttrs } from '../../decorators/attr.js';
 interface BlocksSelectResultEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
     search: CustomEvent<{
         value: string;
@@ -20,17 +21,12 @@ export interface BlocksSelectResult extends ClearableControlBox, ISelectResultCo
 export declare class BlocksSelectResult extends ClearableControlBox {
     #private;
     static get observedAttributes(): string[];
+    accessor size: EnumAttrs['size'];
+    accessor multiple: boolean;
+    accessor searchable: boolean;
+    accessor maxTagCount: number;
+    accessor placeholder: string | null;
     constructor();
-    get size(): "small" | "large" | null;
-    set size(value: "small" | "large" | null);
-    get multiple(): boolean;
-    set multiple(value: boolean);
-    get maxTagCount(): number;
-    set maxTagCount(value: number);
-    get searchable(): boolean;
-    set searchable(value: boolean);
-    get placeholder(): string | null;
-    set placeholder(value: string | null);
     get formatter(): (item: ISelected) => string;
     set formatter(value: (item: ISelected) => string);
     get label(): string | null;

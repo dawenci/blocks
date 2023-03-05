@@ -7,6 +7,7 @@ export interface BlocksResult extends ClearableControlBox {
 }
 export declare class BlocksResult extends ClearableControlBox {
     static get observedAttributes(): string[];
+    accessor placeholder: string | null;
     constructor();
     get size(): "small" | "large" | null;
     set size(value: "small" | "large" | null);

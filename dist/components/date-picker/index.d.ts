@@ -27,14 +27,14 @@ export declare class BlocksDatePicker extends Component {
     render(): void;
     get value(): Date | Date[] | null;
     set value(value: Date | Date[] | null);
-    get disabledDate(): ((data: import("../date/helpers.js").DateModel, context: {
-        depth: import("../date/helpers.js").Depth;
-        viewDepth: import("../date/helpers.js").Depth;
+    get disabledDate(): ((data: import("../date/helpers").DateModel, context: {
+        depth: import("../date/helpers").Depth;
+        viewDepth: import("../date/helpers").Depth;
         component: BlocksDate;
     }) => boolean) | undefined;
-    set disabledDate(value: ((data: import("../date/helpers.js").DateModel, context: {
-        depth: import("../date/helpers.js").Depth;
-        viewDepth: import("../date/helpers.js").Depth;
+    set disabledDate(value: ((data: import("../date/helpers").DateModel, context: {
+        depth: import("../date/helpers").Depth;
+        viewDepth: import("../date/helpers").Depth;
         component: BlocksDate;
     }) => boolean) | undefined);
     getDateProp(prop: string): any;

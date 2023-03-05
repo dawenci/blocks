@@ -1,7 +1,7 @@
 import { BlocksVList, VirtualItem, VListEventMap } from '../vlist/index.js';
 import { ComponentEventListener } from '../Component.js';
 import { ISelectableListComponent, ISelectListEventMap } from '../../common/connectSelectable.js';
-export declare type NodeData = {
+export type NodeData = {
     [index: number]: any;
     [key: string]: any;
     children?: NodeData[];
@@ -46,43 +46,29 @@ export interface BLocksTree extends BlocksVList, ISelectableListComponent {
 }
 export declare class BlocksTree extends BlocksVList {
     #private;
+    static get observedAttributes(): string[];
     labelMethod?: (data: any) => string;
     uniqCid: string;
     _checkedSet: Set<VirtualNode>;
+    accessor activeKey: string | null;
+    accessor activable: boolean;
+    accessor checkable: boolean;
+    accessor checkOnClickNode: boolean;
+    accessor checkStrictly: boolean;
+    accessor defaultFoldAll: boolean;
+    accessor disabled: boolean;
+    accessor expandOnClickNode: boolean;
+    accessor wrap: boolean;
+    accessor multiple: boolean;
+    accessor indentUnit: number;
+    accessor idField: string | null;
+    accessor labelField: string | null;
+    accessor search: string | null;
     constructor();
-    static get observedAttributes(): string[];
-    get activeKey(): string | null;
-    set activeKey(value: string | null);
-    get activable(): boolean;
-    set activable(value: boolean);
     get checkedData(): NodeData[];
     set checkedData(value: NodeData[]);
     get checked(): string[];
     set checked(ids: string[]);
-    get checkable(): boolean;
-    set checkable(value: boolean);
-    get checkOnClickNode(): boolean;
-    set checkOnClickNode(value: boolean);
-    get checkStrictly(): boolean;
-    set checkStrictly(value: boolean);
-    get defaultFoldAll(): boolean;
-    set defaultFoldAll(value: boolean);
-    get disabled(): boolean;
-    set disabled(value: boolean);
-    get expandOnClickNode(): boolean;
-    set expandOnClickNode(value: boolean);
-    get indentUnit(): number;
-    set indentUnit(value: number);
-    get idField(): string | null;
-    set idField(value: string | null);
-    get labelField(): string | null;
-    set labelField(value: string | null);
-    get search(): string | null;
-    set search(value: string | null);
-    get wrap(): boolean;
-    set wrap(value: boolean);
-    get multiple(): boolean;
-    set multiple(value: boolean);
     select(data: NodeData): void;
     deselect(data: NodeData): void;
     clearSelected(): void;

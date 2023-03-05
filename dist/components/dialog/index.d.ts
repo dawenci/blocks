@@ -4,7 +4,7 @@ import { BlocksModalMask } from '../modal-mask/index.js';
 import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js';
 import { Control } from '../base-control/index.js';
 import { ComponentEventListener } from '../Component.js';
-declare type BlocksDialogEventMap = WithOpenTransitionEventMap;
+type BlocksDialogEventMap = WithOpenTransitionEventMap;
 interface BlocksDialog extends Control, WithOpenTransition {
     _ref: Control['_ref'] & {
         $mask: BlocksModalMask;
@@ -17,19 +17,15 @@ interface BlocksDialog extends Control, WithOpenTransition {
 }
 declare class BlocksDialog extends Control {
     #private;
+    static get observedAttributes(): string[];
     static get role(): string;
+    accessor mask: boolean;
+    accessor closeable: boolean;
+    accessor capturefocus: boolean;
+    accessor appendToBody: boolean;
+    accessor titleText: string;
     removeAfterClose: boolean;
     constructor();
-    get mask(): boolean;
-    set mask(value: boolean);
-    get titleText(): string;
-    set titleText(value: string);
-    get closeable(): boolean;
-    set closeable(value: boolean);
-    get capturefocus(): boolean;
-    set capturefocus(value: boolean);
-    get appendToBody(): boolean;
-    set appendToBody(value: boolean);
     render(): void;
     _captureFocus(): void;
     _stopCaptureFocus(): void;
@@ -43,6 +39,5 @@ declare class BlocksDialog extends Control {
     _initDragEvents(): void;
     disconnectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    static get observedAttributes(): string[];
 }
 export { BlocksDialog };

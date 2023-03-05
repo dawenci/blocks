@@ -1,8 +1,7 @@
 import './notification.js';
 import { NotificationPlacement } from './notification.js';
-declare type NotifyOptions = {
+type NotifyOptions = {
     type?: any;
-    dark?: any;
     closeable?: boolean;
     duration?: number;
     content?: string;

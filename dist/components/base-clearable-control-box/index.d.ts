@@ -10,11 +10,9 @@ export interface ClearableControlBox extends ControlBox {
     addEventListener<K extends keyof ClearableControlBoxEventMap>(type: K, listener: ComponentEventListener<ClearableControlBoxEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof ClearableControlBoxEventMap>(type: K, listener: ComponentEventListener<ClearableControlBoxEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare abstract class ClearableControlBox extends ControlBox {
-    static get observedAttributes(): string[];
+export declare class ClearableControlBox extends ControlBox {
+    accessor clearable: boolean;
     constructor();
-    get clearable(): boolean;
-    set clearable(value: boolean);
     _isEmpty(): boolean;
     _appendContent<T extends HTMLElement | DocumentFragment>($el: T): T;
     _renderSuffixIcon(): void;

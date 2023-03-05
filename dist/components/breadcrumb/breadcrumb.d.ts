@@ -6,12 +6,11 @@ export interface BlocksBreadcrumb extends Component {
 }
 export declare class BlocksBreadcrumb extends Component {
     #private;
+    static get observedAttributes(): string[];
     constructor();
-    get separator(): string;
-    set separator(value: string);
+    accessor separator: string;
     render(): void;
     connectedCallback(): void;
     disconnectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    static get observedAttributes(): string[];
 }

@@ -1,13 +1,14 @@
 import { Component } from '../Component.js';
-export declare class BlocksBadge extends Component {
-    ref: {
+export interface BlocksBadge extends Component {
+    _ref: {
         $slot: HTMLSlotElement;
         $badge: HTMLElement;
     };
+}
+export declare class BlocksBadge extends Component {
+    accessor value: string;
+    get $badge(): Element | null;
     constructor();
-    get value(): string;
-    set value(value: string);
     render(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    static get observedAttributes(): string[];
 }

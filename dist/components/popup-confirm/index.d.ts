@@ -8,11 +8,9 @@ export declare class BlocksPopupConfirm extends Component {
     confirm?: () => Promise<any>;
     cancel?: () => Promise<any>;
     static get observedAttributes(): string[];
+    accessor icon: string;
+    accessor message: string;
     constructor();
-    get icon(): string;
-    set icon(value: string);
-    get message(): string;
-    set message(value: string);
     get origin(): import("../popup/index.js").PopupOrigin;
     set origin(value: import("../popup/index.js").PopupOrigin);
     get open(): boolean;

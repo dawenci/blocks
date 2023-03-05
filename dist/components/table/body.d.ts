@@ -2,7 +2,7 @@ import { BlocksVList, VListEventMap } from '../vlist/index.js';
 import { BlocksTable } from './table.js';
 import { RowColumn } from './RowColumn.js';
 import { ComponentEventListener } from '../Component.js';
-export declare type CellElement = HTMLElement & {
+export type CellElement = HTMLElement & {
     column: RowColumn;
     data: any;
 };
@@ -26,19 +26,17 @@ export interface BlocksTableBody extends BlocksVList {
 }
 export declare class BlocksTableBody extends BlocksVList {
     #private;
+    static get observedAttributes(): string[];
     columns: RowColumn[];
     flattenColumns: RowColumn[];
     fixedLeftColumns: RowColumn[];
     fixedRightColumns: RowColumn[];
+    accessor sortField: string | null;
+    accessor sortOrder: string | null;
+    accessor summaryHeight: number;
     constructor();
     get $host(): BlocksTable;
     set $host(table: BlocksTable);
-    get sortField(): string | null;
-    set sortField(value: string | null);
-    get sortOrder(): string | null;
-    set sortOrder(value: string | null);
-    get summaryHeight(): number;
-    set summaryHeight(value: number);
     get shouldRenderSummary(): boolean;
     sortMethod(data: any[]): Promise<any[]>;
     beforeRender(): void;
@@ -53,5 +51,4 @@ export declare class BlocksTableBody extends BlocksVList {
     connectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     doSort(): void;
-    static get observedAttributes(): string[];
 }

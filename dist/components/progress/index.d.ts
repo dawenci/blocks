@@ -1,18 +1,18 @@
 import { Component } from '../Component.js';
-declare type DomRef = {
-    $progress: HTMLElement;
-    $value: HTMLElement;
-};
+import { NullableEnumAttr } from '../../decorators/attr.js';
+declare const status: string[];
+export interface BlocksProgress extends Component {
+    _ref: {
+        $progress: HTMLElement;
+        $value: HTMLElement;
+    };
+}
 export declare class BlocksProgress extends Component {
-    ref: DomRef;
     static get observedAttributes(): string[];
+    accessor value: number | null;
+    accessor status: NullableEnumAttr<typeof status>;
+    accessor percentage: boolean;
     constructor();
-    get value(): number | null;
-    set value(value: number | null);
-    get status(): string | null;
-    set status(value: string | null);
-    get percentage(): boolean;
-    set percentage(value: boolean);
     render(): void;
     connectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: string, newValue: string): void;

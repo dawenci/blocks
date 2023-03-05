@@ -1,8 +1,8 @@
-declare type Offset = {
+type Offset = {
     x: number;
     y: number;
 };
-declare type Point = {
+type Point = {
     clientX: number;
     clientY: number;
     pageX: number;
@@ -10,13 +10,13 @@ declare type Point = {
     screenX: number;
     screenY: number;
 };
-export declare type OnEnd = (data: {
+export type OnEnd = (data: {
     eventType: string;
     start: Point;
     current: Point;
     offset: Offset;
 }) => void;
-export declare type OnMove = (data: {
+export type OnMove = (data: {
     eventType: string;
     preventDefault: () => boolean;
     stopPropagation: () => boolean;
@@ -25,13 +25,13 @@ export declare type OnMove = (data: {
     current: Point;
     offset: Offset;
 }) => void;
-export declare type OnCancel = (data: {
+export type OnCancel = (data: {
     eventType: string;
     start: Point;
     current: Point;
     offset: Offset;
 }) => void;
-export declare type OnStart = (data: {
+export type OnStart = (data: {
     eventType: string;
     $target: HTMLElement;
     start: Point;
@@ -42,7 +42,7 @@ export declare type OnStart = (data: {
     stopPropagation: () => boolean;
     stopImmediatePropagation: () => boolean;
 }) => void;
-declare type Options = {
+type Options = {
     onStart?: OnStart;
     onEnd?: OnEnd;
     onMove?: OnMove;

@@ -1,6 +1,7 @@
 import '../loading/index.js';
 import { DateModel, Depth } from './helpers.js';
 import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
+import type { EnumAttr } from '../../decorators/attr.js';
 interface DateEventMap extends ComponentEventMap {
     select: CustomEvent<{
         value: Date[] | [Date, Date] | null;
@@ -48,13 +49,13 @@ interface DateEventMap extends ComponentEventMap {
         century: number;
     }>;
 }
-declare type Badge = {
+type Badge = {
     year: number;
     month?: number;
     date?: number;
     label?: string;
 };
-declare type WeekNumber = 1 | 2 | 3 | 4 | 5 | 6 | 0;
+type WeekNumber = 1 | 2 | 3 | 4 | 5 | 6 | 0;
 export interface BlocksDate extends Component {
     _ref: {
         $panel: HTMLElement;
@@ -89,20 +90,15 @@ export declare class BlocksDate extends Component {
         viewDepth: Depth;
         component: BlocksDate;
     }) => boolean) | undefined);
-    get disabled(): boolean;
-    set disabled(value: boolean);
-    get depth(): Depth;
-    set depth(value: Depth);
+    accessor disabled: boolean;
+    accessor loading: boolean;
+    accessor max: number | null;
+    accessor mode: EnumAttr<['single', 'multiple', 'range']>;
+    accessor depth: EnumAttr<[Depth.Month, Depth.Year, Depth.Decade]>;
     get mindepth(): Depth;
     set mindepth(value: Depth);
     get startdepth(): Depth;
     set startdepth(value: Depth);
-    get loading(): boolean;
-    set loading(value: boolean);
-    get max(): number | null;
-    set max(value: number | null);
-    get mode(): "multiple" | "single" | "range";
-    set mode(value: "multiple" | "single" | "range");
     get badges(): Badge[];
     set badges(value: Badge[]);
     get startWeekOn(): WeekNumber;

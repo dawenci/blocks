@@ -7,22 +7,21 @@ import { BlocksPopup } from '../popup/index.js';
 import { BlocksSelectResult } from '../select-result/index.js';
 import { BlocksOption } from './option.js';
 import { ISelected } from '../../common/connectSelectable.js';
-interface BlocksSelect extends BlocksSelectResult {
+export interface BlocksSelect extends BlocksSelectResult {
     _ref: BlocksSelectResult['_ref'] & {
         $optionSlot: HTMLSlotElement;
         $popup: BlocksPopup;
         $list: HTMLElement;
     };
 }
-declare class BlocksSelect extends BlocksSelectResult {
+export declare class BlocksSelect extends BlocksSelectResult {
     #private;
+    static get observedAttributes(): string[];
     static get role(): string;
-    searchString: string;
     constructor();
+    searchString: string;
     get selectedOptions(): ISelected | ISelected[] | null | undefined;
     set selectedOptions(value: ISelected | ISelected[] | null | undefined);
-    get max(): number;
-    set max(value: number);
     get optionFilter(): (option: any, searchString: string) => any;
     set optionFilter(value: (option: any, searchString: string) => any);
     get options(): any[];
@@ -35,6 +34,4 @@ declare class BlocksSelect extends BlocksSelectResult {
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     _selectOption(option: BlocksOption): void;
     filter(): void;
-    static get observedAttributes(): string[];
 }
-export { BlocksSelect };

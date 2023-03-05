@@ -1,4 +1,5 @@
 import { Component } from '../Component.js';
+import type { NullableEnumAttr } from '../../decorators/attr.js';
 export declare enum NotificationPlacement {
     TopRight = "top-right",
     BottomRight = "bottom-right",
@@ -13,23 +14,21 @@ export declare enum NotificationType {
     Warning = "warning"
 }
 export declare const notificationTypes: NotificationType[];
-declare type DomRef = {
-    $layout: HTMLElement;
-    $icon: HTMLElement;
-    $content: HTMLElement;
-    $close?: HTMLButtonElement;
-};
+export interface BlocksNotification extends Component {
+    ref: {
+        $layout: HTMLElement;
+        $icon: HTMLElement;
+        $content: HTMLElement;
+        $close?: HTMLButtonElement;
+    };
+}
 export declare class BlocksNotification extends Component {
     #private;
-    ref: DomRef;
     static get observedAttributes(): string[];
+    accessor closeable: boolean;
+    accessor duration: number;
+    accessor type: NullableEnumAttr<typeof notificationTypes>;
     constructor();
-    get closeable(): boolean;
-    set closeable(value: boolean);
-    get type(): NotificationType | null;
-    set type(value: NotificationType | null);
-    get duration(): number;
-    set duration(value: number);
     close(): void;
     render(): void;
     destroy(): void;
@@ -38,4 +37,3 @@ export declare class BlocksNotification extends Component {
     _clearAutoClose(): void;
     _setAutoClose(): void;
 }
-export {};

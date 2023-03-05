@@ -5,6 +5,7 @@ import { BlocksPopupMenu } from '../popup-menu/index.js';
 import type { BlocksNavMenu } from './menu.js';
 export declare class BlocksNavMenuItem extends Component {
     #private;
+    static get observedAttributes(): string[];
     private $layout;
     private $label;
     private $icon;
@@ -12,6 +13,10 @@ export declare class BlocksNavMenuItem extends Component {
     private _leaveTimer?;
     private _enterTimer?;
     private _data;
+    accessor expand: boolean;
+    accessor active: boolean;
+    accessor disabled: boolean;
+    accessor link: boolean;
     constructor();
     get $hostMenu(): BlocksNavMenu;
     set $hostMenu($menu: BlocksNavMenu);
@@ -22,15 +27,7 @@ export declare class BlocksNavMenuItem extends Component {
     get $rootMenu(): BlocksNavMenu;
     get isInlineMode(): boolean;
     get isCollapseMode(): boolean;
-    get expand(): boolean;
-    set expand(value: boolean);
-    get active(): boolean;
-    set active(value: boolean);
     get hasSubmenu(): boolean;
-    get disabled(): boolean;
-    set disabled(value: boolean);
-    get link(): boolean;
-    set link(value: boolean);
     get data(): MenuItem;
     set data(value: MenuItem);
     render(): void;
@@ -40,5 +37,4 @@ export declare class BlocksNavMenuItem extends Component {
     clearEnterTimer(): void;
     clearLeaveTimer(): void;
     clearActive(): void;
-    static get observedAttributes(): string[];
 }

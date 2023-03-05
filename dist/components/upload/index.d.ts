@@ -1,7 +1,7 @@
 import '../button/index.js';
 import '../progress/index.js';
 import { Component } from '../Component.js';
-declare type Options = {
+type Options = {
     includes?: any[];
     file: any;
 };
@@ -12,15 +12,17 @@ declare enum State {
     Error = 3,
     Abort = 4
 }
-declare type DomRef = {
-    $layout: HTMLElement;
-    $list: HTMLElement;
-    $dropZone: HTMLElement;
-    $fileInput: HTMLInputElement;
-    $chooseButton: HTMLButtonElement;
-};
+export interface BlocksUpload extends Component {
+    ref: {
+        $layout: HTMLElement;
+        $list: HTMLElement;
+        $dropZone: HTMLElement;
+        $fileInput: HTMLInputElement;
+        $chooseButton: HTMLButtonElement;
+    };
+}
 export declare class BlocksUpload extends Component {
-    ref: DomRef;
+    static get observedAttributes(): string[];
     _list: Array<{
         file: File;
         filename: string;
@@ -34,19 +36,17 @@ export declare class BlocksUpload extends Component {
     onAbort?: (error: Error, options: Options) => void;
     onError?: (error: Error, options: Options) => void;
     onSuccess?: (data: any, options: Options) => void;
+    accessor accept: string | null;
+    accessor action: string;
+    accessor autoUpload: boolean;
+    accessor disabled: boolean;
+    accessor dragDrop: boolean;
+    accessor multiple: boolean;
+    accessor withCredentials: boolean;
+    accessor name: string;
     constructor();
-    get accept(): string | null;
-    set accept(value: string | null);
-    get action(): string;
-    set action(value: string);
-    get autoUpload(): boolean;
-    set autoUpload(value: boolean);
     get data(): any;
     set data(value: any);
-    get disabled(): boolean;
-    set disabled(value: boolean);
-    get dragDrop(): boolean;
-    set dragDrop(value: boolean);
     _headers: any;
     get headers(): any;
     set headers(value: any);
@@ -61,12 +61,6 @@ export declare class BlocksUpload extends Component {
         type: string;
         abort?: (() => void) | undefined;
     }[];
-    get multiple(): boolean;
-    set multiple(value: boolean);
-    get name(): string;
-    set name(value: string);
-    get withCredentials(): boolean;
-    set withCredentials(value: boolean);
     connectedCallback(): void;
     attributeChangedCallback(attrName: string, ov: any, v: any): void;
     upload(options?: Options): void;
@@ -90,6 +84,5 @@ export declare class BlocksUpload extends Component {
     _onAbort(error: any, options: Options): void;
     _onError(error: any, options: Options): void;
     _onSuccess(data: any, options: Options): void;
-    static get observedAttributes(): string[];
 }
 export {};

@@ -1,4 +1,4 @@
-declare type Data = {
+type Data = {
     spinX: number;
     spinY: number;
     pixelX: number;

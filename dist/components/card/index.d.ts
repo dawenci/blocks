@@ -1,4 +1,5 @@
 import { Component } from '../Component.js';
+import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js';
 export interface BlocksCard extends Component {
     _ref: {
         $header: HTMLHeadElement;
@@ -6,9 +7,9 @@ export interface BlocksCard extends Component {
     };
 }
 export declare class BlocksCard extends Component {
-    constructor();
-    get shadow(): "always" | "hover" | null;
-    set shadow(value: "always" | "hover" | null);
-    connectedCallback(): void;
     static get observedAttributes(): string[];
+    accessor shadow: NullableEnumAttr<['hover', 'always']>;
+    accessor size: EnumAttrs['size'];
+    constructor();
+    connectedCallback(): void;
 }

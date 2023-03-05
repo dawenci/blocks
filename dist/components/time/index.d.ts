@@ -1,6 +1,7 @@
 import '../scrollable/index.js';
 import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
 import { BlocksScrollable } from '../scrollable/index.js';
+import type { EnumAttrs } from '../../decorators/attr.js';
 interface TimeEventMap extends ComponentEventMap {
     change: CustomEvent<{
         hour: number;
@@ -9,16 +10,24 @@ interface TimeEventMap extends ComponentEventMap {
     }>;
 }
 declare const mutableAttrs: readonly ["hour", "minute", "second", "size"];
-declare type MutableAttrs = typeof mutableAttrs[number];
-export declare class BlocksTime extends Component {
-    #private;
-    ref: {
+type MutableAttrs = (typeof mutableAttrs)[number];
+export interface BlocksTime extends Component {
+    _ref: {
         $layout: HTMLElement;
         $hours: BlocksScrollable;
         $minutes: BlocksScrollable;
         $seconds: BlocksScrollable;
     };
+    addEventListener<K extends keyof TimeEventMap>(type: K, listener: ComponentEventListener<TimeEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof TimeEventMap>(type: K, listener: ComponentEventListener<TimeEventMap[K]>, options?: boolean | EventListenerOptions): void;
+}
+export declare class BlocksTime extends Component {
+    #private;
     static get observedAttributes(): readonly ["hour", "minute", "second", "size"];
+    accessor hour: number | null;
+    accessor minute: number | null;
+    accessor second: number | null;
+    accessor size: EnumAttrs['size'];
     constructor();
     get disabledHour(): ((data: number, context: {
         hour: number | null;
@@ -56,12 +65,6 @@ export declare class BlocksTime extends Component {
         second: number | null;
         component: BlocksTime;
     }) => boolean) | undefined);
-    get hour(): number | null;
-    set hour(value: number | null);
-    get minute(): number | null;
-    set minute(value: number | null);
-    get second(): number | null;
-    set second(value: number | null);
     get value(): [number, number, number] | null;
     set value(value: [number, number, number] | null);
     connectedCallback(): void;
@@ -71,7 +74,5 @@ export declare class BlocksTime extends Component {
     _scrollToActive(): void;
     scrollToActive(): void;
     triggerChange(): void;
-    addEventListener<K extends keyof TimeEventMap>(type: K, listener: ComponentEventListener<TimeEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof TimeEventMap>(type: K, listener: ComponentEventListener<TimeEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
 export {};

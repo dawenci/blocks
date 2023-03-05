@@ -4,7 +4,8 @@ import { BlocksModalMask } from '../modal-mask/index.js';
 import { Control } from '../base-control/index.js';
 import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js';
 import { ComponentEventListener } from '../Component.js';
-declare type BlocksDrawerEventMap = WithOpenTransitionEventMap;
+import type { EnumAttr } from '../../decorators/attr.js';
+type BlocksDrawerEventMap = WithOpenTransitionEventMap;
 export interface BlocksDrawer extends Control, WithOpenTransition {
     _ref: Control['_ref'] & {
         $name: HTMLElement;
@@ -18,23 +19,16 @@ export interface BlocksDrawer extends Control, WithOpenTransition {
 }
 export declare class BlocksDrawer extends Control {
     #private;
+    static get observedAttributes(): string[];
+    accessor capturefocus: boolean;
+    accessor closeOnClickOutside: boolean;
+    accessor closeOnEscape: boolean;
+    accessor mask: boolean;
+    accessor open: boolean;
+    accessor name: string;
+    accessor size: string;
+    accessor placement: EnumAttr<['right', 'left', 'bottom', 'top']>;
     constructor();
-    get capturefocus(): boolean;
-    set capturefocus(value: boolean);
-    get closeOnClickOutside(): boolean;
-    set closeOnClickOutside(value: boolean);
-    get closeOnEscape(): boolean;
-    set closeOnEscape(value: boolean);
-    get mask(): boolean;
-    set mask(value: boolean);
-    get name(): string | null;
-    set name(value: string | null);
-    get open(): boolean;
-    set open(value: boolean);
-    get placement(): "left" | "top" | "bottom" | "right";
-    set placement(value: "left" | "top" | "bottom" | "right");
-    get size(): string;
-    set size(value: string);
     render(): void;
     connectedCallback(): void;
     disconnectedCallback(): void;
@@ -46,6 +40,5 @@ export declare class BlocksDrawer extends Control {
     _ensureMask(): BlocksModalMask;
     _captureFocus(): void;
     _stopCaptureFocus(): void;
-    static get observedAttributes(): string[];
 }
 export {};

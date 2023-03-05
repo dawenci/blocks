@@ -1,4 +1,6 @@
 import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
+import { ColorFormat, ColorTuple4 } from './Color.js';
+import type { EnumAttr } from '../../decorators/attr.js';
 interface ColorEventMap extends ComponentEventMap {
     change: CustomEvent<{
         value: string;
@@ -24,44 +26,36 @@ export interface BlocksColor extends Component {
     removeEventListener<K extends keyof ColorEventMap>(type: K, listener: ComponentEventListener<ColorEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
 export declare class BlocksColor extends Component {
-    private _hue;
-    private _saturation;
-    private _value;
-    private _alpha;
+    static get observedAttributes(): string[];
+    accessor value: number | null;
+    accessor mode: EnumAttr<['hex', 'rgb', 'hsl', 'hsv']>;
+    private _lastHue;
+    private _color;
+    get _alpha(): number;
     private _clearResizeHandler?;
     private _dragging;
     private _preventUpdateControl;
     private _preventUpdateModel;
     constructor();
-    get value(): string | null;
-    set value(value: string | null);
-    get mode(): "rgb" | "hex" | "hsl" | "hsv";
-    set mode(value: "rgb" | "hex" | "hsl" | "hsv");
-    get hex(): string | null;
-    set hex(value: string | null);
-    get hsl(): [number, number, number];
-    set hsl([hl, sl, l]: [number, number, number]);
-    get hsla(): number[];
-    set hsla([hl, sl, l, a]: number[]);
-    get hsv(): number[];
-    set hsv([h, s, v]: number[]);
-    get hsva(): number[];
-    set hsva([h, s, v, a]: number[]);
-    get rgb(): number[];
-    set rgb([r, g, b]: number[]);
-    get rgba(): [number, number, number, number];
-    set rgba([r, g, b, a]: [number, number, number, number]);
+    get hex(): string;
+    set hex(value: string);
+    get rgb(): import("./Color.js").ColorTuple3;
+    set rgb([r, g, b]: import("./Color.js").ColorTuple3);
+    get rgba(): ColorTuple4;
+    set rgba([r, g, b, a]: ColorTuple4);
+    get hsl(): import("./Color.js").ColorTuple3;
+    set hsl([hl, sl, l]: import("./Color.js").ColorTuple3);
+    get hsla(): ColorTuple4;
+    set hsla([hl, sl, l, a]: ColorTuple4);
+    get hsv(): import("./Color.js").ColorTuple3;
+    set hsv([h, s, v]: import("./Color.js").ColorTuple3);
+    get hsva(): ColorTuple4;
+    set hsva([h, s, v, a]: ColorTuple4);
     connectedCallback(): void;
     disconnectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     render(): void;
-    toHexString(): string | null;
-    toRgbString(): string;
-    toRgbaString(): string;
-    toHslString(): string;
-    toHslaString(): string;
-    toHsvString(): string;
-    toHsvaString(): string;
+    format(fmt: ColorFormat): string;
     _updateControls(): void;
     _setStates(hue: number, saturation: number, value: number, alpha: number): boolean;
     _updateState(): boolean;
@@ -70,6 +64,5 @@ export declare class BlocksColor extends Component {
     _initModeChangeEvent(): void;
     _initInputEvents(): void;
     _initPickEvents(): void;
-    static get observedAttributes(): string[];
 }
 export {};

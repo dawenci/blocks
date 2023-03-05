@@ -1,6 +1,7 @@
 import { Control } from '../base-control/index.js';
 import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js';
 import { ComponentEventListener } from '../Component.js';
+import type { EnumAttr } from '../../decorators/attr.js';
 export declare enum PopupOrigin {
     Center = "center",
     TopStart = "top-start",
@@ -16,8 +17,9 @@ export declare enum PopupOrigin {
     LeftCenter = "left-center",
     LeftStart = "left-start"
 }
-declare type AnchorFn = () => null | string | Element;
-declare type Anchor = null | string | Element | AnchorFn;
+declare const originArray: PopupOrigin[];
+type AnchorFn = () => null | string | Element;
+type Anchor = null | string | Element | AnchorFn;
 interface PopupEventMap extends WithOpenTransitionEventMap {
     test: CustomEvent;
 }
@@ -33,27 +35,19 @@ export declare class BlocksPopup extends Control {
     #private;
     static get role(): string;
     static get observedAttributes(): string[];
+    accessor origin: EnumAttr<typeof originArray>;
+    accessor inset: boolean;
+    accessor appendToBody: boolean;
+    accessor arrow: boolean;
+    accessor autofocus: boolean;
+    accessor capturefocus: boolean;
+    accessor autoflip: boolean;
+    accessor restorefocus: boolean;
     constructor();
-    get origin(): PopupOrigin;
-    set origin(value: PopupOrigin);
-    get inset(): boolean;
-    set inset(value: boolean);
-    get anchor(): Anchor;
-    set anchor(value: Anchor);
     get offset(): [number, number];
     set offset(value: [number, number]);
-    get appendToBody(): boolean;
-    set appendToBody(value: boolean);
-    get arrow(): boolean;
-    set arrow(value: boolean);
-    get autofocus(): boolean;
-    set autofocus(value: boolean);
-    get capturefocus(): boolean;
-    set capturefocus(value: boolean);
-    get autoflip(): boolean;
-    set autoflip(value: boolean);
-    get restorefocus(): boolean;
-    set restorefocus(value: boolean);
+    get anchor(): Anchor;
+    set anchor(value: Anchor);
     getAnchorFrame(): {
         x1: number;
         x2: number;

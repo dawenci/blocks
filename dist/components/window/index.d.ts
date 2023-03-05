@@ -9,29 +9,7 @@ interface WinEventMap extends WithOpenTransitionEventMap {
         height: number;
     }>;
 }
-declare class BlocksWindow extends Control {
-    #private;
-    static get role(): string;
-    static get observedAttributes(): string[];
-    constructor();
-    get actions(): string;
-    set actions(value: string);
-    get capturefocus(): boolean;
-    set capturefocus(value: boolean);
-    get icon(): string | null;
-    set icon(value: string | null);
-    get maximized(): boolean;
-    set maximized(value: boolean);
-    get minimized(): boolean;
-    set minimized(value: boolean);
-    get name(): string | null;
-    set name(value: string | null);
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    addEventListener<K extends keyof WinEventMap>(type: K, listener: ComponentEventListener<WinEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof WinEventMap>(type: K, listener: ComponentEventListener<WinEventMap[K]>, options?: boolean | EventListenerOptions): void;
-}
-interface BlocksWindow extends Control, WithOpenTransition {
+export interface BlocksWindow extends Control, WithOpenTransition {
     _ref: Control['_ref'] & {
         $header: HTMLElement;
         $body: HTMLElement;
@@ -47,5 +25,22 @@ interface BlocksWindow extends Control, WithOpenTransition {
         $firstFocusable?: HTMLButtonElement;
         $lastFocusable?: HTMLButtonElement;
     };
+    addEventListener<K extends keyof WinEventMap>(type: K, listener: ComponentEventListener<WinEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof WinEventMap>(type: K, listener: ComponentEventListener<WinEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export { BlocksWindow };
+export declare class BlocksWindow extends Control {
+    #private;
+    static get role(): string;
+    static get observedAttributes(): string[];
+    accessor capturefocus: boolean;
+    accessor maximized: boolean;
+    accessor minimized: boolean;
+    accessor icon: string | null;
+    accessor name: string | null;
+    constructor();
+    get actions(): string;
+    set actions(value: string);
+    connectedCallback(): void;
+    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
+}
+export {};

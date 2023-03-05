@@ -1,36 +1,36 @@
 import { Component } from '../Component.js';
-export declare class BlocksSteps extends Component {
-    ref: {
+import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js';
+declare const statusEnum: string[];
+export interface BlocksSteps extends Component {
+    _ref: {
         $slot: HTMLSlotElement;
         $layout: HTMLElement;
     };
+}
+export declare class BlocksSteps extends Component {
     static get observedAttributes(): string[];
+    accessor direction: NullableEnumAttr<['horizontal', 'vertical']>;
+    accessor size: EnumAttrs['size'];
     constructor();
-    get direction(): "horizontal" | "vertical" | null;
-    set direction(value: "horizontal" | "vertical" | null);
-    get size(): "small" | "large" | null;
-    set size(value: "small" | "large" | null);
     connectedCallback(): void;
     stepIndex($step: HTMLElement): number;
 }
-export declare class BlocksStep extends Component {
-    ref: {
+export interface BlocksStep extends Component {
+    _ref: {
         $layout: HTMLElement;
         $icon: HTMLElement;
         $title: HTMLElement;
         $description: HTMLElement;
     };
+}
+export declare class BlocksStep extends Component {
     static get observedAttributes(): string[];
+    accessor stepTitle: string;
+    accessor description: string;
+    accessor icon: string;
+    accessor status: NullableEnumAttr<typeof statusEnum>;
     constructor();
     get $stepper(): BlocksSteps;
-    get stepTitle(): string | null;
-    set stepTitle(value: string | null);
-    get description(): string | null;
-    set description(value: string | null);
-    get icon(): string | null;
-    set icon(value: string | null);
-    get status(): "error" | "success" | "wait" | "process" | null;
-    set status(value: "error" | "success" | "wait" | "process" | null);
     render(): void;
     connectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
@@ -39,3 +39,4 @@ export declare class BlocksStep extends Component {
     _renderTitle(): void;
     _renderDescription(): void;
 }
+export {};

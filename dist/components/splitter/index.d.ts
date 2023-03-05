@@ -1,20 +1,21 @@
 import { Component } from '../Component.js';
-export declare class BlocksSplitter extends Component {
-    ref: {
+import type { EnumAttr } from '../../decorators/attr.js';
+export interface BlocksSplitter extends Component {
+    _ref: {
         $layout: HTMLElement;
         $panes: HTMLElement;
         $cover: HTMLElement;
         $slot: HTMLSlotElement;
     };
+}
+export declare class BlocksSplitter extends Component {
     panes: BlocksSplitterPane[];
     handles: HTMLElement[];
     static get observedAttributes(): string[];
+    accessor direction: EnumAttr<['horizontal', 'vertical']>;
+    accessor handleSize: number;
     constructor();
     _renderDirection(): void;
-    get direction(): "horizontal" | "vertical";
-    set direction(value: "horizontal" | "vertical");
-    get handleSize(): number;
-    set handleSize(value: number);
     get size(): number;
     _offSizeObserve?: () => void;
     connectedCallback(): void;
@@ -41,18 +42,14 @@ export declare class BlocksSplitter extends Component {
     toggleCover(visible: boolean): void;
 }
 export declare class BlocksSplitterPane extends Component {
+    static get observedAttributes(): string[];
+    accessor basis: number;
+    accessor grow: number;
+    accessor shrink: number;
+    accessor max: number;
+    accessor min: number;
     collapseSize?: number;
     constructor();
-    get basis(): number;
-    set basis(value: number);
-    get grow(): number;
-    set grow(value: number);
-    get shrink(): number;
-    set shrink(value: number);
-    get max(): number;
-    set max(value: number);
-    get min(): number;
-    set min(value: number);
     _size?: number | null;
     get size(): number;
     set size(value: number);
@@ -61,5 +58,4 @@ export declare class BlocksSplitterPane extends Component {
     connectedCallback(): void;
     collapse(): void;
     expand(): void;
-    static get observedAttributes(): string[];
 }

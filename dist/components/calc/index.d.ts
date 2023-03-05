@@ -9,10 +9,10 @@ declare enum State {
     Result = "Result"
 }
 interface CalcEventMap extends ComponentEventMap {
-    screen: CustomEvent<{
+    'bl:calc:screen': CustomEvent<{
         value: number;
     }>;
-    result: CustomEvent<{
+    'bl:calc:result': CustomEvent<{
         value: number;
     }>;
 }
@@ -26,6 +26,8 @@ export interface BlocksCalc extends Component {
     removeEventListener<K extends keyof CalcEventMap>(type: K, listener: ComponentEventListener<CalcEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
 export declare class BlocksCalc extends Component {
+    static get observedAttributes(): string[];
+    accessor screen: string;
     memory: number;
     operand: number | null;
     operator: string | null;
@@ -38,10 +40,6 @@ export declare class BlocksCalc extends Component {
     makeDiv: (n1: number) => (n2: number) => number;
     makeFn: (op: string) => (n1: number) => (n2: number) => number;
     constructor();
-    get dark(): boolean;
-    set dark(value: boolean);
-    get screen(): string;
-    set screen(value: string);
     get memoryKeys(): {
         value: string;
         label: string;
@@ -78,6 +76,5 @@ export declare class BlocksCalc extends Component {
     inputNumber(n: string): void;
     inputOperator(op: string): void;
     inputEqual(): void;
-    static get observedAttributes(): string[];
 }
 export {};

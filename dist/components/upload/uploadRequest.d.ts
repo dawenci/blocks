@@ -1,8 +1,8 @@
-declare type RequestError = Error & {
+type RequestError = Error & {
     status: number;
     url: string;
 };
-declare type RequestOptions = {
+type RequestOptions = {
     withCredentials?: boolean;
     headers?: object;
     data?: any;

@@ -1,5 +1,5 @@
-declare type ColorTuple3 = [number, number, number];
-declare type ColorTuple4 = [number, number, number, number];
+type ColorTuple3 = [number, number, number];
+type ColorTuple4 = [number, number, number, number];
 export declare function hsv2rgb(h: number, s: number, v: number): ColorTuple3;
 export declare function rgb2hsv(r: number, g: number, b: number): ColorTuple3;
 export declare function hsv2hsl(Hv: number, Sv: number, V: number): ColorTuple3;

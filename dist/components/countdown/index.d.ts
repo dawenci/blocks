@@ -14,11 +14,9 @@ export interface BlocksCountdown extends Component {
 export declare class BlocksCountdown extends Component {
     #private;
     static get observedAttributes(): string[];
+    accessor value: number;
+    accessor format: string;
     constructor();
-    get value(): number;
-    set value(value: number);
-    get format(): string;
-    set format(value: string);
     render(): void;
     run(): void;
     stop(): void;

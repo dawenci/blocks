@@ -1,14 +1,15 @@
 import { Component } from '../Component.js';
-export declare class BlocksBreadcrumbItem extends Component {
-    ref: {
+export interface BlocksBreadcrumbItem extends Component {
+    _ref: {
         $link: HTMLAnchorElement;
         $separator: HTMLDivElement;
     };
+}
+export declare class BlocksBreadcrumbItem extends Component {
+    static get observedAttributes(): string[];
     constructor();
-    get href(): string;
-    set href(value: string);
-    renderSeparator(separator: string): void;
+    accessor href: string;
+    _renderSeparator(separator: string): void;
     connectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    static get observedAttributes(): string[];
 }

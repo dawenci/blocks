@@ -1,5 +1,6 @@
 import { BlocksPopup } from '../popup/index.js';
 import { BlocksColor } from '../color/index.js';
+import { ColorFormat } from '../color/Color.js';
 import { Component } from '../Component.js';
 export interface BlocksColorPicker extends Component {
     _ref: {
@@ -12,34 +13,27 @@ export interface BlocksColorPicker extends Component {
 export declare class BlocksColorPicker extends Component {
     #private;
     static get observedAttributes(): string[];
+    accessor disabled: boolean;
     constructor();
-    get disabled(): boolean;
-    set disabled(value: boolean);
-    get hex(): string | null;
-    set hex(value: string | null);
-    get hsl(): [number, number, number];
-    set hsl(value: [number, number, number]);
-    get hsla(): number[];
-    set hsla(value: number[]);
-    get hsv(): number[];
-    set hsv(value: number[]);
-    get hsva(): number[];
-    set hsva(value: number[]);
-    get rgb(): number[];
-    set rgb(value: number[]);
-    get rgba(): [number, number, number, number];
-    set rgba(value: [number, number, number, number]);
-    get value(): string | null;
-    set value(value: string | null);
+    get hex(): string;
+    set hex(value: string);
+    get hsl(): import("../color/Color.js").ColorTuple3;
+    set hsl(value: import("../color/Color.js").ColorTuple3);
+    get hsla(): import("../color/Color.js").ColorTuple4;
+    set hsla(value: import("../color/Color.js").ColorTuple4);
+    get hsv(): import("../color/Color.js").ColorTuple3;
+    set hsv(value: import("../color/Color.js").ColorTuple3);
+    get hsva(): import("../color/Color.js").ColorTuple4;
+    set hsva(value: import("../color/Color.js").ColorTuple4);
+    get rgb(): import("../color/Color.js").ColorTuple3;
+    set rgb(value: import("../color/Color.js").ColorTuple3);
+    get rgba(): import("../color/Color.js").ColorTuple4;
+    set rgba(value: import("../color/Color.js").ColorTuple4);
+    get value(): number | null;
+    set value(value: number | null);
     connectedCallback(): void;
     disconnectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     render(): void;
-    toHexString(): string | null;
-    toRgbString(): string;
-    toRgbaString(): string;
-    toHslString(): string;
-    toHslaString(): string;
-    toHsvString(): string;
-    toHsvaString(): string;
+    format(fmt: ColorFormat): string;
 }

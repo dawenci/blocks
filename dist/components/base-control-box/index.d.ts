@@ -14,15 +14,11 @@ export interface ControlBox extends Control {
     addEventListener<K extends keyof ControlBoxEventMap>(type: K, listener: ComponentEventListener<ControlBoxEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof ControlBoxEventMap>(type: K, listener: ComponentEventListener<ControlBoxEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare abstract class ControlBox extends Control {
-    static get observedAttributes(): string[];
+export declare class ControlBox extends Control {
+    accessor loading: boolean;
+    accessor prefixIcon: string | null;
+    accessor suffixIcon: string | null;
     constructor();
-    get loading(): boolean;
-    set loading(value: boolean);
-    get prefixIcon(): string | null;
-    set prefixIcon(value: string | null);
-    get suffixIcon(): string | null;
-    set suffixIcon(value: string | null);
     _appendContent<T extends HTMLElement | DocumentFragment>($el: T): T;
     _renderLoading(): void;
     _renderPrefixIcon(): void;

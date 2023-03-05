@@ -4,6 +4,9 @@ interface CheckboxEventMap extends ComponentEventMap {
     change: CustomEvent<{
         checked: boolean;
     }>;
+    'bl:checkbox:change': CustomEvent<{
+        checked: boolean;
+    }>;
 }
 export interface BlocksCheckbox extends Control {
     _ref: Control['_ref'] & {
@@ -15,15 +18,14 @@ export interface BlocksCheckbox extends Control {
     removeEventListener<K extends keyof CheckboxEventMap>(type: K, listener: ComponentEventListener<CheckboxEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
 export declare class BlocksCheckbox extends Control {
+    static get observedAttributes(): string[];
     static get role(): string;
+    accessor name: string | null;
+    accessor checked: boolean;
+    accessor indeterminate: boolean;
     constructor();
-    get checked(): boolean;
-    set checked(value: boolean);
-    get indeterminate(): boolean;
-    set indeterminate(v: boolean);
     _renderIndeterminate(): void;
     connectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    static get observedAttributes(): string[];
 }
 export {};

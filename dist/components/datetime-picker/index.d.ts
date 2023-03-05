@@ -18,15 +18,18 @@ export interface BlocksDateTimePicker extends ClearableControlBox {
 }
 export declare class BlocksDateTimePicker extends ClearableControlBox {
     #private;
+    accessor range: boolean;
+    accessor placeholderFrom: string;
+    accessor placeholderTo: string;
     constructor();
-    get disabledDate(): ((data: import("../date/helpers.js").DateModel, context: {
-        depth: import("../date/helpers.js").Depth;
-        viewDepth: import("../date/helpers.js").Depth;
+    get disabledDate(): ((data: import("../date/helpers").DateModel, context: {
+        depth: import("../date/helpers").Depth;
+        viewDepth: import("../date/helpers").Depth;
         component: BlocksDate;
     }) => boolean) | undefined;
-    set disabledDate(value: ((data: import("../date/helpers.js").DateModel, context: {
-        depth: import("../date/helpers.js").Depth;
-        viewDepth: import("../date/helpers.js").Depth;
+    set disabledDate(value: ((data: import("../date/helpers").DateModel, context: {
+        depth: import("../date/helpers").Depth;
+        viewDepth: import("../date/helpers").Depth;
         component: BlocksDate;
     }) => boolean) | undefined);
     get disabledHour(): ((data: number, context: {
@@ -65,12 +68,6 @@ export declare class BlocksDateTimePicker extends ClearableControlBox {
         second: number | null;
         component: BlocksTime;
     }) => boolean) | undefined);
-    get range(): boolean;
-    set range(value: boolean);
-    get placeholderFrom(): string | null;
-    set placeholderFrom(value: string | null);
-    get placeholderTo(): string | null;
-    set placeholderTo(value: string | null);
     get activeValue(): Date | null;
     set activeValue(value: Date | null);
     get value(): null | Date | [Date, Date];

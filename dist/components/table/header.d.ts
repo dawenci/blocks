@@ -1,10 +1,10 @@
-import { Component } from '../Component.js';
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
 import { RowColumn } from './RowColumn.js';
 import { BlocksTable } from './table.js';
-export declare type CellElement = HTMLElement & {
+export type CellElement = HTMLElement & {
     column: RowColumn;
 };
-export interface TableHeaderEventMap {
+export interface TableHeaderEventMap extends ComponentEventMap {
     'enter-cell': CustomEvent<{
         $cell: CellElement;
         column: RowColumn;
@@ -19,8 +19,11 @@ export interface BlocksTableHeader extends Component {
         $viewport: HTMLElement;
         $canvas: HTMLElement;
     };
+    addEventListener<K extends keyof TableHeaderEventMap>(type: K, listener: ComponentEventListener<TableHeaderEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof TableHeaderEventMap>(type: K, listener: ComponentEventListener<TableHeaderEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
 export declare class BlocksTableHeader extends Component {
+    static get observedAttributes(): never[];
     _columns: RowColumn[];
     fixedLeftColumns: RowColumn[];
     fixedRightColumns: RowColumn[];
@@ -37,7 +40,4 @@ export declare class BlocksTableHeader extends Component {
     getFixedOffsetRight(column: RowColumn): number;
     render(): void;
     connectedCallback(): void;
-    addEventListener<K extends keyof TableHeaderEventMap>(type: K, listener: (this: this, ev: TableHeaderEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-    addEventListener(type: string, listener: (this: this, ev: Event) => any, options?: boolean | AddEventListenerOptions): void;
-    static get observedAttributes(): never[];
 }
