@@ -1,6 +1,8 @@
 import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { ClearableControlBox } from '../base-clearable-control-box/index.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksResult extends ClearableControlBox {

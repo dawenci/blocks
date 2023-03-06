@@ -40,10 +40,13 @@ import { onClickOutside } from '../../common/onClickOutside.js';
 import { dispatchEvent } from '../../common/event.js';
 import { boolSetter } from '../../common/property.js';
 import { Component, } from '../Component.js';
-import { inputTemplate, popupTemplate, styleTemplate } from './template.js';
+import { inputTemplate, popupTemplate } from './template.js';
+import { style } from './style.js';
 import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
 export let BlocksDatePicker = (() => {
-    let _classDecorators = [customElement('bl-date-picker')];
+    let _classDecorators = [customElement('bl-date-picker'), attachShadow, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -57,9 +60,7 @@ export let BlocksDatePicker = (() => {
         #clearClickOutside;
         constructor() {
             super();
-            this.attachShadow({ mode: 'open' });
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(styleTemplate());
             const $input = shadowRoot.appendChild(inputTemplate());
             const $popup = popupTemplate();
             const $date = $popup.querySelector('bl-date');

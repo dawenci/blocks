@@ -34,14 +34,20 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 };
 import '../loading/index.js';
 import { Depth, Depths, normalizeMinDepth, normalizeViewDepth, getClosestDate, generateMonths, generateDates, generateYears, generateDecades, makeDate, normalizeNumber, yearToDecade, yearToCentury, decadeToCentury, isYearInDecade, firstYearOfDecade, isYearInCentury, firstYearOfCentury, lastYearOfCentury, lastYearOfDecade, generateWeekHeaders, isToday, isAllEqual, } from './helpers.js';
-import { boolSetter, enumGetter, enumSetter, } from '../../common/property.js';
+import { boolSetter, enumGetter, enumSetter } from '../../common/property.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Component, } from '../Component.js';
 import { template } from './template.js';
+import { style } from './style.js';
 import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksDate = (() => {
-    let _classDecorators = [customElement('bl-date')];
+    let _classDecorators = [customElement('bl-date'), attachShadow({
+            mode: 'open',
+            delegatesFocus: true,
+        }), applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -76,12 +82,8 @@ export let BlocksDate = (() => {
         #value;
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({
-                mode: 'open',
-                delegatesFocus: true,
-            });
-            const fragment = template().content.cloneNode(true);
-            shadowRoot.appendChild(fragment);
+            const shadowRoot = this.shadowRoot;
+            shadowRoot.appendChild(template());
             const $panel = shadowRoot.querySelector('#layout');
             const $title = $panel.querySelector('.header-title');
             const $prevPrev = $panel.querySelector('.button-prevPrev');

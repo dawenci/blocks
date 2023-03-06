@@ -2,7 +2,9 @@ import '../button/index.js'
 import '../modal-mask/index.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { onDragMove } from '../../common/onDragMove.js'
-import { dialogStyleTemplate, dialogTemplate } from './template.js'
+import { dialogTemplate } from './template.js'
+import { style as withOpenTransitionStyle } from '../with-open-transition/style.js'
+import { style } from './style.js'
 import { BlocksModalMask } from '../modal-mask/index.js'
 import {
   WithOpenTransition,
@@ -13,6 +15,7 @@ import { Control } from '../base-control/index.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
 import { ComponentEventListener } from '../Component.js'
 import { customElement } from '../../decorators/customElement.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 type BlocksDialogEventMap = WithOpenTransitionEventMap
@@ -39,6 +42,8 @@ interface BlocksDialog extends Control, WithOpenTransition {
 }
 
 @customElement('bl-dialog')
+@applyStyle(style)
+@applyStyle(withOpenTransitionStyle)
 class BlocksDialog extends Control {
   static override get observedAttributes() {
     return super.observedAttributes.concat([
@@ -72,7 +77,7 @@ class BlocksDialog extends Control {
     super()
 
     this._appendStyle(withOpenTransitionStyleTemplate())
-    this._appendStyle(dialogStyleTemplate())
+
     this._ref.$layout.appendChild(dialogTemplate())
     const $mask = document.createElement('bl-modal-mask')
     this._ref.$mask = $mask

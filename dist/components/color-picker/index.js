@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,41 +25,54 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { dispatchEvent } from '../../common/event.js';
 import { uniqId } from '../../common/uniqId.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { intGetter, intSetter } from '../../common/property.js';
+import { style } from './style.js';
 import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksColorPicker = (() => {
-    let _classDecorators = [customElement('bl-color-picker')];
+    let _classDecorators = [customElement('bl-color-picker'), attachShadow, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
     let _disabled_decorators;
     let _disabled_initializers = [];
+    let _value_decorators;
+    let _value_initializers = [];
     var BlocksColorPicker = class extends Component {
         static {
             _disabled_decorators = [attr('boolean')];
+            _value_decorators = [attr('int')];
             __esDecorate(this, null, _disabled_decorators, { kind: "accessor", name: "disabled", static: false, private: false, access: { has: obj => "disabled" in obj, get: obj => obj.disabled, set: (obj, value) => { obj.disabled = value; } } }, _disabled_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksColorPicker = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #clearClickOutside = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        static get observedAttributes() {
-            return ['value', 'disabled', 'size'];
-        }
-        #disabled_accessor_storage = __runInitializers(this, _disabled_initializers, void 0);
+        #disabled_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _disabled_initializers, void 0));
         get disabled() { return this.#disabled_accessor_storage; }
         set disabled(value) { this.#disabled_accessor_storage = value; }
+        #value_accessor_storage = __runInitializers(this, _value_initializers, void 0);
+        get value() { return this.#value_accessor_storage; }
+        set value(value) { this.#value_accessor_storage = value; }
+        #clearClickOutside;
         constructor() {
             super();
             this.id = `color-picker-${uniqId()}`;
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             const { inputTemplate, popupTemplate } = template();
             const fragment = inputTemplate.content.cloneNode(true);
             shadowRoot.appendChild(fragment);
@@ -142,12 +148,6 @@ export let BlocksColorPicker = (() => {
         }
         set rgba(value) {
             this._ref.$color.rgba = value;
-        }
-        get value() {
-            return intGetter('value')(this);
-        }
-        set value(value) {
-            intSetter('value')(this, value);
         }
         connectedCallback() {
             super.connectedCallback();

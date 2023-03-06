@@ -38,11 +38,14 @@ import { round } from '../../common/utils.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { Component, } from '../Component.js';
 import { template } from './template.js';
+import { style } from './style.js';
 import { Color } from './Color.js';
 import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksColor = (() => {
-    let _classDecorators = [customElement('bl-color')];
+    let _classDecorators = [customElement('bl-color'), attachShadow, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -61,9 +64,6 @@ export let BlocksColor = (() => {
             BlocksColor = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['mode', 'value'];
-        }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
         set value(value) { this.#value_accessor_storage = value; }
@@ -81,8 +81,8 @@ export let BlocksColor = (() => {
         _preventUpdateModel = false;
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
-            shadowRoot.appendChild(template().content.cloneNode(true));
+            const shadowRoot = this.shadowRoot;
+            shadowRoot.appendChild(template());
             const $layout = shadowRoot.getElementById('layout');
             const $hsv = shadowRoot.getElementById('hsv-picker');
             const $result = shadowRoot.getElementById('result');

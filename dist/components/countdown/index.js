@@ -36,11 +36,14 @@ import { padLeft } from '../../common/utils.js';
 import { dispatchEvent } from '../../common/event.js';
 import { parseDateFormat } from './parseDateFormat.js';
 import { Component, } from '../Component.js';
-import { template } from './template.js';
 import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
+import { template } from './template.js';
+import { style } from './style.js';
 export let BlocksCountdown = (() => {
-    let _classDecorators = [customElement('bl-countdown')];
+    let _classDecorators = [customElement('bl-countdown'), attachShadow, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -59,9 +62,6 @@ export let BlocksCountdown = (() => {
             BlocksCountdown = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['format', 'value'];
-        }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
         set value(value) { this.#value_accessor_storage = value; }
@@ -70,8 +70,8 @@ export let BlocksCountdown = (() => {
         set format(value) { this.#format_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
-            shadowRoot.appendChild(template().content.cloneNode(true));
+            const shadowRoot = this.shadowRoot;
+            shadowRoot.appendChild(template());
             this._ref = {
                 $layout: shadowRoot.querySelector('#layout'),
             };

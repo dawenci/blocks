@@ -19,6 +19,8 @@ import {
 import { BlocksIcon } from '../../components/icon/index.js'
 import { PopupOrigin } from '../../components/popup/index.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 @customElement('bl-popup-menu-item')

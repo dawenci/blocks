@@ -8,8 +8,11 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { template } from './template.js'
+import { style } from './style.js'
 import { Color, ColorFormat, ColorTuple4 } from './Color.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -50,11 +53,9 @@ export interface BlocksColor extends Component {
 // TODO, 拆分 Rgb、HSV、HSL 为多个组件实现
 // TODO, Firefox 拖拽 BUG
 @customElement('bl-color')
+@attachShadow
+@applyStyle(style)
 export class BlocksColor extends Component {
-  static override get observedAttributes() {
-    return ['mode', 'value']
-  }
-
   @attr('int') accessor value!: number | null
 
   @attr('enum', { enumValues: ['hex', 'rgb', 'hsl', 'hsv'] })
@@ -84,8 +85,9 @@ export class BlocksColor extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
-    shadowRoot.appendChild(template().content.cloneNode(true))
+    const shadowRoot = this.shadowRoot!
+    //  this.attachShadow({ mode: 'open' })
+    shadowRoot.appendChild(template())
 
     const $layout = shadowRoot.getElementById('layout') as HTMLDivElement
     const $hsv = shadowRoot.getElementById('hsv-picker') as HTMLDivElement

@@ -6,7 +6,6 @@ import {
   unmount,
 } from '../common/mount.js'
 import { upgradeProperty } from '../common/upgradeProperty.js'
-import type { StyleChain } from '../decorators/style.js'
 
 interface ComponentEventListenerCallback<E extends Event = Event> {
   (evt: E): void
@@ -55,8 +54,9 @@ export abstract class Component extends HTMLElement {
     }
 
     // 应用 @applyStyle 的结果
-    // 遍历 class 继承链，从祖先到子孙类的顺序，逐个应用 style
-    if (ctor._styleChain && this.shadowRoot) {
+    // 从 class 自身或继承链上的祖先类中，获取最近的样式定义，应用 style
+    if (this.shadowRoot && ctor._$componentStyle) {
+      // 找到当前组件已经插入的 style，如果存在，则新样式插入到该 style 后面
       const $lastStyle: HTMLStyleElement =
         (this as any)._$lastStyle ??
         getLastItem(
@@ -64,12 +64,15 @@ export abstract class Component extends HTMLElement {
             ? this.shadowRoot.querySelectorAll('style')
             : []
         )
-      ;(this as any)._$lastStyle = applyStyleChain(
-        this,
-        ctor._styleChain,
-        this.shadowRoot,
-        $lastStyle
-      )
+      const $fragment = ctor._$componentStyle as DocumentFragment
+      const _$last = $fragment.children[$fragment.children.length - 1]
+      if ($lastStyle) {
+        mountAfter($fragment.cloneNode(true), $lastStyle)
+      } else {
+        prepend($fragment.cloneNode(true), this.shadowRoot)
+      }
+      // 缓存
+      ;(this as any)._$lastStyle = _$last
     }
   }
 
@@ -197,25 +200,4 @@ export abstract class Component extends HTMLElement {
 
 function getLastItem(arrayLike: ArrayLike<any>) {
   return arrayLike[arrayLike.length - 1]
-}
-
-function applyStyleChain(
-  element: Element,
-  chain: StyleChain,
-  shadowRoot: ShadowRoot,
-  $lastStyle: HTMLStyleElement | null = null
-) {
-  if (chain.parent) {
-    $lastStyle = applyStyleChain(element, chain.parent, shadowRoot, $lastStyle)
-  }
-
-  const $style = chain.$style.cloneNode(true) as HTMLStyleElement
-
-  if ($lastStyle) {
-    mountAfter($style, $lastStyle)
-  } else {
-    prepend($style, shadowRoot!)
-  }
-
-  return $style
 }

@@ -7,7 +7,7 @@ export function blBindContextMenu(
   /** 菜单数组，或者生成菜单数组的函数 */
   menuData:
     | (MenuItem | MenuGroup)[]
-    | ((e: MouseEvent) => (MenuItem | MenuGroup)[]),
+    | ((e: MouseEvent) => (MenuItem | MenuGroup)[])
 ) {
   const handler = (e: MouseEvent) => {
     e.preventDefault()

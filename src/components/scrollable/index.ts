@@ -10,6 +10,8 @@ import {
 } from '../Component.js'
 import { contentTemplate, styleTemplate } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface ScrollableEventMap extends ComponentEventMap {

@@ -1,10 +1,4 @@
 import { padLeft } from '../../common/utils.js'
-import {
-  numGetter,
-  numSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 import { parseDateFormat, Token } from './parseDateFormat.js'
 import {
@@ -12,9 +6,12 @@ import {
   ComponentEventListener,
   ComponentEventMap,
 } from '../Component.js'
-import { template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
+import { template } from './template.js'
+import { style } from './style.js'
 
 interface CountDownEventMap extends ComponentEventMap {
   start: CustomEvent<void>
@@ -41,11 +38,9 @@ export interface BlocksCountdown extends Component {
 }
 
 @customElement('bl-countdown')
+@attachShadow
+@applyStyle(style)
 export class BlocksCountdown extends Component {
-  static override get observedAttributes() {
-    return ['format', 'value']
-  }
-
   // timestamp
   @attr('number', { defaults: () => Date.now() })
   accessor value!: number
@@ -55,8 +50,8 @@ export class BlocksCountdown extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
-    shadowRoot.appendChild(template().content.cloneNode(true))
+    const shadowRoot = this.shadowRoot!
+    shadowRoot.appendChild(template())
     this._ref = {
       $layout: shadowRoot.querySelector('#layout') as HTMLDivElement,
     }

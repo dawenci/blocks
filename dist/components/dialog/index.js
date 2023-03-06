@@ -36,15 +36,18 @@ import '../button/index.js';
 import '../modal-mask/index.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { onDragMove } from '../../common/onDragMove.js';
-import { dialogStyleTemplate, dialogTemplate } from './template.js';
+import { dialogTemplate } from './template.js';
+import { style as withOpenTransitionStyle } from '../with-open-transition/style.js';
+import { style } from './style.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { applyMixins } from '../../common/applyMixins.js';
 import { Control } from '../base-control/index.js';
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
 import { customElement } from '../../decorators/customElement.js';
+import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 let BlocksDialog = (() => {
-    let _classDecorators = [customElement('bl-dialog')];
+    let _classDecorators = [customElement('bl-dialog'), applyStyle(style), applyStyle(withOpenTransitionStyle)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -107,7 +110,6 @@ let BlocksDialog = (() => {
         constructor() {
             super();
             this._appendStyle(withOpenTransitionStyleTemplate());
-            this._appendStyle(dialogStyleTemplate());
             this._ref.$layout.appendChild(dialogTemplate());
             const $mask = document.createElement('bl-modal-mask');
             this._ref.$mask = $mask;

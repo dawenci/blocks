@@ -23,6 +23,8 @@ import {
 } from '../../common/connectSelectable.js'
 import { dispatchEvent } from '../../common/event.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 
 const isOption = ($el: Element): $el is BlocksOption =>
   $el instanceof BlocksOption

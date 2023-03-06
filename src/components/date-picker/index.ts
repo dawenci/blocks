@@ -11,8 +11,11 @@ import {
   ComponentEventListener,
   ComponentEventMap,
 } from '../Component.js'
-import { inputTemplate, popupTemplate, styleTemplate } from './template.js'
+import { inputTemplate, popupTemplate } from './template.js'
+import { style } from './style.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 interface DatePickerEventMap extends ComponentEventMap {
@@ -42,6 +45,8 @@ export interface BlocksDatePicker extends Component {
 }
 
 @customElement('bl-date-picker')
+@attachShadow
+@applyStyle(style)
 export class BlocksDatePicker extends Component {
   #prevValue: any
   #clearClickOutside?: () => void
@@ -49,10 +54,7 @@ export class BlocksDatePicker extends Component {
   constructor() {
     super()
 
-    this.attachShadow({ mode: 'open' })
     const shadowRoot = this.shadowRoot!
-
-    shadowRoot.appendChild(styleTemplate())
 
     // input 部分
     const $input = shadowRoot.appendChild(inputTemplate())
@@ -164,6 +166,7 @@ export class BlocksDatePicker extends Component {
     }
   }
 
+  // TODO，全部改成 attribute
   get value() {
     return this._ref.$date.value
   }

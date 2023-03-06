@@ -10,6 +10,8 @@ import {
 } from '../../common/connectSelectable.js'
 import { ComponentEventListener } from '../Component.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 interface BlocksListEventMap extends VListEventMap, ISelectListEventMap {}

@@ -1,4 +1,4 @@
-import { __border_color_secondary, __font_size_base, __font_size_large, __font_size_small, __padding_base, __padding_large, __padding_small, __radius_base, } from '../../theme/var-light';
+import { __border_color_secondary, __font_size_base, __font_size_large, __font_size_small, __padding_base, __padding_large, __padding_small, __radius_base, } from '../../theme/var-light.js';
 export const style = `
 :host {
   --padding: var(--bl-padding-base, ${__padding_base});

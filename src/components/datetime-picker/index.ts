@@ -5,17 +5,14 @@ import { BlocksTime } from '../time/index.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { dispatchEvent } from '../../common/event.js'
 import { padLeft } from '../../common/utils.js'
-import {
-  boolGetter,
-  boolSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
-import { contentTemplate, popupTemplate, styleTemplate } from './template.js'
+import { boolSetter } from '../../common/property.js'
+import { contentTemplate, popupTemplate } from './template.js'
+import { style } from './style.js'
 import { BlocksButton } from '../button/index.js'
 import { makeDate, makeDateFrom } from '../../common/date.js'
 import { ClearableControlBox } from '../base-clearable-control-box/index.js'
 import { customElement } from '../../decorators/customElement.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksDateTimePicker extends ClearableControlBox {
@@ -32,7 +29,14 @@ export interface BlocksDateTimePicker extends ClearableControlBox {
 }
 
 @customElement('bl-datetime-picker')
+@applyStyle(style)
 export class BlocksDateTimePicker extends ClearableControlBox {
+  @attr('boolean') accessor range!: boolean
+
+  @attr('string') accessor placeholderFrom = '选择日期时间'
+
+  @attr('string') accessor placeholderTo = '选择日期时间'
+
   // model
   #valueFrom: Date | null = null
   #valueTo: Date | null = null
@@ -44,16 +48,9 @@ export class BlocksDateTimePicker extends ClearableControlBox {
 
   #clearClickOutside?: () => void
 
-  @attr('boolean') accessor range!: boolean
-
-  @attr('string') accessor placeholderFrom = '选择日期时间'
-
-  @attr('string') accessor placeholderTo = '选择日期时间'
-
   constructor() {
     super()
 
-    this._appendStyle(styleTemplate())
     this._appendContent(contentTemplate())
     const $content = this.querySelectorShadow('#content') as HTMLElement
     const $fromDate = this.querySelectorShadow('#from-date') as BlocksInput

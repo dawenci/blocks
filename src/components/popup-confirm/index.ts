@@ -7,6 +7,8 @@ import { Component } from '../Component.js'
 import { template } from './template.js'
 import { __color_warning } from '../../theme/var-light.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 const POPUP_ATTRS = ['open', 'origin']

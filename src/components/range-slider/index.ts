@@ -6,6 +6,8 @@ import { Component } from '../Component.js'
 import { template } from './template.js'
 import { setStyles } from '../../common/style.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksRangeSlider extends Component {

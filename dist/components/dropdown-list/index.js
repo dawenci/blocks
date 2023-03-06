@@ -40,10 +40,11 @@ import { BlocksList } from '../list/index.js';
 import { BlocksPopup, PopupOrigin } from '../popup/index.js';
 import { listTemplate, popupTemplate, styleTemplate } from './template.js';
 import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
 import { attr } from '../../decorators/attr.js';
 const ATTRS = BlocksPopup.observedAttributes.concat(BlocksList.observedAttributes);
 export let BlocksDropdownList = (() => {
-    let _classDecorators = [customElement('bl-dropdown-list')];
+    let _classDecorators = [customElement('bl-dropdown-list'), attachShadow];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -115,7 +116,7 @@ export let BlocksDropdownList = (() => {
         set multiple(value) { this.#multiple_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             const $slot = shadowRoot.appendChild(document.createElement('slot'));
             const $popup = popupTemplate();
             const $list = listTemplate();
@@ -127,6 +128,7 @@ export let BlocksDropdownList = (() => {
             };
             const defaultAnchorGetter = () => $slot.assignedElements()?.[0] ?? this;
             this.setAnchorGetter(defaultAnchorGetter);
+            $popup.autoflip = true;
             $popup.anchor = () => (this.getAnchorGetter() ?? defaultAnchorGetter)();
             connectSelectable(this, $list);
             this.addEventListener('focus', () => {

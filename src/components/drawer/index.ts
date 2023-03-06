@@ -1,19 +1,11 @@
 import '../icon/index.js'
 import '../modal-mask/index.js'
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
-import { openGetter, openSetter } from '../../common/propertyAccessor.js'
 import { setStyles } from '../../common/style.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { onKey } from '../../common/onKey.js'
 import { capitalize } from '../../common/utils.js'
-import { contentTemplate, styleTemplate } from './template.js'
+import { contentTemplate } from './template.js'
+import { style } from './style.js'
 import { BlocksModalMask } from '../modal-mask/index.js'
 import { Control } from '../base-control/index.js'
 import { applyMixins } from '../../common/applyMixins.js'
@@ -23,6 +15,7 @@ import {
 } from '../with-open-transition/index.js'
 import { ComponentEventListener } from '../Component.js'
 import { customElement } from '../../decorators/customElement.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -51,20 +44,8 @@ export interface BlocksDrawer extends Control, WithOpenTransition {
 }
 
 @customElement('bl-drawer')
+@applyStyle(style)
 export class BlocksDrawer extends Control {
-  static override get observedAttributes() {
-    return [
-      'capturefocus',
-      'close-on-click-outside',
-      'close-on-escape',
-      'mask',
-      'name',
-      'open',
-      'placement',
-      'size',
-    ]
-  }
-
   @attr('boolean') accessor capturefocus!: boolean
   @attr('boolean') accessor closeOnClickOutside!: boolean
   @attr('boolean') accessor closeOnEscape!: boolean
@@ -78,7 +59,6 @@ export class BlocksDrawer extends Control {
   constructor() {
     super()
 
-    this._appendStyle(styleTemplate())
     this._appendContent(contentTemplate())
 
     const shadowRoot = this.shadowRoot!

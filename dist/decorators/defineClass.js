@@ -11,7 +11,7 @@ export function handleMembers(target) {
     clearDecoratorData();
 }
 function hasObservedAttributes(target) {
-    return target.hasOwnProperty('observedAttributes');
+    return !!target.observedAttributes;
 }
 function handleAttrs(target, data) {
     const observedAttrs = data
@@ -36,7 +36,7 @@ function handleAttrs(target, data) {
     }
 }
 function hasUpgradeProperties(target) {
-    return target.hasOwnProperty('upgradeProperties');
+    return target.upgradeProperties;
 }
 function handleUpgrade(target, data) {
     const upgradeProps = data

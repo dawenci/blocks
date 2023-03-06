@@ -1,8 +1,11 @@
-import { Component } from '../Component.js'
-import { template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js'
+import { Component } from '../Component.js'
+import { template } from './template.js'
+import { style } from './style.js'
 
 export interface BlocksCard extends Component {
   _ref: {
@@ -12,6 +15,8 @@ export interface BlocksCard extends Component {
 }
 
 @customElement('bl-card')
+@attachShadow
+@applyStyle(style)
 export class BlocksCard extends Component {
   static override get observedAttributes() {
     return ['shadow', 'size']
@@ -26,8 +31,8 @@ export class BlocksCard extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
-    shadowRoot.appendChild(template().content.cloneNode(true))
+    const shadowRoot = this.shadowRoot!
+    shadowRoot.appendChild(template())
 
     this._ref = {
       $header: shadowRoot.getElementById('header') as HTMLHeadElement,

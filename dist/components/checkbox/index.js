@@ -35,11 +35,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 import { dispatchEvent } from '../../common/event.js';
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
 import { Control } from '../base-control/index.js';
-import { checkboxTemplate, labelTemplate, styleTemplate } from './template.js';
+import { checkboxTemplate, labelTemplate } from './template.js';
+import { style } from './style.js';
 import { customElement } from '../../decorators/customElement.js';
+import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksCheckbox = (() => {
-    let _classDecorators = [customElement('bl-checkbox')];
+    let _classDecorators = [customElement('bl-checkbox'), applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -62,9 +64,6 @@ export let BlocksCheckbox = (() => {
             BlocksCheckbox = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return super.observedAttributes.concat(['name', 'checked', 'indeterminate']);
-        }
         static get role() {
             return 'checkbox';
         }
@@ -79,7 +78,6 @@ export let BlocksCheckbox = (() => {
         set indeterminate(value) { this.#indeterminate_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(styleTemplate());
             const $checkbox = this._ref.$layout.appendChild(checkboxTemplate());
             const $label = this._ref.$layout.appendChild(labelTemplate());
             const $slot = $label.querySelector('slot');

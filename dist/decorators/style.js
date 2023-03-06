@@ -3,12 +3,12 @@ export function applyStyle(styleContent) {
         ctx.addInitializer(function () {
             const $style = document.createElement('style');
             $style.textContent = styleContent;
-            const styleChain = {
-                $style,
-                parent: hasStyles(target) ? target._styleChain : null,
-            };
-            Object.defineProperty(target, '_styleChain', {
-                get: () => styleChain,
+            const $styleFragment = hasStyles(target)
+                ? target._$componentStyle.cloneNode(true)
+                : document.createDocumentFragment();
+            $styleFragment.appendChild($style);
+            Object.defineProperty(target, '_$componentStyle', {
+                get: () => $styleFragment,
                 enumerable: true,
                 configurable: true,
             });
@@ -16,5 +16,5 @@ export function applyStyle(styleContent) {
     };
 }
 function hasStyles(target) {
-    return !!target._styleChain;
+    return !!target._$componentStyle;
 }

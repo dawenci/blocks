@@ -30,10 +30,11 @@ export function handleMembers<T extends CustomElementConstructor>(target: T) {
   clearDecoratorData()
 }
 
+// 检测继承链上各个 class 是否有观察属性
 function hasObservedAttributes<T>(
   target: T
 ): target is T & { get observedAttributes(): string[] } {
-  return (target as any).hasOwnProperty('observedAttributes')
+  return !!(target as any).observedAttributes
 }
 function handleAttrs<T extends CustomElementConstructor>(
   target: T,
@@ -42,6 +43,7 @@ function handleAttrs<T extends CustomElementConstructor>(
   const observedAttrs = data
     .filter(record => record.type === 'attr' && record.observed !== false)
     .map(record => record.attrName!)
+
   if (observedAttrs.length) {
     let newGetter: any
     if (hasObservedAttributes(target)) {
@@ -60,10 +62,11 @@ function handleAttrs<T extends CustomElementConstructor>(
   }
 }
 
+// 检测继承链上各个 class 是否有需要升级的属性
 function hasUpgradeProperties<T>(
   target: T
 ): target is T & { get upgradeProperties(): string[] } {
-  return (target as any).hasOwnProperty('upgradeProperties')
+  return (target as any).upgradeProperties
 }
 function handleUpgrade<T extends CustomElementConstructor>(
   target: T,

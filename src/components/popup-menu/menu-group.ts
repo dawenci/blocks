@@ -10,6 +10,8 @@ import {
 import { BlocksPopupMenuItem } from './menu-item.js'
 import { BlocksPopupMenu } from './menu.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 @customElement('bl-popup-menu-group')

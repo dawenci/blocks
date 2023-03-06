@@ -17,6 +17,8 @@ import {
   ISelectListEventMap,
 } from '../../common/connectSelectable.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 export type NodeData = {

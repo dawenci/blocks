@@ -32,12 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
+import { attr, attrs } from '../../decorators/attr.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
-import { attr, attrs } from '../../decorators/attr.js';
+import { style } from './style.js';
 export let BlocksCard = (() => {
-    let _classDecorators = [customElement('bl-card')];
+    let _classDecorators = [customElement('bl-card'), attachShadow, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -67,8 +70,8 @@ export let BlocksCard = (() => {
         set size(value) { this.#size_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
-            shadowRoot.appendChild(template().content.cloneNode(true));
+            const shadowRoot = this.shadowRoot;
+            shadowRoot.appendChild(template());
             this._ref = {
                 $header: shadowRoot.getElementById('header'),
                 $body: shadowRoot.getElementById('body'),

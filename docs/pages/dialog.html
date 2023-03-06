@@ -37,7 +37,7 @@
         <bl-button onclick="document.querySelector('#default').open = !document.querySelector('#default').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
-          <bl-dialog id="default" title="对话框的标题">
+          <bl-dialog id="default" title-text="对话框的标题">
             <div style="padding: 50px 100px;">
               这里是对话框的内容。
             </div>
@@ -53,7 +53,7 @@
         <bl-button onclick="document.querySelector('#mask').open = true">打开</bl-button>
 
         <template data-codesource="html">
-          <bl-dialog id="mask" closeable mask title="带遮罩的对话框">
+          <bl-dialog id="mask" closeable mask title-text="带遮罩的对话框">
             <div style="padding:50px 100px;">
               这里是对话框的内容。
             </div>
@@ -103,30 +103,13 @@
     </section>
 
     <section class="section">
-      <h2>dark</h2>
-
-      <div class="case">
-        <bl-button onclick="document.getElementById('dark').open = !document.getElementById('dark').open">打开 / 关闭</bl-button>
-
-        <template data-codesource="html">
-          <bl-dialog id="dark" blocks-theme="dark" closeable title="Dark mode">
-            <div style="padding: 50px 100px;">
-              这里是对话框的内容。
-            </div>
-          </bl-dialog>
-        </template>
-      </div>
-    </section>
-
-
-    <section class="section">
       <h2>header slot</h2>
 
       <div class="case">
         <bl-button onclick="document.getElementById('slot-header').open = !document.getElementById('slot-header').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
-          <bl-dialog id="slot-header" closeable title="被忽略的title">
+          <bl-dialog id="slot-header" closeable title-text="被忽略的title">
             <span slot="header">
               <strong>slot</strong> 自定义对话框标题
             </span>
@@ -146,7 +129,7 @@
         <bl-button onclick="document.getElementById('slot-footer').open = true">打开3</bl-button>
 
         <template data-codesource="html">
-          <bl-dialog id="slot-footer" closeable title="footer slot">
+          <bl-dialog id="slot-footer" closeable title-text="footer slot">
             <div style="padding:50px 100px;">
               这里是对话框的内容。
             </div>
@@ -190,13 +173,6 @@
             <td>boolean</td>
             <td>false</td>
             <td>是否提供关闭按钮。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>dark</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否使用 dark 主题。</td>
             <td></td>
           </tr>
           <tr>

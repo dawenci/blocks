@@ -1,6 +1,8 @@
 import { Component } from '../Component.js'
 import { template } from './column-template.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksColumn extends Component {

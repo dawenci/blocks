@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,6 +25,13 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { BlocksInput } from '../input/index.js';
 import { PopupOrigin } from '../popup/index.js';
 import { BlocksDate } from '../date/index.js';
@@ -39,14 +39,16 @@ import { BlocksTime } from '../time/index.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { dispatchEvent } from '../../common/event.js';
 import { padLeft } from '../../common/utils.js';
-import { boolSetter, } from '../../common/property.js';
-import { contentTemplate, popupTemplate, styleTemplate } from './template.js';
+import { boolSetter } from '../../common/property.js';
+import { contentTemplate, popupTemplate } from './template.js';
+import { style } from './style.js';
 import { makeDate, makeDateFrom } from '../../common/date.js';
 import { ClearableControlBox } from '../base-clearable-control-box/index.js';
 import { customElement } from '../../decorators/customElement.js';
+import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksDateTimePicker = (() => {
-    let _classDecorators = [customElement('bl-datetime-picker')];
+    let _classDecorators = [customElement('bl-datetime-picker'), applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -69,13 +71,7 @@ export let BlocksDateTimePicker = (() => {
             BlocksDateTimePicker = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #valueFrom = (__runInitializers(this, _instanceExtraInitializers), null);
-        #valueTo = null;
-        #prevValueFrom = null;
-        #prevValueTo = null;
-        #activeInput = null;
-        #clearClickOutside;
-        #range_accessor_storage = __runInitializers(this, _range_initializers, void 0);
+        #range_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _range_initializers, void 0));
         get range() { return this.#range_accessor_storage; }
         set range(value) { this.#range_accessor_storage = value; }
         #placeholderFrom_accessor_storage = __runInitializers(this, _placeholderFrom_initializers, '选择日期时间');
@@ -84,9 +80,14 @@ export let BlocksDateTimePicker = (() => {
         #placeholderTo_accessor_storage = __runInitializers(this, _placeholderTo_initializers, '选择日期时间');
         get placeholderTo() { return this.#placeholderTo_accessor_storage; }
         set placeholderTo(value) { this.#placeholderTo_accessor_storage = value; }
+        #valueFrom = null;
+        #valueTo = null;
+        #prevValueFrom = null;
+        #prevValueTo = null;
+        #activeInput = null;
+        #clearClickOutside;
         constructor() {
             super();
-            this._appendStyle(styleTemplate());
             this._appendContent(contentTemplate());
             const $content = this.querySelectorShadow('#content');
             const $fromDate = this.querySelectorShadow('#from-date');

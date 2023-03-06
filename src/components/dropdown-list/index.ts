@@ -10,6 +10,7 @@ import { BlocksList } from '../list/index.js'
 import { BlocksPopup, PopupOrigin } from '../popup/index.js'
 import { listTemplate, popupTemplate, styleTemplate } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -27,6 +28,7 @@ export interface BlocksDropdownList extends Component {
 }
 
 @customElement('bl-dropdown-list')
+@attachShadow
 export class BlocksDropdownList extends Component {
   static override get observedAttributes() {
     return ATTRS
@@ -46,7 +48,7 @@ export class BlocksDropdownList extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     const $slot = shadowRoot.appendChild(document.createElement('slot'))
     const $popup = popupTemplate()
     const $list = listTemplate()
@@ -60,6 +62,7 @@ export class BlocksDropdownList extends Component {
 
     const defaultAnchorGetter = () => $slot.assignedElements()?.[0] ?? this
     this.setAnchorGetter(defaultAnchorGetter)
+    $popup.autoflip = true
     $popup.anchor = () => (this.getAnchorGetter() ?? defaultAnchorGetter)()
 
     // this 代理 slot 里的 $result

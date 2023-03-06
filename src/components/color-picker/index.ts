@@ -4,14 +4,12 @@ import { ColorFormat } from '../color/Color.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { dispatchEvent } from '../../common/event.js'
 import { uniqId } from '../../common/uniqId.js'
-import {
-  disabledGetter,
-  disabledSetter,
-} from '../../common/propertyAccessor.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { intGetter, intSetter } from '../../common/property.js'
+import { style } from './style.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksColorPicker extends Component {
@@ -24,20 +22,20 @@ export interface BlocksColorPicker extends Component {
 }
 
 @customElement('bl-color-picker')
+@attachShadow
+@applyStyle(style)
 export class BlocksColorPicker extends Component {
-  #clearClickOutside?: () => void
-
-  static override get observedAttributes() {
-    return ['value', 'disabled', 'size']
-  }
-
   @attr('boolean') accessor disabled!: boolean
+
+  @attr('int') accessor value!: number | null
+
+  #clearClickOutside?: () => void
 
   constructor() {
     super()
     this.id = `color-picker-${uniqId()}`
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
 
     const { inputTemplate, popupTemplate } = template()
 
@@ -138,14 +136,6 @@ export class BlocksColorPicker extends Component {
 
   set rgba(value) {
     this._ref.$color.rgba = value
-  }
-
-  get value() {
-    return intGetter('value')(this)
-  }
-
-  set value(value) {
-    intSetter('value')(this, value)
   }
 
   override connectedCallback() {

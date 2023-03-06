@@ -38,14 +38,16 @@ import { setStyles } from '../../common/style.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { onKey } from '../../common/onKey.js';
 import { capitalize } from '../../common/utils.js';
-import { contentTemplate, styleTemplate } from './template.js';
+import { contentTemplate } from './template.js';
+import { style } from './style.js';
 import { Control } from '../base-control/index.js';
 import { applyMixins } from '../../common/applyMixins.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { customElement } from '../../decorators/customElement.js';
+import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksDrawer = (() => {
-    let _classDecorators = [customElement('bl-drawer')];
+    let _classDecorators = [customElement('bl-drawer'), applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -88,18 +90,6 @@ export let BlocksDrawer = (() => {
             BlocksDrawer = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return [
-                'capturefocus',
-                'close-on-click-outside',
-                'close-on-escape',
-                'mask',
-                'name',
-                'open',
-                'placement',
-                'size',
-            ];
-        }
         #capturefocus_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _capturefocus_initializers, void 0));
         get capturefocus() { return this.#capturefocus_accessor_storage; }
         set capturefocus(value) { this.#capturefocus_accessor_storage = value; }
@@ -126,7 +116,6 @@ export let BlocksDrawer = (() => {
         set placement(value) { this.#placement_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(styleTemplate());
             this._appendContent(contentTemplate());
             const shadowRoot = this.shadowRoot;
             const $name = shadowRoot.getElementById('name-prop');

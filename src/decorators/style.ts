@@ -1,8 +1,7 @@
-export type StyleChain = {
-  $style: HTMLStyleElement
-  parent: StyleChain | null
-}
-
+/**
+ * 应用样式到组件
+ * 注意：该装饰器调用多次时，越晚调用的 style 反过来越先插入到 DOM
+ */
 export function applyStyle<T extends CustomElementConstructor>(
   styleContent: string
 ) {
@@ -11,14 +10,14 @@ export function applyStyle<T extends CustomElementConstructor>(
       const $style: HTMLStyleElement = document.createElement('style')
       $style.textContent = styleContent
 
-      // 当前 class 对应的 style，parent 存储父类的 styleChain 引用
-      const styleChain: StyleChain = {
-        $style,
-        parent: hasStyles(target) ? target._styleChain : null,
-      }
+      const $styleFragment = hasStyles(target)
+        ? target._$componentStyle.cloneNode(true)
+        : document.createDocumentFragment()
 
-      Object.defineProperty(target, '_styleChain', {
-        get: () => styleChain,
+      $styleFragment.appendChild($style)
+
+      Object.defineProperty(target, '_$componentStyle', {
+        get: () => $styleFragment,
         enumerable: true,
         configurable: true,
       })
@@ -26,9 +25,9 @@ export function applyStyle<T extends CustomElementConstructor>(
   }
 }
 
-// 继承链上是否有 _styleChain
+// 继承链上是否有 _$componentStyle
 function hasStyles<T>(
   target: T
-): target is T & { get _styleChain(): StyleChain } {
-  return !!(target as any)._styleChain
+): target is T & { get _$componentStyle(): DocumentFragment } {
+  return !!(target as any)._$componentStyle
 }

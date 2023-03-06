@@ -12,6 +12,8 @@ import { BlocksTable } from './table.js'
 import { RowColumn } from './RowColumn.js'
 import { ComponentEventListener } from '../Component.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
 export type CellElement = HTMLElement & { column: RowColumn; data: any }

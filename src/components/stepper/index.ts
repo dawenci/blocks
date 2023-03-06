@@ -9,6 +9,8 @@ import { parseIcon } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { stepperTemplate, stepTemplate } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js'
 
