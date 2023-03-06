@@ -1,37 +1,33 @@
-import { strGetter, strSetter } from '../../common/property.js'
-import { Component } from '../Component.js'
-import { template } from './item-template.js'
 import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
-
-export interface BlocksBreadcrumbItem extends Component {
-  _ref: {
-    $link: HTMLAnchorElement
-    $separator: HTMLDivElement
-  }
-}
+import { domRef } from '../../decorators/domRef.js'
+import { style } from './item.style.js'
+import { strSetter } from '../../common/property.js'
+import { Component } from '../Component.js'
+import { template } from './item.template.js'
 
 @customElement('bl-breadcrumb-item')
+@attachShadow
+@applyStyle(style)
 export class BlocksBreadcrumbItem extends Component {
-  static override get observedAttributes() {
-    return ['href']
-  }
+  @attr('string') accessor href = 'javascript(void 0)'
+
+  @domRef('#separator') accessor $separator!: HTMLDivElement
+
+  @domRef('#link') accessor $link!: HTMLAnchorElement
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
-    shadowRoot.appendChild(template().content.cloneNode(true))
-    this._ref = {
-      $link: shadowRoot.getElementById('link') as HTMLAnchorElement,
-      $separator: shadowRoot.getElementById('separator') as HTMLDivElement,
-    }
-  }
+    const shadowRoot = this.shadowRoot!
 
-  @attr('string') accessor href = 'javascript(void 0)'
+    shadowRoot.appendChild(template().content.cloneNode(true))
+  }
 
   _renderSeparator(separator: string) {
     if (this.parentElement?.lastElementChild === this) return
-    this._ref.$separator.textContent = separator
+    this.$separator.textContent = separator
   }
 
   override connectedCallback() {
@@ -46,7 +42,7 @@ export class BlocksBreadcrumbItem extends Component {
   ) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'href') {
-      strSetter('href')(this._ref.$link, newValue)
+      strSetter('href')(this.$link, newValue)
     }
   }
 }

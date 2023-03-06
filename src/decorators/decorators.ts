@@ -22,9 +22,9 @@ export type AttrOptions = {
 }
 
 export type DecoratorRecord = {
-  kind: 'attr' | 'prop'
+  type: 'attr' | 'prop' | 'domRef'
   name: string
-  type: string
+  attrType?: string
   attrName?: string
   upgrade?: boolean
   observed?: boolean

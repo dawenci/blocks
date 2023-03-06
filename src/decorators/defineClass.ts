@@ -40,7 +40,7 @@ function handleAttrs<T extends CustomElementConstructor>(
   data: DecoratorRecord[]
 ) {
   const observedAttrs = data
-    .filter(record => record.kind === 'attr' && record.observed !== false)
+    .filter(record => record.type === 'attr' && record.observed !== false)
     .map(record => record.attrName!)
   if (observedAttrs.length) {
     let newGetter: any

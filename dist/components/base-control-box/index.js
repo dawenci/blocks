@@ -32,15 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { applyStyle } from '../../decorators/style.js';
+import { attr } from '../../decorators/attr.js';
+import { style } from './style.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Control } from '../base-control/index.js';
-import { loadingTemplate, prefixTemplate, styleTemplate, suffixTemplate, } from './template.js';
+import { loadingTemplate, prefixTemplate, suffixTemplate } from './template.js';
 import { append, mountAfter, mountBefore, prepend, unmount, } from '../../common/mount.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js';
 export let ControlBox = (() => {
-    let _classDecorators = [defineClass];
+    let _classDecorators = [defineClass, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -74,7 +76,6 @@ export let ControlBox = (() => {
         set suffixIcon(value) { this.#suffixIcon_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(styleTemplate());
             this._ref.$layout.addEventListener('click', e => {
                 const target = e.target;
                 if (this._ref.$prefix && this._ref.$prefix.contains(target)) {

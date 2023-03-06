@@ -32,23 +32,32 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { defineClass } from '../../decorators/defineClass.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { attr } from '../../decorators/attr.js';
+import { domRef } from '../../decorators/domRef.js';
+import { Component } from '../Component.js';
 import { append, mountBefore } from '../../common/mount.js';
 import { strSetter } from '../../common/property.js';
-import { Component } from '../Component.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
 export let Control = (() => {
-    let _classDecorators = [defineClass];
+    let _classDecorators = [defineClass, attachShadow({
+            mode: 'open',
+            delegatesFocus: true,
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
     let _disabled_decorators;
     let _disabled_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
     var Control = class extends Component {
         static {
             _disabled_decorators = [attr('boolean')];
+            _$layout_decorators = [domRef('#layout')];
             __esDecorate(this, null, _disabled_decorators, { kind: "accessor", name: "disabled", static: false, private: false, access: { has: obj => "disabled" in obj, get: obj => obj.disabled, set: (obj, value) => { obj.disabled = value; } } }, _disabled_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             Control = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -56,12 +65,12 @@ export let Control = (() => {
         #disabled_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _disabled_initializers, void 0));
         get disabled() { return this.#disabled_accessor_storage; }
         set disabled(value) { this.#disabled_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({
-                mode: 'open',
-                delegatesFocus: true,
-            });
+            const shadowRoot = this.shadowRoot;
             const $layout = document.createElement('div');
             $layout.id = 'layout';
             this._ref = {

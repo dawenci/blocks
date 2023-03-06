@@ -33,12 +33,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { Component } from '../Component.js';
-import { style, template } from './template.js';
 import { customElement } from '../../decorators/customElement.js';
 import { attr } from '../../decorators/attr.js';
 import { attachShadow } from '../../decorators/shadow.js';
 import { applyStyle } from '../../decorators/style.js';
-import { ref } from '../../decorators/ref.js';
+import { domRef } from '../../decorators/domRef.js';
+import { template } from './template.js';
+import { style } from './style.js';
 export let BlocksBadge = (() => {
     let _classDecorators = [customElement('bl-badge'), attachShadow, applyStyle(style)];
     let _classDescriptor;
@@ -47,13 +48,14 @@ export let BlocksBadge = (() => {
     let _instanceExtraInitializers = [];
     let _value_decorators;
     let _value_initializers = [];
-    let _get_$badge_decorators;
+    let _$badge_decorators;
+    let _$badge_initializers = [];
     var BlocksBadge = class extends Component {
         static {
             _value_decorators = [attr('string')];
-            _get_$badge_decorators = [ref('#badge')];
+            _$badge_decorators = [domRef('#badge')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _get_$badge_decorators, { kind: "getter", name: "$badge", static: false, private: false, access: { has: obj => "$badge" in obj, get: obj => obj.$badge } }, null, _instanceExtraInitializers);
+            __esDecorate(this, null, _$badge_decorators, { kind: "accessor", name: "$badge", static: false, private: false, access: { has: obj => "$badge" in obj, get: obj => obj.$badge, set: (obj, value) => { obj.$badge = value; } } }, _$badge_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksBadge = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -61,19 +63,15 @@ export let BlocksBadge = (() => {
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, ''));
         get value() { return this.#value_accessor_storage; }
         set value(value) { this.#value_accessor_storage = value; }
-        get $badge() {
-            return null;
-        }
+        #$badge_accessor_storage = __runInitializers(this, _$badge_initializers, null);
+        get $badge() { return this.#$badge_accessor_storage; }
+        set $badge(value) { this.#$badge_accessor_storage = value; }
         constructor() {
             super();
             this.shadowRoot.appendChild(template());
-            this._ref = {
-                $slot: this.shadowRoot.querySelector('slot'),
-                $badge: this.shadowRoot.getElementById('badge'),
-            };
         }
         render() {
-            this._ref.$badge.textContent = this.value;
+            this.$badge.textContent = this.value;
         }
         attributeChangedCallback(attrName, oldValue, newValue) {
             super.attributeChangedCallback(attrName, oldValue, newValue);

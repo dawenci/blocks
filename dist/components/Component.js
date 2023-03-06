@@ -7,26 +7,15 @@ export class Component extends HTMLElement {
     constructor() {
         super();
         const ctor = this.constructor;
-        if (ctor.hasOwnProperty('_shadowRootInit')) {
+        if (ctor._shadowRootInit) {
             this.attachShadow(ctor._shadowRootInit);
         }
-        if (ctor.hasOwnProperty('_$style') && this.shadowRoot) {
-            const $style = ctor._$style.cloneNode(true);
-            const $lastStyle = this._$lastStyle;
-            if ($lastStyle) {
-                mountAfter($style, this._$lastStyle);
-            }
-            else {
-                const styles = this.shadowRoot.children.length
+        if (ctor._styleChain && this.shadowRoot) {
+            const $lastStyle = this._$lastStyle ??
+                getLastItem(this.shadowRoot.children.length
                     ? this.shadowRoot.querySelectorAll('style')
-                    : [];
-                if (styles.length) {
-                    mountAfter($style, styles[styles.length - 1]);
-                }
-                else {
-                    prepend($style, this.shadowRoot);
-                }
-            }
+                    : []);
+            this._$lastStyle = applyStyleChain(this, ctor._styleChain, this.shadowRoot, $lastStyle);
         }
     }
     connectedCallback() {
@@ -94,4 +83,20 @@ export class Component extends HTMLElement {
     querySelectorAllShadow(selector) {
         return this.shadowRoot?.querySelectorAll?.(selector) ?? null;
     }
+}
+function getLastItem(arrayLike) {
+    return arrayLike[arrayLike.length - 1];
+}
+function applyStyleChain(element, chain, shadowRoot, $lastStyle = null) {
+    if (chain.parent) {
+        $lastStyle = applyStyleChain(element, chain.parent, shadowRoot, $lastStyle);
+    }
+    const $style = chain.$style.cloneNode(true);
+    if ($lastStyle) {
+        mountAfter($style, $lastStyle);
+    }
+    else {
+        prepend($style, shadowRoot);
+    }
+    return $style;
 }

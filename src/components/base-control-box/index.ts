@@ -1,13 +1,11 @@
-import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { applyStyle } from '../../decorators/style.js'
+import { attr } from '../../decorators/attr.js'
+import { style } from './style.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Control } from '../base-control/index.js'
 import { ComponentEventListener, ComponentEventMap } from '../Component.js'
-import {
-  loadingTemplate,
-  prefixTemplate,
-  styleTemplate,
-  suffixTemplate,
-} from './template.js'
+import { loadingTemplate, prefixTemplate, suffixTemplate } from './template.js'
 import {
   append,
   mountAfter,
@@ -15,8 +13,7 @@ import {
   prepend,
   unmount,
 } from '../../common/mount.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
+import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 
 export interface ControlBoxEventMap extends ComponentEventMap {
   'click-prefix-icon': CustomEvent
@@ -45,6 +42,7 @@ export interface ControlBox extends Control {
 }
 
 @defineClass
+@applyStyle(style)
 export class ControlBox extends Control {
   @attr('boolean') accessor loading!: boolean
 
@@ -55,7 +53,7 @@ export class ControlBox extends Control {
   constructor() {
     super()
 
-    this._appendStyle(styleTemplate())
+    // this._appendStyle(styleTemplate())
 
     this._ref.$layout.addEventListener('click', e => {
       const target = e.target as HTMLElement

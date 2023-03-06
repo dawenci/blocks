@@ -32,37 +32,46 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import '../button/index.js';
+import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
+import { domRef } from '../../decorators/domRef.js';
 import { BlocksButton } from '../button/index.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { style } from './style.js';
+import '../button/index.js';
 export let BlocksButtonGroup = (() => {
-    let _classDecorators = [customElement('bl-button-group')];
+    let _classDecorators = [customElement('bl-button-group'), attachShadow, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
+    let _instanceExtraInitializers = [];
+    let _$slot_decorators;
+    let _$slot_initializers = [];
     var BlocksButtonGroup = class extends Component {
         static {
+            _$slot_decorators = [domRef('slot')];
+            __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksButtonGroup = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
+        #$slot_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _$slot_initializers, void 0));
+        get $slot() { return this.#$slot_accessor_storage; }
+        set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
-            this._ref = {
-                $slot: shadowRoot.querySelector('slot'),
-            };
-            this._ref.$slot.addEventListener('slotchange', this.render.bind(this));
+            this.$slot.addEventListener('slotchange', this.render.bind(this));
         }
         connectedCallback() {
             super.connectedCallback();
             this.render();
         }
         render() {
-            this._ref.$slot.assignedElements().forEach($item => {
+            this.$slot.assignedElements().forEach($item => {
                 if ($item instanceof BlocksButton) {
                     $item.setAttribute('group-context', '');
                 }

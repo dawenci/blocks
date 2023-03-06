@@ -32,12 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
+import { attr } from '../../decorators/attr.js';
 import { dispatchEvent } from '../../common/event.js';
 import { forEach } from '../../common/utils.js';
 import { Component, } from '../Component.js';
+import { style } from './style.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
-import { attr } from '../../decorators/attr.js';
 var State;
 (function (State) {
     State["Init"] = "Init";
@@ -49,7 +52,7 @@ var State;
     State["Result"] = "Result";
 })(State || (State = {}));
 export let BlocksCalc = (() => {
-    let _classDecorators = [customElement('bl-calc')];
+    let _classDecorators = [customElement('bl-calc'), attachShadow, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -63,9 +66,6 @@ export let BlocksCalc = (() => {
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksCalc = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get observedAttributes() {
-            return ['screen'];
         }
         #screen_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _screen_initializers, ''));
         get screen() { return this.#screen_accessor_storage; }
@@ -89,7 +89,7 @@ export let BlocksCalc = (() => {
                     : this.makeDiv;
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
             const $layout = shadowRoot.getElementById('layout');
             const $result = shadowRoot.querySelector('.Calc-screen-result');

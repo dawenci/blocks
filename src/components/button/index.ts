@@ -1,8 +1,10 @@
-import { labelTemplate, styleTemplate } from './template.js'
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
-import { ControlBox } from '../base-control-box/index.js'
 import { customElement } from '../../decorators/customElement.js'
 import { attr } from '../../decorators/attr.js'
+import { applyStyle } from '../../decorators/style.js'
+import { style } from './style.js'
+import { ControlBox } from '../base-control-box/index.js'
+import { labelTemplate } from './template.js'
+import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
 
 const types = ['primary', 'danger', 'warning', 'success', 'link'] as const
 
@@ -17,6 +19,7 @@ export interface BlocksButton extends ControlBox {
 }
 
 @customElement('bl-button')
+@applyStyle(style)
 export class BlocksButton extends ControlBox {
   static get role() {
     return 'button'
@@ -41,7 +44,6 @@ export class BlocksButton extends ControlBox {
   constructor() {
     super()
 
-    this._appendStyle(styleTemplate())
     this._appendContent(labelTemplate())
     this._ref.$content = this.querySelectorShadow<HTMLSpanElement>('#content')!
     this._ref.$slot = this.querySelectorShadow('slot')!

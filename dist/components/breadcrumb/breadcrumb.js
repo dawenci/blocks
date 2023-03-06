@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,12 +25,22 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { Component } from '../Component.js';
-import { template } from './breadcrumb-template.js';
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { customElement } from '../../decorators/customElement.js';
+import { attachShadow } from '../../decorators/shadow.js';
+import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
+import { style } from './breadcrumb.style.js';
+import { Component } from '../Component.js';
+import { template } from './breadcrumb.template.js';
 export let BlocksBreadcrumb = (() => {
-    let _classDecorators = [customElement('bl-breadcrumb')];
+    let _classDecorators = [customElement('bl-breadcrumb'), attachShadow, applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -52,21 +55,18 @@ export let BlocksBreadcrumb = (() => {
             BlocksBreadcrumb = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['separator'];
-        }
-        #clearup = (__runInitializers(this, _instanceExtraInitializers), void 0);
+        #separator_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _separator_initializers, '/'));
+        get separator() { return this.#separator_accessor_storage; }
+        set separator(value) { this.#separator_accessor_storage = value; }
+        #clearup;
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
             this._ref = {
                 $slot: shadowRoot.querySelector('slot'),
             };
         }
-        #separator_accessor_storage = __runInitializers(this, _separator_initializers, '/');
-        get separator() { return this.#separator_accessor_storage; }
-        set separator(value) { this.#separator_accessor_storage = value; }
         render() {
             this._ref.$slot.assignedElements().forEach($item => {
                 if (isItem($item)) {

@@ -1,3 +1,7 @@
+import { customElement } from '../../decorators/customElement.js'
+import { attachShadow } from '../../decorators/shadow.js'
+import { applyStyle } from '../../decorators/style.js'
+import { attr } from '../../decorators/attr.js'
 import { dispatchEvent } from '../../common/event.js'
 import { forEach } from '../../common/utils.js'
 import {
@@ -5,9 +9,8 @@ import {
   ComponentEventListener,
   ComponentEventMap,
 } from '../Component.js'
+import { style } from './style.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { attr } from '../../decorators/attr.js'
 
 enum State {
   // 初始化状态
@@ -52,11 +55,9 @@ export interface BlocksCalc extends Component {
 }
 
 @customElement('bl-calc')
+@attachShadow
+@applyStyle(style)
 export class BlocksCalc extends Component {
-  static override get observedAttributes() {
-    return ['screen']
-  }
-
   @attr('string') accessor screen = ''
 
   memory = 0
@@ -81,7 +82,7 @@ export class BlocksCalc extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template().content.cloneNode(true))
 
     const $layout = shadowRoot.getElementById('layout') as HTMLDivElement

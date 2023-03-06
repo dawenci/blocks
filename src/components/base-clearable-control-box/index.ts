@@ -1,10 +1,12 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { applyStyle } from '../../decorators/style.js'
+import { attr } from '../../decorators/attr.js'
 import { ComponentEventListener } from '../Component.js'
 import { ControlBox, ControlBoxEventMap } from '../base-control-box/index.js'
-import { clearTemplate, styleTemplate } from './template.js'
 import { dispatchEvent } from '../../common/event.js'
 import { unmount } from '../../common/mount.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
+import { style } from './style.js'
+import { clearTemplate } from './template.js'
 
 export interface ClearableControlBoxEventMap extends ControlBoxEventMap {
   'click-clear': CustomEvent
@@ -27,12 +29,12 @@ export interface ClearableControlBox extends ControlBox {
 }
 
 @defineClass
+@applyStyle(style)
 export class ClearableControlBox extends ControlBox {
   @attr('boolean') accessor clearable!: boolean
 
   constructor() {
     super()
-    this._appendStyle(styleTemplate())
 
     this._ref.$layout.addEventListener('click', e => {
       const target = e.target as HTMLElement

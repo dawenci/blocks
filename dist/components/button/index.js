@@ -32,14 +32,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { labelTemplate, styleTemplate } from './template.js';
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
-import { ControlBox } from '../base-control-box/index.js';
 import { customElement } from '../../decorators/customElement.js';
 import { attr } from '../../decorators/attr.js';
+import { applyStyle } from '../../decorators/style.js';
+import { style } from './style.js';
+import { ControlBox } from '../base-control-box/index.js';
+import { labelTemplate } from './template.js';
+import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
 const types = ['primary', 'danger', 'warning', 'success', 'link'];
 export let BlocksButton = (() => {
-    let _classDecorators = [customElement('bl-button')];
+    let _classDecorators = [customElement('bl-button'), applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -88,7 +90,6 @@ export let BlocksButton = (() => {
         set size(value) { this.#size_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(styleTemplate());
             this._appendContent(labelTemplate());
             this._ref.$content = this.querySelectorShadow('#content');
             this._ref.$slot = this.querySelectorShadow('slot');

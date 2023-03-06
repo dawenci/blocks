@@ -23,7 +23,7 @@ import type { AttrType, AttrOptions } from './decorators.js'
  * defaults 为 getter 拿到 null 时的回退值，如果不设，并且 accessor 有初始化值，则将该初始化值设置为 defaults
  */
 export function attr(
-  type: AttrType = 'string',
+  attrType: AttrType = 'string',
   options: AttrOptions = { defaults: null }
 ) {
   const decorator = <This extends Element, Value>(
@@ -35,7 +35,7 @@ export function attr(
   ) => {
     const attrName = kebabCase(String(ctx.name))
     let getValue: (element: This) => any
-    switch (type) {
+    switch (attrType) {
       case 'string':
         getValue = strGetter(attrName)
         break
@@ -57,7 +57,7 @@ export function attr(
     }
 
     let setValue: (element: Element, value: Value) => void
-    switch (type) {
+    switch (attrType) {
       case 'string':
         setValue = strSetter(attrName)
         break
@@ -104,9 +104,9 @@ export function attr(
     }
 
     addDecoratorData({
-      kind: 'attr',
-      type,
+      type: 'attr',
       name: String(ctx.name),
+      attrType,
       attrName,
       upgrade: true,
       observed: options.observed,
