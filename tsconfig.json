@@ -13,7 +13,8 @@
     "outDir": "dist",
     "lib": ["DOM", "ESNext", ],
     "jsx": "react",
-    "jsxFactory": "Bl.createElement"
+    "jsxFactory": "jsx.createElement",
+    "jsxFragmentFactory": "jsx.Fragment"
   },
   "include": [
     "src",

@@ -1,6 +1,6 @@
-import { makeTemplate } from '../../common/template.js';
-export const template = makeTemplate(`
-<div id="layout">
-  <div id="icon"></div>
-</div>
-`);
+import { createElement, Fragment } from '../../common/jsx.js';
+export const template = ((jsx) => {
+    const $template = (jsx.createElement("div", { id: "layout" },
+        jsx.createElement("div", { id: "icon" })));
+    return () => $template.cloneNode(true);
+})({ createElement, Fragment });
