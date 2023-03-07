@@ -12,7 +12,6 @@ import {
 import { applyMixins } from '../../common/applyMixins.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 
 type ImageTransformStates = Map<
@@ -64,7 +63,7 @@ export class BlocksImageViewer extends Component {
   constructor() {
     super()
 
-    this.attachShadow({ mode: 'open' })
+    // this.attachShadow({ mode: 'open' })
     const $style = styleTemplate()
     const $layout = contentTemplate()
 

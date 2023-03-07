@@ -87,7 +87,7 @@ export let BlocksOption = (() => {
         set selected(value) { this.#selected_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             const fragment = template().content.cloneNode(true);
             shadowRoot.appendChild(fragment);
         }

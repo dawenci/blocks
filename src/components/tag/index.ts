@@ -3,7 +3,6 @@ import { Component } from '../Component.js'
 import { getElementTarget } from '../../common/getElementTarget.js'
 import { template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
@@ -29,7 +28,7 @@ export class BlocksTag extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
 
     shadowRoot.appendChild(template().content.cloneNode(true))
 

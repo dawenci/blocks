@@ -59,7 +59,6 @@ export let BlocksImageViewer = (() => {
         }
         constructor() {
             super();
-            this.attachShadow({ mode: 'open' });
             const $style = styleTemplate();
             const $layout = contentTemplate();
             this.appendShadowChildren([

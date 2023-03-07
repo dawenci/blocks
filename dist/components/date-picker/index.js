@@ -43,10 +43,9 @@ import { Component, } from '../Component.js';
 import { inputTemplate, popupTemplate } from './template.js';
 import { style } from './style.js';
 import { customElement } from '../../decorators/customElement.js';
-import { attachShadow } from '../../decorators/shadow.js';
 import { applyStyle } from '../../decorators/style.js';
 export let BlocksDatePicker = (() => {
-    let _classDecorators = [customElement('bl-date-picker'), attachShadow, applyStyle(style)];
+    let _classDecorators = [customElement('bl-date-picker'), applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

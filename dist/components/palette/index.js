@@ -3,7 +3,7 @@ import { template } from './template.js';
 export class BlocksPalette extends Component {
     constructor() {
         super();
-        const shadowRoot = this.attachShadow({ mode: 'open' });
+        const shadowRoot = this.shadowRoot;
         shadowRoot.appendChild(template().content.cloneNode(true));
     }
     connectedCallback() {

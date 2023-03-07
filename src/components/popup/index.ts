@@ -1,3 +1,8 @@
+import { customElement } from '../../decorators/customElement.js'
+import { mixins } from '../../decorators/mixins.js'
+import { applyStyle } from '../../decorators/style.js'
+import { attr } from '../../decorators/attr.js'
+import type { EnumAttr } from '../../decorators/attr.js'
 import { strGetter, strSetter } from '../../common/property.js'
 import { popupStyleTemplate, popupTemplate } from './template.js'
 import { Control } from '../base-control/index.js'
@@ -6,13 +11,6 @@ import {
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
 import { ComponentEventListener } from '../Component.js'
-import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
-import { applyStyle } from '../../decorators/style.js'
-import { attr } from '../../decorators/attr.js'
-import type { EnumAttr } from '../../decorators/attr.js'
-import { mixins } from '../../decorators/mixins.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -136,7 +134,6 @@ export class BlocksPopup extends Control {
   constructor() {
     super()
 
-    this._appendStyle(withOpenTransitionStyleTemplate())
     this._appendStyle(popupStyleTemplate())
     this._ref.$layout.appendChild(popupTemplate())
 

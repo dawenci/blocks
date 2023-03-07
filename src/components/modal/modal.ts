@@ -4,7 +4,6 @@ import { cancelButtonTemplate, confirmButtonTemplate } from './template.js'
 import { BlocksButton } from '../button/index.js'
 import { append, prepend, unmount } from '../../common/mount.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 

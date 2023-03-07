@@ -32,14 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { customElement } from '../../decorators/customElement.js';
+import { mixins } from '../../decorators/mixins.js';
+import { attr } from '../../decorators/attr.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { popupStyleTemplate, popupTemplate } from './template.js';
 import { Control } from '../base-control/index.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
-import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
-import { customElement } from '../../decorators/customElement.js';
-import { attr } from '../../decorators/attr.js';
-import { mixins } from '../../decorators/mixins.js';
 const ARROW_SIZE = 8;
 export var PopupOrigin;
 (function (PopupOrigin) {
@@ -145,7 +144,6 @@ export let BlocksPopup = (() => {
         set restorefocus(value) { this.#restorefocus_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(withOpenTransitionStyleTemplate());
             this._appendStyle(popupStyleTemplate());
             this._ref.$layout.appendChild(popupTemplate());
             const shadowRoot = this.shadowRoot;

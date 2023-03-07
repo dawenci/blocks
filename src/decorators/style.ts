@@ -9,18 +9,7 @@ export function applyStyle<T extends CustomElementConstructor>(
     ctx.addInitializer(function (this: T) {
       const $style: HTMLStyleElement = document.createElement('style')
       $style.textContent = styleContent
-
-      const $styleFragment = hasStyles(target)
-        ? target._$componentStyle.cloneNode(true)
-        : document.createDocumentFragment()
-
-      $styleFragment.appendChild($style)
-
-      Object.defineProperty(target, '_$componentStyle', {
-        get: () => $styleFragment,
-        enumerable: true,
-        configurable: true,
-      })
+      appendComponentStyles(target, $style)
     })
   }
 }
@@ -30,4 +19,22 @@ function hasStyles<T>(
   target: T
 ): target is T & { get _$componentStyle(): DocumentFragment } {
   return !!(target as any)._$componentStyle
+}
+export function appendComponentStyles<T extends CustomElementConstructor>(
+  target: T,
+  $fragment: DocumentFragment | HTMLStyleElement
+) {
+  if ($fragment) {
+    const $styleFragment = hasStyles(target)
+      ? target._$componentStyle.cloneNode(true)
+      : document.createDocumentFragment()
+
+    $styleFragment.appendChild($fragment)
+
+    Object.defineProperty(target, '_$componentStyle', {
+      get: () => $styleFragment,
+      enumerable: true,
+      configurable: true,
+    })
+  }
 }

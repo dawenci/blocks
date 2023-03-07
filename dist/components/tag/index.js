@@ -76,7 +76,7 @@ export let BlocksTag = (() => {
         set size(value) { this.#size_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
             const $layout = shadowRoot.getElementById('layout');
             shadowRoot.addEventListener('click', e => {

@@ -1,7 +1,6 @@
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { NullableEnumAttr, attr } from '../../decorators/attr.js'
 
@@ -30,7 +29,7 @@ export class BlocksProgress extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template().content.cloneNode(true))
     const $progress = shadowRoot.querySelector('#progress') as HTMLElement
     const $value = shadowRoot.querySelector('#value') as HTMLElement

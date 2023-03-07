@@ -55,7 +55,7 @@ export let BlocksModalMask = (() => {
         }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(withOpenTransitionStyleTemplate());
             shadowRoot.appendChild(styleTemplate());
         }

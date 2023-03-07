@@ -41,11 +41,10 @@ import { template } from './template.js';
 import { style } from './style.js';
 import { Color } from './Color.js';
 import { customElement } from '../../decorators/customElement.js';
-import { attachShadow } from '../../decorators/shadow.js';
 import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksColor = (() => {
-    let _classDecorators = [customElement('bl-color'), attachShadow, applyStyle(style)];
+    let _classDecorators = [customElement('bl-color'), applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

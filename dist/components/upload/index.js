@@ -172,7 +172,7 @@ export let BlocksUpload = (() => {
         set name(value) { this.#name_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             const { comTemplate } = template();
             shadowRoot.appendChild(comTemplate.content.cloneNode(true));
             const $layout = shadowRoot.getElementById('layout');

@@ -68,7 +68,7 @@ export let BlocksIntersection = (() => {
         set threshold(value) { this.#threshold_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
         }
         _root;

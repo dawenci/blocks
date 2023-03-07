@@ -2,7 +2,6 @@ import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 
 export interface BlocksLoading extends Component {
@@ -16,7 +15,7 @@ export interface BlocksLoading extends Component {
 export class BlocksLoading extends Component {
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template().content.cloneNode(true))
     this._ref = {
       $layout: shadowRoot.querySelector('#layout') as HTMLElement,

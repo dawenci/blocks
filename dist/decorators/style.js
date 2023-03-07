@@ -3,18 +3,23 @@ export function applyStyle(styleContent) {
         ctx.addInitializer(function () {
             const $style = document.createElement('style');
             $style.textContent = styleContent;
-            const $styleFragment = hasStyles(target)
-                ? target._$componentStyle.cloneNode(true)
-                : document.createDocumentFragment();
-            $styleFragment.appendChild($style);
-            Object.defineProperty(target, '_$componentStyle', {
-                get: () => $styleFragment,
-                enumerable: true,
-                configurable: true,
-            });
+            appendComponentStyles(target, $style);
         });
     };
 }
 function hasStyles(target) {
     return !!target._$componentStyle;
+}
+export function appendComponentStyles(target, $fragment) {
+    if ($fragment) {
+        const $styleFragment = hasStyles(target)
+            ? target._$componentStyle.cloneNode(true)
+            : document.createDocumentFragment();
+        $styleFragment.appendChild($fragment);
+        Object.defineProperty(target, '_$componentStyle', {
+            get: () => $styleFragment,
+            enumerable: true,
+            configurable: true,
+        });
+    }
 }

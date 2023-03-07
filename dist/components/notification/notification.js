@@ -99,7 +99,7 @@ export let BlocksNotification = (() => {
         set type(value) { this.#type_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
             const $layout = shadowRoot.querySelector('#layout');
             const $icon = shadowRoot.querySelector('#icon');

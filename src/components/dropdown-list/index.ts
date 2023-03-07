@@ -10,7 +10,6 @@ import { BlocksList } from '../list/index.js'
 import { BlocksPopup, PopupOrigin } from '../popup/index.js'
 import { listTemplate, popupTemplate, styleTemplate } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -28,7 +27,6 @@ export interface BlocksDropdownList extends Component {
 }
 
 @customElement('bl-dropdown-list')
-@attachShadow
 export class BlocksDropdownList extends Component {
   static override get observedAttributes() {
     return ATTRS

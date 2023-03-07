@@ -106,7 +106,6 @@ export let BlocksImage = (() => {
         set fit(value) { this.#fit_accessor_storage = value; }
         constructor() {
             super();
-            this.attachShadow({ mode: 'open' });
             const $style = styleTemplate();
             const $layout = contentTemplate();
             const $img = $layout.querySelector('#img');

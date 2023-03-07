@@ -9,7 +9,6 @@ import { template } from './header-template.js'
 import { RowColumn } from './RowColumn.js'
 import { BlocksTable } from './table.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 
 export type CellElement = HTMLElement & { column: RowColumn }
@@ -52,7 +51,7 @@ export class BlocksTableHeader extends Component {
     super()
     const { cssTemplate, comTemplate } = template()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
     shadowRoot.appendChild(comTemplate.content.cloneNode(true))
 

@@ -11,7 +11,6 @@ import { template } from './template.js'
 import { style } from './style.js'
 import { Color, ColorFormat, ColorTuple4 } from './Color.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
@@ -50,10 +49,8 @@ export interface BlocksColor extends Component {
   ): void
 }
 
-// TODO, 拆分 Rgb、HSV、HSL 为多个组件实现
 // TODO, Firefox 拖拽 BUG
 @customElement('bl-color')
-@attachShadow
 @applyStyle(style)
 export class BlocksColor extends Component {
   @attr('int') accessor value!: number | null
@@ -86,7 +83,6 @@ export class BlocksColor extends Component {
     super()
 
     const shadowRoot = this.shadowRoot!
-    //  this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(template())
 
     const $layout = shadowRoot.getElementById('layout') as HTMLDivElement

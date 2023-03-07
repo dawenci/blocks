@@ -77,6 +77,9 @@ export function isEmpty(obj) {
     }
     return true;
 }
+export function uniq(list) {
+    return [...new Set(list)];
+}
 export const uniqBy = (() => {
     const has = Object.prototype.hasOwnProperty;
     class _SameValueUniqCache {

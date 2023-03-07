@@ -17,7 +17,6 @@ import { BlocksTableHeader, CellElement as HeaderCell } from './header.js'
 import { BlocksTableBody, CellElement } from './body.js'
 import { VirtualItem } from '../vlist/index.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
@@ -73,7 +72,7 @@ export class BlocksTable extends Component {
 
     const { cssTemplate } = template()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
 
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
 

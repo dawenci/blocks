@@ -57,7 +57,7 @@ export let BlocksTableHeader = (() => {
         constructor() {
             super();
             const { cssTemplate, comTemplate } = template();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(cssTemplate.cloneNode(true));
             shadowRoot.appendChild(comTemplate.content.cloneNode(true));
             const $viewport = shadowRoot.querySelector('#viewport');

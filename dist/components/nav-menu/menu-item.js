@@ -93,7 +93,6 @@ export let BlocksNavMenuItem = (() => {
         set link(value) { this.#link_accessor_storage = value; }
         constructor() {
             super();
-            this.attachShadow({ mode: 'open' });
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(styleTemplate());
             shadowRoot.appendChild(contentTemplate());

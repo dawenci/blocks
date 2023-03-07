@@ -86,7 +86,7 @@ export let BlocksTimePicker = (() => {
         set second(value) { this.#second_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             const { inputTemplate, popupTemplate } = template();
             const fragment = inputTemplate.content.cloneNode(true);
             shadowRoot.appendChild(fragment);

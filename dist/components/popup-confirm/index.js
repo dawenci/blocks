@@ -80,7 +80,6 @@ export let BlocksPopupConfirm = (() => {
         constructor() {
             super();
             const { comTemplate, popupTemplate } = template();
-            this.attachShadow({ mode: 'open' });
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(comTemplate.content.cloneNode(true));
             const popupFragment = popupTemplate.content.cloneNode(true);

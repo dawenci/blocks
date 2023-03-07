@@ -6,7 +6,6 @@ import { Component } from '../Component.js'
 import { template } from './template.js'
 import { setStyles } from '../../common/style.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
@@ -59,7 +58,7 @@ export class BlocksRangeSlider extends Component {
 
     const { comTemplate, cssTemplate } = template()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
     shadowRoot.appendChild(comTemplate.content.cloneNode(true))
     const $layout = shadowRoot.getElementById('layout')!

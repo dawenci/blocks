@@ -69,7 +69,7 @@ export let BlocksSteps = (() => {
         set size(value) { this.#size_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(stepperTemplate.content.cloneNode(true));
             const $slot = shadowRoot.querySelector('slot');
             const $layout = shadowRoot.getElementById('layout');
@@ -133,7 +133,7 @@ export let BlocksStep = (() => {
         set status(value) { this.#status_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(stepTemplate.content.cloneNode(true));
             const $layout = shadowRoot.getElementById('layout');
             const $icon = shadowRoot.getElementById('icon');

@@ -8,7 +8,6 @@ import { Component } from '../Component.js'
 import { template } from './template.js'
 import { BlocksPopup } from '../popup/index.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
@@ -49,7 +48,7 @@ export class BlocksTimePicker extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     const { inputTemplate, popupTemplate } = template()
 
     // input 部分

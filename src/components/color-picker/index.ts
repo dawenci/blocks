@@ -8,7 +8,6 @@ import { Component } from '../Component.js'
 import { template } from './template.js'
 import { style } from './style.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
@@ -22,7 +21,6 @@ export interface BlocksColorPicker extends Component {
 }
 
 @customElement('bl-color-picker')
-@attachShadow
 @applyStyle(style)
 export class BlocksColorPicker extends Component {
   @attr('boolean') accessor disabled!: boolean

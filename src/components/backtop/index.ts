@@ -3,14 +3,12 @@ import { Component } from '../Component.js'
 import { make as makeModel } from './model.js'
 import { customElement } from '../../decorators/customElement.js'
 import { attr } from '../../decorators/attr.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { template } from './template.js'
 import { style } from './style.js'
 import { strSetter } from '../../common/property.js'
 
 @customElement('bl-backtop')
-@attachShadow
 @applyStyle(style)
 export class BlocksBackTop extends Component {
   #clearup?: () => void

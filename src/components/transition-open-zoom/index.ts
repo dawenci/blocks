@@ -1,23 +1,42 @@
-import { dispatchEvent } from '../../common/event.js'
-import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
-import { Component } from '../Component.js'
-import { template } from './template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { mixins } from '../../decorators/mixins.js'
 import { attr } from '../../decorators/attr.js'
+import {
+  WithOpenTransition,
+  WithOpenTransitionEventMap,
+} from '../with-open-transition/index.js'
+import { Component, ComponentEventListener } from '../Component.js'
 
-export class BlocksTransitionOpenZoom extends Component {
+export interface BlocksTransitionOpenZoom
+  extends Component,
+    WithOpenTransition {
   onOpen?: () => void
   onClose?: () => void
 
-  static override get observedAttributes() {
-    return ['open']
-  }
+  addEventListener<K extends keyof WithOpenTransitionEventMap>(
+    type: K,
+    listener: ComponentEventListener<WithOpenTransitionEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
 
+  removeEventListener<K extends keyof WithOpenTransitionEventMap>(
+    type: K,
+    listener: ComponentEventListener<WithOpenTransitionEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+}
+
+@defineClass
+@mixins([WithOpenTransition])
+export class BlocksTransitionOpenZoom extends Component {
   @attr('boolean') accessor open!: boolean
 
-  constructor() {
-    super()
-    this.attachShadow({ mode: 'open' })
-    this.shadowRoot!.appendChild(template().content.cloneNode(true))
+  override connectedCallback() {
+    super.connectedCallback()
+
+    if (this.open) {
+      this._onOpenAttributeChange()
+    }
   }
 
   override attributeChangedCallback(
@@ -26,23 +45,9 @@ export class BlocksTransitionOpenZoom extends Component {
     newValue: any
   ) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
+
     if (attrName == 'open') {
-      if (this.open) {
-        doTransitionEnter(this, 'zoom', () => {
-          if (this.onOpen) {
-            this.onOpen()
-          }
-          dispatchEvent(this, 'opened')
-        })
-      } else {
-        doTransitionLeave(this, 'zoom', () => {
-          if (this.onClose) {
-            this.onClose()
-          }
-          dispatchEvent(this, 'closed')
-        })
-      }
-      dispatchEvent(this, 'open-changed')
+      this._onOpenAttributeChange()
     }
   }
 }

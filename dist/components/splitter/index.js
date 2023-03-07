@@ -73,7 +73,7 @@ export let BlocksSplitter = (() => {
         constructor() {
             super();
             const { comTemplate } = template();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(comTemplate.content.cloneNode(true));
             const $layout = shadowRoot.getElementById('layout');
             const $panes = shadowRoot.getElementById('panes');
@@ -425,7 +425,7 @@ export let BlocksSplitterPane = (() => {
         collapseSize;
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             const { paneTemplate } = template();
             shadowRoot.appendChild(paneTemplate.content.cloneNode(true));
             this.addEventListener('mouseenter', () => {

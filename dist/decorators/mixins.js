@@ -1,3 +1,5 @@
+import { appendObservedAttributes, appendUpgradeProperties, } from './defineClass.js';
+import { appendComponentStyles } from './style.js';
 export const mixins = (constructors) => {
     const decorator = (target, { addInitializer }) => {
         addInitializer(function () {
@@ -10,15 +12,19 @@ export const mixins = (constructors) => {
                         Object.create(null));
                 });
             });
-            const rawObservedAttributes = target.observedAttributes ?? [];
-            function getObservedAttributes() {
-                return constructors.reduce((acc, ctor) => acc.concat(ctor.observedAttributes ?? []), rawObservedAttributes);
-            }
-            Object.defineProperty(target, 'observedAttributes', {
-                get: () => getObservedAttributes(),
-                enumerable: true,
-                configurable: true,
-            });
+            appendObservedAttributes(target, constructors.reduce((acc, ctor) => acc.concat(ctor.observedAttributes ?? []), []));
+            appendUpgradeProperties(target, constructors.reduce((acc, ctor) => acc.concat(ctor.upgradeProperties ?? []), []));
+            appendComponentStyles(target, constructors.reduce((acc, ctor) => {
+                if (!acc)
+                    return ctor._$componentStyle;
+                if (ctor._$componentStyle) {
+                    if (!acc) {
+                        acc = document.createDocumentFragment();
+                    }
+                    acc.appendChild(ctor._$componentStyle);
+                }
+                return acc;
+            }, null));
         });
     };
     return decorator;

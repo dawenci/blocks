@@ -1,7 +1,6 @@
 import { Component } from '../Component.js'
 import { template } from './optgroup-template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
@@ -18,7 +17,7 @@ export class BlocksOptGroup extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
 
     const fragment = template().content.cloneNode(true)
     shadowRoot.appendChild(fragment)

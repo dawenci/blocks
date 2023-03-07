@@ -10,7 +10,6 @@ import {
 } from '../Component.js'
 import { contentTemplate, styleTemplate } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
@@ -63,7 +62,7 @@ export class BlocksScrollable extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())
     const $layout = shadowRoot.getElementById('layout')!

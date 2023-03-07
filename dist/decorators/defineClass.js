@@ -1,4 +1,4 @@
-import { clearDecoratorData, getDecoratorData, } from './decorators.js';
+import { clearDecoratorData, getDecoratorData } from './decorators.js';
 export const defineClass = (target, ctx) => {
     ctx.addInitializer(function () {
         handleMembers(target);
@@ -6,17 +6,16 @@ export const defineClass = (target, ctx) => {
 };
 export function handleMembers(target) {
     const data = getDecoratorData();
-    handleAttrs(target, data);
-    handleUpgrade(target, data);
+    appendObservedAttributes(target, data
+        .filter(record => record.type === 'attr' && record.observed !== false)
+        .map(record => record.attrName));
+    appendUpgradeProperties(target, data.filter(record => record.upgrade).map(record => record.name));
     clearDecoratorData();
 }
 function hasObservedAttributes(target) {
     return !!target.observedAttributes;
 }
-function handleAttrs(target, data) {
-    const observedAttrs = data
-        .filter(record => record.type === 'attr' && record.observed !== false)
-        .map(record => record.attrName);
+export function appendObservedAttributes(target, observedAttrs) {
     if (observedAttrs.length) {
         let newGetter;
         if (hasObservedAttributes(target)) {
@@ -38,10 +37,7 @@ function handleAttrs(target, data) {
 function hasUpgradeProperties(target) {
     return target.upgradeProperties;
 }
-function handleUpgrade(target, data) {
-    const upgradeProps = data
-        .filter(record => record.upgrade)
-        .map(record => record.name);
+export function appendUpgradeProperties(target, upgradeProps) {
     if (upgradeProps.length) {
         let newGetter;
         if (hasUpgradeProperties(target)) {

@@ -141,7 +141,7 @@ export abstract class BlocksVList extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
 
     // DOM
     shadowRoot.appendChild(styleTemplate())

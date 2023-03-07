@@ -64,7 +64,6 @@ export let BlocksPopupMenuGroup = (() => {
         set titleText(value) { this.#titleText_accessor_storage = value; }
         constructor() {
             super();
-            this.attachShadow({ mode: 'open' });
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(styleTemplate());
             shadowRoot.appendChild(contentTemplate());

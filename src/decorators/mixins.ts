@@ -1,3 +1,9 @@
+import {
+  appendObservedAttributes,
+  appendUpgradeProperties,
+} from './defineClass.js'
+import { appendComponentStyles } from './style.js'
+
 export const mixins = <T extends CustomElementConstructor>(
   constructors: any[]
 ) => {
@@ -7,6 +13,7 @@ export const mixins = <T extends CustomElementConstructor>(
   ) => {
     addInitializer(function (this: T) {
       constructors.forEach(baseCtor => {
+        // 原型混入
         Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
           if (name === 'constructor' && target.prototype.constructor) {
             return
@@ -20,19 +27,38 @@ export const mixins = <T extends CustomElementConstructor>(
         })
       })
 
-      const rawObservedAttributes = (target as any).observedAttributes ?? []
-      function getObservedAttributes() {
-        return constructors.reduce(
+      // 静态 getter observedAttributes 合并
+      appendObservedAttributes(
+        target,
+        constructors.reduce(
           (acc, ctor) => acc.concat(ctor.observedAttributes ?? []),
-          rawObservedAttributes
+          []
         )
-      }
+      )
 
-      Object.defineProperty(target, 'observedAttributes', {
-        get: () => getObservedAttributes(),
-        enumerable: true,
-        configurable: true,
-      })
+      // 静态 getter upgradeProperties 合并
+      appendUpgradeProperties(
+        target,
+        constructors.reduce(
+          (acc, ctor) => acc.concat(ctor.upgradeProperties ?? []),
+          []
+        )
+      )
+
+      // 合并 _$componentStyle
+      appendComponentStyles(
+        target,
+        constructors.reduce((acc, ctor) => {
+          if (!acc) return ctor._$componentStyle
+          if (ctor._$componentStyle) {
+            if (!acc) {
+              acc = document.createDocumentFragment()
+            }
+            acc.appendChild(ctor._$componentStyle)
+          }
+          return acc
+        }, null)
+      )
     })
   }
 

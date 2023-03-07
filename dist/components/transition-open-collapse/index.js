@@ -56,7 +56,6 @@ export let BlocksTransitionOpenCollapse = (() => {
         set open(value) { this.#open_accessor_storage = value; }
         constructor() {
             super();
-            this.attachShadow({ mode: 'open' });
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
         }

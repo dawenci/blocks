@@ -49,7 +49,7 @@ export let BlocksLoading = (() => {
         }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
             this._ref = {
                 $layout: shadowRoot.querySelector('#layout'),

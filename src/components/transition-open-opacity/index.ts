@@ -16,7 +16,7 @@ export class BlocksTransitionOpenOpacity extends Component {
 
   constructor() {
     super()
-    this.attachShadow({ mode: 'open' })
+    // this.attachShadow({ mode: 'open' })
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template().content.cloneNode(true))
   }

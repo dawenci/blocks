@@ -120,7 +120,7 @@ export let BlocksRangeSlider = (() => {
         constructor() {
             super();
             const { comTemplate, cssTemplate } = template();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(cssTemplate.cloneNode(true));
             shadowRoot.appendChild(comTemplate.content.cloneNode(true));
             const $layout = shadowRoot.getElementById('layout');

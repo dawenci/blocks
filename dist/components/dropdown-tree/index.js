@@ -115,7 +115,7 @@ export let BlocksDropdownTree = (() => {
         set multiple(value) { this.#multiple_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             const $slot = shadowRoot.appendChild(document.createElement('slot'));
             const $popup = popupTemplate();
             const $tree = treeTemplate();

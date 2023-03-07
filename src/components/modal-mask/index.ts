@@ -9,7 +9,6 @@ import {
 import { applyMixins } from '../../common/applyMixins.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 
 export type BlocksModalMaskEventMap = WithOpenTransitionEventMap
@@ -36,7 +35,7 @@ export class BlocksModalMask extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(withOpenTransitionStyleTemplate())
     shadowRoot.appendChild(styleTemplate())
   }

@@ -9,7 +9,6 @@ import { parseIcon } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { stepperTemplate, stepTemplate } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js'
@@ -36,7 +35,7 @@ export class BlocksSteps extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(stepperTemplate.content.cloneNode(true))
     const $slot = shadowRoot.querySelector('slot') as HTMLSlotElement
     const $layout = shadowRoot.getElementById('layout') as HTMLElement
@@ -83,7 +82,7 @@ export class BlocksStep extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(stepTemplate.content.cloneNode(true))
 
     const $layout = shadowRoot.getElementById('layout') as HTMLElement

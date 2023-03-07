@@ -2,7 +2,6 @@ import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
@@ -18,7 +17,7 @@ export class BlocksIntersection extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template().content.cloneNode(true))
   }
 

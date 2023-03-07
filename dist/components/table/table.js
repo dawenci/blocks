@@ -75,7 +75,7 @@ export let BlocksTable = (() => {
         constructor() {
             super();
             const { cssTemplate } = template();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(cssTemplate.cloneNode(true));
             const $mainHeader = shadowRoot.appendChild(document.createElement('bl-table-header'));
             $mainHeader.$host = this;

@@ -12,7 +12,6 @@ import { sizeObserve } from '../../common/sizeObserve.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
@@ -44,7 +43,7 @@ export class BlocksSplitter extends Component {
     super()
     const { comTemplate } = template()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(comTemplate.content.cloneNode(true))
     const $layout = shadowRoot.getElementById('layout') as HTMLElement
     const $panes = shadowRoot.getElementById('panes') as HTMLElement
@@ -468,7 +467,7 @@ export class BlocksSplitterPane extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     const { paneTemplate } = template()
     shadowRoot.appendChild(paneTemplate.content.cloneNode(true))
     this.addEventListener('mouseenter', () => {

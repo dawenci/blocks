@@ -1,5 +1,4 @@
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 import { style } from './breadcrumb.style.js'
@@ -14,7 +13,6 @@ export interface BlocksBreadcrumb extends Component {
 }
 
 @customElement('bl-breadcrumb')
-@attachShadow
 @applyStyle(style)
 export class BlocksBreadcrumb extends Component {
   @attr('string') accessor separator = '/'

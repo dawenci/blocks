@@ -90,7 +90,6 @@ export let BlocksTooltip = (() => {
         set triggerMode(value) { this.#triggerMode_accessor_storage = value; }
         constructor() {
             super();
-            this.attachShadow({ mode: 'open' });
             const shadowRoot = this.shadowRoot;
             const { comTemplate, popupTemplate } = template();
             shadowRoot.appendChild(comTemplate.content.cloneNode(true));

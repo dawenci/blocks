@@ -41,7 +41,7 @@ export class BlocksVList extends Component {
     itemHeightStore;
     constructor() {
         super();
-        const shadowRoot = this.attachShadow({ mode: 'open' });
+        const shadowRoot = this.shadowRoot;
         shadowRoot.appendChild(styleTemplate());
         shadowRoot.appendChild(contentTemplate());
         shadowRoot.appendChild(loadingTemplate());

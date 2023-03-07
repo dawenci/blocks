@@ -14,7 +14,6 @@ import {
 import { inputTemplate, popupTemplate } from './template.js'
 import { style } from './style.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
@@ -45,7 +44,6 @@ export interface BlocksDatePicker extends Component {
 }
 
 @customElement('bl-date-picker')
-@attachShadow
 @applyStyle(style)
 export class BlocksDatePicker extends Component {
   #prevValue: any

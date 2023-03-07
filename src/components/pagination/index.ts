@@ -8,7 +8,6 @@ import {
 } from '../Component.js'
 import { template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
@@ -75,7 +74,7 @@ export class BlocksPagination extends Component {
 
     const { comTemplate } = template()
 
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(comTemplate.content.cloneNode(true))
 
     const $pager = shadowRoot.getElementById('pager') as HTMLElement

@@ -88,7 +88,7 @@ export let BlocksRow = (() => {
         set justify(value) { this.#justify_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
             this._ref = {
                 $slot: shadowRoot.querySelector('slot'),

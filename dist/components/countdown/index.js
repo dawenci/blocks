@@ -37,13 +37,12 @@ import { dispatchEvent } from '../../common/event.js';
 import { parseDateFormat } from './parseDateFormat.js';
 import { Component, } from '../Component.js';
 import { customElement } from '../../decorators/customElement.js';
-import { attachShadow } from '../../decorators/shadow.js';
 import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 import { template } from './template.js';
 import { style } from './style.js';
 export let BlocksCountdown = (() => {
-    let _classDecorators = [customElement('bl-countdown'), attachShadow, applyStyle(style)];
+    let _classDecorators = [customElement('bl-countdown'), applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

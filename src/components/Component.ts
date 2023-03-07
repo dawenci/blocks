@@ -6,6 +6,7 @@ import {
   unmount,
 } from '../common/mount.js'
 import { upgradeProperty } from '../common/upgradeProperty.js'
+import { attachShadow } from '../decorators/shadow.js'
 
 interface ComponentEventListenerCallback<E extends Event = Event> {
   (evt: E): void
@@ -37,7 +38,8 @@ export interface Component extends HTMLElement {
   ): void
 }
 
-export abstract class Component extends HTMLElement {
+@attachShadow
+export class Component extends HTMLElement {
   static get observedAttributes(): readonly string[] | string[] {
     return []
   }

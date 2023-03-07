@@ -4,7 +4,6 @@ import { labelTemplate, radioTemplate, styleTemplate } from './template.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Control } from '../base-control/index.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 

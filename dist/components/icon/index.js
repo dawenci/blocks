@@ -68,7 +68,7 @@ export let BlocksIcon = (() => {
         set fill(value) { this.#fill_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             const fragment = template().content.cloneNode(true);
             const $layout = fragment.querySelector('#layout');
             shadowRoot.appendChild(fragment);

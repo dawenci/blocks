@@ -2,7 +2,6 @@ import { Component } from '../Component.js'
 import { BlocksColumn } from './column.js'
 import { template } from './row-template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 import type { NullableEnumAttr } from '../../decorators/attr.js'
@@ -44,7 +43,7 @@ export class BlocksRow extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.attachShadow({ mode: 'open' })
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template().content.cloneNode(true))
     this._ref = {
       $slot: shadowRoot.querySelector('slot')!,

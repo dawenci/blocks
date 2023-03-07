@@ -108,7 +108,7 @@ export let BlocksPagination = (() => {
         constructor() {
             super();
             const { comTemplate } = template();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(comTemplate.content.cloneNode(true));
             const $pager = shadowRoot.getElementById('pager');
             const $items = shadowRoot.getElementById('items');

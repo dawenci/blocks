@@ -75,7 +75,7 @@ export let BlocksProgress = (() => {
         set percentage(value) { this.#percentage_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.attachShadow({ mode: 'open' });
+            const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
             const $progress = shadowRoot.querySelector('#progress');
             const $value = shadowRoot.querySelector('#value');

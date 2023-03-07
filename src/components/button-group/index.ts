@@ -1,5 +1,4 @@
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { domRef } from '../../decorators/domRef.js'
 import { BlocksButton } from '../button/index.js'
@@ -9,7 +8,6 @@ import { style } from './style.js'
 import '../button/index.js'
 
 @customElement('bl-button-group')
-@attachShadow
 @applyStyle(style)
 export class BlocksButtonGroup extends Component {
   @domRef('slot') accessor $slot!: HTMLSlotElement

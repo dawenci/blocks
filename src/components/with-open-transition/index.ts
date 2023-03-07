@@ -1,8 +1,10 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { applyStyle } from '../../decorators/style.js'
+import { attr } from '../../decorators/attr.js'
+import { style } from './style.js'
 import { dispatchEvent } from '../../common/event.js'
-import { strGetter, strSetter } from '../../common/property.js'
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
-import { openGetter, openSetter } from '../../common/propertyAccessor.js'
-import { ComponentEventMap } from '../Component.js'
+import { Component, ComponentEventMap } from '../Component.js'
 
 export interface WithOpenTransitionEventMap extends ComponentEventMap {
   opened: CustomEvent
@@ -10,29 +12,15 @@ export interface WithOpenTransitionEventMap extends ComponentEventMap {
   'open-changed': CustomEvent<{ value: boolean }>
 }
 
-export class WithOpenTransition extends HTMLElement {
+@defineClass
+@applyStyle(style)
+export class WithOpenTransition extends Component {
   onOpen?: () => void
   onClose?: () => void
 
-  static get observedAttributes() {
-    return ['open']
-  }
+  @attr('boolean') accessor open!: boolean
 
-  get open() {
-    return openGetter(this)
-  }
-
-  set open(value) {
-    openSetter(this, value)
-  }
-
-  get openTransitionName() {
-    return strGetter('open-transition-name')(this) ?? 'zoom'
-  }
-
-  set openTransitionName(value) {
-    strSetter('open-transition-name')(this, value)
-  }
+  @attr('string', { defaults: 'zoom' }) accessor openTransitionName!: string
 
   _onOpenAttributeChange() {
     if (this.open) {

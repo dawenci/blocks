@@ -4,7 +4,6 @@ import { onClickOutside } from '../../common/onClickOutside.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
@@ -35,7 +34,7 @@ export class BlocksTooltip extends Component {
   constructor() {
     super()
 
-    this.attachShadow({ mode: 'open' })
+    // this.attachShadow({ mode: 'open' })
     const shadowRoot = this.shadowRoot!
 
     const { comTemplate, popupTemplate } = template()

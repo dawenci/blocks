@@ -8,7 +8,6 @@ import {
 import './menu-item.js'
 import { BlocksNavMenu } from './menu.js'
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 
@@ -32,7 +31,7 @@ export class BlocksNavMenuGroup extends Component {
   constructor() {
     super()
 
-    this.attachShadow({ mode: 'open' })
+    // this.attachShadow({ mode: 'open' })
 
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(styleTemplate())

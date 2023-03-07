@@ -133,7 +133,6 @@ export let BlocksNavMenu = (() => {
         set collapse(value) { this.#collapse_accessor_storage = value; }
         constructor() {
             super();
-            this.attachShadow({ mode: 'open' });
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(styleTemplate());
             shadowRoot.appendChild(contentTemplate());

@@ -37,13 +37,12 @@ import { Component } from '../Component.js';
 import { make as makeModel } from './model.js';
 import { customElement } from '../../decorators/customElement.js';
 import { attr } from '../../decorators/attr.js';
-import { attachShadow } from '../../decorators/shadow.js';
 import { applyStyle } from '../../decorators/style.js';
 import { template } from './template.js';
 import { style } from './style.js';
 import { strSetter } from '../../common/property.js';
 export let BlocksBackTop = (() => {
-    let _classDecorators = [customElement('bl-backtop'), attachShadow, applyStyle(style)];
+    let _classDecorators = [customElement('bl-backtop'), applyStyle(style)];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

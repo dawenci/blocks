@@ -1,5 +1,4 @@
 import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { applyStyle } from '../../decorators/style.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js'
@@ -15,7 +14,6 @@ export interface BlocksCard extends Component {
 }
 
 @customElement('bl-card')
-@attachShadow
 @applyStyle(style)
 export class BlocksCard extends Component {
   static override get observedAttributes() {

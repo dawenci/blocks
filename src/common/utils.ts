@@ -121,6 +121,10 @@ export function isEmpty(obj: object): boolean {
   return true
 }
 
+export function uniq<T>(list: T[]): T[] {
+  return [...new Set(list)]
+}
+
 export const uniqBy: <T>(fn: (item: T) => any, list: ArrayLike<T>) => T[] =
   (() => {
     const has = Object.prototype.hasOwnProperty
