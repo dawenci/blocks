@@ -3,13 +3,8 @@ import {
   __fg_secondary,
   __font_family,
 } from '../../theme/var-light.js'
-import {
-  makeDomTemplate,
-  makeFragmentTemplate,
-  makeStyleTemplate,
-} from '../../common/template.js'
 
-export const styleTemplate = makeStyleTemplate(/*css*/ `
+export const style = /*css*/ `
 :host {
   display: block;
   font-family: var(--font-family, ${__font_family});
@@ -22,13 +17,4 @@ export const styleTemplate = makeStyleTemplate(/*css*/ `
   font-weight: 700;
   color: var(--bl-fg-secondary, ${__fg_secondary});
 }
-`)
-
-export const contentTemplate = makeFragmentTemplate(/*html*/ `
-<div id="head"></div>
-<div id="body"><slot></slot></div>
-`)
-
-export const itemTemplate = makeDomTemplate(
-  document.createElement('bl-nav-menu-item')
-)
+`

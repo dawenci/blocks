@@ -32,35 +32,43 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { defineClass } from '../../decorators/defineClass.js';
 import { getRegisteredSvgIcon } from '../../icon/index.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { style } from './style.js';
+import { domRef } from '../../decorators/domRef.js';
 export let BlocksLoading = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-loading',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
+    let _instanceExtraInitializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
     var BlocksLoading = class extends Component {
         static {
+            _$layout_decorators = [domRef('#layout')];
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksLoading = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
+        #$layout_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _$layout_initializers, void 0));
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        $icon;
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            this._ref = {
-                $layout: shadowRoot.querySelector('#layout'),
-            };
+            this.shadowRoot.appendChild(template());
         }
         render() {
-            if (!this._ref.$icon) {
-                this._ref.$icon = getRegisteredSvgIcon('loading');
-                this._ref.$layout.appendChild(this._ref.$icon);
+            if (!this.$icon) {
+                this.$icon = getRegisteredSvgIcon('loading');
+                this.$layout.appendChild(this.$icon);
             }
         }
         connectedCallback() {

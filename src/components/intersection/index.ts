@@ -9,7 +9,7 @@ import { attr } from '../../decorators/attr.js'
 })
 export class BlocksIntersection extends Component {
   static override get observedAttributes() {
-    return ['root', 'root-margin', 'threshold']
+    return ['root']
   }
 
   @attr('string') accessor rootMargin = '0px'

@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,14 +25,23 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { Component } from '../Component.js';
-import { forEach } from '../../common/utils.js';
-import { styleTemplate, contentTemplate, groupTemplate, itemTemplate, } from './menu-template.js';
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
+import { style } from './menu.style.js';
+import { contentTemplate, groupTemplate, itemTemplate, } from './menu.template.js';
+import { Component } from '../Component.js';
+import { forEach } from '../../common/utils.js';
 export let BlocksNavMenu = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-nav-menu',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -90,23 +92,7 @@ export let BlocksNavMenu = (() => {
         static get role() {
             return 'navigation';
         }
-        static get observedAttributes() {
-            return [
-                'horizontal',
-                'collapse',
-                'inline',
-                'submenu',
-                'level',
-                'expand',
-                'size',
-                'enter-delay',
-                'leave-delay',
-            ];
-        }
-        _data = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        $parentMenu;
-        $parentItem;
-        #enterDelay_accessor_storage = __runInitializers(this, _enterDelay_initializers, 150);
+        #enterDelay_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _enterDelay_initializers, 150));
         get enterDelay() { return this.#enterDelay_accessor_storage; }
         set enterDelay(value) { this.#enterDelay_accessor_storage = value; }
         #leaveDelay_accessor_storage = __runInitializers(this, _leaveDelay_initializers, 200);
@@ -133,10 +119,12 @@ export let BlocksNavMenu = (() => {
         #collapse_accessor_storage = __runInitializers(this, _collapse_initializers, void 0);
         get collapse() { return this.#collapse_accessor_storage; }
         set collapse(value) { this.#collapse_accessor_storage = value; }
+        _data;
+        $parentMenu;
+        $parentItem;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(styleTemplate());
             shadowRoot.appendChild(contentTemplate());
             this._data = [];
             this.addEventListener('active', (e) => {

@@ -1,17 +1,16 @@
 import '../loading/index.js'
 import '../icon/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { disabledSetter } from '../../common/propertyAccessor.js'
 import { onWheel } from '../../common/onWheel.js'
 import { forEach } from '../../common/utils.js'
-import { contentTemplate, styleTemplate } from './template.js'
+import { contentTemplate } from './template.js'
+import { style } from './style.js'
 import { Component, ComponentEventListener } from '../Component.js'
 import {
   WithOpenTransition,
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
-import { applyMixins } from '../../common/applyMixins.js'
-import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
-import { defineClass } from '../../decorators/defineClass.js'
 
 type ImageTransformStates = Map<
   HTMLImageElement,
@@ -55,23 +54,16 @@ export interface BlocksImageViewer extends Component, WithOpenTransition {
 
 @defineClass({
   customElement: 'bl-image-viewer',
+  mixins: [WithOpenTransition],
+  styles: [style],
 })
 export class BlocksImageViewer extends Component {
-  static override get observedAttributes() {
-    return super.observedAttributes.concat([])
-  }
-
   constructor() {
     super()
 
-    const $style = styleTemplate()
     const $layout = contentTemplate()
 
-    this.appendShadowChildren([
-      withOpenTransitionStyleTemplate(),
-      $style,
-      $layout,
-    ])
+    this.shadowRoot!.appendChild($layout)
 
     const $slot = $layout.querySelector('slot')!
     const $mask = $layout.querySelector('#mask') as HTMLElement
@@ -360,5 +352,3 @@ export class BlocksImageViewer extends Component {
     disabledSetter(this._ref.$zoomOutButton, scale === 0.2)
   }
 }
-
-applyMixins(BlocksImageViewer, [WithOpenTransition])

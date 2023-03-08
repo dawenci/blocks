@@ -1,4 +1,9 @@
 import '../icon/index.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import { template } from './template.js'
+import { style } from './style.js'
 import { dispatchEvent } from '../../common/event.js'
 import { forEach } from '../../common/utils.js'
 import {
@@ -6,10 +11,6 @@ import {
   ComponentEventListener,
   ComponentEventMap,
 } from '../Component.js'
-import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import type { EnumAttrs } from '../../decorators/attr.js'
 
 export interface PaginationEventMap extends ComponentEventMap {
   'bl:pagination:current-change': CustomEvent<{ current: number }>
@@ -42,21 +43,12 @@ export interface BlocksPagination extends Component {
 
 @defineClass({
   customElement: 'bl-pagination',
+  styles: [style],
 })
 export class BlocksPagination extends Component {
   static override get observedAttributes() {
-    return [
-      'current',
-      'disabled',
-      'page-size',
-      'page-sizes',
-      'order',
-      'size',
-      'total',
-    ]
+    return ['order']
   }
-
-  _itemPool: HTMLElement[] = []
 
   @attr('boolean') accessor disabled!: boolean
 
@@ -69,6 +61,8 @@ export class BlocksPagination extends Component {
   @attr('string') accessor pageSizes!: string | null
 
   @attrs.size accessor size!: EnumAttrs['size']
+
+  _itemPool: HTMLElement[] = []
 
   constructor() {
     super()

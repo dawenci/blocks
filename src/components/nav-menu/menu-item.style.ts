@@ -1,8 +1,4 @@
 import {
-  makeFragmentTemplate,
-  makeStyleTemplate,
-} from '../../common/template.js'
-import {
   __fg_base,
   __fg_hover,
   __fg_active,
@@ -18,7 +14,7 @@ import {
   __bg_active,
 } from '../../theme/var-light.js'
 
-export const styleTemplate = makeStyleTemplate(/*css*/ `
+export const style = /*css*/ `
 :host {
   display: block;
   position: relative;
@@ -147,13 +143,4 @@ bl-icon {
 :host-context([horizontal]) #layout {
   padding: 0 16px;
 }
-`)
-
-export const contentTemplate = makeFragmentTemplate(/*html*/ `
-<div id="layout">
-  <bl-icon id="icon"></bl-icon>
-  <div id="label"></div>
-  <bl-icon id="arrow" value="right"></bl-icon>
-</div>
-<slot></slot>
-`)
+`

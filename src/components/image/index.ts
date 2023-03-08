@@ -1,18 +1,20 @@
 import '../loading/index.js'
 import '../icon/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import type { NullableEnumAttr } from '../../decorators/attr.js'
 import { strGetter, strSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 import { makeMessages } from '../../i18n/makeMessages.js'
 import { Component } from '../Component.js'
+
 import {
   contentTemplate,
   fallbackTemplate,
   placeholderTemplate,
-  styleTemplate,
 } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
-import type { NullableEnumAttr } from '../../decorators/attr.js'
+import { style } from './style.js'
+import { domRef } from '../../decorators/domRef.js'
 
 const getMessage = makeMessages('image', {
   placeholderText: '加载中',
@@ -21,8 +23,6 @@ const getMessage = makeMessages('image', {
 
 export interface BlocksImage extends Component {
   _ref: {
-    $layout: HTMLElement
-    $img: HTMLImageElement
     $placeholder?: HTMLElement
     $fallback?: HTMLElement
   }
@@ -32,12 +32,9 @@ export interface BlocksImage extends Component {
 
 @defineClass({
   customElement: 'bl-image',
+  styles: [style],
 })
 export class BlocksImage extends Component {
-  static override get observedAttributes() {
-    return ['alt', 'fallback', 'fit', 'manual', 'placeholder', 'src'] as const
-  }
-
   @attr('string') accessor alt!: string | null
 
   @attr('string') accessor fallback!: string | null
@@ -55,19 +52,17 @@ export class BlocksImage extends Component {
     ['none', 'fill', 'contain', 'cover', 'scale-down']
   >
 
+  @domRef('#layout') accessor $layout!: HTMLElement
+
+  @domRef('#img') accessor $img!: HTMLImageElement
+
   constructor() {
     super()
 
-    
-    const $style = styleTemplate()
-    const $layout = contentTemplate()
-    const $img = $layout.querySelector('#img') as HTMLImageElement
-    this.appendShadowChildren([$style, $layout])
+    this.shadowRoot!.appendChild(contentTemplate())
+    this._ref = {} as any
 
-    this._ref = {
-      $layout,
-      $img,
-    }
+    const { $img } = this
 
     this._status = 'init'
     $img.addEventListener('load', () => {
@@ -88,7 +83,7 @@ export class BlocksImage extends Component {
   }
 
   _renderLoading() {
-    const { $layout, $img } = this._ref
+    const { $layout, $img } = this
     $img.style.opacity = '0'
     this._removeFallback()
 
@@ -104,7 +99,7 @@ export class BlocksImage extends Component {
   }
 
   _renderFail() {
-    const { $layout, $img } = this._ref
+    const { $layout, $img } = this
     $img.style.opacity = '0'
     this._removePlaceholder()
 
@@ -120,31 +115,31 @@ export class BlocksImage extends Component {
   }
 
   _renderSuccess() {
-    this._ref.$img.style.opacity = '1'
+    this.$img.style.opacity = '1'
     this._removePlaceholder()
     this._removeFallback()
 
     if (this.fit) {
-      this._ref.$img.style.objectFit = this.fit
+      this.$img.style.objectFit = this.fit
     }
   }
 
   _removePlaceholder() {
     if (this._ref.$placeholder) {
-      this._ref.$layout.removeChild(this._ref.$placeholder)
+      this.$layout.removeChild(this._ref.$placeholder)
       this._ref.$placeholder = undefined
     }
   }
 
   _removeFallback() {
     if (this._ref.$fallback) {
-      this._ref.$layout.removeChild(this._ref.$fallback)
+      this.$layout.removeChild(this._ref.$fallback)
       this._ref.$fallback = undefined
     }
   }
 
   _reset() {
-    const { $img } = this._ref
+    const { $img } = this
     this._status = 'init'
     $img.style.display = 'none'
     $img.style.opacity = '0'
@@ -155,8 +150,8 @@ export class BlocksImage extends Component {
   }
 
   override render() {
-    if (this._ref.$img.getAttribute('alt') !== this.alt) {
-      strSetter('alt')(this._ref.$img, this.alt)
+    if (this.$img.getAttribute('alt') !== this.alt) {
+      strSetter('alt')(this.$img, this.alt)
     }
 
     switch (this._status) {
@@ -172,13 +167,12 @@ export class BlocksImage extends Component {
   load() {
     if (
       this._status === 'loading' ||
-      (strGetter('alt')(this._ref.$img) === this.src &&
-        this._status === 'loaded')
+      (strGetter('alt')(this.$img) === this.src && this._status === 'loaded')
     ) {
       return
     }
     this._status = 'loading'
-    this._ref.$img.src = this.src!
+    this.$img.src = this.src!
     this._renderLoading()
     dispatchEvent(this, 'loading')
   }

@@ -57,6 +57,9 @@ export let BlocksDatePicker = (() => {
             BlocksDatePicker = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
+        static get observedAttributes() {
+            return BlocksDate.observedAttributes.concat(BlocksInput.observedAttributes);
+        }
         #prevValue;
         #clearClickOutside;
         constructor() {
@@ -218,9 +221,6 @@ export let BlocksDatePicker = (() => {
                 this.#clearClickOutside();
                 this.#clearClickOutside = undefined;
             }
-        }
-        static get observedAttributes() {
-            return BlocksDate.observedAttributes.concat(BlocksInput.observedAttributes);
         }
     };
     return BlocksDatePicker = _classThis;

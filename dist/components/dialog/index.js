@@ -37,18 +37,16 @@ import '../modal-mask/index.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { dialogTemplate } from './template.js';
-import { style as withOpenTransitionStyle } from '../with-open-transition/style.js';
 import { style } from './style.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
-import { applyMixins } from '../../common/applyMixins.js';
 import { Control } from '../base-control/index.js';
-import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 let BlocksDialog = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-dialog',
-            styles: [withOpenTransitionStyle, style],
+            mixins: [WithOpenTransition],
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -80,16 +78,6 @@ let BlocksDialog = (() => {
             BlocksDialog = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return super.observedAttributes.concat([
-                'append-to-body',
-                'open',
-                'title-text',
-                'closeable',
-                'capturefocus',
-                'mask',
-            ]);
-        }
         static get role() {
             return 'dialog';
         }
@@ -111,7 +99,6 @@ let BlocksDialog = (() => {
         removeAfterClose = false;
         constructor() {
             super();
-            this._appendStyle(withOpenTransitionStyleTemplate());
             this._ref.$layout.appendChild(dialogTemplate());
             const $mask = document.createElement('bl-modal-mask');
             this._ref.$mask = $mask;
@@ -336,5 +323,4 @@ let BlocksDialog = (() => {
     };
     return BlocksDialog = _classThis;
 })();
-applyMixins(BlocksDialog, [WithOpenTransition]);
 export { BlocksDialog };

@@ -1,7 +1,9 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { BlocksVList, VirtualItem, VListEventMap } from '../vlist/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { parseHighlight } from '../../common/highlight.js'
-import { template } from './template.js'
+import { style } from './style.js'
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
 import {
   ISelected,
@@ -9,8 +11,6 @@ import {
   ISelectableListComponent,
 } from '../../common/connectSelectable.js'
 import { ComponentEventListener } from '../Component.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 interface BlocksListEventMap extends VListEventMap, ISelectListEventMap {}
 
@@ -33,23 +33,14 @@ export interface BlocksList extends BlocksVList, ISelectableListComponent {
 
 @defineClass({
   customElement: 'bl-list',
+  styles: [style],
 })
 export class BlocksList extends BlocksVList {
   #checkedSet: Set<VirtualItem>
 
-  static override get observedAttributes() {
-    return super.observedAttributes.concat([
-      'border',
-      'disabled',
-      'disabled-field',
-      'id-field',
-      'label-field',
-      'checkable',
-      'multiple',
-      'search',
-      'stripe',
-    ])
-  }
+  @attr('boolean', { observed: false }) accessor border!: boolean
+
+  @attr('boolean', { observed: false }) accessor stripe!: boolean
 
   @attr('boolean') accessor disabled!: boolean
 
@@ -67,13 +58,6 @@ export class BlocksList extends BlocksVList {
 
   constructor() {
     super()
-
-    const { comTemplate } = template()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.insertBefore(
-      comTemplate.content.cloneNode(true),
-      this._ref.$viewport as any
-    )
 
     this.#checkedSet = new Set()
 

@@ -1,11 +1,12 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import type { NullableEnumAttr } from '../../decorators/attr.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { boolSetter, enumSetter, intSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
-import type { NullableEnumAttr } from '../../decorators/attr.js'
+import { style } from './style.js'
 
 const closeableSetter = boolSetter('closeable')
 const typeSetter = enumSetter('type', [
@@ -27,12 +28,9 @@ export interface BlocksMessage extends Component {
 
 @defineClass({
   customElement: 'bl-message',
+  styles: [style],
 })
 export class BlocksMessage extends Component {
-  static override get observedAttributes() {
-    return ['closeable', 'duration', 'type']
-  }
-
   @attr('boolean') accessor closeable!: boolean
 
   @attr('number') accessor duration = 10
@@ -47,7 +45,7 @@ export class BlocksMessage extends Component {
   constructor() {
     super()
     const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
+    shadowRoot.appendChild(template())
     const $layout = shadowRoot.querySelector('#layout') as HTMLElement
     const $icon = shadowRoot.querySelector('#icon') as HTMLElement
     const $content = shadowRoot.querySelector('#content') as HTMLElement

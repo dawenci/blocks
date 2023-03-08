@@ -32,13 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { dispatchEvent } from '../../common/event.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
+import { style } from './style.js';
 import { __color_success, __color_danger, __color_warning, __color_primary, } from '../../theme/var-light.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
 export var NotificationPlacement;
 (function (NotificationPlacement) {
     NotificationPlacement["TopRight"] = "top-right";
@@ -64,6 +65,7 @@ export const notificationTypes = [
 export let BlocksNotification = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-notification',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -87,9 +89,6 @@ export let BlocksNotification = (() => {
             BlocksNotification = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['closeable', 'duration', 'type'];
-        }
         #closeable_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _closeable_initializers, void 0));
         get closeable() { return this.#closeable_accessor_storage; }
         set closeable(value) { this.#closeable_accessor_storage = value; }
@@ -102,7 +101,7 @@ export let BlocksNotification = (() => {
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
+            shadowRoot.appendChild(template());
             const $layout = shadowRoot.querySelector('#layout');
             const $icon = shadowRoot.querySelector('#icon');
             const $content = shadowRoot.querySelector('#content');

@@ -1,6 +1,4 @@
-import { makeStyleTemplate } from '../../common/template.js'
-
-export const styleTemplate = makeStyleTemplate(/*css*/ `
+export const style = /*css*/ `
 :host {
   display: none;
   box-sizing: border-box;
@@ -15,4 +13,4 @@ export const styleTemplate = makeStyleTemplate(/*css*/ `
 :host([open]) {
   display: block;
 }
-`)
+`

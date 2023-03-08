@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { padLeft } from '../../common/utils.js';
-import { dispatchEvent } from '../../common/event.js';
-import { parseDateFormat } from './parseDateFormat.js';
-import { Component, } from '../Component.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 import { template } from './template.js';
 import { style } from './style.js';
+import { padLeft } from '../../common/utils.js';
+import { dispatchEvent } from '../../common/event.js';
+import { parseDateFormat } from './parseDateFormat.js';
+import { Component, } from '../Component.js';
 export let BlocksCountdown = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-countdown',

@@ -36,10 +36,11 @@ import '../popup/index.js';
 import '../date/index.js';
 import { disabledSetter } from '../../common/propertyAccessor.js';
 import { dispatchEvent } from '../../common/event.js';
-import { styleTemplate, inputTemplate } from './template.js';
 import { ClearableControlBox, } from '../base-clearable-control-box/index.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
+import { template } from './template.js';
+import { style } from './style.js';
 const INPUT_ATTRS = [
     'value',
     'type',
@@ -57,6 +58,7 @@ const INPUT_ATTRS = [
 export let BlocksInput = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-input',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -88,6 +90,8 @@ export let BlocksInput = (() => {
     let _autofocus_initializers = [];
     let _size_decorators;
     let _size_initializers = [];
+    let _multiple_decorators;
+    let _multiple_initializers = [];
     var BlocksInput = class extends ClearableControlBox {
         static {
             _value_decorators = [attr('string')];
@@ -103,6 +107,7 @@ export let BlocksInput = (() => {
             _autocomplete_decorators = [attr('boolean')];
             _autofocus_decorators = [attr('boolean')];
             _size_decorators = [attrs.size];
+            _multiple_decorators = [attr('boolean')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _type_decorators, { kind: "accessor", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type, set: (obj, value) => { obj.type = value; } } }, _type_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _step_decorators, { kind: "accessor", name: "step", static: false, private: false, access: { has: obj => "step" in obj, get: obj => obj.step, set: (obj, value) => { obj.step = value; } } }, _step_initializers, _instanceExtraInitializers);
@@ -116,18 +121,13 @@ export let BlocksInput = (() => {
             __esDecorate(this, null, _autocomplete_decorators, { kind: "accessor", name: "autocomplete", static: false, private: false, access: { has: obj => "autocomplete" in obj, get: obj => obj.autocomplete, set: (obj, value) => { obj.autocomplete = value; } } }, _autocomplete_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _autofocus_decorators, { kind: "accessor", name: "autofocus", static: false, private: false, access: { has: obj => "autofocus" in obj, get: obj => obj.autofocus, set: (obj, value) => { obj.autofocus = value; } } }, _autofocus_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _multiple_decorators, { kind: "accessor", name: "multiple", static: false, private: false, access: { has: obj => "multiple" in obj, get: obj => obj.multiple, set: (obj, value) => { obj.multiple = value; } } }, _multiple_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksInput = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get role() {
             return 'input';
-        }
-        static get observedAttributes() {
-            return INPUT_ATTRS.concat(super.observedAttributes).concat([
-                'size',
-                'autofocus',
-            ]);
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
@@ -168,10 +168,12 @@ export let BlocksInput = (() => {
         #size_accessor_storage = __runInitializers(this, _size_initializers, void 0);
         get size() { return this.#size_accessor_storage; }
         set size(value) { this.#size_accessor_storage = value; }
+        #multiple_accessor_storage = __runInitializers(this, _multiple_initializers, void 0);
+        get multiple() { return this.#multiple_accessor_storage; }
+        set multiple(value) { this.#multiple_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(styleTemplate());
-            const $input = this._appendContent((this._ref.$input = inputTemplate()));
+            const $input = this._appendContent((this._ref.$input = template()));
             $input.oninput = $input.onchange = () => {
                 dispatchEvent(this, 'select-result:clear');
                 dispatchEvent(this, 'select-result:search', {

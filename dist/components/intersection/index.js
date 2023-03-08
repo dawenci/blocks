@@ -60,7 +60,7 @@ export let BlocksIntersection = (() => {
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return ['root', 'root-margin', 'threshold'];
+            return ['root'];
         }
         #rootMargin_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _rootMargin_initializers, '0px'));
         get rootMargin() { return this.#rootMargin_accessor_storage; }

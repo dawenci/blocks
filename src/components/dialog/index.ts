@@ -3,16 +3,13 @@ import '../modal-mask/index.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import { dialogTemplate } from './template.js'
-import { style as withOpenTransitionStyle } from '../with-open-transition/style.js'
 import { style } from './style.js'
-import { BlocksModalMask } from '../modal-mask/index.js'
 import {
   WithOpenTransition,
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
-import { applyMixins } from '../../common/applyMixins.js'
+import { BlocksModalMask } from '../modal-mask/index.js'
 import { Control } from '../base-control/index.js'
-import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
 import { ComponentEventListener } from '../Component.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
@@ -42,41 +39,29 @@ interface BlocksDialog extends Control, WithOpenTransition {
 
 @defineClass({
   customElement: 'bl-dialog',
-  styles: [withOpenTransitionStyle, style],
+  mixins: [WithOpenTransition],
+  styles: [style],
 })
 class BlocksDialog extends Control {
-  static override get observedAttributes() {
-    return super.observedAttributes.concat([
-      'append-to-body',
-      // 显示状态
-      'open',
-      // 标题
-      'title-text',
-      // 是否提供关闭按钮
-      'closeable',
-      // 捕获焦点，tab 键不会将焦点移出 Dialog
-      'capturefocus',
-      // 显示遮罩
-      'mask',
-    ])
-  }
-
   static get role() {
     return 'dialog'
   }
 
+  /** 显示遮罩 */
   @attr('boolean') accessor mask!: boolean
+  /** 是否提供关闭按钮 */
   @attr('boolean') accessor closeable!: boolean
+  /** 捕获焦点，tab 键不会将焦点移出 Dialog */
   @attr('boolean') accessor capturefocus!: boolean
+  /** 插入到 body */
   @attr('boolean') accessor appendToBody!: boolean
+  /** 标题 */
   @attr('string') accessor titleText = ''
 
   removeAfterClose = false
 
   constructor() {
     super()
-
-    this._appendStyle(withOpenTransitionStyleTemplate())
 
     this._ref.$layout.appendChild(dialogTemplate())
     const $mask = document.createElement('bl-modal-mask')
@@ -343,7 +328,5 @@ class BlocksDialog extends Control {
     }
   }
 }
-
-applyMixins(BlocksDialog, [WithOpenTransition])
 
 export { BlocksDialog }

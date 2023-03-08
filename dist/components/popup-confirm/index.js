@@ -33,18 +33,21 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     done = true;
 };
 import '../popup/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
+import { style } from './style.js';
+import { template } from './template.js';
+import { popupTemplate } from './popup.template.js';
 import { dispatchEvent } from '../../common/event.js';
 import { getRegisteredSvgIcon } from '../../icon/index.js';
 import { Component } from '../Component.js';
-import { template } from './template.js';
 import { __color_warning } from '../../theme/var-light.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
 const POPUP_ATTRS = ['open', 'origin'];
 const CONFIRM_ATTRS = ['message', 'icon'];
 export let BlocksPopupConfirm = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup-confirm',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -81,14 +84,11 @@ export let BlocksPopupConfirm = (() => {
         set message(value) { this.#message_accessor_storage = value; }
         constructor() {
             super();
-            const { comTemplate, popupTemplate } = template();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(comTemplate.content.cloneNode(true));
-            const popupFragment = popupTemplate.content.cloneNode(true);
-            this.$popup = popupFragment.querySelector('bl-popup');
-            this.$message = popupFragment.querySelector('.message');
-            this.$cancel = popupFragment.querySelector('.cancel');
-            this.$confirm = popupFragment.querySelector('.confirm');
+            this.shadowRoot.appendChild(template());
+            this.$popup = popupTemplate();
+            this.$message = this.$popup.querySelector('.message');
+            this.$cancel = this.$popup.querySelector('.cancel');
+            this.$confirm = this.$popup.querySelector('.confirm');
             this.$popup.anchor = this;
             this.$popup.arrow = true;
             this.$popup.origin = this.origin || 'top-center';

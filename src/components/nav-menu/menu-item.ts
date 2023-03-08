@@ -1,22 +1,28 @@
 import '../icon/index.js'
 import '../popup-menu/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import { style } from './menu-item.style.js'
+import { template } from './menu-item.template.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { PopupOrigin } from '../popup/index.js'
-import { styleTemplate, contentTemplate } from './menu-item-template.js'
 import { BlocksPopupMenu } from '../popup-menu/index.js'
 import type { BlocksNavMenu } from './menu.js'
 import { BlocksIcon } from '../icon/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 @defineClass({
   customElement: 'bl-nav-menu-item',
+  styles: [style],
 })
 export class BlocksNavMenuItem extends Component {
-  static override get observedAttributes() {
-    return ['disabled', 'link', 'expand', 'active']
-  }
+  @attr('boolean') accessor expand!: boolean
+
+  @attr('boolean') accessor active!: boolean
+
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('boolean') accessor link!: boolean
 
   private $layout: HTMLElement
   private $label: HTMLElement
@@ -27,20 +33,11 @@ export class BlocksNavMenuItem extends Component {
   private _enterTimer?: number
   private _data!: MenuItem
 
-  @attr('boolean') accessor expand!: boolean
-
-  @attr('boolean') accessor active!: boolean
-
-  @attr('boolean') accessor disabled!: boolean
-
-  @attr('boolean') accessor link!: boolean
-
   constructor() {
     super()
 
-        const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(styleTemplate())
-    shadowRoot.appendChild(contentTemplate())
+    const shadowRoot = this.shadowRoot!
+    shadowRoot.appendChild(template())
     this.$layout = shadowRoot.getElementById('layout')!
     this.$label = shadowRoot.getElementById('label')!
     this.$icon = shadowRoot.getElementById('icon') as BlocksIcon

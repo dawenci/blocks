@@ -26,10 +26,6 @@ export class BlocksButton extends ControlBox {
     return 'button'
   }
 
-  static override get observedAttributes() {
-    return super.observedAttributes.concat(['type', 'size'])
-  }
-
   @attr('string') accessor icon!: string | null
 
   @attr('boolean') accessor block!: boolean

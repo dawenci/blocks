@@ -32,14 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
+import { domRef } from '../../decorators/domRef.js';
+import { style } from './style.js';
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
 export let BlocksIcon = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-icon',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -49,18 +52,19 @@ export let BlocksIcon = (() => {
     let _value_initializers = [];
     let _fill_decorators;
     let _fill_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
     var BlocksIcon = class extends Component {
         static {
             _value_decorators = [attr('string')];
             _fill_decorators = [attr('string')];
+            _$layout_decorators = [domRef('#layout')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _fill_decorators, { kind: "accessor", name: "fill", static: false, private: false, access: { has: obj => "fill" in obj, get: obj => obj.fill, set: (obj, value) => { obj.fill = value; } } }, _fill_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksIcon = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get observedAttributes() {
-            return ['value', 'fill'];
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
@@ -68,18 +72,15 @@ export let BlocksIcon = (() => {
         #fill_accessor_storage = __runInitializers(this, _fill_initializers, void 0);
         get fill() { return this.#fill_accessor_storage; }
         set fill(value) { this.#fill_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            const fragment = template().content.cloneNode(true);
-            const $layout = fragment.querySelector('#layout');
-            shadowRoot.appendChild(fragment);
-            this._ref = {
-                $layout,
-            };
+            this.shadowRoot.appendChild(template());
         }
         render() {
-            const { $layout } = this._ref;
+            const { $layout } = this;
             if ($layout.firstElementChild) {
                 $layout.removeChild($layout.firstElementChild);
             }

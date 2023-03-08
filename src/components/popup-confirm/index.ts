@@ -1,19 +1,22 @@
 import '../popup/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import { style } from './style.js'
+import { template } from './template.js'
+import { popupTemplate } from './popup.template.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { BlocksPopup } from '../popup/index.js'
 import { BlocksButton } from '../button/index.js'
 import { Component } from '../Component.js'
-import { template } from './template.js'
 import { __color_warning } from '../../theme/var-light.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 const POPUP_ATTRS = ['open', 'origin']
 const CONFIRM_ATTRS = ['message', 'icon']
 
 @defineClass({
   customElement: 'bl-popup-confirm',
+  styles: [style],
 })
 export class BlocksPopupConfirm extends Component {
   private $popup: BlocksPopup
@@ -35,18 +38,12 @@ export class BlocksPopupConfirm extends Component {
   constructor() {
     super()
 
-    const { comTemplate, popupTemplate } = template()
+    this.shadowRoot!.appendChild(template())
 
-        const shadowRoot = this.shadowRoot!
-
-    shadowRoot.appendChild(comTemplate.content.cloneNode(true))
-    const popupFragment = popupTemplate.content.cloneNode(
-      true
-    ) as DocumentFragment
-    this.$popup = popupFragment.querySelector('bl-popup')!
-    this.$message = popupFragment.querySelector('.message')!
-    this.$cancel = popupFragment.querySelector('.cancel')!
-    this.$confirm = popupFragment.querySelector('.confirm')!
+    this.$popup = popupTemplate()!
+    this.$message = this.$popup.querySelector('.message')!
+    this.$cancel = this.$popup.querySelector('.cancel')!
+    this.$confirm = this.$popup.querySelector('.confirm')!
     this.$popup.anchor = this
     this.$popup.arrow = true
     this.$popup.origin = this.origin || 'top-center'

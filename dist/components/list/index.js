@@ -32,21 +32,26 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { BlocksVList } from '../vlist/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { parseHighlight } from '../../common/highlight.js';
-import { template } from './template.js';
+import { style } from './style.js';
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
 export let BlocksList = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-list',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
+    let _border_decorators;
+    let _border_initializers = [];
+    let _stripe_decorators;
+    let _stripe_initializers = [];
     let _disabled_decorators;
     let _disabled_initializers = [];
     let _disabledField_decorators;
@@ -63,6 +68,8 @@ export let BlocksList = (() => {
     let _search_initializers = [];
     var BlocksList = class extends BlocksVList {
         static {
+            _border_decorators = [attr('boolean', { observed: false })];
+            _stripe_decorators = [attr('boolean', { observed: false })];
             _disabled_decorators = [attr('boolean')];
             _disabledField_decorators = [attr('string')];
             _idField_decorators = [attr('string')];
@@ -70,6 +77,8 @@ export let BlocksList = (() => {
             _checkable_decorators = [attr('boolean')];
             _multiple_decorators = [attr('boolean')];
             _search_decorators = [attr('string')];
+            __esDecorate(this, null, _border_decorators, { kind: "accessor", name: "border", static: false, private: false, access: { has: obj => "border" in obj, get: obj => obj.border, set: (obj, value) => { obj.border = value; } } }, _border_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _stripe_decorators, { kind: "accessor", name: "stripe", static: false, private: false, access: { has: obj => "stripe" in obj, get: obj => obj.stripe, set: (obj, value) => { obj.stripe = value; } } }, _stripe_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _disabled_decorators, { kind: "accessor", name: "disabled", static: false, private: false, access: { has: obj => "disabled" in obj, get: obj => obj.disabled, set: (obj, value) => { obj.disabled = value; } } }, _disabled_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _disabledField_decorators, { kind: "accessor", name: "disabledField", static: false, private: false, access: { has: obj => "disabledField" in obj, get: obj => obj.disabledField, set: (obj, value) => { obj.disabledField = value; } } }, _disabledField_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _idField_decorators, { kind: "accessor", name: "idField", static: false, private: false, access: { has: obj => "idField" in obj, get: obj => obj.idField, set: (obj, value) => { obj.idField = value; } } }, _idField_initializers, _instanceExtraInitializers);
@@ -82,19 +91,12 @@ export let BlocksList = (() => {
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #checkedSet = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        static get observedAttributes() {
-            return super.observedAttributes.concat([
-                'border',
-                'disabled',
-                'disabled-field',
-                'id-field',
-                'label-field',
-                'checkable',
-                'multiple',
-                'search',
-                'stripe',
-            ]);
-        }
+        #border_accessor_storage = __runInitializers(this, _border_initializers, void 0);
+        get border() { return this.#border_accessor_storage; }
+        set border(value) { this.#border_accessor_storage = value; }
+        #stripe_accessor_storage = __runInitializers(this, _stripe_initializers, void 0);
+        get stripe() { return this.#stripe_accessor_storage; }
+        set stripe(value) { this.#stripe_accessor_storage = value; }
         #disabled_accessor_storage = __runInitializers(this, _disabled_initializers, void 0);
         get disabled() { return this.#disabled_accessor_storage; }
         set disabled(value) { this.#disabled_accessor_storage = value; }
@@ -118,9 +120,6 @@ export let BlocksList = (() => {
         set search(value) { this.#search_accessor_storage = value; }
         constructor() {
             super();
-            const { comTemplate } = template();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.insertBefore(comTemplate.content.cloneNode(true), this._ref.$viewport);
             this.#checkedSet = new Set();
             this._ref.$list.onclick = e => {
                 if (this.disabled)

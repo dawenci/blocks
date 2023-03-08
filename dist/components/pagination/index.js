@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,16 +25,25 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import '../icon/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr, attrs } from '../../decorators/attr.js';
+import { template } from './template.js';
+import { style } from './style.js';
 import { dispatchEvent } from '../../common/event.js';
 import { forEach } from '../../common/utils.js';
 import { Component, } from '../Component.js';
-import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr, attrs } from '../../decorators/attr.js';
 export let BlocksPagination = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-pagination',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -78,18 +80,9 @@ export let BlocksPagination = (() => {
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return [
-                'current',
-                'disabled',
-                'page-size',
-                'page-sizes',
-                'order',
-                'size',
-                'total',
-            ];
+            return ['order'];
         }
-        _itemPool = (__runInitializers(this, _instanceExtraInitializers), []);
-        #disabled_accessor_storage = __runInitializers(this, _disabled_initializers, void 0);
+        #disabled_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _disabled_initializers, void 0));
         get disabled() { return this.#disabled_accessor_storage; }
         set disabled(value) { this.#disabled_accessor_storage = value; }
         #current_accessor_storage = __runInitializers(this, _current_initializers, 1);
@@ -107,6 +100,7 @@ export let BlocksPagination = (() => {
         #size_accessor_storage = __runInitializers(this, _size_initializers, void 0);
         get size() { return this.#size_accessor_storage; }
         set size(value) { this.#size_accessor_storage = value; }
+        _itemPool = [];
         constructor() {
             super();
             const { comTemplate } = template();

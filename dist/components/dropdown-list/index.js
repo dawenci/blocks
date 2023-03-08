@@ -117,8 +117,7 @@ export let BlocksDropdownList = (() => {
         set multiple(value) { this.#multiple_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            const $slot = shadowRoot.appendChild(document.createElement('slot'));
+            const $slot = this.shadowRoot.appendChild(document.createElement('slot'));
             const $popup = popupTemplate();
             const $list = listTemplate();
             $popup.appendChildren([styleTemplate(), $list]);

@@ -17,10 +17,6 @@ export interface BlocksCard extends Component {
   styles: [style],
 })
 export class BlocksCard extends Component {
-  static override get observedAttributes() {
-    return ['shadow', 'size']
-  }
-
   @attr('enum', { enumValues: ['hover', 'always'] as const })
   accessor shadow!: NullableEnumAttr<['hover', 'always']>
 

@@ -48,8 +48,7 @@ export class BlocksDropdownList extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-    const $slot = shadowRoot.appendChild(document.createElement('slot'))
+    const $slot = this.shadowRoot!.appendChild(document.createElement('slot'))
     const $popup = popupTemplate()
     const $list = listTemplate()
     $popup.appendChildren([styleTemplate(), $list])

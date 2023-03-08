@@ -1,3 +1,7 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import { template } from './template.js'
+import { style } from './style.js'
 import { padLeft } from '../../common/utils.js'
 import { dispatchEvent } from '../../common/event.js'
 import { parseDateFormat, Token } from './parseDateFormat.js'
@@ -6,10 +10,6 @@ import {
   ComponentEventListener,
   ComponentEventMap,
 } from '../Component.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
-import { template } from './template.js'
-import { style } from './style.js'
 
 interface CountDownEventMap extends ComponentEventMap {
   start: CustomEvent<void>

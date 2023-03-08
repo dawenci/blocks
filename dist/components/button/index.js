@@ -75,9 +75,6 @@ export let BlocksButton = (() => {
         static get role() {
             return 'button';
         }
-        static get observedAttributes() {
-            return super.observedAttributes.concat(['type', 'size']);
-        }
         #icon_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _icon_initializers, void 0));
         get icon() { return this.#icon_accessor_storage; }
         set icon(value) { this.#icon_accessor_storage = value; }

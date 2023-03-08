@@ -47,6 +47,10 @@ export interface BlocksDatePicker extends Component {
   styles: [style],
 })
 export class BlocksDatePicker extends Component {
+  static override get observedAttributes() {
+    return BlocksDate.observedAttributes.concat(BlocksInput.observedAttributes)
+  }
+
   #prevValue: any
   #clearClickOutside?: () => void
 
@@ -248,9 +252,5 @@ export class BlocksDatePicker extends Component {
       this.#clearClickOutside()
       this.#clearClickOutside = undefined
     }
-  }
-
-  static override get observedAttributes() {
-    return BlocksDate.observedAttributes.concat(BlocksInput.observedAttributes)
   }
 }

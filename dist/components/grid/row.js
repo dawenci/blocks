@@ -32,13 +32,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { Component } from '../Component.js';
-import { template } from './row-template.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { domRef } from '../../decorators/domRef.js';
+import { template } from './row.template.js';
+import { style } from './row.style.js';
+import { Component } from '../Component.js';
 export let BlocksRow = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-row',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -52,29 +55,26 @@ export let BlocksRow = (() => {
     let _align_initializers = [];
     let _justify_decorators;
     let _justify_initializers = [];
+    let _$slot_decorators;
+    let _$slot_initializers = [];
     var BlocksRow = class extends Component {
         static {
             _gutter_decorators = [attr('int')];
-            _wrap_decorators = [attr('boolean')];
-            _align_decorators = [attr('enum', { enumValues: ['top', 'middle', 'bottom'] })];
+            _wrap_decorators = [attr('boolean', { observed: false })];
+            _align_decorators = [attr('enum', { enumValues: ['top', 'middle', 'bottom'], observed: false })];
             _justify_decorators = [attr('enum', {
                     enumValues: ['start', 'end', 'center', 'space-around', 'space-between'],
+                    observed: false,
                 })];
+            _$slot_decorators = [domRef('slot')];
             __esDecorate(this, null, _gutter_decorators, { kind: "accessor", name: "gutter", static: false, private: false, access: { has: obj => "gutter" in obj, get: obj => obj.gutter, set: (obj, value) => { obj.gutter = value; } } }, _gutter_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _wrap_decorators, { kind: "accessor", name: "wrap", static: false, private: false, access: { has: obj => "wrap" in obj, get: obj => obj.wrap, set: (obj, value) => { obj.wrap = value; } } }, _wrap_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _align_decorators, { kind: "accessor", name: "align", static: false, private: false, access: { has: obj => "align" in obj, get: obj => obj.align, set: (obj, value) => { obj.align = value; } } }, _align_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _justify_decorators, { kind: "accessor", name: "justify", static: false, private: false, access: { has: obj => "justify" in obj, get: obj => obj.justify, set: (obj, value) => { obj.justify = value; } } }, _justify_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksRow = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get observedAttributes() {
-            return [
-                'align',
-                'gutter',
-                'justify',
-                'wrap',
-            ];
         }
         #gutter_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _gutter_initializers, 0));
         get gutter() { return this.#gutter_accessor_storage; }
@@ -88,13 +88,13 @@ export let BlocksRow = (() => {
         #justify_accessor_storage = __runInitializers(this, _justify_initializers, void 0);
         get justify() { return this.#justify_accessor_storage; }
         set justify(value) { this.#justify_accessor_storage = value; }
+        #$slot_accessor_storage = __runInitializers(this, _$slot_initializers, void 0);
+        get $slot() { return this.#$slot_accessor_storage; }
+        set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            this._ref = {
-                $slot: shadowRoot.querySelector('slot'),
-            };
+            shadowRoot.appendChild(template());
         }
         connectedCallback() {
             super.connectedCallback();
@@ -107,7 +107,7 @@ export let BlocksRow = (() => {
             }
         }
         _renderGutter() {
-            const cols = this._ref.$slot.assignedElements();
+            const cols = this.$slot.assignedElements();
             if (this.gutter) {
                 const half = this.gutter / 2;
                 this.style.marginLeft = -half + 'px';

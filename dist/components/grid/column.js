@@ -32,13 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { Component } from '../Component.js';
-import { template } from './column-template.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { template } from './column.template.js';
+import { style } from './column.style.js';
+import { Component } from '../Component.js';
 export let BlocksColumn = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-col',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -54,10 +56,10 @@ export let BlocksColumn = (() => {
     let _offset_initializers = [];
     var BlocksColumn = class extends Component {
         static {
-            _pull_decorators = [attr('intRange', { min: 1, max: 23 })];
-            _push_decorators = [attr('intRange', { min: 1, max: 23 })];
-            _span_decorators = [attr('intRange', { min: 1, max: 24 })];
-            _offset_decorators = [attr('intRange', { min: 1, max: 23 })];
+            _pull_decorators = [attr('intRange', { min: 1, max: 23, observed: false })];
+            _push_decorators = [attr('intRange', { min: 1, max: 23, observed: false })];
+            _span_decorators = [attr('intRange', { min: 1, max: 24, observed: false })];
+            _offset_decorators = [attr('intRange', { min: 1, max: 23, observed: false })];
             __esDecorate(this, null, _pull_decorators, { kind: "accessor", name: "pull", static: false, private: false, access: { has: obj => "pull" in obj, get: obj => obj.pull, set: (obj, value) => { obj.pull = value; } } }, _pull_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _push_decorators, { kind: "accessor", name: "push", static: false, private: false, access: { has: obj => "push" in obj, get: obj => obj.push, set: (obj, value) => { obj.push = value; } } }, _push_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _span_decorators, { kind: "accessor", name: "span", static: false, private: false, access: { has: obj => "span" in obj, get: obj => obj.span, set: (obj, value) => { obj.span = value; } } }, _span_initializers, _instanceExtraInitializers);
@@ -65,14 +67,6 @@ export let BlocksColumn = (() => {
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksColumn = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get observedAttributes() {
-            return [
-                'offset',
-                'pull',
-                'push',
-                'span',
-            ];
         }
         #pull_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _pull_initializers, void 0));
         get pull() { return this.#pull_accessor_storage; }
@@ -88,13 +82,7 @@ export let BlocksColumn = (() => {
         set offset(value) { this.#offset_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            this._ref = { $slot: shadowRoot.querySelector('slot') };
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
+            this.shadowRoot.appendChild(template());
         }
     };
     return BlocksColumn = _classThis;

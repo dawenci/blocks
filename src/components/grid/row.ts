@@ -1,54 +1,42 @@
-import { Component } from '../Component.js'
-import { BlocksColumn } from './column.js'
-import { template } from './row-template.js'
+import type { NullableEnumAttr } from '../../decorators/attr.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import type { NullableEnumAttr } from '../../decorators/attr.js'
-
-export interface BlocksRow extends Component {
-  _ref: {
-    $slot: HTMLSlotElement
-  }
-}
+import { domRef } from '../../decorators/domRef.js'
+import { template } from './row.template.js'
+import { style } from './row.style.js'
+import { Component } from '../Component.js'
+import { BlocksColumn } from './column.js'
 
 @defineClass({
   customElement: 'bl-row',
+  styles: [style],
 })
 export class BlocksRow extends Component {
-  static override get observedAttributes() {
-    return [
-      // 子元素垂直对齐方式
-      'align',
-      // 栅格之间的间隙尺寸
-      'gutter',
-      // 水平排列方式
-      'justify',
-      // 是否允许换行
-      'wrap',
-    ]
-  }
-
+  /** 栅格之间的间隙尺寸 */
   @attr('int') accessor gutter = 0
 
-  @attr('boolean') accessor wrap!: boolean
+  /** 是否允许换行 */
+  @attr('boolean', { observed: false }) accessor wrap!: boolean
 
-  @attr('enum', { enumValues: ['top', 'middle', 'bottom'] })
+  /** 子元素垂直对齐方式 */
+  @attr('enum', { enumValues: ['top', 'middle', 'bottom'], observed: false })
   accessor align!: NullableEnumAttr<['top', 'middle', 'bottom']>
 
+  /** 水平排列方式 */
   @attr('enum', {
     enumValues: ['start', 'end', 'center', 'space-around', 'space-between'],
+    observed: false,
   })
   accessor justify!: NullableEnumAttr<
     ['start', 'end', 'center', 'space-around', 'space-between']
   >
 
+  @domRef('slot') accessor $slot!: HTMLSlotElement
+
   constructor() {
     super()
     const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
-    this._ref = {
-      $slot: shadowRoot.querySelector('slot')!,
-    }
+    shadowRoot.appendChild(template())
   }
 
   override connectedCallback() {
@@ -68,7 +56,7 @@ export class BlocksRow extends Component {
   }
 
   _renderGutter() {
-    const cols = this._ref.$slot.assignedElements() as BlocksColumn[]
+    const cols = this.$slot.assignedElements() as BlocksColumn[]
 
     if (this.gutter) {
       const half = this.gutter / 2

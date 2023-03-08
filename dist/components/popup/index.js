@@ -35,9 +35,10 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 import { strGetter, strSetter } from '../../common/property.js';
-import { popupStyleTemplate, popupTemplate } from './template.js';
+import { template } from './template.js';
 import { Control } from '../base-control/index.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
+import { style } from './style.js';
 const ARROW_SIZE = 8;
 export var PopupOrigin;
 (function (PopupOrigin) {
@@ -60,6 +61,7 @@ export let BlocksPopup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup',
             mixins: [WithOpenTransition],
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -107,18 +109,10 @@ export let BlocksPopup = (() => {
             return 'popup';
         }
         static get observedAttributes() {
-            return super.observedAttributes.concat([
+            return [
                 'anchor',
-                'append-to-body',
-                'arrow',
-                'autoflip',
-                'autofocus',
-                'capturefocus',
-                'inset',
                 'offset',
-                'origin',
-                'restorefocus',
-            ]);
+            ];
         }
         #origin_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _origin_initializers, PopupOrigin.Center));
         get origin() { return this.#origin_accessor_storage; }
@@ -146,8 +140,7 @@ export let BlocksPopup = (() => {
         set restorefocus(value) { this.#restorefocus_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(popupStyleTemplate());
-            this._ref.$layout.appendChild(popupTemplate());
+            this._ref.$layout.appendChild(template());
             const shadowRoot = this.shadowRoot;
             const $arrow = shadowRoot.querySelector('#arrow');
             const $slot = shadowRoot.querySelector('slot');

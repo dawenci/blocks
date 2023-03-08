@@ -60,9 +60,6 @@ export let BlocksCard = (() => {
             BlocksCard = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['shadow', 'size'];
-        }
         #shadow_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _shadow_initializers, void 0));
         get shadow() { return this.#shadow_accessor_storage; }
         set shadow(value) { this.#shadow_accessor_storage = value; }

@@ -1,40 +1,31 @@
-import { forEach } from '../../common/utils.js'
-import { Component } from '../Component.js'
-import {
-  styleTemplate,
-  contentTemplate,
-  itemTemplate,
-} from './menu-group-template.js'
-import './menu-item.js'
-import { BlocksNavMenu } from './menu.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
+import { forEach } from '../../common/utils.js'
+import { Component } from '../Component.js'
+import { style } from './menu-group.style.js'
+import { contentTemplate, itemTemplate } from './menu-group.template.js'
+import './menu-item.js'
+import { BlocksNavMenu } from './menu.js'
 
 @defineClass({
   customElement: 'bl-nav-menu-group',
+  styles: [style],
 })
 export class BlocksNavMenuGroup extends Component {
-  static override get observedAttributes() {
-    return ['title-text', 'horizontal', 'collapse']
-  }
-
-  private _data!: MenuGroup
-
-  $head: HTMLElement
-  $body: HTMLElement
-
   @attr('string') accessor titleText = ''
 
   @attr('boolean') accessor horizontal!: boolean
 
   @attr('boolean') accessor collapse!: boolean
 
+  private _data!: MenuGroup
+  $head: HTMLElement
+  $body: HTMLElement
+
   constructor() {
     super()
 
-    
     const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())
     this.$head = shadowRoot.getElementById('head')!
     this.$body = shadowRoot.getElementById('body')!

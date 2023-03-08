@@ -1,41 +1,29 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import { domRef } from '../../decorators/domRef.js'
+import { style } from './style.js'
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
-
-export interface BlocksIcon extends Component {
-  _ref: {
-    $layout: HTMLElement
-  }
-}
 
 @defineClass({
   customElement: 'bl-icon',
+  styles: [style],
 })
 export class BlocksIcon extends Component {
-  static override get observedAttributes() {
-    return ['value', 'fill']
-  }
-
   @attr('string') accessor value!: string | null
 
   @attr('string') accessor fill!: string | null
 
+  @domRef('#layout') accessor $layout!: HTMLElement
+
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    const fragment = template().content.cloneNode(true) as DocumentFragment
-    const $layout = fragment.querySelector('#layout') as HTMLElement
-    shadowRoot.appendChild(fragment)
-
-    this._ref = {
-      $layout,
-    }
+    this.shadowRoot!.appendChild(template())
   }
 
   override render() {
-    const { $layout } = this._ref
+    const { $layout } = this
     if ($layout.firstElementChild) {
       $layout.removeChild($layout.firstElementChild)
     }

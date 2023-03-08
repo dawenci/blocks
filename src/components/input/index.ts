@@ -2,7 +2,6 @@ import '../popup/index.js'
 import '../date/index.js'
 import { disabledSetter } from '../../common/propertyAccessor.js'
 import { dispatchEvent } from '../../common/event.js'
-import { styleTemplate, inputTemplate } from './template.js'
 import {
   ClearableControlBox,
   ClearableControlBoxEventMap,
@@ -16,6 +15,8 @@ import {
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
+import { template } from './template.js'
+import { style } from './style.js'
 
 const INPUT_ATTRS = [
   'value',
@@ -63,17 +64,11 @@ export interface BlocksInput
 
 @defineClass({
   customElement: 'bl-input',
+  styles: [style],
 })
 export class BlocksInput extends ClearableControlBox {
   static get role() {
     return 'input'
-  }
-
-  static override get observedAttributes() {
-    return INPUT_ATTRS.concat(super.observedAttributes).concat([
-      'size',
-      'autofocus',
-    ])
   }
 
   @attr('string') accessor value!: string | null
@@ -102,11 +97,13 @@ export class BlocksInput extends ClearableControlBox {
 
   @attrs.size accessor size!: EnumAttrs['size']
 
+  /* file/email */
+  @attr('boolean') accessor multiple!: boolean
+
   constructor() {
     super()
 
-    this._appendStyle(styleTemplate())
-    const $input = this._appendContent((this._ref.$input = inputTemplate()))
+    const $input = this._appendContent((this._ref.$input = template()))
 
     $input.oninput = $input.onchange = () => {
       // 实现 ISelectResultComponent 事件

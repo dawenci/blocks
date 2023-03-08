@@ -82,6 +82,21 @@ export let BlocksDate = (() => {
         }
         #$pool = (__runInitializers(this, _instanceExtraInitializers), void 0);
         #value;
+        #disabled_accessor_storage = __runInitializers(this, _disabled_initializers, void 0);
+        get disabled() { return this.#disabled_accessor_storage; }
+        set disabled(value) { this.#disabled_accessor_storage = value; }
+        #loading_accessor_storage = __runInitializers(this, _loading_initializers, void 0);
+        get loading() { return this.#loading_accessor_storage; }
+        set loading(value) { this.#loading_accessor_storage = value; }
+        #max_accessor_storage = __runInitializers(this, _max_initializers, void 0);
+        get max() { return this.#max_accessor_storage; }
+        set max(value) { this.#max_accessor_storage = value; }
+        #mode_accessor_storage = __runInitializers(this, _mode_initializers, 'single');
+        get mode() { return this.#mode_accessor_storage; }
+        set mode(value) { this.#mode_accessor_storage = value; }
+        #depth_accessor_storage = __runInitializers(this, _depth_initializers, Depth.Month);
+        get depth() { return this.#depth_accessor_storage; }
+        set depth(value) { this.#depth_accessor_storage = value; }
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
@@ -183,21 +198,6 @@ export let BlocksDate = (() => {
         set disabledDate(value) {
             this.#disabledDate = value;
         }
-        #disabled_accessor_storage = __runInitializers(this, _disabled_initializers, void 0);
-        get disabled() { return this.#disabled_accessor_storage; }
-        set disabled(value) { this.#disabled_accessor_storage = value; }
-        #loading_accessor_storage = __runInitializers(this, _loading_initializers, void 0);
-        get loading() { return this.#loading_accessor_storage; }
-        set loading(value) { this.#loading_accessor_storage = value; }
-        #max_accessor_storage = __runInitializers(this, _max_initializers, void 0);
-        get max() { return this.#max_accessor_storage; }
-        set max(value) { this.#max_accessor_storage = value; }
-        #mode_accessor_storage = __runInitializers(this, _mode_initializers, 'single');
-        get mode() { return this.#mode_accessor_storage; }
-        set mode(value) { this.#mode_accessor_storage = value; }
-        #depth_accessor_storage = __runInitializers(this, _depth_initializers, Depth.Month);
-        get depth() { return this.#depth_accessor_storage; }
-        set depth(value) { this.#depth_accessor_storage = value; }
         get mindepth() {
             const value = enumGetter('mindepth', Depths)(this) ?? Depth.Century;
             return normalizeMinDepth(value, this.depth);

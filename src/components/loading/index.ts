@@ -1,32 +1,28 @@
+import { defineClass } from '../../decorators/defineClass.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-
-export interface BlocksLoading extends Component {
-  _ref: {
-    $layout: HTMLElement
-    $icon?: SVGElement
-  }
-}
+import { style } from './style.js'
+import { domRef } from '../../decorators/domRef.js'
 
 @defineClass({
   customElement: 'bl-loading',
+  styles: [style],
 })
 export class BlocksLoading extends Component {
+  @domRef('#layout') accessor $layout!: HTMLElement
+
+  $icon?: SVGElement
+
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
-    this._ref = {
-      $layout: shadowRoot.querySelector('#layout') as HTMLElement,
-    }
+    this.shadowRoot!.appendChild(template())
   }
 
   override render() {
-    if (!this._ref.$icon) {
-      this._ref.$icon = getRegisteredSvgIcon('loading')!
-      this._ref.$layout.appendChild(this._ref.$icon)
+    if (!this.$icon) {
+      this.$icon = getRegisteredSvgIcon('loading')!
+      this.$layout.appendChild(this.$icon)
     }
   }
 

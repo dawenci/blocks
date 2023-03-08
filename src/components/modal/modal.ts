@@ -1,10 +1,10 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { BlocksDialog } from '../dialog/index.js'
 import { strGetter, strSetter } from '../../common/property.js'
 import { cancelButtonTemplate, confirmButtonTemplate } from './template.js'
 import { BlocksButton } from '../button/index.js'
 import { append, prepend, unmount } from '../../common/mount.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 export interface BlocksModal extends BlocksDialog {
   _ref: BlocksDialog['_ref'] & {
@@ -26,16 +26,7 @@ export class BlocksModal extends BlocksDialog {
   #reject?: any
 
   static override get observedAttributes() {
-    return super.observedAttributes.concat([
-      'with-cancel',
-      'with-confirm',
-      'cancel-text',
-      'confirm-text',
-      'resolve-value',
-      'reject-value',
-      'rich',
-      'content',
-    ])
+    return super.observedAttributes.concat(['resolve-value', 'reject-value'])
   }
 
   @attr('boolean') accessor withConfirm!: boolean

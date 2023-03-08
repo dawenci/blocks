@@ -5,12 +5,8 @@ import {
   __font_family,
   __transition_duration,
 } from '../../theme/var-light.js'
-import './menu-group.js'
-import './menu-item.js'
 
-import { makeDomTemplate, makeStyleTemplate } from '../../common/template.js'
-
-export const styleTemplate = makeStyleTemplate(/*css*/ `
+export const style = /*css*/ `
 :host {
   box-sizing: border-box;
   font-family: var(--font-family, ${__font_family});
@@ -47,13 +43,4 @@ export const styleTemplate = makeStyleTemplate(/*css*/ `
   width: 80px;
   overflow: hidden;
 }
-`)
-
-export const contentTemplate = makeDomTemplate(document.createElement('slot'))
-
-export const itemTemplate = makeDomTemplate(
-  document.createElement('bl-nav-menu-item')
-)
-export const groupTemplate = makeDomTemplate(
-  document.createElement('bl-nav-menu-group')
-)
+`

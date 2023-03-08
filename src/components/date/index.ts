@@ -112,6 +112,25 @@ export class BlocksDate extends Component {
   // 选中值
   #value: Date[]
 
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('boolean') accessor loading!: boolean
+
+  @attr('int') accessor max!: number | null
+
+  @attr('enum', { enumValues: ['single', 'multiple', 'range'] })
+  accessor mode: EnumAttr<['single', 'multiple', 'range']> = 'single'
+
+  /**
+   * 用于确定哪一层级深度的面板是最终层级，用于 emit 值，具体：
+   * 值为 Depth.Month 时，该组件用于选择日
+   * 值为 Depth.Year 时，该组件用于选择月份
+   * 值为 Depth.Decade 时，该组件用于选择年份
+   */
+  @attr('enum', { enumValues: [Depth.Month, Depth.Year, Depth.Decade] })
+  accessor depth: EnumAttr<[Depth.Month, Depth.Year, Depth.Decade]> =
+    Depth.Month
+
   constructor() {
     super()
 
@@ -236,25 +255,6 @@ export class BlocksDate extends Component {
   set disabledDate(value) {
     this.#disabledDate = value
   }
-
-  @attr('boolean') accessor disabled!: boolean
-
-  @attr('boolean') accessor loading!: boolean
-
-  @attr('int') accessor max!: number | null
-
-  @attr('enum', { enumValues: ['single', 'multiple', 'range'] })
-  accessor mode: EnumAttr<['single', 'multiple', 'range']> = 'single'
-
-  /**
-   * 用于确定哪一层级深度的面板是最终层级，用于 emit 值，具体：
-   * 值为 Depth.Month 时，该组件用于选择日
-   * 值为 Depth.Year 时，该组件用于选择月份
-   * 值为 Depth.Decade 时，该组件用于选择年份
-   */
-  @attr('enum', { enumValues: [Depth.Month, Depth.Year, Depth.Decade] })
-  accessor depth: EnumAttr<[Depth.Month, Depth.Year, Depth.Decade]> =
-    Depth.Month
 
   /**
    * 往上最小层级深度，如：

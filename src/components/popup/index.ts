@@ -3,13 +3,14 @@ import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 import { strGetter, strSetter } from '../../common/property.js'
-import { popupStyleTemplate, popupTemplate } from './template.js'
+import { template } from './template.js'
 import { Control } from '../base-control/index.js'
 import {
   WithOpenTransition,
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
 import { ComponentEventListener } from '../Component.js'
+import { style } from './style.js'
 
 // 箭头尺寸
 const ARROW_SIZE = 8
@@ -76,6 +77,7 @@ export interface BlocksPopup extends Control, WithOpenTransition {
 @defineClass({
   customElement: 'bl-popup',
   mixins: [WithOpenTransition],
+  styles: [style],
 })
 export class BlocksPopup extends Control {
   static get role() {
@@ -83,7 +85,7 @@ export class BlocksPopup extends Control {
   }
 
   static override get observedAttributes() {
-    return super.observedAttributes.concat([
+    return [
       // Popup 锚定的布局框，是一个矩形区域，Popup 根据 origin 不同，
       // 会吸附在该矩形的四条边中的某一条的外侧（设置 inset 后在内测），或与改矩形中心对齐（origin 为 center 的情况）。
       // 支持传入元素 DOM 对象，或元素的 css selector 字符串，表示以该元素的布局矩形为锚定（表现为 Popup 吸附在元素上）；
@@ -92,51 +94,44 @@ export class BlocksPopup extends Control {
       // 支持传入一个 `[x, y]` 形式的坐标像素值，这是长宽为 0 的矩形的特例，相当于 `[x, y, x, y]`；
       // 支持传入函数，函数返回上述的几种合法值（坐标字符串、元素选择器、元素 DOM、null）
       'anchor',
-      // 是否将节点插入到 document.body 中（通常用于确保 z-index 层次足够高，从而避免被遮挡）
-      'append-to-body',
-      // Popup 是否显示箭头（注意：Popup 的原点为 Center 时，不会展示箭头）
-      'arrow',
-      // 自动翻转功能，Popup 在 x 或 y 轴上溢出文档时，自动翻转显示
-      'autoflip',
-      // 打开时是否自动聚焦
-      'autofocus',
-      // 捕获焦点，tab 键不会将焦点移出 Popup
-      'capturefocus',
-      // 在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染）
-      'inset',
       // 定位的 offset 值，形式 [x, y]，用来偏移吸附 anchor 的距离。
       'offset',
-      // Popup 的定位原点，决定 Popup 本身用哪个部位去吸附 anchor，以及 Popup 的箭头位置和朝向。
-      // 例如，设为 TopStart，代表希望 Popup 的箭头在 Popup 的左上角，箭头方向朝上，箭头紧紧吸附在 anchor 的底部边线外侧（可通过 inset 调整为内侧）。
-      // 其中，默认的 Center 是个特殊值，代表希望 Popup 的中心点与 anchor 的中心点重叠，且无需展示箭头，表现为 Popup 在 anchor 里居中。
-      'origin',
-      // 失去焦点时，是否恢复获得焦点前的焦点
-      'restorefocus',
-    ])
+    ]
   }
 
+  /**
+   * Popup 的定位原点，决定 Popup 本身用哪个部位去吸附 anchor，以及 Popup 的箭头位置和朝向。
+   * 例如，设为 TopStart，代表希望 Popup 的箭头在 Popup 的左上角，箭头方向朝上，箭头紧紧吸附在 anchor 的底部边线外侧（可通过 inset 调整为内侧）。
+   * 其中，默认的 Center 是个特殊值，代表希望 Popup 的中心点与 anchor 的中心点重叠，且无需展示箭头，表现为 Popup 在 anchor 里居中。
+   */
   @attr('enum', { enumValues: originArray })
   accessor origin: EnumAttr<typeof originArray> = PopupOrigin.Center
 
+  /** 在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染） */
   @attr('boolean') accessor inset!: boolean
 
+  /** 是否将节点插入到 document.body 中（通常用于确保 z-index 层次足够高，从而避免被遮挡） */
   @attr('boolean') accessor appendToBody!: boolean
 
+  /** Popup 是否显示箭头（注意：Popup 的原点为 Center 时，不会展示箭头） */
   @attr('boolean') accessor arrow!: boolean
 
+  /** 打开时是否自动聚焦 */
   @attr('boolean') override accessor autofocus!: boolean
 
+  /** 捕获焦点，tab 键不会将焦点移出 Popup */
   @attr('boolean') accessor capturefocus!: boolean
 
+  /** 自动翻转功能，Popup 在 x 或 y 轴上溢出文档时，自动翻转显示 */
   @attr('boolean') accessor autoflip!: boolean
 
+  /** 失去焦点时，是否恢复获得焦点前的焦点 */
   @attr('boolean') accessor restorefocus!: boolean
 
   constructor() {
     super()
 
-    this._appendStyle(popupStyleTemplate())
-    this._ref.$layout.appendChild(popupTemplate())
+    this._ref.$layout.appendChild(template())
 
     const shadowRoot = this.shadowRoot!
 

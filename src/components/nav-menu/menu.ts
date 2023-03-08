@@ -1,43 +1,25 @@
-import { Component } from '../Component.js'
-import { forEach } from '../../common/utils.js'
-import { BlocksNavMenuItem } from './menu-item.js'
-import {
-  styleTemplate,
-  contentTemplate,
-  groupTemplate,
-  itemTemplate,
-} from './menu-template.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
+import { style } from './menu.style.js'
+import {
+  contentTemplate,
+  groupTemplate,
+  itemTemplate,
+} from './menu.template.js'
+import { Component } from '../Component.js'
+import { forEach } from '../../common/utils.js'
+import { BlocksNavMenuItem } from './menu-item.js'
 
 // TODO, collapse 模式，tooltip 显示一级菜单文本
 @defineClass({
   customElement: 'bl-nav-menu',
+  styles: [style],
 })
 export class BlocksNavMenu extends Component {
   static get role() {
     return 'navigation'
   }
-
-  static override get observedAttributes() {
-    return [
-      'horizontal',
-      'collapse',
-      'inline',
-      'submenu',
-      'level',
-      'expand',
-      'size',
-      'enter-delay',
-      'leave-delay',
-    ]
-  }
-
-  _data: (MenuItem | MenuGroup)[]
-
-  $parentMenu?: BlocksNavMenu
-  $parentItem?: BlocksNavMenuItem
 
   @attr('number') accessor enterDelay = 150
 
@@ -57,12 +39,14 @@ export class BlocksNavMenu extends Component {
 
   @attr('boolean') accessor collapse!: boolean
 
+  _data: (MenuItem | MenuGroup)[]
+  $parentMenu?: BlocksNavMenu
+  $parentItem?: BlocksNavMenuItem
+
   constructor() {
     super()
 
-    
     const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())
 
     this._data = []

@@ -32,35 +32,35 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
+import { style } from './style.js';
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js';
-import { styleTemplate } from './template.js';
 import { Component } from '../Component.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
-import { applyMixins } from '../../common/applyMixins.js';
-import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
-import { defineClass } from '../../decorators/defineClass.js';
 export let BlocksModalMask = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-modal-mask',
+            styles: [style],
+            mixins: [WithOpenTransition],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
+    let _instanceExtraInitializers = [];
+    let _zIndex_decorators;
+    let _zIndex_initializers = [];
     var BlocksModalMask = class extends Component {
         static {
+            _zIndex_decorators = [attr('int')];
+            __esDecorate(this, null, _zIndex_decorators, { kind: "accessor", name: "zIndex", static: false, private: false, access: { has: obj => "zIndex" in obj, get: obj => obj.zIndex, set: (obj, value) => { obj.zIndex = value; } } }, _zIndex_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksModalMask = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return super.observedAttributes.concat(['open', 'z-index']);
-        }
-        constructor() {
-            super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(withOpenTransitionStyleTemplate());
-            shadowRoot.appendChild(styleTemplate());
-        }
+        #zIndex_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _zIndex_initializers, void 0));
+        get zIndex() { return this.#zIndex_accessor_storage; }
+        set zIndex(value) { this.#zIndex_accessor_storage = value; }
         connectedCallback() {
             super.connectedCallback();
             this.openTransitionName = 'opacity';
@@ -116,4 +116,3 @@ export let BlocksModalMask = (() => {
     };
     return BlocksModalMask = _classThis;
 })();
-applyMixins(BlocksModalMask, [WithOpenTransition]);

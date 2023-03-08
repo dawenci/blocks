@@ -34,13 +34,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../loading/index.js';
 import '../icon/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { dispatchEvent } from '../../common/event.js';
 import { makeMessages } from '../../i18n/makeMessages.js';
 import { Component } from '../Component.js';
-import { contentTemplate, fallbackTemplate, placeholderTemplate, styleTemplate, } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { contentTemplate, fallbackTemplate, placeholderTemplate, } from './template.js';
+import { style } from './style.js';
+import { domRef } from '../../decorators/domRef.js';
 const getMessage = makeMessages('image', {
     placeholderText: '加载中',
     fallbackText: '加载失败',
@@ -48,6 +50,7 @@ const getMessage = makeMessages('image', {
 export let BlocksImage = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-image',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -65,6 +68,10 @@ export let BlocksImage = (() => {
     let _src_initializers = [];
     let _fit_decorators;
     let _fit_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    let _$img_decorators;
+    let _$img_initializers = [];
     var BlocksImage = class extends Component {
         static {
             _alt_decorators = [attr('string')];
@@ -75,18 +82,19 @@ export let BlocksImage = (() => {
             _fit_decorators = [attr('enum', {
                     enumValues: ['none', 'fill', 'contain', 'cover', 'scale-down'],
                 })];
+            _$layout_decorators = [domRef('#layout')];
+            _$img_decorators = [domRef('#img')];
             __esDecorate(this, null, _alt_decorators, { kind: "accessor", name: "alt", static: false, private: false, access: { has: obj => "alt" in obj, get: obj => obj.alt, set: (obj, value) => { obj.alt = value; } } }, _alt_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _fallback_decorators, { kind: "accessor", name: "fallback", static: false, private: false, access: { has: obj => "fallback" in obj, get: obj => obj.fallback, set: (obj, value) => { obj.fallback = value; } } }, _fallback_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _manual_decorators, { kind: "accessor", name: "manual", static: false, private: false, access: { has: obj => "manual" in obj, get: obj => obj.manual, set: (obj, value) => { obj.manual = value; } } }, _manual_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _placeholder_decorators, { kind: "accessor", name: "placeholder", static: false, private: false, access: { has: obj => "placeholder" in obj, get: obj => obj.placeholder, set: (obj, value) => { obj.placeholder = value; } } }, _placeholder_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _src_decorators, { kind: "accessor", name: "src", static: false, private: false, access: { has: obj => "src" in obj, get: obj => obj.src, set: (obj, value) => { obj.src = value; } } }, _src_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _fit_decorators, { kind: "accessor", name: "fit", static: false, private: false, access: { has: obj => "fit" in obj, get: obj => obj.fit, set: (obj, value) => { obj.fit = value; } } }, _fit_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$img_decorators, { kind: "accessor", name: "$img", static: false, private: false, access: { has: obj => "$img" in obj, get: obj => obj.$img, set: (obj, value) => { obj.$img = value; } } }, _$img_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksImage = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get observedAttributes() {
-            return ['alt', 'fallback', 'fit', 'manual', 'placeholder', 'src'];
         }
         #alt_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _alt_initializers, void 0));
         get alt() { return this.#alt_accessor_storage; }
@@ -106,16 +114,17 @@ export let BlocksImage = (() => {
         #fit_accessor_storage = __runInitializers(this, _fit_initializers, void 0);
         get fit() { return this.#fit_accessor_storage; }
         set fit(value) { this.#fit_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$img_accessor_storage = __runInitializers(this, _$img_initializers, void 0);
+        get $img() { return this.#$img_accessor_storage; }
+        set $img(value) { this.#$img_accessor_storage = value; }
         constructor() {
             super();
-            const $style = styleTemplate();
-            const $layout = contentTemplate();
-            const $img = $layout.querySelector('#img');
-            this.appendShadowChildren([$style, $layout]);
-            this._ref = {
-                $layout,
-                $img,
-            };
+            this.shadowRoot.appendChild(contentTemplate());
+            this._ref = {};
+            const { $img } = this;
             this._status = 'init';
             $img.addEventListener('load', () => {
                 if (this._status === 'loading') {
@@ -133,7 +142,7 @@ export let BlocksImage = (() => {
             });
         }
         _renderLoading() {
-            const { $layout, $img } = this._ref;
+            const { $layout, $img } = this;
             $img.style.opacity = '0';
             this._removeFallback();
             if (!this._ref.$placeholder) {
@@ -146,7 +155,7 @@ export let BlocksImage = (() => {
             }
         }
         _renderFail() {
-            const { $layout, $img } = this._ref;
+            const { $layout, $img } = this;
             $img.style.opacity = '0';
             this._removePlaceholder();
             if (!this._ref.$fallback) {
@@ -159,27 +168,27 @@ export let BlocksImage = (() => {
             }
         }
         _renderSuccess() {
-            this._ref.$img.style.opacity = '1';
+            this.$img.style.opacity = '1';
             this._removePlaceholder();
             this._removeFallback();
             if (this.fit) {
-                this._ref.$img.style.objectFit = this.fit;
+                this.$img.style.objectFit = this.fit;
             }
         }
         _removePlaceholder() {
             if (this._ref.$placeholder) {
-                this._ref.$layout.removeChild(this._ref.$placeholder);
+                this.$layout.removeChild(this._ref.$placeholder);
                 this._ref.$placeholder = undefined;
             }
         }
         _removeFallback() {
             if (this._ref.$fallback) {
-                this._ref.$layout.removeChild(this._ref.$fallback);
+                this.$layout.removeChild(this._ref.$fallback);
                 this._ref.$fallback = undefined;
             }
         }
         _reset() {
-            const { $img } = this._ref;
+            const { $img } = this;
             this._status = 'init';
             $img.style.display = 'none';
             $img.style.opacity = '0';
@@ -189,8 +198,8 @@ export let BlocksImage = (() => {
             this._removeFallback();
         }
         render() {
-            if (this._ref.$img.getAttribute('alt') !== this.alt) {
-                strSetter('alt')(this._ref.$img, this.alt);
+            if (this.$img.getAttribute('alt') !== this.alt) {
+                strSetter('alt')(this.$img, this.alt);
             }
             switch (this._status) {
                 case 'loading':
@@ -203,12 +212,11 @@ export let BlocksImage = (() => {
         }
         load() {
             if (this._status === 'loading' ||
-                (strGetter('alt')(this._ref.$img) === this.src &&
-                    this._status === 'loaded')) {
+                (strGetter('alt')(this.$img) === this.src && this._status === 'loaded')) {
                 return;
             }
             this._status = 'loading';
-            this._ref.$img.src = this.src;
+            this.$img.src = this.src;
             this._renderLoading();
             dispatchEvent(this, 'loading');
         }

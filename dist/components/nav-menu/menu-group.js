@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,15 +25,24 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { forEach } from '../../common/utils.js';
-import { Component } from '../Component.js';
-import { styleTemplate, contentTemplate, itemTemplate, } from './menu-group-template.js';
-import './menu-item.js';
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { forEach } from '../../common/utils.js';
+import { Component } from '../Component.js';
+import { style } from './menu-group.style.js';
+import { contentTemplate, itemTemplate } from './menu-group.template.js';
+import './menu-item.js';
 export let BlocksNavMenuGroup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-nav-menu-group',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -64,13 +66,7 @@ export let BlocksNavMenuGroup = (() => {
             BlocksNavMenuGroup = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['title-text', 'horizontal', 'collapse'];
-        }
-        _data = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        $head;
-        $body;
-        #titleText_accessor_storage = __runInitializers(this, _titleText_initializers, '');
+        #titleText_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _titleText_initializers, ''));
         get titleText() { return this.#titleText_accessor_storage; }
         set titleText(value) { this.#titleText_accessor_storage = value; }
         #horizontal_accessor_storage = __runInitializers(this, _horizontal_initializers, void 0);
@@ -79,10 +75,12 @@ export let BlocksNavMenuGroup = (() => {
         #collapse_accessor_storage = __runInitializers(this, _collapse_initializers, void 0);
         get collapse() { return this.#collapse_accessor_storage; }
         set collapse(value) { this.#collapse_accessor_storage = value; }
+        _data;
+        $head;
+        $body;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(styleTemplate());
             shadowRoot.appendChild(contentTemplate());
             this.$head = shadowRoot.getElementById('head');
             this.$body = shadowRoot.getElementById('body');

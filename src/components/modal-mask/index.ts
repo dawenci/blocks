@@ -1,45 +1,20 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import { style } from './style.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
-import { styleTemplate } from './template.js'
 import { Component, ComponentEventListener } from '../Component.js'
-
 import {
   WithOpenTransition,
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
-import { applyMixins } from '../../common/applyMixins.js'
-import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-
-export type BlocksModalMaskEventMap = WithOpenTransitionEventMap
-
-export interface BlocksModalMask extends Component, WithOpenTransition {
-  addEventListener<K extends keyof BlocksModalMaskEventMap>(
-    type: K,
-    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
-    options?: boolean | AddEventListenerOptions
-  ): void
-
-  removeEventListener<K extends keyof BlocksModalMaskEventMap>(
-    type: K,
-    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
-    options?: boolean | EventListenerOptions
-  ): void
-}
 
 @defineClass({
   customElement: 'bl-modal-mask',
+  styles: [style],
+  mixins: [WithOpenTransition],
 })
 export class BlocksModalMask extends Component {
-  static override get observedAttributes() {
-    return super.observedAttributes.concat(['open', 'z-index'])
-  }
-
-  constructor() {
-    super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(withOpenTransitionStyleTemplate())
-    shadowRoot.appendChild(styleTemplate())
-  }
+  @attr('int') accessor zIndex!: number | null
 
   override connectedCallback() {
     super.connectedCallback()
@@ -114,4 +89,18 @@ export class BlocksModalMask extends Component {
   }
 }
 
-applyMixins(BlocksModalMask, [WithOpenTransition])
+export type BlocksModalMaskEventMap = WithOpenTransitionEventMap
+
+export interface BlocksModalMask extends Component, WithOpenTransition {
+  addEventListener<K extends keyof BlocksModalMaskEventMap>(
+    type: K,
+    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof BlocksModalMaskEventMap>(
+    type: K,
+    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+}
