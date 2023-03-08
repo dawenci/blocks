@@ -11,8 +11,7 @@ import {
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -25,7 +24,9 @@ export interface BlocksSplitter extends Component {
   }
 }
 
-@customElement('bl-splitter')
+@defineClass({
+  customElement: 'bl-splitter',
+})
 export class BlocksSplitter extends Component {
   panes: BlocksSplitterPane[] = []
   handles: HTMLElement[] = []
@@ -436,7 +437,9 @@ export class BlocksSplitter extends Component {
   }
 }
 
-@customElement('bl-splitter-pane')
+@defineClass({
+  customElement: 'bl-splitter-pane',
+})
 export class BlocksSplitterPane extends Component {
   static override get observedAttributes() {
     return [

@@ -1,8 +1,7 @@
 import { getRegisteredSvgIcon } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 
 export interface BlocksLoading extends Component {
   _ref: {
@@ -11,7 +10,9 @@ export interface BlocksLoading extends Component {
   }
 }
 
-@customElement('bl-loading')
+@defineClass({
+  customElement: 'bl-loading',
+})
 export class BlocksLoading extends Component {
   constructor() {
     super()

@@ -32,8 +32,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 import { domRef } from '../../decorators/domRef.js';
 import { style } from './item.style.js';
@@ -41,7 +40,10 @@ import { strSetter } from '../../common/property.js';
 import { Component } from '../Component.js';
 import { template } from './item.template.js';
 export let BlocksBreadcrumbItem = (() => {
-    let _classDecorators = [customElement('bl-breadcrumb-item'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-breadcrumb-item',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

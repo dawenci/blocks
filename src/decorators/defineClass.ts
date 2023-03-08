@@ -1,12 +1,121 @@
 import { clearDecoratorData, getDecoratorData } from './decorators.js'
 
-export const defineClass = <T extends CustomElementConstructor>(
+type ClassOptions = {
+  mixins?: any[]
+  styles?: string[]
+  customElement?: string
+  attachShadow?: boolean | ShadowRootInit
+}
+
+function isOptions(targetOrOptions: unknown): targetOrOptions is ClassOptions {
+  return typeof targetOrOptions === 'object'
+}
+
+/**
+ * 传入 mixin 的类，实现多继承
+ */
+export function defineClass<T extends CustomElementConstructor>(
+  options: ClassOptions
+): (target: T, ctx: ClassDecoratorContext<T>) => void
+
+/**
+ * 类装饰器
+ */
+export function defineClass<T extends CustomElementConstructor>(
   target: T,
   ctx: ClassDecoratorContext<T>
-) => {
-  ctx.addInitializer(function (this: T) {
-    handleMembers(target)
-  })
+): void
+
+export function defineClass<T extends CustomElementConstructor>(
+  targetOrOptions: T | any[],
+  ctx?: ClassDecoratorContext<T>
+) {
+  if (isOptions(targetOrOptions)) {
+    return (target: T, ctx: ClassDecoratorContext<T>) => {
+      ctx.addInitializer(function (this: T) {
+        if (targetOrOptions.mixins) {
+          // 混入多个基类的原型
+          targetOrOptions.mixins.forEach(baseCtor => {
+            Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+              if (name === 'constructor' && target.prototype.constructor) {
+                return
+              }
+              Object.defineProperty(
+                target.prototype,
+                name,
+                Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
+                  Object.create(null)
+              )
+            })
+          })
+
+          // 基类的静态 getter observedAttributes 合并
+          appendObservedAttributes(
+            target,
+            targetOrOptions.mixins.reduce(
+              (acc, ctor) => acc.concat(ctor.observedAttributes ?? []),
+              []
+            )
+          )
+
+          // 基类的静态 getter upgradeProperties 合并
+          appendUpgradeProperties(
+            target,
+            targetOrOptions.mixins.reduce(
+              (acc, ctor) => acc.concat(ctor.upgradeProperties ?? []),
+              []
+            )
+          )
+
+          // 基类的静态 _$componentStyle 合并
+          appendComponentStyles(
+            target,
+            targetOrOptions.mixins.reduce((acc, ctor) => {
+              if (!acc) return ctor._$componentStyle
+              if (ctor._$componentStyle) {
+                if (!acc) {
+                  acc = document.createDocumentFragment()
+                }
+                acc.appendChild(ctor._$componentStyle)
+              }
+              return acc
+            }, null)
+          )
+        }
+
+        if (targetOrOptions.styles) {
+          const $style: HTMLStyleElement = document.createElement('style')
+          $style.textContent = targetOrOptions.styles.join('\n')
+          appendComponentStyles(target, $style)
+        }
+
+        handleMembers(target)
+
+        if (targetOrOptions.attachShadow) {
+          const shadowRootInit: ShadowRootInit =
+            typeof targetOrOptions.attachShadow !== 'object'
+              ? { mode: 'open' }
+              : (targetOrOptions.attachShadow as ShadowRootInit)
+          Object.defineProperty(target, '_shadowRootInit', {
+            get: () => shadowRootInit,
+            enumerable: true,
+            configurable: true,
+          })
+        }
+
+        if (targetOrOptions.customElement) {
+          // 注册自定义元素
+          if (!customElements.get(targetOrOptions.customElement)) {
+            customElements.define(targetOrOptions.customElement, target)
+          }
+        }
+      })
+    }
+  } else {
+    ctx!.addInitializer(function (this: T) {
+      handleMembers(targetOrOptions as T)
+    })
+  }
 }
 
 export function handleMembers<T extends CustomElementConstructor>(target: T) {
@@ -84,6 +193,31 @@ export function appendUpgradeProperties<T extends CustomElementConstructor>(
     }
     Object.defineProperty(target, 'upgradeProperties', {
       get: () => newGetter(),
+      enumerable: true,
+      configurable: true,
+    })
+  }
+}
+
+// 继承链上是否有 _$componentStyle
+function hasStyles<T>(
+  target: T
+): target is T & { get _$componentStyle(): DocumentFragment } {
+  return !!(target as any)._$componentStyle
+}
+export function appendComponentStyles<T extends CustomElementConstructor>(
+  target: T,
+  $fragment: DocumentFragment | HTMLStyleElement
+) {
+  if ($fragment) {
+    const $styleFragment = hasStyles(target)
+      ? target._$componentStyle.cloneNode(true)
+      : document.createDocumentFragment()
+
+    $styleFragment.appendChild($fragment)
+
+    Object.defineProperty(target, '_$componentStyle', {
+      get: () => $styleFragment,
       enumerable: true,
       configurable: true,
     })

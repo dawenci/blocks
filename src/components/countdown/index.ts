@@ -6,8 +6,7 @@ import {
   ComponentEventListener,
   ComponentEventMap,
 } from '../Component.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import { template } from './template.js'
 import { style } from './style.js'
@@ -36,8 +35,10 @@ export interface BlocksCountdown extends Component {
   ): void
 }
 
-@customElement('bl-countdown')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-countdown',
+  styles: [style],
+})
 export class BlocksCountdown extends Component {
   // timestamp
   @attr('number', { defaults: () => Date.now() })

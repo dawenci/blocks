@@ -14,8 +14,7 @@ import {
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
 import { ComponentEventListener } from '../Component.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -43,8 +42,10 @@ export interface BlocksDrawer extends Control, WithOpenTransition {
   ): void
 }
 
-@customElement('bl-drawer')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-drawer',
+  styles: [style],
+})
 export class BlocksDrawer extends Control {
   @attr('boolean') accessor capturefocus!: boolean
   @attr('boolean') accessor closeOnClickOutside!: boolean

@@ -10,8 +10,7 @@ import {
 import { template } from './template.js'
 import { style } from './style.js'
 import { Color, ColorFormat, ColorTuple4 } from './Color.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -50,8 +49,10 @@ export interface BlocksColor extends Component {
 }
 
 // TODO, Firefox 拖拽 BUG
-@customElement('bl-color')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-color',
+  styles: [style],
+})
 export class BlocksColor extends Component {
   @attr('int') accessor value!: number | null
 

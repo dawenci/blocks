@@ -36,10 +36,12 @@ import { BlocksDialog } from '../dialog/index.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { cancelButtonTemplate, confirmButtonTemplate } from './template.js';
 import { append, prepend, unmount } from '../../common/mount.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksModal = (() => {
-    let _classDecorators = [customElement('bl-modal')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-modal',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

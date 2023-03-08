@@ -34,11 +34,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 const status = ['success', 'error', 'warning'];
 export let BlocksProgress = (() => {
-    let _classDecorators = [customElement('bl-progress')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-progress',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

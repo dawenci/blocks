@@ -18,11 +18,12 @@ import {
 } from './menu-item-template.js'
 import { BlocksIcon } from '../../components/icon/index.js'
 import { PopupOrigin } from '../../components/popup/index.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
-@customElement('bl-popup-menu-item')
+@defineClass({
+  customElement: 'bl-popup-menu-item',
+})
 export class BlocksPopupMenuItem extends Component {
   static override get observedAttributes() {
     return ['disabled', 'link', 'active']
@@ -45,8 +46,7 @@ export class BlocksPopupMenuItem extends Component {
   constructor() {
     super()
 
-    // this.attachShadow({ mode: 'open' })
-
+    
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())

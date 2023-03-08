@@ -36,10 +36,12 @@ import { dispatchEvent } from '../../common/event.js';
 import { Component } from '../Component.js';
 import { getElementTarget } from '../../common/getElementTarget.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 export let BlocksTag = (() => {
-    let _classDecorators = [customElement('bl-tag')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-tag',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

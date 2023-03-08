@@ -1,6 +1,5 @@
-import { customElement } from '../../decorators/customElement.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { applyStyle } from '../../decorators/style.js'
 import { style } from './style.js'
 import { ControlBox } from '../base-control-box/index.js'
 import { labelTemplate } from './template.js'
@@ -18,8 +17,10 @@ export interface BlocksButton extends ControlBox {
   _observer: MutationObserver
 }
 
-@customElement('bl-button')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-button',
+  styles: [style],
+})
 export class BlocksButton extends ControlBox {
   static get role() {
     return 'button'

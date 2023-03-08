@@ -1,13 +1,14 @@
 import { Component } from '../Component.js'
-import { customElement } from '../../decorators/customElement.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { applyStyle } from '../../decorators/style.js'
 import { domRef } from '../../decorators/domRef.js'
 import { template } from './template.js'
 import { style } from './style.js'
 
-@customElement('bl-badge')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-badge',
+  styles: [style],
+})
 export class BlocksBadge extends Component {
   @attr('string') accessor value = ''
 

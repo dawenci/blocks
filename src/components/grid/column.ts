@@ -1,7 +1,6 @@
 import { Component } from '../Component.js'
 import { template } from './column-template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksColumn extends Component {
@@ -10,7 +9,9 @@ export interface BlocksColumn extends Component {
   }
 }
 
-@customElement('bl-col')
+@defineClass({
+  customElement: 'bl-col',
+})
 export class BlocksColumn extends Component {
   static override get observedAttributes() {
     return [

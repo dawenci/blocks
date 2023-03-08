@@ -1,5 +1,5 @@
 import { defineClass } from '../../decorators/defineClass.js'
-import { mixins } from '../../decorators/mixins.js'
+
 import { attr } from '../../decorators/attr.js'
 import {
   WithOpenTransition,
@@ -26,8 +26,9 @@ export interface BlocksTransitionOpenZoom
   ): void
 }
 
-@defineClass
-@mixins([WithOpenTransition])
+@defineClass({
+  mixins: [WithOpenTransition],
+})
 export class BlocksTransitionOpenZoom extends Component {
   @attr('boolean') accessor open!: boolean
 

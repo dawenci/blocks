@@ -38,7 +38,7 @@ import { disabledSetter } from '../../common/propertyAccessor.js';
 import { dispatchEvent } from '../../common/event.js';
 import { styleTemplate, inputTemplate } from './template.js';
 import { ClearableControlBox, } from '../base-clearable-control-box/index.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 const INPUT_ATTRS = [
     'value',
@@ -55,7 +55,9 @@ const INPUT_ATTRS = [
     'autocomplete',
 ];
 export let BlocksInput = (() => {
-    let _classDecorators = [customElement('bl-input')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-input',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

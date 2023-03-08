@@ -39,10 +39,12 @@ import { Component } from '../Component.js';
 import { PopupOrigin } from '../popup/index.js';
 import { styleTemplate, contentTemplate } from './menu-item-template.js';
 import { BlocksPopupMenu } from '../popup-menu/index.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksNavMenuItem = (() => {
-    let _classDecorators = [customElement('bl-nav-menu-item')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-nav-menu-item',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

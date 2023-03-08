@@ -32,8 +32,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 import { dispatchEvent } from '../../common/event.js';
 import { forEach } from '../../common/utils.js';
@@ -51,7 +50,10 @@ var State;
     State["Result"] = "Result";
 })(State || (State = {}));
 export let BlocksCalc = (() => {
-    let _classDecorators = [customElement('bl-calc'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-calc',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

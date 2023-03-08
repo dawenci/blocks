@@ -46,11 +46,13 @@ import { BlocksOptGroup } from './optgroup.js';
 import { cloneElement } from '../../common/cloneElement.js';
 import { connectSelectable, } from '../../common/connectSelectable.js';
 import { dispatchEvent } from '../../common/event.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 const isOption = ($el) => $el instanceof BlocksOption;
 const isGroup = ($el) => $el instanceof BlocksOptGroup;
 export let BlocksSelect = (() => {
-    let _classDecorators = [customElement('bl-select')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-select',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

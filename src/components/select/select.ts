@@ -22,8 +22,7 @@ import {
   ISelectableListComponent,
 } from '../../common/connectSelectable.js'
 import { dispatchEvent } from '../../common/event.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 
 const isOption = ($el: Element): $el is BlocksOption =>
   $el instanceof BlocksOption
@@ -38,7 +37,9 @@ export interface BlocksSelect extends BlocksSelectResult {
   }
 }
 
-@customElement('bl-select')
+@defineClass({
+  customElement: 'bl-select',
+})
 export class BlocksSelect extends BlocksSelectResult {
   static override get observedAttributes() {
     return BlocksSelectResult.observedAttributes.concat([])

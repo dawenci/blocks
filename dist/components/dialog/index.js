@@ -43,11 +43,13 @@ import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { applyMixins } from '../../common/applyMixins.js';
 import { Control } from '../base-control/index.js';
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 let BlocksDialog = (() => {
-    let _classDecorators = [customElement('bl-dialog'), applyStyle(style), applyStyle(withOpenTransitionStyle)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-dialog',
+            styles: [withOpenTransitionStyle, style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

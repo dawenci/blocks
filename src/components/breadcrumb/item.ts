@@ -1,5 +1,4 @@
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import { domRef } from '../../decorators/domRef.js'
 import { style } from './item.style.js'
@@ -7,8 +6,10 @@ import { strSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './item.template.js'
 
-@customElement('bl-breadcrumb-item')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-breadcrumb-item',
+  styles: [style],
+})
 export class BlocksBreadcrumbItem extends Component {
   @attr('string') accessor href = 'javascript(void 0)'
 

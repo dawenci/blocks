@@ -32,11 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { defineClass } from '../decorators/defineClass.js';
 import { append, mountAfter, mountBefore, prepend, unmount, } from '../common/mount.js';
 import { upgradeProperty } from '../common/upgradeProperty.js';
-import { attachShadow } from '../decorators/shadow.js';
 export let Component = (() => {
-    let _classDecorators = [attachShadow];
+    let _classDecorators = [defineClass({
+            attachShadow: true,
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

@@ -38,12 +38,14 @@ import { getRegisteredSvgIcon } from '../../icon/index.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
 import { __color_warning } from '../../theme/var-light.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 const POPUP_ATTRS = ['open', 'origin'];
 const CONFIRM_ATTRS = ['message', 'icon'];
 export let BlocksPopupConfirm = (() => {
-    let _classDecorators = [customElement('bl-popup-confirm')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-popup-confirm',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

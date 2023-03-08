@@ -7,8 +7,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { BlocksPopup } from '../popup/index.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 // TODO, placeholder
@@ -21,7 +20,9 @@ export interface BlocksTimePicker extends Component {
   }
 }
 
-@customElement('bl-time-picker')
+@defineClass({
+  customElement: 'bl-time-picker',
+})
 export class BlocksTimePicker extends Component {
   static override get observedAttributes() {
     return [...BlocksTime.observedAttributes, ...BlocksInput.observedAttributes]

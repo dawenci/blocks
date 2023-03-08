@@ -3,8 +3,7 @@ import { strGetter, strSetter } from '../../common/property.js'
 import { cancelButtonTemplate, confirmButtonTemplate } from './template.js'
 import { BlocksButton } from '../button/index.js'
 import { append, prepend, unmount } from '../../common/mount.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksModal extends BlocksDialog {
@@ -18,7 +17,9 @@ export interface BlocksModal extends BlocksDialog {
   onCancel?: (value: any) => any
 }
 
-@customElement('bl-modal')
+@defineClass({
+  customElement: 'bl-modal',
+})
 export class BlocksModal extends BlocksDialog {
   #promise?: Promise<any>
   #resolve?: any

@@ -9,8 +9,7 @@ import {
   ISelectableListComponent,
 } from '../../common/connectSelectable.js'
 import { ComponentEventListener } from '../Component.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 interface BlocksListEventMap extends VListEventMap, ISelectListEventMap {}
@@ -32,7 +31,9 @@ export interface BlocksList extends BlocksVList, ISelectableListComponent {
   ): void
 }
 
-@customElement('bl-list')
+@defineClass({
+  customElement: 'bl-list',
+})
 export class BlocksList extends BlocksVList {
   #checkedSet: Set<VirtualItem>
 

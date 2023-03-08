@@ -6,8 +6,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 const DEFAULT_ICON_MAP = Object.freeze({
@@ -73,7 +72,9 @@ export interface BlocksUpload extends Component {
   }
 }
 
-@customElement('bl-upload')
+@defineClass({
+  customElement: 'bl-upload',
+})
 export class BlocksUpload extends Component {
   static override get observedAttributes() {
     return [

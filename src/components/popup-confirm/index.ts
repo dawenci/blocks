@@ -6,14 +6,15 @@ import { BlocksButton } from '../button/index.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { __color_warning } from '../../theme/var-light.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 const POPUP_ATTRS = ['open', 'origin']
 const CONFIRM_ATTRS = ['message', 'icon']
 
-@customElement('bl-popup-confirm')
+@defineClass({
+  customElement: 'bl-popup-confirm',
+})
 export class BlocksPopupConfirm extends Component {
   private $popup: BlocksPopup
   private $message: HTMLElement
@@ -36,8 +37,7 @@ export class BlocksPopupConfirm extends Component {
 
     const { comTemplate, popupTemplate } = template()
 
-    // this.attachShadow({ mode: 'open' })
-    const shadowRoot = this.shadowRoot!
+        const shadowRoot = this.shadowRoot!
 
     shadowRoot.appendChild(comTemplate.content.cloneNode(true))
     const popupFragment = popupTemplate.content.cloneNode(

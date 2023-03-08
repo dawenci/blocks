@@ -1,5 +1,4 @@
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { domRef } from '../../decorators/domRef.js'
 import { BlocksButton } from '../button/index.js'
 import { Component } from '../Component.js'
@@ -7,8 +6,10 @@ import { template } from './template.js'
 import { style } from './style.js'
 import '../button/index.js'
 
-@customElement('bl-button-group')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-button-group',
+  styles: [style],
+})
 export class BlocksButtonGroup extends Component {
   @domRef('slot') accessor $slot!: HTMLSlotElement
 

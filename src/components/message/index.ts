@@ -3,8 +3,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { boolSetter, enumSetter, intSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { NullableEnumAttr } from '../../decorators/attr.js'
 
@@ -26,7 +25,9 @@ export interface BlocksMessage extends Component {
   }
 }
 
-@customElement('bl-message')
+@defineClass({
+  customElement: 'bl-message',
+})
 export class BlocksMessage extends Component {
   static override get observedAttributes() {
     return ['closeable', 'duration', 'type']

@@ -33,7 +33,6 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { defineClass } from '../../decorators/defineClass.js';
-import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 import { style } from './style.js';
 import { dispatchEvent } from '../../common/event.js';
@@ -42,7 +41,9 @@ import { loadingTemplate, prefixTemplate, suffixTemplate } from './template.js';
 import { append, mountAfter, mountBefore, prepend, unmount, } from '../../common/mount.js';
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js';
 export let ControlBox = (() => {
-    let _classDecorators = [defineClass, applyStyle(style)];
+    let _classDecorators = [defineClass({
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

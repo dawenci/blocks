@@ -9,8 +9,7 @@ import { Component } from '../Component.js'
 import { BlocksPopup, PopupOrigin } from '../popup/index.js'
 import { BlocksTree } from '../tree/index.js'
 import { treeTemplate, popupTemplate, styleTemplate } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -27,7 +26,9 @@ export interface BlocksDropdownTree extends Component {
   _hideTimer: number
 }
 
-@customElement('bl-dropdown-tree')
+@defineClass({
+  customElement: 'bl-dropdown-tree',
+})
 export class BlocksDropdownTree extends Component {
   static override get observedAttributes() {
     return ATTRS

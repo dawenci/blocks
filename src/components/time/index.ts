@@ -9,8 +9,7 @@ import {
 } from '../Component.js'
 import { template } from './template.js'
 import { BlocksScrollable } from '../scrollable/index.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
 
@@ -46,7 +45,9 @@ export interface BlocksTime extends Component {
   ): void
 }
 
-@customElement('bl-time')
+@defineClass({
+  customElement: 'bl-time',
+})
 export class BlocksTime extends Component {
   #scrollFlag?: Promise<void>
   #batchChange?: Promise<void>

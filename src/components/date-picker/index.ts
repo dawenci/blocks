@@ -13,8 +13,7 @@ import {
 } from '../Component.js'
 import { inputTemplate, popupTemplate } from './template.js'
 import { style } from './style.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 interface DatePickerEventMap extends ComponentEventMap {
@@ -43,8 +42,10 @@ export interface BlocksDatePicker extends Component {
   ): void
 }
 
-@customElement('bl-date-picker')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-date-picker',
+  styles: [style],
+})
 export class BlocksDatePicker extends Component {
   #prevValue: any
   #clearClickOutside?: () => void

@@ -9,8 +9,7 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { contentTemplate, styleTemplate } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface ScrollableEventMap extends ComponentEventMap {
@@ -45,7 +44,9 @@ export interface BlocksScrollable extends Component {
   ): void
 }
 
-@customElement('bl-scrollable')
+@defineClass({
+  customElement: 'bl-scrollable',
+})
 export class BlocksScrollable extends Component {
   static override get observedAttributes() {
     return ['shadow']

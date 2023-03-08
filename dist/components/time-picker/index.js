@@ -40,10 +40,12 @@ import { boolSetter } from '../../common/property.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksTimePicker = (() => {
-    let _classDecorators = [customElement('bl-time-picker')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-time-picker',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

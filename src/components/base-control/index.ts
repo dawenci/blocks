@@ -1,5 +1,4 @@
 import { defineClass } from '../../decorators/defineClass.js'
-import { attachShadow } from '../../decorators/shadow.js'
 import { attr } from '../../decorators/attr.js'
 import { domRef } from '../../decorators/domRef.js'
 import { Component } from '../Component.js'
@@ -12,14 +11,15 @@ export interface Control extends Component {
   }
 }
 
-@defineClass
-@attachShadow({
-  mode: 'open',
-  // 代理焦点，
-  // 1. 点击 shadow DOM 内某个不可聚焦的区域，则第一个可聚焦区域将成为焦点
-  // 2. 当 shadow DOM 内的节点获得焦点时，除了聚焦的元素外，:focus 还会应用到宿主
-  // 3. 自己的 slot 中的元素聚焦，宿主不会获得焦点，但是 :focus-within 生效
-  delegatesFocus: true,
+@defineClass({
+  attachShadow: {
+    mode: 'open',
+    // 代理焦点，
+    // 1. 点击 shadow DOM 内某个不可聚焦的区域，则第一个可聚焦区域将成为焦点
+    // 2. 当 shadow DOM 内的节点获得焦点时，除了聚焦的元素外，:focus 还会应用到宿主
+    // 3. 自己的 slot 中的元素聚焦，宿主不会获得焦点，但是 :focus-within 生效
+    delegatesFocus: true,
+  },
 })
 export class Control extends Component {
   @attr('boolean')

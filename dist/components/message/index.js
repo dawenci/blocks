@@ -37,7 +37,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { boolSetter, enumSetter, intSetter } from '../../common/property.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 const closeableSetter = boolSetter('closeable');
 const typeSetter = enumSetter('type', [
@@ -48,7 +48,9 @@ const typeSetter = enumSetter('type', [
     'warning',
 ]);
 export let BlocksMessage = (() => {
-    let _classDecorators = [customElement('bl-message')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-message',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

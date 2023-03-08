@@ -11,8 +11,7 @@ import { template } from './body-template.js'
 import { BlocksTable } from './table.js'
 import { RowColumn } from './RowColumn.js'
 import { ComponentEventListener } from '../Component.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export type CellElement = HTMLElement & { column: RowColumn; data: any }
@@ -43,7 +42,9 @@ export interface BlocksTableBody extends BlocksVList {
   ): void
 }
 
-@customElement('bl-table-body')
+@defineClass({
+  customElement: 'bl-table-body',
+})
 export class BlocksTableBody extends BlocksVList {
   static override get observedAttributes() {
     return BlocksVList.observedAttributes.concat([

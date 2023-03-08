@@ -37,10 +37,12 @@ import { dispatchEvent } from '../../common/event.js';
 import { contentTemplate, moreTemplate, placeholderTemplate, searchTemplate, styleTemplate, tagTemplate, valueTextTemplate, } from './template.js';
 import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js';
 import { ClearableControlBox, } from '../base-clearable-control-box/index.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 export let BlocksSelectResult = (() => {
-    let _classDecorators = [customElement('bl-select-result')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-select-result',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

@@ -37,7 +37,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
 import { __color_success, __color_danger, __color_warning, __color_primary, } from '../../theme/var-light.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export var NotificationPlacement;
 (function (NotificationPlacement) {
@@ -62,7 +62,9 @@ export const notificationTypes = [
     NotificationType.Warning,
 ];
 export let BlocksNotification = (() => {
-    let _classDecorators = [customElement('bl-notification')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-notification',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

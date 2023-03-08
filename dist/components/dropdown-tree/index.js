@@ -39,11 +39,13 @@ import { Component } from '../Component.js';
 import { BlocksPopup, PopupOrigin } from '../popup/index.js';
 import { BlocksTree } from '../tree/index.js';
 import { treeTemplate, popupTemplate, styleTemplate } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 const ATTRS = BlocksPopup.observedAttributes.concat(BlocksTree.observedAttributes);
 export let BlocksDropdownTree = (() => {
-    let _classDecorators = [customElement('bl-dropdown-tree')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-dropdown-tree',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

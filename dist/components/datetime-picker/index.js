@@ -44,11 +44,13 @@ import { contentTemplate, popupTemplate } from './template.js';
 import { style } from './style.js';
 import { makeDate, makeDateFrom } from '../../common/date.js';
 import { ClearableControlBox } from '../base-clearable-control-box/index.js';
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksDateTimePicker = (() => {
-    let _classDecorators = [customElement('bl-datetime-picker'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-datetime-picker',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

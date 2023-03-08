@@ -39,15 +39,17 @@ import { dispatchEvent } from '../../common/event.js';
 import { Component, } from '../Component.js';
 import { template } from './template.js';
 import { style } from './style.js';
-import { customElement } from '../../decorators/customElement.js';
-import { attachShadow } from '../../decorators/shadow.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksDate = (() => {
-    let _classDecorators = [customElement('bl-date'), attachShadow({
-            mode: 'open',
-            delegatesFocus: true,
-        }), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-date',
+            styles: [style],
+            attachShadow: {
+                mode: 'open',
+                delegatesFocus: true,
+            },
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

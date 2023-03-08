@@ -33,14 +33,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { Component } from '../Component.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { applyStyle } from '../../decorators/style.js';
 import { domRef } from '../../decorators/domRef.js';
 import { template } from './template.js';
 import { style } from './style.js';
 export let BlocksBadge = (() => {
-    let _classDecorators = [customElement('bl-badge'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-badge',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

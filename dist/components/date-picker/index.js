@@ -42,10 +42,12 @@ import { boolSetter } from '../../common/property.js';
 import { Component, } from '../Component.js';
 import { inputTemplate, popupTemplate } from './template.js';
 import { style } from './style.js';
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 export let BlocksDatePicker = (() => {
-    let _classDecorators = [customElement('bl-date-picker'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-date-picker',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

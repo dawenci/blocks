@@ -39,14 +39,16 @@ import { dispatchEvent } from '../../common/event.js';
 import { makeMessages } from '../../i18n/makeMessages.js';
 import { Component } from '../Component.js';
 import { contentTemplate, fallbackTemplate, placeholderTemplate, styleTemplate, } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 const getMessage = makeMessages('image', {
     placeholderText: '加载中',
     fallbackText: '加载失败',
 });
 export let BlocksImage = (() => {
-    let _classDecorators = [customElement('bl-image')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-image',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

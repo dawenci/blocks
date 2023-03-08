@@ -7,8 +7,7 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
 
@@ -41,7 +40,9 @@ export interface BlocksPagination extends Component {
   ): void
 }
 
-@customElement('bl-pagination')
+@defineClass({
+  customElement: 'bl-pagination',
+})
 export class BlocksPagination extends Component {
   static override get observedAttributes() {
     return [

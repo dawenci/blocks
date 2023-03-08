@@ -37,10 +37,12 @@ import { onDragMove } from '../../common/onDragMove.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksSplitter = (() => {
-    let _classDecorators = [customElement('bl-splitter')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-splitter',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -367,7 +369,9 @@ export let BlocksSplitter = (() => {
     return BlocksSplitter = _classThis;
 })();
 export let BlocksSplitterPane = (() => {
-    let _classDecorators_1 = [customElement('bl-splitter-pane')];
+    let _classDecorators_1 = [defineClass({
+            customElement: 'bl-splitter-pane',
+        })];
     let _classDescriptor_1;
     let _classExtraInitializers_1 = [];
     let _classThis_1;

@@ -1,6 +1,5 @@
-import { customElement } from '../../decorators/customElement.js'
-import { mixins } from '../../decorators/mixins.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
+
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 import { strGetter, strSetter } from '../../common/property.js'
@@ -74,8 +73,10 @@ export interface BlocksPopup extends Control, WithOpenTransition {
   ): void
 }
 
-@customElement('bl-popup')
-@mixins([WithOpenTransition])
+@defineClass({
+  customElement: 'bl-popup',
+  mixins: [WithOpenTransition],
+})
 export class BlocksPopup extends Control {
   static get role() {
     return 'popup'

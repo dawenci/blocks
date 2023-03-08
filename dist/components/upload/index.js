@@ -40,7 +40,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 const DEFAULT_ICON_MAP = Object.freeze({
     'file-image': /^image\//,
@@ -85,7 +85,9 @@ var State;
     State[State["Abort"] = 4] = "Abort";
 })(State || (State = {}));
 export let BlocksUpload = (() => {
-    let _classDecorators = [customElement('bl-upload')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-upload',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

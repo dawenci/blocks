@@ -38,7 +38,7 @@ import { isEmpty, merge, uniqBy, flatten } from '../../common/utils.js';
 import { dispatchEvent } from '../../common/event.js';
 import { parseHighlight } from '../../common/highlight.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export class VirtualNode extends VirtualItem {
     constructor(options) {
@@ -53,7 +53,9 @@ export class VirtualNode extends VirtualItem {
     }
 }
 export let BlocksTree = (() => {
-    let _classDecorators = [customElement('bl-tree')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-tree',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

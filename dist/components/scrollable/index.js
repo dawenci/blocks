@@ -38,10 +38,12 @@ import { setStyles } from '../../common/style.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { Component, } from '../Component.js';
 import { contentTemplate, styleTemplate } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksScrollable = (() => {
-    let _classDecorators = [customElement('bl-scrollable')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-scrollable',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

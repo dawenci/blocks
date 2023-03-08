@@ -39,10 +39,12 @@ import { onDragMove } from '../../common/onDragMove.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
 import { setStyles } from '../../common/style.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksSlider = (() => {
-    let _classDecorators = [customElement('bl-slider')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-slider',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

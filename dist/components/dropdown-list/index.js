@@ -39,11 +39,13 @@ import { Component } from '../Component.js';
 import { BlocksList } from '../list/index.js';
 import { BlocksPopup, PopupOrigin } from '../popup/index.js';
 import { listTemplate, popupTemplate, styleTemplate } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 const ATTRS = BlocksPopup.observedAttributes.concat(BlocksList.observedAttributes);
 export let BlocksDropdownList = (() => {
-    let _classDecorators = [customElement('bl-dropdown-list')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-dropdown-list',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

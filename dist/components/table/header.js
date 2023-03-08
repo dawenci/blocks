@@ -36,9 +36,11 @@ import { dispatchEvent } from '../../common/event.js';
 import { setStyles } from '../../common/style.js';
 import { Component, } from '../Component.js';
 import { template } from './header-template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 export let BlocksTableHeader = (() => {
-    let _classDecorators = [customElement('bl-table-header')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-table-header',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

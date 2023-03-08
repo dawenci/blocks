@@ -1,10 +1,11 @@
 import { Component } from '../Component.js'
 import { template } from './optgroup-template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
-@customElement('bl-optgroup')
+@defineClass({
+  customElement: 'bl-optgroup',
+})
 export class BlocksOptGroup extends Component {
   static override get observedAttributes() {
     return ['disabled', 'label']

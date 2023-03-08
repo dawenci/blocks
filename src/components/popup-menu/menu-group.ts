@@ -9,11 +9,12 @@ import {
 } from './menu-group-template.js'
 import { BlocksPopupMenuItem } from './menu-item.js'
 import { BlocksPopupMenu } from './menu.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
-@customElement('bl-popup-menu-group')
+@defineClass({
+  customElement: 'bl-popup-menu-group',
+})
 export class BlocksPopupMenuGroup extends Component {
   static override get observedAttributes() {
     return ['title-text']
@@ -29,8 +30,7 @@ export class BlocksPopupMenuGroup extends Component {
   constructor() {
     super()
 
-    // this.attachShadow({ mode: 'open' })
-    const shadowRoot = this.shadowRoot!
+        const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())
     this.$head = shadowRoot.getElementById('head')!

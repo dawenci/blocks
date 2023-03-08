@@ -16,8 +16,7 @@ export class BlocksTransitionOpenCollapse extends Component {
 
   constructor() {
     super()
-    // this.attachShadow({ mode: 'open' })
-    const shadowRoot = this.shadowRoot!
+        const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template().content.cloneNode(true))
   }
 

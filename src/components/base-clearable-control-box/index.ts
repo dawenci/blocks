@@ -1,5 +1,4 @@
 import { defineClass } from '../../decorators/defineClass.js'
-import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 import { ComponentEventListener } from '../Component.js'
 import { ControlBox, ControlBoxEventMap } from '../base-control-box/index.js'
@@ -28,8 +27,9 @@ export interface ClearableControlBox extends ControlBox {
   ): void
 }
 
-@defineClass
-@applyStyle(style)
+@defineClass({
+  styles: [style],
+})
 export class ClearableControlBox extends ControlBox {
   @attr('boolean') accessor clearable!: boolean
 

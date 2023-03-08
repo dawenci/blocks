@@ -1,5 +1,4 @@
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import { dispatchEvent } from '../../common/event.js'
 import { forEach } from '../../common/utils.js'
@@ -53,8 +52,10 @@ export interface BlocksCalc extends Component {
   ): void
 }
 
-@customElement('bl-calc')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-calc',
+  styles: [style],
+})
 export class BlocksCalc extends Component {
   @attr('string') accessor screen = ''
 

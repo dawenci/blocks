@@ -38,11 +38,13 @@ import { scrollTo } from '../../common/scrollTo.js';
 import { find, forEach, range } from '../../common/utils.js';
 import { Component, } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 const mutableAttrs = ['hour', 'minute', 'second', 'size'];
 export let BlocksTime = (() => {
-    let _classDecorators = [customElement('bl-time')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-time',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

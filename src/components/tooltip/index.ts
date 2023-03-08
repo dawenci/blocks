@@ -3,14 +3,15 @@ import { forEach } from '../../common/utils.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
 const ATTRS = ['trigger-mode', 'content', 'open-delay', 'close-delay']
 
-@customElement('bl-tooltip')
+@defineClass({
+  customElement: 'bl-tooltip',
+})
 export class BlocksTooltip extends Component {
   static override get observedAttributes() {
     return BlocksPopup.observedAttributes.concat(ATTRS)
@@ -34,8 +35,7 @@ export class BlocksTooltip extends Component {
   constructor() {
     super()
 
-    // this.attachShadow({ mode: 'open' })
-    const shadowRoot = this.shadowRoot!
+        const shadowRoot = this.shadowRoot!
 
     const { comTemplate, popupTemplate } = template()
     shadowRoot.appendChild(comTemplate.content.cloneNode(true))

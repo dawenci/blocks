@@ -5,8 +5,7 @@ import { onDragMove } from '../../common/onDragMove.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { setStyles } from '../../common/style.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksRangeSlider extends Component {
@@ -20,7 +19,9 @@ export interface BlocksRangeSlider extends Component {
   }
 }
 
-@customElement('bl-range-slider')
+@defineClass({
+  customElement: 'bl-range-slider',
+})
 export class BlocksRangeSlider extends Component {
   static get role() {
     return 'slider'

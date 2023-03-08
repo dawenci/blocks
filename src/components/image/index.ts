@@ -10,8 +10,7 @@ import {
   placeholderTemplate,
   styleTemplate,
 } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { NullableEnumAttr } from '../../decorators/attr.js'
 
@@ -31,7 +30,9 @@ export interface BlocksImage extends Component {
   _status: 'init' | 'loading' | 'loaded' | 'error'
 }
 
-@customElement('bl-image')
+@defineClass({
+  customElement: 'bl-image',
+})
 export class BlocksImage extends Component {
   static override get observedAttributes() {
     return ['alt', 'fallback', 'fit', 'manual', 'placeholder', 'src'] as const
@@ -57,8 +58,7 @@ export class BlocksImage extends Component {
   constructor() {
     super()
 
-    // this.attachShadow({ mode: 'open' })
-
+    
     const $style = styleTemplate()
     const $layout = contentTemplate()
     const $img = $layout.querySelector('#img') as HTMLImageElement

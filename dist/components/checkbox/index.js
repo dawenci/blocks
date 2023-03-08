@@ -37,11 +37,13 @@ import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
 import { Control } from '../base-control/index.js';
 import { checkboxTemplate, labelTemplate } from './template.js';
 import { style } from './style.js';
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksCheckbox = (() => {
-    let _classDecorators = [customElement('bl-checkbox'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-checkbox',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

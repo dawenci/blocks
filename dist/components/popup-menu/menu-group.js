@@ -35,10 +35,12 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 import { forEach } from '../../common/utils.js';
 import { Component } from '../Component.js';
 import { styleTemplate, contentTemplate, itemTemplate, } from './menu-group-template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksPopupMenuGroup = (() => {
-    let _classDecorators = [customElement('bl-popup-menu-group')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-popup-menu-group',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

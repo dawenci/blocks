@@ -11,8 +11,7 @@ import {
 } from '../with-open-transition/index.js'
 import { applyMixins } from '../../common/applyMixins.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 
 type ImageTransformStates = Map<
   HTMLImageElement,
@@ -54,7 +53,9 @@ export interface BlocksImageViewer extends Component, WithOpenTransition {
   ): void
 }
 
-@customElement('bl-image-viewer')
+@defineClass({
+  customElement: 'bl-image-viewer',
+})
 export class BlocksImageViewer extends Component {
   static override get observedAttributes() {
     return super.observedAttributes.concat([])
@@ -63,7 +64,6 @@ export class BlocksImageViewer extends Component {
   constructor() {
     super()
 
-    // this.attachShadow({ mode: 'open' })
     const $style = styleTemplate()
     const $layout = contentTemplate()
 

@@ -8,8 +8,7 @@ import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { parseIcon } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { stepperTemplate, stepTemplate } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js'
 
@@ -22,7 +21,9 @@ export interface BlocksSteps extends Component {
   }
 }
 
-@customElement('bl-stepper')
+@defineClass({
+  customElement: 'bl-stepper',
+})
 export class BlocksSteps extends Component {
   static override get observedAttributes() {
     return ['direction', 'size']
@@ -65,7 +66,9 @@ export interface BlocksStep extends Component {
   }
 }
 
-@customElement('bl-step')
+@defineClass({
+  customElement: 'bl-step',
+})
 export class BlocksStep extends Component {
   static override get observedAttributes() {
     return ['step-title', 'description', 'icon', 'status']

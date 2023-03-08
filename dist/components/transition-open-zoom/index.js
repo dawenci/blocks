@@ -33,12 +33,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { defineClass } from '../../decorators/defineClass.js';
-import { mixins } from '../../decorators/mixins.js';
 import { attr } from '../../decorators/attr.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { Component } from '../Component.js';
 export let BlocksTransitionOpenZoom = (() => {
-    let _classDecorators = [defineClass, mixins([WithOpenTransition])];
+    let _classDecorators = [defineClass({
+            mixins: [WithOpenTransition],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

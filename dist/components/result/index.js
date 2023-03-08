@@ -34,10 +34,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js';
 import { ClearableControlBox } from '../base-clearable-control-box/index.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksResult = (() => {
-    let _classDecorators = [customElement('bl-result')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-result',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

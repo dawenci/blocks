@@ -1,7 +1,6 @@
 import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { ClearableControlBox } from '../base-clearable-control-box/index.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksResult extends ClearableControlBox {
@@ -11,7 +10,9 @@ export interface BlocksResult extends ClearableControlBox {
   }
 }
 
-@customElement('bl-result')
+@defineClass({
+  customElement: 'bl-result',
+})
 export class BlocksResult extends ClearableControlBox {
   static override get observedAttributes() {
     return ['size', 'placeholder'].concat(super.observedAttributes)

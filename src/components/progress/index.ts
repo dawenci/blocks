@@ -1,7 +1,6 @@
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { NullableEnumAttr, attr } from '../../decorators/attr.js'
 
 const status = ['success', 'error', 'warning']
@@ -13,7 +12,9 @@ export interface BlocksProgress extends Component {
   }
 }
 
-@customElement('bl-progress')
+@defineClass({
+  customElement: 'bl-progress',
+})
 export class BlocksProgress extends Component {
   static override get observedAttributes() {
     return ['value', 'status', 'percentage']

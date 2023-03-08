@@ -35,11 +35,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 import { parseIcon } from '../../icon/index.js';
 import { Component } from '../Component.js';
 import { stepperTemplate, stepTemplate } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 const statusEnum = ['wait', 'process', 'success', 'error'];
 export let BlocksSteps = (() => {
-    let _classDecorators = [customElement('bl-stepper')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-stepper',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -89,7 +91,9 @@ export let BlocksSteps = (() => {
     return BlocksSteps = _classThis;
 })();
 export let BlocksStep = (() => {
-    let _classDecorators_1 = [customElement('bl-step')];
+    let _classDecorators_1 = [defineClass({
+            customElement: 'bl-step',
+        })];
     let _classDescriptor_1;
     let _classExtraInitializers_1 = [];
     let _classThis_1;

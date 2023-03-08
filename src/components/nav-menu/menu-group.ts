@@ -7,11 +7,12 @@ import {
 } from './menu-group-template.js'
 import './menu-item.js'
 import { BlocksNavMenu } from './menu.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
-@customElement('bl-nav-menu-group')
+@defineClass({
+  customElement: 'bl-nav-menu-group',
+})
 export class BlocksNavMenuGroup extends Component {
   static override get observedAttributes() {
     return ['title-text', 'horizontal', 'collapse']
@@ -31,8 +32,7 @@ export class BlocksNavMenuGroup extends Component {
   constructor() {
     super()
 
-    // this.attachShadow({ mode: 'open' })
-
+    
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())

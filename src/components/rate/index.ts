@@ -3,8 +3,7 @@ import { forEach } from '../../common/utils.js'
 import { enumGetter, enumSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 const halfValueGetter = enumGetter('value', [
@@ -40,7 +39,9 @@ export interface BlocksRate extends Component {
   }
 }
 
-@customElement('bl-rate')
+@defineClass({
+  customElement: 'bl-rate',
+})
 export class BlocksRate extends Component {
   static override get observedAttributes() {
     return [

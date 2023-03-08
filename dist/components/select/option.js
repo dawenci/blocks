@@ -35,10 +35,12 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 import { selectedSetter } from '../../common/propertyAccessor.js';
 import { Component } from '../Component.js';
 import { template } from './option-template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksOption = (() => {
-    let _classDecorators = [customElement('bl-option')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-option',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

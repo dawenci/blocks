@@ -8,8 +8,7 @@ import {
 } from '../with-open-transition/index.js'
 import { applyMixins } from '../../common/applyMixins.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 
 export type BlocksModalMaskEventMap = WithOpenTransitionEventMap
 
@@ -27,7 +26,9 @@ export interface BlocksModalMask extends Component, WithOpenTransition {
   ): void
 }
 
-@customElement('bl-modal-mask')
+@defineClass({
+  customElement: 'bl-modal-mask',
+})
 export class BlocksModalMask extends Component {
   static override get observedAttributes() {
     return super.observedAttributes.concat(['open', 'z-index'])

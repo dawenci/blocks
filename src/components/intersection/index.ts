@@ -1,11 +1,12 @@
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
-@customElement('bl-intersection')
+@defineClass({
+  customElement: 'bl-intersection',
+})
 export class BlocksIntersection extends Component {
   static override get observedAttributes() {
     return ['root', 'root-margin', 'threshold']

@@ -21,8 +21,7 @@ import {
   ISelectResultComponent,
   ISelectResultEventMap,
 } from '../../common/connectSelectable.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import { EnumAttrs } from '../../decorators/attr.js'
 
@@ -55,7 +54,9 @@ export interface BlocksSelectResult
   ): void
 }
 
-@customElement('bl-select-result')
+@defineClass({
+  customElement: 'bl-select-result',
+})
 export class BlocksSelectResult extends ClearableControlBox {
   static override get observedAttributes() {
     return super.observedAttributes.concat([

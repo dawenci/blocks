@@ -35,14 +35,16 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 import { scrollTo } from '../../common/scrollTo.js';
 import { Component } from '../Component.js';
 import { make as makeModel } from './model.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { applyStyle } from '../../decorators/style.js';
 import { template } from './template.js';
 import { style } from './style.js';
 import { strSetter } from '../../common/property.js';
 export let BlocksBackTop = (() => {
-    let _classDecorators = [customElement('bl-backtop'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-backtop',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

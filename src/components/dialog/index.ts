@@ -14,8 +14,7 @@ import { applyMixins } from '../../common/applyMixins.js'
 import { Control } from '../base-control/index.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
 import { ComponentEventListener } from '../Component.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 type BlocksDialogEventMap = WithOpenTransitionEventMap
@@ -41,9 +40,10 @@ interface BlocksDialog extends Control, WithOpenTransition {
   ): void
 }
 
-@customElement('bl-dialog')
-@applyStyle(style)
-@applyStyle(withOpenTransitionStyle)
+@defineClass({
+  customElement: 'bl-dialog',
+  styles: [withOpenTransitionStyle, style],
+})
 class BlocksDialog extends Control {
   static override get observedAttributes() {
     return super.observedAttributes.concat([

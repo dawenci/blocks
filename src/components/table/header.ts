@@ -8,8 +8,7 @@ import {
 import { template } from './header-template.js'
 import { RowColumn } from './RowColumn.js'
 import { BlocksTable } from './table.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 
 export type CellElement = HTMLElement & { column: RowColumn }
 
@@ -37,7 +36,9 @@ export interface BlocksTableHeader extends Component {
   ): void
 }
 
-@customElement('bl-table-header')
+@defineClass({
+  customElement: 'bl-table-header',
+})
 export class BlocksTableHeader extends Component {
   static override get observedAttributes() {
     return []

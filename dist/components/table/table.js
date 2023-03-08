@@ -42,11 +42,13 @@ import { setStyles } from '../../common/style.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { Component, } from '../Component.js';
 import { template } from './table-template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 let gridId = 0;
 export let BlocksTable = (() => {
-    let _classDecorators = [customElement('bl-table')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-table',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

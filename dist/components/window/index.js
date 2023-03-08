@@ -44,13 +44,15 @@ import { windowStyleTemplate, windowTemplate } from './template.js';
 import { Control } from '../base-control/index.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { mixins } from '../../decorators/mixins.js';
 const capturefocusGetter = boolGetter('capturefocus');
 const capturefocusSetter = boolSetter('capturefocus');
 export let BlocksWindow = (() => {
-    let _classDecorators = [customElement('bl-window'), mixins([WithOpenTransition])];
+    let _classDecorators = [defineClass({
+            mixins: [WithOpenTransition],
+            customElement: 'bl-window',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

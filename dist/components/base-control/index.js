@@ -33,16 +33,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { defineClass } from '../../decorators/defineClass.js';
-import { attachShadow } from '../../decorators/shadow.js';
 import { attr } from '../../decorators/attr.js';
 import { domRef } from '../../decorators/domRef.js';
 import { Component } from '../Component.js';
 import { append, mountBefore } from '../../common/mount.js';
 import { strSetter } from '../../common/property.js';
 export let Control = (() => {
-    let _classDecorators = [defineClass, attachShadow({
-            mode: 'open',
-            delegatesFocus: true,
+    let _classDecorators = [defineClass({
+            attachShadow: {
+                mode: 'open',
+                delegatesFocus: true,
+            },
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];

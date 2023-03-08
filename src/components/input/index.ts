@@ -13,8 +13,7 @@ import {
   ISelectResultEventMap,
   ISelectResultComponent,
 } from '../../common/connectSelectable.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
 
@@ -62,7 +61,9 @@ export interface BlocksInput
   ): void
 }
 
-@customElement('bl-input')
+@defineClass({
+  customElement: 'bl-input',
+})
 export class BlocksInput extends ClearableControlBox {
   static get role() {
     return 'input'

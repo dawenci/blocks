@@ -32,14 +32,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
 import { style } from './style.js';
 export let BlocksCard = (() => {
-    let _classDecorators = [customElement('bl-card'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-card',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

@@ -43,11 +43,13 @@ import { style } from './style.js';
 import { Control } from '../base-control/index.js';
 import { applyMixins } from '../../common/applyMixins.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksDrawer = (() => {
-    let _classDecorators = [customElement('bl-drawer'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-drawer',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

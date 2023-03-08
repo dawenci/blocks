@@ -1,5 +1,4 @@
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import { style } from './breadcrumb.style.js'
 import { Component } from '../Component.js'
@@ -12,8 +11,10 @@ export interface BlocksBreadcrumb extends Component {
   }
 }
 
-@customElement('bl-breadcrumb')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-breadcrumb',
+  styles: [style],
+})
 export class BlocksBreadcrumb extends Component {
   @attr('string') accessor separator = '/'
 

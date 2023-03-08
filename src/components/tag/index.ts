@@ -2,8 +2,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { getElementTarget } from '../../common/getElementTarget.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
 
@@ -13,7 +12,9 @@ export interface BlocksTag extends Component {
   }
 }
 
-@customElement('bl-tag')
+@defineClass({
+  customElement: 'bl-tag',
+})
 export class BlocksTag extends Component {
   static override get observedAttributes() {
     return ['type', 'size', 'closeable', 'round', 'outline']

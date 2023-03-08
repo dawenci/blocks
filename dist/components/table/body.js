@@ -36,10 +36,12 @@ import { BlocksVList } from '../vlist/index.js';
 import { setStyles } from '../../common/style.js';
 import { dispatchEvent } from '../../common/event.js';
 import { template } from './body-template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksTableBody = (() => {
-    let _classDecorators = [customElement('bl-table-body')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-table-body',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

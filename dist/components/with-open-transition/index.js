@@ -33,14 +33,15 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     done = true;
 };
 import { defineClass } from '../../decorators/defineClass.js';
-import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 import { style } from './style.js';
 import { dispatchEvent } from '../../common/event.js';
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js';
 import { Component } from '../Component.js';
 export let WithOpenTransition = (() => {
-    let _classDecorators = [defineClass, applyStyle(style)];
+    let _classDecorators = [defineClass({
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

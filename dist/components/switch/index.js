@@ -36,10 +36,12 @@ import { dispatchEvent } from '../../common/event.js';
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
 import { switchStyleTemplate } from './template.js';
 import { Control } from '../base-control/index.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 export let BlocksSwitch = (() => {
-    let _classDecorators = [customElement('bl-switch')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-switch',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

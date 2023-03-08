@@ -36,10 +36,12 @@ import { BlocksPopup } from '../popup/index.js';
 import { forEach } from '../../common/utils.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { itemTemplate, groupTemplate } from './menu-template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 export let BlocksPopupMenu = (() => {
-    let _classDecorators = [customElement('bl-popup-menu')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-popup-menu',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

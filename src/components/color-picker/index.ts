@@ -7,8 +7,7 @@ import { uniqId } from '../../common/uniqId.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { style } from './style.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksColorPicker extends Component {
@@ -20,8 +19,10 @@ export interface BlocksColorPicker extends Component {
   }
 }
 
-@customElement('bl-color-picker')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-color-picker',
+  styles: [style],
+})
 export class BlocksColorPicker extends Component {
   @attr('boolean') accessor disabled!: boolean
 

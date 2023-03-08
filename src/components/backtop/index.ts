@@ -1,15 +1,16 @@
 import { scrollTo } from '../../common/scrollTo.js'
 import { Component } from '../Component.js'
 import { make as makeModel } from './model.js'
-import { customElement } from '../../decorators/customElement.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { applyStyle } from '../../decorators/style.js'
 import { template } from './template.js'
 import { style } from './style.js'
 import { strSetter } from '../../common/property.js'
 
-@customElement('bl-backtop')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-backtop',
+  styles: [style],
+})
 export class BlocksBackTop extends Component {
   #clearup?: () => void
   #target?: () => Node

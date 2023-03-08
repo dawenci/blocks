@@ -37,11 +37,13 @@ import { forEach } from '../../common/utils.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 const ATTRS = ['trigger-mode', 'content', 'open-delay', 'close-delay'];
 export let BlocksTooltip = (() => {
-    let _classDecorators = [customElement('bl-tooltip')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-tooltip',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

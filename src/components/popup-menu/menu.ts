@@ -14,12 +14,13 @@ import { BlocksNavMenu } from '../nav-menu/menu.js'
 import { BlocksNavMenuItem } from '../nav-menu/menu-item.js'
 import { BlocksNavMenuGroup } from '../nav-menu/menu-group.js'
 import { itemTemplate, groupTemplate } from './menu-template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
 
-@customElement('bl-popup-menu')
+@defineClass({
+  customElement: 'bl-popup-menu',
+})
 export class BlocksPopupMenu extends BlocksPopup {
   static override get observedAttributes() {
     return BlocksPopup.observedAttributes.concat([

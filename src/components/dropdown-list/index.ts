@@ -9,7 +9,7 @@ import { Component } from '../Component.js'
 import { BlocksList } from '../list/index.js'
 import { BlocksPopup, PopupOrigin } from '../popup/index.js'
 import { listTemplate, popupTemplate, styleTemplate } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -26,7 +26,9 @@ export interface BlocksDropdownList extends Component {
   _hideTimer: number
 }
 
-@customElement('bl-dropdown-list')
+@defineClass({
+  customElement: 'bl-dropdown-list',
+})
 export class BlocksDropdownList extends Component {
   static override get observedAttributes() {
     return ATTRS

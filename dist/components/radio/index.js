@@ -36,10 +36,12 @@ import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
 import { labelTemplate, radioTemplate, styleTemplate } from './template.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Control } from '../base-control/index.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksRadio = (() => {
-    let _classDecorators = [customElement('bl-radio')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-radio',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

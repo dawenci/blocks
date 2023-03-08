@@ -1,3 +1,4 @@
+import { defineClass } from '../decorators/defineClass.js'
 import {
   append,
   mountAfter,
@@ -6,7 +7,6 @@ import {
   unmount,
 } from '../common/mount.js'
 import { upgradeProperty } from '../common/upgradeProperty.js'
-import { attachShadow } from '../decorators/shadow.js'
 
 interface ComponentEventListenerCallback<E extends Event = Event> {
   (evt: E): void
@@ -38,7 +38,9 @@ export interface Component extends HTMLElement {
   ): void
 }
 
-@attachShadow
+@defineClass({
+  attachShadow: true,
+})
 export class Component extends HTMLElement {
   static get observedAttributes(): readonly string[] | string[] {
     return []
@@ -49,7 +51,7 @@ export class Component extends HTMLElement {
 
     const ctor = this.constructor as any
 
-    // 应用 @attachShadow 的结果，
+    // 应用 defineClass({ attachShadow }) 的结果，
     // 只要 this 对应的 class 自身或者父类上有标记需要 attachShadow（优先从子类读取配置），则执行
     if (ctor._shadowRootInit) {
       this.attachShadow(ctor._shadowRootInit)

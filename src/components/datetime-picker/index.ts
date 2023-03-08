@@ -11,8 +11,7 @@ import { style } from './style.js'
 import { BlocksButton } from '../button/index.js'
 import { makeDate, makeDateFrom } from '../../common/date.js'
 import { ClearableControlBox } from '../base-clearable-control-box/index.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksDateTimePicker extends ClearableControlBox {
@@ -28,8 +27,10 @@ export interface BlocksDateTimePicker extends ClearableControlBox {
   }
 }
 
-@customElement('bl-datetime-picker')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-datetime-picker',
+  styles: [style],
+})
 export class BlocksDateTimePicker extends ClearableControlBox {
   @attr('boolean') accessor range!: boolean
 

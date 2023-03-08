@@ -36,10 +36,12 @@ import { forEach } from '../../common/utils.js';
 import { Component } from '../Component.js';
 import { styleTemplate, contentTemplate, itemTemplate, } from './menu-group-template.js';
 import './menu-item.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksNavMenuGroup = (() => {
-    let _classDecorators = [customElement('bl-nav-menu-group')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-nav-menu-group',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

@@ -32,8 +32,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { domRef } from '../../decorators/domRef.js';
 import { BlocksButton } from '../button/index.js';
 import { Component } from '../Component.js';
@@ -41,7 +40,10 @@ import { template } from './template.js';
 import { style } from './style.js';
 import '../button/index.js';
 export let BlocksButtonGroup = (() => {
-    let _classDecorators = [customElement('bl-button-group'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-button-group',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

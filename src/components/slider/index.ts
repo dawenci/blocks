@@ -5,11 +5,12 @@ import { onDragMove } from '../../common/onDragMove.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { setStyles } from '../../common/style.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
-@customElement('bl-slider')
+@defineClass({
+  customElement: 'bl-slider',
+})
 export class BlocksSlider extends Component {
   static get role() {
     return 'slider'

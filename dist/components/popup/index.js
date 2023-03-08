@@ -32,8 +32,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { customElement } from '../../decorators/customElement.js';
-import { mixins } from '../../decorators/mixins.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { popupStyleTemplate, popupTemplate } from './template.js';
@@ -58,7 +57,10 @@ export var PopupOrigin;
 })(PopupOrigin || (PopupOrigin = {}));
 const originArray = Object.values(PopupOrigin);
 export let BlocksPopup = (() => {
-    let _classDecorators = [customElement('bl-popup'), mixins([WithOpenTransition])];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-popup',
+            mixins: [WithOpenTransition],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

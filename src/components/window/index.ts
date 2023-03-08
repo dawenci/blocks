@@ -19,10 +19,8 @@ import {
   WithOpenTransitionEventMap,
 } from '../with-open-transition/index.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { mixins } from '../../decorators/mixins.js'
 
 const capturefocusGetter = boolGetter('capturefocus')
 const capturefocusSetter = boolSetter('capturefocus')
@@ -61,8 +59,10 @@ export interface BlocksWindow extends Control, WithOpenTransition {
   ): void
 }
 
-@customElement('bl-window')
-@mixins([WithOpenTransition])
+@defineClass({
+  mixins: [WithOpenTransition],
+  customElement: 'bl-window',
+})
 export class BlocksWindow extends Control {
   static get role() {
     return 'window'

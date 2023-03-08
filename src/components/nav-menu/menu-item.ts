@@ -7,11 +7,12 @@ import { styleTemplate, contentTemplate } from './menu-item-template.js'
 import { BlocksPopupMenu } from '../popup-menu/index.js'
 import type { BlocksNavMenu } from './menu.js'
 import { BlocksIcon } from '../icon/index.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
-@customElement('bl-nav-menu-item')
+@defineClass({
+  customElement: 'bl-nav-menu-item',
+})
 export class BlocksNavMenuItem extends Component {
   static override get observedAttributes() {
     return ['disabled', 'link', 'expand', 'active']
@@ -37,8 +38,7 @@ export class BlocksNavMenuItem extends Component {
   constructor() {
     super()
 
-    // this.attachShadow({ mode: 'open' })
-    const shadowRoot = this.shadowRoot!
+        const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())
     this.$layout = shadowRoot.getElementById('layout')!

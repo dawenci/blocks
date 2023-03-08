@@ -33,7 +33,6 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { defineClass } from '../../decorators/defineClass.js';
-import { applyStyle } from '../../decorators/style.js';
 import { attr } from '../../decorators/attr.js';
 import { ControlBox } from '../base-control-box/index.js';
 import { dispatchEvent } from '../../common/event.js';
@@ -41,7 +40,9 @@ import { unmount } from '../../common/mount.js';
 import { style } from './style.js';
 import { clearTemplate } from './template.js';
 export let ClearableControlBox = (() => {
-    let _classDecorators = [defineClass, applyStyle(style)];
+    let _classDecorators = [defineClass({
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

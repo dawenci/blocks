@@ -1,5 +1,4 @@
 import { defineClass } from '../../decorators/defineClass.js'
-import { applyStyle } from '../../decorators/style.js'
 import { attr } from '../../decorators/attr.js'
 import { style } from './style.js'
 import { dispatchEvent } from '../../common/event.js'
@@ -12,8 +11,9 @@ export interface WithOpenTransitionEventMap extends ComponentEventMap {
   'open-changed': CustomEvent<{ value: boolean }>
 }
 
-@defineClass
-@applyStyle(style)
+@defineClass({
+  styles: [style],
+})
 export class WithOpenTransition extends Component {
   onOpen?: () => void
   onClose?: () => void

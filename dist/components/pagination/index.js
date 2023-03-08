@@ -37,10 +37,12 @@ import { dispatchEvent } from '../../common/event.js';
 import { forEach } from '../../common/utils.js';
 import { Component, } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 export let BlocksPagination = (() => {
-    let _classDecorators = [customElement('bl-pagination')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-pagination',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

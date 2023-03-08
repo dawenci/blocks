@@ -16,8 +16,7 @@ import { template } from './table-template.js'
 import { BlocksTableHeader, CellElement as HeaderCell } from './header.js'
 import { BlocksTableBody, CellElement } from './body.js'
 import { VirtualItem } from '../vlist/index.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 let gridId = 0
@@ -53,7 +52,9 @@ export interface BlocksTable extends Component {
   ): void
 }
 
-@customElement('bl-table')
+@defineClass({
+  customElement: 'bl-table',
+})
 export class BlocksTable extends Component {
   _data: any
   _columns: RowColumn[] = []

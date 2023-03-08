@@ -35,9 +35,11 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 import { getRegisteredSvgIcon } from '../../icon/index.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 export let BlocksLoading = (() => {
-    let _classDecorators = [customElement('bl-loading')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-loading',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

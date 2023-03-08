@@ -38,9 +38,11 @@ import { Component } from '../Component.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { applyMixins } from '../../common/applyMixins.js';
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 export let BlocksModalMask = (() => {
-    let _classDecorators = [customElement('bl-modal-mask')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-modal-mask',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

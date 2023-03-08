@@ -34,10 +34,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import { Component } from '../Component.js';
 import { template } from './row-template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksRow = (() => {
-    let _classDecorators = [customElement('bl-row')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-row',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

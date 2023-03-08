@@ -1,8 +1,7 @@
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export interface BlocksIcon extends Component {
@@ -11,7 +10,9 @@ export interface BlocksIcon extends Component {
   }
 }
 
-@customElement('bl-icon')
+@defineClass({
+  customElement: 'bl-icon',
+})
 export class BlocksIcon extends Component {
   static override get observedAttributes() {
     return ['value', 'fill']

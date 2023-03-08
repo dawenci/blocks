@@ -42,9 +42,11 @@ import { Component } from '../Component.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { applyMixins } from '../../common/applyMixins.js';
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 export let BlocksImageViewer = (() => {
-    let _classDecorators = [customElement('bl-image-viewer')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-image-viewer',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

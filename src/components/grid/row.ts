@@ -1,8 +1,7 @@
 import { Component } from '../Component.js'
 import { BlocksColumn } from './column.js'
 import { template } from './row-template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { NullableEnumAttr } from '../../decorators/attr.js'
 
@@ -12,7 +11,9 @@ export interface BlocksRow extends Component {
   }
 }
 
-@customElement('bl-row')
+@defineClass({
+  customElement: 'bl-row',
+})
 export class BlocksRow extends Component {
   static override get observedAttributes() {
     return [

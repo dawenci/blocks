@@ -34,9 +34,7 @@ import {
 } from '../Component.js'
 import { template } from './template.js'
 import { style } from './style.js'
-import { customElement } from '../../decorators/customElement.js'
-import { attachShadow } from '../../decorators/shadow.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
@@ -95,16 +93,18 @@ export interface BlocksDate extends Component {
   ): void
 }
 
-@customElement('bl-date')
-@attachShadow({
-  mode: 'open',
-  // 代理焦点，
-  // 1. 点击 shadow DOM 内某个不可聚焦的区域，则第一个可聚焦区域将成为焦点
-  // 2. 当 shadow DOM 内的节点获得焦点时，除了聚焦的元素外，:focus 还会应用到宿主
-  // 3. 自己的 slot 中的元素聚焦，宿主不会获得焦点，但是 :focus-within 生效
-  delegatesFocus: true,
+@defineClass({
+  customElement: 'bl-date',
+  styles: [style],
+  attachShadow: {
+    mode: 'open',
+    // 代理焦点，
+    // 1. 点击 shadow DOM 内某个不可聚焦的区域，则第一个可聚焦区域将成为焦点
+    // 2. 当 shadow DOM 内的节点获得焦点时，除了聚焦的元素外，:focus 还会应用到宿主
+    // 3. 自己的 slot 中的元素聚焦，宿主不会获得焦点，但是 :focus-within 生效
+    delegatesFocus: true,
+  },
 })
-@applyStyle(style)
 export class BlocksDate extends Component {
   // 按钮元素池
   #$pool: HTMLButtonElement[]

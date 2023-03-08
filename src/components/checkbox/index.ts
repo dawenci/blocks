@@ -4,8 +4,7 @@ import { ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { Control } from '../base-control/index.js'
 import { checkboxTemplate, labelTemplate } from './template.js'
 import { style } from './style.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 interface CheckboxEventMap extends ComponentEventMap {
@@ -33,8 +32,10 @@ export interface BlocksCheckbox extends Control {
   ): void
 }
 
-@customElement('bl-checkbox')
-@applyStyle(style)
+@defineClass({
+  customElement: 'bl-checkbox',
+  styles: [style],
+})
 export class BlocksCheckbox extends Control {
   static get role() {
     return 'checkbox'

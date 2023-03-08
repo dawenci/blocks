@@ -37,7 +37,7 @@ import { forEach } from '../../common/utils.js';
 import { enumGetter, enumSetter } from '../../common/property.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { customElement } from '../../decorators/customElement.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 const halfValueGetter = enumGetter('value', [
     '1',
@@ -65,7 +65,9 @@ const valueGetter = enumGetter('value', ['1', '2', '3', '4', '5']);
 const valueSetter = enumSetter('value', ['1', '2', '3', '4', '5']);
 const $STAR_ICON = getRegisteredSvgIcon('star');
 export let BlocksRate = (() => {
-    let _classDecorators = [customElement('bl-rate')];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-rate',
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

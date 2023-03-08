@@ -8,8 +8,7 @@ import {
   __color_warning,
   __color_primary,
 } from '../../theme/var-light.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { NullableEnumAttr } from '../../decorators/attr.js'
 
@@ -44,7 +43,9 @@ export interface BlocksNotification extends Component {
   }
 }
 
-@customElement('bl-notification')
+@defineClass({
+  customElement: 'bl-notification',
+})
 export class BlocksNotification extends Component {
   static override get observedAttributes() {
     return ['closeable', 'duration', 'type']

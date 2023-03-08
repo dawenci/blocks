@@ -32,14 +32,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { customElement } from '../../decorators/customElement.js';
-import { applyStyle } from '../../decorators/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 import { style } from './breadcrumb.style.js';
 import { Component } from '../Component.js';
 import { template } from './breadcrumb.template.js';
 export let BlocksBreadcrumb = (() => {
-    let _classDecorators = [customElement('bl-breadcrumb'), applyStyle(style)];
+    let _classDecorators = [defineClass({
+            customElement: 'bl-breadcrumb',
+            styles: [style],
+        })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;

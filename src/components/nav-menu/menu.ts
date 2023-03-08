@@ -7,13 +7,14 @@ import {
   groupTemplate,
   itemTemplate,
 } from './menu-template.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
 
 // TODO, collapse 模式，tooltip 显示一级菜单文本
-@customElement('bl-nav-menu')
+@defineClass({
+  customElement: 'bl-nav-menu',
+})
 export class BlocksNavMenu extends Component {
   static get role() {
     return 'navigation'
@@ -59,8 +60,7 @@ export class BlocksNavMenu extends Component {
   constructor() {
     super()
 
-    // this.attachShadow({ mode: 'open' })
-
+    
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())

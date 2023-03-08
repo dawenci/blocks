@@ -16,8 +16,7 @@ import {
   ISelectableListComponent,
   ISelectListEventMap,
 } from '../../common/connectSelectable.js'
-import { customElement } from '../../decorators/customElement.js'
-import { applyStyle } from '../../decorators/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 
 export type NodeData = {
@@ -79,7 +78,9 @@ export interface BLocksTree extends BlocksVList, ISelectableListComponent {
   ): void
 }
 
-@customElement('bl-tree')
+@defineClass({
+  customElement: 'bl-tree',
+})
 export class BlocksTree extends BlocksVList {
   static override get observedAttributes() {
     return super.observedAttributes.concat([
