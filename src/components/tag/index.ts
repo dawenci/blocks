@@ -1,24 +1,23 @@
+import type { EnumAttrs } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import { domRef } from '../../decorators/domRef.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { getElementTarget } from '../../common/getElementTarget.js'
 import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import type { EnumAttrs } from '../../decorators/attr.js'
+import { style } from './style.js'
 
-export interface BlocksTag extends Component {
-  ref: {
-    $layout: HTMLElement
-  }
-}
+const types = ['primary', 'danger', 'warning', 'success'] as const
 
 @defineClass({
   customElement: 'bl-tag',
+  styles: [style],
 })
 export class BlocksTag extends Component {
-  static override get observedAttributes() {
-    return ['type', 'size', 'closeable', 'round', 'outline']
-  }
+  @attr('boolean') accessor round!: boolean
+
+  @attr('enum', { enumValues: types }) accessor type!: (typeof types)[number]
 
   @attr('boolean') accessor closeable!: boolean
 
@@ -26,30 +25,25 @@ export class BlocksTag extends Component {
 
   @attrs.size accessor size!: EnumAttrs['size']
 
+  @domRef('#layout') accessor $layout!: HTMLElement
+
   constructor() {
     super()
 
     const shadowRoot = this.shadowRoot!
-
-    shadowRoot.appendChild(template().content.cloneNode(true))
-
-    const $layout = shadowRoot.getElementById('layout')!
+    shadowRoot.appendChild(template())
 
     shadowRoot.addEventListener('click', e => {
       if (getElementTarget(e)?.id === 'close') {
         dispatchEvent(this, 'close')
       }
     })
-
-    this.ref = {
-      $layout,
-    }
   }
 
   override render() {
     if (this.closeable) {
       if (!this.shadowRoot!.getElementById('close')) {
-        const button = this.ref.$layout.appendChild(
+        const button = this.$layout.appendChild(
           document.createElement('button')
         )
         button.id = 'close'

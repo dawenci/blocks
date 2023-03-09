@@ -32,15 +32,18 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
-import { labelTemplate, radioTemplate, styleTemplate } from './template.js';
-import { dispatchEvent } from '../../common/event.js';
-import { Control } from '../base-control/index.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
+import { labelTemplate, radioTemplate } from './template.js';
+import { style } from './style.js';
+import { dispatchEvent } from '../../common/event.js';
+import { Control } from '../base-control/index.js';
+import { domRef } from '../../decorators/domRef.js';
 export let BlocksRadio = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-radio',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -50,12 +53,24 @@ export let BlocksRadio = (() => {
     let _name_initializers = [];
     let _checked_decorators;
     let _checked_initializers = [];
+    let _$radio_decorators;
+    let _$radio_initializers = [];
+    let _$label_decorators;
+    let _$label_initializers = [];
+    let _$slot_decorators;
+    let _$slot_initializers = [];
     var BlocksRadio = class extends Control {
         static {
             _name_decorators = [attr('string')];
             _checked_decorators = [attr('boolean')];
+            _$radio_decorators = [domRef('#radio')];
+            _$label_decorators = [domRef('#label')];
+            _$slot_decorators = [domRef('slot')];
             __esDecorate(this, null, _name_decorators, { kind: "accessor", name: "name", static: false, private: false, access: { has: obj => "name" in obj, get: obj => obj.name, set: (obj, value) => { obj.name = value; } } }, _name_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _checked_decorators, { kind: "accessor", name: "checked", static: false, private: false, access: { has: obj => "checked" in obj, get: obj => obj.checked, set: (obj, value) => { obj.checked = value; } } }, _checked_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$radio_decorators, { kind: "accessor", name: "$radio", static: false, private: false, access: { has: obj => "$radio" in obj, get: obj => obj.$radio, set: (obj, value) => { obj.$radio = value; } } }, _$radio_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$label_decorators, { kind: "accessor", name: "$label", static: false, private: false, access: { has: obj => "$label" in obj, get: obj => obj.$label, set: (obj, value) => { obj.$label = value; } } }, _$label_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksRadio = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -63,22 +78,26 @@ export let BlocksRadio = (() => {
         static get role() {
             return 'radio';
         }
-        static get observedAttributes() {
-            return super.observedAttributes.concat(['name', 'checked']);
-        }
         #name_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _name_initializers, void 0));
         get name() { return this.#name_accessor_storage; }
         set name(value) { this.#name_accessor_storage = value; }
         #checked_accessor_storage = __runInitializers(this, _checked_initializers, void 0);
         get checked() { return this.#checked_accessor_storage; }
         set checked(value) { this.#checked_accessor_storage = value; }
+        #$radio_accessor_storage = __runInitializers(this, _$radio_initializers, void 0);
+        get $radio() { return this.#$radio_accessor_storage; }
+        set $radio(value) { this.#$radio_accessor_storage = value; }
+        #$label_accessor_storage = __runInitializers(this, _$label_initializers, void 0);
+        get $label() { return this.#$label_accessor_storage; }
+        set $label(value) { this.#$label_accessor_storage = value; }
+        #$slot_accessor_storage = __runInitializers(this, _$slot_initializers, void 0);
+        get $slot() { return this.#$slot_accessor_storage; }
+        set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(styleTemplate());
-            const $radio = this._ref.$layout.appendChild(radioTemplate());
-            const $label = this._ref.$layout.appendChild(labelTemplate());
+            this.$layout.appendChild(radioTemplate());
+            const $label = this.$layout.appendChild(labelTemplate());
             const $slot = $label.querySelector('slot');
-            Object.assign(this, { $radio, $label, $slot });
             const toggleEmptyClass = () => {
                 $label.classList.toggle('empty', !$slot.assignedNodes().length);
             };

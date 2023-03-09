@@ -1,10 +1,11 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { forEach } from '../../common/utils.js'
 import { enumGetter, enumSetter } from '../../common/property.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
+import { style } from './style.js'
 
 const halfValueGetter = enumGetter('value', [
   '1',
@@ -41,33 +42,31 @@ export interface BlocksRate extends Component {
 
 @defineClass({
   customElement: 'bl-rate',
+  styles: [style],
 })
 export class BlocksRate extends Component {
   static override get observedAttributes() {
     return [
       // model 值
       'value',
-      // 允许选择半颗星
-      'half',
-      // 允许 toggle 高亮
-      'clearable',
-      // 结果模式，可以百分比高亮星星
-      'result-mode',
     ]
   }
 
-  _hoverValue?: number
-
+  /** 允许 toggle 高亮 */
   @attr('boolean') accessor clearable!: boolean
 
+  /** 允许选择半颗星 */
   @attr('boolean') accessor half!: boolean
 
+  /** 结果模式，可以百分比高亮星星 */
   @attr('boolean') accessor resultMode!: boolean
+
+  _hoverValue?: number
 
   constructor() {
     super()
     const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
+    shadowRoot.appendChild(template())
 
     const $layout = shadowRoot.getElementById('layout') as HTMLElement
 

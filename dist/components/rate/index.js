@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,13 +25,21 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { forEach } from '../../common/utils.js';
 import { enumGetter, enumSetter } from '../../common/property.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { style } from './style.js';
 const halfValueGetter = enumGetter('value', [
     '1',
     '1.5',
@@ -67,6 +68,7 @@ const $STAR_ICON = getRegisteredSvgIcon('star');
 export let BlocksRate = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-rate',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -93,13 +95,9 @@ export let BlocksRate = (() => {
         static get observedAttributes() {
             return [
                 'value',
-                'half',
-                'clearable',
-                'result-mode',
             ];
         }
-        _hoverValue = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        #clearable_accessor_storage = __runInitializers(this, _clearable_initializers, void 0);
+        #clearable_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _clearable_initializers, void 0));
         get clearable() { return this.#clearable_accessor_storage; }
         set clearable(value) { this.#clearable_accessor_storage = value; }
         #half_accessor_storage = __runInitializers(this, _half_initializers, void 0);
@@ -108,10 +106,11 @@ export let BlocksRate = (() => {
         #resultMode_accessor_storage = __runInitializers(this, _resultMode_initializers, void 0);
         get resultMode() { return this.#resultMode_accessor_storage; }
         set resultMode(value) { this.#resultMode_accessor_storage = value; }
+        _hoverValue;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
+            shadowRoot.appendChild(template());
             const $layout = shadowRoot.getElementById('layout');
             this.ref = { $layout };
             forEach($layout.children, ($button, index) => {

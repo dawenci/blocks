@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,52 +25,42 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { dispatchEvent } from '../../common/event.js';
-import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js';
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+import { defineClass } from '../../decorators/defineClass.js';
+import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { Component } from '../Component.js';
-import { template } from './template.js';
-import { attr } from '../../decorators/attr.js';
 export let BlocksTransitionOpenOpacity = (() => {
-    let _instanceExtraInitializers = [];
-    let _open_decorators;
-    let _open_initializers = [];
-    return class BlocksTransitionOpenOpacity extends Component {
+    let _classDecorators = [defineClass({
+            mixins: [WithOpenTransition],
+        })];
+    let _classDescriptor;
+    let _classExtraInitializers = [];
+    let _classThis;
+    var BlocksTransitionOpenOpacity = class extends Component {
         static {
-            _open_decorators = [attr('boolean')];
-            __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
+            __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
+            BlocksTransitionOpenOpacity = _classThis = _classDescriptor.value;
+            __runInitializers(_classThis, _classExtraInitializers);
         }
-        onOpen = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        onClose;
-        static get observedAttributes() {
-            return ['open'];
-        }
-        #open_accessor_storage = __runInitializers(this, _open_initializers, void 0);
-        get open() { return this.#open_accessor_storage; }
-        set open(value) { this.#open_accessor_storage = value; }
-        constructor() {
-            super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
+        connectedCallback() {
+            super.connectedCallback();
+            this.openTransitionName = 'opacity';
+            if (this.open) {
+                this._onOpenAttributeChange();
+            }
         }
         attributeChangedCallback(attrName, oldValue, newValue) {
             super.attributeChangedCallback(attrName, oldValue, newValue);
             if (attrName == 'open') {
-                if (this.open) {
-                    doTransitionEnter(this, 'opacity', () => {
-                        if (this.onOpen)
-                            this.onOpen();
-                        dispatchEvent(this, 'opened');
-                    });
-                }
-                else {
-                    doTransitionLeave(this, 'opacity', () => {
-                        if (this.onClose)
-                            this.onClose();
-                        dispatchEvent(this, 'closed');
-                    });
-                }
-                dispatchEvent(this, 'open-changed');
+                this._onOpenAttributeChange();
             }
         }
     };
+    return BlocksTransitionOpenOpacity = _classThis;
 })();

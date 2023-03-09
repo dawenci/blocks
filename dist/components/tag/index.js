@@ -32,42 +32,61 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr, attrs } from '../../decorators/attr.js';
+import { domRef } from '../../decorators/domRef.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Component } from '../Component.js';
 import { getElementTarget } from '../../common/getElementTarget.js';
 import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr, attrs } from '../../decorators/attr.js';
+import { style } from './style.js';
+const types = ['primary', 'danger', 'warning', 'success'];
 export let BlocksTag = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-tag',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
+    let _round_decorators;
+    let _round_initializers = [];
+    let _type_decorators;
+    let _type_initializers = [];
     let _closeable_decorators;
     let _closeable_initializers = [];
     let _outline_decorators;
     let _outline_initializers = [];
     let _size_decorators;
     let _size_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
     var BlocksTag = class extends Component {
         static {
+            _round_decorators = [attr('boolean')];
+            _type_decorators = [attr('enum', { enumValues: types })];
             _closeable_decorators = [attr('boolean')];
             _outline_decorators = [attr('boolean')];
             _size_decorators = [attrs.size];
+            _$layout_decorators = [domRef('#layout')];
+            __esDecorate(this, null, _round_decorators, { kind: "accessor", name: "round", static: false, private: false, access: { has: obj => "round" in obj, get: obj => obj.round, set: (obj, value) => { obj.round = value; } } }, _round_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _type_decorators, { kind: "accessor", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type, set: (obj, value) => { obj.type = value; } } }, _type_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeable_decorators, { kind: "accessor", name: "closeable", static: false, private: false, access: { has: obj => "closeable" in obj, get: obj => obj.closeable, set: (obj, value) => { obj.closeable = value; } } }, _closeable_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _outline_decorators, { kind: "accessor", name: "outline", static: false, private: false, access: { has: obj => "outline" in obj, get: obj => obj.outline, set: (obj, value) => { obj.outline = value; } } }, _outline_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksTag = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['type', 'size', 'closeable', 'round', 'outline'];
-        }
-        #closeable_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _closeable_initializers, void 0));
+        #round_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _round_initializers, void 0));
+        get round() { return this.#round_accessor_storage; }
+        set round(value) { this.#round_accessor_storage = value; }
+        #type_accessor_storage = __runInitializers(this, _type_initializers, void 0);
+        get type() { return this.#type_accessor_storage; }
+        set type(value) { this.#type_accessor_storage = value; }
+        #closeable_accessor_storage = __runInitializers(this, _closeable_initializers, void 0);
         get closeable() { return this.#closeable_accessor_storage; }
         set closeable(value) { this.#closeable_accessor_storage = value; }
         #outline_accessor_storage = __runInitializers(this, _outline_initializers, void 0);
@@ -76,24 +95,23 @@ export let BlocksTag = (() => {
         #size_accessor_storage = __runInitializers(this, _size_initializers, void 0);
         get size() { return this.#size_accessor_storage; }
         set size(value) { this.#size_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            const $layout = shadowRoot.getElementById('layout');
+            shadowRoot.appendChild(template());
             shadowRoot.addEventListener('click', e => {
                 if (getElementTarget(e)?.id === 'close') {
                     dispatchEvent(this, 'close');
                 }
             });
-            this.ref = {
-                $layout,
-            };
         }
         render() {
             if (this.closeable) {
                 if (!this.shadowRoot.getElementById('close')) {
-                    const button = this.ref.$layout.appendChild(document.createElement('button'));
+                    const button = this.$layout.appendChild(document.createElement('button'));
                     button.id = 'close';
                 }
             }

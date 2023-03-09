@@ -1,37 +1,28 @@
-import { strGetter, strSetter } from '../../common/property.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { forEach } from '../../common/utils.js'
 import { Component } from '../Component.js'
 import { BlocksNavMenu } from '../nav-menu/menu.js'
-import {
-  styleTemplate,
-  contentTemplate,
-  itemTemplate,
-} from './menu-group-template.js'
+import { contentTemplate, itemTemplate } from './menu-group.template.js'
+import { style } from './menu-group.style.js'
 import { BlocksPopupMenuItem } from './menu-item.js'
 import { BlocksPopupMenu } from './menu.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 @defineClass({
   customElement: 'bl-popup-menu-group',
+  styles: [style],
 })
 export class BlocksPopupMenuGroup extends Component {
-  static override get observedAttributes() {
-    return ['title-text']
-  }
+  @attr('string') accessor titleText = ''
 
   _data!: MenuGroup
-
   $head: HTMLElement
   $body: HTMLElement
-
-  @attr('string') accessor titleText = ''
 
   constructor() {
     super()
 
-        const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(styleTemplate())
+    const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(contentTemplate())
     this.$head = shadowRoot.getElementById('head')!
     this.$body = shadowRoot.getElementById('body')!

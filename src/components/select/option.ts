@@ -1,19 +1,15 @@
-import { selectedSetter } from '../../common/propertyAccessor.js'
-import { Component } from '../Component.js'
-import { template } from './option-template.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
+import { selectedSetter } from '../../common/propertyAccessor.js'
+import { Component } from '../Component.js'
+import { template } from './option.template.js'
+import { style } from './option.style.js'
 
 @defineClass({
   customElement: 'bl-option',
+  styles: [style],
 })
 export class BlocksOption extends Component {
-  static override get observedAttributes() {
-    return ['value', 'disabled', 'selected', 'label']
-  }
-
-  #silentFlag?: boolean
-
   @attr('string') accessor value!: string | null
 
   @attr('string', {
@@ -27,12 +23,14 @@ export class BlocksOption extends Component {
 
   @attr('boolean') accessor selected!: boolean
 
+  #silentFlag?: boolean
+
   constructor() {
     super()
 
     const shadowRoot = this.shadowRoot!
 
-    const fragment = template().content.cloneNode(true)
+    const fragment = template().cloneNode(true)
     shadowRoot.appendChild(fragment)
   }
 

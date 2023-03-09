@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,18 +25,27 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import '../scrollable/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr, attrs } from '../../decorators/attr.js';
 import { dispatchEvent } from '../../common/event.js';
 import { scrollTo } from '../../common/scrollTo.js';
 import { find, forEach, range } from '../../common/utils.js';
 import { Component, } from '../Component.js';
 import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr, attrs } from '../../decorators/attr.js';
+import { style } from './style.js';
 const mutableAttrs = ['hour', 'minute', 'second', 'size'];
 export let BlocksTime = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-time',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -71,12 +73,7 @@ export let BlocksTime = (() => {
             BlocksTime = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #scrollFlag = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        #batchChange;
-        static get observedAttributes() {
-            return mutableAttrs;
-        }
-        #hour_accessor_storage = __runInitializers(this, _hour_initializers, void 0);
+        #hour_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _hour_initializers, void 0));
         get hour() { return this.#hour_accessor_storage; }
         set hour(value) { this.#hour_accessor_storage = value; }
         #minute_accessor_storage = __runInitializers(this, _minute_initializers, void 0);
@@ -88,10 +85,12 @@ export let BlocksTime = (() => {
         #size_accessor_storage = __runInitializers(this, _size_initializers, void 0);
         get size() { return this.#size_accessor_storage; }
         set size(value) { this.#size_accessor_storage = value; }
+        #scrollFlag;
+        #batchChange;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
+            shadowRoot.appendChild(template());
             const $layout = shadowRoot.getElementById('layout');
             const $hours = shadowRoot.getElementById('hours');
             const $minutes = shadowRoot.getElementById('minutes');

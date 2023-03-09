@@ -32,13 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { Component } from '../Component.js';
-import { template } from './optgroup-template.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { Component } from '../Component.js';
+import { template } from './optgroup.template.js';
+import { style } from './option.style.js';
 export let BlocksOptGroup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-optgroup',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -58,9 +60,6 @@ export let BlocksOptGroup = (() => {
             BlocksOptGroup = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['disabled', 'label'];
-        }
         #label_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _label_initializers, void 0));
         get label() { return this.#label_accessor_storage; }
         set label(value) { this.#label_accessor_storage = value; }
@@ -69,9 +68,7 @@ export let BlocksOptGroup = (() => {
         set disabled(value) { this.#disabled_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            const fragment = template().content.cloneNode(true);
-            shadowRoot.appendChild(fragment);
+            this.shadowRoot.appendChild(template());
         }
         render() {
             const labelEl = this.shadowRoot.querySelector('header');

@@ -33,15 +33,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import '../tag/index.js';
-import { dispatchEvent } from '../../common/event.js';
-import { contentTemplate, moreTemplate, placeholderTemplate, searchTemplate, styleTemplate, tagTemplate, valueTextTemplate, } from './template.js';
-import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js';
-import { ClearableControlBox, } from '../base-clearable-control-box/index.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
+import { dispatchEvent } from '../../common/event.js';
+import { contentTemplate, moreTemplate, placeholderTemplate, searchTemplate, tagTemplate, valueTextTemplate, } from './template.js';
+import { style } from './style.js';
+import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js';
+import { ClearableControlBox, } from '../base-clearable-control-box/index.js';
 export let BlocksSelectResult = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-select-result',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -102,7 +104,6 @@ export let BlocksSelectResult = (() => {
         set placeholder(value) { this.#placeholder_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(styleTemplate());
             this._ref.$content = this._appendContent(contentTemplate());
             this._ref.$layout.oninput = e => {
                 const searchString = e.target.value;

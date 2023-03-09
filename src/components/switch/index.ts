@@ -1,11 +1,11 @@
-import { ComponentEventListener, ComponentEventMap } from '../Component.js'
-import { dispatchEvent } from '../../common/event.js'
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
-import { switchStyleTemplate } from './template.js'
-import { Control } from '../base-control/index.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
-import type { EnumAttrs } from '../../decorators/attr.js'
+import { style } from './style.js'
+import { ComponentEventListener, ComponentEventMap } from '../Component.js'
+import { Control } from '../base-control/index.js'
+import { dispatchEvent } from '../../common/event.js'
+import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
 
 export interface SwitchEventMap extends ComponentEventMap {
   change: CustomEvent<{ checked: boolean }>
@@ -27,12 +27,9 @@ export interface BlocksSwitch extends Control {
 
 @defineClass({
   customElement: 'bl-switch',
+  styles: [style],
 })
 export class BlocksSwitch extends Control {
-  static override get observedAttributes() {
-    return ['checked', 'disabled', 'size']
-  }
-
   static get role() {
     return 'switch'
   }
@@ -43,8 +40,6 @@ export class BlocksSwitch extends Control {
 
   constructor() {
     super()
-
-    this._appendStyle(switchStyleTemplate())
 
     captureEventWhenEnable(this, 'click', () => {
       this.checked = !this.checked

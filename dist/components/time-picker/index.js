@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,6 +25,18 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+import '../popup/index.js';
+import '../time/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
+import { domRef } from '../../decorators/domRef.js';
 import { BlocksInput } from '../input/index.js';
 import { BlocksTime } from '../time/index.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
@@ -39,12 +44,13 @@ import { padLeft } from '../../common/utils.js';
 import { boolSetter } from '../../common/property.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Component } from '../Component.js';
+import { style } from './style.js';
 import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { template as popupTemplate } from './popup.template.js';
 export let BlocksTimePicker = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-time-picker',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -56,14 +62,18 @@ export let BlocksTimePicker = (() => {
     let _minute_initializers = [];
     let _second_decorators;
     let _second_initializers = [];
+    let _$input_decorators;
+    let _$input_initializers = [];
     var BlocksTimePicker = class extends Component {
         static {
             _hour_decorators = [attr('intRange', { min: 0, max: 23 })];
             _minute_decorators = [attr('intRange', { min: 0, max: 59 })];
             _second_decorators = [attr('intRange', { min: 0, max: 59 })];
+            _$input_decorators = [domRef('#result')];
             __esDecorate(this, null, _hour_decorators, { kind: "accessor", name: "hour", static: false, private: false, access: { has: obj => "hour" in obj, get: obj => obj.hour, set: (obj, value) => { obj.hour = value; } } }, _hour_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _minute_decorators, { kind: "accessor", name: "minute", static: false, private: false, access: { has: obj => "minute" in obj, get: obj => obj.minute, set: (obj, value) => { obj.minute = value; } } }, _minute_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _second_decorators, { kind: "accessor", name: "second", static: false, private: false, access: { has: obj => "second" in obj, get: obj => obj.second, set: (obj, value) => { obj.second = value; } } }, _second_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$input_decorators, { kind: "accessor", name: "$input", static: false, private: false, access: { has: obj => "$input" in obj, get: obj => obj.$input, set: (obj, value) => { obj.$input = value; } } }, _$input_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksTimePicker = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -71,13 +81,7 @@ export let BlocksTimePicker = (() => {
         static get observedAttributes() {
             return [...BlocksTime.observedAttributes, ...BlocksInput.observedAttributes];
         }
-        #clearup = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        _prevValue = {
-            hour: null,
-            minute: null,
-            second: null,
-        };
-        #hour_accessor_storage = __runInitializers(this, _hour_initializers, void 0);
+        #hour_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _hour_initializers, void 0));
         get hour() { return this.#hour_accessor_storage; }
         set hour(value) { this.#hour_accessor_storage = value; }
         #minute_accessor_storage = __runInitializers(this, _minute_initializers, void 0);
@@ -86,18 +90,24 @@ export let BlocksTimePicker = (() => {
         #second_accessor_storage = __runInitializers(this, _second_initializers, void 0);
         get second() { return this.#second_accessor_storage; }
         set second(value) { this.#second_accessor_storage = value; }
+        #$input_accessor_storage = __runInitializers(this, _$input_initializers, void 0);
+        get $input() { return this.#$input_accessor_storage; }
+        set $input(value) { this.#$input_accessor_storage = value; }
+        #clearup;
+        _prevValue = {
+            hour: null,
+            minute: null,
+            second: null,
+        };
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            const { inputTemplate, popupTemplate } = template();
-            const fragment = inputTemplate.content.cloneNode(true);
-            shadowRoot.appendChild(fragment);
-            const $input = this.querySelectorShadow('#result');
-            const $popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup');
+            shadowRoot.appendChild(template());
+            const { $input } = this;
+            const $popup = popupTemplate();
             const $time = $popup.querySelector('bl-time');
             this._ref = {
                 $popup,
-                $input,
                 $time,
             };
             $popup.anchor = () => $input;
@@ -155,7 +165,7 @@ export let BlocksTimePicker = (() => {
         attributeChangedCallback(attrName, oldValue, newValue) {
             super.attributeChangedCallback(attrName, oldValue, newValue);
             if (BlocksInput.observedAttributes.includes(attrName)) {
-                this._ref.$input.setAttribute(attrName, newValue);
+                this.$input.setAttribute(attrName, newValue);
             }
             if (BlocksTime.observedAttributes.includes(attrName)) {
                 this._ref.$time.setAttribute(attrName, newValue);
@@ -163,15 +173,15 @@ export let BlocksTimePicker = (() => {
             this.render();
         }
         render() {
-            const { $input, $time } = this._ref;
+            const { $time } = this._ref;
             if ([$time.hour, $time.minute, $time.second].some(v => Object.is(v, NaN) || v == null)) {
-                $input.value = '';
+                this.$input.value = '';
                 return;
             }
             const hour = padLeft('0', 2, String($time.hour));
             const minute = padLeft('0', 2, String($time.minute));
             const second = padLeft('0', 2, String($time.second));
-            $input.value = `${hour}:${minute}:${second}`;
+            this.$input.value = `${hour}:${minute}:${second}`;
         }
         _confirm() {
             const { $popup, $time } = this._ref;

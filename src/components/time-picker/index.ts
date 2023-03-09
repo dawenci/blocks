@@ -1,3 +1,8 @@
+import '../popup/index.js'
+import '../time/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import { domRef } from '../../decorators/domRef.js'
 import { BlocksInput } from '../input/index.js'
 import { BlocksTime } from '../time/index.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
@@ -5,28 +10,36 @@ import { padLeft } from '../../common/utils.js'
 import { boolSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
+import { style } from './style.js'
 import { template } from './template.js'
+import { template as popupTemplate } from './popup.template.js'
 import { BlocksPopup } from '../popup/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 // TODO, placeholder
 
 export interface BlocksTimePicker extends Component {
   _ref: {
     $popup: BlocksPopup
-    $input: BlocksInput
     $time: BlocksTime
   }
 }
 
 @defineClass({
   customElement: 'bl-time-picker',
+  styles: [style],
 })
 export class BlocksTimePicker extends Component {
   static override get observedAttributes() {
     return [...BlocksTime.observedAttributes, ...BlocksInput.observedAttributes]
   }
+
+  @attr('intRange', { min: 0, max: 23 }) accessor hour!: number | null
+
+  @attr('intRange', { min: 0, max: 59 }) accessor minute!: number | null
+
+  @attr('intRange', { min: 0, max: 59 }) accessor second!: number | null
+
+  @domRef('#result') accessor $input!: BlocksInput
 
   #clearup?: () => void
 
@@ -40,32 +53,22 @@ export class BlocksTimePicker extends Component {
     second: null,
   }
 
-  @attr('intRange', { min: 0, max: 23 }) accessor hour!: number | null
-
-  @attr('intRange', { min: 0, max: 59 }) accessor minute!: number | null
-
-  @attr('intRange', { min: 0, max: 59 }) accessor second!: number | null
-
   constructor() {
     super()
 
     const shadowRoot = this.shadowRoot!
-    const { inputTemplate, popupTemplate } = template()
 
     // input 部分
-    const fragment = inputTemplate.content.cloneNode(true) as HTMLElement
-    shadowRoot.appendChild(fragment)
-    const $input = this.querySelectorShadow('#result') as BlocksInput
+    shadowRoot.appendChild(template())
+
+    const { $input } = this
 
     // 面板部分
-    const $popup = (
-      popupTemplate.content.cloneNode(true) as HTMLTemplateElement
-    ).querySelector('bl-popup')!
-
+    const $popup = popupTemplate()
     const $time = $popup.querySelector('bl-time')!
+
     this._ref = {
       $popup,
-      $input,
       $time,
     }
 
@@ -139,7 +142,7 @@ export class BlocksTimePicker extends Component {
   ) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (BlocksInput.observedAttributes.includes(attrName)) {
-      this._ref.$input.setAttribute(attrName, newValue)
+      this.$input.setAttribute(attrName, newValue)
     }
     if (BlocksTime.observedAttributes.includes(attrName as any)) {
       this._ref.$time.setAttribute(attrName, newValue)
@@ -148,19 +151,19 @@ export class BlocksTimePicker extends Component {
   }
 
   override render() {
-    const { $input, $time } = this._ref
+    const { $time } = this._ref
     if (
       [$time.hour, $time.minute, $time.second].some(
         v => Object.is(v, NaN) || v == null
       )
     ) {
-      $input.value = ''
+      this.$input.value = ''
       return
     }
     const hour = padLeft('0', 2, String($time.hour))
     const minute = padLeft('0', 2, String($time.minute))
     const second = padLeft('0', 2, String($time.second))
-    $input.value = `${hour}:${minute}:${second}`
+    this.$input.value = `${hour}:${minute}:${second}`
   }
 
   _confirm() {

@@ -1,11 +1,7 @@
+import type { EnumAttrs } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr, attrs } from '../../decorators/attr.js'
 import { BlocksPopup } from '../popup/index.js'
-import {
-  intGetter,
-  intSetter,
-  numGetter,
-  numSetter,
-} from '../../common/property.js'
-import { sizeGetter, sizeSetter } from '../../common/propertyAccessor.js'
 import { forEach } from '../../common/utils.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { BlocksPopupMenuGroup } from './menu-group.js'
@@ -13,23 +9,19 @@ import { BlocksPopupMenuItem } from './menu-item.js'
 import { BlocksNavMenu } from '../nav-menu/menu.js'
 import { BlocksNavMenuItem } from '../nav-menu/menu-item.js'
 import { BlocksNavMenuGroup } from '../nav-menu/menu-group.js'
-import { itemTemplate, groupTemplate } from './menu-template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import type { EnumAttrs } from '../../decorators/attr.js'
+import { itemTemplate, groupTemplate } from './menu.template.js'
 
 @defineClass({
   customElement: 'bl-popup-menu',
 })
 export class BlocksPopupMenu extends BlocksPopup {
-  static override get observedAttributes() {
-    return BlocksPopup.observedAttributes.concat([
-      'level',
-      'size',
-      'enter-delay',
-      'leave-delay',
-    ])
-  }
+  @attr('number') accessor enterDelay = 150
+
+  @attr('number') accessor leaveDelay = 200
+
+  @attrs.size accessor size!: EnumAttrs['size']
+
+  @attr('int') accessor level = 0
 
   private _data: (MenuItem | MenuGroup)[]
   private _leaveTimer?: number
@@ -38,14 +30,6 @@ export class BlocksPopupMenu extends BlocksPopup {
 
   $parentItem?: BlocksPopupMenuItem | BlocksNavMenuItem
   $parentMenu?: BlocksPopupMenu | BlocksNavMenu
-
-  @attr('number') accessor enterDelay = 150
-
-  @attr('number') accessor leaveDelay = 200
-
-  @attrs.size accessor size!: EnumAttrs['size']
-
-  @attr('int') accessor level = 0
 
   constructor() {
     super()

@@ -1,16 +1,16 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
 import { onDragMove, OnEnd, OnMove, OnStart } from '../../common/onDragMove.js'
 import {
   Component,
   ComponentEventListener,
   ComponentEventMap,
 } from '../Component.js'
-import { contentTemplate, styleTemplate } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
+import { template } from './template.js'
+import { style } from './style.js'
 
 export interface ScrollableEventMap extends ComponentEventMap {
   'bl:scroll': CustomEvent
@@ -46,11 +46,10 @@ export interface BlocksScrollable extends Component {
 
 @defineClass({
   customElement: 'bl-scrollable',
+  styles: [style],
 })
 export class BlocksScrollable extends Component {
-  static override get observedAttributes() {
-    return ['shadow']
-  }
+  @attr('boolean') accessor shadow!: boolean
 
   #draggingFlag?: boolean
   #canScrollLeft?: boolean
@@ -58,14 +57,11 @@ export class BlocksScrollable extends Component {
   #canScrollTop?: boolean
   #canScrollBottom?: boolean
 
-  @attr('boolean') accessor shadow!: boolean
-
   constructor() {
     super()
 
     const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(styleTemplate())
-    shadowRoot.appendChild(contentTemplate())
+    shadowRoot.appendChild(template())
     const $layout = shadowRoot.getElementById('layout')!
     const $viewport = shadowRoot.getElementById('viewport')!
     const $horizontal = shadowRoot.getElementById('horizontal')!

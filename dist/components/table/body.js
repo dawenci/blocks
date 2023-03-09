@@ -33,11 +33,11 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     done = true;
 };
 import { BlocksVList } from '../vlist/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { setStyles } from '../../common/style.js';
 import { dispatchEvent } from '../../common/event.js';
 import { template } from './body-template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
 export let BlocksTableBody = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-table-body',

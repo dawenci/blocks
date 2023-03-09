@@ -110,7 +110,6 @@ export default [
     url: 'pages/time-picker.html',
   },
   { category: 'COMPONENTS', title: 'tooltip', url: 'pages/tooltip.html' },
-  { category: 'COMPONENTS', title: 'transition', url: 'pages/transition.html' },
   { category: 'COMPONENTS', title: 'tree', url: 'pages/tree.html' },
   { category: 'COMPONENTS', title: 'upload', url: 'pages/upload.html' },
   { category: 'COMPONENTS', title: 'window', url: 'pages/window.html' },

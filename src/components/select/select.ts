@@ -1,16 +1,13 @@
-import './optgroup.js'
-import './option.js'
 import '../popup/index.js'
 import '../input/index.js'
 import '../select-result/index.js'
-import { intGetter, intSetter } from '../../common/property.js'
+import './optgroup.js'
+import './option.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { every, find, forEach, findIndex } from '../../common/utils.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
-import {
-  styleTemplate,
-  slotTemplate,
-  popupTemplate,
-} from './select-template.js'
+import { slotTemplate, popupTemplate } from './select.template.js'
+import { style } from './select.style.js'
 import { BlocksPopup } from '../popup/index.js'
 import { BlocksSelectResult } from '../select-result/index.js'
 import { BlocksOption } from './option.js'
@@ -22,7 +19,6 @@ import {
   ISelectableListComponent,
 } from '../../common/connectSelectable.js'
 import { dispatchEvent } from '../../common/event.js'
-import { defineClass } from '../../decorators/defineClass.js'
 
 const isOption = ($el: Element): $el is BlocksOption =>
   $el instanceof BlocksOption
@@ -39,12 +35,9 @@ export interface BlocksSelect extends BlocksSelectResult {
 
 @defineClass({
   customElement: 'bl-select',
+  styles: [style],
 })
 export class BlocksSelect extends BlocksSelectResult {
-  static override get observedAttributes() {
-    return BlocksSelectResult.observedAttributes.concat([])
-  }
-
   static get role() {
     return 'select'
   }
@@ -52,7 +45,6 @@ export class BlocksSelect extends BlocksSelectResult {
   constructor() {
     super()
 
-    const $style = styleTemplate()
     const $optionSlot = slotTemplate()
     const $popup = popupTemplate()
     const $list = $popup.querySelector(
@@ -65,7 +57,6 @@ export class BlocksSelect extends BlocksSelectResult {
 
     this._ref.$popup.anchor = () => this
 
-    this._appendStyle($style)
     this.shadowRoot!.appendChild($optionSlot)
 
     this.onfocus = () => {

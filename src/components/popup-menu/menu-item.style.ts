@@ -11,13 +11,8 @@ import {
   __height_large,
   __bg_hover,
 } from '../../theme/var-light.js'
-import {
-  makeDomTemplate,
-  makeStyleTemplate,
-  makeTemplate,
-} from '../../common/template.js'
 
-export const styleTemplate = makeStyleTemplate(/*css*/ `
+export const style = /*css*/ `
 :host {
   display: block;
   position: relative;
@@ -106,16 +101,4 @@ bl-icon {
 #layout {
   padding: 0 12px;
 }
-`)
-
-export const contentTemplate = makeTemplate(/*html*/ `
-<div id="layout">
-  <bl-icon id="icon"></bl-icon>
-  <div id="label"></div>
-  <bl-icon id="arrow" value="right"></bl-icon>
-</div>
-`)
-
-export const menuTemplate = makeDomTemplate(
-  document.createElement('bl-popup-menu')
-)
+`

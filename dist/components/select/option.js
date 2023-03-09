@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,14 +25,23 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { selectedSetter } from '../../common/propertyAccessor.js';
-import { Component } from '../Component.js';
-import { template } from './option-template.js';
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { selectedSetter } from '../../common/propertyAccessor.js';
+import { Component } from '../Component.js';
+import { template } from './option.template.js';
+import { style } from './option.style.js';
 export let BlocksOption = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-option',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -71,11 +73,7 @@ export let BlocksOption = (() => {
             BlocksOption = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['value', 'disabled', 'selected', 'label'];
-        }
-        #silentFlag = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        #value_accessor_storage = __runInitializers(this, _value_initializers, void 0);
+        #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
         set value(value) { this.#value_accessor_storage = value; }
         #label_accessor_storage = __runInitializers(this, _label_initializers, void 0);
@@ -87,10 +85,11 @@ export let BlocksOption = (() => {
         #selected_accessor_storage = __runInitializers(this, _selected_initializers, void 0);
         get selected() { return this.#selected_accessor_storage; }
         set selected(value) { this.#selected_accessor_storage = value; }
+        #silentFlag;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            const fragment = template().content.cloneNode(true);
+            const fragment = template().cloneNode(true);
             shadowRoot.appendChild(fragment);
         }
         silentSelected(value) {

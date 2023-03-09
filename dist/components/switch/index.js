@@ -32,15 +32,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { dispatchEvent } from '../../common/event.js';
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
-import { switchStyleTemplate } from './template.js';
-import { Control } from '../base-control/index.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
+import { style } from './style.js';
+import { Control } from '../base-control/index.js';
+import { dispatchEvent } from '../../common/event.js';
+import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
 export let BlocksSwitch = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-switch',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -60,9 +61,6 @@ export let BlocksSwitch = (() => {
             BlocksSwitch = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['checked', 'disabled', 'size'];
-        }
         static get role() {
             return 'switch';
         }
@@ -74,7 +72,6 @@ export let BlocksSwitch = (() => {
         set size(value) { this.#size_accessor_storage = value; }
         constructor() {
             super();
-            this._appendStyle(switchStyleTemplate());
             captureEventWhenEnable(this, 'click', () => {
                 this.checked = !this.checked;
             });

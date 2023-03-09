@@ -1,12 +1,13 @@
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { strGetter, strSetter } from '../../common/property.js'
 import { forEach, round } from '../../common/utils.js'
 import { dispatchEvent } from '../../common/event.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
+import { style } from './style.js'
 import { setStyles } from '../../common/style.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 export interface BlocksRangeSlider extends Component {
   ref: {
@@ -21,6 +22,7 @@ export interface BlocksRangeSlider extends Component {
 
 @defineClass({
   customElement: 'bl-range-slider',
+  styles: [style],
 })
 export class BlocksRangeSlider extends Component {
   static get role() {
@@ -28,16 +30,7 @@ export class BlocksRangeSlider extends Component {
   }
 
   static override get observedAttributes() {
-    return [
-      'disabled',
-      'max',
-      'min',
-      'size',
-      'step',
-      'round',
-      'value',
-      'vertical',
-    ]
+    return ['step', 'value']
   }
 
   @attr('intRange', { min: 1, max: 10 }) accessor shadowSize = 2
@@ -57,11 +50,8 @@ export class BlocksRangeSlider extends Component {
   constructor() {
     super()
 
-    const { comTemplate, cssTemplate } = template()
-
     const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(cssTemplate.cloneNode(true))
-    shadowRoot.appendChild(comTemplate.content.cloneNode(true))
+    shadowRoot.appendChild(template())
     const $layout = shadowRoot.getElementById('layout')!
     const $track = shadowRoot.getElementById('track')!
     const $trackBg = shadowRoot.getElementById('track__bg')!

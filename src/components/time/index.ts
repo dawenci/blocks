@@ -1,4 +1,7 @@
 import '../scrollable/index.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr, attrs } from '../../decorators/attr.js'
 import { dispatchEvent } from '../../common/event.js'
 import { scrollTo } from '../../common/scrollTo.js'
 import { find, forEach, range } from '../../common/utils.js'
@@ -8,10 +11,8 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { template } from './template.js'
+import { style } from './style.js'
 import { BlocksScrollable } from '../scrollable/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import type { EnumAttrs } from '../../decorators/attr.js'
 
 interface TimeEventMap extends ComponentEventMap {
   change: CustomEvent<{
@@ -47,15 +48,9 @@ export interface BlocksTime extends Component {
 
 @defineClass({
   customElement: 'bl-time',
+  styles: [style],
 })
 export class BlocksTime extends Component {
-  #scrollFlag?: Promise<void>
-  #batchChange?: Promise<void>
-
-  static override get observedAttributes() {
-    return mutableAttrs
-  }
-
   @attr('intRange', { min: 0, max: 23 }) accessor hour!: number | null
 
   @attr('intRange', { min: 0, max: 59 }) accessor minute!: number | null
@@ -64,12 +59,15 @@ export class BlocksTime extends Component {
 
   @attrs.size accessor size!: EnumAttrs['size']
 
+  #scrollFlag?: Promise<void>
+  #batchChange?: Promise<void>
+
   constructor() {
     super()
 
     const shadowRoot = this.shadowRoot!
 
-    shadowRoot.appendChild(template().content.cloneNode(true))
+    shadowRoot.appendChild(template())
 
     const $layout = shadowRoot.getElementById('layout') as HTMLElement
     const $hours = shadowRoot.getElementById('hours') as BlocksScrollable

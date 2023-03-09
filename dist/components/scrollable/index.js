@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,17 +25,26 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
 import { dispatchEvent } from '../../common/event.js';
 import { setStyles } from '../../common/style.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { Component, } from '../Component.js';
-import { contentTemplate, styleTemplate } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { template } from './template.js';
+import { style } from './style.js';
 export let BlocksScrollable = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-scrollable',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -58,22 +60,18 @@ export let BlocksScrollable = (() => {
             BlocksScrollable = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['shadow'];
-        }
-        #draggingFlag = (__runInitializers(this, _instanceExtraInitializers), void 0);
+        #shadow_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _shadow_initializers, void 0));
+        get shadow() { return this.#shadow_accessor_storage; }
+        set shadow(value) { this.#shadow_accessor_storage = value; }
+        #draggingFlag;
         #canScrollLeft;
         #canScrollRight;
         #canScrollTop;
         #canScrollBottom;
-        #shadow_accessor_storage = __runInitializers(this, _shadow_initializers, void 0);
-        get shadow() { return this.#shadow_accessor_storage; }
-        set shadow(value) { this.#shadow_accessor_storage = value; }
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(styleTemplate());
-            shadowRoot.appendChild(contentTemplate());
+            shadowRoot.appendChild(template());
             const $layout = shadowRoot.getElementById('layout');
             const $viewport = shadowRoot.getElementById('viewport');
             const $horizontal = shadowRoot.getElementById('horizontal');

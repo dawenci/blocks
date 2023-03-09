@@ -1,12 +1,6 @@
 import { __radius_base } from '../../theme/var-light.js'
-import { makeStyleTemplate, makeTemplate } from '../../common/template.js'
+import { makeTemplate } from '../../common/template.js'
 import { BlocksPopup } from '../popup/index.js'
-
-export const styleTemplate = makeStyleTemplate(/*css*/ `
-:host(.dropdown)::part(suffix) {
-  transform: rotate(180deg);
-}
-`)
 
 export const slotTemplate = makeTemplate<HTMLSlotElement>(
   /*html*/ `<slot style="display:none;"></slot>`

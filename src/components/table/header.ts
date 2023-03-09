@@ -6,6 +6,7 @@ import {
   ComponentEventMap,
 } from '../Component.js'
 import { template } from './header-template.js'
+import { style } from './header.style.js'
 import { RowColumn } from './RowColumn.js'
 import { BlocksTable } from './table.js'
 import { defineClass } from '../../decorators/defineClass.js'
@@ -38,6 +39,7 @@ export interface BlocksTableHeader extends Component {
 
 @defineClass({
   customElement: 'bl-table-header',
+  styles: [style],
 })
 export class BlocksTableHeader extends Component {
   static override get observedAttributes() {
@@ -50,10 +52,9 @@ export class BlocksTableHeader extends Component {
 
   constructor() {
     super()
-    const { cssTemplate, comTemplate } = template()
+    const { comTemplate } = template()
 
     const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(cssTemplate.cloneNode(true))
     shadowRoot.appendChild(comTemplate.content.cloneNode(true))
 
     const $viewport = shadowRoot.querySelector('#viewport') as HTMLElement

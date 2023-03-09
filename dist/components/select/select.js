@@ -32,26 +32,28 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import './optgroup.js';
-import './option.js';
 import '../popup/index.js';
 import '../input/index.js';
 import '../select-result/index.js';
+import './optgroup.js';
+import './option.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { every, find, forEach, findIndex } from '../../common/utils.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
-import { styleTemplate, slotTemplate, popupTemplate, } from './select-template.js';
+import { slotTemplate, popupTemplate } from './select.template.js';
+import { style } from './select.style.js';
 import { BlocksSelectResult } from '../select-result/index.js';
 import { BlocksOption } from './option.js';
 import { BlocksOptGroup } from './optgroup.js';
 import { cloneElement } from '../../common/cloneElement.js';
 import { connectSelectable, } from '../../common/connectSelectable.js';
 import { dispatchEvent } from '../../common/event.js';
-import { defineClass } from '../../decorators/defineClass.js';
 const isOption = ($el) => $el instanceof BlocksOption;
 const isGroup = ($el) => $el instanceof BlocksOptGroup;
 export let BlocksSelect = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-select',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -62,15 +64,11 @@ export let BlocksSelect = (() => {
             BlocksSelect = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return BlocksSelectResult.observedAttributes.concat([]);
-        }
         static get role() {
             return 'select';
         }
         constructor() {
             super();
-            const $style = styleTemplate();
             const $optionSlot = slotTemplate();
             const $popup = popupTemplate();
             const $list = $popup.querySelector('.option-list');
@@ -78,7 +76,6 @@ export let BlocksSelect = (() => {
             this._ref.$popup = $popup;
             this._ref.$list = $list;
             this._ref.$popup.anchor = () => this;
-            this._appendStyle($style);
             this.shadowRoot.appendChild($optionSlot);
             this.onfocus = () => {
                 this._openPopup();

@@ -32,18 +32,20 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { forEach, round } from '../../common/utils.js';
 import { dispatchEvent } from '../../common/event.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
+import { style } from './style.js';
 import { setStyles } from '../../common/style.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
 export let BlocksRangeSlider = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-range-slider',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -87,16 +89,7 @@ export let BlocksRangeSlider = (() => {
             return 'slider';
         }
         static get observedAttributes() {
-            return [
-                'disabled',
-                'max',
-                'min',
-                'size',
-                'step',
-                'round',
-                'value',
-                'vertical',
-            ];
+            return ['step', 'value'];
         }
         #shadowSize_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _shadowSize_initializers, 2));
         get shadowSize() { return this.#shadowSize_accessor_storage; }
@@ -121,10 +114,8 @@ export let BlocksRangeSlider = (() => {
         set round(value) { this.#round_accessor_storage = value; }
         constructor() {
             super();
-            const { comTemplate, cssTemplate } = template();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(cssTemplate.cloneNode(true));
-            shadowRoot.appendChild(comTemplate.content.cloneNode(true));
+            shadowRoot.appendChild(template());
             const $layout = shadowRoot.getElementById('layout');
             const $track = shadowRoot.getElementById('track');
             const $trackBg = shadowRoot.getElementById('track__bg');

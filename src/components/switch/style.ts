@@ -1,11 +1,10 @@
-import { makeStyleTemplate } from '../../common/template.js'
 import {
   __color_primary,
   __color_primary_light,
   __transition_duration,
 } from '../../theme/var-light.js'
 
-export const switchStyleTemplate = makeStyleTemplate(/*css*/ `
+export const style = /*css*/ `
 :host {
   all: initial;
   box-sizing: border-box;
@@ -99,22 +98,4 @@ export const switchStyleTemplate = makeStyleTemplate(/*css*/ `
 :host([size="large"][checked]) #layout:after {
   left: calc(100% - 22px);
 }
-`)
-
-let templateCache: HTMLTemplateElement
-export function template() {
-  if (templateCache) return templateCache
-  const TEMPLATE_CSS = /*html*/ `
-  <style>
-  
-  </style>
-  `
-  const TEMPLATE_HTML = /*html*/ `
-  <div id="layout"></div>
-  `
-
-  const template = document.createElement('template')
-  template.innerHTML = TEMPLATE_CSS + TEMPLATE_HTML
-
-  return (templateCache = template)
-}
+`

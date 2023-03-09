@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,17 +25,26 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import '../../components/popup/index.js';
 import '../../components/icon/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Component } from '../Component.js';
-import { styleTemplate, contentTemplate, menuTemplate, } from './menu-item-template.js';
+import { contentTemplate, menuTemplate } from './menu-item.template.js';
+import { style } from './menu-item.style.js';
 import { PopupOrigin } from '../../components/popup/index.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksPopupMenuItem = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup-menu-item',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -66,16 +68,7 @@ export let BlocksPopupMenuItem = (() => {
             BlocksPopupMenuItem = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return ['disabled', 'link', 'active'];
-        }
-        _enterTimer = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        _leaveTimer;
-        $layout;
-        $label;
-        $icon;
-        $arrow;
-        #disabled_accessor_storage = __runInitializers(this, _disabled_initializers, void 0);
+        #disabled_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _disabled_initializers, void 0));
         get disabled() { return this.#disabled_accessor_storage; }
         set disabled(value) { this.#disabled_accessor_storage = value; }
         #link_accessor_storage = __runInitializers(this, _link_initializers, void 0);
@@ -84,10 +77,15 @@ export let BlocksPopupMenuItem = (() => {
         #active_accessor_storage = __runInitializers(this, _active_initializers, void 0);
         get active() { return this.#active_accessor_storage; }
         set active(value) { this.#active_accessor_storage = value; }
+        _enterTimer;
+        _leaveTimer;
+        $layout;
+        $label;
+        $icon;
+        $arrow;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(styleTemplate());
             shadowRoot.appendChild(contentTemplate());
             this.$layout = shadowRoot.getElementById('layout');
             this.$label = shadowRoot.getElementById('label');

@@ -33,7 +33,6 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
 import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { Component } from '../Component.js';
 export let BlocksTransitionOpenZoom = (() => {
@@ -43,22 +42,15 @@ export let BlocksTransitionOpenZoom = (() => {
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    let _instanceExtraInitializers = [];
-    let _open_decorators;
-    let _open_initializers = [];
     var BlocksTransitionOpenZoom = class extends Component {
         static {
-            _open_decorators = [attr('boolean')];
-            __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksTransitionOpenZoom = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #open_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _open_initializers, void 0));
-        get open() { return this.#open_accessor_storage; }
-        set open(value) { this.#open_accessor_storage = value; }
         connectedCallback() {
             super.connectedCallback();
+            this.openTransitionName = 'zoom';
             if (this.open) {
                 this._onOpenAttributeChange();
             }

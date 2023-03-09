@@ -32,18 +32,20 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { numGetter, numSetter } from '../../common/property.js';
 import { forEach, round } from '../../common/utils.js';
 import { dispatchEvent } from '../../common/event.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
+import { style } from './style.js';
 import { setStyles } from '../../common/style.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
 export let BlocksSlider = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-slider',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -123,10 +125,8 @@ export let BlocksSlider = (() => {
         set round(value) { this.#round_accessor_storage = value; }
         constructor() {
             super();
-            const { comTemplate, cssTemplate } = template();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(cssTemplate.cloneNode(true));
-            shadowRoot.appendChild(comTemplate.content.cloneNode(true));
+            shadowRoot.appendChild(template());
             const $layout = shadowRoot.getElementById('layout');
             const $track = shadowRoot.getElementById('track');
             const $trackBg = shadowRoot.getElementById('track__bg');

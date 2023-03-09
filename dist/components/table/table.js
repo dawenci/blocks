@@ -32,22 +32,23 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { dispatchEvent } from '../../common/event.js';
-import { sizeObserve } from '../../common/sizeObserve.js';
-import { make } from './RowColumn.js';
 import '../scrollable/index.js';
 import './header.js';
 import './body.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
+import { dispatchEvent } from '../../common/event.js';
+import { sizeObserve } from '../../common/sizeObserve.js';
+import { make } from './RowColumn.js';
 import { setStyles } from '../../common/style.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { Component, } from '../Component.js';
-import { template } from './table-template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { style } from './table.style.js';
 let gridId = 0;
 export let BlocksTable = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-table',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -76,9 +77,7 @@ export let BlocksTable = (() => {
         set border(value) { this.#border_accessor_storage = value; }
         constructor() {
             super();
-            const { cssTemplate } = template();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(cssTemplate.cloneNode(true));
             const $mainHeader = shadowRoot.appendChild(document.createElement('bl-table-header'));
             $mainHeader.$host = this;
             const $mainBody = shadowRoot.appendChild(document.createElement('bl-table-body'));

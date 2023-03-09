@@ -1,18 +1,12 @@
 import { BlocksVList, VListEventMap } from '../vlist/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { setStyles } from '../../common/style.js'
 import { dispatchEvent } from '../../common/event.js'
-import {
-  intGetter,
-  intSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
 import { template } from './body-template.js'
 import { BlocksTable } from './table.js'
 import { RowColumn } from './RowColumn.js'
 import { ComponentEventListener } from '../Component.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 export type CellElement = HTMLElement & { column: RowColumn; data: any }
 

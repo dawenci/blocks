@@ -1,22 +1,18 @@
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
-import { ComponentEventListener, ComponentEventMap } from '../Component.js'
-import { labelTemplate, radioTemplate, styleTemplate } from './template.js'
-import { dispatchEvent } from '../../common/event.js'
-import { Control } from '../base-control/index.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
+import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
+import { ComponentEventListener, ComponentEventMap } from '../Component.js'
+import { labelTemplate, radioTemplate } from './template.js'
+import { style } from './style.js'
+import { dispatchEvent } from '../../common/event.js'
+import { Control } from '../base-control/index.js'
+import { domRef } from '../../decorators/domRef.js'
 
 interface RadioEventMap extends ComponentEventMap {
   change: CustomEvent<{ checked: boolean }>
 }
 
 export interface BlocksRadio extends Control {
-  _ref: Control['_ref'] & {
-    $radio: HTMLElement
-    $label: HTMLLabelElement
-    $slot: HTMLSlotElement
-  }
-
   addEventListener<K extends keyof RadioEventMap>(
     type: K,
     listener: ComponentEventListener<RadioEventMap[K]>,
@@ -32,29 +28,29 @@ export interface BlocksRadio extends Control {
 
 @defineClass({
   customElement: 'bl-radio',
+  styles: [style],
 })
 export class BlocksRadio extends Control {
   static get role() {
     return 'radio'
   }
 
-  static override get observedAttributes() {
-    return super.observedAttributes.concat(['name', 'checked'])
-  }
-
   @attr('string') accessor name!: string
 
   @attr('boolean') accessor checked!: boolean
 
+  @domRef('#radio') accessor $radio!: HTMLElement
+
+  @domRef('#label') accessor $label!: HTMLLabelElement
+
+  @domRef('slot') accessor $slot!: HTMLSlotElement
+
   constructor() {
     super()
 
-    this._appendStyle(styleTemplate())
-    const $radio = this._ref.$layout.appendChild(radioTemplate())
-    const $label = this._ref.$layout.appendChild(labelTemplate())
+    this.$layout.appendChild(radioTemplate())
+    const $label = this.$layout.appendChild(labelTemplate())
     const $slot = $label.querySelector('slot')!
-
-    Object.assign(this, { $radio, $label, $slot })
 
     const toggleEmptyClass = () => {
       $label.classList.toggle('empty', !$slot.assignedNodes().length)

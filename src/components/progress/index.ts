@@ -1,7 +1,9 @@
-import { Component } from '../Component.js'
-import { template } from './template.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { NullableEnumAttr, attr } from '../../decorators/attr.js'
+import { Component } from '../Component.js'
+import { template } from './template.js'
+import { style } from './style.js'
+import { domRef } from '../../decorators/domRef.js'
 
 const status = ['success', 'error', 'warning']
 
@@ -14,12 +16,9 @@ export interface BlocksProgress extends Component {
 
 @defineClass({
   customElement: 'bl-progress',
+  styles: [style],
 })
 export class BlocksProgress extends Component {
-  static override get observedAttributes() {
-    return ['value', 'status', 'percentage']
-  }
-
   @attr('number') accessor value!: number | null
 
   @attr('enum', { enumValues: status }) accessor status!: NullableEnumAttr<
@@ -28,26 +27,23 @@ export class BlocksProgress extends Component {
 
   @attr('boolean') accessor percentage!: boolean
 
+  @domRef('#progress') accessor $progress!: HTMLElement
+
+  @domRef('#value') accessor $value!: HTMLElement
+
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
-    const $progress = shadowRoot.querySelector('#progress') as HTMLElement
-    const $value = shadowRoot.querySelector('#value') as HTMLElement
 
-    this._ref = {
-      $progress,
-      $value,
-    }
+    this.shadowRoot!.appendChild(template())
   }
 
   override render() {
-    this._ref.$progress.style.width = `${this.value}%`
+    this.$progress.style.width = `${this.value}%`
     if (this.percentage) {
-      this._ref.$value.style.display = 'block'
-      this._ref.$value.textContent = `${this.value}%`
+      this.$value.style.display = 'block'
+      this.$value.textContent = `${this.value}%`
     } else {
-      this._ref.$value.style.display = 'none'
+      this.$value.style.display = 'none'
     }
   }
 

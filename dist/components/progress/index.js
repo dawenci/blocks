@@ -32,14 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { Component } from '../Component.js';
-import { template } from './template.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { Component } from '../Component.js';
+import { template } from './template.js';
+import { style } from './style.js';
+import { domRef } from '../../decorators/domRef.js';
 const status = ['success', 'error', 'warning'];
 export let BlocksProgress = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-progress',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -51,20 +54,25 @@ export let BlocksProgress = (() => {
     let _status_initializers = [];
     let _percentage_decorators;
     let _percentage_initializers = [];
+    let _$progress_decorators;
+    let _$progress_initializers = [];
+    let _$value_decorators;
+    let _$value_initializers = [];
     var BlocksProgress = class extends Component {
         static {
             _value_decorators = [attr('number')];
             _status_decorators = [attr('enum', { enumValues: status })];
             _percentage_decorators = [attr('boolean')];
+            _$progress_decorators = [domRef('#progress')];
+            _$value_decorators = [domRef('#value')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _status_decorators, { kind: "accessor", name: "status", static: false, private: false, access: { has: obj => "status" in obj, get: obj => obj.status, set: (obj, value) => { obj.status = value; } } }, _status_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _percentage_decorators, { kind: "accessor", name: "percentage", static: false, private: false, access: { has: obj => "percentage" in obj, get: obj => obj.percentage, set: (obj, value) => { obj.percentage = value; } } }, _percentage_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$progress_decorators, { kind: "accessor", name: "$progress", static: false, private: false, access: { has: obj => "$progress" in obj, get: obj => obj.$progress, set: (obj, value) => { obj.$progress = value; } } }, _$progress_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$value_decorators, { kind: "accessor", name: "$value", static: false, private: false, access: { has: obj => "$value" in obj, get: obj => obj.$value, set: (obj, value) => { obj.$value = value; } } }, _$value_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksProgress = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get observedAttributes() {
-            return ['value', 'status', 'percentage'];
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
@@ -75,25 +83,24 @@ export let BlocksProgress = (() => {
         #percentage_accessor_storage = __runInitializers(this, _percentage_initializers, void 0);
         get percentage() { return this.#percentage_accessor_storage; }
         set percentage(value) { this.#percentage_accessor_storage = value; }
+        #$progress_accessor_storage = __runInitializers(this, _$progress_initializers, void 0);
+        get $progress() { return this.#$progress_accessor_storage; }
+        set $progress(value) { this.#$progress_accessor_storage = value; }
+        #$value_accessor_storage = __runInitializers(this, _$value_initializers, void 0);
+        get $value() { return this.#$value_accessor_storage; }
+        set $value(value) { this.#$value_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            const $progress = shadowRoot.querySelector('#progress');
-            const $value = shadowRoot.querySelector('#value');
-            this._ref = {
-                $progress,
-                $value,
-            };
+            this.shadowRoot.appendChild(template());
         }
         render() {
-            this._ref.$progress.style.width = `${this.value}%`;
+            this.$progress.style.width = `${this.value}%`;
             if (this.percentage) {
-                this._ref.$value.style.display = 'block';
-                this._ref.$value.textContent = `${this.value}%`;
+                this.$value.style.display = 'block';
+                this.$value.textContent = `${this.value}%`;
             }
             else {
-                this._ref.$value.style.display = 'none';
+                this.$value.style.display = 'none';
             }
         }
         connectedCallback() {

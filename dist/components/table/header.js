@@ -36,10 +36,12 @@ import { dispatchEvent } from '../../common/event.js';
 import { setStyles } from '../../common/style.js';
 import { Component, } from '../Component.js';
 import { template } from './header-template.js';
+import { style } from './header.style.js';
 import { defineClass } from '../../decorators/defineClass.js';
 export let BlocksTableHeader = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-table-header',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -58,9 +60,8 @@ export let BlocksTableHeader = (() => {
         fixedRightColumns = [];
         constructor() {
             super();
-            const { cssTemplate, comTemplate } = template();
+            const { comTemplate } = template();
             const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(cssTemplate.cloneNode(true));
             shadowRoot.appendChild(comTemplate.content.cloneNode(true));
             const $viewport = shadowRoot.querySelector('#viewport');
             const $canvas = shadowRoot.querySelector('.columns');

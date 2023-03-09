@@ -1,27 +1,21 @@
+import type { EnumAttr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { BlocksPopup } from '../popup/index.js'
 import { forEach } from '../../common/utils.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
-import type { EnumAttr } from '../../decorators/attr.js'
-
-const ATTRS = ['trigger-mode', 'content', 'open-delay', 'close-delay']
+import { style } from './style.js'
 
 @defineClass({
   customElement: 'bl-tooltip',
+  styles: [style],
 })
 export class BlocksTooltip extends Component {
   static override get observedAttributes() {
-    return BlocksPopup.observedAttributes.concat(ATTRS)
+    return BlocksPopup.observedAttributes
   }
-
-  private $slot: HTMLSlotElement
-  private $popup: BlocksPopup
-  private _enterTimer?: number
-  private _leaveTimer?: number
-  private _clearClickOutside?: () => void
 
   @attr('string') accessor content = ''
 
@@ -32,18 +26,21 @@ export class BlocksTooltip extends Component {
   @attr('enum', { enumValues: ['hover', 'click'] })
   accessor triggerMode: EnumAttr<['hover', 'click']> = 'hover'
 
+  private $slot: HTMLSlotElement
+  private $popup: BlocksPopup
+  private _enterTimer?: number
+  private _leaveTimer?: number
+  private _clearClickOutside?: () => void
+
   constructor() {
     super()
 
-        const shadowRoot = this.shadowRoot!
+    const shadowRoot = this.shadowRoot!
 
-    const { comTemplate, popupTemplate } = template()
-    shadowRoot.appendChild(comTemplate.content.cloneNode(true))
+    shadowRoot.appendChild(template())
 
     this.$slot = shadowRoot.getElementById('slot') as HTMLSlotElement
-    this.$popup = (
-      popupTemplate.content.cloneNode(true) as HTMLElement
-    ).querySelector('bl-popup') as BlocksPopup
+    this.$popup = document.createElement('bl-popup')
 
     this.$popup.anchor = () => this.$slot.assignedElements()?.[0] ?? this
     this.$popup.setAttribute('arrow', '')

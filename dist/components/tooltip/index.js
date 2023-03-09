@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,17 +25,25 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { BlocksPopup } from '../popup/index.js';
 import { forEach } from '../../common/utils.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
-const ATTRS = ['trigger-mode', 'content', 'open-delay', 'close-delay'];
+import { style } from './style.js';
 export let BlocksTooltip = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-tooltip',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -71,14 +72,9 @@ export let BlocksTooltip = (() => {
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return BlocksPopup.observedAttributes.concat(ATTRS);
+            return BlocksPopup.observedAttributes;
         }
-        $slot = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        $popup;
-        _enterTimer;
-        _leaveTimer;
-        _clearClickOutside;
-        #content_accessor_storage = __runInitializers(this, _content_initializers, '');
+        #content_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _content_initializers, ''));
         get content() { return this.#content_accessor_storage; }
         set content(value) { this.#content_accessor_storage = value; }
         #openDelay_accessor_storage = __runInitializers(this, _openDelay_initializers, 200);
@@ -90,13 +86,17 @@ export let BlocksTooltip = (() => {
         #triggerMode_accessor_storage = __runInitializers(this, _triggerMode_initializers, 'hover');
         get triggerMode() { return this.#triggerMode_accessor_storage; }
         set triggerMode(value) { this.#triggerMode_accessor_storage = value; }
+        $slot;
+        $popup;
+        _enterTimer;
+        _leaveTimer;
+        _clearClickOutside;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            const { comTemplate, popupTemplate } = template();
-            shadowRoot.appendChild(comTemplate.content.cloneNode(true));
+            shadowRoot.appendChild(template());
             this.$slot = shadowRoot.getElementById('slot');
-            this.$popup = popupTemplate.content.cloneNode(true).querySelector('bl-popup');
+            this.$popup = document.createElement('bl-popup');
             this.$popup.anchor = () => this.$slot.assignedElements()?.[0] ?? this;
             this.$popup.setAttribute('arrow', '');
             this.$popup.setAttribute('append-to-body', '');

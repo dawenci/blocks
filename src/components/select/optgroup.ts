@@ -1,27 +1,21 @@
-import { Component } from '../Component.js'
-import { template } from './optgroup-template.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
+import { Component } from '../Component.js'
+import { template } from './optgroup.template.js'
+import { style } from './option.style.js'
 
 @defineClass({
   customElement: 'bl-optgroup',
+  styles: [style],
 })
 export class BlocksOptGroup extends Component {
-  static override get observedAttributes() {
-    return ['disabled', 'label']
-  }
-
   @attr('string') accessor label!: string
 
   @attr('boolean') accessor disabled!: boolean
 
   constructor() {
     super()
-
-    const shadowRoot = this.shadowRoot!
-
-    const fragment = template().content.cloneNode(true)
-    shadowRoot.appendChild(fragment)
+    this.shadowRoot!.appendChild(template())
   }
 
   override render() {

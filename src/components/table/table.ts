@@ -1,10 +1,11 @@
-import { dispatchEvent } from '../../common/event.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
-import { sizeObserve } from '../../common/sizeObserve.js'
-import { make, RowColumn } from './RowColumn.js'
 import '../scrollable/index.js'
 import './header.js'
 import './body.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import { dispatchEvent } from '../../common/event.js'
+import { sizeObserve } from '../../common/sizeObserve.js'
+import { make, RowColumn } from './RowColumn.js'
 import { setStyles } from '../../common/style.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import {
@@ -12,12 +13,10 @@ import {
   ComponentEventListener,
   ComponentEventMap,
 } from '../Component.js'
-import { template } from './table-template.js'
+import { style } from './table.style.js'
 import { BlocksTableHeader, CellElement as HeaderCell } from './header.js'
 import { BlocksTableBody, CellElement } from './body.js'
 import { VirtualItem } from '../vlist/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 let gridId = 0
 
@@ -54,6 +53,7 @@ export interface BlocksTable extends Component {
 
 @defineClass({
   customElement: 'bl-table',
+  styles: [style],
 })
 export class BlocksTable extends Component {
   _data: any
@@ -71,11 +71,7 @@ export class BlocksTable extends Component {
   constructor() {
     super()
 
-    const { cssTemplate } = template()
-
     const shadowRoot = this.shadowRoot!
-
-    shadowRoot.appendChild(cssTemplate.cloneNode(true))
 
     // 表头
     const $mainHeader = shadowRoot.appendChild(

@@ -1,14 +1,17 @@
 import '../tag/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import { EnumAttrs } from '../../decorators/attr.js'
 import { dispatchEvent } from '../../common/event.js'
 import {
   contentTemplate,
   moreTemplate,
   placeholderTemplate,
   searchTemplate,
-  styleTemplate,
   tagTemplate,
   valueTextTemplate,
 } from './template.js'
+import { style } from './style.js'
 import { BlocksTag } from '../tag/index.js'
 import { ComponentEventListener } from '../Component.js'
 import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js'
@@ -21,9 +24,6 @@ import {
   ISelectResultComponent,
   ISelectResultEventMap,
 } from '../../common/connectSelectable.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import { EnumAttrs } from '../../decorators/attr.js'
 
 interface BlocksSelectResultEventMap
   extends ClearableControlBoxEventMap,
@@ -56,6 +56,7 @@ export interface BlocksSelectResult
 
 @defineClass({
   customElement: 'bl-select-result',
+  styles: [style],
 })
 export class BlocksSelectResult extends ClearableControlBox {
   static override get observedAttributes() {
@@ -84,7 +85,6 @@ export class BlocksSelectResult extends ClearableControlBox {
   constructor() {
     super()
 
-    this._appendStyle(styleTemplate())
     this._ref.$content = this._appendContent(contentTemplate())
 
     // 输入内容，发出搜索事件，方便候选列表过滤

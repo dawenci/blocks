@@ -1,21 +1,11 @@
 import '../../components/popup/index.js'
 import '../../components/icon/index.js'
-import { boolGetter, boolSetter } from '../../common/property.js'
-import {
-  activeGetter,
-  activeSetter,
-  disabledGetter,
-  disabledSetter,
-} from '../../common/propertyAccessor.js'
 import { dispatchEvent } from '../../common/event.js'
 import { BlocksPopupMenu } from './menu.js'
 import { Component } from '../Component.js'
 import { BlocksNavMenu } from '../nav-menu/menu.js'
-import {
-  styleTemplate,
-  contentTemplate,
-  menuTemplate,
-} from './menu-item-template.js'
+import { contentTemplate, menuTemplate } from './menu-item.template.js'
+import { style } from './menu-item.style.js'
 import { BlocksIcon } from '../../components/icon/index.js'
 import { PopupOrigin } from '../../components/popup/index.js'
 import { defineClass } from '../../decorators/defineClass.js'
@@ -23,11 +13,14 @@ import { attr } from '../../decorators/attr.js'
 
 @defineClass({
   customElement: 'bl-popup-menu-item',
+  styles: [style],
 })
 export class BlocksPopupMenuItem extends Component {
-  static override get observedAttributes() {
-    return ['disabled', 'link', 'active']
-  }
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('boolean') accessor link!: boolean
+
+  @attr('boolean') accessor active!: boolean
 
   _enterTimer?: number
   _leaveTimer?: number
@@ -37,18 +30,10 @@ export class BlocksPopupMenuItem extends Component {
   $icon: HTMLElement
   $arrow: HTMLElement
 
-  @attr('boolean') accessor disabled!: boolean
-
-  @attr('boolean') accessor link!: boolean
-
-  @attr('boolean') accessor active!: boolean
-
   constructor() {
     super()
 
-    
     const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())
     this.$layout = shadowRoot.getElementById('layout')!
     this.$label = shadowRoot.getElementById('label')!
