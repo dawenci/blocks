@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,9 +25,16 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import '../button/index.js';
 import '../icon/index.js';
-import { boolGetter, boolSetter, strGetter, strSetter, } from '../../common/property.js';
+import { strGetter, strSetter } from '../../common/property.js';
 import { dispatchEvent } from '../../common/event.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
@@ -46,8 +46,6 @@ import { WithOpenTransition, } from '../with-open-transition/index.js';
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-const capturefocusGetter = boolGetter('capturefocus');
-const capturefocusSetter = boolSetter('capturefocus');
 export let BlocksWindow = (() => {
     let _classDecorators = [defineClass({
             mixins: [WithOpenTransition],
@@ -89,17 +87,9 @@ export let BlocksWindow = (() => {
         static get observedAttributes() {
             return super.observedAttributes.concat([
                 'actions',
-                'capturefocus',
-                'icon',
-                'maximized',
-                'minimized',
-                'name',
-                'open',
             ]);
         }
-        #prevFocus = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        #onResize;
-        #capturefocus_accessor_storage = __runInitializers(this, _capturefocus_initializers, void 0);
+        #capturefocus_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _capturefocus_initializers, void 0));
         get capturefocus() { return this.#capturefocus_accessor_storage; }
         set capturefocus(value) { this.#capturefocus_accessor_storage = value; }
         #maximized_accessor_storage = __runInitializers(this, _maximized_initializers, void 0);
@@ -114,6 +104,24 @@ export let BlocksWindow = (() => {
         #name_accessor_storage = __runInitializers(this, _name_initializers, void 0);
         get name() { return this.#name_accessor_storage; }
         set name(value) { this.#name_accessor_storage = value; }
+        get actions() {
+            return strGetter('actions')(this) ?? 'minimize,maximize,close';
+        }
+        set actions(value) {
+            if (value !== null && typeof value !== 'string')
+                return;
+            let newValue = String(value);
+            if (typeof value === 'string') {
+                newValue =
+                    value
+                        .split(',')
+                        .filter(action => ['minimize', 'maximize', 'close'].includes(action.trim()))
+                        .join(',') || null;
+            }
+            strSetter('actions')(this, newValue);
+        }
+        #prevFocus;
+        #onResize;
         constructor() {
             super();
             this._appendStyle(withOpenTransitionStyleTemplate());
@@ -183,22 +191,6 @@ export let BlocksWindow = (() => {
             }
             this.#initMoveEvents();
             this.#initResizeEvents();
-        }
-        get actions() {
-            return strGetter('actions')(this) ?? 'minimize,maximize,close';
-        }
-        set actions(value) {
-            if (value !== null && typeof value !== 'string')
-                return;
-            let newValue = String(value);
-            if (typeof value === 'string') {
-                newValue =
-                    value
-                        .split(',')
-                        .filter(action => ['minimize', 'maximize', 'close'].includes(action.trim()))
-                        .join(',') || null;
-            }
-            strSetter('actions')(this, newValue);
         }
         connectedCallback() {
             super.connectedCallback();

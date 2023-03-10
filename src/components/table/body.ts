@@ -127,7 +127,7 @@ export class BlocksTableBody extends BlocksVList {
     this._renderSummaryRow()
   }
 
-  itemRender($item: any, vitem: any) {
+  override itemRender($item: any, vitem: any) {
     $item.data = vitem.data
     $item.classList.add('row')
     $item.classList.toggle('row-even', vitem.virtualViewIndex % 2 === 0)

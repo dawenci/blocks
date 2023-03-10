@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,16 +25,25 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import '../button/index.js';
 import '../progress/index.js';
 import { uploadRequest } from './uploadRequest.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
 import { strSetter } from '../../common/property.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { itemTemplate } from './item.template.js';
+import { style } from './style.js';
 const DEFAULT_ICON_MAP = Object.freeze({
     'file-image': /^image\//,
     'file-pdf': /\/pdf$/,
@@ -87,6 +89,7 @@ var State;
 export let BlocksUpload = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-upload',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -130,25 +133,7 @@ export let BlocksUpload = (() => {
             BlocksUpload = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return [
-                'accept',
-                'action',
-                'auto-upload',
-                'disabled',
-                'drag-drop',
-                'multiple',
-                'name',
-                'with-credentials',
-            ];
-        }
-        _list = (__runInitializers(this, _instanceExtraInitializers), []);
-        _data;
-        onProgress;
-        onAbort;
-        onError;
-        onSuccess;
-        #accept_accessor_storage = __runInitializers(this, _accept_initializers, void 0);
+        #accept_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _accept_initializers, void 0));
         get accept() { return this.#accept_accessor_storage; }
         set accept(value) { this.#accept_accessor_storage = value; }
         #action_accessor_storage = __runInitializers(this, _action_initializers, '');
@@ -172,11 +157,16 @@ export let BlocksUpload = (() => {
         #name_accessor_storage = __runInitializers(this, _name_initializers, 'file');
         get name() { return this.#name_accessor_storage; }
         set name(value) { this.#name_accessor_storage = value; }
+        _list = [];
+        _data;
+        onProgress;
+        onAbort;
+        onError;
+        onSuccess;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
-            const { comTemplate } = template();
-            shadowRoot.appendChild(comTemplate.content.cloneNode(true));
+            shadowRoot.appendChild(template());
             const $layout = shadowRoot.getElementById('layout');
             const $list = shadowRoot.getElementById('list');
             const $dropZone = shadowRoot.getElementById('dropZone');
@@ -337,9 +327,8 @@ export let BlocksUpload = (() => {
             while (this.ref.$list.children.length > this._list.length) {
                 this.ref.$list.removeChild(this.ref.$list.lastElementChild);
             }
-            const { itemTemplate } = template();
             while (this.ref.$list.children.length < this._list.length) {
-                this.ref.$list.appendChild(itemTemplate.content.cloneNode(true).querySelector('.item'));
+                this.ref.$list.appendChild(itemTemplate());
             }
             const $items = this.ref.$list.children;
             this._list.forEach((item, index) => {

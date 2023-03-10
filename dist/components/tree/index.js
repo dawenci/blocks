@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,14 +25,21 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { BlocksVList, VirtualItem } from '../vlist/index.js';
-import { boolSetter, } from '../../common/property.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr.js';
+import { boolSetter } from '../../common/property.js';
 import { isEmpty, merge, uniqBy, flatten } from '../../common/utils.js';
 import { dispatchEvent } from '../../common/event.js';
 import { parseHighlight } from '../../common/highlight.js';
-import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { style } from './style.js';
 export class VirtualNode extends VirtualItem {
     constructor(options) {
         super(options);
@@ -55,6 +55,7 @@ export class VirtualNode extends VirtualItem {
 export let BlocksTree = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-tree',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -123,31 +124,9 @@ export let BlocksTree = (() => {
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return super.observedAttributes.concat([
-                'activable',
-                'active-key',
-                'checkable',
-                'check-on-click-node',
-                'check-strictly',
-                'border',
-                'default-fold-all',
-                'disabled',
-                'expand-on-click-node',
-                'id-field',
-                'indent-unit',
-                'label-field',
-                'multiple',
-                'search',
-                'stripe',
-                'wrap',
-            ]);
+            return super.observedAttributes.concat(['border', 'stripe']);
         }
-        labelMethod = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        uniqCid;
-        _checkedSet;
-        #batchUpdateFold;
-        #lastChecked;
-        #activeKey_accessor_storage = __runInitializers(this, _activeKey_initializers, void 0);
+        #activeKey_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _activeKey_initializers, void 0));
         get activeKey() { return this.#activeKey_accessor_storage; }
         set activeKey(value) { this.#activeKey_accessor_storage = value; }
         #activable_accessor_storage = __runInitializers(this, _activable_initializers, void 0);
@@ -189,10 +168,13 @@ export let BlocksTree = (() => {
         #search_accessor_storage = __runInitializers(this, _search_initializers, void 0);
         get search() { return this.#search_accessor_storage; }
         set search(value) { this.#search_accessor_storage = value; }
+        labelMethod;
+        uniqCid;
+        _checkedSet;
+        #batchUpdateFold;
+        #lastChecked;
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
             this.uniqCid = String(Math.random()).substr(2);
             this._checkedSet = new Set();
             this._ref.$list.onclick = this.#onClick.bind(this);

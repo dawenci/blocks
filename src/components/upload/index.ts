@@ -1,13 +1,15 @@
 import '../button/index.js'
 import '../progress/index.js'
 import { uploadRequest } from './uploadRequest.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { strSetter } from '../../common/property.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { dispatchEvent } from '../../common/event.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
+import { itemTemplate } from './item.template.js'
+import { style } from './style.js'
 
 const DEFAULT_ICON_MAP = Object.freeze({
   'file-image': /^image\//,
@@ -74,20 +76,24 @@ export interface BlocksUpload extends Component {
 
 @defineClass({
   customElement: 'bl-upload',
+  styles: [style],
 })
 export class BlocksUpload extends Component {
-  static override get observedAttributes() {
-    return [
-      'accept',
-      'action',
-      'auto-upload',
-      'disabled',
-      'drag-drop',
-      'multiple',
-      'name',
-      'with-credentials',
-    ]
-  }
+  @attr('string') accessor accept!: string | null
+
+  @attr('string') accessor action = ''
+
+  @attr('boolean') accessor autoUpload!: boolean
+
+  @attr('boolean') accessor disabled!: boolean
+
+  @attr('boolean') accessor dragDrop!: boolean
+
+  @attr('boolean') accessor multiple!: boolean
+
+  @attr('boolean') accessor withCredentials!: boolean
+
+  @attr('string') accessor name = 'file'
 
   _list: Array<{
     file: File
@@ -105,28 +111,12 @@ export class BlocksUpload extends Component {
   onError?: (error: Error, options: Options) => void
   onSuccess?: (data: any, options: Options) => void
 
-  @attr('string') accessor accept!: string | null
-
-  @attr('string') accessor action = ''
-
-  @attr('boolean') accessor autoUpload!: boolean
-
-  @attr('boolean') accessor disabled!: boolean
-
-  @attr('boolean') accessor dragDrop!: boolean
-
-  @attr('boolean') accessor multiple!: boolean
-
-  @attr('boolean') accessor withCredentials!: boolean
-
-  @attr('string') accessor name = 'file'
-
   constructor() {
     super()
 
     const shadowRoot = this.shadowRoot!
-    const { comTemplate } = template()
-    shadowRoot.appendChild(comTemplate.content.cloneNode(true))
+
+    shadowRoot.appendChild(template())
 
     const $layout = shadowRoot.getElementById('layout')!
     const $list = shadowRoot.getElementById('list')!
@@ -321,13 +311,8 @@ export class BlocksUpload extends Component {
       this.ref.$list.removeChild(this.ref.$list.lastElementChild!)
     }
 
-    const { itemTemplate } = template()
     while (this.ref.$list.children.length < this._list.length) {
-      this.ref.$list.appendChild(
-        (
-          itemTemplate.content.cloneNode(true) as DocumentFragment
-        ).querySelector('.item')!
-      )
+      this.ref.$list.appendChild(itemTemplate())
     }
 
     const $items = this.ref.$list.children as unknown as HTMLElement[]

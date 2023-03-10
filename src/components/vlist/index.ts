@@ -1,16 +1,8 @@
 import '../icon/index.js'
 import '../scrollable/index.js'
 import { BlocksScrollable } from '../scrollable/index.js'
-import {
-  boolGetter,
-  boolSetter,
-  enumGetter,
-  enumSetter,
-  intGetter,
-  intSetter,
-  numGetter,
-  numSetter,
-} from '../../common/property.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
 import { find, findLast, forEach } from '../../common/utils.js'
 import { dispatchEvent } from '../../common/event.js'
 import { BinaryIndexedTree } from './BinaryIndexedTree.js'
@@ -20,19 +12,17 @@ import {
   ComponentEventListener,
   ComponentEventMap,
 } from '../Component.js'
-import {
-  contentTemplate,
-  itemTemplate,
-  loadingTemplate,
-  styleTemplate,
-} from './template.js'
+import { contentTemplate, itemTemplate, loadingTemplate } from './template.js'
+import { style } from './style.js'
 
 const FORCE_SLICE = true
 
 const Direction = {
   Vertical: 'vertical',
   Horizontal: 'horizontal',
-}
+} as const
+
+type DirectionUnion = typeof Direction.Vertical | typeof Direction.Horizontal
 
 const ITEMS_SIZE_UPDATE = 'items-size-change'
 const DATA_BOUND = 'data-bound'
@@ -109,9 +99,48 @@ export interface BlocksVList extends Component {
   keyMethod?(data: object): string
   filterMethod?(data: object[]): Promise<any[]>
   sortMethod?(data: object[]): Promise<any[]>
+
+  /**
+   * 列表项渲染方法，子类需要实现该方法。
+   *
+   * @param {Element} $item
+   * @param {VirtualItem} vitem
+   */
+  itemRender($item: HTMLElement, vitem: any): void
 }
 
-export abstract class BlocksVList extends Component {
+@defineClass({
+  styles: [style],
+})
+export class BlocksVList extends Component {
+  static override get observedAttributes() {
+    return ['show-busy']
+  }
+
+  @attr('enum', { enumValues: [Direction.Vertical, Direction.Horizontal] })
+  accessor direction: DirectionUnion = Direction.Vertical
+
+  @attr('int', {
+    defaults(self: BlocksVList) {
+      const size = parseInt(
+        getComputedStyle(self).getPropertyValue('--item-height'),
+        10
+      )
+      return size
+    },
+  })
+  accessor defaultItemSize!: number
+
+  @attr('boolean') accessor shadow!: boolean
+
+  // 内容容器侧轴方向尺寸
+  @attr('number', {
+    defaults(self: BlocksVList) {
+      return self.viewportCrossSize
+    },
+  })
+  accessor crossSize!: number
+
   sliceFrom?: number
   sliceTo?: number
   anchorIndex?: number
@@ -144,7 +173,6 @@ export abstract class BlocksVList extends Component {
     const shadowRoot = this.shadowRoot!
 
     // DOM
-    shadowRoot.appendChild(styleTemplate())
     shadowRoot.appendChild(contentTemplate())
     shadowRoot.appendChild(loadingTemplate())
     const $viewport = shadowRoot.getElementById('viewport') as BlocksScrollable
@@ -200,41 +228,6 @@ export abstract class BlocksVList extends Component {
     this.bindData(data)
   }
 
-  get direction() {
-    return (
-      enumGetter('direction', [Direction.Vertical, Direction.Horizontal])(
-        this
-      ) ?? Direction.Vertical
-    )
-  }
-
-  set direction(value) {
-    enumSetter('direction', [Direction.Vertical, Direction.Horizontal])(
-      this,
-      value
-    )
-  }
-
-  get defaultItemSize() {
-    return (
-      intGetter('default-item-size')(this) ??
-      (parseInt(getComputedStyle(this).getPropertyValue('--item-height'), 10) ||
-        0)
-    )
-  }
-
-  set defaultItemSize(value) {
-    intSetter('default-item-size')(this, value)
-  }
-
-  get shadow() {
-    return boolGetter('shadow')(this)
-  }
-
-  set shadow(value) {
-    boolSetter('shadow')(this, value)
-  }
-
   get viewportWidth() {
     return this._ref.$viewport.clientWidth
   }
@@ -260,15 +253,6 @@ export abstract class BlocksVList extends Component {
   // 内容容器主轴方向尺寸
   get mainSize() {
     return this.itemHeightStore!.read(this.itemHeightStore!.maxVal)
-  }
-
-  // 内容容器侧轴方向尺寸
-  get crossSize() {
-    return numGetter('cross-size')(this) || this.viewportCrossSize
-  }
-
-  set crossSize(value) {
-    numSetter('cross-size')(this, value)
   }
 
   get hasMainScrollbar() {
@@ -313,14 +297,6 @@ export abstract class BlocksVList extends Component {
       this._ref.$viewport.shadow = this.shadow
     }
   }
-
-  /**
-   * 列表项渲染方法，子类需要实现该方法。
-   *
-   * @param {Element} $item
-   * @param {VirtualItem} vitem
-   */
-  abstract itemRender($item: HTMLElement, vitem: any): void
 
   /**
    * 列表项的尺寸计算方法
@@ -1343,15 +1319,5 @@ export abstract class BlocksVList extends Component {
     options?: boolean | EventListenerOptions
   ): void {
     super.removeEventListener(type, listener, options)
-  }
-
-  static override get observedAttributes() {
-    return [
-      'cross-size',
-      'direction',
-      'default-item-size',
-      'show-busy',
-      'shadow',
-    ]
   }
 }

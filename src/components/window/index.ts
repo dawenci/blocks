@@ -1,11 +1,6 @@
 import '../button/index.js'
 import '../icon/index.js'
-import {
-  boolGetter,
-  boolSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
+import { strGetter, strSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
@@ -21,9 +16,6 @@ import {
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-
-const capturefocusGetter = boolGetter('capturefocus')
-const capturefocusSetter = boolSetter('capturefocus')
 
 interface WinEventMap extends WithOpenTransitionEventMap {
   'bl:resize': CustomEvent<{ width: number; height: number }>
@@ -72,32 +64,43 @@ export class BlocksWindow extends Control {
     return super.observedAttributes.concat([
       // 窗口按钮，'minimize,maximize,close'
       'actions',
-      // 捕获焦点，tab 键不会将焦点移出 Dialog
-      'capturefocus',
-      // 标题图标
-      'icon',
-      'maximized',
-      'minimized',
-      // 标题
-      'name',
-      // 显示状态
-      'open',
     ])
   }
 
-  #prevFocus?: any
-
-  #onResize?: (data: { width: number; height: number }) => void
-
+  /** 捕获焦点，tab 键不会将焦点移出 Dialog */
   @attr('boolean') accessor capturefocus!: boolean
 
   @attr('boolean') accessor maximized!: boolean
 
   @attr('boolean') accessor minimized!: boolean
 
+  /** 标题图标 */
   @attr('string') accessor icon!: string | null
 
+  /** 标题 */
   @attr('string') accessor name!: string | null
+
+  get actions(): string {
+    return strGetter('actions')(this) ?? 'minimize,maximize,close'
+  }
+
+  set actions(value: string) {
+    if (value !== null && typeof value !== 'string') return
+    let newValue: string | null = String(value)
+    if (typeof value === 'string') {
+      newValue =
+        value
+          .split(',')
+          .filter(action =>
+            ['minimize', 'maximize', 'close'].includes(action.trim())
+          )
+          .join(',') || null
+    }
+    strSetter('actions')(this, newValue)
+  }
+
+  #prevFocus?: any
+  #onResize?: (data: { width: number; height: number }) => void
 
   constructor() {
     super()
@@ -192,25 +195,6 @@ export class BlocksWindow extends Control {
 
     this.#initMoveEvents()
     this.#initResizeEvents()
-  }
-
-  get actions(): string {
-    return strGetter('actions')(this) ?? 'minimize,maximize,close'
-  }
-
-  set actions(value: string) {
-    if (value !== null && typeof value !== 'string') return
-    let newValue: string | null = String(value)
-    if (typeof value === 'string') {
-      newValue =
-        value
-          .split(',')
-          .filter(action =>
-            ['minimize', 'maximize', 'close'].includes(action.trim())
-          )
-          .join(',') || null
-    }
-    strSetter('actions')(this, newValue)
   }
 
   override connectedCallback() {

@@ -1,23 +1,16 @@
 import { BlocksVList, VirtualItem, VListEventMap } from '../vlist/index.js'
-import {
-  boolGetter,
-  boolSetter,
-  intGetter,
-  intSetter,
-  strGetter,
-  strSetter,
-} from '../../common/property.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr.js'
+import { boolSetter } from '../../common/property.js'
 import { isEmpty, merge, uniqBy, flatten } from '../../common/utils.js'
 import { dispatchEvent } from '../../common/event.js'
 import { parseHighlight } from '../../common/highlight.js'
-import { template } from './template.js'
 import { ComponentEventListener } from '../Component.js'
 import {
   ISelectableListComponent,
   ISelectListEventMap,
 } from '../../common/connectSelectable.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
+import { style } from './style.js'
 
 export type NodeData = {
   [index: number]: any
@@ -80,35 +73,12 @@ export interface BLocksTree extends BlocksVList, ISelectableListComponent {
 
 @defineClass({
   customElement: 'bl-tree',
+  styles: [style],
 })
 export class BlocksTree extends BlocksVList {
   static override get observedAttributes() {
-    return super.observedAttributes.concat([
-      'activable',
-      'active-key',
-      'checkable',
-      'check-on-click-node',
-      'check-strictly',
-      'border',
-      'default-fold-all',
-      'disabled',
-      'expand-on-click-node',
-      'id-field',
-      'indent-unit',
-      'label-field',
-      'multiple',
-      'search',
-      'stripe',
-      'wrap',
-    ])
+    return super.observedAttributes.concat(['border', 'stripe'])
   }
-
-  labelMethod?: (data: any) => string
-  uniqCid: string
-  _checkedSet: Set<VirtualNode>
-
-  #batchUpdateFold?: boolean
-  #lastChecked?: VirtualNode
 
   @attr('string') accessor activeKey!: string | null
 
@@ -141,10 +111,15 @@ export class BlocksTree extends BlocksVList {
 
   @attr('string') accessor search!: string | null
 
+  labelMethod?: (data: any) => string
+  uniqCid: string
+  _checkedSet: Set<VirtualNode>
+
+  #batchUpdateFold?: boolean
+  #lastChecked?: VirtualNode
+
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
 
     this.uniqCid = String(Math.random()).substr(2)
     this._checkedSet = new Set()
