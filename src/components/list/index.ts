@@ -354,12 +354,24 @@ export class BlocksList extends BlocksVList {
     }
   }
   override itemRender($item: HTMLElement, vitem: any) {
-    $item.classList.add('item')
-    $item.innerHTML = `<div class="prefix"></div><div class="label"></div><div class="suffix"></div>`
+    if (!$item.classList.contains('item')) {
+      $item.classList.add('item')
+      if (this.children.length) {
+        const $fragment = document.createDocumentFragment()
+        Array.prototype.forEach.call(this.children, $child => {
+          $fragment.appendChild($child.cloneNode(true))
+        })
+        $item.appendChild($fragment)
+      } else {
+        $item.innerHTML = `<div class="prefix"></div><div class="label"></div><div class="suffix"></div>`
+      }
+    }
 
+    const $label = $item.querySelector('.label')
+    if (!$label) return
     const label = this.internalLabelMethod(vitem.data) ?? ''
     if (this.search && this.search.length) {
-      $item.children[1].innerHTML = this.parseHighlight(label, this.search)
+      $label.innerHTML = this.parseHighlight(label, this.search)
         .map(textSlice => {
           return `<span class="${textSlice.highlight ? 'highlight' : ''}">${
             textSlice.text
@@ -367,7 +379,7 @@ export class BlocksList extends BlocksVList {
         })
         .join('')
     } else {
-      $item.children[1].innerHTML = label
+      $label.innerHTML = label
     }
 
     this._renderItemDisabled($item, vitem)
