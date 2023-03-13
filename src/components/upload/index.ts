@@ -14,10 +14,7 @@ import { style } from './style.js'
 const DEFAULT_ICON_MAP = Object.freeze({
   'file-image': /^image\//,
   'file-pdf': /\/pdf$/,
-  'file-word': [
-    /msword$/,
-    'vnd.openxmlformats-officedocument.wordprocessingml.document',
-  ],
+  'file-word': [/msword$/, 'vnd.openxmlformats-officedocument.wordprocessingml.document'],
   'file-excel': [],
   'file-ppt': [],
 })
@@ -35,10 +32,7 @@ function formatSize(size: number) {
   return size + 'B'
 }
 
-function testType(
-  rules: string | RegExp | Array<string | RegExp>,
-  input: string
-): boolean {
+function testType(rules: string | RegExp | Array<string | RegExp>, input: string): boolean {
   if (typeof rules === 'string') {
     return input.includes(rules)
   }
@@ -121,12 +115,8 @@ export class BlocksUpload extends Component {
     const $layout = shadowRoot.getElementById('layout')!
     const $list = shadowRoot.getElementById('list')!
     const $dropZone = shadowRoot.getElementById('dropZone')!
-    const $fileInput = shadowRoot.getElementById(
-      'choose-file'
-    ) as HTMLInputElement
-    const $chooseButton = shadowRoot.getElementById(
-      'choose'
-    ) as HTMLButtonElement
+    const $fileInput = shadowRoot.getElementById('choose-file') as HTMLInputElement
+    const $chooseButton = shadowRoot.getElementById('choose') as HTMLButtonElement
 
     this.ref = {
       $layout,
@@ -219,10 +209,8 @@ export class BlocksUpload extends Component {
       if (item.state === State.Init) return true
 
       const includesStates = options?.includes ?? []
-      if (includesStates.includes('error') && item.state === State.Error)
-        return true
-      if (includesStates.includes('abort') && item.state === State.Abort)
-        return true
+      if (includesStates.includes('error') && item.state === State.Error) return true
+      if (includesStates.includes('abort') && item.state === State.Abort) return true
 
       return false
     })
@@ -322,12 +310,7 @@ export class BlocksUpload extends Component {
       $item.querySelector('.size')!.textContent = formatSize(item.file.size)
       const $progress = $item.querySelector('bl-progress')!
       $progress.value = item.progressValue
-      $progress.status =
-        item.state === State.Success
-          ? 'success'
-          : item.state === State.Error
-          ? 'error'
-          : null
+      $progress.status = item.state === State.Success ? 'success' : item.state === State.Error ? 'error' : null
 
       this._renderItemIcon($item, item.type)
     })

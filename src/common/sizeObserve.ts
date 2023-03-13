@@ -39,10 +39,7 @@ type Size = {
  */
 export const sizeObserve = (() => {
   if (window.ResizeObserver) {
-    return function sizeObserve(
-      el: HTMLElement,
-      handler: (size: Size) => void
-    ) {
+    return function sizeObserve(el: HTMLElement, handler: (size: Size) => void) {
       const observer = new ResizeObserver(entries => {
         const len = entries.length
         for (let i = 0; i < len; i += 1) {
@@ -77,8 +74,7 @@ export const sizeObserve = (() => {
   }
 
   return function sizeObserve(el: HTMLElement, handler: (size: Size) => void) {
-    if (getComputedStyle(el).position === 'static')
-      el.style.position = 'relative'
+    if (getComputedStyle(el).position === 'static') el.style.position = 'relative'
 
     const expand: HTMLDivElement = document.createElement('div')
     // 因为元素的尺寸在不同的浏览中都有限制
@@ -94,8 +90,7 @@ export const sizeObserve = (() => {
       'position:absolute;top:50%;bottom:0;left:50%;right:0;z-index=-1;overflow:hidden;visibility:hidden;pointer-events:none;max-width:100%;max-height:100%;'
 
     const expandChild = document.createElement('div')
-    expandChild.style.cssText =
-      'position:absolute;top:0;left:0;transition:0s;animation:none;'
+    expandChild.style.cssText = 'position:absolute;top:0;left:0;transition:0s;animation:none;'
 
     const shrinkChild = expandChild.cloneNode(false) as HTMLDivElement
     shrinkChild.style.width = 'calc(200% + 1px)'
@@ -144,12 +139,10 @@ export const sizeObserve = (() => {
         if (invisible) {
           // Check in next frame
           if (!lastAnimationFrameForInvisibleCheck) {
-            lastAnimationFrameForInvisibleCheck = requestAnimationFrame(
-              function () {
-                lastAnimationFrameForInvisibleCheck = 0
-                reset()
-              }
-            )
+            lastAnimationFrameForInvisibleCheck = requestAnimationFrame(function () {
+              lastAnimationFrameForInvisibleCheck = 0
+              reset()
+            })
           }
           return
         } else {

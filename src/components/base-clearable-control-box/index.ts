@@ -95,11 +95,7 @@ export class ClearableControlBox extends ControlBox {
     this._renderClearable()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'clearable') {
       this._renderClearable()

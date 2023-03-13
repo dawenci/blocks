@@ -89,16 +89,7 @@ export let BlocksSlider = (() => {
             return 'slider';
         }
         static get observedAttributes() {
-            return [
-                'disabled',
-                'max',
-                'min',
-                'size',
-                'step',
-                'round',
-                'value',
-                'vertical',
-            ];
+            return ['disabled', 'max', 'min', 'size', 'step', 'round', 'value', 'vertical'];
         }
         ref = (__runInitializers(this, _instanceExtraInitializers), void 0);
         #dragging = false;

@@ -40,8 +40,7 @@ export const sizeObserve = (() => {
         shrink.style.cssText =
             'position:absolute;top:50%;bottom:0;left:50%;right:0;z-index=-1;overflow:hidden;visibility:hidden;pointer-events:none;max-width:100%;max-height:100%;';
         const expandChild = document.createElement('div');
-        expandChild.style.cssText =
-            'position:absolute;top:0;left:0;transition:0s;animation:none;';
+        expandChild.style.cssText = 'position:absolute;top:0;left:0;transition:0s;animation:none;';
         const shrinkChild = expandChild.cloneNode(false);
         shrinkChild.style.width = 'calc(200% + 1px)';
         shrinkChild.style.height = 'calc(200% + 1px)';

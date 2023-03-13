@@ -3,9 +3,7 @@ import { BlocksTag } from '../tag/index.js'
 
 export const contentTemplate = makeTemplate(/*html*/ `<div id="content"></div>`)
 
-export const tagTemplate = makeTemplate<BlocksTag>(
-  `<bl-tag tabindex="-1"></bl-tag>`
-)
+export const tagTemplate = makeTemplate<BlocksTag>(`<bl-tag tabindex="-1"></bl-tag>`)
 
 export const moreTemplate = makeTemplate(/*html*/ `<div class="more"></div>`)
 
@@ -14,10 +12,6 @@ export const searchTemplate = makeTemplate<HTMLInputElement>(
   /*html*/ `<input class="search" tabindex="0" placeholder=" " />`
 )
 
-export const valueTextTemplate = makeTemplate(
-  /*html*/ `<div class="value-text"></div>`
-)
+export const valueTextTemplate = makeTemplate(/*html*/ `<div class="value-text"></div>`)
 
-export const placeholderTemplate = makeTemplate(
-  /*html*/ `<div id="placeholder"></div>`
-)
+export const placeholderTemplate = makeTemplate(/*html*/ `<div id="placeholder"></div>`)

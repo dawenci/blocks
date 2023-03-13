@@ -9,10 +9,7 @@ import { onDragMove } from '../../common/onDragMove.js'
 import { windowStyleTemplate, windowTemplate } from './template.js'
 import { ComponentEventListener } from '../Component.js'
 import { Control } from '../base-control/index.js'
-import {
-  WithOpenTransition,
-  WithOpenTransitionEventMap,
-} from '../with-open-transition/index.js'
+import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
@@ -91,9 +88,7 @@ export class BlocksWindow extends Control {
       newValue =
         value
           .split(',')
-          .filter(action =>
-            ['minimize', 'maximize', 'close'].includes(action.trim())
-          )
+          .filter(action => ['minimize', 'maximize', 'close'].includes(action.trim()))
           .join(',') || null
     }
     strSetter('actions')(this, newValue)
@@ -114,17 +109,11 @@ export class BlocksWindow extends Control {
     const $body = shadowRoot.getElementById('body')!
     const $content = shadowRoot.getElementById('content')!
     const $statusBar = shadowRoot.getElementById('status-bar')!
-    const $statusBarSlot = shadowRoot.querySelector(
-      '[name=status-bar]'
-    ) as HTMLSlotElement
+    const $statusBarSlot = shadowRoot.querySelector('[name=status-bar]') as HTMLSlotElement
     const $actions = shadowRoot.getElementById('actions')!
     const $closeButton = shadowRoot.getElementById('close') as HTMLButtonElement
-    const $maximizeButton = shadowRoot.getElementById(
-      'maximize'
-    ) as HTMLButtonElement
-    const $minimizeButton = shadowRoot.getElementById(
-      'minimize'
-    ) as HTMLButtonElement
+    const $maximizeButton = shadowRoot.getElementById('maximize') as HTMLButtonElement
+    const $minimizeButton = shadowRoot.getElementById('minimize') as HTMLButtonElement
     const $icon = shadowRoot.getElementById('icon')!
     const $name = shadowRoot.getElementById('name')!
     Object.assign(this._ref, {
@@ -179,10 +168,7 @@ export class BlocksWindow extends Control {
 
     // 状态栏内容变化
     const updateSlot = () => {
-      $body.classList.toggle(
-        'has-status-bar',
-        !!$statusBarSlot.assignedNodes().length
-      )
+      $body.classList.toggle('has-status-bar', !!$statusBarSlot.assignedNodes().length)
     }
     updateSlot()
     $statusBarSlot.addEventListener('slotchange', () => {
@@ -208,11 +194,7 @@ export class BlocksWindow extends Control {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     if (attrName === 'actions') {
@@ -385,11 +367,7 @@ export class BlocksWindow extends Control {
       },
 
       onMove: ({ current }) => {
-        if (
-          current.pageY > window.innerHeight ||
-          current.pageX > window.innerWidth
-        )
-          return
+        if (current.pageY > window.innerHeight || current.pageX > window.innerWidth) return
         updateFn(current.pageX, current.pageY)
       },
     })
@@ -400,15 +378,9 @@ export class BlocksWindow extends Control {
   }
 
   #renderActions() {
-    this._ref.$minimizeButton.style.display = this.actions.includes('minimize')
-      ? ''
-      : 'none'
-    this._ref.$maximizeButton.style.display = this.actions.includes('maximize')
-      ? ''
-      : 'none'
-    this._ref.$closeButton.style.display = this.actions.includes('close')
-      ? ''
-      : 'none'
+    this._ref.$minimizeButton.style.display = this.actions.includes('minimize') ? '' : 'none'
+    this._ref.$maximizeButton.style.display = this.actions.includes('maximize') ? '' : 'none'
+    this._ref.$closeButton.style.display = this.actions.includes('close') ? '' : 'none'
   }
 
   #renderIcon() {
@@ -431,13 +403,9 @@ export class BlocksWindow extends Control {
   #captureFocus() {
     this._ref.$firstFocusable =
       this._ref.$layout.querySelector('#first') ||
-      this._ref.$layout.insertBefore(
-        document.createElement('button'),
-        this._ref.$layout.firstChild
-      )
+      this._ref.$layout.insertBefore(document.createElement('button'), this._ref.$layout.firstChild)
     this._ref.$lastFocusable =
-      this._ref.$layout.querySelector('#last') ||
-      this._ref.$layout.appendChild(document.createElement('button'))
+      this._ref.$layout.querySelector('#last') || this._ref.$layout.appendChild(document.createElement('button'))
     this._ref.$firstFocusable.id = 'first'
     this._ref.$lastFocusable.id = 'last'
     this._ref.$firstFocusable.onkeydown = e => {
@@ -465,12 +433,10 @@ export class BlocksWindow extends Control {
   #updateVisible() {
     if (this.open) {
       if (!this.style.left) {
-        this.style.left =
-          (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
+        this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
       }
       if (!this.style.top) {
-        this.style.top =
-          (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
+        this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
       }
     }
   }

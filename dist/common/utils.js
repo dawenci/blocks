@@ -55,9 +55,7 @@ export function camelCase(str) {
         .replace(/^([A-Z])/, (_, char) => char.toLowerCase());
 }
 export function kebabCase(str) {
-    return str
-        .replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())
-        .replace(/[-_\s]{2,}/g, '-');
+    return str.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase()).replace(/[-_\s]{2,}/g, '-');
 }
 export function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.substr(1).toLowerCase();
@@ -174,8 +172,7 @@ export function merge(output, to, from) {
             continue;
         }
         const fromVal = from[prop];
-        if ((typeof fromVal !== 'object' && typeof fromVal !== 'function') ||
-            fromVal === null) {
+        if ((typeof fromVal !== 'object' && typeof fromVal !== 'function') || fromVal === null) {
             ;
             output[prop] = fromVal;
             continue;

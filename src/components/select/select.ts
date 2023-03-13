@@ -13,17 +13,11 @@ import { BlocksSelectResult } from '../select-result/index.js'
 import { BlocksOption } from './option.js'
 import { BlocksOptGroup } from './optgroup.js'
 import { cloneElement } from '../../common/cloneElement.js'
-import {
-  ISelected,
-  connectSelectable,
-  ISelectableListComponent,
-} from '../../common/connectSelectable.js'
+import { ISelected, connectSelectable, ISelectableListComponent } from '../../common/connectSelectable.js'
 import { dispatchEvent } from '../../common/event.js'
 
-const isOption = ($el: Element): $el is BlocksOption =>
-  $el instanceof BlocksOption
-const isGroup = ($el: Element): $el is BlocksOptGroup =>
-  $el instanceof BlocksOptGroup
+const isOption = ($el: Element): $el is BlocksOption => $el instanceof BlocksOption
+const isGroup = ($el: Element): $el is BlocksOptGroup => $el instanceof BlocksOptGroup
 
 export interface BlocksSelect extends BlocksSelectResult {
   _ref: BlocksSelectResult['_ref'] & {
@@ -47,9 +41,7 @@ export class BlocksSelect extends BlocksSelectResult {
 
     const $optionSlot = slotTemplate()
     const $popup = popupTemplate()
-    const $list = $popup.querySelector(
-      '.option-list'
-    ) as ISelectableListComponent
+    const $list = $popup.querySelector('.option-list') as ISelectableListComponent
 
     this._ref.$optionSlot = $optionSlot
     this._ref.$popup = $popup
@@ -93,10 +85,7 @@ export class BlocksSelect extends BlocksSelectResult {
     }
     // 让 $list 实现 ISelectableListComponent 的方法
     $list.deselect = (selected: ISelected) => {
-      const $selected = find(
-        this.options,
-        option => option.value === selected.value
-      )
+      const $selected = find(this.options, option => option.value === selected.value)
       if ($selected) $selected.selected = false
     }
     // 让 $list 实现 ISelectableListComponent 的方法
@@ -148,8 +137,7 @@ export class BlocksSelect extends BlocksSelectResult {
     if (this.#optionFilter) {
       return this.#optionFilter
     }
-    return (option: any, searchString: string) =>
-      (option.label ?? option.textContent).includes(searchString)
+    return (option: any, searchString: string) => (option.label ?? option.textContent).includes(searchString)
   }
 
   set optionFilter(value) {
@@ -158,9 +146,7 @@ export class BlocksSelect extends BlocksSelectResult {
   }
 
   get options() {
-    return Array.prototype.slice.call(
-      this._ref.$list.querySelectorAll('bl-option')
-    )
+    return Array.prototype.slice.call(this._ref.$list.querySelectorAll('bl-option'))
   }
 
   override select(selected: ISelected) {
@@ -194,11 +180,9 @@ export class BlocksSelect extends BlocksSelectResult {
       }
     })
 
-    this._ref.$list
-      .querySelectorAll<BlocksOption>('[selected]')
-      .forEach($option => {
-        $option.silentSelected(false)
-      })
+    this._ref.$list.querySelectorAll<BlocksOption>('[selected]').forEach($option => {
+      $option.silentSelected(false)
+    })
 
     this._renderValue()
   }
@@ -214,11 +198,7 @@ export class BlocksSelect extends BlocksSelectResult {
     this.#destroyClickOutside()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
   }
 
@@ -243,18 +223,13 @@ export class BlocksSelect extends BlocksSelectResult {
   _selectOption(option: BlocksOption) {
     if (option.disabled) return
     // 整 group 禁用
-    if (
-      option.parentElement instanceof BlocksOptGroup &&
-      option.parentElement.disabled
-    ) {
+    if (option.parentElement instanceof BlocksOptGroup && option.parentElement.disabled) {
       return
     }
     if (this.multiple) {
       option.selected = !option.selected
     } else {
-      const selected = this._ref.$list.querySelector(
-        '[selected]'
-      ) as BlocksOption
+      const selected = this._ref.$list.querySelector('[selected]') as BlocksOption
       if (selected && selected !== option) {
         selected.selected = false
       }
@@ -293,11 +268,7 @@ export class BlocksSelect extends BlocksSelectResult {
       if (e.key === 'Escape') {
         this._closePopup()
       }
-      if (
-        (e.key === 'Tab' && !e.shiftKey) ||
-        e.key === 'ArrowDown' ||
-        e.key === 'ArrowUp'
-      ) {
+      if ((e.key === 'Tab' && !e.shiftKey) || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault()
         const first = this.options.find($option => !$option.disabled)
         if (first) {
@@ -316,9 +287,7 @@ export class BlocksSelect extends BlocksSelectResult {
       } else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
         focusPrev()
       } else if (e.key === ' ' || e.key === 'Enter') {
-        const $option = this.options.find(
-          item => item.value === currentFocusValue
-        )
+        const $option = this.options.find(item => item.value === currentFocusValue)
         if ($option) this._selectOption($option)
       }
     }
@@ -327,18 +296,11 @@ export class BlocksSelect extends BlocksSelectResult {
   filter() {
     const searchString = this.searchString
     forEach(this.options, option => {
-      option.style.display = this.optionFilter(option, searchString)
-        ? ''
-        : 'none'
+      option.style.display = this.optionFilter(option, searchString) ? '' : 'none'
     })
     forEach(this._ref.$list.querySelectorAll('bl-optgroup'), group => {
       const options = group.querySelectorAll('bl-option')
-      group.style.display = every(
-        options,
-        option => option.style.display === 'none'
-      )
-        ? 'none'
-        : ''
+      group.style.display = every(options, option => option.style.display === 'none') ? 'none' : ''
     })
   }
 

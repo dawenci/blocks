@@ -1,8 +1,5 @@
 import { useColorWithOpacity } from '../../common/color.js'
-import {
-  __color_primary,
-  __color_primary_light,
-} from '../../theme/var-light.js'
+import { __color_primary, __color_primary_light } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 :host {

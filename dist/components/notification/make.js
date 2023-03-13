@@ -22,8 +22,7 @@ function cage(placement) {
         let cssText = 'pointer-events:none;overflow:hidden;position:fixed;z-index:100;display:flex;flex-flow:column nowrap;padding:8px 0;';
         switch (placement) {
             case 'top-right': {
-                cssText +=
-                    'top:0;right:0;bottom:0;left:auto;justify-content:flex-start;';
+                cssText += 'top:0;right:0;bottom:0;left:auto;justify-content:flex-start;';
                 break;
             }
             case 'bottom-right': {
@@ -35,8 +34,7 @@ function cage(placement) {
                 break;
             }
             case 'top-left': {
-                cssText +=
-                    'top:0;right:auto;bottom:0;left:0;justify-content:flex-start;';
+                cssText += 'top:0;right:auto;bottom:0;left:0;justify-content:flex-start;';
                 break;
             }
         }

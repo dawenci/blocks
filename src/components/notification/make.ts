@@ -18,9 +18,7 @@ const normalizePlacement = (value: unknown): NotificationPlacement => {
 
 function cage(placement: unknown) {
   placement = normalizePlacement(placement)
-  let cage = document.querySelector(
-    '.bl-notification-cage' + '.' + placement
-  ) as HTMLElement
+  let cage = document.querySelector('.bl-notification-cage' + '.' + placement) as HTMLElement
   if (!cage) {
     cage = document.body.appendChild(document.createElement('div'))
     cage.className = `bl-notification-cage ${placement}`
@@ -29,8 +27,7 @@ function cage(placement: unknown) {
 
     switch (placement) {
       case 'top-right': {
-        cssText +=
-          'top:0;right:0;bottom:0;left:auto;justify-content:flex-start;'
+        cssText += 'top:0;right:0;bottom:0;left:auto;justify-content:flex-start;'
         break
       }
       case 'bottom-right': {
@@ -42,8 +39,7 @@ function cage(placement: unknown) {
         break
       }
       case 'top-left': {
-        cssText +=
-          'top:0;right:auto;bottom:0;left:0;justify-content:flex-start;'
+        cssText += 'top:0;right:auto;bottom:0;left:0;justify-content:flex-start;'
         break
       }
     }

@@ -84,11 +84,7 @@ export class BlocksRadio extends Control {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'checked') {
       dispatchEvent(this, 'change', { detail: { checked: this.checked } })

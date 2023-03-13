@@ -30,8 +30,7 @@ class Color {
         return new Color(r, g, b, alpha);
     }
     static fromHex(hexString) {
-        hexString =
-            hexString.indexOf('#') === 0 ? hexString.substring(1) : hexString;
+        hexString = hexString.indexOf('#') === 0 ? hexString.substring(1) : hexString;
         const r = parseInt(hexString.substr(0, 2), 16) || 0;
         const g = parseInt(hexString.substr(2, 2), 16) || 0;
         const b = parseInt(hexString.substr(4, 2), 16) || 0;
@@ -49,14 +48,10 @@ class Color {
         return Color.fromHsv(...hsv, alpha);
     }
     static equals(a, b, epsilon = EPSILON) {
-        return (Math.abs(a.b - b.b) <=
-            epsilon * Math.max(1.0, Math.abs(a.b), Math.abs(b.b)) &&
-            Math.abs(a.g - b.g) <=
-                epsilon * Math.max(1.0, Math.abs(a.g), Math.abs(b.g)) &&
-            Math.abs(a.r - b.r) <=
-                epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r)) &&
-            Math.abs(a.a - b.a) <=
-                epsilon * Math.max(1.0, Math.abs(a.a), Math.abs(b.a)));
+        return (Math.abs(a.b - b.b) <= epsilon * Math.max(1.0, Math.abs(a.b), Math.abs(b.b)) &&
+            Math.abs(a.g - b.g) <= epsilon * Math.max(1.0, Math.abs(a.g), Math.abs(b.g)) &&
+            Math.abs(a.r - b.r) <= epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r)) &&
+            Math.abs(a.a - b.a) <= epsilon * Math.max(1.0, Math.abs(a.a), Math.abs(b.a)));
     }
     static format(color, fmt = 'rgba') {
         switch (fmt) {
@@ -147,16 +142,13 @@ class Color {
     }
     set alpha(alpha) {
         this._alpha = alpha;
-        this._val =
-            ((this._val & 0x00ffffff) | (Color.to8BitAlpha(alpha) << 24)) >>> 0;
+        this._val = ((this._val & 0x00ffffff) | (Color.to8BitAlpha(alpha) << 24)) >>> 0;
     }
     constructor(r, g, b, alpha) {
         if (typeof r === 'string') {
             return Color.fromHex(r);
         }
-        else if (typeof r === 'number' &&
-            typeof g === 'number' &&
-            typeof b === 'number') {
+        else if (typeof r === 'number' && typeof g === 'number' && typeof b === 'number') {
             alpha = alpha ?? 1;
             this._val = Color.toValue(r, g, b, Color.to8BitAlpha(alpha));
             this._alpha = alpha;

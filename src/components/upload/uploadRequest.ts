@@ -32,10 +32,7 @@ export function uploadRequest(options: RequestOptions) {
   const headers = options.headers
   if (typeof headers === 'object') {
     for (const item in headers) {
-      if (
-        Object.prototype.hasOwnProperty.call(headers, item) &&
-        (headers as any)[item]
-      ) {
+      if (Object.prototype.hasOwnProperty.call(headers, item) && (headers as any)[item]) {
         xhr.setRequestHeader(item, (headers as any)[item])
       }
     }
@@ -62,9 +59,7 @@ export function uploadRequest(options: RequestOptions) {
             loaded: event.loaded,
             target: event.target,
             total: event.total,
-            percent: event.lengthComputable
-              ? (event.loaded / event.total) * 100
-              : 0,
+            percent: event.lengthComputable ? (event.loaded / event.total) * 100 : 0,
           },
           options
         )
@@ -112,10 +107,7 @@ export function uploadRequest(options: RequestOptions) {
   }
 }
 
-function normalizeError(
-  xhr: XMLHttpRequest,
-  options: RequestOptions
-): RequestError {
+function normalizeError(xhr: XMLHttpRequest, options: RequestOptions): RequestError {
   let msg
   if (xhr.response) {
     msg = `${xhr.response.error || xhr.response}`

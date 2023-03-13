@@ -1,8 +1,4 @@
-import {
-  __border_color_hover,
-  __fg_secondary,
-  __font_family,
-} from '../../theme/var-light.js'
+import { __border_color_hover, __fg_secondary, __font_family } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 :host {

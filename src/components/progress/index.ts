@@ -21,9 +21,7 @@ export interface BlocksProgress extends Component {
 export class BlocksProgress extends Component {
   @attr('number') accessor value!: number | null
 
-  @attr('enum', { enumValues: status }) accessor status!: NullableEnumAttr<
-    typeof status
-  >
+  @attr('enum', { enumValues: status }) accessor status!: NullableEnumAttr<typeof status>
 
   @attr('boolean') accessor percentage!: boolean
 
@@ -52,11 +50,7 @@ export class BlocksProgress extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: string,
-    newValue: string
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
   }

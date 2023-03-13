@@ -33,11 +33,7 @@ export class BlocksOptGroup extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
   }

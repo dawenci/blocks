@@ -201,9 +201,7 @@ export let BlocksList = (() => {
             return [...(this.#checkedSet ?? [])].map((vitem) => vitem.data);
         }
         set checkedData(data) {
-            this.#checkedSet = new Set(data
-                .map(data => this.virtualDataMap[this.keyMethod(data)])
-                .filter(vitem => !!vitem));
+            this.#checkedSet = new Set(data.map(data => this.virtualDataMap[this.keyMethod(data)]).filter(vitem => !!vitem));
             this.render();
             dispatchEvent(this, 'select-list:change', {
                 detail: {
@@ -218,9 +216,7 @@ export let BlocksList = (() => {
             return this.checkedData.map(this.keyMethod.bind(this));
         }
         set checked(ids) {
-            const vitems = ids
-                .map(id => this.getVirtualItemByKey(id))
-                .filter(vitem => !!vitem);
+            const vitems = ids.map(id => this.getVirtualItemByKey(id)).filter(vitem => !!vitem);
             this.#checkedSet = new Set(vitems);
             this.render();
             dispatchEvent(this, 'select-list:change', {
@@ -322,9 +318,7 @@ export let BlocksList = (() => {
                 }
                 case 'multiple': {
                     if (this.checkable && !this.multiple && this.#checkedSet.size) {
-                        this.#checkedSet = new Set([
-                            [...this.#checkedSet][this.#checkedSet.size - 1],
-                        ]);
+                        this.#checkedSet = new Set([[...this.#checkedSet][this.#checkedSet.size - 1]]);
                     }
                     break;
                 }

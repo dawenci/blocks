@@ -1,10 +1,7 @@
 // 可选择组件相关接口
 // 用于规范选择结果处理组件、候选列表组件之间的通讯
 
-import {
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../components/Component.js'
+import { ComponentEventListener, ComponentEventMap } from '../components/Component.js'
 
 // 选择结果、候选列表之间通讯用的数据结构
 export interface ISelected {
@@ -89,49 +86,29 @@ export function connectSelectable(
   const useCaptureResult = options?.captureResult ?? false
   const useCaptureList = options?.captureList ?? false
 
-  const onResultClear: ComponentEventListener<
-    ISelectResultEventMap['select-result:clear']
-  > = () => {
+  const onResultClear: ComponentEventListener<ISelectResultEventMap['select-result:clear']> = () => {
     if (typeof $list.clearSelected === 'function') {
       $list.clearSelected()
     }
   }
-  $result.addEventListener(
-    'select-result:clear',
-    onResultClear,
-    useCaptureResult
-  )
+  $result.addEventListener('select-result:clear', onResultClear, useCaptureResult)
 
-  const onResultDeselect: ComponentEventListener<
-    ISelectResultEventMap['select-result:deselect']
-  > = event => {
+  const onResultDeselect: ComponentEventListener<ISelectResultEventMap['select-result:deselect']> = event => {
     if (typeof $list.deselect === 'function') {
       $list.deselect(event.detail.value)
     }
   }
-  $result.addEventListener(
-    'select-result:deselect',
-    onResultDeselect,
-    useCaptureResult
-  )
+  $result.addEventListener('select-result:deselect', onResultDeselect, useCaptureResult)
 
-  const onResultSearch: ComponentEventListener<
-    ISelectResultEventMap['select-result:search']
-  > = event => {
+  const onResultSearch: ComponentEventListener<ISelectResultEventMap['select-result:search']> = event => {
     if (typeof $list.searchSelectable === 'function') {
       $list.searchSelectable(event.detail.searchString)
     }
   }
-  $result.addEventListener(
-    'select-result:search',
-    onResultSearch,
-    useCaptureResult
-  )
+  $result.addEventListener('select-result:search', onResultSearch, useCaptureResult)
 
   // 不一定需要实现
-  const onListSelect: ComponentEventListener<
-    ISelectListEventMap['select-list:select']
-  > = event => {
+  const onListSelect: ComponentEventListener<ISelectListEventMap['select-list:select']> = event => {
     if (typeof $result.select === 'function') {
       $result.select(event.detail.value)
     }
@@ -139,18 +116,14 @@ export function connectSelectable(
   $list.addEventListener('select-list:select', onListSelect, useCaptureList)
 
   // 不一定需要实现
-  const onListDeselect: ComponentEventListener<
-    ISelectListEventMap['select-list:deselect']
-  > = event => {
+  const onListDeselect: ComponentEventListener<ISelectListEventMap['select-list:deselect']> = event => {
     if (typeof $result.deselect === 'function') {
       $result.deselect(event.detail.value)
     }
   }
   $list.addEventListener('select-list:deselect', onListDeselect, useCaptureList)
 
-  const onListChange: ComponentEventListener<
-    ISelectListEventMap['select-list:change']
-  > = event => {
+  const onListChange: ComponentEventListener<ISelectListEventMap['select-list:change']> = event => {
     if (typeof $result.acceptSelected === 'function') {
       $result.acceptSelected(event.detail.value)
     }
@@ -159,35 +132,11 @@ export function connectSelectable(
 
   // 返回事件清理函数
   return () => {
-    $result.removeEventListener(
-      'select-result:clear',
-      onResultClear,
-      useCaptureResult
-    )
-    $result.removeEventListener(
-      'select-result:deselect',
-      onResultDeselect,
-      useCaptureResult
-    )
-    $result.removeEventListener(
-      'select-result:search',
-      onResultSearch,
-      useCaptureResult
-    )
-    $list.removeEventListener(
-      'select-list:select',
-      onListSelect,
-      useCaptureList
-    )
-    $list.removeEventListener(
-      'select-list:deselect',
-      onListDeselect,
-      useCaptureList
-    )
-    $list.removeEventListener(
-      'select-list:change',
-      onListChange,
-      useCaptureList
-    )
+    $result.removeEventListener('select-result:clear', onResultClear, useCaptureResult)
+    $result.removeEventListener('select-result:deselect', onResultDeselect, useCaptureResult)
+    $result.removeEventListener('select-result:search', onResultSearch, useCaptureResult)
+    $list.removeEventListener('select-list:select', onListSelect, useCaptureList)
+    $list.removeEventListener('select-list:deselect', onListDeselect, useCaptureList)
+    $list.removeEventListener('select-list:change', onListChange, useCaptureList)
   }
 }

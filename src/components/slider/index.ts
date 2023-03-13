@@ -19,16 +19,7 @@ export class BlocksSlider extends Component {
   }
 
   static override get observedAttributes() {
-    return [
-      'disabled',
-      'max',
-      'min',
-      'size',
-      'step',
-      'round',
-      'value',
-      'vertical',
-    ]
+    return ['disabled', 'max', 'min', 'size', 'step', 'round', 'value', 'vertical']
   }
 
   ref: {
@@ -129,11 +120,7 @@ export class BlocksSlider extends Component {
   }
 
   #renderPoint() {
-    const pos = fromRatio(
-      getRatio(this.value, this.min, this.max),
-      this.#posMin(),
-      this.#posMax()
-    )
+    const pos = fromRatio(getRatio(this.value, this.min, this.max), this.#posMin(), this.#posMax())
     this.ref.$point.style[this.vertical ? 'top' : 'left'] = `${pos}px`
   }
 
@@ -153,11 +140,7 @@ export class BlocksSlider extends Component {
     this.ref.$layout.onmousedown = null
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'disabled') {
       this._renderDisabled()
@@ -200,11 +183,7 @@ export class BlocksSlider extends Component {
             positionStart = start.clientX - rect.x - 7
           }
 
-          this.value = fromRatio(
-            getRatio(positionStart, this.#posMin(), this.#posMax()),
-            this.min,
-            this.max
-          )
+          this.value = fromRatio(getRatio(positionStart, this.#posMin(), this.#posMax()), this.min, this.max)
 
           positionStart = undefined
           this.#dragging = false
@@ -224,21 +203,13 @@ export class BlocksSlider extends Component {
         const moveOffset = this.vertical ? -offset.y : offset.x
 
         const position = positionStart! + moveOffset
-        this.value = fromRatio(
-          getRatio(position, this.#posMin(), this.#posMax()),
-          this.min,
-          this.max
-        )
+        this.value = fromRatio(getRatio(position, this.#posMin(), this.#posMax()), this.min, this.max)
       },
 
       onEnd: ({ offset }) => {
         const moveOffset = this.vertical ? -offset.y : offset.x
         const position = positionStart! + moveOffset
-        this.value = fromRatio(
-          getRatio(position, this.#posMin(), this.#posMax()),
-          this.min,
-          this.max
-        )
+        this.value = fromRatio(getRatio(position, this.#posMin(), this.#posMax()), this.min, this.max)
         positionStart = undefined
         this.#dragging = false
       },
@@ -250,11 +221,7 @@ export class BlocksSlider extends Component {
   }
 
   #trackSize() {
-    return parseFloat(
-      getComputedStyle(this.ref.$track).getPropertyValue(
-        this.vertical ? 'height' : 'width'
-      )
-    )
+    return parseFloat(getComputedStyle(this.ref.$track).getPropertyValue(this.vertical ? 'height' : 'width'))
   }
 
   #posMin() {

@@ -33,7 +33,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { defineClass } from '../decorators/defineClass.js';
-import { append, mountAfter, mountBefore, prepend, unmount, } from '../common/mount.js';
+import { append, mountAfter, mountBefore, prepend, unmount } from '../common/mount.js';
 import { upgradeProperty } from '../common/upgradeProperty.js';
 export let Component = (() => {
     let _classDecorators = [defineClass({
@@ -59,9 +59,7 @@ export let Component = (() => {
             }
             if (this.shadowRoot && ctor._$componentStyle) {
                 const $lastStyle = this._$lastStyle ??
-                    getLastItem(this.shadowRoot.children.length
-                        ? this.shadowRoot.querySelectorAll('style')
-                        : []);
+                    getLastItem(this.shadowRoot.children.length ? this.shadowRoot.querySelectorAll('style') : []);
                 const $fragment = ctor._$componentStyle;
                 const _$last = $fragment.children[$fragment.children.length - 1];
                 if ($lastStyle) {

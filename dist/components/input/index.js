@@ -36,7 +36,7 @@ import '../popup/index.js';
 import '../date/index.js';
 import { disabledSetter } from '../../common/propertyAccessor.js';
 import { dispatchEvent } from '../../common/event.js';
-import { ClearableControlBox, } from '../base-clearable-control-box/index.js';
+import { ClearableControlBox } from '../base-clearable-control-box/index.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 import { template } from './template.js';

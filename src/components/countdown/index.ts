@@ -5,11 +5,7 @@ import { style } from './style.js'
 import { padLeft } from '../../common/utils.js'
 import { dispatchEvent } from '../../common/event.js'
 import { parseDateFormat, Token } from './parseDateFormat.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 
 interface CountDownEventMap extends ComponentEventMap {
   start: CustomEvent<void>
@@ -175,11 +171,7 @@ export class BlocksCountdown extends Component {
     this.stop()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'value') {
       this.run()
@@ -190,11 +182,7 @@ export class BlocksCountdown extends Component {
 }
 
 type VarName = 'day' | 'hour' | 'minute' | 'second' | 'millisecond'
-function patchDom(
-  dom: HTMLElement,
-  tokens: Token[],
-  vars: Record<VarName, number | string>
-) {
+function patchDom(dom: HTMLElement, tokens: Token[], vars: Record<VarName, number | string>) {
   // 内容没更新
   if (dom.textContent === tokens.map(token => token.payload).join('')) return
 
@@ -229,8 +217,7 @@ function patchDom(
         break
     }
 
-    const el =
-      children[index] ?? dom.appendChild(document.createElement('span'))
+    const el = children[index] ?? dom.appendChild(document.createElement('span'))
     el.setAttribute('part', type)
     el.textContent = text
   })

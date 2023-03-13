@@ -114,11 +114,7 @@ export class BlocksTooltip extends Component {
     this._destroyClickOutside()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (BlocksPopup.observedAttributes.includes(attrName)) {
       this.$popup.setAttribute(attrName, newValue)
@@ -128,10 +124,7 @@ export class BlocksTooltip extends Component {
 
   _initClickOutside() {
     if (!this._clearClickOutside) {
-      this._clearClickOutside = onClickOutside(
-        [this, this.$popup],
-        () => (this.open = false)
-      )
+      this._clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false))
     }
   }
 

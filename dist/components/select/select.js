@@ -46,7 +46,7 @@ import { BlocksSelectResult } from '../select-result/index.js';
 import { BlocksOption } from './option.js';
 import { BlocksOptGroup } from './optgroup.js';
 import { cloneElement } from '../../common/cloneElement.js';
-import { connectSelectable, } from '../../common/connectSelectable.js';
+import { connectSelectable } from '../../common/connectSelectable.js';
 import { dispatchEvent } from '../../common/event.js';
 const isOption = ($el) => $el instanceof BlocksOption;
 const isGroup = ($el) => $el instanceof BlocksOptGroup;
@@ -181,9 +181,7 @@ export let BlocksSelect = (() => {
                     $option.silentSelected(false);
                 }
             });
-            this._ref.$list
-                .querySelectorAll('[selected]')
-                .forEach($option => {
+            this._ref.$list.querySelectorAll('[selected]').forEach($option => {
                 $option.silentSelected(false);
             });
             this._renderValue();
@@ -218,8 +216,7 @@ export let BlocksSelect = (() => {
         _selectOption(option) {
             if (option.disabled)
                 return;
-            if (option.parentElement instanceof BlocksOptGroup &&
-                option.parentElement.disabled) {
+            if (option.parentElement instanceof BlocksOptGroup && option.parentElement.disabled) {
                 return;
             }
             if (this.multiple) {
@@ -261,9 +258,7 @@ export let BlocksSelect = (() => {
                 if (e.key === 'Escape') {
                     this._closePopup();
                 }
-                if ((e.key === 'Tab' && !e.shiftKey) ||
-                    e.key === 'ArrowDown' ||
-                    e.key === 'ArrowUp') {
+                if ((e.key === 'Tab' && !e.shiftKey) || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                     e.preventDefault();
                     const first = this.options.find($option => !$option.disabled);
                     if (first) {
@@ -292,15 +287,11 @@ export let BlocksSelect = (() => {
         filter() {
             const searchString = this.searchString;
             forEach(this.options, option => {
-                option.style.display = this.optionFilter(option, searchString)
-                    ? ''
-                    : 'none';
+                option.style.display = this.optionFilter(option, searchString) ? '' : 'none';
             });
             forEach(this._ref.$list.querySelectorAll('bl-optgroup'), group => {
                 const options = group.querySelectorAll('bl-option');
-                group.style.display = every(options, option => option.style.display === 'none')
-                    ? 'none'
-                    : '';
+                group.style.display = every(options, option => option.style.display === 'none') ? 'none' : '';
             });
         }
         #clearClickOutside;

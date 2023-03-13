@@ -1,5 +1,4 @@
-const isInteger = Number.isInteger ||
-    (v => typeof v === 'number' && isFinite(v) && Math.floor(v) === v);
+const isInteger = Number.isInteger || (v => typeof v === 'number' && isFinite(v) && Math.floor(v) === v);
 function mostSignificantBit(value) {
     let result = value;
     result |= result >> 1;

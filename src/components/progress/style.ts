@@ -86,24 +86,15 @@ export const style = /*css*/ `
 #progress { background-color: var(--bl-color-primary-base, ${__color_primary}) }
 #value { color: var(--bl-color-primary-base, ${__color_primary}) }
 
-:host([status="success"]) #track { background-color: ${useColorWithOpacity(
-  __color_success,
-  0.1
-)} }
+:host([status="success"]) #track { background-color: ${useColorWithOpacity(__color_success, 0.1)} }
 :host([status="success"]) #progress { background-color: var(--bl-color-success-base, ${__color_success}) }
 :host([status="success"]) #value { color: var(--bl-color-success-base, ${__color_success}) }
 
-:host([status="error"]) #track { background-color: ${useColorWithOpacity(
-  __color_danger,
-  0.1
-)} }
+:host([status="error"]) #track { background-color: ${useColorWithOpacity(__color_danger, 0.1)} }
 :host([status="error"]) #progress { background-color: var(--bl-color-danger-base, ${__color_danger}) }
 :host([status="error"]) #value { color: var(--bl-color-danger-base, ${__color_danger}) }
 
-:host([status="warning"]) #track { background-color: ${useColorWithOpacity(
-  __color_warning,
-  0.1
-)} }
+:host([status="warning"]) #track { background-color: ${useColorWithOpacity(__color_warning, 0.1)} }
 :host([status="warning"]) #progress { background-color: var(--bl-color-warning-base, ${__color_warning}) }
 :host([status="warning"]) #value { color: var(--bl-color-warning-base, ${__color_warning}) }
 `

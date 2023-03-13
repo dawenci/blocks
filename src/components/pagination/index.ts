@@ -6,11 +6,7 @@ import { template } from './template.js'
 import { style } from './style.js'
 import { dispatchEvent } from '../../common/event.js'
 import { forEach } from '../../common/utils.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 
 export interface PaginationEventMap extends ComponentEventMap {
   'bl:pagination:current-change': CustomEvent<{ current: number }>
@@ -130,11 +126,7 @@ export class BlocksPagination extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
     if (attrName === 'current') {
@@ -159,12 +151,7 @@ export class BlocksPagination extends Component {
   _renderPager() {
     const showQuickPrev = this.current > 4
     const showQuickNext = this.itemCount - this.current > 3
-    const count =
-      this.itemCount < 8
-        ? this.itemCount
-        : showQuickPrev && showQuickNext
-        ? 9
-        : 8
+    const count = this.itemCount < 8 ? this.itemCount : showQuickPrev && showQuickNext ? 9 : 8
     this._ensureItem(count)
     const children = this._ref.$items.children as unknown as HTMLElement[]
 
@@ -244,16 +231,10 @@ export class BlocksPagination extends Component {
   _ensureItem(n: number) {
     const { itemTemplate } = template()
     while (this._ref.$items.children.length < n) {
-      this._ref.$items.appendChild(
-        this._itemPool.pop() ?? itemTemplate.cloneNode(true)
-      )
+      this._ref.$items.appendChild(this._itemPool.pop() ?? itemTemplate.cloneNode(true))
     }
     while (this._ref.$items.children.length > n) {
-      this._itemPool.push(
-        this._ref.$items.removeChild(
-          this._ref.$items.lastElementChild!
-        ) as HTMLElement
-      )
+      this._itemPool.push(this._ref.$items.removeChild(this._ref.$items.lastElementChild!) as HTMLElement)
     }
     if (this._itemPool.length > 7) this._itemPool.length = 7
   }

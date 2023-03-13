@@ -13,13 +13,11 @@ export function template() {
 
   const cellTemplate = document.createElement('div')
   cellTemplate.className = 'cell'
-  cellTemplate.appendChild(document.createElement('div')).className =
-    'cell-content'
+  cellTemplate.appendChild(document.createElement('div')).className = 'cell-content'
 
   const groupTemplate = document.createElement('div')
   groupTemplate.className = 'group'
-  groupTemplate.appendChild(document.createElement('div')).className =
-    'group_label'
+  groupTemplate.appendChild(document.createElement('div')).className = 'group_label'
   groupTemplate.appendChild(document.createElement('div')).className = 'columns'
 
   return (templateCache = {

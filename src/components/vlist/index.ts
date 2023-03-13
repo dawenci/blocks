@@ -7,11 +7,7 @@ import { find, findLast, forEach } from '../../common/utils.js'
 import { dispatchEvent } from '../../common/event.js'
 import { BinaryIndexedTree } from './BinaryIndexedTree.js'
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { contentTemplate, itemTemplate, loadingTemplate } from './template.js'
 import { style } from './style.js'
 
@@ -122,10 +118,7 @@ export class BlocksVList extends Component {
 
   @attr('int', {
     defaults(self: BlocksVList) {
-      const size = parseInt(
-        getComputedStyle(self).getPropertyValue('--item-height'),
-        10
-      )
+      const size = parseInt(getComputedStyle(self).getPropertyValue('--item-height'), 10)
       return size
     },
   })
@@ -238,16 +231,12 @@ export class BlocksVList extends Component {
 
   // 视口主轴方向尺寸
   get viewportMainSize() {
-    return this.direction === Direction.Vertical
-      ? this.viewportHeight
-      : this.viewportWidth
+    return this.direction === Direction.Vertical ? this.viewportHeight : this.viewportWidth
   }
 
   // 视口侧轴方向尺寸
   get viewportCrossSize() {
-    return this.direction === Direction.Vertical
-      ? this.viewportWidth
-      : this.viewportHeight
+    return this.direction === Direction.Vertical ? this.viewportWidth : this.viewportHeight
   }
 
   // 内容容器主轴方向尺寸
@@ -284,11 +273,7 @@ export class BlocksVList extends Component {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (BlocksVList.observedAttributes.includes(attrName)) {
       this.redraw()
@@ -341,33 +326,22 @@ export class BlocksVList extends Component {
     }
 
     // 列表中，存在多少个动画元素
-    const transitionItemCount =
-      this._ref.$list.querySelectorAll('.transition').length
+    const transitionItemCount = this._ref.$list.querySelectorAll('.transition').length
 
     if (this.direction === Direction.Horizontal) {
-      this._ref.$list.style.transform = `translateX(${this._itemOffset(
-        this.sliceFrom!
-      )}px)`
+      this._ref.$list.style.transform = `translateX(${this._itemOffset(this.sliceFrom!)}px)`
     } else {
-      this._ref.$list.style.transform = `translateY(${this._itemOffset(
-        this.sliceFrom!
-      )}px)`
+      this._ref.$list.style.transform = `translateY(${this._itemOffset(this.sliceFrom!)}px)`
     }
 
     const sliceItems = this.virtualSliceData
     const getFirst = () =>
       transitionItemCount
-        ? find(
-            this._ref.$list.children,
-            $item => ($item as any).virtualViewIndex != null
-          )
+        ? find(this._ref.$list.children, $item => ($item as any).virtualViewIndex != null)
         : this._ref.$list.firstElementChild
     const getLast = () =>
       transitionItemCount
-        ? findLast(
-            this._ref.$list.children,
-            $item => ($item as any).virtualViewIndex != null
-          )
+        ? findLast(this._ref.$list.children, $item => ($item as any).virtualViewIndex != null)
         : this._ref.$list.lastElementChild
 
     // 渲染条目 DOM，针对滚动的场景做优化
@@ -377,72 +351,36 @@ export class BlocksVList extends Component {
     const endItemKey = (getLast() as any)?.virtualViewIndex
 
     // 上滚
-    if (
-      endKey < endItemKey ||
-      (endKey === endItemKey && startKey < startItemKey)
-    ) {
+    if (endKey < endItemKey || (endKey === endItemKey && startKey < startItemKey)) {
       // 结尾对齐
       let $last
-      while (
-        this._ref.$list.children.length &&
-        ($last = getLast() as any)?.virtualViewIndex !== endKey
-      ) {
+      while (this._ref.$list.children.length && ($last = getLast() as any)?.virtualViewIndex !== endKey) {
         $last && this.#$pool.push(this._ref.$list.removeChild($last))
       }
 
       // 保证数量一致
-      while (
-        this._ref.$list.children.length >
-        renderCount + transitionItemCount
-      ) {
-        this.#$pool.push(
-          this._ref.$list.removeChild(
-            this._ref.$list.firstElementChild as HTMLElement
-          )
-        )
+      while (this._ref.$list.children.length > renderCount + transitionItemCount) {
+        this.#$pool.push(this._ref.$list.removeChild(this._ref.$list.firstElementChild as HTMLElement))
       }
-      while (
-        this._ref.$list.children.length <
-        renderCount + transitionItemCount
-      ) {
-        this._ref.$list.insertBefore(
-          this.#$pool.pop() ?? itemTemplate(),
-          this._ref.$list.firstElementChild
-        )
+      while (this._ref.$list.children.length < renderCount + transitionItemCount) {
+        this._ref.$list.insertBefore(this.#$pool.pop() ?? itemTemplate(), this._ref.$list.firstElementChild)
       }
     } else {
       // 下滚
-      if (
-        startKey > startItemKey ||
-        (startKey === startItemKey && endKey > endItemKey)
-      ) {
+      if (startKey > startItemKey || (startKey === startItemKey && endKey > endItemKey)) {
         // 开头对齐
         let $first
-        while (
-          this._ref.$list.children.length &&
-          ($first = getFirst() as any)?.virtualViewIndex !== startKey
-        ) {
-          $first &&
-            this.#$pool.push(this._ref.$list.removeChild($first) as HTMLElement)
+        while (this._ref.$list.children.length && ($first = getFirst() as any)?.virtualViewIndex !== startKey) {
+          $first && this.#$pool.push(this._ref.$list.removeChild($first) as HTMLElement)
         }
       }
 
       // 保证数量一致
-      while (
-        this._ref.$list.children.length >
-        renderCount + transitionItemCount
-      ) {
-        this.#$pool.push(
-          this._ref.$list.removeChild(
-            this._ref.$list.lastElementChild as HTMLElement
-          )
-        )
+      while (this._ref.$list.children.length > renderCount + transitionItemCount) {
+        this.#$pool.push(this._ref.$list.removeChild(this._ref.$list.lastElementChild as HTMLElement))
       }
 
-      while (
-        this._ref.$list.children.length <
-        renderCount + transitionItemCount
-      ) {
+      while (this._ref.$list.children.length < renderCount + transitionItemCount) {
         this._ref.$list.appendChild(this.#$pool.pop() ?? itemTemplate())
       }
     }
@@ -463,9 +401,7 @@ export class BlocksVList extends Component {
     }
 
     // 过滤出未计算过高度的条目
-    this._updateSizeByItems(
-      this._ref.$list.children as unknown as ElementWithData[]
-    )
+    this._updateSizeByItems(this._ref.$list.children as unknown as ElementWithData[])
 
     if (this.afterRender) {
       this.afterRender()
@@ -599,10 +535,7 @@ export class BlocksVList extends Component {
     for (let index = 0, size = data.length; index < size; index += 1) {
       const node = data[index]
       // 小于零的需要隐藏，所以高度为 0
-      this.itemHeightStore.writeSingle(
-        index,
-        1 / node.height > 0 ? node.height : 0
-      )
+      this.itemHeightStore.writeSingle(index, 1 / node.height > 0 ? node.height : 0)
     }
 
     this.virtualViewData = data
@@ -665,13 +598,7 @@ export class BlocksVList extends Component {
       }
     })
     const size = items.reduce(
-      (acc, $item) =>
-        acc +
-        $item[
-          this.direction === Direction.Horizontal
-            ? 'offsetWidth'
-            : 'offsetHeight'
-        ],
+      (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'],
       0
     )
     this._ref.$list.insertBefore($collapse, $first!)
@@ -680,9 +607,7 @@ export class BlocksVList extends Component {
       $collapse.appendChild(items.pop()!)
     }
     if ($collapse.children.length) {
-      $collapse.style[
-        this.direction === Direction.Horizontal ? 'width' : 'height'
-      ] = `${size}px`
+      $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
       doTransitionLeave($collapse, 'collapse', () => {
         Array.prototype.slice.call($collapse.children).forEach($item => {
           this._ref.$list.insertBefore($item, $collapse)
@@ -737,13 +662,7 @@ export class BlocksVList extends Component {
       }
     })
     const size = items.reduce(
-      (acc, $item) =>
-        acc +
-        $item[
-          this.direction === Direction.Horizontal
-            ? 'offsetWidth'
-            : 'offsetHeight'
-        ],
+      (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'],
       0
     )
     if ($first!) {
@@ -754,9 +673,7 @@ export class BlocksVList extends Component {
       $collapse.appendChild(items.pop()!)
     }
     if ($collapse.children.length) {
-      $collapse.style[
-        this.direction === Direction.Horizontal ? 'width' : 'height'
-      ] = `${size}px`
+      $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
       doTransitionEnter($collapse, 'collapse', () => {
         this._ref.$list.removeChild($collapse)
         this.redraw()
@@ -826,8 +743,7 @@ export class BlocksVList extends Component {
       const offset = Math.floor(this._itemSize(anchorIndex) * anchorOffsetRatio)
       let scroll = start - offset
       if (scroll < 0) scroll = 0
-      if (scroll > this.mainSize - this.viewportMainSize)
-        scroll = this.mainSize - this.viewportMainSize
+      if (scroll > this.mainSize - this.viewportMainSize) scroll = this.mainSize - this.viewportMainSize
       this.setScrollMain(scroll)
     }
   }
@@ -855,52 +771,34 @@ export class BlocksVList extends Component {
    * 获取 viewport 主轴方向滚过去的距离
    */
   getScrollMain() {
-    return this._ref.$viewport[
-      this.direction === Direction.Horizontal
-        ? 'viewportScrollLeft'
-        : 'viewportScrollTop'
-    ]
+    return this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop']
   }
 
   /**
    * 获取 viewport 侧轴方向滚过去的距离
    */
   getScrollCross() {
-    return this._ref.$viewport[
-      this.direction === Direction.Horizontal
-        ? 'viewportScrollTop'
-        : 'viewportScrollLeft'
-    ]
+    return this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft']
   }
 
   /**
    * 设置 viewport 主轴方向滚过去的距离
    */
   setScrollMain(value: number) {
-    this._ref.$viewport[
-      this.direction === Direction.Horizontal
-        ? 'viewportScrollLeft'
-        : 'viewportScrollTop'
-    ] = value
+    this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop'] = value
   }
 
   /**
    * 设置 viewport 侧轴方向滚过去的距离
    */
   setScrollCross(value: number) {
-    this._ref.$viewport[
-      this.direction === Direction.Horizontal
-        ? 'viewportScrollTop'
-        : 'viewportScrollLeft'
-    ] = value
+    this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft'] = value
   }
 
   // 更新数据切片范围，可以提供 ture 参数强制重新绘制
   _updateSliceRange(forceUpdate?: boolean) {
     const viewportSize =
-      this.direction === Direction.Horizontal
-        ? this._ref.$viewport.clientWidth
-        : this._ref.$viewport.clientHeight
+      this.direction === Direction.Horizontal ? this._ref.$viewport.clientWidth : this._ref.$viewport.clientHeight
     const viewportStart =
       this.direction === Direction.Horizontal
         ? this._ref.$viewport.viewportScrollLeft
@@ -908,11 +806,7 @@ export class BlocksVList extends Component {
 
     // 计算出准确的切片区间
     const range = this._calcSliceRange(viewportSize, viewportStart)
-    if (
-      range.sliceFrom === this.sliceFrom &&
-      range.sliceTo === this.sliceTo &&
-      !forceUpdate
-    ) {
+    if (range.sliceFrom === this.sliceFrom && range.sliceTo === this.sliceTo && !forceUpdate) {
       return
     }
 
@@ -936,11 +830,7 @@ export class BlocksVList extends Component {
     if (toThreshold > MAX) toThreshold = MAX
 
     // 无需强制刷新，且上下两端都没有触达阈值时，无需重新切片
-    if (
-      !forceUpdate &&
-      this.sliceFrom! <= fromThreshold &&
-      this.sliceTo! >= toThreshold
-    ) {
+    if (!forceUpdate && this.sliceFrom! <= fromThreshold && this.sliceTo! >= toThreshold) {
       // console.log('无需切片', `O(${this.sliceFrom},${this.sliceTo}), N(${fromThreshold},${toThreshold})`)
       return
     }
@@ -953,8 +843,7 @@ export class BlocksVList extends Component {
     sliceFrom = sliceFrom > COUNT ? sliceFrom - COUNT : 0
     sliceTo = sliceTo + COUNT > MAX ? MAX : sliceTo + COUNT
 
-    const shouldDoSlice =
-      forceUpdate || this.sliceFrom !== sliceFrom || this.sliceTo !== sliceTo
+    const shouldDoSlice = forceUpdate || this.sliceFrom !== sliceFrom || this.sliceTo !== sliceTo
 
     this.sliceFrom = sliceFrom
     this.sliceTo = sliceTo
@@ -1013,8 +902,7 @@ export class BlocksVList extends Component {
         // 二分法快速估算下一个尝试位置
         // offset / 平均高度，即预估的条目数量差距
         // TODO, 对于固定高度，简化
-        const diff1 =
-          itemOffset / ((itemTop + estimatedItemSize) / (sliceFrom + 1))
+        const diff1 = itemOffset / ((itemTop + estimatedItemSize) / (sliceFrom + 1))
         // 预估的条目差距取 2 分之一，跟 (max - min) / 2 比较，取小的为准
         const halfDiff1 = Math.ceil(Math.min(diff1 / 2, (max - min) / 2))
         sliceFrom -= halfDiff1
@@ -1034,8 +922,7 @@ export class BlocksVList extends Component {
       // 二分法快速估算下一个尝试位置
       {
         min = Math.max(sliceFrom, min)
-        const diff2 =
-          -itemOffset / ((itemTop + estimatedItemSize) / (sliceFrom + 1))
+        const diff2 = -itemOffset / ((itemTop + estimatedItemSize) / (sliceFrom + 1))
         const halfDiff2 = Math.ceil(Math.min(diff2 / 2, (max - min) / 2))
         sliceFrom += halfDiff2
         if (sliceFrom > MAX_INDEX) sliceFrom = MAX_INDEX
@@ -1064,8 +951,7 @@ export class BlocksVList extends Component {
       // 1. 该条目的底部距离视口底部有距离，说明下方还有条目元素需要显示，继续测试下一条
       if (itemOffset < 0) {
         min = Math.max(sliceTo, min)
-        const diff3 =
-          -itemOffset / ((itemTop + estimatedItemSize) / (sliceTo + 1))
+        const diff3 = -itemOffset / ((itemTop + estimatedItemSize) / (sliceTo + 1))
         const halfDiff3 = Math.ceil(Math.min(diff3 / 2, (max - min) / 2))
         sliceTo += halfDiff3
 
@@ -1086,8 +972,7 @@ export class BlocksVList extends Component {
       // 二分法快速估算下一个尝试位置
       {
         max = Math.min(sliceTo, max)
-        const diff4 =
-          itemOffset / ((itemTop + estimatedItemSize) / (sliceTo + 1))
+        const diff4 = itemOffset / ((itemTop + estimatedItemSize) / (sliceTo + 1))
         const halfDiff4 = Math.ceil(Math.min(diff4 / 2, (max - min) / 2))
         sliceTo -= halfDiff4
         if (sliceTo < sliceFrom) sliceTo = sliceFrom
@@ -1222,9 +1107,7 @@ export class BlocksVList extends Component {
 
   // 通过 key 获取对应的数据 DOM
   getNodeByVirtualKey(virtualKey: string): HTMLElement {
-    return this._ref.$list.querySelector(
-      `[data-virtual-key="${virtualKey}"]`
-    ) as HTMLElement
+    return this._ref.$list.querySelector(`[data-virtual-key="${virtualKey}"]`) as HTMLElement
   }
 
   // 将包裹数据列表，转换成原始数据列表
@@ -1244,32 +1127,16 @@ export class BlocksVList extends Component {
     if (itemHeightStore) {
       if (this.direction === Direction.Horizontal) {
         this._ref.$list.style.width = ''
-        this._ref.$list.style.height = this._ref.$listSize.style.height = this
-          .crossSize
-          ? `${this.crossSize}px`
-          : ''
-        this._ref.$listSize.style.width = `${itemHeightStore.read(
-          itemHeightStore.maxVal
-        )}px`
+        this._ref.$list.style.height = this._ref.$listSize.style.height = this.crossSize ? `${this.crossSize}px` : ''
+        this._ref.$listSize.style.width = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
       } else {
         this._ref.$list.style.height = ''
-        this._ref.$list.style.width = this._ref.$listSize.style.width = this
-          .crossSize
-          ? `${this.crossSize}px`
-          : ''
-        this._ref.$listSize.style.height = `${itemHeightStore.read(
-          itemHeightStore.maxVal
-        )}px`
+        this._ref.$list.style.width = this._ref.$listSize.style.width = this.crossSize ? `${this.crossSize}px` : ''
+        this._ref.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
       }
     }
-    this._ref.$viewport.toggleViewportClass(
-      'main-scrollbar',
-      this.hasMainScrollbar
-    )
-    this._ref.$viewport.toggleViewportClass(
-      'cross-scrollbar',
-      this.hasCrossScrollbar
-    )
+    this._ref.$viewport.toggleViewportClass('main-scrollbar', this.hasMainScrollbar)
+    this._ref.$viewport.toggleViewportClass('cross-scrollbar', this.hasCrossScrollbar)
   }
 
   // 重置尺寸的已计算状态，用于已计算出来的值全部失效的情况
@@ -1283,8 +1150,7 @@ export class BlocksVList extends Component {
 
   // `index`: 数据在 virtualViewItems 中的 index
   _itemSize(index: number): number {
-    if (index >= this.itemHeightStore.maxVal!)
-      index = this.itemHeightStore.maxVal - 1
+    if (index >= this.itemHeightStore.maxVal!) index = this.itemHeightStore.maxVal - 1
     return this.itemHeightStore.readSingle(index)
   }
 

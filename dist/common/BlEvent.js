@@ -92,9 +92,7 @@ function offIteratee(events, name, callback, options) {
         const remaining = [];
         for (let j = 0; j < handlers.length; j++) {
             const handler = handlers[j];
-            if ((callback &&
-                callback !== handler.callback &&
-                callback !== handler.callback._callback) ||
+            if ((callback && callback !== handler.callback && callback !== handler.callback._callback) ||
                 (context && context !== handler.context)) {
                 remaining.push(handler);
             }
@@ -237,8 +235,7 @@ export class BlEvent {
     }
     once(name, callback, context) {
         const events = iterateEvents(onceMap, {}, name, callback, this.off.bind(this));
-        if (typeof name === 'string' &&
-            (context === undefined || context === null)) {
+        if (typeof name === 'string' && (context === undefined || context === null)) {
             callback = void 0;
         }
         return this.on(events, callback, context);

@@ -8,6 +8,4 @@ export const contentTemplate = makeTemplate(/*html*/ `
 </div>
 `)
 
-export const menuTemplate = makeDomTemplate(
-  document.createElement('bl-popup-menu')
-)
+export const menuTemplate = makeDomTemplate(document.createElement('bl-popup-menu'))

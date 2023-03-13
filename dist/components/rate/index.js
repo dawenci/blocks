@@ -40,28 +40,8 @@ import { enumGetter, enumSetter } from '../../common/property.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
 import { style } from './style.js';
-const halfValueGetter = enumGetter('value', [
-    '1',
-    '1.5',
-    '2',
-    '2.5',
-    '3',
-    '3.5',
-    '4',
-    '4.5',
-    '5',
-]);
-const halfValueSetter = enumSetter('value', [
-    '1',
-    '1.5',
-    '2',
-    '2.5',
-    '3',
-    '3.5',
-    '4',
-    '4.5',
-    '5',
-]);
+const halfValueGetter = enumGetter('value', ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']);
+const halfValueSetter = enumSetter('value', ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']);
 const valueGetter = enumGetter('value', ['1', '2', '3', '4', '5']);
 const valueSetter = enumSetter('value', ['1', '2', '3', '4', '5']);
 const $STAR_ICON = getRegisteredSvgIcon('star');
@@ -151,11 +131,7 @@ export let BlocksRate = (() => {
             };
         }
         get value() {
-            const value = this.resultMode
-                ? this.getAttribute('value')
-                : this.half
-                    ? halfValueGetter(this)
-                    : valueGetter(this);
+            const value = this.resultMode ? this.getAttribute('value') : this.half ? halfValueGetter(this) : valueGetter(this);
             if (value == null)
                 return null;
             return +value;
@@ -217,9 +193,7 @@ export let BlocksRate = (() => {
                 if ($button.children.length !== 2) {
                     $button.innerHTML = '';
                     $button.appendChild(star.cloneNode(true));
-                    $button
-                        .appendChild(star.cloneNode(true))
-                        .classList.add('part');
+                    $button.appendChild(star.cloneNode(true)).classList.add('part');
                 }
             });
         }

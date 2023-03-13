@@ -35,7 +35,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
 import { style } from './menu.style.js';
-import { contentTemplate, groupTemplate, itemTemplate, } from './menu.template.js';
+import { contentTemplate, groupTemplate, itemTemplate } from './menu.template.js';
 import { Component } from '../Component.js';
 import { forEach } from '../../common/utils.js';
 export let BlocksNavMenu = (() => {

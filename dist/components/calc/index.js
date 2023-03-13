@@ -36,7 +36,7 @@ import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 import { dispatchEvent } from '../../common/event.js';
 import { forEach } from '../../common/utils.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 import { style } from './style.js';
 import { template } from './template.js';
 var State;
@@ -81,13 +81,7 @@ export let BlocksCalc = (() => {
         makeSub = (n1) => (n2) => +(n2 - n1).toPrecision(12);
         makeMul = (n1) => (n2) => +(n2 * n1).toPrecision(12);
         makeDiv = (n1) => (n2) => +(n2 / n1).toPrecision(12);
-        makeFn = (op) => op === '+'
-            ? this.makeAdd
-            : op === '-'
-                ? this.makeSub
-                : op === '*'
-                    ? this.makeMul
-                    : this.makeDiv;
+        makeFn = (op) => op === '+' ? this.makeAdd : op === '-' ? this.makeSub : op === '*' ? this.makeMul : this.makeDiv;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
@@ -216,9 +210,7 @@ export let BlocksCalc = (() => {
             }
             if ([State.Operator, State.OperandRight, State.OperandRightEnd].includes(this.state)) {
                 forEach($operators.querySelectorAll('.active'), $active => $active.classList.remove('active'));
-                $operators
-                    .querySelector(`[data-value="${this.operator}"]`)
-                    ?.classList?.add?.('active');
+                $operators.querySelector(`[data-value="${this.operator}"]`)?.classList?.add?.('active');
             }
             else {
                 forEach($operators.querySelectorAll('.active'), $active => $active.classList.remove('active'));
@@ -319,8 +311,7 @@ export let BlocksCalc = (() => {
                     return;
                 }
                 case State.OperandLeft: {
-                    this.screen =
-                        (this.screen ?? '').substr(0, (this.screen ?? '').length - 1) || '0';
+                    this.screen = (this.screen ?? '').substr(0, (this.screen ?? '').length - 1) || '0';
                     return;
                 }
                 case State.OperandLeftEnd: {
@@ -330,8 +321,7 @@ export let BlocksCalc = (() => {
                     return;
                 }
                 case State.OperandRight: {
-                    this.screen =
-                        (this.screen ?? '').substr(0, (this.screen ?? '').length - 1) || '0';
+                    this.screen = (this.screen ?? '').substr(0, (this.screen ?? '').length - 1) || '0';
                 }
             }
         }

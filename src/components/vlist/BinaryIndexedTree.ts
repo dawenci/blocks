@@ -3,9 +3,7 @@ type BinaryIndexedTreeOptions = {
   defaultFrequency?: number
 }
 
-const isInteger =
-  Number.isInteger ||
-  (v => typeof v === 'number' && isFinite(v) && Math.floor(v) === v)
+const isInteger = Number.isInteger || (v => typeof v === 'number' && isFinite(v) && Math.floor(v) === v)
 
 function mostSignificantBit(value: any) {
   let result = value

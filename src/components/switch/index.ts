@@ -55,11 +55,7 @@ export class BlocksSwitch extends Control {
     super.connectedCallback()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'checked') {
       dispatchEvent(this, 'change', { detail: { value: this.checked } })

@@ -5,15 +5,11 @@ export function blBindContextMenu(
   /** 绑定事件的目标元素 */
   el: HTMLElement,
   /** 菜单数组，或者生成菜单数组的函数 */
-  menuData:
-    | (MenuItem | MenuGroup)[]
-    | ((e: MouseEvent) => (MenuItem | MenuGroup)[])
+  menuData: (MenuItem | MenuGroup)[] | ((e: MouseEvent) => (MenuItem | MenuGroup)[])
 ) {
   const handler = (e: MouseEvent) => {
     e.preventDefault()
-    const $menu = document.body.appendChild(
-      document.createElement('bl-popup-menu')
-    )
+    const $menu = document.body.appendChild(document.createElement('bl-popup-menu'))
     $menu.style.minWidth = '200px'
     $menu.offset = [e.pageX, e.pageY] //`[${e.pageX}, ${e.pageY}]`
     $menu.autoflip = true

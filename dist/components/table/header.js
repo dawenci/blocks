@@ -34,7 +34,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import { dispatchEvent } from '../../common/event.js';
 import { setStyles } from '../../common/style.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 import { template } from './header-template.js';
 import { style } from './header.style.js';
 import { defineClass } from '../../decorators/defineClass.js';
@@ -174,9 +174,7 @@ export let BlocksTableHeader = (() => {
         render() {
             const columns = this.$host?.columns ?? [];
             this.fixedLeftColumns = columns.filter(column => column.fixedLeft);
-            this.fixedRightColumns = columns
-                .filter(column => column.fixedRight)
-                .reverse();
+            this.fixedRightColumns = columns.filter(column => column.fixedRight).reverse();
             const render = (column, $wrap) => {
                 const { columnWidth, minWidth, maxWidth, align } = column;
                 const hasChildren = !!column.children.length;

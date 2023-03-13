@@ -1,7 +1,4 @@
-import {
-  __border_color_base,
-  __color_primary_light,
-} from '../../theme/var-light.js'
+import { __border_color_base, __color_primary_light } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 /* <component>table */

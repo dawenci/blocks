@@ -75,10 +75,7 @@ export class BlocksRangeSlider extends Component {
     const attrValue = (strGetter('value')(this) ?? '').trim()
     const values = attrValue.split(',').map(n => parseFloat(n))
     return values.every(n => this.#validate(n))
-      ? (values.sort((a, b) => a - b).map(n => round(n, this.round)) as [
-          number,
-          number
-        ])
+      ? (values.sort((a, b) => a - b).map(n => round(n, this.round)) as [number, number])
       : ([this.min, this.min] as [number, number])
   }
 
@@ -146,16 +143,8 @@ export class BlocksRangeSlider extends Component {
   }
 
   #renderPoint() {
-    const pos1 = fromRatio(
-      getRatio(this.value[0], this.min, this.max),
-      this.#posMin(),
-      this.#posMax()
-    )
-    const pos2 = fromRatio(
-      getRatio(this.value[1], this.min, this.max),
-      this.#posMin(),
-      this.#posMax()
-    )
+    const pos1 = fromRatio(getRatio(this.value[0], this.min, this.max), this.#posMin(), this.#posMax())
+    const pos2 = fromRatio(getRatio(this.value[1], this.min, this.max), this.#posMin(), this.#posMax())
     this.ref.$point.style[this.vertical ? 'top' : 'left'] = `${pos1}px`
     this.ref.$point2.style[this.vertical ? 'top' : 'left'] = `${pos2}px`
   }
@@ -188,11 +177,7 @@ export class BlocksRangeSlider extends Component {
     this.ref.$layout.onmousedown = null
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'disabled') {
       this._renderDisabled()
@@ -213,23 +198,9 @@ export class BlocksRangeSlider extends Component {
 
     const update = (pos: number) => {
       if ($active === this.ref.$point) {
-        this.value = [
-          fromRatio(
-            getRatio(pos, this.#posMin(), this.#posMax()),
-            this.min,
-            this.max
-          ),
-          this.value[1],
-        ]
+        this.value = [fromRatio(getRatio(pos, this.#posMin(), this.#posMax()), this.min, this.max), this.value[1]]
       } else {
-        this.value = [
-          this.value[0],
-          fromRatio(
-            getRatio(pos, this.#posMin(), this.#posMax()),
-            this.min,
-            this.max
-          ),
-        ]
+        this.value = [this.value[0], fromRatio(getRatio(pos, this.#posMin(), this.#posMax()), this.min, this.max)]
       }
     }
 
@@ -289,19 +260,13 @@ export class BlocksRangeSlider extends Component {
         const moveOffset = this.vertical ? -offset.y : offset.x
         const position = positionStart! + moveOffset
 
-        if (
-          $active === this.ref.$point &&
-          position > getPosition(this.ref.$point2, this.vertical)
-        ) {
+        if ($active === this.ref.$point && position > getPosition(this.ref.$point2, this.vertical)) {
           this.ref.$point.classList.remove('active')
           this.ref.$point.blur()
           this.ref.$point2.classList.add('active')
           this.ref.$point2.focus()
           $active = this.ref.$point2
-        } else if (
-          $active === this.ref.$point2 &&
-          position < getPosition(this.ref.$point, this.vertical)
-        ) {
+        } else if ($active === this.ref.$point2 && position < getPosition(this.ref.$point, this.vertical)) {
           this.ref.$point2.classList.remove('active')
           this.ref.$point2.blur()
           this.ref.$point.classList.add('active')
@@ -338,11 +303,7 @@ export class BlocksRangeSlider extends Component {
   }
 
   #trackSize() {
-    return parseFloat(
-      getComputedStyle(this.ref.$track).getPropertyValue(
-        this.vertical ? 'height' : 'width'
-      )
-    )
+    return parseFloat(getComputedStyle(this.ref.$track).getPropertyValue(this.vertical ? 'height' : 'width'))
   }
 
   #updateTabindex() {

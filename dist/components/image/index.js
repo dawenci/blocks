@@ -40,7 +40,7 @@ import { strGetter, strSetter } from '../../common/property.js';
 import { dispatchEvent } from '../../common/event.js';
 import { makeMessages } from '../../i18n/makeMessages.js';
 import { Component } from '../Component.js';
-import { contentTemplate, fallbackTemplate, placeholderTemplate, } from './template.js';
+import { contentTemplate, fallbackTemplate, placeholderTemplate } from './template.js';
 import { style } from './style.js';
 import { domRef } from '../../decorators/domRef.js';
 const getMessage = makeMessages('image', {
@@ -147,8 +147,7 @@ export let BlocksImage = (() => {
             this._removeFallback();
             if (!this._ref.$placeholder) {
                 this._ref.$placeholder = $layout.appendChild(placeholderTemplate());
-                this._ref.$placeholder.querySelector('.placeholderText').textContent =
-                    getMessage('placeholderText');
+                this._ref.$placeholder.querySelector('.placeholderText').textContent = getMessage('placeholderText');
                 if (this.placeholder) {
                     this._ref.$placeholder.querySelector('img').src = this.placeholder;
                 }
@@ -160,8 +159,7 @@ export let BlocksImage = (() => {
             this._removePlaceholder();
             if (!this._ref.$fallback) {
                 this._ref.$fallback = $layout.appendChild(fallbackTemplate());
-                this._ref.$fallback.querySelector('.fallbackText').textContent =
-                    getMessage('fallbackText');
+                this._ref.$fallback.querySelector('.fallbackText').textContent = getMessage('fallbackText');
                 if (this.fallback) {
                     this._ref.$fallback.querySelector('img').src = this.fallback;
                 }
@@ -211,8 +209,7 @@ export let BlocksImage = (() => {
             }
         }
         load() {
-            if (this._status === 'loading' ||
-                (strGetter('alt')(this.$img) === this.src && this._status === 'loaded')) {
+            if (this._status === 'loading' || (strGetter('alt')(this.$img) === this.src && this._status === 'loaded')) {
                 return;
             }
             this._status = 'loading';

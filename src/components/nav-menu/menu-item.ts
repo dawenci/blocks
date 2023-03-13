@@ -188,16 +188,11 @@ export class BlocksNavMenuItem extends Component {
       this.innerHTML = ''
       this.classList.add('has-submenu')
       if (!this.isInlineMode) {
-        this.$submenu = document.createElement(
-          'bl-popup-menu'
-        ) as BlocksPopupMenu
+        this.$submenu = document.createElement('bl-popup-menu') as BlocksPopupMenu
         this.$submenu.appendToBody = true
         this.$submenu.anchor = () => this
 
-        if (
-          (this.$rootMenu as BlocksNavMenu).horizontal &&
-          this.$hostMenu!.level === 0
-        ) {
+        if ((this.$rootMenu as BlocksNavMenu).horizontal && this.$hostMenu!.level === 0) {
           this.$submenu.origin = PopupOrigin.TopStart
         } else {
           this.$submenu.origin = PopupOrigin.LeftStart
@@ -233,11 +228,7 @@ export class BlocksNavMenuItem extends Component {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'expand' && this.$submenu) {
       ;(this.$submenu as any).expand = this.expand

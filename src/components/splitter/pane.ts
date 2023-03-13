@@ -58,10 +58,8 @@ export class BlocksSplitterPane extends Component {
   }
 
   updateStyle() {
-    const sizeProp =
-      this.getSplitter().direction === 'horizontal' ? 'width' : 'height'
-    const posProp =
-      this.getSplitter().direction === 'horizontal' ? 'left' : 'top'
+    const sizeProp = this.getSplitter().direction === 'horizontal' ? 'width' : 'height'
+    const posProp = this.getSplitter().direction === 'horizontal' ? 'left' : 'top'
     // 宽度/高度 样式计算，外框宽度 - 拖动柄的宽度（如果显示拖动柄）
     this.style[sizeProp] = this.getSplitter().getPaneSize(this) + 'px'
     this.style[posProp] = this.getSplitter().getPanePosition(this) + 'px'

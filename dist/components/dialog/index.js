@@ -38,7 +38,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { dialogTemplate } from './template.js';
 import { style } from './style.js';
-import { WithOpenTransition, } from '../with-open-transition/index.js';
+import { WithOpenTransition } from '../with-open-transition/index.js';
 import { Control } from '../base-control/index.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
@@ -140,8 +140,7 @@ let BlocksDialog = (() => {
                 this._ref.$layout.querySelector('#first') ||
                     this._ref.$layout.insertBefore(document.createElement('button'), this._ref.$layout.firstChild);
             this._ref.$lastFocusable =
-                this._ref.$layout.querySelector('#last') ||
-                    this._ref.$layout.appendChild(document.createElement('button'));
+                this._ref.$layout.querySelector('#last') || this._ref.$layout.appendChild(document.createElement('button'));
             this._ref.$firstFocusable.id = 'first';
             this._ref.$lastFocusable.id = 'last';
             this._ref.$firstFocusable.onkeydown = e => {
@@ -166,12 +165,10 @@ let BlocksDialog = (() => {
         _updateVisible() {
             if (this.open) {
                 if (!this.style.left) {
-                    this.style.left =
-                        (document.body.clientWidth - this.offsetWidth) / 2 + 'px';
+                    this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px';
                 }
                 if (!this.style.top) {
-                    this.style.top =
-                        (document.body.clientHeight - this.offsetHeight) / 2 + 'px';
+                    this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px';
                 }
                 if (this._ref.$mask) {
                     this._ref.$mask.open = true;

@@ -121,10 +121,7 @@ export class BlocksPopupMenu extends BlocksPopup {
 
   clearActive() {
     const children = this.children as unknown as Array<
-      | BlocksNavMenuItem
-      | BlocksNavMenuGroup
-      | BlocksPopupMenuItem
-      | BlocksPopupMenuGroup
+      BlocksNavMenuItem | BlocksNavMenuGroup | BlocksPopupMenuItem | BlocksPopupMenuGroup
     >
     forEach(children, child => {
       if (child.clearActive) child.clearActive()
@@ -169,11 +166,7 @@ export class BlocksPopupMenu extends BlocksPopup {
     this._destroyClickOutside()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (BlocksPopup.observedAttributes.includes(attrName)) {
       super.attributeChangedCallback(attrName, oldValue, newValue)

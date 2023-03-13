@@ -1,8 +1,4 @@
-import {
-  __radius_base,
-  __border_color_base,
-  __fg_secondary,
-} from '../../theme/var-light.js'
+import { __radius_base, __border_color_base, __fg_secondary } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 :host {

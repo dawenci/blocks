@@ -47,10 +47,7 @@ import { style } from './style.js';
 const DEFAULT_ICON_MAP = Object.freeze({
     'file-image': /^image\//,
     'file-pdf': /\/pdf$/,
-    'file-word': [
-        /msword$/,
-        'vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ],
+    'file-word': [/msword$/, 'vnd.openxmlformats-officedocument.wordprocessingml.document'],
     'file-excel': [],
     'file-ppt': [],
 });
@@ -337,12 +334,7 @@ export let BlocksUpload = (() => {
                 $item.querySelector('.size').textContent = formatSize(item.file.size);
                 const $progress = $item.querySelector('bl-progress');
                 $progress.value = item.progressValue;
-                $progress.status =
-                    item.state === State.Success
-                        ? 'success'
-                        : item.state === State.Error
-                            ? 'error'
-                            : null;
+                $progress.status = item.state === State.Success ? 'success' : item.state === State.Error ? 'error' : null;
                 this._renderItemIcon($item, item.type);
             });
         }

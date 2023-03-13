@@ -34,11 +34,7 @@ export class BlocksBreadcrumbItem extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'href') {
       strSetter('href')(this.$link, newValue)

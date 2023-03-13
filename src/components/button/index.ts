@@ -71,10 +71,7 @@ export class BlocksButton extends ControlBox {
 
   override render() {
     super.render()
-    this._ref.$layout.classList.toggle(
-      'empty',
-      !this._ref.$slot.assignedNodes().length
-    )
+    this._ref.$layout.classList.toggle('empty', !this._ref.$slot.assignedNodes().length)
   }
 
   override connectedCallback() {
@@ -96,11 +93,7 @@ export class BlocksButton extends ControlBox {
     this._observer.disconnect()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     switch (attrName) {
       case 'type': {

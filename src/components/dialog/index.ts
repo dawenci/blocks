@@ -4,10 +4,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import { dialogTemplate } from './template.js'
 import { style } from './style.js'
-import {
-  WithOpenTransition,
-  WithOpenTransitionEventMap,
-} from '../with-open-transition/index.js'
+import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 import { BlocksModalMask } from '../modal-mask/index.js'
 import { Control } from '../base-control/index.js'
 import { ComponentEventListener } from '../Component.js'
@@ -114,13 +111,9 @@ class BlocksDialog extends Control {
   _captureFocus() {
     this._ref.$firstFocusable =
       this._ref.$layout.querySelector('#first') ||
-      this._ref.$layout.insertBefore(
-        document.createElement('button'),
-        this._ref.$layout.firstChild
-      )
+      this._ref.$layout.insertBefore(document.createElement('button'), this._ref.$layout.firstChild)
     this._ref.$lastFocusable =
-      this._ref.$layout.querySelector('#last') ||
-      this._ref.$layout.appendChild(document.createElement('button'))
+      this._ref.$layout.querySelector('#last') || this._ref.$layout.appendChild(document.createElement('button'))
     this._ref.$firstFocusable.id = 'first'
     this._ref.$lastFocusable.id = 'last'
     this._ref.$firstFocusable.onkeydown = e => {
@@ -148,12 +141,10 @@ class BlocksDialog extends Control {
   _updateVisible() {
     if (this.open) {
       if (!this.style.left) {
-        this.style.left =
-          (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
+        this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px'
       }
       if (!this.style.top) {
-        this.style.top =
-          (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
+        this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px'
       }
       if (this._ref.$mask) {
         this._ref.$mask.open = true
@@ -175,10 +166,7 @@ class BlocksDialog extends Control {
           this.open = false
         }
         if (this._ref.$lastFocusable) {
-          this._ref.$layout.insertBefore(
-            this._ref.$close,
-            this._ref.$lastFocusable
-          )
+          this._ref.$layout.insertBefore(this._ref.$close, this._ref.$lastFocusable)
         } else {
           this._ref.$layout.appendChild(this._ref.$close)
         }
@@ -271,12 +259,8 @@ class BlocksDialog extends Control {
     onDragMove(this._ref.$layout, {
       onStart: ({ $target, stop }) => {
         if (!isHeader($target)) return stop()
-        const marginLeft = parseFloat(
-          window.getComputedStyle(this).marginLeft || '0'
-        )
-        const marginTop = parseFloat(
-          window.getComputedStyle(this).marginTop || '0'
-        )
+        const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0')
+        const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0')
         startX = this.offsetLeft - marginLeft
         startY = this.offsetTop - marginTop
       },
@@ -295,11 +279,7 @@ class BlocksDialog extends Control {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     if (attrName == 'open' && this.shadowRoot) {

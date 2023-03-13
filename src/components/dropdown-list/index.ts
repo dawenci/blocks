@@ -1,8 +1,4 @@
-import {
-  connectSelectable,
-  ISelected,
-  ISelectResultComponent,
-} from '../../common/connectSelectable.js'
+import { connectSelectable, ISelected, ISelectResultComponent } from '../../common/connectSelectable.js'
 import { dispatchEvent } from '../../common/event.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { Component } from '../Component.js'
@@ -13,9 +9,7 @@ import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import type { EnumAttr } from '../../decorators/attr.js'
 
-const ATTRS = BlocksPopup.observedAttributes.concat(
-  BlocksList.observedAttributes
-)
+const ATTRS = BlocksPopup.observedAttributes.concat(BlocksList.observedAttributes)
 
 export interface BlocksDropdownList extends Component {
   _ref: {
@@ -211,11 +205,7 @@ export class BlocksDropdownList extends Component {
     document.body.removeChild(this._ref.$popup)
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     if (BlocksPopup.observedAttributes.includes(attrName)) {

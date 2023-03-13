@@ -1,9 +1,7 @@
 /**
  * 通过 css 内容，构造对应的 <style> 元素的克隆函数
  */
-export const makeStyleTemplate = (
-  content: string
-): (() => HTMLStyleElement) => {
+export const makeStyleTemplate = (content: string): (() => HTMLStyleElement) => {
   let cache: HTMLStyleElement
   return () => {
     if (cache) {
@@ -18,9 +16,7 @@ export const makeStyleTemplate = (
 /**
  * 通过 html 内容（单个根节点），构造对应的 html 元素的克隆函数
  */
-export const makeTemplate = <T extends HTMLElement>(
-  html: string
-): (() => T) => {
+export const makeTemplate = <T extends HTMLElement>(html: string): (() => T) => {
   let cache: HTMLTemplateElement
   return () => {
     if (cache) {
@@ -35,9 +31,7 @@ export const makeTemplate = <T extends HTMLElement>(
 /**
  * 通过 html 内容（可以多个根节点），构造对应的 DocumentFragment 的克隆函数
  */
-export const makeFragmentTemplate = (
-  html: string
-): (() => DocumentFragment) => {
+export const makeFragmentTemplate = (html: string): (() => DocumentFragment) => {
   let cache: HTMLTemplateElement
   return () => {
     if (cache) {

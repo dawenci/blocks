@@ -87,9 +87,7 @@ export class BlocksModal extends BlocksDialog {
 
   cancel() {
     const cancelValue =
-      typeof this.rejectValue === 'function'
-        ? this.rejectValue()
-        : this.rejectValue ?? new Error('cancel')
+      typeof this.rejectValue === 'function' ? this.rejectValue() : this.rejectValue ?? new Error('cancel')
     if (this.onCancel) {
       this.onCancel(cancelValue)
     }
@@ -100,10 +98,7 @@ export class BlocksModal extends BlocksDialog {
   }
 
   confirm() {
-    const confirmValue =
-      typeof this.resolveValue === 'function'
-        ? this.resolveValue()
-        : this.resolveValue ?? ''
+    const confirmValue = typeof this.resolveValue === 'function' ? this.resolveValue() : this.resolveValue ?? ''
     if (this.onConfirm) {
       this.onConfirm(confirmValue)
     }
@@ -187,11 +182,7 @@ export class BlocksModal extends BlocksDialog {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'open') {
       if (this.open) {

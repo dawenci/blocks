@@ -29,10 +29,7 @@ function normalizeWheel(event: WheelEvent) {
   }
 
   // side scrolling on FF with DOMMouseScroll
-  if (
-    'axis' in event &&
-    (event as any).axis === (event as any).HORIZONTAL_AXIS
-  ) {
+  if ('axis' in event && (event as any).axis === (event as any).HORIZONTAL_AXIS) {
     sX = sY
     sY = 0
   }
@@ -85,13 +82,8 @@ type Data = { spinX: number; spinY: number; pixelX: number; pixelY: number }
  * @param {Element} el 监听滚轮事件的元素
  * @param {(event: WheelEvent, data: {spinX: number; spinY: number, pixelX: number, pixelY: number}) => void} handler
  */
-export function onWheel(
-  el: Element,
-  handler: (event: WheelEvent, data: Data) => void
-) {
-  const isFirefox =
-    typeof navigator !== 'undefined' &&
-    navigator.userAgent.toLowerCase().indexOf('firefox') > -1
+export function onWheel(el: Element, handler: (event: WheelEvent, data: Data) => void) {
+  const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1
   const eventType = isFirefox ? 'DOMMouseScroll' : 'mousewheel'
 
   el.addEventListener(eventType, function (this: any, event: any) {

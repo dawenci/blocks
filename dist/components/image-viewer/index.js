@@ -41,7 +41,7 @@ import { forEach } from '../../common/utils.js';
 import { contentTemplate } from './template.js';
 import { style } from './style.js';
 import { Component } from '../Component.js';
-import { WithOpenTransition, } from '../with-open-transition/index.js';
+import { WithOpenTransition } from '../with-open-transition/index.js';
 export let BlocksImageViewer = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-image-viewer',
@@ -92,9 +92,7 @@ export let BlocksImageViewer = (() => {
             };
             this.imgMap = new Map();
             const onSlotChange = () => {
-                const imgs = $slot
-                    .assignedElements()
-                    .filter(el => el.nodeName === 'IMG');
+                const imgs = $slot.assignedElements().filter(el => el.nodeName === 'IMG');
                 const newMap = new Map();
                 imgs.forEach($img => {
                     if (this.imgMap.has($img)) {
@@ -238,8 +236,7 @@ export let BlocksImageViewer = (() => {
             this._renderCurrent();
         }
         next() {
-            if (this.imgs.length &&
-                this.activeImg !== this.imgs[this.imgs.length - 1]) {
+            if (this.imgs.length && this.activeImg !== this.imgs[this.imgs.length - 1]) {
                 const index = this.imgs.indexOf(this.activeImg);
                 this.activeImg = this.imgs[index + 1];
             }

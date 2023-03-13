@@ -42,7 +42,7 @@ import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
 import { onDragMove } from '../../common/onDragMove.js';
 import { windowStyleTemplate, windowTemplate } from './template.js';
 import { Control } from '../base-control/index.js';
-import { WithOpenTransition, } from '../with-open-transition/index.js';
+import { WithOpenTransition } from '../with-open-transition/index.js';
 import { withOpenTransitionStyleTemplate } from '../with-open-transition/template.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
@@ -350,8 +350,7 @@ export let BlocksWindow = (() => {
                     }
                 },
                 onMove: ({ current }) => {
-                    if (current.pageY > window.innerHeight ||
-                        current.pageX > window.innerWidth)
+                    if (current.pageY > window.innerHeight || current.pageX > window.innerWidth)
                         return;
                     updateFn(current.pageX, current.pageY);
                 },
@@ -361,15 +360,9 @@ export let BlocksWindow = (() => {
             this._ref.$name.title = this._ref.$name.textContent = this.name ?? '';
         }
         #renderActions() {
-            this._ref.$minimizeButton.style.display = this.actions.includes('minimize')
-                ? ''
-                : 'none';
-            this._ref.$maximizeButton.style.display = this.actions.includes('maximize')
-                ? ''
-                : 'none';
-            this._ref.$closeButton.style.display = this.actions.includes('close')
-                ? ''
-                : 'none';
+            this._ref.$minimizeButton.style.display = this.actions.includes('minimize') ? '' : 'none';
+            this._ref.$maximizeButton.style.display = this.actions.includes('maximize') ? '' : 'none';
+            this._ref.$closeButton.style.display = this.actions.includes('close') ? '' : 'none';
         }
         #renderIcon() {
             if (this._ref.$icon?.childElementCount) {
@@ -393,8 +386,7 @@ export let BlocksWindow = (() => {
                 this._ref.$layout.querySelector('#first') ||
                     this._ref.$layout.insertBefore(document.createElement('button'), this._ref.$layout.firstChild);
             this._ref.$lastFocusable =
-                this._ref.$layout.querySelector('#last') ||
-                    this._ref.$layout.appendChild(document.createElement('button'));
+                this._ref.$layout.querySelector('#last') || this._ref.$layout.appendChild(document.createElement('button'));
             this._ref.$firstFocusable.id = 'first';
             this._ref.$lastFocusable.id = 'last';
             this._ref.$firstFocusable.onkeydown = e => {
@@ -419,12 +411,10 @@ export let BlocksWindow = (() => {
         #updateVisible() {
             if (this.open) {
                 if (!this.style.left) {
-                    this.style.left =
-                        (document.body.clientWidth - this.offsetWidth) / 2 + 'px';
+                    this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px';
                 }
                 if (!this.style.top) {
-                    this.style.top =
-                        (document.body.clientHeight - this.offsetHeight) / 2 + 'px';
+                    this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px';
                 }
             }
         }

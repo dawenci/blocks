@@ -1,9 +1,4 @@
-import {
-  __border_color_base,
-  __color_primary,
-  __fg_placeholder,
-  __fg_secondary,
-} from '../../theme/var-light.js'
+import { __border_color_base, __color_primary, __fg_placeholder, __fg_secondary } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 /* <component>table-header */

@@ -8,11 +8,7 @@ import { sizeObserve } from '../../common/sizeObserve.js'
 import { make, RowColumn } from './RowColumn.js'
 import { setStyles } from '../../common/style.js'
 import { onDragMove } from '../../common/onDragMove.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { style } from './table.style.js'
 import { BlocksTableHeader, CellElement as HeaderCell } from './header.js'
 import { BlocksTableBody, CellElement } from './body.js'
@@ -74,21 +70,15 @@ export class BlocksTable extends Component {
     const shadowRoot = this.shadowRoot!
 
     // 表头
-    const $mainHeader = shadowRoot.appendChild(
-      document.createElement('bl-table-header')
-    ) as BlocksTableHeader
+    const $mainHeader = shadowRoot.appendChild(document.createElement('bl-table-header')) as BlocksTableHeader
     $mainHeader.$host = this
 
     // 表身
-    const $mainBody = shadowRoot.appendChild(
-      document.createElement('bl-table-body')
-    ) as BlocksTableBody
+    const $mainBody = shadowRoot.appendChild(document.createElement('bl-table-body')) as BlocksTableBody
     $mainBody.$host = this
 
     // 列宽拖拽柄
-    const $resizeHandle = shadowRoot.appendChild(
-      document.createElement('div')
-    ) as unknown as ResizeHandler
+    const $resizeHandle = shadowRoot.appendChild(document.createElement('div')) as unknown as ResizeHandler
     $resizeHandle.id = 'resize-handle'
 
     // 水平滚动，同步 header 的左右滚动
@@ -108,21 +98,12 @@ export class BlocksTable extends Component {
     $mainHeader.addEventListener('enter-cell', e => {
       const { $cell, column } = e.detail
       // 只允许拖拽调整末级列
-      if (
-        column.resizable &&
-        !column.children?.length &&
-        !this.classList.contains('resizing')
-      ) {
+      if (column.resizable && !column.children?.length && !this.classList.contains('resizing')) {
         $resizeHandle.$cell = $cell
         $resizeHandle.column = column
         setStyles($resizeHandle, {
           height: $cell.offsetHeight + 'px',
-          left:
-            $cell.offsetLeft +
-            $cell.clientWidth -
-            $mainHeader.viewportScrollLeft -
-            3 +
-            'px',
+          left: $cell.offsetLeft + $cell.clientWidth - $mainHeader.viewportScrollLeft - 3 + 'px',
           top: $cell.offsetTop + 'px',
         })
       }
@@ -157,9 +138,7 @@ export class BlocksTable extends Component {
   }
 
   set columns(value) {
-    this._columns = (value ?? []).map((options: Partial<RowColumn>) =>
-      make(options)
-    )
+    this._columns = (value ?? []).map((options: Partial<RowColumn>) => make(options))
     this._ref.$mainHeader.columns = value
     this._ref.$mainBody.columns = value
     this._updateFiexedColumnShadow()
@@ -306,27 +285,18 @@ export class BlocksTable extends Component {
 
   // 计算左固定列的宽度
   fixedLeftWidth() {
-    return this.getFixedLeafColumns('left').reduce(
-      (acc, column) => acc + column.width,
-      0
-    )
+    return this.getFixedLeafColumns('left').reduce((acc, column) => acc + column.width, 0)
   }
 
   // 计算右固定列的宽度
   fixedRightWidth() {
-    return this.getFixedLeafColumns('right').reduce(
-      (acc, column) => acc + column.width,
-      0
-    )
+    return this.getFixedLeafColumns('right').reduce((acc, column) => acc + column.width, 0)
   }
 
   // 计算用于内容排版的画布尺寸
   // @Provide()
   getCanvasWidth() {
-    const columnsMinWidth = this.getLeafColumnsWith().reduce(
-      (acc, column) => acc + column.minWidth,
-      0
-    )
+    const columnsMinWidth = this.getLeafColumnsWith().reduce((acc, column) => acc + column.minWidth, 0)
     const bodyWidth = this._ref.$mainBody?.clientWidth ?? this.width ?? 400
     return Math.max(bodyWidth, columnsMinWidth)
   }
@@ -337,10 +307,7 @@ export class BlocksTable extends Component {
     this._ref.$mainBody.crossSize = canvasWidth
 
     // 已分配的宽度
-    const sum = this.getLeafColumnsWith().reduce(
-      (acc, column) => acc + column.width,
-      0
-    )
+    const sum = this.getLeafColumnsWith().reduce((acc, column) => acc + column.width, 0)
 
     // 剩余未分配的宽度
     const remainingWidth = canvasWidth - sum

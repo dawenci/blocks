@@ -39,7 +39,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { Component } from '../Component.js';
 import { template } from './template.js';
 import { style } from './style.js';
-import { __color_success, __color_danger, __color_warning, __color_primary, } from '../../theme/var-light.js';
+import { __color_success, __color_danger, __color_warning, __color_primary } from '../../theme/var-light.js';
 export var NotificationPlacement;
 (function (NotificationPlacement) {
     NotificationPlacement["TopRight"] = "top-right";

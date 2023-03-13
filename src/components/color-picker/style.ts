@@ -1,9 +1,4 @@
-import {
-  __height_base,
-  __height_large,
-  __height_small,
-  __radius_base,
-} from '../../theme/var-light.js'
+import { __height_base, __height_large, __height_small, __radius_base } from '../../theme/var-light.js'
 import '../icon/index.js'
 import '../input/index.js'
 import '../color/index.js'

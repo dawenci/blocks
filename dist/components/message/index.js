@@ -41,13 +41,7 @@ import { Component } from '../Component.js';
 import { template } from './template.js';
 import { style } from './style.js';
 const closeableSetter = boolSetter('closeable');
-const typeSetter = enumSetter('type', [
-    'message',
-    'success',
-    'error',
-    'info',
-    'warning',
-]);
+const typeSetter = enumSetter('type', ['message', 'success', 'error', 'info', 'warning']);
 export let BlocksMessage = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-message',

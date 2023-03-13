@@ -28,10 +28,7 @@ function mergeRanges(ranges: Range[]): Range[] {
   return merged
 }
 
-function makeSlices(
-  text: string,
-  highlightRanges: Range[]
-): Array<{ text: string; highlight: boolean }> {
+function makeSlices(text: string, highlightRanges: Range[]): Array<{ text: string; highlight: boolean }> {
   const results = []
   let index = 0
   highlightRanges.forEach(([s, e]) => {

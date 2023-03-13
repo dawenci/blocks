@@ -132,10 +132,7 @@ export class BlocksDateTimePicker extends ClearableControlBox {
         this.#prevValueFrom = this.#prevValueTo = null
         dispatchEvent(this, 'change', {
           detail: {
-            value:
-              this.#valueFrom && this.#valueTo
-                ? [this.#valueFrom, this.#valueTo]
-                : null,
+            value: this.#valueFrom && this.#valueTo ? [this.#valueFrom, this.#valueTo] : null,
           },
         })
         this._ref.$popup.open = false
@@ -177,9 +174,7 @@ export class BlocksDateTimePicker extends ClearableControlBox {
         } else {
           // 对于区间模式，未选择 day，直接选择 time，
           // 则 day 部分优先采用另一侧的同一天，以便开始、结束日期大小非法时进行自动修正
-          newValue = this.range
-            ? copyDate(this.#valueFrom ?? this.#valueTo ?? today())
-            : today()
+          newValue = this.range ? copyDate(this.#valueFrom ?? this.#valueTo ?? today()) : today()
         }
         newValue.setHours(hour)
         newValue.setMinutes(minute)
@@ -312,11 +307,7 @@ export class BlocksDateTimePicker extends ClearableControlBox {
     // 按钮 disabled 校验只做 date 面板
     // time 面板不限制，但是一旦出现开始时间大于结束时间（date 面板为同一天时有可能）这种非法值，
     // 则需要自动纠正：自动调整另一侧的 time 部分
-    if (
-      this.#valueFrom &&
-      this.#valueTo &&
-      this.#valueFrom?.getTime() > this.#valueTo.getTime()
-    ) {
+    if (this.#valueFrom && this.#valueTo && this.#valueFrom?.getTime() > this.#valueTo.getTime()) {
       if (isFromActive) {
         this.#valueTo.setTime(this.#valueFrom.getTime())
       } else {
@@ -495,17 +486,10 @@ export class BlocksDateTimePicker extends ClearableControlBox {
     this.#destroyClickOutside()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
-    if (
-      BlocksDate.observedAttributes.includes(attrName) &&
-      attrName !== 'mode'
-    ) {
+    if (BlocksDate.observedAttributes.includes(attrName) && attrName !== 'mode') {
       this._ref.$date.setAttribute(attrName, newValue)
     }
 
@@ -576,13 +560,9 @@ export class BlocksDateTimePicker extends ClearableControlBox {
   }
 
   #updateLayout() {
-    this._ref.$time.style.height =
-      this._ref.$date._ref.$content.offsetHeight + 'px'
+    this._ref.$time.style.height = this._ref.$date._ref.$content.offsetHeight + 'px'
     this._ref.$timeValue.style.height =
-      this._ref.$date.offsetHeight -
-      this._ref.$date._ref.$content.offsetHeight -
-      1 +
-      'px'
+      this._ref.$date.offsetHeight - this._ref.$date._ref.$content.offsetHeight - 1 + 'px'
   }
 
   static override get observedAttributes() {

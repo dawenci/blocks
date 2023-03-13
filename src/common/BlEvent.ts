@@ -36,12 +36,7 @@ function once(func: (...args: any[]) => any): (...args: any[]) => any {
  * @param {*} offer
  * @returns
  */
-function onceMap(
-  map: Record<string, any>,
-  name: string,
-  callback: any,
-  offer: any
-) {
+function onceMap(map: Record<string, any>, name: string, callback: any, offer: any) {
   if (typeof callback !== 'function') return map
 
   const _once = (map[name] = once(function (this: any) {
@@ -151,9 +146,7 @@ function offIteratee(events: any, name: any, callback: any, options: any) {
     for (let j = 0; j < handlers.length; j++) {
       const handler = handlers[j]
       if (
-        (callback &&
-          callback !== handler.callback &&
-          callback !== handler.callback._callback) ||
+        (callback && callback !== handler.callback && callback !== handler.callback._callback) ||
         (context && context !== handler.context)
       ) {
         remaining.push(handler)
@@ -205,12 +198,10 @@ function trigger(events: any[], args: any[]) {
       while (++i < count) (event = events[i]).callback.call(event.ctx, arg1)
       return
     case 2:
-      while (++i < count)
-        (event = events[i]).callback.call(event.ctx, arg1, arg2)
+      while (++i < count) (event = events[i]).callback.call(event.ctx, arg1, arg2)
       return
     case 3:
-      while (++i < count)
-        (event = events[i]).callback.call(event.ctx, arg1, arg2, arg3)
+      while (++i < count) (event = events[i]).callback.call(event.ctx, arg1, arg2, arg3)
       return
     default:
       while (++i < count) (event = events[i]).callback.apply(event.ctx, args)
@@ -249,17 +240,11 @@ export class BlEvent {
   on(name: Record<string, any>, context?: any): this
   on(name: string | Record<string, any>, callback?: any, context?: any): this {
     // 使用 onIteratee 统一化绑定事件
-    this.__events__ = iterateEvents(
-      onIteratee,
-      this.__events__ || {},
-      name,
-      callback,
-      {
-        context,
-        ctx: this,
-        listening: _listening,
-      }
-    )
+    this.__events__ = iterateEvents(onIteratee, this.__events__ || {}, name, callback, {
+      context,
+      ctx: this,
+      listening: _listening,
+    })
 
     if (_listening) {
       const listeners = this.__listeners__ || (this.__listeners__ = {})
@@ -288,16 +273,10 @@ export class BlEvent {
     if (!this.__events__) return this
 
     // 使用 offIteratee 统一、批量解除事件绑定
-    this.__events__ = iterateEvents(
-      offIteratee,
-      this.__events__,
-      name,
-      callback,
-      {
-        context: context,
-        listeners: this.__listeners__,
-      }
-    )
+    this.__events__ = iterateEvents(offIteratee, this.__events__, name, callback, {
+      context: context,
+      listeners: this.__listeners__,
+    })
 
     return this
   }
@@ -390,17 +369,8 @@ export class BlEvent {
   // 绑定一次性事件
   once(name: any, callback: any, context?: any) {
     // Map the event into a `{event: once}` object.
-    const events = iterateEvents(
-      onceMap,
-      {},
-      name,
-      callback,
-      this.off.bind(this)
-    )
-    if (
-      typeof name === 'string' &&
-      (context === undefined || context === null)
-    ) {
+    const events = iterateEvents(onceMap, {}, name, callback, this.off.bind(this))
+    if (typeof name === 'string' && (context === undefined || context === null)) {
       callback = void 0
     }
     return this.on(events, callback, context)
@@ -409,13 +379,7 @@ export class BlEvent {
   // once 的 IOC 版本
   listenToOnce(obj: any, name: any, callback: any) {
     // Map the event into a `{event: once}` object.
-    const events = iterateEvents(
-      onceMap,
-      {},
-      name,
-      callback,
-      this.stopListening.bind(this, obj)
-    )
+    const events = iterateEvents(onceMap, {}, name, callback, this.stopListening.bind(this, obj))
     return this.listenTo(obj, events)
   }
 }
@@ -444,16 +408,10 @@ class Listening {
 
     // 对于 Events 实例的处理
     if (this.interop) {
-      this.__events__ = iterateEvents(
-        offIteratee,
-        this.__events__,
-        name,
-        callback,
-        {
-          context: void 0,
-          listeners: void 0,
-        }
-      )
+      this.__events__ = iterateEvents(offIteratee, this.__events__, name, callback, {
+        context: void 0,
+        listeners: void 0,
+      })
       shouldCleanup = !this.__events__
     } else {
       // 对于其他支持 event 的对象

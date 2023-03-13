@@ -39,7 +39,7 @@ import { BlocksDate } from '../date/index.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { dispatchEvent } from '../../common/event.js';
 import { boolSetter } from '../../common/property.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 import { inputTemplate, popupTemplate } from './template.js';
 import { style } from './style.js';
 import { defineClass } from '../../decorators/defineClass.js';
@@ -106,8 +106,7 @@ export let BlocksDatePicker = (() => {
                     this.#prevValue = $date.value;
                 }
                 ;
-                $popup.querySelector('#action').style.display =
-                    $date.mode === 'multiple' ? 'block' : 'none';
+                $popup.querySelector('#action').style.display = $date.mode === 'multiple' ? 'block' : 'none';
                 this.#initClickOutside();
                 dispatchEvent(this, 'opened');
             });
@@ -150,9 +149,7 @@ export let BlocksDatePicker = (() => {
             }
             else {
                 const date = this.value;
-                this._ref.$input.value = date
-                    ? `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-                    : '';
+                this._ref.$input.value = date ? `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}` : '';
             }
         }
         get value() {

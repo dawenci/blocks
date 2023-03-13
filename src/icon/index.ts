@@ -24,9 +24,4 @@ import './svg/up.svg.js'
 import './svg/zoom-in.svg.js'
 import './svg/zoom-out.svg.js'
 
-export {
-  parseIcon,
-  registerSvgIcon,
-  parseSvg,
-  getRegisteredSvgIcon,
-} from './store.js'
+export { parseIcon, registerSvgIcon, parseSvg, getRegisteredSvgIcon } from './store.js'

@@ -1,10 +1,6 @@
 import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { template } from './header-template.js'
 import { style } from './header.style.js'
 import { RowColumn } from './RowColumn.js'
@@ -136,16 +132,12 @@ export class BlocksTableHeader extends Component {
         if ($cell.classList.contains('cell')) {
           if ($cell === _$cell) return
           _$cell = $cell
-          dispatchEvent<{ $cell: CellElement; column: RowColumn }>(
-            this,
-            'enter-cell',
-            {
-              detail: {
-                $cell,
-                column: $cell.column,
-              },
-            }
-          )
+          dispatchEvent<{ $cell: CellElement; column: RowColumn }>(this, 'enter-cell', {
+            detail: {
+              $cell,
+              column: $cell.column,
+            },
+          })
           return
         }
         $cell = $cell.parentElement as CellElement | null
@@ -183,9 +175,7 @@ export class BlocksTableHeader extends Component {
   override render() {
     const columns = this.$host?.columns ?? []
     this.fixedLeftColumns = columns.filter(column => column.fixedLeft)
-    this.fixedRightColumns = columns
-      .filter(column => column.fixedRight)
-      .reverse()
+    this.fixedRightColumns = columns.filter(column => column.fixedRight).reverse()
 
     const render = (column: RowColumn, $wrap: HTMLElement) => {
       const { columnWidth, minWidth, maxWidth, align } = column

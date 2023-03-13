@@ -5,10 +5,7 @@ import type { EnumAttr } from '../../decorators/attr.js'
 import { strGetter, strSetter } from '../../common/property.js'
 import { template } from './template.js'
 import { Control } from '../base-control/index.js'
-import {
-  WithOpenTransition,
-  WithOpenTransitionEventMap,
-} from '../with-open-transition/index.js'
+import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 import { ComponentEventListener } from '../Component.js'
 import { style } from './style.js'
 
@@ -195,8 +192,7 @@ export class BlocksPopup extends Control {
     let y1
     let y2
     let layoutAnchor
-    const anchor =
-      typeof this.anchor === 'function' ? this.anchor() : this.anchor
+    const anchor = typeof this.anchor === 'function' ? this.anchor() : this.anchor
 
     if (anchor === null) {
       // 1. 无锚定元素也无锚定坐标，则以拥有定位属性的祖先元素为锚定目标
@@ -266,8 +262,7 @@ export class BlocksPopup extends Control {
       scrollWidth: layoutWidth,
       scrollHeight: layoutHeight,
     } = layoutParent
-    const { top: layoutOffsetTop, left: layoutOffsetLeft } =
-      layoutParent.getBoundingClientRect()
+    const { top: layoutOffsetTop, left: layoutOffsetLeft } = layoutParent.getBoundingClientRect()
     // 水平、垂直方向定位偏移值
     const [ox, oy] = this.offset
 
@@ -407,11 +402,7 @@ export class BlocksPopup extends Control {
         originX = 'left'
         shadowX = 'right'
         // 如果与 popup 的右侧溢出视口，则检查向左侧渲染是否更好，是则翻转成右对齐
-        if (
-          this.autoflip &&
-          left + popupWidth > layoutWidth &&
-          x2 - ox - popupWidth > 0
-        ) {
+        if (this.autoflip && left + popupWidth > layoutWidth && x2 - ox - popupWidth > 0) {
           left = x2 - ox - popupWidth
           horizontalFlip()
         }
@@ -438,11 +429,7 @@ export class BlocksPopup extends Control {
         originY = 'top'
         shadowY = 'bottom'
         // 如果与 popup 的下方溢出视口，则检查向上渲染是否更好，是则翻转
-        if (
-          this.autoflip &&
-          top + popupHeight > layoutHeight &&
-          y2 - oy - popupHeight > 0
-        ) {
+        if (this.autoflip && top + popupHeight > layoutHeight && y2 - oy - popupHeight > 0) {
           top = y2 - oy - popupHeight
           verticalFlip()
         }
@@ -472,8 +459,7 @@ export class BlocksPopup extends Control {
   #refreshPosition?: (() => void) | null
   _initAnchorEvent() {
     if (this.#refreshPosition) return
-    this.#refreshPosition = () =>
-      this.open && this.anchor && this.updatePositionAndDirection()
+    this.#refreshPosition = () => this.open && this.anchor && this.updatePositionAndDirection()
     // 使用捕获的方式，以保证内部元素滚动也能触发
     window.addEventListener('scroll', this.#refreshPosition, true)
     window.addEventListener('touchstart', this.#refreshPosition)
@@ -506,11 +492,7 @@ export class BlocksPopup extends Control {
     this._destroyAnchorEvent()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     switch (attrName) {
       case 'open': {
@@ -536,11 +518,7 @@ export class BlocksPopup extends Control {
       }
 
       case 'append-to-body': {
-        if (
-          this.appendToBody &&
-          this.parentElement !== document.body &&
-          document.documentElement.contains(this)
-        ) {
+        if (this.appendToBody && this.parentElement !== document.body && document.documentElement.contains(this)) {
           document.body.appendChild(this)
         }
         this.updatePositionAndDirection()
@@ -576,13 +554,9 @@ export class BlocksPopup extends Control {
   _captureFocus() {
     this.#firstFocusable =
       this._ref.$layout.querySelector('#first') ||
-      this._ref.$layout.insertBefore(
-        document.createElement('button'),
-        this._ref.$layout.firstChild
-      )
+      this._ref.$layout.insertBefore(document.createElement('button'), this._ref.$layout.firstChild)
     this.#lastFocusable =
-      this._ref.$layout.querySelector('#last') ||
-      this._ref.$layout.appendChild(document.createElement('button'))
+      this._ref.$layout.querySelector('#last') || this._ref.$layout.appendChild(document.createElement('button'))
     this.#firstFocusable.id = 'first'
     this.#lastFocusable.id = 'last'
     this.#firstFocusable.onkeydown = e => {

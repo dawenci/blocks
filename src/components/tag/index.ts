@@ -43,9 +43,7 @@ export class BlocksTag extends Component {
   override render() {
     if (this.closeable) {
       if (!this.shadowRoot!.getElementById('close')) {
-        const button = this.$layout.appendChild(
-          document.createElement('button')
-        )
+        const button = this.$layout.appendChild(document.createElement('button'))
         button.id = 'close'
       }
     } else {
@@ -61,11 +59,7 @@ export class BlocksTag extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
   }

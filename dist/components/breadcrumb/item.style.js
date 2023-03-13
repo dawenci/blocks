@@ -1,4 +1,4 @@
-import { __color_primary_dark, __color_primary_light, } from '../../theme/var-light.js';
+import { __color_primary_dark, __color_primary_light } from '../../theme/var-light.js';
 export const style = `
 :host {
   box-sizing: border-box;

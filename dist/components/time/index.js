@@ -38,7 +38,7 @@ import { attr, attrs } from '../../decorators/attr.js';
 import { dispatchEvent } from '../../common/event.js';
 import { scrollTo } from '../../common/scrollTo.js';
 import { find, forEach, range } from '../../common/utils.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 import { template } from './template.js';
 import { style } from './style.js';
 const mutableAttrs = ['hour', 'minute', 'second', 'size'];

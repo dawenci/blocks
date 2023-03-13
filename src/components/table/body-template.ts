@@ -112,8 +112,7 @@ export function template() {
 
   const cellTemplate = document.createElement('div')
   cellTemplate.className = 'cell'
-  cellTemplate.appendChild(document.createElement('div')).className =
-    'cell-content'
+  cellTemplate.appendChild(document.createElement('div')).className = 'cell-content'
 
   return (templateCache = {
     cssTemplate,

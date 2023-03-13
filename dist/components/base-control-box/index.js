@@ -38,7 +38,7 @@ import { style } from './style.js';
 import { dispatchEvent } from '../../common/event.js';
 import { Control } from '../base-control/index.js';
 import { loadingTemplate, prefixTemplate, suffixTemplate } from './template.js';
-import { append, mountAfter, mountBefore, prepend, unmount, } from '../../common/mount.js';
+import { append, mountAfter, mountBefore, prepend, unmount } from '../../common/mount.js';
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js';
 export let ControlBox = (() => {
     let _classDecorators = [defineClass({
@@ -116,13 +116,10 @@ export let ControlBox = (() => {
             }
         }
         _renderPrefixIcon() {
-            const $prefixIcon = this.prefixIcon
-                ? getRegisteredSvgIcon(this.prefixIcon) ?? parseSvg(this.prefixIcon)
-                : null;
+            const $prefixIcon = this.prefixIcon ? getRegisteredSvgIcon(this.prefixIcon) ?? parseSvg(this.prefixIcon) : null;
             this._ref.$layout.classList.toggle('with-prefix', !!$prefixIcon);
             if ($prefixIcon) {
-                const $prefix = (this._ref.$prefix =
-                    this._ref.$prefix ?? prefixTemplate());
+                const $prefix = (this._ref.$prefix = this._ref.$prefix ?? prefixTemplate());
                 $prefix.innerHTML = '';
                 $prefix.appendChild($prefixIcon);
                 if (this._ref.$loading) {
@@ -140,13 +137,10 @@ export let ControlBox = (() => {
             }
         }
         _renderSuffixIcon() {
-            const $suffixIcon = this.suffixIcon
-                ? getRegisteredSvgIcon(this.suffixIcon) ?? parseSvg(this.suffixIcon)
-                : null;
+            const $suffixIcon = this.suffixIcon ? getRegisteredSvgIcon(this.suffixIcon) ?? parseSvg(this.suffixIcon) : null;
             this._ref.$layout.classList.toggle('with-suffix', !!$suffixIcon);
             if ($suffixIcon) {
-                const $suffix = (this._ref.$suffix =
-                    this._ref.$suffix ?? suffixTemplate());
+                const $suffix = (this._ref.$suffix = this._ref.$suffix ?? suffixTemplate());
                 $suffix.innerHTML = '';
                 $suffix.appendChild($suffixIcon);
                 append($suffix, this._ref.$layout);

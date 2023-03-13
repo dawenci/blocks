@@ -16,15 +16,7 @@ export function makeDate({
   millisecond?: number
 }) {
   const d = new Date(
-    Date.UTC(
-      year ?? 0,
-      monthIndex ?? 0,
-      day ?? 1,
-      hour ?? 0,
-      minute ?? 0,
-      second ?? 0,
-      millisecond ?? 0
-    )
+    Date.UTC(year ?? 0, monthIndex ?? 0, day ?? 1, hour ?? 0, minute ?? 0, second ?? 0, millisecond ?? 0)
   )
   // 确保 1900 前的年份能正确设置
   if (year) {

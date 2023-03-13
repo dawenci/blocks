@@ -1,8 +1,4 @@
-import {
-  __color_primary,
-  __color_primary_light,
-  __transition_duration,
-} from '../../theme/var-light.js'
+import { __color_primary, __color_primary_light, __transition_duration } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 :host {

@@ -65,11 +65,7 @@ export let BlocksTableBody = (() => {
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return BlocksVList.observedAttributes.concat([
-                'sort-field',
-                'sort-order',
-                'summary-height',
-            ]);
+            return BlocksVList.observedAttributes.concat(['sort-field', 'sort-order', 'summary-height']);
         }
         #sortFlag = (__runInitializers(this, _instanceExtraInitializers), void 0);
         columns = [];
@@ -120,7 +116,7 @@ export let BlocksTableBody = (() => {
                 const labelB = column.render(b.data, column, $cell);
                 const va = labelA instanceof Node ? labelA.textContent : labelA;
                 const vb = labelB instanceof Node ? labelB.textContent : labelB;
-                return (va.localeCompare(vb) * (column.sortOrder === 'ascending' ? 1 : -1));
+                return va.localeCompare(vb) * (column.sortOrder === 'ascending' ? 1 : -1);
             });
             return data;
         }
@@ -202,8 +198,7 @@ export let BlocksTableBody = (() => {
                 this.flattenColumns.forEach((column, index) => {
                     const $cell = $items.children[index];
                     const $cellInner = $cell.firstElementChild;
-                    let $content = column.summaryRender &&
-                        column.summaryRender(column, index, data, $items.children[index]);
+                    let $content = column.summaryRender && column.summaryRender(column, index, data, $items.children[index]);
                     if (!($content instanceof Node)) {
                         $content = document.createTextNode($content ?? '');
                     }

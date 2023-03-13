@@ -2,11 +2,7 @@ import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
 import { dispatchEvent } from '../../common/event.js'
 import { forEach } from '../../common/utils.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { style } from './style.js'
 import { template } from './template.js'
 
@@ -71,13 +67,7 @@ export class BlocksCalc extends Component {
   makeMul = (n1: number) => (n2: number) => +(n2 * n1).toPrecision(12)
   makeDiv = (n1: number) => (n2: number) => +(n2 / n1).toPrecision(12)
   makeFn = (op: string) =>
-    op === '+'
-      ? this.makeAdd
-      : op === '-'
-      ? this.makeSub
-      : op === '*'
-      ? this.makeMul
-      : this.makeDiv
+    op === '+' ? this.makeAdd : op === '-' ? this.makeSub : op === '*' ? this.makeMul : this.makeDiv
 
   constructor() {
     super()
@@ -85,12 +75,8 @@ export class BlocksCalc extends Component {
     shadowRoot.appendChild(template().content.cloneNode(true))
 
     const $layout = shadowRoot.getElementById('layout') as HTMLDivElement
-    const $result = shadowRoot.querySelector(
-      '.Calc-screen-result'
-    ) as HTMLDivElement
-    const $input = shadowRoot.querySelector(
-      '.Calc-screen-input'
-    ) as HTMLDivElement
+    const $result = shadowRoot.querySelector('.Calc-screen-result') as HTMLDivElement
+    const $input = shadowRoot.querySelector('.Calc-screen-input') as HTMLDivElement
     this._ref = { $layout, $result, $input }
 
     this.screen = '0'
@@ -177,11 +163,7 @@ export class BlocksCalc extends Component {
     this._ref.$layout.onkeypress = null
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
 
@@ -195,10 +177,7 @@ export class BlocksCalc extends Component {
 
     const $span = document.createElement('span')
     $span.className = 'Calc-keyboard-key'
-    const makeButton = (data: {
-      value: string
-      label: string
-    }): HTMLSpanElement => {
+    const makeButton = (data: { value: string; label: string }): HTMLSpanElement => {
       const $button = $span.cloneNode(true) as HTMLSpanElement
       $button.dataset.value = data.value
       $button.innerHTML = data.label
@@ -207,36 +186,28 @@ export class BlocksCalc extends Component {
     }
 
     // render memory
-    const $memory = this._ref.$layout.querySelector(
-      '.Calc-keyboard-memory'
-    ) as HTMLDivElement
+    const $memory = this._ref.$layout.querySelector('.Calc-keyboard-memory') as HTMLDivElement
     if (!$memory.children.length) {
       this.memoryKeys.forEach(key => {
         $memory.appendChild(makeButton(key))
       })
     }
 
-    const $actions = this._ref.$layout.querySelector(
-      '.Calc-keyboard-actions'
-    ) as HTMLDivElement
+    const $actions = this._ref.$layout.querySelector('.Calc-keyboard-actions') as HTMLDivElement
     if (!$actions.children.length) {
       this.actionKeys.forEach(key => {
         $actions.appendChild(makeButton(key))
       })
     }
 
-    const $numbers = this._ref.$layout.querySelector(
-      '.Calc-keyboard-numbers'
-    ) as HTMLDivElement
+    const $numbers = this._ref.$layout.querySelector('.Calc-keyboard-numbers') as HTMLDivElement
     if (!$numbers.children.length) {
       this.numberKeys.forEach(key => {
         $numbers.appendChild(makeButton(key))
       })
     }
 
-    const $operators = this._ref.$layout.querySelector(
-      '.Calc-keyboard-operators'
-    ) as HTMLDivElement
+    const $operators = this._ref.$layout.querySelector('.Calc-keyboard-operators') as HTMLDivElement
     if (!$operators.children.length) {
       this.operatorKeys.forEach(key => {
         $operators.appendChild(makeButton(key))
@@ -244,21 +215,11 @@ export class BlocksCalc extends Component {
     }
 
     // 渲染运算符高亮
-    if (
-      [State.Operator, State.OperandRight, State.OperandRightEnd].includes(
-        this.state
-      )
-    ) {
-      forEach($operators.querySelectorAll('.active'), $active =>
-        $active.classList.remove('active')
-      )
-      $operators
-        .querySelector(`[data-value="${this.operator}"]`)
-        ?.classList?.add?.('active')
+    if ([State.Operator, State.OperandRight, State.OperandRightEnd].includes(this.state)) {
+      forEach($operators.querySelectorAll('.active'), $active => $active.classList.remove('active'))
+      $operators.querySelector(`[data-value="${this.operator}"]`)?.classList?.add?.('active')
     } else {
-      forEach($operators.querySelectorAll('.active'), $active =>
-        $active.classList.remove('active')
-      )
+      forEach($operators.querySelectorAll('.active'), $active => $active.classList.remove('active'))
     }
   }
 
@@ -376,8 +337,7 @@ export class BlocksCalc extends Component {
       }
 
       case State.OperandLeft: {
-        this.screen =
-          (this.screen ?? '').substr(0, (this.screen ?? '').length - 1) || '0'
+        this.screen = (this.screen ?? '').substr(0, (this.screen ?? '').length - 1) || '0'
         return
       }
 
@@ -390,8 +350,7 @@ export class BlocksCalc extends Component {
       }
 
       case State.OperandRight: {
-        this.screen =
-          (this.screen ?? '').substr(0, (this.screen ?? '').length - 1) || '0'
+        this.screen = (this.screen ?? '').substr(0, (this.screen ?? '').length - 1) || '0'
       }
     }
   }

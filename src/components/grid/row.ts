@@ -27,9 +27,7 @@ export class BlocksRow extends Component {
     enumValues: ['start', 'end', 'center', 'space-around', 'space-between'],
     observed: false,
   })
-  accessor justify!: NullableEnumAttr<
-    ['start', 'end', 'center', 'space-around', 'space-between']
-  >
+  accessor justify!: NullableEnumAttr<['start', 'end', 'center', 'space-around', 'space-between']>
 
   @domRef('slot') accessor $slot!: HTMLSlotElement
 
@@ -44,11 +42,7 @@ export class BlocksRow extends Component {
     this._renderGutter()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'gutter') {
       this._renderGutter()

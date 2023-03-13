@@ -5,9 +5,7 @@ export function strGetter(attr: string): (element: Element) => string | null {
 /**
  * 设置为 null 表示清空
  */
-export function strSetter(
-  attr: string
-): (element: Element, value: any) => void {
+export function strSetter(attr: string): (element: Element, value: any) => void {
   return (element, value) => {
     const oldAttrValue = element.getAttribute(attr)
     if (oldAttrValue === null && value === null) return
@@ -31,9 +29,7 @@ export function boolGetter(attr: string): (element: Element) => boolean {
  * 布尔值 false 以及 null 表示 false（对应清空属性）
  * 其他值表示 true（对应设置属性）
  */
-export function boolSetter(
-  attr: string
-): (element: Element, value: any) => void {
+export function boolSetter(attr: string): (element: Element, value: any) => void {
   return (element, value) => {
     if (value === null || value === false) {
       if (element.hasAttribute(attr)) {
@@ -66,9 +62,7 @@ export function numGetter(attr: string): (element: Element) => number | null {
  * 设置为 null 表示清空
  * 设置非法数字，则不做任何操作
  */
-export function numSetter(
-  attr: string
-): (element: Element, value: any) => void {
+export function numSetter(attr: string): (element: Element, value: any) => void {
   return (element, value) => {
     if (value === element.getAttribute(attr)) return
     if (value === null) {
@@ -103,9 +97,7 @@ export function intGetter(attr: string): (element: Element) => number | null {
 /**
  * 设置为 null 表示清空
  */
-export function intSetter(
-  attr: string
-): (element: Element, value: any) => void {
+export function intSetter(attr: string): (element: Element, value: any) => void {
   return (element, value) => {
     if (value === element.getAttribute(attr)) return
     if (value === null) {
@@ -124,11 +116,7 @@ export function intSetter(
 /**
  * 非有效数字，一律返回 null
  */
-export function intRangeGetter(
-  attr: string,
-  min: number,
-  max: number
-): (element: Element) => number | null {
+export function intRangeGetter(attr: string, min: number, max: number): (element: Element) => number | null {
   return element => {
     const value = intGetter(attr)(element)
     if (value === null || value < min || value > max) return null
@@ -140,11 +128,7 @@ export function intRangeGetter(
  * 设置为 null 表示清空
  * 设置无效整数，则不做任何操作
  */
-export function intRangeSetter(
-  attr: string,
-  min: number,
-  max: number
-): (element: Element, value: any) => void {
+export function intRangeSetter(attr: string, min: number, max: number): (element: Element, value: any) => void {
   return (element, value) => {
     if (value === element.getAttribute(attr)) return
     if (value === null) {
@@ -165,10 +149,7 @@ export function intRangeSetter(
 /**
  * 取值不在枚举中，则返回 null
  */
-export function enumGetter<T extends string>(
-  attr: string,
-  values: readonly T[]
-): (element: Element) => T | null {
+export function enumGetter<T extends string>(attr: string, values: readonly T[]): (element: Element) => T | null {
   return element => {
     const value = element.getAttribute(attr) as T
     if (value === null) return null

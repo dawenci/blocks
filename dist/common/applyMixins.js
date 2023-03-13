@@ -4,8 +4,7 @@ export function applyMixins(derivedCtor, constructors) {
             if (name === 'constructor' && derivedCtor.prototype.constructor) {
                 return;
             }
-            Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
-                Object.create(null));
+            Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name) || Object.create(null));
         });
     });
     const rawObservedAttributes = derivedCtor.observedAttributes ?? [];

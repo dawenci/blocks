@@ -3,10 +3,7 @@ import { attr } from '../../decorators/attr.js'
 import { style } from './style.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
 import { Component, ComponentEventListener } from '../Component.js'
-import {
-  WithOpenTransition,
-  WithOpenTransitionEventMap,
-} from '../with-open-transition/index.js'
+import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 
 @defineClass({
   customElement: 'bl-modal-mask',
@@ -27,11 +24,7 @@ export class BlocksModalMask extends Component {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     if (attrName == 'open') {
@@ -57,23 +50,14 @@ export class BlocksModalMask extends Component {
     if (!this.isScrollLocked) {
       this.bodyPaddingRight = document.body.style.paddingRight
       this.bodyOverflowY = document.body.style.overflowY
-      this.computedBodyPaddingRight = parseInt(
-        getComputedStyle(document.body).paddingRight,
-        10
-      )
+      this.computedBodyPaddingRight = parseInt(getComputedStyle(document.body).paddingRight, 10)
     }
 
     const scrollBarWidth = getBodyScrollBarWidth()
-    const bodyHasOverflow =
-      document.documentElement.clientHeight < document.body.scrollHeight
+    const bodyHasOverflow = document.documentElement.clientHeight < document.body.scrollHeight
     const bodyOverflowY = getComputedStyle(document.body).overflowY
-    if (
-      scrollBarWidth > 0 &&
-      (bodyHasOverflow || bodyOverflowY === 'scroll') &&
-      !this.isScrollLocked
-    ) {
-      document.body.style.paddingRight =
-        this.computedBodyPaddingRight! + scrollBarWidth + 'px'
+    if (scrollBarWidth > 0 && (bodyHasOverflow || bodyOverflowY === 'scroll') && !this.isScrollLocked) {
+      document.body.style.paddingRight = this.computedBodyPaddingRight! + scrollBarWidth + 'px'
     }
 
     document.body.style.overflowY = 'hidden'

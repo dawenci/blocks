@@ -9,13 +9,7 @@ import { template } from './template.js'
 import { style } from './style.js'
 
 const closeableSetter = boolSetter('closeable')
-const typeSetter = enumSetter('type', [
-  'message',
-  'success',
-  'error',
-  'info',
-  'warning',
-])
+const typeSetter = enumSetter('type', ['message', 'success', 'error', 'info', 'warning'])
 
 export interface BlocksMessage extends Component {
   _ref: {
@@ -38,9 +32,7 @@ export class BlocksMessage extends Component {
   @attr('enum', {
     enumValues: ['message', 'success', 'error', 'info', 'warning'],
   })
-  accessor type!: NullableEnumAttr<
-    ['message', 'success', 'error', 'info', 'warning']
-  >
+  accessor type!: NullableEnumAttr<['message', 'success', 'error', 'info', 'warning']>
 
   constructor() {
     super()
@@ -90,9 +82,7 @@ export class BlocksMessage extends Component {
 
     if (this.closeable) {
       if (!this._ref.$close) {
-        this._ref.$close = this._ref.$layout.appendChild(
-          document.createElement('button')
-        )
+        this._ref.$close = this._ref.$layout.appendChild(document.createElement('button'))
         this._ref.$close.id = 'close'
         this._ref.$close.appendChild(getRegisteredSvgIcon('cross')!)
         this._ref.$close.onclick = () => {
@@ -120,11 +110,7 @@ export class BlocksMessage extends Component {
     this._setAutoClose()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
 

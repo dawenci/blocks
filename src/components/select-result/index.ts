@@ -15,25 +15,14 @@ import { style } from './style.js'
 import { BlocksTag } from '../tag/index.js'
 import { ComponentEventListener } from '../Component.js'
 import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js'
-import {
-  ClearableControlBox,
-  ClearableControlBoxEventMap,
-} from '../base-clearable-control-box/index.js'
-import {
-  ISelected,
-  ISelectResultComponent,
-  ISelectResultEventMap,
-} from '../../common/connectSelectable.js'
+import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
+import { ISelected, ISelectResultComponent, ISelectResultEventMap } from '../../common/connectSelectable.js'
 
-interface BlocksSelectResultEventMap
-  extends ClearableControlBoxEventMap,
-    ISelectResultEventMap {
+interface BlocksSelectResultEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
   search: CustomEvent<{ value: string }>
 }
 
-export interface BlocksSelectResult
-  extends ClearableControlBox,
-    ISelectResultComponent {
+export interface BlocksSelectResult extends ClearableControlBox, ISelectResultComponent {
   _ref: ClearableControlBox['_ref'] & {
     $content: HTMLElement
     $search?: HTMLInputElement
@@ -162,11 +151,7 @@ export class BlocksSelectResult extends ClearableControlBox {
       const currentValues = this.getValues()
       const isSame =
         currentValues.length === value.length &&
-        currentValues.every(
-          (item, index) =>
-            item.value === value[index].value &&
-            item.label === value[index].label
-        )
+        currentValues.every((item, index) => item.value === value[index].value && item.label === value[index].label)
       if (isSame) {
         return
       }
@@ -188,9 +173,7 @@ export class BlocksSelectResult extends ClearableControlBox {
     }
     // 多选模式
     else {
-      const values = this.getValues().filter(
-        item => item.value !== selected.value
-      )
+      const values = this.getValues().filter(item => item.value !== selected.value)
       values.push(selected)
       this.acceptSelected(values)
     }
@@ -231,9 +214,7 @@ export class BlocksSelectResult extends ClearableControlBox {
   }
 
   override _isEmpty() {
-    return this.multiple
-      ? !this._ref.$content.querySelectorAll('bl-tag').length
-      : !this._ref.$content.textContent
+    return this.multiple ? !this._ref.$content.querySelectorAll('bl-tag').length : !this._ref.$content.textContent
   }
 
   clearSearch() {
@@ -305,9 +286,7 @@ export class BlocksSelectResult extends ClearableControlBox {
     // 单个结果模式
     if (!this.multiple) {
       const value = this.getValue()
-      this._ref.$plainTextValue!.textContent = value
-        ? this.formatter(value)
-        : ''
+      this._ref.$plainTextValue!.textContent = value ? this.formatter(value) : ''
       return
     }
 
@@ -373,11 +352,7 @@ export class BlocksSelectResult extends ClearableControlBox {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     switch (attrName) {

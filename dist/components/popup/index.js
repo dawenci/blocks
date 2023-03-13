@@ -37,7 +37,7 @@ import { attr } from '../../decorators/attr.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { template } from './template.js';
 import { Control } from '../base-control/index.js';
-import { WithOpenTransition, } from '../with-open-transition/index.js';
+import { WithOpenTransition } from '../with-open-transition/index.js';
 import { style } from './style.js';
 const ARROW_SIZE = 8;
 export var PopupOrigin;
@@ -344,9 +344,7 @@ export let BlocksPopup = (() => {
                     left = x1 + ox;
                     originX = 'left';
                     shadowX = 'right';
-                    if (this.autoflip &&
-                        left + popupWidth > layoutWidth &&
-                        x2 - ox - popupWidth > 0) {
+                    if (this.autoflip && left + popupWidth > layoutWidth && x2 - ox - popupWidth > 0) {
                         left = x2 - ox - popupWidth;
                         horizontalFlip();
                     }
@@ -371,9 +369,7 @@ export let BlocksPopup = (() => {
                     top = y1 + oy;
                     originY = 'top';
                     shadowY = 'bottom';
-                    if (this.autoflip &&
-                        top + popupHeight > layoutHeight &&
-                        y2 - oy - popupHeight > 0) {
+                    if (this.autoflip && top + popupHeight > layoutHeight && y2 - oy - popupHeight > 0) {
                         top = y2 - oy - popupHeight;
                         verticalFlip();
                     }
@@ -450,9 +446,7 @@ export let BlocksPopup = (() => {
                     break;
                 }
                 case 'append-to-body': {
-                    if (this.appendToBody &&
-                        this.parentElement !== document.body &&
-                        document.documentElement.contains(this)) {
+                    if (this.appendToBody && this.parentElement !== document.body && document.documentElement.contains(this)) {
                         document.body.appendChild(this);
                     }
                     this.updatePositionAndDirection();
@@ -486,8 +480,7 @@ export let BlocksPopup = (() => {
                 this._ref.$layout.querySelector('#first') ||
                     this._ref.$layout.insertBefore(document.createElement('button'), this._ref.$layout.firstChild);
             this.#lastFocusable =
-                this._ref.$layout.querySelector('#last') ||
-                    this._ref.$layout.appendChild(document.createElement('button'));
+                this._ref.$layout.querySelector('#last') || this._ref.$layout.appendChild(document.createElement('button'));
             this.#firstFocusable.id = 'first';
             this.#lastFocusable.id = 'last';
             this.#firstFocusable.onkeydown = e => {

@@ -5,11 +5,7 @@ import { attr, attrs } from '../../decorators/attr.js'
 import { dispatchEvent } from '../../common/event.js'
 import { scrollTo } from '../../common/scrollTo.js'
 import { find, forEach, range } from '../../common/utils.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { template } from './template.js'
 import { style } from './style.js'
 import { BlocksScrollable } from '../scrollable/index.js'
@@ -178,11 +174,7 @@ export class BlocksTime extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: MutableAttrs,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: MutableAttrs, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.upgradeProperty(['disabledHour', 'disabledMinute', 'disabledSecond'])
 
@@ -196,27 +188,21 @@ export class BlocksTime extends Component {
         if (attrName !== 'second' && this.second !== null) this.second = null
         this.render()
       } else {
-        const $list =
-          this._ref[`$${attrName as Exclude<MutableAttrs, 'size'>}s`]
+        const $list = this._ref[`$${attrName as Exclude<MutableAttrs, 'size'>}s`]
 
         const $old = $list.querySelector('.active')
         if ($old) {
           $old.classList.remove('active')
         }
 
-        const $new = find(
-          $list.children,
-          $li => +$li.textContent! === +newValue
-        )
+        const $new = find($list.children, $li => +$li.textContent! === +newValue)
         if ($new) {
           $new.classList.add('active')
         }
 
         if (attrName !== 'hour' && !this.hour && this.hour !== 0) this.hour = 0
-        if (attrName !== 'minute' && !this.minute && this.minute !== 0)
-          this.minute = 0
-        if (attrName !== 'second' && !this.second && this.second !== 0)
-          this.second = 0
+        if (attrName !== 'minute' && !this.minute && this.minute !== 0) this.minute = 0
+        if (attrName !== 'second' && !this.second && this.second !== 0) this.second = 0
 
         this.render()
       }
@@ -297,15 +283,12 @@ export class BlocksTime extends Component {
         scrollTo($panel, 0, { property: 'viewportScrollTop', duration: 0.16 })
       })
     } else {
-      forEach(
-        $layout.querySelectorAll('.active') as unknown as HTMLElement[],
-        $active => {
-          scrollTo($active.parentElement!, $active.offsetTop, {
-            property: 'viewportScrollTop',
-            duration: 0.16,
-          })
-        }
-      )
+      forEach($layout.querySelectorAll('.active') as unknown as HTMLElement[], $active => {
+        scrollTo($active.parentElement!, $active.offsetTop, {
+          property: 'viewportScrollTop',
+          duration: 0.16,
+        })
+      })
     }
   }
 

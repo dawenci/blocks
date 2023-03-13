@@ -40,7 +40,7 @@ import { find, findLast, forEach } from '../../common/utils.js';
 import { dispatchEvent } from '../../common/event.js';
 import { BinaryIndexedTree } from './BinaryIndexedTree.js';
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 import { contentTemplate, itemTemplate, loadingTemplate } from './template.js';
 import { style } from './style.js';
 const FORCE_SLICE = true;
@@ -181,14 +181,10 @@ export let BlocksVList = (() => {
             return this._ref.$viewport.clientHeight;
         }
         get viewportMainSize() {
-            return this.direction === Direction.Vertical
-                ? this.viewportHeight
-                : this.viewportWidth;
+            return this.direction === Direction.Vertical ? this.viewportHeight : this.viewportWidth;
         }
         get viewportCrossSize() {
-            return this.direction === Direction.Vertical
-                ? this.viewportWidth
-                : this.viewportHeight;
+            return this.direction === Direction.Vertical ? this.viewportWidth : this.viewportHeight;
         }
         get mainSize() {
             return this.itemHeightStore.read(this.itemHeightStore.maxVal);
@@ -269,38 +265,29 @@ export let BlocksVList = (() => {
             const endKey = sliceItems[sliceItems.length - 1].virtualViewIndex;
             const startItemKey = getFirst()?.virtualViewIndex;
             const endItemKey = getLast()?.virtualViewIndex;
-            if (endKey < endItemKey ||
-                (endKey === endItemKey && startKey < startItemKey)) {
+            if (endKey < endItemKey || (endKey === endItemKey && startKey < startItemKey)) {
                 let $last;
-                while (this._ref.$list.children.length &&
-                    ($last = getLast())?.virtualViewIndex !== endKey) {
+                while (this._ref.$list.children.length && ($last = getLast())?.virtualViewIndex !== endKey) {
                     $last && this.#$pool.push(this._ref.$list.removeChild($last));
                 }
-                while (this._ref.$list.children.length >
-                    renderCount + transitionItemCount) {
+                while (this._ref.$list.children.length > renderCount + transitionItemCount) {
                     this.#$pool.push(this._ref.$list.removeChild(this._ref.$list.firstElementChild));
                 }
-                while (this._ref.$list.children.length <
-                    renderCount + transitionItemCount) {
+                while (this._ref.$list.children.length < renderCount + transitionItemCount) {
                     this._ref.$list.insertBefore(this.#$pool.pop() ?? itemTemplate(), this._ref.$list.firstElementChild);
                 }
             }
             else {
-                if (startKey > startItemKey ||
-                    (startKey === startItemKey && endKey > endItemKey)) {
+                if (startKey > startItemKey || (startKey === startItemKey && endKey > endItemKey)) {
                     let $first;
-                    while (this._ref.$list.children.length &&
-                        ($first = getFirst())?.virtualViewIndex !== startKey) {
-                        $first &&
-                            this.#$pool.push(this._ref.$list.removeChild($first));
+                    while (this._ref.$list.children.length && ($first = getFirst())?.virtualViewIndex !== startKey) {
+                        $first && this.#$pool.push(this._ref.$list.removeChild($first));
                     }
                 }
-                while (this._ref.$list.children.length >
-                    renderCount + transitionItemCount) {
+                while (this._ref.$list.children.length > renderCount + transitionItemCount) {
                     this.#$pool.push(this._ref.$list.removeChild(this._ref.$list.lastElementChild));
                 }
-                while (this._ref.$list.children.length <
-                    renderCount + transitionItemCount) {
+                while (this._ref.$list.children.length < renderCount + transitionItemCount) {
                     this._ref.$list.appendChild(this.#$pool.pop() ?? itemTemplate());
                 }
             }
@@ -460,10 +447,7 @@ export let BlocksVList = (() => {
                     items.push($item);
                 }
             });
-            const size = items.reduce((acc, $item) => acc +
-                $item[this.direction === Direction.Horizontal
-                    ? 'offsetWidth'
-                    : 'offsetHeight'], 0);
+            const size = items.reduce((acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0);
             this._ref.$list.insertBefore($collapse, $first);
             items.reverse();
             while (items.length) {
@@ -513,10 +497,7 @@ export let BlocksVList = (() => {
                     items.push($item);
                 }
             });
-            const size = items.reduce((acc, $item) => acc +
-                $item[this.direction === Direction.Horizontal
-                    ? 'offsetWidth'
-                    : 'offsetHeight'], 0);
+            const size = items.reduce((acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0);
             if ($first) {
                 this._ref.$list.insertBefore($collapse, $first);
             }
@@ -586,36 +567,24 @@ export let BlocksVList = (() => {
             }
         }
         getScrollMain() {
-            return this._ref.$viewport[this.direction === Direction.Horizontal
-                ? 'viewportScrollLeft'
-                : 'viewportScrollTop'];
+            return this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop'];
         }
         getScrollCross() {
-            return this._ref.$viewport[this.direction === Direction.Horizontal
-                ? 'viewportScrollTop'
-                : 'viewportScrollLeft'];
+            return this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft'];
         }
         setScrollMain(value) {
-            this._ref.$viewport[this.direction === Direction.Horizontal
-                ? 'viewportScrollLeft'
-                : 'viewportScrollTop'] = value;
+            this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop'] = value;
         }
         setScrollCross(value) {
-            this._ref.$viewport[this.direction === Direction.Horizontal
-                ? 'viewportScrollTop'
-                : 'viewportScrollLeft'] = value;
+            this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft'] = value;
         }
         _updateSliceRange(forceUpdate) {
-            const viewportSize = this.direction === Direction.Horizontal
-                ? this._ref.$viewport.clientWidth
-                : this._ref.$viewport.clientHeight;
+            const viewportSize = this.direction === Direction.Horizontal ? this._ref.$viewport.clientWidth : this._ref.$viewport.clientHeight;
             const viewportStart = this.direction === Direction.Horizontal
                 ? this._ref.$viewport.viewportScrollLeft
                 : this._ref.$viewport.viewportScrollTop;
             const range = this._calcSliceRange(viewportSize, viewportStart);
-            if (range.sliceFrom === this.sliceFrom &&
-                range.sliceTo === this.sliceTo &&
-                !forceUpdate) {
+            if (range.sliceFrom === this.sliceFrom && range.sliceTo === this.sliceTo && !forceUpdate) {
                 return;
             }
             this.anchorIndex = range.sliceFrom;
@@ -629,9 +598,7 @@ export let BlocksVList = (() => {
             let toThreshold = range.sliceTo + THRESHOLD;
             if (toThreshold > MAX)
                 toThreshold = MAX;
-            if (!forceUpdate &&
-                this.sliceFrom <= fromThreshold &&
-                this.sliceTo >= toThreshold) {
+            if (!forceUpdate && this.sliceFrom <= fromThreshold && this.sliceTo >= toThreshold) {
                 return;
             }
             let { sliceFrom, sliceTo } = range;
@@ -830,18 +797,12 @@ export let BlocksVList = (() => {
             if (itemHeightStore) {
                 if (this.direction === Direction.Horizontal) {
                     this._ref.$list.style.width = '';
-                    this._ref.$list.style.height = this._ref.$listSize.style.height = this
-                        .crossSize
-                        ? `${this.crossSize}px`
-                        : '';
+                    this._ref.$list.style.height = this._ref.$listSize.style.height = this.crossSize ? `${this.crossSize}px` : '';
                     this._ref.$listSize.style.width = `${itemHeightStore.read(itemHeightStore.maxVal)}px`;
                 }
                 else {
                     this._ref.$list.style.height = '';
-                    this._ref.$list.style.width = this._ref.$listSize.style.width = this
-                        .crossSize
-                        ? `${this.crossSize}px`
-                        : '';
+                    this._ref.$list.style.width = this._ref.$listSize.style.width = this.crossSize ? `${this.crossSize}px` : '';
                     this._ref.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`;
                 }
             }

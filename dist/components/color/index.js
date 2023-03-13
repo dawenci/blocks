@@ -36,7 +36,7 @@ import { dispatchEvent } from '../../common/event.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
 import { round } from '../../common/utils.js';
 import { onDragMove } from '../../common/onDragMove.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 import { template } from './template.js';
 import { style } from './style.js';
 import { Color } from './Color.js';
@@ -401,11 +401,7 @@ export let BlocksColor = (() => {
             };
             const onStart = ({ start, $target }) => {
                 this._dragging = true;
-                const $wrap = [
-                    this._ref.$hueBar,
-                    this._ref.$alphaBar,
-                    this._ref.$hsv,
-                ].find($wrap => $wrap.contains($target));
+                const $wrap = [this._ref.$hueBar, this._ref.$alphaBar, this._ref.$hsv].find($wrap => $wrap.contains($target));
                 $button = $wrap.querySelector('button');
                 const rect = $wrap.getBoundingClientRect();
                 wrapWidth = rect.width;

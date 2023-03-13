@@ -25,11 +25,7 @@ export class BlocksBadge extends Component {
     this.$badge!.textContent = this.value
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     this.render()

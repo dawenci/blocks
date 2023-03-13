@@ -45,11 +45,7 @@ export class BlocksSplitter extends Component {
     this._ref = { $layout, $panes, $cover, $slot }
 
     $slot.addEventListener('slotchange', () => {
-      this.panes = $slot
-        .assignedElements()
-        .filter(
-          $item => $item instanceof BlocksSplitterPane
-        ) as BlocksSplitterPane[]
+      this.panes = $slot.assignedElements().filter($item => $item instanceof BlocksSplitterPane) as BlocksSplitterPane[]
 
       this._renderDirection()
       this.layout()
@@ -66,9 +62,7 @@ export class BlocksSplitter extends Component {
   }
 
   get size() {
-    return this._ref.$panes[
-      this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight'
-    ]
+    return this._ref.$panes[this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight']
   }
 
   _offSizeObserve?: () => void
@@ -86,11 +80,7 @@ export class BlocksSplitter extends Component {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     if (attrName === 'direction') {
@@ -112,12 +102,9 @@ export class BlocksSplitter extends Component {
     while (len-- > count) {
       $layout.removeChild($layout.querySelector('.handle')!)
     }
-    this.handles = Array.prototype.slice.call(
-      $layout.querySelectorAll('.handle')
-    )
+    this.handles = Array.prototype.slice.call($layout.querySelectorAll('.handle'))
     this.handles.forEach(($handle, index) => {
-      const offset =
-        this.getPanePosition(this.panes[index + 1]) - this.handleSize / 2
+      const offset = this.getPanePosition(this.panes[index + 1]) - this.handleSize / 2
       const sizeProp = this.direction === 'horizontal' ? 'width' : 'height'
       const posProp = this.direction === 'horizontal' ? 'left' : 'top'
       $handle.style.cssText = `${sizeProp}:${this.handleSize}px;${posProp}:${offset}px;`
@@ -293,10 +280,7 @@ export class BlocksSplitter extends Component {
   }
 
   getHandleIndex($handle: HTMLElement) {
-    return Array.prototype.indexOf.call(
-      this._ref.$layout.querySelectorAll('.handle'),
-      $handle
-    )
+    return Array.prototype.indexOf.call(this._ref.$layout.querySelectorAll('.handle'), $handle)
   }
 
   _initResizeEvents() {
@@ -397,9 +381,7 @@ export class BlocksSplitter extends Component {
       refresh = true
 
       const totalShrink = $list.reduce((acc, $pane) => acc + $pane.shrink, 0)
-      const shrinkSizes = $list.map(
-        $pane => ($pane.shrink / totalShrink) * rest
-      )
+      const shrinkSizes = $list.map($pane => ($pane.shrink / totalShrink) * rest)
       $list.forEach(($pane, index) => {
         const shrinkSize = shrinkSizes[index]
         // 实际收缩的尺寸

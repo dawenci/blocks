@@ -37,9 +37,7 @@ export class BlocksStep extends Component {
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template())
 
-    const slots = shadowRoot.querySelectorAll(
-      'slot'
-    ) as ArrayLike<HTMLSlotElement>
+    const slots = shadowRoot.querySelectorAll('slot') as ArrayLike<HTMLSlotElement>
     Array.prototype.forEach.call(slots, $slot => {
       const $parent = $slot.parentElement
       $slot.addEventListener('slotchange', () => {
@@ -70,11 +68,7 @@ export class BlocksStep extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     switch (attrName) {
       case 'icon': {
@@ -92,17 +86,10 @@ export class BlocksStep extends Component {
     }
   }
 
-  _renderContent(
-    $slotParent: HTMLElement,
-    $default: HTMLElement | SVGElement | Text
-  ) {
+  _renderContent($slotParent: HTMLElement, $default: HTMLElement | SVGElement | Text) {
     let empty = true
     const $slot = $slotParent.querySelector('slot')!
-    if (
-      $slot
-        .assignedNodes()
-        .filter($node => $node.nodeType === 1 || $node.nodeType === 3).length
-    ) {
+    if ($slot.assignedNodes().filter($node => $node.nodeType === 1 || $node.nodeType === 3).length) {
       empty = false
     } else if ($default) {
       $slotParent.innerHTML = ''
@@ -114,9 +101,7 @@ export class BlocksStep extends Component {
   }
 
   _renderIcon() {
-    let $default: HTMLElement | SVGElement | null = this.icon
-      ? parseIcon(this.icon)
-      : null
+    let $default: HTMLElement | SVGElement | null = this.icon ? parseIcon(this.icon) : null
     if (!$default) {
       $default = document.createElement('i')
       $default.textContent = String(this.$stepper.stepIndex(this) + 1)

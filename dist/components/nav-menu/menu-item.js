@@ -223,8 +223,7 @@ export let BlocksNavMenuItem = (() => {
                     this.$submenu = document.createElement('bl-popup-menu');
                     this.$submenu.appendToBody = true;
                     this.$submenu.anchor = () => this;
-                    if (this.$rootMenu.horizontal &&
-                        this.$hostMenu.level === 0) {
+                    if (this.$rootMenu.horizontal && this.$hostMenu.level === 0) {
                         this.$submenu.origin = PopupOrigin.TopStart;
                     }
                     else {

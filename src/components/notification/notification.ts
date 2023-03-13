@@ -6,12 +6,7 @@ import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { Component } from '../Component.js'
 import { template } from './template.js'
 import { style } from './style.js'
-import {
-  __color_success,
-  __color_danger,
-  __color_warning,
-  __color_primary,
-} from '../../theme/var-light.js'
+import { __color_success, __color_danger, __color_warning, __color_primary } from '../../theme/var-light.js'
 
 export enum NotificationPlacement {
   TopRight = 'top-right',
@@ -114,9 +109,7 @@ export class BlocksNotification extends Component {
 
     if (this.closeable) {
       if (!this.ref.$close) {
-        this.ref.$close = this.ref.$layout.appendChild(
-          document.createElement('button')
-        )
+        this.ref.$close = this.ref.$layout.appendChild(document.createElement('button'))
         this.ref.$close.id = 'close'
         this.ref.$close.appendChild(getRegisteredSvgIcon('cross')!)
         this.ref.$close.onclick = () => {
@@ -144,11 +137,7 @@ export class BlocksNotification extends Component {
     this._setAutoClose()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
 

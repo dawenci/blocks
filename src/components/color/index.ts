@@ -2,11 +2,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { round } from '../../common/utils.js'
 import { onDragMove } from '../../common/onDragMove.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { template } from './template.js'
 import { style } from './style.js'
 import { Color, ColorFormat, ColorTuple4 } from './Color.js'
@@ -97,12 +93,8 @@ export class BlocksColor extends Component {
     const $alphaButton = $alphaBar.querySelector('button') as HTMLButtonElement
     const $alphaBarBg = $alphaBar.querySelector('.bg') as HTMLDivElement
     const $resultBg = $result.querySelector('.bg') as HTMLDivElement
-    const $modeContent = shadowRoot.getElementById(
-      'mode-content'
-    ) as HTMLDivElement
-    const $modeSwitch = shadowRoot.getElementById(
-      'mode-switch'
-    ) as HTMLButtonElement
+    const $modeContent = shadowRoot.getElementById('mode-content') as HTMLDivElement
+    const $modeSwitch = shadowRoot.getElementById('mode-switch') as HTMLButtonElement
     this._ref = {
       $layout,
       $hsv,
@@ -196,10 +188,7 @@ export class BlocksColor extends Component {
   override connectedCallback() {
     super.connectedCallback()
 
-    this._clearResizeHandler = sizeObserve(
-      this._ref.$layout,
-      this._updateControls.bind(this)
-    )
+    this._clearResizeHandler = sizeObserve(this._ref.$layout, this._updateControls.bind(this))
     this.render()
   }
 
@@ -210,11 +199,7 @@ export class BlocksColor extends Component {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'mode') {
       this.render()
@@ -287,8 +272,7 @@ export class BlocksColor extends Component {
   _updateState() {
     // 透明度
     const alphaBarWidth = this._ref.$alphaBar.clientWidth - 12
-    const alphaX =
-      parseInt(getComputedStyle(this._ref.$alphaButton).left, 10) || 0
+    const alphaX = parseInt(getComputedStyle(this._ref.$alphaButton).left, 10) || 0
     const alpha = alphaX / alphaBarWidth
     // 色相
     const hueBarWidth = this._ref.$hueBar.clientWidth - 12
@@ -310,9 +294,9 @@ export class BlocksColor extends Component {
     this._ref.$hsvHue.style.backgroundColor = bg
     this._ref.$alphaBarBg.style.backgroundImage = `linear-gradient(to right, transparent, ${bg})`
     const resultBg = this.hsla
-    this._ref.$resultBg.style.backgroundColor = `hsla(${this._lastHue},${
-      resultBg[1] * 100
-    }%,${resultBg[2] * 100}%,${resultBg[3]})`
+    this._ref.$resultBg.style.backgroundColor = `hsla(${this._lastHue},${resultBg[1] * 100}%,${resultBg[2] * 100}%,${
+      resultBg[3]
+    })`
   }
 
   _updateModels() {
@@ -324,9 +308,7 @@ export class BlocksColor extends Component {
     const inputs = children.map($el => $el.querySelector('input'))
     const spans = children.map($el => $el.querySelector('span'))
     if (mode === 'hex') {
-      children.forEach(
-        ($el, index) => ($el.style.display = index === 0 ? '' : 'none')
-      )
+      children.forEach(($el, index) => ($el.style.display = index === 0 ? '' : 'none'))
       children[0].querySelector('input').value = this.hex
       spans[0].textContent = 'HEX'
     } else if (mode === 'rgb') {
@@ -381,17 +363,14 @@ export class BlocksColor extends Component {
       const value = $input.value || ''
       const mode = this.mode
       if (mode === 'hex') {
-        if (
-          /^#?(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)
-        ) {
+        if (/^#?(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)) {
           this._preventUpdateModel = true
           this.value = Color.fromHex(value).value
           this._preventUpdateModel = false
         }
       } else if (mode === 'rgb') {
-        const values = Array.prototype.map.call(
-          this._ref.$modeContent.querySelectorAll('input'),
-          $input => Number($input.value)
+        const values = Array.prototype.map.call(this._ref.$modeContent.querySelectorAll('input'), $input =>
+          Number($input.value)
         ) as [number, number, number, number]
         if (values.every(n => n >= 0 && n <= 255)) {
           this._preventUpdateModel = true
@@ -399,9 +378,8 @@ export class BlocksColor extends Component {
           this._preventUpdateModel = false
         }
       } else if (mode === 'hsv') {
-        const values = Array.prototype.map.call(
-          this._ref.$modeContent.querySelectorAll('input'),
-          $input => parseFloat($input.value)
+        const values = Array.prototype.map.call(this._ref.$modeContent.querySelectorAll('input'), $input =>
+          parseFloat($input.value)
         ) as [number, number, number, number]
         if (values[0] < 0 || values[0] > 360) return
         if (values[1] < 0 || values[1] > 100) return
@@ -411,9 +389,8 @@ export class BlocksColor extends Component {
         this.hsva = [values[0], values[1] / 100, values[2] / 100, values[3]]
         this._preventUpdateModel = false
       } else if (mode === 'hsl') {
-        const values = Array.prototype.map.call(
-          this._ref.$modeContent.querySelectorAll('input'),
-          $input => parseFloat($input.value)
+        const values = Array.prototype.map.call(this._ref.$modeContent.querySelectorAll('input'), $input =>
+          parseFloat($input.value)
         ) as [number, number, number, number]
         if (values[0] < 0 || values[0] > 360) return
         if (values[1] < 0 || values[1] > 100) return
@@ -466,11 +443,7 @@ export class BlocksColor extends Component {
     const onStart = ({ start, $target }: any) => {
       this._dragging = true
 
-      const $wrap = [
-        this._ref.$hueBar,
-        this._ref.$alphaBar,
-        this._ref.$hsv,
-      ].find($wrap => $wrap.contains($target))
+      const $wrap = [this._ref.$hueBar, this._ref.$alphaBar, this._ref.$hsv].find($wrap => $wrap.contains($target))
       $button = $wrap!.querySelector('button') as HTMLElement
 
       const rect = $wrap!.getBoundingClientRect()

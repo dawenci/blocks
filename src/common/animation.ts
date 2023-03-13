@@ -13,10 +13,7 @@ export function transitionEnter(el: HTMLElement, name: string): void {
   el.classList.add(`${name}-enter-transition-active`)
   el.classList.add(`${name}-enter-transition-from`)
   el.offsetHeight
-  el.classList.replace(
-    `${name}-enter-transition-from`,
-    `${name}-enter-transition-to`
-  )
+  el.classList.replace(`${name}-enter-transition-from`, `${name}-enter-transition-to`)
 }
 
 /**
@@ -34,10 +31,7 @@ export function transitionLeave(el: HTMLElement, name: string): void {
   el.classList.add(`${name}-leave-transition-active`)
   el.classList.add(`${name}-leave-transition-from`)
   el.offsetHeight
-  el.classList.replace(
-    `${name}-leave-transition-from`,
-    `${name}-leave-transition-to`
-  )
+  el.classList.replace(`${name}-leave-transition-from`, `${name}-leave-transition-to`)
 }
 
 /**
@@ -47,11 +41,7 @@ export function transitionLeave(el: HTMLElement, name: string): void {
  * @param {string} name 过渡的名称
  * @returns
  */
-export function doTransitionEnter(
-  el: HTMLElement,
-  name: string,
-  onEnd: () => void
-): void {
+export function doTransitionEnter(el: HTMLElement, name: string, onEnd: () => void): void {
   transitionEnter(el, name)
   if ((el as any)._clearOnTransitionEnd) {
     ;(el as any)._clearOnTransitionEnd()
@@ -73,11 +63,7 @@ export function doTransitionEnter(
  * @param {() => void} [onEnd]
  * @returns
  */
-export function doTransitionLeave(
-  el: HTMLElement,
-  name: string,
-  onEnd: () => void
-): void {
+export function doTransitionLeave(el: HTMLElement, name: string, onEnd: () => void): void {
   transitionLeave(el, name)
   if ((el as any)._clearOnTransitionEnd) {
     ;(el as any)._clearOnTransitionEnd()
@@ -139,22 +125,16 @@ export function clearTransition(el: HTMLElement, name: string): void {
  * @param {HTMLElement} el 执行过渡动画的元素
  * @param {() => void} callback 动画执行完毕的回调
  */
-export function onTransitionEnd(
-  el: HTMLElement,
-  callback: () => void
-): () => void {
+export function onTransitionEnd(el: HTMLElement, callback: () => void): () => void {
   // 从样式中提取动画的执行总时间、需要执行动画的属性数量
   const { transitionTimeout, transitionPropCount } = getTransitionInfo(el)
   const { animationTimeout, animationPropCount } = getAnimationInfo(el)
 
   // 动画的类型是过渡还是关键帧动画，以持续时间比较久的为准
-  const type =
-    transitionTimeout >= animationTimeout ? 'TRANSITION' : 'ANIMATION'
+  const type = transitionTimeout >= animationTimeout ? 'TRANSITION' : 'ANIMATION'
   const timeout = type === 'TRANSITION' ? transitionTimeout : animationTimeout
-  const propCount =
-    type === 'TRANSITION' ? transitionPropCount : animationPropCount
-  const cancelEvent =
-    type === 'TRANSITION' ? 'transitioncancel' : 'animationcancel'
+  const propCount = type === 'TRANSITION' ? transitionPropCount : animationPropCount
+  const cancelEvent = type === 'TRANSITION' ? 'transitioncancel' : 'animationcancel'
   const endEvent = type === 'TRANSITION' ? 'transitionend' : 'animationend'
 
   // 如果没有需要执行过去动画的属性，提前退出
@@ -209,12 +189,7 @@ function getTimeout(delays: string[], durations: string[]): number {
     delays = delays.concat(delays)
   }
   // 动画时间以 delay + duration 的值最大的为准
-  return Math.max(
-    ...durations.map(
-      (duration, i) =>
-        parseFloat(duration) * 1000 + parseFloat(delays[i]) * 1000
-    )
-  )
+  return Math.max(...durations.map((duration, i) => parseFloat(duration) * 1000 + parseFloat(delays[i]) * 1000))
 }
 
 // 从样式中提取过渡动画信息
@@ -227,8 +202,7 @@ function getTransitionInfo(el: HTMLElement): {
   const transitionDelays = styles.transitionDelay.split(', ')
   const transitionDurations = styles.transitionDuration.split(', ')
   // 执行 transition 的总时间
-  const transitionTimeout =
-    getTimeout(transitionDelays, transitionDurations) || 0
+  const transitionTimeout = getTimeout(transitionDelays, transitionDurations) || 0
   const transitionPropCount = transitionTimeout && transitionDurations.length
   const hasTransform = /\b(transform|all)(,|$)/.test(styles.transitionProperty)
   return {

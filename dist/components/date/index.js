@@ -36,7 +36,7 @@ import '../loading/index.js';
 import { Depth, Depths, normalizeMinDepth, normalizeViewDepth, getClosestDate, generateMonths, generateDates, generateYears, generateDecades, makeDate, normalizeNumber, yearToDecade, yearToCentury, decadeToCentury, isYearInDecade, firstYearOfDecade, isYearInCentury, firstYearOfCentury, lastYearOfCentury, lastYearOfDecade, generateWeekHeaders, isToday, isAllEqual, } from './helpers.js';
 import { boolSetter, enumGetter, enumSetter } from '../../common/property.js';
 import { dispatchEvent } from '../../common/event.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 import { template } from './template.js';
 import { style } from './style.js';
 import { defineClass } from '../../decorators/defineClass.js';
@@ -225,8 +225,7 @@ export let BlocksDate = (() => {
             this.render();
         }
         get startWeekOn() {
-            const value = enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(this) ??
-                '1';
+            const value = enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(this) ?? '1';
             return Number(value);
         }
         set startWeekOn(value) {
@@ -375,9 +374,7 @@ export let BlocksDate = (() => {
                 return;
             }
             const currentValue = this.#value[0];
-            const hasChange = currentValue !== value ||
-                !currentValue ||
-                currentValue.getTime() !== value.getTime();
+            const hasChange = currentValue !== value || !currentValue || currentValue.getTime() !== value.getTime();
             if (hasChange) {
                 this.#value = [value];
                 this.render();
@@ -386,9 +383,7 @@ export let BlocksDate = (() => {
             }
         }
         getRange() {
-            return this.mode === 'range' && this.#value.length === 2
-                ? this.#value.slice()
-                : null;
+            return this.mode === 'range' && this.#value.length === 2 ? this.#value.slice() : null;
         }
         setRange(value) {
             if (this.mode !== 'range')
@@ -402,14 +397,10 @@ export let BlocksDate = (() => {
             if (!Array.isArray(value)) {
                 return;
             }
-            if (!Array.isArray(value) ||
-                value.length !== 2 ||
-                !value.every(date => date instanceof Date)) {
+            if (!Array.isArray(value) || value.length !== 2 || !value.every(date => date instanceof Date)) {
                 return;
             }
-            const range = value
-                .slice()
-                .sort((a, b) => a.getTime() - b.getTime());
+            const range = value.slice().sort((a, b) => a.getTime() - b.getTime());
             const hasChange = !isAllEqual(this.#value, range);
             if (hasChange) {
                 this.#value = range;
@@ -427,9 +418,7 @@ export let BlocksDate = (() => {
             }
         }
         getValues() {
-            return this.mode === 'multiple' && this.#value.length
-                ? this.#value.slice()
-                : [];
+            return this.mode === 'multiple' && this.#value.length ? this.#value.slice() : [];
         }
         setValues(values) {
             if (this.mode !== 'multiple')
@@ -524,9 +513,7 @@ export let BlocksDate = (() => {
                 $weekHeader.style.height = '';
                 $weekHeader.style.opacity = '1';
                 if ($weekHeader.children.length !== 7) {
-                    $weekHeader.innerHTML = headers
-                        .map(header => `<span>${header}</span>`)
-                        .join('');
+                    $weekHeader.innerHTML = headers.map(header => `<span>${header}</span>`).join('');
                 }
                 else {
                     for (let i = 0; i < 7; i += 1) {
@@ -742,8 +729,7 @@ export let BlocksDate = (() => {
             if (!obj)
                 return false;
             const obj2 = this.rangeTo ?? this.maybeRangeTo;
-            if (obj2 &&
-                this.#modelToDate(obj).getTime() > this.#modelToDate(obj2).getTime()) {
+            if (obj2 && this.#modelToDate(obj).getTime() > this.#modelToDate(obj2).getTime()) {
                 obj = obj2;
             }
             return ['year', 'month', 'date'].every(key => obj[key] === item[key]);
@@ -753,8 +739,7 @@ export let BlocksDate = (() => {
             if (!obj)
                 return false;
             const obj2 = this.rangeTo ?? this.maybeRangeTo;
-            if (obj2 &&
-                this.#modelToDate(obj).getTime() < this.#modelToDate(obj2).getTime()) {
+            if (obj2 && this.#modelToDate(obj).getTime() < this.#modelToDate(obj2).getTime()) {
                 obj = obj2;
             }
             return ['year', 'month', 'date'].every(key => obj[key] === item[key]);
@@ -776,9 +761,7 @@ export let BlocksDate = (() => {
             }
         }
         #isSameDate(item, date) {
-            return (date.getFullYear() === item.year &&
-                date.getMonth() === item.month &&
-                date.getDate() === item.date);
+            return date.getFullYear() === item.year && date.getMonth() === item.month && date.getDate() === item.date;
         }
         #isSameMonth(item, date) {
             return date.getFullYear() === item.year && date.getMonth() === item.month;
@@ -799,8 +782,7 @@ export let BlocksDate = (() => {
                     const t1Time = makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime();
                     const t2Time = makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime();
                     const itemTime = makeDate(item.year, item.month, item.date).getTime();
-                    return (Math.min(t1Time, t2Time) <= itemTime &&
-                        Math.max(t1Time, t2Time) >= itemTime);
+                    return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime;
                 };
             }
             else if (this.depth === Depth.Year) {
@@ -808,8 +790,7 @@ export let BlocksDate = (() => {
                     const t1Time = makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime();
                     const t2Time = makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime();
                     const itemTime = makeDate(item.year, item.month, 1).getTime();
-                    return (Math.min(t1Time, t2Time) <= itemTime &&
-                        Math.max(t1Time, t2Time) >= itemTime);
+                    return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime;
                 };
             }
             else if (this.depth === Depth.Decade) {
@@ -963,9 +944,7 @@ export let BlocksDate = (() => {
                     const values = this.#value.slice();
                     if (this.#isActiveLeaf(item)) {
                         const pred = this.viewDepth === Depth.Month
-                            ? (t) => t.getDate() === item.date &&
-                                t.getMonth() === item.month &&
-                                t.getFullYear() === item.year
+                            ? (t) => t.getDate() === item.date && t.getMonth() === item.month && t.getFullYear() === item.year
                             : this.viewDepth === Depth.Year
                                 ? (t) => t.getMonth() === item.month && t.getFullYear() === item.year
                                 : (t) => t.getFullYear() === item.year;

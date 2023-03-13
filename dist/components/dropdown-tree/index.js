@@ -32,7 +32,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { connectSelectable, } from '../../common/connectSelectable.js';
+import { connectSelectable } from '../../common/connectSelectable.js';
 import { dispatchEvent } from '../../common/event.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { Component } from '../Component.js';

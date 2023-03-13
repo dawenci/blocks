@@ -1,11 +1,5 @@
 import { defineClass } from '../decorators/defineClass.js'
-import {
-  append,
-  mountAfter,
-  mountBefore,
-  prepend,
-  unmount,
-} from '../common/mount.js'
+import { append, mountAfter, mountBefore, prepend, unmount } from '../common/mount.js'
 import { upgradeProperty } from '../common/upgradeProperty.js'
 
 interface ComponentEventListenerCallback<E extends Event = Event> {
@@ -63,11 +57,7 @@ export class Component extends HTMLElement {
       // 找到当前组件已经插入的 style，如果存在，则新样式插入到该 style 后面
       const $lastStyle: HTMLStyleElement =
         (this as any)._$lastStyle ??
-        getLastItem(
-          this.shadowRoot.children.length
-            ? this.shadowRoot.querySelectorAll('style')
-            : []
-        )
+        getLastItem(this.shadowRoot.children.length ? this.shadowRoot.querySelectorAll('style') : [])
       const $fragment = ctor._$componentStyle as DocumentFragment
       const _$last = $fragment.children[$fragment.children.length - 1]
       if ($lastStyle) {
@@ -105,11 +95,7 @@ export class Component extends HTMLElement {
   /**
    * attribute 变化处理
    */
-  attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ): void {
+  attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void {
     //
   }
 

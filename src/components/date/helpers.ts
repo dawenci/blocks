@@ -13,12 +13,7 @@ export enum Depth {
   Century = 'century',
 }
 
-export const Depths = [
-  Depth.Month,
-  Depth.Year,
-  Depth.Decade,
-  Depth.Century,
-] as const
+export const Depths = [Depth.Month, Depth.Year, Depth.Decade, Depth.Century] as const
 
 export const DepthValue = Object.freeze({
   [Depth.Century]: 0,
@@ -84,11 +79,7 @@ export function normalizeMinDepth(min: Depth, depth: Depth) {
 /**
  * 规范面板深度取值
  */
-export function normalizeViewDepth(
-  view: Depth,
-  min: Depth,
-  depth: Depth
-): Depth {
+export function normalizeViewDepth(view: Depth, min: Depth, depth: Depth): Depth {
   if (!view) return depth as Depth
   if (DepthValue[view] < DepthValue[min]) {
     view = min
@@ -108,11 +99,7 @@ export type DateModel = {
   date?: number
 }
 
-export function generateMonths(
-  century: number,
-  decade: number,
-  year: number
-): DateModel[] {
+export function generateMonths(century: number, decade: number, year: number): DateModel[] {
   const results = range(0, 11).map(month => ({
     label: String(month + 1),
     century,
@@ -283,16 +270,9 @@ export function generateWeekHeaders(startWeekOn: WeekNumber) {
 // 当前选项是否是今天
 export function isToday(model: DateModel) {
   const today = new Date()
-  return (
-    model.year === today.getFullYear() &&
-    model.month === today.getMonth() &&
-    model.date === today.getDate()
-  )
+  return model.year === today.getFullYear() && model.month === today.getMonth() && model.date === today.getDate()
 }
 
 export function isAllEqual(arr1: Array<Date>, arr2: Array<Date>) {
-  return (
-    arr1.length === arr2.length &&
-    arr1.every((date, index) => date.getTime() === arr2[index].getTime())
-  )
+  return arr1.length === arr2.length && arr1.every((date, index) => date.getTime() === arr2[index].getTime())
 }

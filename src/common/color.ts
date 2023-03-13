@@ -129,8 +129,7 @@ export function hsl2hsv(Hl: number, Sl: number, L: number): ColorTuple3 {
  * @returns {[number, number, number, number] | null}
  */
 export function hex2rgba(hex: string): ColorTuple4 | null {
-  if (!hex.match(/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8})$/))
-    return null
+  if (!hex.match(/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3}|[A-Fa-f0-9]{8})$/)) return null
   hex = hex.replace('#', '')
   const rgba = Array(4) as ColorTuple4
   rgba[3] = 255
@@ -206,9 +205,7 @@ export const parse: (input: string) => ColorTuple4 | null = (() => {
     return getParseFn(input)?.(input) ?? null
   }
 
-  function getParseFn(
-    input: string
-  ): undefined | (() => void) | ((input: string) => ColorTuple4 | null) {
+  function getParseFn(input: string): undefined | (() => void) | ((input: string) => ColorTuple4 | null) {
     if (!input.length) return
     if (input.startsWith('#')) return parseHex
     if (/^rgba?\([,0-9\s\.]+\)$/.test(input)) {
@@ -228,9 +225,7 @@ export const parse: (input: string) => ColorTuple4 | null = (() => {
     const start = isRgba ? 5 : 4
     const end = input.length - 1
     const valueStr = input.slice(start, end)
-    const rgba = valueStr.split(/\s*,\s*/).map(str => parseFloat(str)) as
-      | ColorTuple3
-      | ColorTuple4
+    const rgba = valueStr.split(/\s*,\s*/).map(str => parseFloat(str)) as ColorTuple3 | ColorTuple4
     if (isRgba && rgba.length !== 4) {
       return null
     }

@@ -1,10 +1,4 @@
-import {
-  __color_primary,
-  __fg_disabled,
-  __height_base,
-  __height_large,
-  __height_small,
-} from '../../theme/var-light.js'
+import { __color_primary, __fg_disabled, __height_base, __height_large, __height_small } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 :host {

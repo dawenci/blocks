@@ -52,9 +52,7 @@ export function make(options: Partial<RowColumn>): RowColumn {
     maxWidth: options.maxWidth || Infinity,
     fixedLeft: !!options.fixedLeft,
     fixedRight: !!options.fixedRight,
-    sortOrder: ['none', 'ascending', 'descending'].includes(options.sortOrder!)
-      ? options.sortOrder
-      : undefined,
+    sortOrder: ['none', 'ascending', 'descending'].includes(options.sortOrder!) ? options.sortOrder : undefined,
     resizable: !!options.resizable,
 
     children: (options.children ?? []).map(child => make(child)),

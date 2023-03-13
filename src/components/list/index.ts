@@ -5,11 +5,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { parseHighlight } from '../../common/highlight.js'
 import { style } from './style.js'
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
-import {
-  ISelected,
-  ISelectListEventMap,
-  ISelectableListComponent,
-} from '../../common/connectSelectable.js'
+import { ISelected, ISelectListEventMap, ISelectableListComponent } from '../../common/connectSelectable.js'
 import { ComponentEventListener } from '../Component.js'
 
 interface BlocksListEventMap extends VListEventMap, ISelectListEventMap {}
@@ -103,10 +99,7 @@ export class BlocksList extends BlocksVList {
           ;($next as HTMLElement).focus()
         } else {
           const scrollableBottom = this._ref.$viewport.getScrollableBottom()
-          const scrollDelta = Math.min(
-            this.viewportHeight / 2,
-            scrollableBottom
-          )
+          const scrollDelta = Math.min(this.viewportHeight / 2, scrollableBottom)
           // 滚动，触发渲染下方内容
           this._ref.$viewport.viewportScrollTop += scrollDelta
         }
@@ -145,11 +138,7 @@ export class BlocksList extends BlocksVList {
   }
 
   set checkedData(data) {
-    this.#checkedSet = new Set(
-      data
-        .map(data => this.virtualDataMap[this.keyMethod(data)])
-        .filter(vitem => !!vitem)
-    )
+    this.#checkedSet = new Set(data.map(data => this.virtualDataMap[this.keyMethod(data)]).filter(vitem => !!vitem))
     this.render()
     dispatchEvent(this, 'select-list:change', {
       detail: {
@@ -166,9 +155,7 @@ export class BlocksList extends BlocksVList {
   }
 
   set checked(ids: string[]) {
-    const vitems = ids
-      .map(id => this.getVirtualItemByKey(id))
-      .filter(vitem => !!vitem)
+    const vitems = ids.map(id => this.getVirtualItemByKey(id)).filter(vitem => !!vitem)
     this.#checkedSet = new Set(vitems)
     this.render()
     dispatchEvent(this, 'select-list:change', {
@@ -255,11 +242,7 @@ export class BlocksList extends BlocksVList {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     switch (attrName) {
       case 'disabled': {
@@ -277,9 +260,7 @@ export class BlocksList extends BlocksVList {
       // 从多选改成单选，保留最后一个选择的值
       case 'multiple': {
         if (this.checkable && !this.multiple && this.#checkedSet!.size) {
-          this.#checkedSet = new Set([
-            [...this.#checkedSet!][this.#checkedSet!.size - 1],
-          ])
+          this.#checkedSet = new Set([[...this.#checkedSet!][this.#checkedSet!.size - 1]])
         }
         break
       }
@@ -301,8 +282,7 @@ export class BlocksList extends BlocksVList {
 
   // 从数据中提取 label 的方法
   internalLabelMethod(data: any) {
-    if (typeof this.labelMethod === 'function')
-      return this.labelMethod(data) ?? ''
+    if (typeof this.labelMethod === 'function') return this.labelMethod(data) ?? ''
     if (typeof this.labelField === 'string') return data[this.labelField] ?? ''
     return data.label ?? ''
   }
@@ -338,8 +318,7 @@ export class BlocksList extends BlocksVList {
   }
 
   _renderItemDisabled($item: HTMLElement, vitem: any) {
-    const isDisabled =
-      (this.disabled || vitem.data[this.disabledField]) ?? false
+    const isDisabled = (this.disabled || vitem.data[this.disabledField]) ?? false
     if (isDisabled) {
       $item.removeAttribute('tabindex')
       $item.setAttribute('disabled', '')
@@ -373,9 +352,7 @@ export class BlocksList extends BlocksVList {
     if (this.search && this.search.length) {
       $label.innerHTML = this.parseHighlight(label, this.search)
         .map(textSlice => {
-          return `<span class="${textSlice.highlight ? 'highlight' : ''}">${
-            textSlice.text
-          }</span>`
+          return `<span class="${textSlice.highlight ? 'highlight' : ''}">${textSlice.text}</span>`
         })
         .join('')
     } else {

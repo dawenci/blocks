@@ -1,68 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>range slider</title>
-  <link rel="stylesheet" href="../../src/theme/var.css">
-  <link rel="stylesheet" href="../page.css">
-  <link rel="stylesheet" href="../highlight/styles/default.css">
-  <link rel="stylesheet" href="../highlight/styles/vs2015.css">
-  <script src="../highlight/highlight.pack.js"></script>
-  <script type="module" src="../code-support.js"></script>
-</head>
-<body>
-  <article>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>COMPILER TEST</title>
+    <link rel="stylesheet" href="../../src/theme/var.css" />
+    <link rel="stylesheet" href="../page.css" />
+    <link rel="stylesheet" href="../highlight/styles/default.css" />
+    <link rel="stylesheet" href="../highlight/styles/vs2015.css" />
+    <script src="../highlight/highlight.pack.js"></script>
+    <script type="module" src="../code-support.js"></script>
+  </head>
+  <body>
     <style>
+      .test:first-of-type {
+        display: none;
+      }
+
+      article {
+        flex: 1 1 40%;
+        width: 40%;
+        height: 100%;
+        padding: 0;
+      }
       .test {
         border: 1px solid #ccc;
         margin: 10px;
         padding: 10px;
       }
+      .list-item {
+        margin: 10px;
+        border: 1px solid #ccc;
+      }
+      .code {
+        flex: 1 1 60%;
+        width: 60%;
+        height: 100%;
+        overflow: auto;
+        margin: 0;
+        padding: 0;
+      }
+      pre {
+        margin: 0;
+        padding: 0;
+      }
+      code {
+        margin: 0;
+        padding: 20px 0;
+      }
     </style>
 
-    <div class="test">
-      <h2 bl-if="cond">
-        if true {text}
-        <!-- <strong bl-if="cond">Strong</strong> -->
-      </h2>
-      <span>span</span>
-      <p bl:title="title">prefix {text} suffix</p>
+    <article>
+      <div class="test" bl-on:click.once="onClick">
+        <div bl-prop:prop-name="prop"></div>
+        <!-- set({ cond: false });set({ cond: true, cond2: false });set({ cond: false }) 报错 -->
+        <!-- set({ cond: false, cond2: false });set({ cond: true });set({ cond: false }) 报错 -->
+        <bl-if cond="cond">
+          <p>外层 IF block: {cond}</p>
+          <bl-if cond="cond2">内层 if block {cond2}</bl-if>
+        </bl-if>
+        <!-- each:item="list" OR each:item="list" index="index" -->
+        <bl-for each:item="list" index="index">
+          <div class="list-item">
+            <h3>list item</h3>
+            <p>List Item: {item.itemName} & index: {index.value}</p>
+          </div>
+        </bl-for>
+        <bl-html content="html"></bl-html>
+        <p>{ nestData.dot }</p>
+        <p>{ nestData[ "index1" ] }</p>
+        <p>{ nestData[ 'index2' ] }</p>
+        <p bl:title="title">prefix {text} suffix</p>
+      </div>
+     
+    </article>
+
+    <div class="code">
+      <pre><code></code></pre>
     </div>
 
+
     <script type="module">
-      import { parseText } from '../../dist/common/templateCompiler/utils.js'
       import { compile } from '../../dist/common/templateCompiler/index.js'
-      window.parseText = parseText
-      window.render = compile(document.querySelector('.test'))
+      window.makeComp = compile(document.querySelector('.test'))
+      window.test = () => {
+        var { create, update, destroy, set } = makeComp({ data: {
+          prop: 1,
 
-      const format = (arr) => {
-        return arr.map(item => item.type + '.' + (item.propName ?? item.textContent)).join(';')
-      }
-      
-      console.assert(format(parseText('{')) === 'static.{')
-      console.assert(format(parseText('{}')) === 'static.{}')
-      console.assert(format(parseText('}')) === 'static.}')
-      console.assert(format(parseText('1{}2')) === 'static.1{}2')
-      console.assert(format(parseText('1{a}2')) === 'static.1;reactive.a;static.2')
-      console.assert(format(parseText('123{{}}1{}21{a}2')) === 'static.123{{}}1{}21;reactive.a;static.2')
+          html: '<div style="color:red">测试富文本渲染（不安全：XSS）</div>',
+          title: 'INIT_TITLE',
+          text: 'INIT_TEXT',
+          cond: true,
+          cond2: true,
+          nestData: {
+            dot: '嵌套对象访问（点语法）',
+            index1: '嵌套对象访问（字符串 key 1）',
+            index2: '嵌套对象访问（字符串 key 2）',
+          },
+          onClick: e => {
+            console.log('click', e)
+          },
+          list: [
+            { itemName: 'item 1' },
+            { itemName: 'item 2' }
+          ],
 
-      window.test = (cond = true) => {
-        var {$el, update} = render({ title: "INIT_TITLE", text: 'INIT_TEXT', cond })
-        document.querySelector('article').appendChild($el)
-        const tests = document.querySelectorAll('.test')
-        const $test = tests[tests.length - 1]
-        const $p = $test.querySelector('p')
-        console.log('\nRUN TEST:\n')
-        console.log('before:', '\n  title: ' + $p.getAttribute('title'), '\n  text: ', $p.textContent)
-        update({ title: "UPDATED_TITLE", text: 'UPDATED_TEXT' })
-        console.log('after:', '\n  title: ' + $p.getAttribute('title'), '\n  text: ', $p.textContent)
+
+        }})
+
+        document.querySelector('code').innerHTML = makeComp.code
+        hljs.highlightBlock(document.querySelector('code'))
+
+        document.querySelector('article').appendChild(create())
+        window.set = set
+        window.create = create
         window.update = update
+        window.destroy = destroy
       }
+      // debugger;
       window.test()
     </script>
-
-  </article>
-</body>
+  </body>
 </html>

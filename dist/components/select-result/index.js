@@ -39,7 +39,7 @@ import { dispatchEvent } from '../../common/event.js';
 import { contentTemplate, moreTemplate, placeholderTemplate, searchTemplate, tagTemplate, valueTextTemplate, } from './template.js';
 import { style } from './style.js';
 import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js';
-import { ClearableControlBox, } from '../base-clearable-control-box/index.js';
+import { ClearableControlBox } from '../base-clearable-control-box/index.js';
 export let BlocksSelectResult = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-select-result',
@@ -164,8 +164,7 @@ export let BlocksSelectResult = (() => {
             if (this.multiple) {
                 const currentValues = this.getValues();
                 const isSame = currentValues.length === value.length &&
-                    currentValues.every((item, index) => item.value === value[index].value &&
-                        item.label === value[index].label);
+                    currentValues.every((item, index) => item.value === value[index].value && item.label === value[index].label);
                 if (isSame) {
                     return;
                 }
@@ -220,9 +219,7 @@ export let BlocksSelectResult = (() => {
             this._renderValue();
         }
         _isEmpty() {
-            return this.multiple
-                ? !this._ref.$content.querySelectorAll('bl-tag').length
-                : !this._ref.$content.textContent;
+            return this.multiple ? !this._ref.$content.querySelectorAll('bl-tag').length : !this._ref.$content.textContent;
         }
         clearSearch() {
             if (this._ref.$search) {
@@ -287,9 +284,7 @@ export let BlocksSelectResult = (() => {
             }
             if (!this.multiple) {
                 const value = this.getValue();
-                this._ref.$plainTextValue.textContent = value
-                    ? this.formatter(value)
-                    : '';
+                this._ref.$plainTextValue.textContent = value ? this.formatter(value) : '';
                 return;
             }
             const values = this.getValues();

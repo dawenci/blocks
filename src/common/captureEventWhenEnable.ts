@@ -17,11 +17,7 @@ export function captureEventWhenEnable(
   eventType: string,
   callback: (e: Event) => any
 ): any
-export function captureEventWhenEnable(
-  element: any,
-  eventType: any,
-  callback: any
-) {
+export function captureEventWhenEnable(element: any, eventType: any, callback: any) {
   element.addEventListener(
     eventType,
     (e: any) => {

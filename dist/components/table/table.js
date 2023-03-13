@@ -42,7 +42,7 @@ import { sizeObserve } from '../../common/sizeObserve.js';
 import { make } from './RowColumn.js';
 import { setStyles } from '../../common/style.js';
 import { onDragMove } from '../../common/onDragMove.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 import { style } from './table.style.js';
 let gridId = 0;
 export let BlocksTable = (() => {
@@ -95,18 +95,12 @@ export let BlocksTable = (() => {
             });
             $mainHeader.addEventListener('enter-cell', e => {
                 const { $cell, column } = e.detail;
-                if (column.resizable &&
-                    !column.children?.length &&
-                    !this.classList.contains('resizing')) {
+                if (column.resizable && !column.children?.length && !this.classList.contains('resizing')) {
                     $resizeHandle.$cell = $cell;
                     $resizeHandle.column = column;
                     setStyles($resizeHandle, {
                         height: $cell.offsetHeight + 'px',
-                        left: $cell.offsetLeft +
-                            $cell.clientWidth -
-                            $mainHeader.viewportScrollLeft -
-                            3 +
-                            'px',
+                        left: $cell.offsetLeft + $cell.clientWidth - $mainHeader.viewportScrollLeft - 3 + 'px',
                         top: $cell.offsetTop + 'px',
                     });
                 }

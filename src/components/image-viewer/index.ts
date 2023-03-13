@@ -7,15 +7,9 @@ import { forEach } from '../../common/utils.js'
 import { contentTemplate } from './template.js'
 import { style } from './style.js'
 import { Component, ComponentEventListener } from '../Component.js'
-import {
-  WithOpenTransition,
-  WithOpenTransitionEventMap,
-} from '../with-open-transition/index.js'
+import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 
-type ImageTransformStates = Map<
-  HTMLImageElement,
-  { scale: number; rotate: number }
->
+type ImageTransformStates = Map<HTMLImageElement, { scale: number; rotate: number }>
 
 export type BlocksImageViewerEventMap = WithOpenTransitionEventMap
 
@@ -74,16 +68,10 @@ export class BlocksImageViewer extends Component {
     const $prev = $layout.querySelector('#prev') as HTMLButtonElement
     const $next = $layout.querySelector('#next') as HTMLButtonElement
     const $closeButton = $layout.querySelector('#close') as HTMLButtonElement
-    const $rotateLeftButton = $layout.querySelector(
-      '#rotate-left'
-    ) as HTMLButtonElement
-    const $rotateRightButton = $layout.querySelector(
-      '#rotate-right'
-    ) as HTMLButtonElement
+    const $rotateLeftButton = $layout.querySelector('#rotate-left') as HTMLButtonElement
+    const $rotateRightButton = $layout.querySelector('#rotate-right') as HTMLButtonElement
     const $zoomInButton = $layout.querySelector('#zoom-in') as HTMLButtonElement
-    const $zoomOutButton = $layout.querySelector(
-      '#zoom-out'
-    ) as HTMLButtonElement
+    const $zoomOutButton = $layout.querySelector('#zoom-out') as HTMLButtonElement
 
     this._ref = {
       $slot,
@@ -105,9 +93,7 @@ export class BlocksImageViewer extends Component {
     this.imgMap = new Map()
 
     const onSlotChange = () => {
-      const imgs = $slot
-        .assignedElements()
-        .filter(el => el.nodeName === 'IMG') as HTMLImageElement[]
+      const imgs = $slot.assignedElements().filter(el => el.nodeName === 'IMG') as HTMLImageElement[]
 
       const newMap: ImageTransformStates = new Map()
       imgs.forEach($img => {
@@ -221,11 +207,7 @@ export class BlocksImageViewer extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'open') {
       this._onOpenAttributeChange()
@@ -274,10 +256,7 @@ export class BlocksImageViewer extends Component {
   }
 
   next() {
-    if (
-      this.imgs.length &&
-      this.activeImg !== this.imgs[this.imgs.length - 1]
-    ) {
+    if (this.imgs.length && this.activeImg !== this.imgs[this.imgs.length - 1]) {
       const index = this.imgs.indexOf(this.activeImg)
       this.activeImg = this.imgs[index + 1]
     }
@@ -324,26 +303,19 @@ export class BlocksImageViewer extends Component {
     $prev.style.display = $next.style.display = display
 
     disabledSetter($prev, !!this.activeImg && this.activeImg === this.imgs[0])
-    disabledSetter(
-      $next,
-      !!this.activeImg && this.activeImg === this.imgs[this.imgs.length - 1]
-    )
+    disabledSetter($next, !!this.activeImg && this.activeImg === this.imgs[this.imgs.length - 1])
   }
 
   _renderToolbar() {
     if (!this.activeImg) {
-      const buttons = this._ref.$toolbar.querySelectorAll(
-        '.button'
-      ) as unknown as HTMLButtonElement[]
+      const buttons = this._ref.$toolbar.querySelectorAll('.button') as unknown as HTMLButtonElement[]
       forEach(buttons, $button => {
         disabledSetter($button, true)
       })
       return
     }
 
-    const buttons = this._ref.$toolbar.querySelectorAll(
-      '.button'
-    ) as unknown as HTMLButtonElement[]
+    const buttons = this._ref.$toolbar.querySelectorAll('.button') as unknown as HTMLButtonElement[]
 
     forEach(buttons, $button => {
       disabledSetter($button, false)

@@ -37,7 +37,7 @@ import { attr } from '../../decorators/attr.js';
 import { style } from './style.js';
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js';
 import { Component } from '../Component.js';
-import { WithOpenTransition, } from '../with-open-transition/index.js';
+import { WithOpenTransition } from '../with-open-transition/index.js';
 export let BlocksModalMask = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-modal-mask',
@@ -97,11 +97,8 @@ export let BlocksModalMask = (() => {
             const scrollBarWidth = getBodyScrollBarWidth();
             const bodyHasOverflow = document.documentElement.clientHeight < document.body.scrollHeight;
             const bodyOverflowY = getComputedStyle(document.body).overflowY;
-            if (scrollBarWidth > 0 &&
-                (bodyHasOverflow || bodyOverflowY === 'scroll') &&
-                !this.isScrollLocked) {
-                document.body.style.paddingRight =
-                    this.computedBodyPaddingRight + scrollBarWidth + 'px';
+            if (scrollBarWidth > 0 && (bodyHasOverflow || bodyOverflowY === 'scroll') && !this.isScrollLocked) {
+                document.body.style.paddingRight = this.computedBodyPaddingRight + scrollBarWidth + 'px';
             }
             document.body.style.overflowY = 'hidden';
             this.isScrollLocked = true;

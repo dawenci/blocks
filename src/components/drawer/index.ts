@@ -9,10 +9,7 @@ import { style } from './style.js'
 import { BlocksModalMask } from '../modal-mask/index.js'
 import { Control } from '../base-control/index.js'
 import { applyMixins } from '../../common/applyMixins.js'
-import {
-  WithOpenTransition,
-  WithOpenTransitionEventMap,
-} from '../with-open-transition/index.js'
+import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 import { ComponentEventListener } from '../Component.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
@@ -157,11 +154,7 @@ export class BlocksDrawer extends Control {
     this._destroyClickOutside()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'open') {
       this.openTransitionName = `open${capitalize(this.placement)}`
@@ -254,11 +247,8 @@ export class BlocksDrawer extends Control {
   _captureFocus() {
     const { $layout } = this._ref
     this._ref.$firstFocusable =
-      $layout.querySelector('#first') ||
-      $layout.insertBefore(document.createElement('button'), $layout.firstChild)
-    this._ref.$lastFocusable =
-      $layout.querySelector('#last') ||
-      $layout.appendChild(document.createElement('button'))
+      $layout.querySelector('#first') || $layout.insertBefore(document.createElement('button'), $layout.firstChild)
+    this._ref.$lastFocusable = $layout.querySelector('#last') || $layout.appendChild(document.createElement('button'))
     this._ref.$firstFocusable.id = 'first'
     this._ref.$lastFocusable.id = 'last'
     this._ref.$firstFocusable.onkeydown = e => {

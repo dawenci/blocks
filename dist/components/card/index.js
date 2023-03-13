@@ -75,9 +75,7 @@ export let BlocksCard = (() => {
                 $body: shadowRoot.getElementById('body'),
             };
             const updateSlotParent = ($slot) => {
-                const childCount = $slot
-                    .assignedNodes()
-                    .filter($node => $node.nodeType === 1 || $node.nodeType === 3).length;
+                const childCount = $slot.assignedNodes().filter($node => $node.nodeType === 1 || $node.nodeType === 3).length;
                 $slot.parentElement?.classList?.toggle?.('empty', !childCount);
             };
             const onSlotChange = (e) => {

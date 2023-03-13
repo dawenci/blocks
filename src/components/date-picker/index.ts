@@ -6,11 +6,7 @@ import { BlocksDate } from '../date/index.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { dispatchEvent } from '../../common/event.js'
 import { boolSetter } from '../../common/property.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { inputTemplate, popupTemplate } from './template.js'
 import { style } from './style.js'
 import { defineClass } from '../../decorators/defineClass.js'
@@ -109,8 +105,7 @@ export class BlocksDatePicker extends Component {
         this.#prevValue = $date.value
       }
 
-      ;($popup.querySelector('#action') as HTMLElement).style.display =
-        $date.mode === 'multiple' ? 'block' : 'none'
+      ;($popup.querySelector('#action') as HTMLElement).style.display = $date.mode === 'multiple' ? 'block' : 'none'
       this.#initClickOutside()
       dispatchEvent(this, 'opened')
     })
@@ -149,23 +144,15 @@ export class BlocksDatePicker extends Component {
   override render() {
     if (this._ref.$date.mode === 'range') {
       this._ref.$input.value = ((this.value as [Date, Date]) ?? [])
-        .map(
-          (date: Date) =>
-            `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-        )
+        .map((date: Date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
         .join(' ~ ')
     } else if (this._ref.$date.mode === 'multiple') {
       this._ref.$input.value = ((this.value as Date[]) ?? [])
-        .map(
-          (date: Date) =>
-            `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-        )
+        .map((date: Date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
         .join(', ')
     } else {
       const date = this.value as Date
-      this._ref.$input.value = date
-        ? `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-        : ''
+      this._ref.$input.value = date ? `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}` : ''
     }
   }
 
@@ -221,11 +208,7 @@ export class BlocksDatePicker extends Component {
     this.#destroyClickOutside()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (BlocksInput.observedAttributes.includes(attrName)) {
       this._ref.$input.setAttribute(attrName, newValue)

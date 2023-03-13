@@ -135,11 +135,7 @@ export class BlocksTimePicker extends Component {
     this._destroyClickOutside()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (BlocksInput.observedAttributes.includes(attrName)) {
       this.$input.setAttribute(attrName, newValue)
@@ -152,11 +148,7 @@ export class BlocksTimePicker extends Component {
 
   override render() {
     const { $time } = this._ref
-    if (
-      [$time.hour, $time.minute, $time.second].some(
-        v => Object.is(v, NaN) || v == null
-      )
-    ) {
+    if ([$time.hour, $time.minute, $time.second].some(v => Object.is(v, NaN) || v == null)) {
       this.$input.value = ''
       return
     }

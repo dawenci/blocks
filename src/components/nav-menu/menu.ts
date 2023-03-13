@@ -2,11 +2,7 @@ import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
 import { style } from './menu.style.js'
-import {
-  contentTemplate,
-  groupTemplate,
-  itemTemplate,
-} from './menu.template.js'
+import { contentTemplate, groupTemplate, itemTemplate } from './menu.template.js'
 import { Component } from '../Component.js'
 import { forEach } from '../../common/utils.js'
 import { BlocksNavMenuItem } from './menu-item.js'
@@ -88,10 +84,7 @@ export class BlocksNavMenu extends Component {
 
   horizontalRender() {
     const fragment = document.createDocumentFragment()
-    const render = (
-      $root: DocumentFragment,
-      data: (MenuItem | MenuGroup)[] = []
-    ) => {
+    const render = ($root: DocumentFragment, data: (MenuItem | MenuGroup)[] = []) => {
       data.forEach(item => {
         // 不渲染 group，直接渲染里面的项
         if ((item as MenuGroup).data) {
@@ -112,10 +105,7 @@ export class BlocksNavMenu extends Component {
 
   verticalRender() {
     const fragment = document.createDocumentFragment()
-    const render = (
-      $root: DocumentFragment,
-      data: (MenuItem | MenuGroup)[] = []
-    ) => {
+    const render = ($root: DocumentFragment, data: (MenuItem | MenuGroup)[] = []) => {
       data.forEach(item => {
         // 不渲染 group，直接渲染里面的项
         if (isGroup(item)) {
@@ -158,11 +148,7 @@ export class BlocksNavMenu extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     // collapse 和 inline 互斥，inline 和 horizontal 互斥
     this.render()

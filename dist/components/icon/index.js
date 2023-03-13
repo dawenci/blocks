@@ -88,8 +88,7 @@ export let BlocksIcon = (() => {
             if (this.fill) {
                 attrs.fill = this.fill;
             }
-            const icon = getRegisteredSvgIcon(this.value ?? '', attrs) ??
-                parseSvg(this.value ?? '', attrs);
+            const icon = getRegisteredSvgIcon(this.value ?? '', attrs) ?? parseSvg(this.value ?? '', attrs);
             if (icon) {
                 $layout.appendChild(icon);
             }

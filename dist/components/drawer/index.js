@@ -42,7 +42,7 @@ import { contentTemplate } from './template.js';
 import { style } from './style.js';
 import { Control } from '../base-control/index.js';
 import { applyMixins } from '../../common/applyMixins.js';
-import { WithOpenTransition, } from '../with-open-transition/index.js';
+import { WithOpenTransition } from '../with-open-transition/index.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 export let BlocksDrawer = (() => {
@@ -291,11 +291,8 @@ export let BlocksDrawer = (() => {
         _captureFocus() {
             const { $layout } = this._ref;
             this._ref.$firstFocusable =
-                $layout.querySelector('#first') ||
-                    $layout.insertBefore(document.createElement('button'), $layout.firstChild);
-            this._ref.$lastFocusable =
-                $layout.querySelector('#last') ||
-                    $layout.appendChild(document.createElement('button'));
+                $layout.querySelector('#first') || $layout.insertBefore(document.createElement('button'), $layout.firstChild);
+            this._ref.$lastFocusable = $layout.querySelector('#last') || $layout.appendChild(document.createElement('button'));
             this._ref.$firstFocusable.id = 'first';
             this._ref.$lastFocusable.id = 'last';
             this._ref.$firstFocusable.onkeydown = e => {

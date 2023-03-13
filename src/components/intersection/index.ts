@@ -109,11 +109,7 @@ export class BlocksIntersection extends Component {
     this._removeObserver()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this._initObserver()
   }

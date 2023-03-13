@@ -2,16 +2,9 @@ import '../popup/index.js'
 import '../date/index.js'
 import { disabledSetter } from '../../common/propertyAccessor.js'
 import { dispatchEvent } from '../../common/event.js'
-import {
-  ClearableControlBox,
-  ClearableControlBoxEventMap,
-} from '../base-clearable-control-box/index.js'
+import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
 import { ComponentEventListener } from '../Component.js'
-import {
-  ISelected,
-  ISelectResultEventMap,
-  ISelectResultComponent,
-} from '../../common/connectSelectable.js'
+import { ISelected, ISelectResultEventMap, ISelectResultComponent } from '../../common/connectSelectable.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
@@ -33,15 +26,11 @@ const INPUT_ATTRS = [
   'autocomplete',
 ]
 
-interface BlocksInputEventMap
-  extends ClearableControlBoxEventMap,
-    ISelectResultEventMap {
+interface BlocksInputEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
   change: CustomEvent<{ value: string }>
 }
 
-export interface BlocksInput
-  extends ClearableControlBox,
-    ISelectResultComponent {
+export interface BlocksInput extends ClearableControlBox, ISelectResultComponent {
   _ref: ClearableControlBox['_ref'] & {
     $input: HTMLInputElement
     $prefix?: HTMLElement
@@ -158,11 +147,7 @@ export class BlocksInput extends ClearableControlBox {
     super.connectedCallback()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     if (INPUT_ATTRS.includes(attrName)) {

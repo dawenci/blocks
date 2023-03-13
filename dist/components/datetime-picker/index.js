@@ -155,9 +155,7 @@ export let BlocksDateTimePicker = (() => {
                     this.#prevValueFrom = this.#prevValueTo = null;
                     dispatchEvent(this, 'change', {
                         detail: {
-                            value: this.#valueFrom && this.#valueTo
-                                ? [this.#valueFrom, this.#valueTo]
-                                : null,
+                            value: this.#valueFrom && this.#valueTo ? [this.#valueFrom, this.#valueTo] : null,
                         },
                     });
                     this._ref.$popup.open = false;
@@ -198,9 +196,7 @@ export let BlocksDateTimePicker = (() => {
                         newValue = copyDate(this.activeValue);
                     }
                     else {
-                        newValue = this.range
-                            ? copyDate(this.#valueFrom ?? this.#valueTo ?? today())
-                            : today();
+                        newValue = this.range ? copyDate(this.#valueFrom ?? this.#valueTo ?? today()) : today();
                     }
                     newValue.setHours(hour);
                     newValue.setMinutes(minute);
@@ -317,9 +313,7 @@ export let BlocksDateTimePicker = (() => {
             else {
                 this.#valueTo = value;
             }
-            if (this.#valueFrom &&
-                this.#valueTo &&
-                this.#valueFrom?.getTime() > this.#valueTo.getTime()) {
+            if (this.#valueFrom && this.#valueTo && this.#valueFrom?.getTime() > this.#valueTo.getTime()) {
                 if (isFromActive) {
                     this.#valueTo.setTime(this.#valueFrom.getTime());
                 }
@@ -484,8 +478,7 @@ export let BlocksDateTimePicker = (() => {
         }
         attributeChangedCallback(attrName, oldValue, newValue) {
             super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (BlocksDate.observedAttributes.includes(attrName) &&
-                attrName !== 'mode') {
+            if (BlocksDate.observedAttributes.includes(attrName) && attrName !== 'mode') {
                 this._ref.$date.setAttribute(attrName, newValue);
             }
             if (attrName === 'range' && !this.range) {
@@ -549,13 +542,9 @@ export let BlocksDateTimePicker = (() => {
             this.#renderPlaceholder();
         }
         #updateLayout() {
-            this._ref.$time.style.height =
-                this._ref.$date._ref.$content.offsetHeight + 'px';
+            this._ref.$time.style.height = this._ref.$date._ref.$content.offsetHeight + 'px';
             this._ref.$timeValue.style.height =
-                this._ref.$date.offsetHeight -
-                    this._ref.$date._ref.$content.offsetHeight -
-                    1 +
-                    'px';
+                this._ref.$date.offsetHeight - this._ref.$date._ref.$content.offsetHeight - 1 + 'px';
         }
         static get observedAttributes() {
             return BlocksInput.observedAttributes

@@ -1,8 +1,4 @@
-import {
-  __transition_duration,
-  __height_base,
-  __fg_base,
-} from '../../theme/var-light.js'
+import { __transition_duration, __height_base, __fg_base } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 /* <component>vlist */

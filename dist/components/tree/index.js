@@ -215,9 +215,7 @@ export let BlocksTree = (() => {
             return list.map(vitem => vitem.virtualKey);
         }
         set checked(ids) {
-            const vitems = ids
-                .map(id => this.virtualDataMap[id])
-                .filter(vitem => !!vitem);
+            const vitems = ids.map(id => this.virtualDataMap[id]).filter(vitem => !!vitem);
             this._checkedSet = new Set(vitems);
             this.render();
             dispatchEvent(this, 'select-list:change', {
@@ -307,9 +305,7 @@ export let BlocksTree = (() => {
             if (!$toggle) {
                 $toggle = document.createElement('span');
                 $toggle.className = 'node-toggle';
-                $item.children.length
-                    ? $item.insertBefore($toggle, $item.firstElementChild)
-                    : $item.appendChild($toggle);
+                $item.children.length ? $item.insertBefore($toggle, $item.firstElementChild) : $item.appendChild($toggle);
             }
             if (this.hasChild(vitem)) {
                 $toggle.classList.remove('is-leaf');
@@ -555,9 +551,7 @@ export let BlocksTree = (() => {
             }
             let checked;
             if (value == null) {
-                checked = !(leaves.length
-                    ? leaves.every(leaf => leaf.checked)
-                    : vItems.every(node => node.checked));
+                checked = !(leaves.length ? leaves.every(leaf => leaf.checked) : vItems.every(node => node.checked));
             }
             else {
                 checked = !!value;
@@ -722,8 +716,7 @@ export let BlocksTree = (() => {
             if (listKeys.length) {
                 this.hideByKeys(listKeys, this.#batchUpdateFold);
             }
-            if (this.activeKey &&
-                children.findIndex(child => child.virtualKey === this.activeKey) !== -1) {
+            if (this.activeKey && children.findIndex(child => child.virtualKey === this.activeKey) !== -1) {
                 const virtualKey = this.activeKey;
                 this.activeKey = null;
                 if (!preventEmit) {
@@ -835,8 +828,7 @@ export let BlocksTree = (() => {
                     break;
                 }
                 if (el.classList.contains('node-check-input')) {
-                    nodeItem = el.parentElement
-                        .parentElement;
+                    nodeItem = el.parentElement.parentElement;
                     if (el.disabled) {
                         break;
                     }

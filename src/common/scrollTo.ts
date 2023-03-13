@@ -23,11 +23,7 @@ type ScrollToOptions = {
  * @param {HTMLElement} to 需要滚动到的位置
  * @param {ScrollToOptions} [options] 选项
  */
-export function scrollTo(
-  scrollable: HTMLElement,
-  to = 0,
-  options: ScrollToOptions = {}
-) {
+export function scrollTo(scrollable: HTMLElement, to = 0, options: ScrollToOptions = {}) {
   if (!scrollable) return
   const duration = options.duration || 0
 
@@ -67,9 +63,7 @@ export function scrollTo(
       return
     }
 
-    const percentComplete = (options.smoother || easeInOutSmoother)(
-      (now - startTime) / (duration * 1000)
-    )
+    const percentComplete = (options.smoother || easeInOutSmoother)((now - startTime) / (duration * 1000))
 
     const currentPosition = Math.trunc(percentComplete * offset + startPosition)
     ;(scrollable[property] as number) = currentPosition

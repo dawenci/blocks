@@ -27,11 +27,7 @@ import {
 } from './helpers.js'
 import { boolSetter, enumGetter, enumSetter } from '../../common/property.js'
 import { dispatchEvent } from '../../common/event.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { template } from './template.js'
 import { style } from './style.js'
 import { defineClass } from '../../decorators/defineClass.js'
@@ -128,8 +124,7 @@ export class BlocksDate extends Component {
    * 值为 Depth.Decade 时，该组件用于选择年份
    */
   @attr('enum', { enumValues: [Depth.Month, Depth.Year, Depth.Decade] })
-  accessor depth: EnumAttr<[Depth.Month, Depth.Year, Depth.Decade]> =
-    Depth.Month
+  accessor depth: EnumAttr<[Depth.Month, Depth.Year, Depth.Decade]> = Depth.Month
 
   constructor() {
     super()
@@ -139,13 +134,9 @@ export class BlocksDate extends Component {
 
     const $panel = shadowRoot.querySelector('#layout') as HTMLElement
     const $title = $panel.querySelector('.header-title') as HTMLButtonElement
-    const $prevPrev = $panel.querySelector(
-      '.button-prevPrev'
-    ) as HTMLButtonElement
+    const $prevPrev = $panel.querySelector('.button-prevPrev') as HTMLButtonElement
     const $prev = $panel.querySelector('.button-prev') as HTMLButtonElement
-    const $nextNext = $panel.querySelector(
-      '.button-nextNext'
-    ) as HTMLButtonElement
+    const $nextNext = $panel.querySelector('.button-nextNext') as HTMLButtonElement
     const $next = $panel.querySelector('.button-next') as HTMLButtonElement
     const $weekHeader = $panel.querySelector('.week-header') as HTMLElement
     const $content = $panel.querySelector('#body') as HTMLElement
@@ -188,9 +179,7 @@ export class BlocksDate extends Component {
         this.rollUp()
       } else if (target.classList.contains('button-item')) {
         this.#onClickItem(this.#getModel(target))
-      } else if (
-        (target.parentElement as HTMLElement)?.classList.contains('button-item')
-      ) {
+      } else if ((target.parentElement as HTMLElement)?.classList.contains('button-item')) {
         this.#onClickItem(this.#getModel(target.parentElement!))
       }
       this.focus()
@@ -205,9 +194,7 @@ export class BlocksDate extends Component {
       const target = e.target as HTMLElement
       const $button = target.classList.contains('button-item')
         ? target
-        : (target.parentElement as HTMLElement).classList.contains(
-            'button-item'
-          )
+        : (target.parentElement as HTMLElement).classList.contains('button-item')
         ? (target.parentElement as HTMLElement)
         : null
       if (!$button) return
@@ -281,10 +268,7 @@ export class BlocksDate extends Component {
 
   set startdepth(value) {
     if (Depths.includes(value)) {
-      enumSetter('startdepth', Depths)(
-        this,
-        normalizeViewDepth(value, this.mindepth, this.depth)
-      )
+      enumSetter('startdepth', Depths)(this, normalizeViewDepth(value, this.mindepth, this.depth))
     }
   }
 
@@ -299,17 +283,12 @@ export class BlocksDate extends Component {
   }
 
   get startWeekOn(): WeekNumber {
-    const value =
-      enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(this) ??
-      '1'
+    const value = enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(this) ?? '1'
     return Number(value) as WeekNumber
   }
 
   set startWeekOn(value: WeekNumber) {
-    enumSetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(
-      this,
-      String(value)
-    )
+    enumSetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(this, String(value))
   }
 
   get multiple() {
@@ -474,10 +453,7 @@ export class BlocksDate extends Component {
       return
     }
     const currentValue = this.#value[0]
-    const hasChange =
-      currentValue !== value ||
-      !currentValue ||
-      currentValue.getTime() !== value.getTime()
+    const hasChange = currentValue !== value || !currentValue || currentValue.getTime() !== value.getTime()
     if (hasChange) {
       this.#value = [value]
       this.render()
@@ -488,9 +464,7 @@ export class BlocksDate extends Component {
 
   // range mode 的值 getter
   getRange(): [Date, Date] | null {
-    return this.mode === 'range' && this.#value.length === 2
-      ? (this.#value.slice() as [Date, Date])
-      : null
+    return this.mode === 'range' && this.#value.length === 2 ? (this.#value.slice() as [Date, Date]) : null
   }
 
   // range mode 的值 setter
@@ -505,16 +479,10 @@ export class BlocksDate extends Component {
     if (!Array.isArray(value)) {
       return
     }
-    if (
-      !Array.isArray(value) ||
-      value.length !== 2 ||
-      !value.every(date => date instanceof Date)
-    ) {
+    if (!Array.isArray(value) || value.length !== 2 || !value.every(date => date instanceof Date)) {
       return
     }
-    const range = value
-      .slice()
-      .sort((a: Date, b: Date) => a.getTime() - b.getTime())
+    const range = value.slice().sort((a: Date, b: Date) => a.getTime() - b.getTime())
 
     const hasChange = !isAllEqual(this.#value, range)
     if (hasChange) {
@@ -534,9 +502,7 @@ export class BlocksDate extends Component {
 
   // multiple mode 的值 getter
   getValues(): Date[] {
-    return this.mode === 'multiple' && this.#value.length
-      ? this.#value.slice()
-      : []
+    return this.mode === 'multiple' && this.#value.length ? this.#value.slice() : []
   }
 
   // multiple mode 的值 setter
@@ -619,15 +585,11 @@ export class BlocksDate extends Component {
     let text: string
     switch (this.viewDepth) {
       case Depth.Century: {
-        text = `${firstYearOfCentury(this.viewCentury)} ~ ${lastYearOfCentury(
-          this.viewCentury
-        )}`
+        text = `${firstYearOfCentury(this.viewCentury)} ~ ${lastYearOfCentury(this.viewCentury)}`
         break
       }
       case Depth.Decade: {
-        text = `${firstYearOfDecade(this.viewDecade)} ~ ${lastYearOfDecade(
-          this.viewDecade
-        )}`
+        text = `${firstYearOfDecade(this.viewDecade)} ~ ${lastYearOfDecade(this.viewDecade)}`
         break
       }
       case Depth.Year: {
@@ -649,9 +611,7 @@ export class BlocksDate extends Component {
       $weekHeader.style.opacity = '1'
 
       if ($weekHeader.children.length !== 7) {
-        $weekHeader.innerHTML = headers
-          .map(header => `<span>${header}</span>`)
-          .join('')
+        $weekHeader.innerHTML = headers.map(header => `<span>${header}</span>`).join('')
       } else {
         for (let i = 0; i < 7; i += 1) {
           $weekHeader.children[i].textContent = headers[i]
@@ -670,11 +630,9 @@ export class BlocksDate extends Component {
 
   // 渲染日期选择按钮
   #renderItems() {
-    ;['body-century', 'body-decade', 'body-year', 'body-month'].forEach(
-      klass => {
-        this._ref.$content.classList.remove(klass)
-      }
-    )
+    ;['body-century', 'body-decade', 'body-year', 'body-month'].forEach(klass => {
+      this._ref.$content.classList.remove(klass)
+    })
     this._ref.$content.classList.add(`body-${this.viewDepth}`)
 
     if (this.viewDepth === Depth.Month) {
@@ -704,9 +662,7 @@ export class BlocksDate extends Component {
     }
     len = $list.children.length
     while (len-- > n) {
-      this.#$pool.push(
-        $list.removeChild($list.lastElementChild as HTMLButtonElement)
-      )
+      this.#$pool.push($list.removeChild($list.lastElementChild as HTMLButtonElement))
     }
     return Array.prototype.slice.call($list.children)
   }
@@ -721,10 +677,7 @@ export class BlocksDate extends Component {
       $el.classList.toggle('button-item--otherMonth', false)
       $el.classList.toggle('button-item--today', false)
       $el.classList.toggle('button-item--active', false)
-      $el.classList.toggle(
-        'button-item--includesActive',
-        this.#includesActive(model)
-      )
+      $el.classList.toggle('button-item--includesActive', this.#includesActive(model))
       $el.classList.toggle('button-item--rangeFrom', false)
       $el.classList.toggle('button-item--rangeTo', false)
       $el.classList.toggle('button-item--rangeIn', false)
@@ -749,37 +702,19 @@ export class BlocksDate extends Component {
       const item = years[i]
       if (this.depth === Depth.Decade) {
         // TODO, any
-        boolSetter('disabled')(
-          $el,
-          !this.#isActiveLeaf(item as any) && this.#isDisabledLeaf(item as any)
-        )
+        boolSetter('disabled')($el, !this.#isActiveLeaf(item as any) && this.#isDisabledLeaf(item as any))
       } else {
         boolSetter('disabled')($el, false)
       }
       $el.classList.toggle('button-item--otherMonth', false)
       $el.classList.toggle('button-item--today', false)
-      $el.classList.toggle(
-        'button-item--active',
-        this.#isActiveLeaf(item as any)
-      )
-      $el.classList.toggle(
-        'button-item--includesActive',
-        this.#includesActive(item as any)
-      )
+      $el.classList.toggle('button-item--active', this.#isActiveLeaf(item as any))
+      $el.classList.toggle('button-item--includesActive', this.#includesActive(item as any))
 
       const isRangeMode = this.isRangeMode()
-      $el.classList.toggle(
-        'button-item--rangeFrom',
-        isRangeMode && this.#isRangeFrom(item as any)
-      )
-      $el.classList.toggle(
-        'button-item--rangeTo',
-        isRangeMode && this.#isRangeTo(item as any)
-      )
-      $el.classList.toggle(
-        'button-item--rangeIn',
-        isRangeMode && this.#isInRange(item as any)
-      )
+      $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(item as any))
+      $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(item as any))
+      $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(item as any))
 
       $el.dataset.century = item.century
       $el.dataset.decade = item.decade
@@ -795,42 +730,20 @@ export class BlocksDate extends Component {
 
   // 渲染年视图的月份选择按钮
   #renderMonthItems() {
-    const months = generateMonths(
-      this.viewCentury,
-      this.viewDecade,
-      this.viewYear!
-    )
+    const months = generateMonths(this.viewCentury, this.viewDecade, this.viewYear!)
     if (!months.length) return
     this.#ensureItemCount(12).forEach(($el, i) => {
       const item = months[i]
       $el.classList.toggle('button-item--otherMonth', false)
       $el.classList.toggle('button-item--today', false)
-      $el.classList.toggle(
-        'button-item--active',
-        this.#isActiveLeaf(item as any)
-      )
-      $el.classList.toggle(
-        'button-item--includesActive',
-        this.#includesActive(item as any)
-      )
+      $el.classList.toggle('button-item--active', this.#isActiveLeaf(item as any))
+      $el.classList.toggle('button-item--includesActive', this.#includesActive(item as any))
       const isRangeMode = this.isRangeMode()
-      $el.classList.toggle(
-        'button-item--rangeFrom',
-        isRangeMode && this.#isRangeFrom(item as any)
-      )
-      $el.classList.toggle(
-        'button-item--rangeTo',
-        isRangeMode && this.#isRangeTo(item as any)
-      )
-      $el.classList.toggle(
-        'button-item--rangeIn',
-        isRangeMode && this.#isInRange(item as any)
-      )
+      $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(item as any))
+      $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(item as any))
+      $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(item as any))
       if (this.depth === Depth.Year) {
-        boolSetter('disabled')(
-          $el,
-          !this.#isActiveLeaf(item as any) && this.#isDisabledLeaf(item as any)
-        )
+        boolSetter('disabled')($el, !this.#isActiveLeaf(item as any) && this.#isDisabledLeaf(item as any))
       } else {
         boolSetter('disabled')($el, false)
       }
@@ -847,45 +760,21 @@ export class BlocksDate extends Component {
 
   // 渲染月视图的日期选择按钮
   #renderDateItems() {
-    const dateList = generateDates(
-      this.viewCentury,
-      this.viewDecade,
-      this.viewYear!,
-      this.viewMonth!,
-      this.startWeekOn
-    )
+    const dateList = generateDates(this.viewCentury, this.viewDecade, this.viewYear!, this.viewMonth!, this.startWeekOn)
     if (!dateList.length) return
     this.#ensureItemCount(42).forEach(($el, i) => {
       const item = dateList[i]
-      boolSetter('disabled')(
-        $el,
-        !this.#isActiveLeaf(item as any) && this.#isDisabledLeaf(item as any)
-      )
+      boolSetter('disabled')($el, !this.#isActiveLeaf(item as any) && this.#isDisabledLeaf(item as any))
       // 月视图中，根据周起始日，可能包含上月末的几天，
       // 以及下月初的某几天，为这些非当前视图对应的日期按钮应用弱化样式
-      $el.classList.toggle(
-        'button-item--otherMonth',
-        item.month !== this.viewMonth
-      )
+      $el.classList.toggle('button-item--otherMonth', item.month !== this.viewMonth)
       $el.classList.toggle('button-item--today', isToday(item))
-      $el.classList.toggle(
-        'button-item--active',
-        this.#isActiveLeaf(item as any)
-      )
+      $el.classList.toggle('button-item--active', this.#isActiveLeaf(item as any))
       $el.classList.toggle('button-item--includesActive', false)
       const isRangeMode = this.isRangeMode()
-      $el.classList.toggle(
-        'button-item--rangeFrom',
-        isRangeMode && this.#isRangeFrom(item as any)
-      )
-      $el.classList.toggle(
-        'button-item--rangeTo',
-        isRangeMode && this.#isRangeTo(item as any)
-      )
-      $el.classList.toggle(
-        'button-item--rangeIn',
-        isRangeMode && this.#isInRange(item as any)
-      )
+      $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(item as any))
+      $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(item as any))
+      $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(item as any))
 
       $el.dataset.century = item.century
       $el.dataset.decade = item.decade
@@ -935,20 +824,13 @@ export class BlocksDate extends Component {
   getBadges(item: DateModel) {
     let badges: Badge[]
     if (this.viewDepth === Depth.Month) {
-      badges = this.badges.filter(
-        b =>
-          item.date === b.date && item.month === b.month && b.year === item.year
-      )
+      badges = this.badges.filter(b => item.date === b.date && item.month === b.month && b.year === item.year)
     } else if (this.viewDepth === Depth.Year) {
-      badges = this.badges.filter(
-        b => item.month === b.month && b.year === item.year
-      )
+      badges = this.badges.filter(b => item.month === b.month && b.year === item.year)
     } else if (this.viewDepth === Depth.Decade) {
       badges = this.badges.filter(b => b.year === item.year)
     } else if (this.viewDepth === Depth.Century) {
-      badges = this.badges.filter(
-        b => b.year >= item.decade * 10 && b.year <= item.decade * 10 + 9
-      )
+      badges = this.badges.filter(b => b.year >= item.decade * 10 && b.year <= item.decade * 10 + 9)
     } else {
       badges = []
     }
@@ -959,30 +841,20 @@ export class BlocksDate extends Component {
     let obj = this.rangeFrom
     if (!obj) return false
     const obj2 = this.rangeTo ?? this.maybeRangeTo
-    if (
-      obj2 &&
-      this.#modelToDate(obj).getTime() > this.#modelToDate(obj2).getTime()
-    ) {
+    if (obj2 && this.#modelToDate(obj).getTime() > this.#modelToDate(obj2).getTime()) {
       obj = obj2
     }
-    return ['year', 'month', 'date'].every(
-      key => (obj as any)[key] === (item as any)[key]
-    )
+    return ['year', 'month', 'date'].every(key => (obj as any)[key] === (item as any)[key])
   }
 
   #isRangeTo(item: DateModel) {
     let obj = this.rangeFrom
     if (!obj) return false
     const obj2 = this.rangeTo ?? this.maybeRangeTo
-    if (
-      obj2 &&
-      this.#modelToDate(obj).getTime() < this.#modelToDate(obj2).getTime()
-    ) {
+    if (obj2 && this.#modelToDate(obj).getTime() < this.#modelToDate(obj2).getTime()) {
       obj = obj2
     }
-    return ['year', 'month', 'date'].every(
-      key => (obj as any)[key] === (item as any)[key]
-    )
+    return ['year', 'month', 'date'].every(key => (obj as any)[key] === (item as any)[key])
   }
 
   // 当前选项是否渲染成禁用，仅作用于末级 depth
@@ -1005,11 +877,7 @@ export class BlocksDate extends Component {
   }
 
   #isSameDate(item: DateModel, date: Date) {
-    return (
-      date.getFullYear() === item.year &&
-      date.getMonth() === item.month &&
-      date.getDate() === item.date
-    )
+    return date.getFullYear() === item.year && date.getMonth() === item.month && date.getDate() === item.date
   }
 
   #isSameMonth(item: DateModel, date: Date) {
@@ -1027,31 +895,17 @@ export class BlocksDate extends Component {
     let inRange: (t1: Date, t2: Date) => boolean
     if (this.depth === Depth.Month) {
       inRange = (t1: Date, t2: Date) => {
-        const t1Time = makeDate(
-          t1.getFullYear(),
-          t1.getMonth(),
-          t1.getDate()
-        ).getTime()
-        const t2Time = makeDate(
-          t2.getFullYear(),
-          t2.getMonth(),
-          t2.getDate()
-        ).getTime()
+        const t1Time = makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime()
+        const t2Time = makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime()
         const itemTime = makeDate(item.year, item.month, item.date).getTime()
-        return (
-          Math.min(t1Time, t2Time) <= itemTime &&
-          Math.max(t1Time, t2Time) >= itemTime
-        )
+        return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime
       }
     } else if (this.depth === Depth.Year) {
       inRange = (t1: Date, t2: Date) => {
         const t1Time = makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime()
         const t2Time = makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime()
         const itemTime = makeDate(item.year, item.month, 1).getTime()
-        return (
-          Math.min(t1Time, t2Time) <= itemTime &&
-          Math.max(t1Time, t2Time) >= itemTime
-        )
+        return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime
       }
     } else if (this.depth === Depth.Decade) {
       inRange = (t1: Date, t2: Date) => {
@@ -1065,16 +919,10 @@ export class BlocksDate extends Component {
     const from = this.rangeFrom
     const to = this.rangeTo ?? this.maybeRangeTo
     if (this.depth === Depth.Month) {
-      return inRange!(
-        makeDate(from.year, from.month, from.date),
-        makeDate(to!.year, to!.month, to!.date)
-      )
+      return inRange!(makeDate(from.year, from.month, from.date), makeDate(to!.year, to!.month, to!.date))
     }
     if (this.depth === Depth.Year) {
-      return inRange!(
-        makeDate(from.year, from.month, 1),
-        makeDate(to!.year, to!.month, 1)
-      )
+      return inRange!(makeDate(from.year, from.month, 1), makeDate(to!.year, to!.month, 1))
     }
     if (this.depth === Depth.Decade) {
       return inRange!(makeDate(from.year, 0, 1), makeDate(to!.year, 0, 1))
@@ -1154,16 +1002,11 @@ export class BlocksDate extends Component {
     } else {
       switch (this.viewDepth) {
         case Depth.Year:
-          return this.#value.some(
-            (t: Date) =>
-              t.getMonth() === item.month && t.getFullYear() === item.year
-          )
+          return this.#value.some((t: Date) => t.getMonth() === item.month && t.getFullYear() === item.year)
         case Depth.Decade:
           return this.#value.some((t: Date) => t.getFullYear() === item.year)
         case Depth.Century:
-          return this.#value.some(
-            (t: Date) => Math.floor(t.getFullYear() / 10) === item.decade
-          )
+          return this.#value.some((t: Date) => Math.floor(t.getFullYear() / 10) === item.decade)
         default:
           return false
       }
@@ -1255,13 +1098,9 @@ export class BlocksDate extends Component {
         if (this.#isActiveLeaf(item)) {
           const pred =
             this.viewDepth === Depth.Month
-              ? (t: Date) =>
-                  t.getDate() === item.date &&
-                  t.getMonth() === item.month &&
-                  t.getFullYear() === item.year
+              ? (t: Date) => t.getDate() === item.date && t.getMonth() === item.month && t.getFullYear() === item.year
               : this.viewDepth === Depth.Year
-              ? (t: Date) =>
-                  t.getMonth() === item.month && t.getFullYear() === item.year
+              ? (t: Date) => t.getMonth() === item.month && t.getFullYear() === item.year
               : (t: Date) => t.getFullYear() === item.year
           const index = values.findIndex(pred)
           if (index !== -1) values.splice(index, 1)
@@ -1313,11 +1152,7 @@ export class BlocksDate extends Component {
     switch (this.viewDepth) {
       // 月 -> 年
       case Depth.Month: {
-        const upDepth = normalizeViewDepth(
-          Depth.Year,
-          this.mindepth,
-          this.depth
-        )
+        const upDepth = normalizeViewDepth(Depth.Year, this.mindepth, this.depth)
         if (this.viewDepth !== upDepth) {
           this.viewDepth = upDepth
           dispatchEvent(this, 'panel-change', {
@@ -1328,11 +1163,7 @@ export class BlocksDate extends Component {
       }
       // 年 -> 年代
       case Depth.Year: {
-        const upDepth = normalizeViewDepth(
-          Depth.Decade,
-          this.mindepth,
-          this.depth
-        )
+        const upDepth = normalizeViewDepth(Depth.Decade, this.mindepth, this.depth)
         if (this.viewDepth !== upDepth) {
           this.viewDepth = upDepth
           this.switchViewByDate(makeDate(this.viewYear!, 0))
@@ -1344,11 +1175,7 @@ export class BlocksDate extends Component {
       }
       // 年代 -> 世纪
       case Depth.Decade: {
-        const upDepth = normalizeViewDepth(
-          Depth.Century,
-          this.mindepth,
-          this.depth
-        )
+        const upDepth = normalizeViewDepth(Depth.Century, this.mindepth, this.depth)
         if (this.viewDepth !== upDepth) {
           this.viewDepth = upDepth
           this.switchViewByDate(makeDate(this.viewDecade * 10, 0))
@@ -1535,11 +1362,7 @@ export class BlocksDate extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
   }

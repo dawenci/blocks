@@ -41,11 +41,7 @@ export interface BlocksTableBody extends BlocksVList {
 })
 export class BlocksTableBody extends BlocksVList {
   static override get observedAttributes() {
-    return BlocksVList.observedAttributes.concat([
-      'sort-field',
-      'sort-order',
-      'summary-height',
-    ])
+    return BlocksVList.observedAttributes.concat(['sort-field', 'sort-order', 'summary-height'])
   }
 
   #sortFlag?: Promise<void>
@@ -88,15 +84,11 @@ export class BlocksTableBody extends BlocksVList {
   }
 
   get shouldRenderSummary() {
-    return this.flattenColumns.some(
-      column => typeof column.summaryRender === 'function'
-    )
+    return this.flattenColumns.some(column => typeof column.summaryRender === 'function')
   }
 
   override async sortMethod(data: any[]) {
-    const column = this.flattenColumns.find(
-      column => column.prop == this.sortField
-    )
+    const column = this.flattenColumns.find(column => column.prop == this.sortField)
     if (!column || column.sortOrder === 'none') return data
 
     const $cell = document.createElement('div')
@@ -110,9 +102,7 @@ export class BlocksTableBody extends BlocksVList {
       const labelB = column.render(b.data, column, $cell)
       const va = labelA instanceof Node ? labelA.textContent : labelA
       const vb = labelB instanceof Node ? labelB.textContent : labelB
-      return (
-        va!.localeCompare(vb!) * (column.sortOrder === 'ascending' ? 1 : -1)
-      )
+      return va!.localeCompare(vb!) * (column.sortOrder === 'ascending' ? 1 : -1)
     })
     return data
   }
@@ -206,9 +196,7 @@ export class BlocksTableBody extends BlocksVList {
       this.flattenColumns.forEach((column, index) => {
         const $cell = $items.children[index] as CellElement
         const $cellInner = $cell.firstElementChild as HTMLElement
-        let $content =
-          column.summaryRender &&
-          column.summaryRender(column, index, data, $items.children[index])
+        let $content = column.summaryRender && column.summaryRender(column, index, data, $items.children[index])
         if (!($content instanceof Node)) {
           $content = document.createTextNode($content ?? '')
         }
@@ -305,13 +293,8 @@ export class BlocksTableBody extends BlocksVList {
 
     requestAnimationFrame(() => {
       const { cssTemplate2 } = template()
-      if (
-        !this._ref.$viewport.shadowRoot!.querySelector('style#tableBodyStyle')
-      ) {
-        this._ref.$viewport.shadowRoot!.insertBefore(
-          cssTemplate2.cloneNode(true),
-          this._ref.$viewport._ref.$layout
-        )
+      if (!this._ref.$viewport.shadowRoot!.querySelector('style#tableBodyStyle')) {
+        this._ref.$viewport.shadowRoot!.insertBefore(cssTemplate2.cloneNode(true), this._ref.$viewport._ref.$layout)
       }
 
       if (!this._ref.$viewport._ref.$layout.querySelector('#summary')) {
@@ -324,11 +307,7 @@ export class BlocksTableBody extends BlocksVList {
     })
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     if (attrName === 'cross-size') {

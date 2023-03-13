@@ -18,8 +18,7 @@ function normalizeWheel(event) {
     if ('wheelDeltaX' in event) {
         sX = -event.wheelDeltaX / 120;
     }
-    if ('axis' in event &&
-        event.axis === event.HORIZONTAL_AXIS) {
+    if ('axis' in event && event.axis === event.HORIZONTAL_AXIS) {
         sX = sY;
         sY = 0;
     }
@@ -55,8 +54,7 @@ function normalizeWheel(event) {
     };
 }
 export function onWheel(el, handler) {
-    const isFirefox = typeof navigator !== 'undefined' &&
-        navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     const eventType = isFirefox ? 'DOMMouseScroll' : 'mousewheel';
     el.addEventListener(eventType, function (event) {
         const normalized = normalizeWheel(event);

@@ -1,10 +1,6 @@
 import { Component, ComponentEventMap } from '../components/Component'
 
-export function dispatchEvent<T = any>(
-  element: Element,
-  eventName: string,
-  options: CustomEventInit = {}
-): boolean {
+export function dispatchEvent<T = any>(element: Element, eventName: string, options: CustomEventInit = {}): boolean {
   options = Object.assign(
     {
       // 是否冒泡

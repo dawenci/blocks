@@ -5,11 +5,7 @@ const icons = new Map()
  * @param {string} data
  * @param {Record<string, any>} [attrs]
  */
-export function registerSvgIcon(
-  key: string,
-  data: string,
-  attrs: Record<string, any> = {}
-) {
+export function registerSvgIcon(key: string, data: string, attrs: Record<string, any> = {}) {
   icons.set(key, { data, attrs })
 }
 
@@ -17,10 +13,7 @@ export function registerSvgIcon(
  * @param {string} key
  * @param {Record<string, any>} [attrs]
  */
-export function getRegisteredSvgIcon(
-  key: string,
-  attrs: Record<string, any> = {}
-) {
+export function getRegisteredSvgIcon(key: string, attrs: Record<string, any> = {}) {
   if (!key) return null
   const iconData = icons.get(key)
   if (!iconData) return null

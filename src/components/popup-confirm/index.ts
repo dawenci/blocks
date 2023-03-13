@@ -149,11 +149,7 @@ export class BlocksPopupConfirm extends Component {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (POPUP_ATTRS.includes(attrName)) {
       this.$popup.setAttribute(attrName, newValue)

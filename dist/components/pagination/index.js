@@ -39,7 +39,7 @@ import { template } from './template.js';
 import { style } from './style.js';
 import { dispatchEvent } from '../../common/event.js';
 import { forEach } from '../../common/utils.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 export let BlocksPagination = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-pagination',
@@ -180,11 +180,7 @@ export let BlocksPagination = (() => {
         _renderPager() {
             const showQuickPrev = this.current > 4;
             const showQuickNext = this.itemCount - this.current > 3;
-            const count = this.itemCount < 8
-                ? this.itemCount
-                : showQuickPrev && showQuickNext
-                    ? 9
-                    : 8;
+            const count = this.itemCount < 8 ? this.itemCount : showQuickPrev && showQuickNext ? 9 : 8;
             this._ensureItem(count);
             const children = this._ref.$items.children;
             forEach(children, $item => {

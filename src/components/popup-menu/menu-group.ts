@@ -50,11 +50,7 @@ export class BlocksPopupMenuGroup extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
   }
@@ -87,9 +83,7 @@ export class BlocksPopupMenuGroup extends Component {
   }
 
   clearActive() {
-    const children = this.$body.children as unknown as Array<
-      BlocksPopupMenuItem | BlocksPopupMenuGroup
-    >
+    const children = this.$body.children as unknown as Array<BlocksPopupMenuItem | BlocksPopupMenuGroup>
     forEach(children, child => {
       if (child.clearActive) child.clearActive()
     })

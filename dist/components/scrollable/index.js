@@ -38,7 +38,7 @@ import { sizeObserve } from '../../common/sizeObserve.js';
 import { dispatchEvent } from '../../common/event.js';
 import { setStyles } from '../../common/style.js';
 import { onDragMove } from '../../common/onDragMove.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 import { template } from './template.js';
 import { style } from './style.js';
 export let BlocksScrollable = (() => {
@@ -174,8 +174,7 @@ export let BlocksScrollable = (() => {
                 const contentRightSpace = contentWidth - contentLeftSpace - viewportWidth;
                 const thumbWidth = Math.max(Math.round((viewportWidth / contentWidth) * trackWidth), 20);
                 const horizontalTrackSpace = trackWidth - thumbWidth;
-                const thumbLeft = horizontalTrackSpace *
-                    (contentLeftSpace / (contentLeftSpace + contentRightSpace));
+                const thumbLeft = horizontalTrackSpace * (contentLeftSpace / (contentLeftSpace + contentRightSpace));
                 setStyles(this._ref.$horizontalThumb, {
                     transform: `translateX(${thumbLeft}px)`,
                     width: `${thumbWidth}px`,
@@ -192,8 +191,7 @@ export let BlocksScrollable = (() => {
                 const contentBottomSpace = contentHeight - contentTopSpace - viewportHeight;
                 const thumbHeight = Math.max(Math.round((viewportHeight / contentHeight) * trackHeight), 20);
                 const verticalTrackSpace = trackHeight - thumbHeight;
-                const thumbTop = verticalTrackSpace *
-                    (contentTopSpace / (contentTopSpace + contentBottomSpace));
+                const thumbTop = verticalTrackSpace * (contentTopSpace / (contentTopSpace + contentBottomSpace));
                 setStyles(this._ref.$verticalThumb, {
                     transform: `translateY(${thumbTop}px)`,
                     height: `${thumbHeight}px`,
@@ -223,27 +221,27 @@ export let BlocksScrollable = (() => {
             this._ref.$viewport.scrollLeft = contentOffsetLeft;
         }
         _getThumbTop() {
-            return (parseFloat((this._ref.$verticalThumb.style.transform ?? '').slice(11, -3)) || 0);
+            return parseFloat((this._ref.$verticalThumb.style.transform ?? '').slice(11, -3)) || 0;
         }
         _getThumbLeft() {
-            return (parseFloat((this._ref.$horizontalThumb.style.transform ?? '').slice(11, -3)) || 0);
+            return parseFloat((this._ref.$horizontalThumb.style.transform ?? '').slice(11, -3)) || 0;
         }
         getScrollableTop() {
             return this._ref.$viewport.scrollTop;
         }
         getScrollableRight() {
             const $viewport = this._ref.$viewport;
-            return ($viewport.scrollWidth - ($viewport.scrollLeft + $viewport.clientWidth));
+            return $viewport.scrollWidth - ($viewport.scrollLeft + $viewport.clientWidth);
         }
         getScrollableBottom() {
             const $viewport = this._ref.$viewport;
-            return ($viewport.scrollHeight - ($viewport.scrollTop + $viewport.clientHeight));
+            return $viewport.scrollHeight - ($viewport.scrollTop + $viewport.clientHeight);
         }
         getScrollableLeft() {
             this._ref.$viewport.scrollLeft;
         }
         _updateShadowState() {
-            const { scrollLeft, scrollTop, scrollWidth, scrollHeight, clientWidth, clientHeight, } = this._ref.$viewport;
+            const { scrollLeft, scrollTop, scrollWidth, scrollHeight, clientWidth, clientHeight } = this._ref.$viewport;
             this.canScrollLeft = scrollLeft > 0;
             this.canScrollRight = scrollWidth - (scrollLeft + clientWidth) > 0;
             this.canScrollTop = scrollTop > 0;
@@ -257,7 +255,7 @@ export let BlocksScrollable = (() => {
             let isVertical = false;
             let startThumbPosition;
             let startMousePosition;
-            const onMove = ({ preventDefault, stopImmediatePropagation, current, }) => {
+            const onMove = ({ preventDefault, stopImmediatePropagation, current }) => {
                 preventDefault();
                 stopImmediatePropagation();
                 if (isVertical) {
@@ -294,7 +292,7 @@ export let BlocksScrollable = (() => {
                 this._ref.$layout.classList.remove('dragging', 'dragging-vertical');
                 this._ref.$layout.classList.remove('dragging', 'dragging-horizontal');
             };
-            const onStart = ({ preventDefault, stopImmediatePropagation, $target, start, }) => {
+            const onStart = ({ preventDefault, stopImmediatePropagation, $target, start }) => {
                 preventDefault();
                 stopImmediatePropagation();
                 this.#draggingFlag = true;

@@ -39,7 +39,7 @@ import { style } from './style.js';
 import { padLeft } from '../../common/utils.js';
 import { dispatchEvent } from '../../common/event.js';
 import { parseDateFormat } from './parseDateFormat.js';
-import { Component, } from '../Component.js';
+import { Component } from '../Component.js';
 export let BlocksCountdown = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-countdown',

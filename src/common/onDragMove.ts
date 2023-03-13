@@ -9,12 +9,7 @@ type Point = {
   screenY: number
 }
 
-export type OnEnd = (data: {
-  eventType: string
-  start: Point
-  current: Point
-  offset: Offset
-}) => void
+export type OnEnd = (data: { eventType: string; start: Point; current: Point; offset: Offset }) => void
 
 export type OnMove = (data: {
   eventType: string
@@ -26,12 +21,7 @@ export type OnMove = (data: {
   offset: Offset
 }) => void
 
-export type OnCancel = (data: {
-  eventType: string
-  start: Point
-  current: Point
-  offset: Offset
-}) => void
+export type OnCancel = (data: { eventType: string; start: Point; current: Point; offset: Offset }) => void
 
 export type OnStart = (data: {
   eventType: string
@@ -82,8 +72,7 @@ export function onDragMove($el: HTMLElement, options: Options) {
     }
 
     // TODO, 鼠标离开窗口的时候，退出
-    const $from =
-      (event as MouseEvent).relatedTarget || (event as any).toElement
+    const $from = (event as MouseEvent).relatedTarget || (event as any).toElement
     if (event.type === 'mousemove' && (!$from || $from.nodeName === 'HTML')) {
       onMoveCancel(event)
       return

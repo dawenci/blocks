@@ -8,11 +8,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { makeMessages } from '../../i18n/makeMessages.js'
 import { Component } from '../Component.js'
 
-import {
-  contentTemplate,
-  fallbackTemplate,
-  placeholderTemplate,
-} from './template.js'
+import { contentTemplate, fallbackTemplate, placeholderTemplate } from './template.js'
 import { style } from './style.js'
 import { domRef } from '../../decorators/domRef.js'
 
@@ -48,9 +44,7 @@ export class BlocksImage extends Component {
   @attr('enum', {
     enumValues: ['none', 'fill', 'contain', 'cover', 'scale-down'],
   })
-  accessor fit!: NullableEnumAttr<
-    ['none', 'fill', 'contain', 'cover', 'scale-down']
-  >
+  accessor fit!: NullableEnumAttr<['none', 'fill', 'contain', 'cover', 'scale-down']>
 
   @domRef('#layout') accessor $layout!: HTMLElement
 
@@ -89,8 +83,7 @@ export class BlocksImage extends Component {
 
     if (!this._ref.$placeholder) {
       this._ref.$placeholder = $layout.appendChild(placeholderTemplate())
-      this._ref.$placeholder.querySelector('.placeholderText')!.textContent =
-        getMessage('placeholderText')
+      this._ref.$placeholder.querySelector('.placeholderText')!.textContent = getMessage('placeholderText')
 
       if (this.placeholder) {
         this._ref.$placeholder.querySelector('img')!.src = this.placeholder
@@ -105,8 +98,7 @@ export class BlocksImage extends Component {
 
     if (!this._ref.$fallback) {
       this._ref.$fallback = $layout.appendChild(fallbackTemplate())
-      this._ref.$fallback.querySelector('.fallbackText')!.textContent =
-        getMessage('fallbackText')
+      this._ref.$fallback.querySelector('.fallbackText')!.textContent = getMessage('fallbackText')
 
       if (this.fallback) {
         this._ref.$fallback.querySelector('img')!.src = this.fallback
@@ -165,10 +157,7 @@ export class BlocksImage extends Component {
   }
 
   load() {
-    if (
-      this._status === 'loading' ||
-      (strGetter('alt')(this.$img) === this.src && this._status === 'loaded')
-    ) {
+    if (this._status === 'loading' || (strGetter('alt')(this.$img) === this.src && this._status === 'loaded')) {
       return
     }
     this._status = 'loading'
@@ -185,11 +174,7 @@ export class BlocksImage extends Component {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (attrName === 'src') {
       if (!this.manual) {

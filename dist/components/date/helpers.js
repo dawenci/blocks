@@ -6,12 +6,7 @@ export var Depth;
     Depth["Decade"] = "decade";
     Depth["Century"] = "century";
 })(Depth || (Depth = {}));
-export const Depths = [
-    Depth.Month,
-    Depth.Year,
-    Depth.Decade,
-    Depth.Century,
-];
+export const Depths = [Depth.Month, Depth.Year, Depth.Decade, Depth.Century];
 export const DepthValue = Object.freeze({
     [Depth.Century]: 0,
     [Depth.Decade]: 1,
@@ -193,11 +188,8 @@ export function generateWeekHeaders(startWeekOn) {
 }
 export function isToday(model) {
     const today = new Date();
-    return (model.year === today.getFullYear() &&
-        model.month === today.getMonth() &&
-        model.date === today.getDate());
+    return model.year === today.getFullYear() && model.month === today.getMonth() && model.date === today.getDate();
 }
 export function isAllEqual(arr1, arr2) {
-    return (arr1.length === arr2.length &&
-        arr1.every((date, index) => date.getTime() === arr2[index].getTime()));
+    return arr1.length === arr2.length && arr1.every((date, index) => date.getTime() === arr2[index].getTime());
 }

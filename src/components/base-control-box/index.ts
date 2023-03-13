@@ -5,13 +5,7 @@ import { dispatchEvent } from '../../common/event.js'
 import { Control } from '../base-control/index.js'
 import { ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { loadingTemplate, prefixTemplate, suffixTemplate } from './template.js'
-import {
-  append,
-  mountAfter,
-  mountBefore,
-  prepend,
-  unmount,
-} from '../../common/mount.js'
+import { append, mountAfter, mountBefore, prepend, unmount } from '../../common/mount.js'
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 
 export interface ControlBoxEventMap extends ComponentEventMap {
@@ -95,14 +89,11 @@ export class ControlBox extends Control {
   }
 
   _renderPrefixIcon() {
-    const $prefixIcon = this.prefixIcon
-      ? getRegisteredSvgIcon(this.prefixIcon) ?? parseSvg(this.prefixIcon)
-      : null
+    const $prefixIcon = this.prefixIcon ? getRegisteredSvgIcon(this.prefixIcon) ?? parseSvg(this.prefixIcon) : null
 
     this._ref.$layout.classList.toggle('with-prefix', !!$prefixIcon)
     if ($prefixIcon) {
-      const $prefix = (this._ref.$prefix =
-        this._ref.$prefix ?? prefixTemplate())
+      const $prefix = (this._ref.$prefix = this._ref.$prefix ?? prefixTemplate())
       $prefix.innerHTML = ''
       $prefix.appendChild($prefixIcon)
 
@@ -120,14 +111,11 @@ export class ControlBox extends Control {
   }
 
   _renderSuffixIcon() {
-    const $suffixIcon = this.suffixIcon
-      ? getRegisteredSvgIcon(this.suffixIcon) ?? parseSvg(this.suffixIcon)
-      : null
+    const $suffixIcon = this.suffixIcon ? getRegisteredSvgIcon(this.suffixIcon) ?? parseSvg(this.suffixIcon) : null
 
     this._ref.$layout.classList.toggle('with-suffix', !!$suffixIcon)
     if ($suffixIcon) {
-      const $suffix = (this._ref.$suffix =
-        this._ref.$suffix ?? suffixTemplate())
+      const $suffix = (this._ref.$suffix = this._ref.$suffix ?? suffixTemplate())
       $suffix.innerHTML = ''
       $suffix.appendChild($suffixIcon)
       append($suffix, this._ref.$layout)
@@ -152,11 +140,7 @@ export class ControlBox extends Control {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     switch (attrName) {

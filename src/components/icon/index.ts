@@ -33,9 +33,7 @@ export class BlocksIcon extends Component {
       attrs.fill = this.fill
     }
 
-    const icon =
-      getRegisteredSvgIcon(this.value ?? '', attrs) ??
-      parseSvg(this.value ?? '', attrs)
+    const icon = getRegisteredSvgIcon(this.value ?? '', attrs) ?? parseSvg(this.value ?? '', attrs)
 
     if (icon) {
       $layout.appendChild(icon)
@@ -47,11 +45,7 @@ export class BlocksIcon extends Component {
     this.render()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.render()
   }

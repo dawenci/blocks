@@ -248,16 +248,10 @@ export let BlocksRangeSlider = (() => {
             let $active;
             const update = (pos) => {
                 if ($active === this.ref.$point) {
-                    this.value = [
-                        fromRatio(getRatio(pos, this.#posMin(), this.#posMax()), this.min, this.max),
-                        this.value[1],
-                    ];
+                    this.value = [fromRatio(getRatio(pos, this.#posMin(), this.#posMax()), this.min, this.max), this.value[1]];
                 }
                 else {
-                    this.value = [
-                        this.value[0],
-                        fromRatio(getRatio(pos, this.#posMin(), this.#posMax()), this.min, this.max),
-                    ];
+                    this.value = [this.value[0], fromRatio(getRatio(pos, this.#posMin(), this.#posMax()), this.min, this.max)];
                 }
             };
             return onDragMove(this.ref.$track, {
@@ -304,16 +298,14 @@ export let BlocksRangeSlider = (() => {
                     preventDefault();
                     const moveOffset = this.vertical ? -offset.y : offset.x;
                     const position = positionStart + moveOffset;
-                    if ($active === this.ref.$point &&
-                        position > getPosition(this.ref.$point2, this.vertical)) {
+                    if ($active === this.ref.$point && position > getPosition(this.ref.$point2, this.vertical)) {
                         this.ref.$point.classList.remove('active');
                         this.ref.$point.blur();
                         this.ref.$point2.classList.add('active');
                         this.ref.$point2.focus();
                         $active = this.ref.$point2;
                     }
-                    else if ($active === this.ref.$point2 &&
-                        position < getPosition(this.ref.$point, this.vertical)) {
+                    else if ($active === this.ref.$point2 && position < getPosition(this.ref.$point, this.vertical)) {
                         this.ref.$point2.classList.remove('active');
                         this.ref.$point2.blur();
                         this.ref.$point.classList.add('active');

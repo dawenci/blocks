@@ -1,8 +1,4 @@
-import {
-  __fg_placeholder,
-  __height_base,
-  __transition_duration,
-} from '../../theme/var-light.js'
+import { __fg_placeholder, __height_base, __transition_duration } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 /* <component>image */

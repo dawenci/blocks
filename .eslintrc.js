@@ -19,11 +19,15 @@ module.exports = {
     "prettier/prettier": [
       "error",
       {
-        "endOfLine": "auto",
-        "singleQuote": true,
-        "trailingComma": "es5",
-        "semi": false,
-        "arrowParens": "avoid"
+        bracketSpacing: true,
+        printWidth: 120,
+        semi: false,
+        singleQuote: true,
+        tabWidth: 2,
+        trailingComma: 'es5',
+        useTabs: false,
+        arrowParens: "avoid",
+        endOfLine: "auto",
       }
     ],
     '@typescript-eslint/interface-name-prefix': 'off',

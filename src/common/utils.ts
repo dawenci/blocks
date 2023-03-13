@@ -2,15 +2,10 @@ const has = Object.prototype.hasOwnProperty
 
 export const property = (prop: string) => (obj: object) => (obj as any)[prop]
 
-export const forEach = <T>(
-  list: ArrayLike<T>,
-  fn: (item: T, index: number, list: ArrayLike<T>) => void
-): void => Array.prototype.forEach.call(list, fn)
+export const forEach = <T>(list: ArrayLike<T>, fn: (item: T, index: number, list: ArrayLike<T>) => void): void =>
+  Array.prototype.forEach.call(list, fn)
 
-export function map<T, R>(
-  list: ArrayLike<T>,
-  fn: (item: T, index: number, list: ArrayLike<T>) => R
-): R[] {
+export function map<T, R>(list: ArrayLike<T>, fn: (item: T, index: number, list: ArrayLike<T>) => R): R[] {
   const results = Array.prototype.map.call(list, fn) as R[]
   return results
 }
@@ -25,23 +20,16 @@ export const find = <T>(
   fn: (item: T, index: number, list: ArrayLike<T>) => boolean
 ): T | undefined => Array.prototype.find.call(list, fn)
 
-export const findIndex = <T>(
-  list: ArrayLike<T>,
-  fn: (item: T, index: number, list: ArrayLike<T>) => boolean
-): number => Array.prototype.findIndex.call(list, fn)
+export const findIndex = <T>(list: ArrayLike<T>, fn: (item: T, index: number, list: ArrayLike<T>) => boolean): number =>
+  Array.prototype.findIndex.call(list, fn)
 
-export const includes = <T>(list: ArrayLike<T>, item: T): boolean =>
-  Array.prototype.includes.call(list, item)
+export const includes = <T>(list: ArrayLike<T>, item: T): boolean => Array.prototype.includes.call(list, item)
 
-export const every = <T>(
-  list: ArrayLike<T>,
-  fn: (item: T, index: number, list: ArrayLike<T>) => boolean
-): boolean => Array.prototype.every.call(list, fn)
+export const every = <T>(list: ArrayLike<T>, fn: (item: T, index: number, list: ArrayLike<T>) => boolean): boolean =>
+  Array.prototype.every.call(list, fn)
 
-export const some = <T>(
-  list: ArrayLike<T>,
-  fn: (item: T, index: number, list: ArrayLike<T>) => boolean
-): boolean => Array.prototype.some.call(list, fn)
+export const some = <T>(list: ArrayLike<T>, fn: (item: T, index: number, list: ArrayLike<T>) => boolean): boolean =>
+  Array.prototype.some.call(list, fn)
 
 export const propertyEq =
   (prop: string, value: any) =>
@@ -96,9 +84,7 @@ export function camelCase(str: string): string {
 }
 
 export function kebabCase(str: string): string {
-  return str
-    .replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())
-    .replace(/[-_\s]{2,}/g, '-')
+  return str.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase()).replace(/[-_\s]{2,}/g, '-')
 }
 
 export function capitalize(str: string): string {
@@ -125,98 +111,97 @@ export function uniq<T>(list: T[]): T[] {
   return [...new Set(list)]
 }
 
-export const uniqBy: <T>(fn: (item: T) => any, list: ArrayLike<T>) => T[] =
-  (() => {
-    const has = Object.prototype.hasOwnProperty
-    class _SameValueUniqCache {
-      _strings: Record<string, string>
-      _primitive: Record<string, any>
-      _set: Set<any>
+export const uniqBy: <T>(fn: (item: T) => any, list: ArrayLike<T>) => T[] = (() => {
+  const has = Object.prototype.hasOwnProperty
+  class _SameValueUniqCache {
+    _strings: Record<string, string>
+    _primitive: Record<string, any>
+    _set: Set<any>
 
-      constructor(initList?: any[]) {
-        this._strings = Object.create(null)
-        this._primitive = Object.create(null)
-        this._set = new Set()
-        if (initList && initList.length) {
-          const len = initList.length
-          for (let index = 0; index < len; index += 1) {
-            this.add(initList[index])
-          }
+    constructor(initList?: any[]) {
+      this._strings = Object.create(null)
+      this._primitive = Object.create(null)
+      this._set = new Set()
+      if (initList && initList.length) {
+        const len = initList.length
+        for (let index = 0; index < len; index += 1) {
+          this.add(initList[index])
         }
-      }
-
-      has(item: any) {
-        const type = typeof item
-        if (type === 'string') {
-          return !!has.call(this._strings, item)
-        }
-        // -0
-        if (type === 'number' && 1 / item === -Infinity) {
-          return has.call(this._primitive, '-0')
-        }
-        if (type === 'number' || item == null || type === 'symbol') {
-          return !!has.call(this._primitive, item)
-        }
-        // 其他对象
-        return this._set.has(item)
-      }
-
-      add(item: any) {
-        const type = typeof item
-        if (type === 'string') {
-          this._strings[item] = item
-          return
-        }
-        // -0
-        if (type === 'number' && 1 / item === -Infinity) {
-          this._primitive['-0'] = -0
-          return
-        }
-        if (type === 'number' || item == null || type === 'symbol') {
-          this._primitive[item] = item
-          return
-        }
-        // 其他对象
-        this._set.add(item)
-      }
-
-      remove(item: any) {
-        const type = typeof item
-        if (type === 'string') {
-          delete this._strings[item]
-          return
-        }
-        // -0
-        if (type === 'number' && 1 / item === -Infinity) {
-          delete this._primitive['-0']
-          return
-        }
-        if (type === 'number' || item == null || type === 'symbol') {
-          delete this._primitive[item]
-          return
-        }
-        // 其他对象
-        this._set.delete(item)
       }
     }
 
-    return function uniqBy(fn, list) {
-      if (!list || !list.length) list = []
-      const result = []
-      const size = list.length >>> 0
-
-      const cache = new _SameValueUniqCache()
-      for (let index = 0; index < size; index += 1) {
-        const item = list[index]
-        const value = fn(item)
-        if (cache.has(value)) continue
-        result.push(item)
-        cache.add(value)
+    has(item: any) {
+      const type = typeof item
+      if (type === 'string') {
+        return !!has.call(this._strings, item)
       }
-
-      return result
+      // -0
+      if (type === 'number' && 1 / item === -Infinity) {
+        return has.call(this._primitive, '-0')
+      }
+      if (type === 'number' || item == null || type === 'symbol') {
+        return !!has.call(this._primitive, item)
+      }
+      // 其他对象
+      return this._set.has(item)
     }
-  })()
+
+    add(item: any) {
+      const type = typeof item
+      if (type === 'string') {
+        this._strings[item] = item
+        return
+      }
+      // -0
+      if (type === 'number' && 1 / item === -Infinity) {
+        this._primitive['-0'] = -0
+        return
+      }
+      if (type === 'number' || item == null || type === 'symbol') {
+        this._primitive[item] = item
+        return
+      }
+      // 其他对象
+      this._set.add(item)
+    }
+
+    remove(item: any) {
+      const type = typeof item
+      if (type === 'string') {
+        delete this._strings[item]
+        return
+      }
+      // -0
+      if (type === 'number' && 1 / item === -Infinity) {
+        delete this._primitive['-0']
+        return
+      }
+      if (type === 'number' || item == null || type === 'symbol') {
+        delete this._primitive[item]
+        return
+      }
+      // 其他对象
+      this._set.delete(item)
+    }
+  }
+
+  return function uniqBy(fn, list) {
+    if (!list || !list.length) list = []
+    const result = []
+    const size = list.length >>> 0
+
+    const cache = new _SameValueUniqCache()
+    for (let index = 0; index < size; index += 1) {
+      const item = list[index]
+      const value = fn(item)
+      if (cache.has(value)) continue
+      result.push(item)
+      cache.add(value)
+    }
+
+    return result
+  }
+})()
 
 export function merge(
   output: Record<string, any> | Array<any>,
@@ -241,10 +226,7 @@ export function merge(
     const fromVal = (from as any)[prop]
 
     // 如果 from 中的属性值是原始类型（ 包括 undefined ），则直接覆盖
-    if (
-      (typeof fromVal !== 'object' && typeof fromVal !== 'function') ||
-      fromVal === null
-    ) {
+    if ((typeof fromVal !== 'object' && typeof fromVal !== 'function') || fromVal === null) {
       ;(output as any)[prop] = fromVal
       continue
     }

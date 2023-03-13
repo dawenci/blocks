@@ -141,9 +141,7 @@ export let BlocksModal = (() => {
             return this.#promise;
         }
         cancel() {
-            const cancelValue = typeof this.rejectValue === 'function'
-                ? this.rejectValue()
-                : this.rejectValue ?? new Error('cancel');
+            const cancelValue = typeof this.rejectValue === 'function' ? this.rejectValue() : this.rejectValue ?? new Error('cancel');
             if (this.onCancel) {
                 this.onCancel(cancelValue);
             }
@@ -153,9 +151,7 @@ export let BlocksModal = (() => {
             this.open = false;
         }
         confirm() {
-            const confirmValue = typeof this.resolveValue === 'function'
-                ? this.resolveValue()
-                : this.resolveValue ?? '';
+            const confirmValue = typeof this.resolveValue === 'function' ? this.resolveValue() : this.resolveValue ?? '';
             if (this.onConfirm) {
                 this.onConfirm(confirmValue);
             }

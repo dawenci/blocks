@@ -106,11 +106,7 @@ export class BlocksBackTop extends Component {
     }
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ): void {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     if (attrName === 'duration') {

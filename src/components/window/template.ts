@@ -1,7 +1,4 @@
-import {
-  makeFragmentTemplate,
-  makeStyleTemplate,
-} from '../../common/template.js'
+import { makeFragmentTemplate, makeStyleTemplate } from '../../common/template.js'
 import {
   __bg_base,
   __color_danger,

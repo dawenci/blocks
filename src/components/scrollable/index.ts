@@ -4,11 +4,7 @@ import { sizeObserve } from '../../common/sizeObserve.js'
 import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
 import { onDragMove, OnEnd, OnMove, OnStart } from '../../common/onDragMove.js'
-import {
-  Component,
-  ComponentEventListener,
-  ComponentEventMap,
-} from '../Component.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { template } from './template.js'
 import { style } from './style.js'
 
@@ -193,15 +189,10 @@ export class BlocksScrollable extends Component {
       const trackWidth = this._ref.$horizontal.clientWidth
       const contentRightSpace = contentWidth - contentLeftSpace - viewportWidth
       // 滚动条尺寸（不小于 20px）
-      const thumbWidth = Math.max(
-        Math.round((viewportWidth / contentWidth) * trackWidth),
-        20
-      )
+      const thumbWidth = Math.max(Math.round((viewportWidth / contentWidth) * trackWidth), 20)
 
       const horizontalTrackSpace = trackWidth - thumbWidth
-      const thumbLeft =
-        horizontalTrackSpace *
-        (contentLeftSpace / (contentLeftSpace + contentRightSpace))
+      const thumbLeft = horizontalTrackSpace * (contentLeftSpace / (contentLeftSpace + contentRightSpace))
 
       setStyles(this._ref.$horizontalThumb, {
         transform: `translateX(${thumbLeft}px)`,
@@ -216,17 +207,11 @@ export class BlocksScrollable extends Component {
     if (showVertical) {
       this._ref.$vertical.style.display = 'block'
       const trackHeight = this._ref.$vertical.clientHeight
-      const contentBottomSpace =
-        contentHeight - contentTopSpace - viewportHeight
+      const contentBottomSpace = contentHeight - contentTopSpace - viewportHeight
       // 滚动条尺寸（不小于 20px）
-      const thumbHeight = Math.max(
-        Math.round((viewportHeight / contentHeight) * trackHeight),
-        20
-      )
+      const thumbHeight = Math.max(Math.round((viewportHeight / contentHeight) * trackHeight), 20)
       const verticalTrackSpace = trackHeight - thumbHeight
-      const thumbTop =
-        verticalTrackSpace *
-        (contentTopSpace / (contentTopSpace + contentBottomSpace))
+      const thumbTop = verticalTrackSpace * (contentTopSpace / (contentTopSpace + contentBottomSpace))
       setStyles(this._ref.$verticalThumb, {
         transform: `translateY(${thumbTop}px)`,
         height: `${thumbHeight}px`,
@@ -254,32 +239,22 @@ export class BlocksScrollable extends Component {
 
     const verticalTrackSpace = trackHeight - thumbHeight
     const verticalContentSpace = contentHeight - viewportHeight
-    const contentOffsetTop =
-      (thumbTop / verticalTrackSpace) * verticalContentSpace
+    const contentOffsetTop = (thumbTop / verticalTrackSpace) * verticalContentSpace
 
     const horizontalTrackSpace = trackWidth - thumbWidth
     const horizontalContentSpace = contentWidth - viewportWidth
-    const contentOffsetLeft =
-      (thumbLeft / horizontalTrackSpace) * horizontalContentSpace
+    const contentOffsetLeft = (thumbLeft / horizontalTrackSpace) * horizontalContentSpace
 
     this._ref.$viewport.scrollTop = contentOffsetTop
     this._ref.$viewport.scrollLeft = contentOffsetLeft
   }
 
   _getThumbTop() {
-    return (
-      parseFloat(
-        (this._ref.$verticalThumb.style.transform ?? '').slice(11, -3)
-      ) || 0
-    )
+    return parseFloat((this._ref.$verticalThumb.style.transform ?? '').slice(11, -3)) || 0
   }
 
   _getThumbLeft() {
-    return (
-      parseFloat(
-        (this._ref.$horizontalThumb.style.transform ?? '').slice(11, -3)
-      ) || 0
-    )
+    return parseFloat((this._ref.$horizontalThumb.style.transform ?? '').slice(11, -3)) || 0
   }
 
   // 顶部还可以滚动的距离
@@ -290,17 +265,13 @@ export class BlocksScrollable extends Component {
   // 右边还可以滚动的距离
   getScrollableRight() {
     const $viewport = this._ref.$viewport
-    return (
-      $viewport.scrollWidth - ($viewport.scrollLeft + $viewport.clientWidth)
-    )
+    return $viewport.scrollWidth - ($viewport.scrollLeft + $viewport.clientWidth)
   }
 
   // 下方还可以滚动的距离
   getScrollableBottom() {
     const $viewport = this._ref.$viewport
-    return (
-      $viewport.scrollHeight - ($viewport.scrollTop + $viewport.clientHeight)
-    )
+    return $viewport.scrollHeight - ($viewport.scrollTop + $viewport.clientHeight)
   }
 
   // 左边还可以滚动的距离
@@ -309,14 +280,7 @@ export class BlocksScrollable extends Component {
   }
 
   _updateShadowState() {
-    const {
-      scrollLeft,
-      scrollTop,
-      scrollWidth,
-      scrollHeight,
-      clientWidth,
-      clientHeight,
-    } = this._ref.$viewport
+    const { scrollLeft, scrollTop, scrollWidth, scrollHeight, clientWidth, clientHeight } = this._ref.$viewport
 
     this.canScrollLeft = scrollLeft > 0
     this.canScrollRight = scrollWidth - (scrollLeft + clientWidth) > 0
@@ -325,14 +289,8 @@ export class BlocksScrollable extends Component {
   }
 
   _udpateScrollbarState() {
-    this._ref.$layout.classList.toggle(
-      'vertical-scrollbar',
-      this.hasVerticalScrollbar
-    )
-    this._ref.$layout.classList.toggle(
-      'horizontal-scrollbar',
-      this.hasHorizontalScrollbar
-    )
+    this._ref.$layout.classList.toggle('vertical-scrollbar', this.hasVerticalScrollbar)
+    this._ref.$layout.classList.toggle('horizontal-scrollbar', this.hasHorizontalScrollbar)
   }
 
   _initMoveEvents() {
@@ -340,11 +298,7 @@ export class BlocksScrollable extends Component {
     let startThumbPosition: number
     let startMousePosition: number
 
-    const onMove: OnMove = ({
-      preventDefault,
-      stopImmediatePropagation,
-      current,
-    }) => {
+    const onMove: OnMove = ({ preventDefault, stopImmediatePropagation, current }) => {
       preventDefault()
       stopImmediatePropagation()
 
@@ -354,18 +308,15 @@ export class BlocksScrollable extends Component {
         let thumbTop = startThumbPosition + (current.pageY - startMousePosition)
         if (thumbTop === 0 || thumbTop + thumbHeight === trackHeight) return
         if (thumbTop < 0) thumbTop = 0
-        if (thumbTop + thumbHeight > trackHeight)
-          thumbTop = trackHeight - thumbHeight
+        if (thumbTop + thumbHeight > trackHeight) thumbTop = trackHeight - thumbHeight
         this._ref.$verticalThumb.style.transform = `translateY(${thumbTop}px)`
       } else {
         const trackWidth = this._ref.$horizontal.clientWidth
         const thumbWidth = this._ref.$horizontalThumb.offsetWidth
-        let thumbLeft =
-          startThumbPosition + (current.pageX - startMousePosition)
+        let thumbLeft = startThumbPosition + (current.pageX - startMousePosition)
         if (thumbLeft === 0 || thumbLeft + thumbWidth === trackWidth) return
         if (thumbLeft < 0) thumbLeft = 0
-        if (thumbLeft + thumbWidth > trackWidth)
-          thumbLeft = trackWidth - thumbWidth
+        if (thumbLeft + thumbWidth > trackWidth) thumbLeft = trackWidth - thumbWidth
         this._ref.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
       }
 
@@ -382,12 +333,7 @@ export class BlocksScrollable extends Component {
       this._ref.$layout.classList.remove('dragging', 'dragging-horizontal')
     }
 
-    const onStart: OnStart = ({
-      preventDefault,
-      stopImmediatePropagation,
-      $target,
-      start,
-    }) => {
+    const onStart: OnStart = ({ preventDefault, stopImmediatePropagation, $target, start }) => {
       preventDefault()
       stopImmediatePropagation()
       this.#draggingFlag = true
@@ -398,8 +344,7 @@ export class BlocksScrollable extends Component {
       if ($target.tagName !== 'B') {
         if (isVertical) {
           // 期望滑块的中点座标
-          const middle =
-            start.clientY - this._ref.$vertical.getBoundingClientRect().top
+          const middle = start.clientY - this._ref.$vertical.getBoundingClientRect().top
           // 推算出 top 座标
           const thumbHeight = this._ref.$verticalThumb.offsetHeight
           let thumbTop = middle - thumbHeight / 2
@@ -409,8 +354,7 @@ export class BlocksScrollable extends Component {
           this._ref.$verticalThumb.style.transform = `translateY(${thumbTop}px)`
         } else {
           // 期望滑块的中点座标
-          const center =
-            start.clientX - this._ref.$horizontal.getBoundingClientRect().left
+          const center = start.clientX - this._ref.$horizontal.getBoundingClientRect().left
           // 推算出滑块 left 座标
           const thumbWidth = this._ref.$horizontalThumb.offsetWidth
           let thumbLeft = center - thumbWidth / 2

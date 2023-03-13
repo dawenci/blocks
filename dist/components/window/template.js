@@ -1,4 +1,4 @@
-import { makeFragmentTemplate, makeStyleTemplate, } from '../../common/template.js';
+import { makeFragmentTemplate, makeStyleTemplate } from '../../common/template.js';
 import { __bg_base, __color_danger, __fg_base, __font_family, __height_base, __radius_base, __transition_duration, __bg_header, } from '../../theme/var-light.js';
 export const windowStyleTemplate = makeStyleTemplate(`
 :host {

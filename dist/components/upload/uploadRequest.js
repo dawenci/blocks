@@ -6,8 +6,7 @@ export function uploadRequest(options) {
     const headers = options.headers;
     if (typeof headers === 'object') {
         for (const item in headers) {
-            if (Object.prototype.hasOwnProperty.call(headers, item) &&
-                headers[item]) {
+            if (Object.prototype.hasOwnProperty.call(headers, item) && headers[item]) {
                 xhr.setRequestHeader(item, headers[item]);
             }
         }
@@ -27,9 +26,7 @@ export function uploadRequest(options) {
                     loaded: event.loaded,
                     target: event.target,
                     total: event.total,
-                    percent: event.lengthComputable
-                        ? (event.loaded / event.total) * 100
-                        : 0,
+                    percent: event.lengthComputable ? (event.loaded / event.total) * 100 : 0,
                 }, options);
             }
         };

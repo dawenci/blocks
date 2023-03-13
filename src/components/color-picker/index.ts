@@ -44,9 +44,7 @@ export class BlocksColorPicker extends Component {
     const $result = shadowRoot.querySelector('#result') as HTMLDivElement
     const $icon = $result.querySelector('bl-icon') as HTMLElement
     // 面板部分
-    const $popup = (
-      popupTemplate.content.cloneNode(true) as HTMLElement
-    ).querySelector('bl-popup') as BlocksPopup
+    const $popup = (popupTemplate.content.cloneNode(true) as HTMLElement).querySelector('bl-popup') as BlocksPopup
 
     const $color = $popup.querySelector('bl-color') as BlocksColor
 
@@ -152,11 +150,7 @@ export class BlocksColorPicker extends Component {
     this.#destroyClickOutside()
   }
 
-  override attributeChangedCallback(
-    attrName: string,
-    oldValue: any,
-    newValue: any
-  ) {
+  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     if (['clearable'].includes(attrName)) {
       this._ref.$result.setAttribute(attrName, newValue)
@@ -174,9 +168,7 @@ export class BlocksColorPicker extends Component {
   override render() {
     const hsla = this._ref.$color.hsla
     if (hsla) {
-      this._ref.$result.style.backgroundColor = `hsla(${hsla[0]},${
-        hsla[1] * 100
-      }%,${hsla[2] * 100}%,${hsla[3]})`
+      this._ref.$result.style.backgroundColor = `hsla(${hsla[0]},${hsla[1] * 100}%,${hsla[2] * 100}%,${hsla[3]})`
       // 下拉箭头，根据背景亮度设置深色或浅色
       let lightness = hsla[2] * 100
       // 黄色到青色区间亮度太高，优先使用暗色箭头

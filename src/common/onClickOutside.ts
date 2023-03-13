@@ -2,10 +2,7 @@
  * @param {Element} el 元素
  * @param {(e: MouseEvent) => void} handler 事件处理器
  */
-export function onClickOutside(
-  el: Element | Element[],
-  handler: (e: MouseEvent) => void
-) {
+export function onClickOutside(el: Element | Element[], handler: (e: MouseEvent) => void) {
   if (!Array.isArray(el)) {
     el = [el]
   }
