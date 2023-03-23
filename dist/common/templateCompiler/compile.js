@@ -391,9 +391,7 @@ const generateCreateFunction = (ctx, nodes, mountPoint) => {
     ctx.appendLine('}');
 };
 function generateUpdateChildrenFunction(ctx) {
-    ctx._childrenCtx
-        .filter(nest => !nest.isStatic)
-        .forEach(nest => {
+    ctx._childrenCtx.forEach(nest => {
         if (nest.type === 1) {
             IfGenerator.callUpdate(nest, ctx);
         }

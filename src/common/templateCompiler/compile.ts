@@ -529,16 +529,14 @@ const generateCreateFunction = (ctx: Context, nodes: BlNode.t[], mountPoint: str
 
 // 如果存在子 block（if、for、html 等等），逐个子 block 调用 update 方法
 function generateUpdateChildrenFunction(ctx: Context) {
-  ctx._childrenCtx
-    .filter(nest => !nest.isStatic)
-    .forEach(nest => {
-      if (nest.type === ContextType.If) {
-        IfGenerator.callUpdate(nest, ctx)
-      }
-      if (nest.type === ContextType.For) {
-        ForGenerator.callUpdate(nest, ctx)
-      }
-    })
+  ctx._childrenCtx.forEach(nest => {
+    if (nest.type === ContextType.If) {
+      IfGenerator.callUpdate(nest, ctx)
+    }
+    if (nest.type === ContextType.For) {
+      ForGenerator.callUpdate(nest, ctx)
+    }
+  })
 }
 
 function generateUpdateBidingFunction(ctx: Context) {

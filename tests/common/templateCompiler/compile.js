@@ -33,9 +33,7 @@ describe('common/templateCompiler/compile.js', () => {
     chai.expect('test2-value').to.equal($el.childNodes[0].getAttribute('test2'))
 
     set({ test2: 'test2-value-2' })
-    chai
-      .expect('test2-value-2')
-      .to.equal($el.childNodes[0].getAttribute('test2'))
+    chai.expect('test2-value-2').to.equal($el.childNodes[0].getAttribute('test2'))
   })
 
   it('prop', async () => {
@@ -115,30 +113,51 @@ describe('common/templateCompiler/compile.js', () => {
     set({ cond: true })
     chai.expect('DIV').to.equal($el.childNodes[0].nodeName)
 
-    // <bl-if cond="cond1">
-    //   <h2>Level 1</h2>
-    //   <bl-if cond="cond2">Level 2</bl-if>
-    // </bl-if>
-    // 1. cond1 true, cond2 true
-    // 2. cond1 false
-    // 3. cond1 true, cond2 false,
+    const $template2 = document.createElement('template')
+    $template2.innerHTML = `
+    <bl-if cond="cond1">
+      <span class="cond1"></span>
+      <bl-if cond="cond2">
+        <span class="cond2"></span>
+      </bl-if>
+    </bl-if>
+    `
+    var t2 = compile($template2.content.querySelector('bl-if'))({
+      data: {
+        cond1: true,
+        cond2: true,
+      },
+    })
+    var $el2 = t2.create()
+    chai.expect('cond1').to.equal($el2.querySelector('.cond1').className)
+    chai.expect('cond2').to.equal($el2.querySelector('.cond2').className)
+
+    // 避免 set({ cond: false });set({ cond: true, cond2: false });set({ cond: false }) 报错
+    t2.set({ cond1: false })
+    t2.set({ cond1: true, cond2: false })
+    t2.set({ cond1: false })
+    // 避免 set({ cond: false, cond2: false });set({ cond: true });set({ cond: false }) 报错
+    t2.set({ cond1: false, cond2: false })
+    t2.set({ cond1: true })
+    t2.set({ cond1: false })
   })
 
   it('for', async () => {
-    var $for = document.createElement('bl-for')
-    $for.setAttribute('each:item', 'list')
-    $for.appendChild(document.createTextNode('{item.name}'))
+    const $t1 = document.createElement('template')
+    $t1.innerHTML = /*html*/ `<bl-for each:item="list">{item.name}</bl-for>`
+    var $for = $t1.content.querySelector('bl-for')
     var { create, set } = compile($for)({
       data: {
         list: [{ name: 'item1' }, { name: 'item2' }],
       },
     })
     var $el = create()
+    console.log($el)
     chai.expect(3).to.equal($el.childNodes.length)
     chai.expect('item1').to.equal($el.childNodes[0].nodeValue)
     chai.expect('item2').to.equal($el.childNodes[1].nodeValue)
 
-    set({ list: [{ name: 'item3' }, { name: 'item4' }], })
+    set({ list: [{ name: 'item3' }, { name: 'item4' }] })
     chai.expect(3).to.equal($el.childNodes.length)
     chai.expect('item3').to.equal($el.childNodes[0].nodeValue)
     chai.expect('item4').to.equal($el.childNodes[1].nodeValue)
