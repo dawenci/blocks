@@ -144,31 +144,45 @@ describe('common/templateCompiler/compile.js', () => {
 
   it('for', async () => {
     const $t1 = document.createElement('template')
-    $t1.innerHTML = /*html*/ `<bl-for each:item="list">{item.name}</bl-for>`
+    $t1.innerHTML = /*html*/ `<bl-for each:item="list"><p>{item.name}{item.nested.value}</p></bl-for>`
     var $for = $t1.content.querySelector('bl-for')
     var { create, set } = compile($for)({
       data: {
-        list: [{ name: 'item1' }, { name: 'item2' }],
+        list: [
+          { name: 'item', nested: { value: 1 } },
+          { name: 'item', nested: { value: 2 } },
+        ],
       },
     })
     var $el = create()
-    console.log($el)
     chai.expect(3).to.equal($el.childNodes.length)
-    chai.expect('item1').to.equal($el.childNodes[0].nodeValue)
-    chai.expect('item2').to.equal($el.childNodes[1].nodeValue)
+    chai.expect('item1').to.equal($el.childNodes[0].innerText)
+    chai.expect('item2').to.equal($el.childNodes[1].innerText)
 
-    set({ list: [{ name: 'item3' }, { name: 'item4' }] })
+    set({
+      list: [
+        { name: 'item', nested: { value: 3 } },
+        { name: 'item', nested: { value: 4 } },
+      ],
+    })
     chai.expect(3).to.equal($el.childNodes.length)
-    chai.expect('item3').to.equal($el.childNodes[0].nodeValue)
-    chai.expect('item4').to.equal($el.childNodes[1].nodeValue)
+    chai.expect('item3').to.equal($el.childNodes[0].innerText)
+    chai.expect('item4').to.equal($el.childNodes[1].innerText)
 
-    set({ list: [{ name: 'item5' }] })
+    set({
+      list: [{ name: 'item', nested: { value: 5 } }],
+    })
     chai.expect(2).to.equal($el.childNodes.length)
-    chai.expect('item5').to.equal($el.childNodes[0].nodeValue)
+    chai.expect('item5').to.equal($el.childNodes[0].innerText)
 
-    set({ list: [{ name: 'item6' }, { name: 'item7' }] })
+    set({
+      list: [
+        { name: 'item', nested: { value: 6 } },
+        { name: 'item', nested: { value: 7 } },
+      ],
+    })
     chai.expect(3).to.equal($el.childNodes.length)
-    chai.expect('item6').to.equal($el.childNodes[0].nodeValue)
-    chai.expect('item7').to.equal($el.childNodes[1].nodeValue)
+    chai.expect('item6').to.equal($el.childNodes[0].innerText)
+    chai.expect('item7').to.equal($el.childNodes[1].innerText)
   })
 })

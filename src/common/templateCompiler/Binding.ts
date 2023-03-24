@@ -189,5 +189,5 @@ export function getEnv(binding: Binding): EnvRecord {
 export function getDataKey(binding: Binding): string {
   const env = getEnv(binding)
   const rawDataKey = binding.rawDataKey.trim()
-  return rawDataKey.startsWith(env.name + '.') ? rawDataKey.slice(env.name.length + 1) : rawDataKey
+  return rawDataKey.startsWith(env.rawName + '.') ? rawDataKey.slice(env.rawName.length + 1) : rawDataKey
 }

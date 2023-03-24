@@ -52,29 +52,31 @@
     </style>
 
     <article>
-      <!-- <div class="test" bl-on:click.once="onClick"> -->
-      <div class="test">
-        <!-- <div bl-prop:prop-name="prop"></div>
+      <div class="test" bl-on:click.once="onClick">
+      <!-- <div class="test"> -->
+        <div bl-prop:prop-name="prop"></div>
         <bl-if cond="cond">
           <p>外层 IF block: {cond}</p>
           <bl-if cond="cond2">内层 if block {cond2}</bl-if>
-        </bl-if> -->
+        </bl-if>
 
         <!-- each:item="list" -->
-        <bl-for each:item1="list1">{item1.name}</bl-for>
+        <bl-for each:item1="list1">
+          <p>{item1.name} - {item1.nested.value}</p>
+        </bl-for>
 
-        <bl-for each:item="list">
+        <bl-for each:item="list2">
           <div class="list-item">
             <h3>list item</h3>
             <p>List Item: {item.itemName}</p>
           </div>
         </bl-for>
 
-        <!-- <bl-html content="html"></bl-html>
+        <bl-html content="html"></bl-html>
         <p>{ nestData.dot }</p>
         <p>{ nestData[ "index1" ] }</p>
         <p>{ nestData[ 'index2' ] }</p>
-        <p bl:title="title">prefix {text} suffix</p> -->
+        <p bl:title="title">prefix {text} suffix</p>
       </div>
      
     </article>
@@ -104,15 +106,16 @@
           onClick: e => {
             console.log('click', e)
           },
-          list: [
-            { itemName: 'list: item 1' },
-            { itemName: 'list: item 2' }
-          ],
 
           list1: [
-            {name: 'list1: list item 1'},
-            {name: 'list1: list item 2'},
-          ]
+            { name: 'list1: list item 1', nested: { value: 1 } },
+            { name: 'list1: list item 2', nested: { value: 2 } },
+          ],
+
+          list2: [
+            { itemName: 'list2: item 1' },
+            { itemName: 'list2: item 2' }
+          ],
 
 
         }})

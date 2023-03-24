@@ -113,6 +113,9 @@ export function makeEventFlag(flags: string[]): number {
   return eventFlag
 }
 
+// TODO, 重写，以支持各种变量访问语法，例如:
+// {varName}, {obj.propName}, {obj['propName']}, {obj["propName"]}
+// {env.varName}, {env.obj.propName}, {env.obj['propName']}, {env.obj["propName"]}
 export function parseText(text = ''): ParsedText[] {
   const results: ParsedText[] = []
   const len = text.length
