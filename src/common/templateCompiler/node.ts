@@ -119,12 +119,15 @@ export function makeEventFlag(flags: string[]): number {
 export function parseText(text = ''): ParsedText[] {
   const results: ParsedText[] = []
   const len = text.length
+  let escape = false
+  let strStart = ''
   let substr = ''
   let i = -1
   let startPos = -1
   while (++i < len) {
     const ch = text[i]
-    if (ch === '{') {
+
+    if (ch === '{' && !strStart) {
       if (substr) {
         results.push({ type: 'static', textContent: substr })
       }
@@ -132,19 +135,43 @@ export function parseText(text = ''): ParsedText[] {
       substr = '{'
       continue
     }
-    if (ch === '}') {
-      if (startPos !== -1 && /\s*\S+\s*/i.test(substr)) {
+
+    if (ch === '}' && startPos !== -1 && !strStart) {
+      if (substr.trim().length > 1) {
         results.push({ type: 'reactive', propName: substr.slice(1) })
         startPos = -1
         substr = ''
         continue
       }
     }
+
+    if ((ch === "'" || ch === '"') && startPos !== -1) {
+      // 解析 string 中
+      if (strStart) {
+        if (ch === strStart) {
+          if (!escape) {
+            // string end
+            strStart = ''
+          } else {
+            escape = false
+          }
+        }
+      } else {
+        strStart = ch
+      }
+    }
+
+    if (ch === '\\' && strStart && !escape) {
+      escape = true
+    }
+
     substr += ch
   }
+
   if (substr) {
     results.push({ type: 'static', textContent: substr })
   }
+
   // 相邻的 static 合并
   const reduceResults: Array<StaticText | ReactiveText> = []
   results.forEach(item => {
