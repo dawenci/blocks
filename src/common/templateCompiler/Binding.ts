@@ -16,40 +16,44 @@ function isSimpleName(name: string): boolean {
   return /^[_$a-z][_$a-z0-9]*$/i.test(name)
 }
 
+const DOT = 46
+const BRACKET_START = 91
+const BRACKET_END = 93
+const DOUBLE_QUOTATION = 34
+const SINGLE_QUOTATION = 39
+const SPACE = 32
 function path(str: string): string[] {
   const output: string[] = []
-  let word = ''
   let start = false
-  let quotation = ''
-
-  const emit = () => {
-    if (word) {
-      output.push(word)
-      word = ''
-    }
-    start = false
-    quotation = ''
-  }
+  let quotation = 0
+  let sliceFrom = 0
 
   const len = str.length
 
   main: for (let i = 0; i < str.length; i += 1) {
-    const ch = str[i]
+    const ch = str.charCodeAt(i)
 
-    if (ch === '.' && !start) {
-      emit()
+    if (ch === DOT && !start) {
+      if (i > sliceFrom) {
+        output.push(str.slice(sliceFrom, i))
+      }
+      sliceFrom = i + 1
       continue
     }
 
-    if (!quotation && ch === '[') {
+    if (!quotation && ch === BRACKET_START) {
       let j = i + 1
       for (; j < len; j += 1) {
-        if (str[j] === ' ') continue
-        if (str[j] === "'" || str[j] === '"') {
-          emit()
+        const ch2 = str.charCodeAt(j)
+        if (ch2 === SPACE) continue
+        if (ch2 === SINGLE_QUOTATION || ch2 === DOUBLE_QUOTATION) {
+          if (i > sliceFrom) {
+            output.push(str.slice(sliceFrom, i))
+          }
           start = true
-          quotation = str[j]
+          quotation = ch2
           i = j
+          sliceFrom = i + 1
           continue main
         }
         break
@@ -59,20 +63,26 @@ function path(str: string): string[] {
     if (start && ch === quotation) {
       let j = i + 1
       for (; j < len; j += 1) {
-        if (str[j] === ' ') continue
-        if (str[j] === ']') {
-          emit()
+        const ch2 = str.charCodeAt(j)
+        if (ch2 === SPACE) continue
+        if (ch2 === BRACKET_END) {
+          if (i > sliceFrom) {
+            output.push(str.slice(sliceFrom, i))
+          }
+          start = false
+          quotation = 0
           i = j
+          sliceFrom = i + 1
           continue main
         }
         break
       }
     }
-
-    word += ch
   }
 
-  if (word) output.push(word)
+  if (sliceFrom < len) {
+    output.push(str.slice(sliceFrom))
+  }
 
   return output
 }

@@ -14,6 +14,15 @@ export function isFragment(node) {
 export function isText(node) {
     return node.nodeType === 3;
 }
+export function hasAttr(node, name) {
+    if (node.attrs) {
+        return node.attrs.some(item => item.name === name);
+    }
+    if (node.hasAttribute) {
+        return node.hasAttribute(name);
+    }
+    return false;
+}
 export function getAttr(node, name) {
     if (node.attrs) {
         return node.attrs.find(item => item.name === name)?.value ?? null;
@@ -61,49 +70,71 @@ export function makeEventFlag(flags) {
     });
     return eventFlag;
 }
+const BRACE_START = 123;
+const BRACE_END = 125;
+const DOUBLE_QUOTATION = 34;
+const SINGLE_QUOTATION = 39;
+const BACKSLASH = 92;
 export function parseText(text = '') {
     const results = [];
     const len = text.length;
-    let substr = '';
+    let top = null;
+    let escape = false;
+    let strStart = 0;
+    let sliceFrom = 0;
     let i = -1;
     let startPos = -1;
     while (++i < len) {
-        const ch = text[i];
-        if (ch === '{') {
-            if (substr) {
-                results.push({ type: 'static', textContent: substr });
+        const ch = text.charCodeAt(i);
+        if (ch === BRACE_START && !strStart) {
+            if (i > sliceFrom) {
+                if (top) {
+                    top.textContent += text.slice(sliceFrom, i);
+                }
+                else {
+                    results.push((top = { type: 'static', textContent: text.slice(sliceFrom, i) }));
+                }
             }
-            startPos = i;
-            substr = '{';
+            startPos = sliceFrom = i;
             continue;
         }
-        if (ch === '}') {
-            if (startPos !== -1 && /\s*\S+\s*/i.test(substr)) {
-                results.push({ type: 'reactive', propName: substr.slice(1) });
+        if (ch === BRACE_END && startPos !== -1 && !strStart) {
+            if (i > sliceFrom) {
+                results.push({ type: 'reactive', propName: text.slice(sliceFrom + 1, i) });
+                top = null;
                 startPos = -1;
-                substr = '';
+                sliceFrom = i + 1;
                 continue;
             }
         }
-        substr += ch;
-    }
-    if (substr) {
-        results.push({ type: 'static', textContent: substr });
-    }
-    const reduceResults = [];
-    results.forEach(item => {
-        const last = reduceResults[reduceResults.length - 1];
-        if (!last) {
-            return reduceResults.push(item);
+        if ((ch === SINGLE_QUOTATION || ch === DOUBLE_QUOTATION) && startPos !== -1) {
+            if (strStart) {
+                if (ch === strStart) {
+                    if (!escape) {
+                        strStart = 0;
+                    }
+                    else {
+                        escape = false;
+                    }
+                }
+            }
+            else {
+                strStart = ch;
+            }
         }
-        if (last.type === 'static' && item.type === 'static') {
-            last.textContent += item.textContent;
+        if (ch === BACKSLASH && strStart && !escape) {
+            escape = true;
+        }
+    }
+    if (sliceFrom < i) {
+        if (top) {
+            top.textContent += text.slice(sliceFrom);
         }
         else {
-            reduceResults.push(item);
+            results.push((top = { type: 'static', textContent: text.slice(sliceFrom) }));
         }
-    });
-    return reduceResults;
+    }
+    return results;
 }
 export function eachChild(node, fn) {
     for (let i = 0, length = node.childNodes.length; i < length; i += 1) {

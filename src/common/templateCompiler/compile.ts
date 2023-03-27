@@ -425,32 +425,48 @@ class ElementGenerator {
 // 处理文本
 class TextGenerator {
   // text 结点的 create 过程
-  static createFunc(ctx: Context, $node: BlNode.TextNode | Text, isTop: boolean, mountPoint = 'e0') {
-    // 文本中可能有插值，解析成不同的片段，分别生成 TextNode
-    BlNode.parseText($node.nodeValue ?? '').forEach(record => {
-      switch (record.type) {
-        case 'static': {
-          const text = JSON.stringify(record.textContent)
-          if (isTop) {
-            const varName = ctx.declareText(isTop)
-            ctx.appendLine(`${varName} = dom.append(${mountPoint}, dom.text(${text}))`)
-          } else {
-            // 非顶层，无需取名
-            ctx.appendLine(`dom.append(${mountPoint}, dom.text(${text}))`)
-          }
-          break
-        }
-        case 'reactive': {
-          const varName = ctx.declareText(isTop)
-          const dataKey = record.propName
-          const binding = new TextBinding(ctx, varName, dataKey)
-          ctx.addBinding(binding)
-          ctx.appendLine(`${varName}_val = ${binding.resolved} ?? ''`)
-          ctx.appendLine(`${varName} = dom.append(${mountPoint}, dom.text(${varName}_val))`)
-          break
-        }
+  static createFunc(ctx: Context, text: string, reactive: boolean, isTop: boolean, mountPoint = 'e0') {
+    if (reactive) {
+      const varName = ctx.declareText(isTop)
+      const dataKey = text
+      const binding = new TextBinding(ctx, varName, dataKey)
+      ctx.addBinding(binding)
+      ctx.appendLine(`${varName}_val = ${binding.resolved} ?? ''`)
+      ctx.appendLine(`${varName} = dom.append(${mountPoint}, dom.text(${varName}_val))`)
+    } else {
+      if (isTop) {
+        const varName = ctx.declareText(isTop)
+        ctx.appendLine(`${varName} = dom.append(${mountPoint}, dom.text(${text}))`)
+      } else {
+        // 非顶层，无需取名
+        ctx.appendLine(`dom.append(${mountPoint}, dom.text(${text}))`)
       }
-    })
+    }
+    // // 文本中可能有插值，解析成不同的片段，分别生成 TextNode
+    // BlNode.parseText($node.nodeValue ?? '').forEach(record => {
+    //   switch (record.type) {
+    //     case 'static': {
+    //       const text = JSON.stringify(record.textContent)
+    //       if (isTop) {
+    //         const varName = ctx.declareText(isTop)
+    //         ctx.appendLine(`${varName} = dom.append(${mountPoint}, dom.text(${text}))`)
+    //       } else {
+    //         // 非顶层，无需取名
+    //         ctx.appendLine(`dom.append(${mountPoint}, dom.text(${text}))`)
+    //       }
+    //       break
+    //     }
+    //     case 'reactive': {
+    //       const varName = ctx.declareText(isTop)
+    //       const dataKey = record.propName
+    //       const binding = new TextBinding(ctx, varName, dataKey)
+    //       ctx.addBinding(binding)
+    //       ctx.appendLine(`${varName}_val = ${binding.resolved} ?? ''`)
+    //       ctx.appendLine(`${varName} = dom.append(${mountPoint}, dom.text(${varName}_val))`)
+    //       break
+    //     }
+    //   }
+    // })
   }
 
   static updateBinding(ctx: Context, binding: TextBinding) {
@@ -465,9 +481,8 @@ class TextGenerator {
 const recursivelyCreateByNode = (ctx: Context, $node: BlNode.t, isTop: boolean, mountPoint = 'e0') => {
   if (BlNode.isElem($node)) {
     switch ($node.nodeName) {
-      // <bl-if cond="boolValue">...</bl-if>
-      case 'BL-IF': {
-        const dataKey = BlNode.getAttr($node, 'cond')
+      case 'IF': {
+        const dataKey = BlNode.getAttr($node, 'if')
         if (dataKey == null) {
           return ElementGenerator.callCreate(ctx, $node, isTop, mountPoint)
         }
@@ -475,29 +490,43 @@ const recursivelyCreateByNode = (ctx: Context, $node: BlNode.t, isTop: boolean, 
         const context = IfGenerator.generateBlockMaker(ctx, varName, dataKey, BlNode.children($node))
         return IfGenerator.callCreate(ctx, context, mountPoint, varName, dataKey)
       }
-      case 'BL-FOR': {
-        // <bl-for each:item-name="list">{itemName.someText}</bl-for>
-        // <bl-for each:item-name="list" index="index">{index.value} - {itemName.someText}</bl-for>
-        const attr = BlNode.getAttrs($node).find(attr => attr.name.startsWith('each:'))
-        const newEnv = camelCase(attr?.name?.slice(5) ?? '')
-        const dataKey = attr?.value
 
-        if (!newEnv || !dataKey) {
-          return ElementGenerator.callCreate(ctx, $node, isTop, mountPoint)
+      case 'FOR': {
+        if (BlNode.hasAttr($node, 'each')) {
+          // <bl-for each:item-name="list">{itemName.someText}</bl-for>
+          // <bl-for each:item-name="list" index="index">{index.value} - {itemName.someText}</bl-for>
+          const expr = BlNode.getAttr($node, 'each') ?? ''
+          const [, g1, g2] = expr.match(/\s*([\S\s]+)+\s+as\s+([_$a-z][_$a-z0-9]*)$/i) ?? ['', '']
+          const newEnv = camelCase(g2)
+          const dataKey = g1
+          if (!newEnv || !dataKey) {
+            return ElementGenerator.callCreate(ctx, $node, isTop, mountPoint)
+          }
+          const varName = ctx.declareFor(isTop)
+          const context = ForGenerator.generateBlockMaker(ctx, varName, dataKey, newEnv, BlNode.children($node))
+          return ForGenerator.callCreate(ctx, context, mountPoint, varName, dataKey)
         }
-        const varName = ctx.declareFor(isTop)
-        const context = ForGenerator.generateBlockMaker(ctx, varName, dataKey, newEnv, BlNode.children($node))
-        return ForGenerator.callCreate(ctx, context, mountPoint, varName, dataKey)
       }
-      case 'BL-HTML': {
-        const dataKey = BlNode.getAttr($node, 'content')
-        if (!dataKey) {
-          return ElementGenerator.callCreate(ctx, $node, isTop, mountPoint)
+
+      case 'T': {
+        if (BlNode.hasAttr($node, 'text')) {
+          const dataKey = BlNode.getAttr($node, 'text') ?? ''
+          return TextGenerator.createFunc(ctx, dataKey, true, isTop, mountPoint)
         }
-        const varName = ctx.declareHtml(isTop)
-        const context = HtmlGenerator.generateBlockMaker(ctx, varName, dataKey)
-        return HtmlGenerator.callCreate(ctx, context, mountPoint, varName, dataKey)
       }
+
+      case 'RICH': {
+        if (BlNode.hasAttr($node, 'html')) {
+          const dataKey = BlNode.getAttr($node, 'html')
+          if (!dataKey) {
+            return ElementGenerator.callCreate(ctx, $node, isTop, mountPoint)
+          }
+          const varName = ctx.declareHtml(isTop)
+          const context = HtmlGenerator.generateBlockMaker(ctx, varName, dataKey)
+          return HtmlGenerator.callCreate(ctx, context, mountPoint, varName, dataKey)
+        }
+      }
+
       case 'TEMPLATE':
         return
       default:
@@ -505,7 +534,8 @@ const recursivelyCreateByNode = (ctx: Context, $node: BlNode.t, isTop: boolean, 
         ElementGenerator.callCreate(ctx, $node, isTop, mountPoint)
     }
   } else if (BlNode.isText($node)) {
-    TextGenerator.createFunc(ctx, $node, isTop, mountPoint)
+    const text = JSON.stringify($node.nodeValue ?? '')
+    TextGenerator.createFunc(ctx, text, false, isTop, mountPoint)
   }
 }
 
