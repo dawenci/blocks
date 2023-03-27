@@ -33,14 +33,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import '../scrollable/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
-import { scrollTo } from '../../common/scrollTo.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { find, forEach, range } from '../../common/utils.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
+import { scrollTo } from '../../common/scrollTo.js';
 import { style } from './style.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 const mutableAttrs = ['hour', 'minute', 'second', 'size'];
 export let BlocksTime = (() => {
     let _classDecorators = [defineClass({
@@ -59,16 +60,32 @@ export let BlocksTime = (() => {
     let _second_initializers = [];
     let _size_decorators;
     let _size_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    let _$hours_decorators;
+    let _$hours_initializers = [];
+    let _$minutes_decorators;
+    let _$minutes_initializers = [];
+    let _$seconds_decorators;
+    let _$seconds_initializers = [];
     var BlocksTime = class extends Component {
         static {
             _hour_decorators = [attr('intRange', { min: 0, max: 23 })];
             _minute_decorators = [attr('intRange', { min: 0, max: 59 })];
             _second_decorators = [attr('intRange', { min: 0, max: 59 })];
             _size_decorators = [attrs.size];
+            _$layout_decorators = [shadowRef('#layout')];
+            _$hours_decorators = [shadowRef('#hours')];
+            _$minutes_decorators = [shadowRef('#minutes')];
+            _$seconds_decorators = [shadowRef('#seconds')];
             __esDecorate(this, null, _hour_decorators, { kind: "accessor", name: "hour", static: false, private: false, access: { has: obj => "hour" in obj, get: obj => obj.hour, set: (obj, value) => { obj.hour = value; } } }, _hour_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _minute_decorators, { kind: "accessor", name: "minute", static: false, private: false, access: { has: obj => "minute" in obj, get: obj => obj.minute, set: (obj, value) => { obj.minute = value; } } }, _minute_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _second_decorators, { kind: "accessor", name: "second", static: false, private: false, access: { has: obj => "second" in obj, get: obj => obj.second, set: (obj, value) => { obj.second = value; } } }, _second_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$hours_decorators, { kind: "accessor", name: "$hours", static: false, private: false, access: { has: obj => "$hours" in obj, get: obj => obj.$hours, set: (obj, value) => { obj.$hours = value; } } }, _$hours_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$minutes_decorators, { kind: "accessor", name: "$minutes", static: false, private: false, access: { has: obj => "$minutes" in obj, get: obj => obj.$minutes, set: (obj, value) => { obj.$minutes = value; } } }, _$minutes_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$seconds_decorators, { kind: "accessor", name: "$seconds", static: false, private: false, access: { has: obj => "$seconds" in obj, get: obj => obj.$seconds, set: (obj, value) => { obj.$seconds = value; } } }, _$seconds_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksTime = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -85,22 +102,24 @@ export let BlocksTime = (() => {
         #size_accessor_storage = __runInitializers(this, _size_initializers, void 0);
         get size() { return this.#size_accessor_storage; }
         set size(value) { this.#size_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$hours_accessor_storage = __runInitializers(this, _$hours_initializers, void 0);
+        get $hours() { return this.#$hours_accessor_storage; }
+        set $hours(value) { this.#$hours_accessor_storage = value; }
+        #$minutes_accessor_storage = __runInitializers(this, _$minutes_initializers, void 0);
+        get $minutes() { return this.#$minutes_accessor_storage; }
+        set $minutes(value) { this.#$minutes_accessor_storage = value; }
+        #$seconds_accessor_storage = __runInitializers(this, _$seconds_initializers, void 0);
+        get $seconds() { return this.#$seconds_accessor_storage; }
+        set $seconds(value) { this.#$seconds_accessor_storage = value; }
         #scrollFlag;
         #batchChange;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template());
-            const $layout = shadowRoot.getElementById('layout');
-            const $hours = shadowRoot.getElementById('hours');
-            const $minutes = shadowRoot.getElementById('minutes');
-            const $seconds = shadowRoot.getElementById('seconds');
-            this._ref = {
-                $layout,
-                $hours,
-                $minutes,
-                $seconds,
-            };
             const handler = (prop) => {
                 return (e) => {
                     const target = e.target;
@@ -115,9 +134,54 @@ export let BlocksTime = (() => {
                     }
                 };
             };
-            $hours.onclick = handler('hour');
-            $minutes.onclick = handler('minute');
-            $seconds.onclick = handler('second');
+            const hourHandler = handler('hour');
+            const minuteHandler = handler('minute');
+            const secondHandler = handler('second');
+            this.onConnected(() => {
+                this.$hours.onclick = hourHandler;
+                this.$minutes.onclick = minuteHandler;
+                this.$seconds.onclick = secondHandler;
+            });
+            this.onDisconnected(() => {
+                this.$hours.onclick = this.$minutes.onclick = this.$seconds.onclick = null;
+            });
+            this.onConnected(() => {
+                this.render();
+            });
+            this.onAttributeChangedDeps(['hour', 'minute', 'second'], (attrName, oldValue, newValue) => {
+                if (newValue === null) {
+                    forEach(this.$layout.querySelectorAll('.active'), active => {
+                        active.classList.remove('active');
+                    });
+                    if (attrName !== 'hour' && this.hour !== null)
+                        this.hour = null;
+                    if (attrName !== 'minute' && this.minute !== null)
+                        this.minute = null;
+                    if (attrName !== 'second' && this.second !== null)
+                        this.second = null;
+                    this.render();
+                }
+                else {
+                    const $list = this[`$${attrName}s`];
+                    const $old = $list.querySelector('.active');
+                    if ($old) {
+                        $old.classList.remove('active');
+                    }
+                    const $new = find($list.children, $li => +$li.textContent === +newValue);
+                    if ($new) {
+                        $new.classList.add('active');
+                    }
+                    if (attrName !== 'hour' && !this.hour && this.hour !== 0)
+                        this.hour = 0;
+                    if (attrName !== 'minute' && !this.minute && this.minute !== 0)
+                        this.minute = 0;
+                    if (attrName !== 'second' && !this.second && this.second !== 0)
+                        this.second = 0;
+                    this.render();
+                }
+                this.scrollToActive();
+                this.triggerChange();
+            });
         }
         #disabledHour;
         get disabledHour() {
@@ -158,50 +222,12 @@ export let BlocksTime = (() => {
             this.minute = value[1];
             this.second = value[2];
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
         attributeChangedCallback(attrName, oldValue, newValue) {
             super.attributeChangedCallback(attrName, oldValue, newValue);
             this.upgradeProperty(['disabledHour', 'disabledMinute', 'disabledSecond']);
-            if (['hour', 'minute', 'second'].includes(attrName)) {
-                if (newValue === null) {
-                    forEach(this._ref.$layout.querySelectorAll('.active'), active => {
-                        active.classList.remove('active');
-                    });
-                    if (attrName !== 'hour' && this.hour !== null)
-                        this.hour = null;
-                    if (attrName !== 'minute' && this.minute !== null)
-                        this.minute = null;
-                    if (attrName !== 'second' && this.second !== null)
-                        this.second = null;
-                    this.render();
-                }
-                else {
-                    const $list = this._ref[`$${attrName}s`];
-                    const $old = $list.querySelector('.active');
-                    if ($old) {
-                        $old.classList.remove('active');
-                    }
-                    const $new = find($list.children, $li => +$li.textContent === +newValue);
-                    if ($new) {
-                        $new.classList.add('active');
-                    }
-                    if (attrName !== 'hour' && !this.hour && this.hour !== 0)
-                        this.hour = 0;
-                    if (attrName !== 'minute' && !this.minute && this.minute !== 0)
-                        this.minute = 0;
-                    if (attrName !== 'second' && !this.second && this.second !== 0)
-                        this.second = 0;
-                    this.render();
-                }
-                this.scrollToActive();
-                this.triggerChange();
-            }
         }
         #renderDisabled() {
-            const { $hours, $minutes, $seconds } = this._ref;
+            const { $hours, $minutes, $seconds } = this;
             const ctx = {
                 hour: this.hour,
                 minute: this.minute,
@@ -225,7 +251,8 @@ export let BlocksTime = (() => {
             }
         }
         render() {
-            const { $hours, $minutes, $seconds } = this._ref;
+            super.render();
+            const { $hours, $minutes, $seconds } = this;
             if (!$hours.children.length) {
                 range(0, 23).forEach(n => {
                     const $item = $hours.appendChild(document.createElement('div'));
@@ -260,7 +287,7 @@ export let BlocksTime = (() => {
             this.render();
         }
         _scrollToActive() {
-            const { $layout, $hours, $minutes, $seconds } = this._ref;
+            const { $layout, $hours, $minutes, $seconds } = this;
             if (this.hour == null && this.minute == null && this.second == null) {
                 forEach([$hours, $minutes, $seconds], $panel => {
                     scrollTo($panel, 0, { property: 'viewportScrollTop', duration: 0.16 });

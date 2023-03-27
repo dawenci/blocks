@@ -1,24 +1,30 @@
 import { makeElement } from '../../common/makeElement.js';
 import { makeDomTemplate } from '../../common/template.js';
 import { PopupOrigin } from '../popup/index.js';
-export const inputTemplate = (() => {
-    const $input = makeElement({
-        tagName: 'bl-input',
-        props: {
-            id: 'result',
-            suffixIcon: 'date',
-            readonly: true,
-        },
-    });
-    return () => $input.cloneNode(true);
-})();
+export const resultTemplate = makeDomTemplate(makeElement({
+    tagName: 'bl-select-result',
+    props: {
+        id: 'result',
+        suffixIcon: 'date',
+    },
+}));
+export const inputTemplate = makeDomTemplate(makeElement({
+    tagName: 'bl-input',
+    props: {
+        id: 'result',
+        suffixIcon: 'date',
+    },
+    attrs: {
+        readonly: '',
+    },
+}));
 export const popupTemplate = makeDomTemplate(makeElement({
     tagName: 'bl-popup',
     props: {
         appendToBody: true,
         className: 'date-picker-popup',
         origin: PopupOrigin.TopStart,
-        arrow: true,
+        arrow: 8,
         autoflip: true,
     },
     children: [

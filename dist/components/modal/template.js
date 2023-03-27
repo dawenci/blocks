@@ -1,29 +1,10 @@
-import '../dialog/index.js';
-import '../button/index.js';
-import '../input/index.js';
-import { makeElement } from '../../common/makeElement.js';
-import { makeDomTemplate } from '../../common/template.js';
-export const confirmButtonTemplate = makeDomTemplate(makeElement({
-    tagName: 'bl-button',
-    attrs: {
-        type: 'primary',
-        slot: 'footer',
-    },
-    props: {
-        className: 'confirm',
-    },
-    children: ['确定'],
-}));
-export const cancelButtonTemplate = makeDomTemplate(makeElement({
-    tagName: 'bl-button',
-    attrs: {
-        slot: 'footer',
-    },
-    props: {
-        className: 'cancel',
-    },
-    styles: {
-        marginRight: '8px',
-    },
-    children: ['取消'],
-}));
+import { makeTemplate } from '../../common/template.js';
+export const confirmButtonTemplate = makeTemplate(`
+<bl-button part="confirm-button" type="primary" slot="footer">确定</bl-button>
+`);
+export const cancelButtonTemplate = makeTemplate(`
+<bl-button part="cancel-button" slot="footer" style="margin-right:8px">取消</bl-button>
+`);
+export const contentTemplate = makeTemplate(`
+<div part="content" style="min-width:200px;padding:20px 0 10px;"></div>
+`);

@@ -89,11 +89,11 @@ class BindingBase {
     get resolved() {
         const { envName, dataKey } = this;
         if (isSimpleName(dataKey)) {
-            return `${envName}.${dataKey}`;
+            return `resolve(envs.${envName},${JSON.stringify(dataKey)})`;
         }
-        const ret = `resolve(${envName}, ${path(dataKey)
+        const ret = `resolve(envs.${envName},${path(dataKey)
             .map(key => JSON.stringify(key))
-            .join(', ')})`;
+            .join(',')})`;
         return ret;
     }
 }

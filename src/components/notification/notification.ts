@@ -1,12 +1,12 @@
 import type { NullableEnumAttr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { __color_success, __color_danger, __color_warning, __color_primary } from '../../theme/var-light.js'
 import { attr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
-import { Component } from '../Component.js'
-import { template } from './template.js'
 import { style } from './style.js'
-import { __color_success, __color_danger, __color_warning, __color_primary } from '../../theme/var-light.js'
+import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 export enum NotificationPlacement {
   TopRight = 'top-right',
@@ -65,11 +65,26 @@ export class BlocksNotification extends Component {
       $content,
     }
 
-    $layout.onmouseenter = () => {
+    this.#setupAutoClose()
+
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
+  }
+
+  #setupAutoClose() {
+    this.onConnected(() => {
+      this._setAutoClose()
+    })
+
+    this.onAttributeChangedDep('duration', () => {
+      if (this.duration) this._setAutoClose()
+    })
+
+    this.ref.$layout.onmouseenter = () => {
       this._clearAutoClose()
     }
 
-    $layout.onmouseleave = () => {
+    this.ref.$layout.onmouseleave = () => {
       this._setAutoClose()
     }
   }
@@ -90,6 +105,7 @@ export class BlocksNotification extends Component {
   }
 
   override render() {
+    super.render()
     const fill =
       this.type === 'success'
         ? __color_success
@@ -131,22 +147,7 @@ export class BlocksNotification extends Component {
     }
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-    this._setAutoClose()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
-
-    if (attrName === 'duration' && this.duration) {
-      this._setAutoClose()
-    }
-  }
-
-  #autoCloseTimer?: number
+  #autoCloseTimer?: ReturnType<typeof setTimeout>
   _clearAutoClose() {
     clearTimeout(this.#autoCloseTimer)
   }

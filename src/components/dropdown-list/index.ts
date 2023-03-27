@@ -1,29 +1,51 @@
-import { connectSelectable, ISelected, ISelectResultComponent } from '../../common/connectSelectable.js'
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import type { EnumAttr } from '../../decorators/attr.js'
+import { attr } from '../../decorators/attr.js'
+import {
+  connectSelectable,
+  ISelected,
+  ISelectListEventMap,
+  ISelectResultComponent,
+} from '../../common/connectSelectable.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
+import { listTemplate, popupTemplate, styleTemplate, template } from './template.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
-import { Component } from '../Component.js'
 import { BlocksList } from '../list/index.js'
 import { BlocksPopup, PopupOrigin } from '../popup/index.js'
-import { listTemplate, popupTemplate, styleTemplate } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
-import type { EnumAttr } from '../../decorators/attr.js'
+import { Control } from '../base-control/index.js'
 
 const ATTRS = BlocksPopup.observedAttributes.concat(BlocksList.observedAttributes)
 
-export interface BlocksDropdownList extends Component {
-  _ref: {
-    $slot: HTMLSlotElement
-    $popup: BlocksPopup
-    $list: BlocksList
-  }
-  _hideTimer: number
+interface BlocksDropdownListEventMap extends ComponentEventMap, ISelectListEventMap {
+  'click-item': CustomEvent<{ id: any }>
+}
+
+export interface BlocksDropdownList extends Control, ISelectResultComponent {
+  $popup: BlocksPopup
+  $list: BlocksList
+
+  addEventListener<K extends keyof BlocksDropdownListEventMap>(
+    type: K,
+    listener: ComponentEventListener<BlocksDropdownListEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+  removeEventListener<K extends keyof BlocksDropdownListEventMap>(
+    type: K,
+    listener: ComponentEventListener<BlocksDropdownListEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
 }
 
 @defineClass({
   customElement: 'bl-dropdown-list',
+  attachShadow: {
+    mode: 'open',
+    delegatesFocus: true,
+  },
 })
-export class BlocksDropdownList extends Component {
+export class BlocksDropdownList extends Control implements ISelectResultComponent {
   static override get observedAttributes() {
     return ATTRS
   }
@@ -39,84 +61,45 @@ export class BlocksDropdownList extends Component {
   @attr('boolean') accessor checkable!: boolean
   @attr('boolean') accessor multiple!: boolean
 
+  @shadowRef('slot') accessor $slot!: HTMLSlotElement
+
   constructor() {
     super()
 
-    const $slot = this.shadowRoot!.appendChild(document.createElement('slot'))
-    const $popup = popupTemplate()
-    const $list = listTemplate()
-    $popup.appendChildren([styleTemplate(), $list])
+    this.appendShadowChild(template())
 
-    this._ref = {
-      $slot,
-      $popup,
-      $list,
-    }
-
-    const defaultAnchorGetter = () => $slot.assignedElements()?.[0] ?? this
-    this.setAnchorGetter(defaultAnchorGetter)
-    $popup.autoflip = true
-    $popup.anchor = () => (this.getAnchorGetter() ?? defaultAnchorGetter)()
+    this.$popup = popupTemplate()
+    this.$list = listTemplate()
+    this.$popup.appendChildren([styleTemplate(), this.$list])
 
     // this 代理 slot 里的 $result
-    connectSelectable(this as any, $list)
-
-    this.addEventListener(
-      'focus',
-      () => {
-        this.openPopup()
+    connectSelectable(this, this.$list, {
+      afterHandleListChange: () => {
+        if (!this.multiple) {
+          this.open = false
+        }
       },
-      // focus 不冒泡，关注 slot 里面的 focus，需要用捕获模式
-      true
-    )
-
-    this.addEventListener('click', () => {
-      this.openPopup()
+      afterHandleResultClear: () => {
+        this.closePopup()
+        // 点击 clear 后，取消 slot 里面的焦点
+        // 否则，控件无法重新通过 focus 触发
+        if (document.activeElement) {
+          ;(document.activeElement as any).blur()
+        }
+      },
     })
 
-    const onEnter = () => {
-      if (this.triggerMode === 'hover') {
-        this.openPopup()
-      }
-    }
+    this.#setupPopup()
+    this.#setupList()
 
-    const onLeave = () => {
-      if (this.triggerMode === 'hover') {
-        clearTimeout(this._hideTimer)
-        this._hideTimer = setTimeout(() => {
-          this.closePopup()
-        }, 200)
-      }
-    }
-
-    this.addEventListener('mouseenter', onEnter)
-    $popup.addEventListener('mouseenter', onEnter)
-    this.addEventListener('mouseleave', onLeave)
-    $popup.addEventListener('mouseleave', onLeave)
-
-    $popup.addEventListener('opened', () => {
-      this.#initClickOutside()
-      this.redrawList()
-    })
-
-    $popup.addEventListener('closed', () => {
-      this.#destroyClickOutside()
-    })
-
-    $list.addEventListener('click-item', (event: any) => {
-      dispatchEvent(this, 'click-item', { detail: { id: event.detail.id } })
-    })
+    this.onConnected(this.render)
   }
 
   _findResultComponent() {
     const canAcceptValue = ($el: Element): $el is ISelectResultComponent => {
-      return (
-        typeof ($el as ISelectResultComponent).acceptSelected === 'function' ||
-        (typeof ($el as ISelectResultComponent).select === 'function' &&
-          typeof ($el as ISelectResultComponent).deselect === 'function')
-      )
+      return typeof ($el as ISelectResultComponent).acceptSelected === 'function'
     }
-    return this._ref.$slot.assignedElements().find(canAcceptValue)
+    return this.$slot.assignedElements().find(canAcceptValue)
   }
 
   // 代理 slot 里的选择结果组件，实现 ISelectResultComponent
@@ -127,44 +110,28 @@ export class BlocksDropdownList extends Component {
     }
   }
 
-  // 代理 slot 里的选择结果组件，实现 ISelectResultComponent
-  select(data: ISelected) {
-    const $result = this._findResultComponent()
-    if ($result && $result.select) {
-      $result.select(data)
-    }
-  }
-
-  // 代理 slot 里的选择结果组件，实现 ISelectResultComponent
-  deselect(data: ISelected) {
-    const $result = this._findResultComponent()
-    if ($result && $result.deselect) {
-      $result.deselect(data)
-    }
-  }
-
   get data() {
-    return this._ref.$list.data
+    return this.$list.data
   }
 
   set data(value) {
-    this._ref.$list.data = value
+    this.$list.data = value
   }
 
   get checked() {
-    return this._ref.$list.checked
+    return this.$list.checked
   }
 
   set checked(ids) {
-    this._ref.$list.checked = ids
+    this.$list.checked = ids
   }
 
   get checkedData() {
-    return this._ref.$list.checkedData
+    return this.$list.checkedData
   }
 
   set checkedData(value) {
-    this._ref.$list.checkedData = value
+    this.$list.checkedData = value
   }
 
   #anchorGetter?: () => Element
@@ -176,66 +143,121 @@ export class BlocksDropdownList extends Component {
   }
 
   openPopup() {
-    clearTimeout(this._hideTimer)
     this.open = true
   }
 
   closePopup() {
-    clearTimeout(this._hideTimer)
     this.open = false
+    this.blur()
   }
 
   redrawList() {
-    this._ref.$list.redraw()
+    this.$list.redraw()
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    if (!document.body.contains(this._ref.$popup)) {
-      this._ref.$popup.appendTo(document.body)
-    }
+  // TODO: resize popup/list
+  #setupPopup() {
+    this.onConnected(() => {
+      if (!this.hasAttribute('origin')) {
+        this.origin = PopupOrigin.TopStart
+      }
+      const defaultAnchorGetter = () => this.$slot.assignedElements()?.[0] ?? this
+      this.setAnchorGetter(defaultAnchorGetter)
+      this.$popup.arrow = 8
+      this.$popup.autoflip = true
+      this.$popup.anchorElement = () => (this.getAnchorGetter() ?? defaultAnchorGetter)()
+      this.$popup.style.width = '200px'
+      this.$popup.style.height = '240px'
+    })
 
-    if (!this.hasAttribute('origin')) {
-      this.origin = PopupOrigin.TopStart
-    }
-    this.render()
-  }
+    this.onDisconnected(() => {
+      document.body.removeChild(this.$popup)
+    })
 
-  override disconnectedCallback() {
-    document.body.removeChild(this._ref.$popup)
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-
-    if (BlocksPopup.observedAttributes.includes(attrName)) {
-      if (attrName === 'open') {
-        this._ref.$popup.open = this.open
+    this.onAttributeChangedDeps(BlocksPopup.observedAttributes, (name, _, newValue) => {
+      if (name === 'open') {
+        // 首次打开的时候，挂载 $popup 的 DOM
+        if (this.open && !document.body.contains(this.$popup)) {
+          document.body.appendChild(this.$popup)
+        }
+        this.$popup.open = this.open
       } else {
-        this._ref.$popup.setAttribute(attrName, newValue)
+        this.$popup.setAttribute(name, newValue as string)
+      }
+    })
+
+    let clear: (() => void) | undefined
+    const initClickOutside = () => {
+      if (!clear) {
+        clear = onClickOutside([this, this.$popup], () => {
+          this.open = false
+        })
       }
     }
-    if (BlocksList.observedAttributes.includes(attrName)) {
-      this._ref.$list.setAttribute(attrName, newValue)
+    const destroyClickOutside = () => {
+      if (clear) {
+        clear()
+        clear = undefined
+      }
     }
-    if (attrName === 'open' && this.open) {
-      this.redrawList()
+    const onOpened = () => initClickOutside()
+    const onClosed = () => destroyClickOutside()
+    this.onConnected(() => {
+      this.$popup.addEventListener('opened', onOpened)
+      this.$popup.addEventListener('closed', onClosed)
+    })
+    this.onDisconnected(() => {
+      this.$popup.removeEventListener('opened', onOpened)
+      this.$popup.removeEventListener('closed', onClosed)
+    })
+
+    // 标记该次 focus 是点击了 clear 按钮触发的
+    // 点击 clear 按钮，无需弹出弹窗
+    let isClickClear = false
+    const onClearStart = () => {
+      isClickClear = true
     }
+    const onClearEnd = () => {
+      isClickClear = false
+    }
+    const onSlotFocus = () => {
+      if (!isClickClear) this.openPopup()
+      isClickClear = false
+    }
+    this.onConnected(() => {
+      this.addEventListener('mousedown-clear', onClearStart)
+      // focus 不冒泡，关注 slot 里面的 focus，需要用捕获模式，
+      // 同时注册 click，以防止 slot 里内容无法聚焦
+      this.addEventListener('focus', onSlotFocus, true)
+      this.addEventListener('click', onSlotFocus, true)
+      this.addEventListener('click-clear', onClearEnd)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('mousedown-clear', onClearStart)
+      this.removeEventListener('focus', onSlotFocus, true)
+      this.removeEventListener('click', onSlotFocus, true)
+      this.removeEventListener('click-clear', onClearEnd)
+    })
   }
 
-  #clearClickOutside?: () => void
-  #initClickOutside() {
-    if (!this.#clearClickOutside) {
-      this.#clearClickOutside = onClickOutside([this, this._ref.$popup], () => {
-        this.open = false
-      })
-    }
-  }
+  #setupList() {
+    this.onAttributeChanged((attrName, _, newValue) => {
+      if (BlocksList.observedAttributes.includes(attrName)) {
+        this.$list.setAttribute(attrName, newValue as string)
+      }
+    })
 
-  #destroyClickOutside() {
-    if (this.#clearClickOutside) {
-      this.#clearClickOutside()
-      this.#clearClickOutside = undefined
+    const onOpened = () => this.redrawList()
+    const onClickItem = (event: any) => {
+      dispatchEvent(this, 'click-item', { detail: { id: event.detail.id } })
     }
+    this.onConnected(() => {
+      this.$list.addEventListener('click-item', onClickItem)
+      this.$popup.addEventListener('opened', onOpened)
+    })
+    this.onDisconnected(() => {
+      this.$list.removeEventListener('click-item', onClickItem)
+      this.$popup.removeEventListener('opened', onOpened)
+    })
   }
 }

@@ -1,3 +1,1 @@
-export declare const styleTemplate: () => HTMLStyleElement;
-export declare const checkboxTemplate: () => HTMLElement;
-export declare const labelTemplate: () => HTMLLabelElement;
+export declare const template: () => HTMLElement;

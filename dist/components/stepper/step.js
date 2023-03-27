@@ -32,13 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { parseIcon } from '../../icon/index.js';
-import { Component } from '../Component.js';
-import { template } from './step.template.js';
 import { style } from './step.style.js';
-import { domRef } from '../../decorators/domRef.js';
+import { template } from './step.template.js';
+import { Component } from '../component/Component.js';
 const statusEnum = ['wait', 'process', 'success', 'error'];
 export let BlocksStep = (() => {
     let _classDecorators = [defineClass({
@@ -49,6 +49,8 @@ export let BlocksStep = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
+    let _direction_decorators;
+    let _direction_initializers = [];
     let _stepTitle_decorators;
     let _stepTitle_initializers = [];
     let _description_decorators;
@@ -67,14 +69,16 @@ export let BlocksStep = (() => {
     let _$description_initializers = [];
     var BlocksStep = class extends Component {
         static {
+            _direction_decorators = [attr('enum', { enumValues: ['horizontal', 'vertical'] })];
             _stepTitle_decorators = [attr('string')];
             _description_decorators = [attr('string')];
             _icon_decorators = [attr('string')];
             _status_decorators = [attr('enum', { enumValues: statusEnum })];
-            _$layout_decorators = [domRef('#layout')];
-            _$icon_decorators = [domRef('#icon')];
-            _$title_decorators = [domRef('#title')];
-            _$description_decorators = [domRef('#description')];
+            _$layout_decorators = [shadowRef('#layout')];
+            _$icon_decorators = [shadowRef('#icon')];
+            _$title_decorators = [shadowRef('#title')];
+            _$description_decorators = [shadowRef('#description')];
+            __esDecorate(this, null, _direction_decorators, { kind: "accessor", name: "direction", static: false, private: false, access: { has: obj => "direction" in obj, get: obj => obj.direction, set: (obj, value) => { obj.direction = value; } } }, _direction_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _stepTitle_decorators, { kind: "accessor", name: "stepTitle", static: false, private: false, access: { has: obj => "stepTitle" in obj, get: obj => obj.stepTitle, set: (obj, value) => { obj.stepTitle = value; } } }, _stepTitle_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _description_decorators, { kind: "accessor", name: "description", static: false, private: false, access: { has: obj => "description" in obj, get: obj => obj.description, set: (obj, value) => { obj.description = value; } } }, _description_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _icon_decorators, { kind: "accessor", name: "icon", static: false, private: false, access: { has: obj => "icon" in obj, get: obj => obj.icon, set: (obj, value) => { obj.icon = value; } } }, _icon_initializers, _instanceExtraInitializers);
@@ -87,7 +91,10 @@ export let BlocksStep = (() => {
             BlocksStep = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #stepTitle_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _stepTitle_initializers, void 0));
+        #direction_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _direction_initializers, void 0));
+        get direction() { return this.#direction_accessor_storage; }
+        set direction(value) { this.#direction_accessor_storage = value; }
+        #stepTitle_accessor_storage = __runInitializers(this, _stepTitle_initializers, void 0);
         get stepTitle() { return this.#stepTitle_accessor_storage; }
         set stepTitle(value) { this.#stepTitle_accessor_storage = value; }
         #description_accessor_storage = __runInitializers(this, _description_initializers, void 0);
@@ -129,35 +136,25 @@ export let BlocksStep = (() => {
                     }
                 });
             });
+            this.onConnected(() => {
+                if (this.parentElement.tagName !== 'BL-STEPPER') {
+                    this.parentElement.removeChild(this);
+                    throw new Error('The parent element of `bl-step` should be `bl-stepper`.');
+                }
+            });
+            this.onConnected(this.render);
+            this.onAttributeChangedDep('icon', this._renderIcon);
+            this.onAttributeChangedDep('step-title', this._renderTitle);
+            this.onAttributeChangedDep('description', this._renderDescription);
         }
         get $stepper() {
             return this.closest('bl-stepper');
         }
         render() {
+            super.render();
             this._renderIcon();
             this._renderTitle();
             this._renderDescription();
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            switch (attrName) {
-                case 'icon': {
-                    this._renderIcon();
-                    break;
-                }
-                case 'step-title': {
-                    this._renderTitle();
-                    break;
-                }
-                case 'description': {
-                    this._renderDescription();
-                    break;
-                }
-            }
         }
         _renderContent($slotParent, $default) {
             let empty = true;

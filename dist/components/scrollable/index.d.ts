@@ -1,4 +1,4 @@
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
+import { Component, ComponentEventListener, ComponentEventMap } from '../component/Component.js';
 export interface ScrollableEventMap extends ComponentEventMap {
     'bl:scroll': CustomEvent;
     'bl:resize': CustomEvent<{
@@ -33,7 +33,6 @@ export interface BlocksScrollable extends Component {
 }
 export declare class BlocksScrollable extends Component {
     #private;
-    static get observedAttributes(): string[];
     accessor shadow: boolean;
     constructor();
     get canScrollLeft(): boolean | undefined;
@@ -62,5 +61,4 @@ export declare class BlocksScrollable extends Component {
     _updateShadowState(): void;
     _udpateScrollbarState(): void;
     _initMoveEvents(): void;
-    connectedCallback(): void;
 }

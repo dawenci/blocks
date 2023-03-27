@@ -21,10 +21,7 @@ export function defineClass<T extends CustomElementConstructor>(
 /**
  * 类装饰器
  */
-export function defineClass<T extends CustomElementConstructor>(
-  target: T,
-  ctx: ClassDecoratorContext<T>
-): void
+export function defineClass<T extends CustomElementConstructor>(target: T, ctx: ClassDecoratorContext<T>): void
 
 export function defineClass<T extends CustomElementConstructor>(
   targetOrOptions: T | any[],
@@ -37,34 +34,38 @@ export function defineClass<T extends CustomElementConstructor>(
           // 混入多个基类的原型
           targetOrOptions.mixins.forEach(baseCtor => {
             Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+              // 不拷贝 mixin 中的构造器
               if (name === 'constructor' && target.prototype.constructor) {
                 return
               }
-              Object.defineProperty(
-                target.prototype,
-                name,
-                Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
-                  Object.create(null)
-              )
+
+              const desc = Object.getOwnPropertyDescriptor(baseCtor.prototype, name) || Object.create(null)
+
+              // 特殊处理 `setupMixin`，多个 mixin 中的 setupMixin，不能覆盖，而要顺序调用（在构造器中自动调用）
+              if (name === 'setupMixin' && target.prototype.setupMixin) {
+                const fn1 = target.prototype.setupMixin
+                const fn2 = desc.value
+                const newFn = function (this: any) {
+                  fn1.call(this)
+                  fn2.call(this)
+                }
+                desc.value = newFn
+              }
+
+              Object.defineProperty(target.prototype, name, desc)
             })
           })
 
           // 基类的静态 getter observedAttributes 合并
           appendObservedAttributes(
             target,
-            targetOrOptions.mixins.reduce(
-              (acc, ctor) => acc.concat(ctor.observedAttributes ?? []),
-              []
-            )
+            targetOrOptions.mixins.reduce((acc, ctor) => acc.concat(ctor.observedAttributes ?? []), [])
           )
 
           // 基类的静态 getter upgradeProperties 合并
           appendUpgradeProperties(
             target,
-            targetOrOptions.mixins.reduce(
-              (acc, ctor) => acc.concat(ctor.upgradeProperties ?? []),
-              []
-            )
+            targetOrOptions.mixins.reduce((acc, ctor) => acc.concat(ctor.upgradeProperties ?? []), [])
           )
 
           // 基类的静态 _$componentStyle 合并
@@ -126,9 +127,7 @@ export function handleMembers<T extends CustomElementConstructor>(target: T) {
   // 过滤出 `observed` 属性不为 `false` 的记录，添加到 `observedAttributes` 中
   appendObservedAttributes(
     target,
-    data
-      .filter(record => record.type === 'attr' && record.observed !== false)
-      .map(record => record.attrName!)
+    data.filter(record => record.type === 'attr' && record.observed !== false).map(record => record.attrName!)
   )
 
   // 2. property 处理
@@ -144,21 +143,14 @@ export function handleMembers<T extends CustomElementConstructor>(target: T) {
 }
 
 // 检测继承链上各个 class 是否有观察属性
-function hasObservedAttributes<T>(
-  target: T
-): target is T & { get observedAttributes(): string[] } {
+function hasObservedAttributes<T>(target: T): target is T & { get observedAttributes(): string[] } {
   return !!(target as any).observedAttributes
 }
-export function appendObservedAttributes<T extends CustomElementConstructor>(
-  target: T,
-  observedAttrs: string[]
-) {
+export function appendObservedAttributes<T extends CustomElementConstructor>(target: T, observedAttrs: string[]) {
   if (observedAttrs.length) {
     let newGetter: any
     if (hasObservedAttributes(target)) {
-      const mergedAttrs = [
-        ...new Set((target.observedAttributes ?? []).concat(observedAttrs)),
-      ]
+      const mergedAttrs = [...new Set((target.observedAttributes ?? []).concat(observedAttrs))]
       newGetter = () => mergedAttrs
     } else {
       newGetter = () => observedAttrs
@@ -172,21 +164,14 @@ export function appendObservedAttributes<T extends CustomElementConstructor>(
 }
 
 // 检测继承链上各个 class 是否有需要升级的属性
-function hasUpgradeProperties<T>(
-  target: T
-): target is T & { get upgradeProperties(): string[] } {
+function hasUpgradeProperties<T>(target: T): target is T & { get upgradeProperties(): string[] } {
   return (target as any).upgradeProperties
 }
-export function appendUpgradeProperties<T extends CustomElementConstructor>(
-  target: T,
-  upgradeProps: string[]
-) {
+export function appendUpgradeProperties<T extends CustomElementConstructor>(target: T, upgradeProps: string[]) {
   if (upgradeProps.length) {
     let newGetter: any
     if (hasUpgradeProperties(target)) {
-      const mergedProps = [
-        ...new Set((target.upgradeProperties ?? []).concat(upgradeProps)),
-      ]
+      const mergedProps = [...new Set((target.upgradeProperties ?? []).concat(upgradeProps))]
       newGetter = () => mergedProps
     } else {
       newGetter = () => upgradeProps
@@ -200,9 +185,7 @@ export function appendUpgradeProperties<T extends CustomElementConstructor>(
 }
 
 // 继承链上是否有 _$componentStyle
-function hasStyles<T>(
-  target: T
-): target is T & { get _$componentStyle(): DocumentFragment } {
+function hasStyles<T>(target: T): target is T & { get _$componentStyle(): DocumentFragment } {
   return !!(target as any)._$componentStyle
 }
 export function appendComponentStyles<T extends CustomElementConstructor>(
@@ -214,7 +197,7 @@ export function appendComponentStyles<T extends CustomElementConstructor>(
       ? target._$componentStyle.cloneNode(true)
       : document.createDocumentFragment()
 
-    $styleFragment.appendChild($fragment)
+    $styleFragment.appendChild($fragment.cloneNode(true))
 
     Object.defineProperty(target, '_$componentStyle', {
       get: () => $styleFragment,

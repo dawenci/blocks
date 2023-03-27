@@ -1,43 +1,25 @@
-import '../loading/index.js'
-import {
-  DateModel,
-  Depth,
-  Depths,
-  normalizeMinDepth,
-  normalizeViewDepth,
-  getClosestDate,
-  generateMonths,
-  generateDates,
-  generateYears,
-  generateDecades,
-  makeDate,
-  normalizeNumber,
-  yearToDecade,
-  yearToCentury,
-  decadeToCentury,
-  isYearInDecade,
-  firstYearOfDecade,
-  isYearInCentury,
-  firstYearOfCentury,
-  lastYearOfCentury,
-  lastYearOfDecade,
-  generateWeekHeaders,
-  isToday,
-  isAllEqual,
-} from './helpers.js'
-import { boolSetter, enumGetter, enumSetter } from '../../common/property.js'
-import { dispatchEvent } from '../../common/event.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
-import { template } from './template.js'
-import { style } from './style.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
+import type { ComponentEventListener } from '../component/Component.js'
+import type { DecadeModel, MaybeLeafModel, YearModel, MonthModel, DayModel, ItemModel, MaybeLeafDepth } from './type.js'
 import type { EnumAttr } from '../../decorators/attr.js'
+import type { ISelectListEventMap, ISelected } from '../../common/connectSelectable.js'
+import '../loading/index.js'
+import { attr } from '../../decorators/attr.js'
+import { boolSetter, enumGetter, enumSetter } from '../../common/property.js'
+import { compile } from '../../common/dateFormat.js'
+import { computed } from '../../common/reactive.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
+import { fromAttr } from '../component/reactive.js'
+import { style } from './style.js'
+import { template } from './template.js'
+import { Control } from '../base-control/index.js'
+import { Depth } from './type.js'
+import * as Helpers from './helpers.js'
 
-interface DateEventMap extends ComponentEventMap {
-  select: CustomEvent<{ value: Date[] | [Date, Date] | null }>
-  change: CustomEvent<{ value: Date[] | [Date, Date] | null }>
-  'panel-change': CustomEvent<{ viewDepth: Depth }>
+interface DateEventMap extends ISelectListEventMap {
+  change: CustomEvent<{ selected: Date[] }>
+  'panel-change': CustomEvent<{ activeDepth: Depth }>
   'prev-month': CustomEvent<{
     century: number
     decade: number
@@ -56,26 +38,15 @@ interface DateEventMap extends ComponentEventMap {
   'next-decade': CustomEvent<{ century: number; decade: number }>
   'prev-century': CustomEvent<{ century: number }>
   'next-century': CustomEvent<{ century: number }>
+  'active-depth-change': CustomEvent<{ value: Depth }>
+  'badges-change': CustomEvent<{ value: Badge[] }>
 }
 
 type Badge = { year: number; month?: number; date?: number; label?: string }
 
 type WeekNumber = 1 | 2 | 3 | 4 | 5 | 6 | 0
 
-export interface BlocksDate extends Component {
-  _ref: {
-    $panel: HTMLElement
-    $title: HTMLButtonElement
-    $prevPrev: HTMLButtonElement
-    $prev: HTMLButtonElement
-    $nextNext: HTMLButtonElement
-    $next: HTMLButtonElement
-    $weekHeader: HTMLElement
-    $content: HTMLElement
-    $list: HTMLElement
-    $loading: HTMLElement
-  }
-
+export interface BlocksDate extends Control {
   addEventListener<K extends keyof DateEventMap>(
     type: K,
     listener: ComponentEventListener<DateEventMap[K]>,
@@ -101,121 +72,283 @@ export interface BlocksDate extends Component {
     delegatesFocus: true,
   },
 })
-export class BlocksDate extends Component {
-  // 按钮元素池
-  #$pool: HTMLButtonElement[]
+export class BlocksDate extends Control {
+  static override get observedAttributes() {
+    return ['value']
+  }
 
-  // 选中值
-  #value: Date[]
+  static get Depth() {
+    return Depth
+  }
 
-  @attr('boolean') accessor disabled!: boolean
-
+  /** 是否使用 loading 遮罩 */
   @attr('boolean') accessor loading!: boolean
 
+  /** 多选模式的话，最多能选择多少个值 */
   @attr('int') accessor max!: number | null
 
+  /** 选择模式，支持 single, multiple, range */
   @attr('enum', { enumValues: ['single', 'multiple', 'range'] })
   accessor mode: EnumAttr<['single', 'multiple', 'range']> = 'single'
 
   /**
+   * 选择值的深度
    * 用于确定哪一层级深度的面板是最终层级，用于 emit 值，具体：
-   * 值为 Depth.Month 时，该组件用于选择日
-   * 值为 Depth.Year 时，该组件用于选择月份
-   * 值为 Depth.Decade 时，该组件用于选择年份
+   * 值为 Depth.Month 时，代表最深按照月展示选项，用于选择“日”
+   * 值为 Depth.Year 时，代表最深按照年份展示选项，用于选择“月”
+   * 值为 Depth.Decade 时，代表最深按照十年展示选项，用于选择“年”
    */
-  @attr('enum', { enumValues: [Depth.Month, Depth.Year, Depth.Decade] })
-  accessor depth: EnumAttr<[Depth.Month, Depth.Year, Depth.Decade]> = Depth.Month
+  @attr('enum', { enumValues: Helpers.LeafDepths })
+  accessor depth: MaybeLeafDepth = Depth.Month
+
+  /**
+   * 可切换至的最小深度
+   * 往上最小层级深度，如：
+   * 当前处于月面板，最小层级为年，则点击标题栏最多可以往上切换到年份面板，而无法继续往上切换到十年、世纪面板视图
+   */
+  @attr('string', {
+    get(element: BlocksDate) {
+      const value = enumGetter('mindepth', Helpers.Depths)(element) ?? Depth.Century
+      return Helpers.normalizeMinDepth(value, element.depth)
+    },
+    set(element: BlocksDate, value: Depth) {
+      if (Helpers.Depths.includes(value)) {
+        enumSetter('mindepth', Helpers.Depths)(element, Helpers.normalizeMinDepth(value, element.depth))
+      }
+    },
+  })
+  accessor minDepth!: Depth
+
+  /**
+   * 组件初始化的时候，展示哪个层级深度的面板
+   */
+  @attr('string', {
+    get(element: BlocksDate) {
+      const value = enumGetter('startdepth', Helpers.Depths)(element) ?? element.depth
+      return Helpers.normalizeActiveDepth(value, element.minDepth, element.depth)
+    },
+    set(element: BlocksDate, value: Depth) {
+      if (Helpers.Depths.includes(value)) {
+        enumSetter('startdepth', Helpers.Depths)(
+          element,
+          Helpers.normalizeActiveDepth(value, element.minDepth, element.depth)
+        )
+      }
+    },
+  })
+  accessor startDepth!: Depth
+
+  // 每周从星期几开始，0 代表星期天，1 代表星期一，顺序类推
+  @attr('string', {
+    get(element: BlocksDate) {
+      const value = enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(element) ?? '1'
+      return Number(value) as WeekNumber
+    },
+    set(element: BlocksDate, value: Depth) {
+      enumSetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(element, String(value))
+    },
+  })
+  accessor startWeekOn!: WeekNumber
+
+  @attr('string', { defaults: 'YYYY-MM-DD' }) accessor format!: string
+  #formatter = computed(format => compile(format), [fromAttr(this, 'format')])
+
+  @shadowRef('[part="layout"]') accessor $layout!: HTMLElement
+  @shadowRef('.header-title') accessor $title!: HTMLButtonElement
+  @shadowRef('.button-prevPrev') accessor $prevPrev!: HTMLButtonElement
+  @shadowRef('.button-prev') accessor $prev!: HTMLButtonElement
+  @shadowRef('.button-nextNext') accessor $nextNext!: HTMLButtonElement
+  @shadowRef('.button-next') accessor $next!: HTMLButtonElement
+  @shadowRef('.week-header') accessor $weekHeader!: HTMLElement
+  @shadowRef('#body') accessor $content!: HTMLElement
+  @shadowRef('.button-list') accessor $list!: HTMLElement
+  @shadowRef('.body-loading') accessor $loading!: HTMLElement
 
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
-
-    const $panel = shadowRoot.querySelector('#layout') as HTMLElement
-    const $title = $panel.querySelector('.header-title') as HTMLButtonElement
-    const $prevPrev = $panel.querySelector('.button-prevPrev') as HTMLButtonElement
-    const $prev = $panel.querySelector('.button-prev') as HTMLButtonElement
-    const $nextNext = $panel.querySelector('.button-nextNext') as HTMLButtonElement
-    const $next = $panel.querySelector('.button-next') as HTMLButtonElement
-    const $weekHeader = $panel.querySelector('.week-header') as HTMLElement
-    const $content = $panel.querySelector('#body') as HTMLElement
-    const $list = $panel.querySelector('.button-list') as HTMLElement
-    const $loading = $panel.querySelector('.body-loading') as HTMLElement
-
-    this._ref = {
-      $panel,
-      $title,
-      $prevPrev,
-      $prev,
-      $nextNext,
-      $next,
-      $weekHeader,
-      $content,
-      $list,
-      $loading,
-    }
-
-    this.#$pool = []
-    this.#value = []
+    this.appendShadowChild(template())
+    this._tabIndexFeature.withTabIndex(null)
 
     // 面板视图深度层级
-    this.viewDepth = this.startdepth
+    this.activeDepth = this.startDepth
 
-    // 设置面板起始视图状态
-    this.switchViewByDate(getClosestDate(this.#value) ?? new Date())
+    this.#setupInitViewData()
+    this.#setupNavButtons()
+    this.#setupTitle()
+    this.#setupDateButtons()
+    this.#setupWeekHeader()
+    this.#setupLoading()
+    this.#setupFocus()
 
-    $panel.onclick = e => {
-      const target = e.target as HTMLElement
-      if ($prevPrev.contains(target)) {
-        this.#onPrevPrev()
-      } else if ($prev.contains(target)) {
-        this.#onPrev()
-      } else if ($next.contains(target)) {
-        this.#onNext()
-      } else if ($nextNext.contains(target)) {
-        this.#onNextNext()
-      } else if ($title.contains(target)) {
-        this.rollUp()
-      } else if (target.classList.contains('button-item')) {
-        this.#onClickItem(this.#getModel(target))
-      } else if ((target.parentElement as HTMLElement)?.classList.contains('button-item')) {
-        this.#onClickItem(this.#getModel(target.parentElement!))
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
+  }
+
+  // 按钮元素池
+  #$pool: HTMLButtonElement[] = []
+
+  // 选中值
+  #selected: Date[] = []
+
+  get selected() {
+    return this.#selected
+  }
+
+  set selected(values: Date[]) {
+    let newValues: Date[]
+    let currentValues: Date[]
+
+    switch (this.mode) {
+      case 'single': {
+        newValues = values[0] instanceof Date ? values.slice(0, 1) : []
+        currentValues = this.#selected.slice(0, 1)
+        break
       }
-      this.focus()
+
+      case 'multiple': {
+        newValues = (values.every(value => value instanceof Date) ? values : []).slice(0, this.max ?? Infinity)
+        currentValues = this.#selected
+        break
+      }
+
+      case 'range': {
+        newValues = (
+          values.length === 2 &&
+          values.every(date => {
+            return date instanceof Date && Helpers.maybeLeafModel(this.#dateToModel(date))
+          })
+            ? values
+            : []
+        ).sort((a, b) => a.getTime() - b.getTime())
+        currentValues = this.#selected
+        break
+      }
     }
 
-    // range 选择模式，鼠标移入，渲染选中效果
-    $panel.onmouseover = e => {
-      if (!this.#isLeafDepth()) return
-      if (!this.isRangeMode()) return
-      if (!this.rangeFrom) return
-      if (this.rangeTo) return
-      const target = e.target as HTMLElement
-      const $button = target.classList.contains('button-item')
-        ? target
-        : (target.parentElement as HTMLElement).classList.contains('button-item')
-        ? (target.parentElement as HTMLElement)
-        : null
-      if (!$button) return
-      this.maybeRangeTo = this.#getModel($button)
-      this.render()
+    // 没变化
+    if (
+      currentValues.length === newValues.length &&
+      currentValues.every((date, i) => this.dateEquals(date, newValues[i]))
+    ) {
+      return
+    }
+
+    this.#selected = newValues
+
+    if (this.mode === 'range') {
+      if (!newValues.length) {
+        this.rangeFrom = this.rangeTo = this.maybeRangeTo = null
+      } else {
+        this.rangeFrom = this.#dateToModel(newValues[0]) as MaybeLeafModel
+        this.rangeTo = this.#dateToModel(newValues[1]) as MaybeLeafModel
+        this.maybeRangeTo = null
+      }
+    }
+
+    this.render()
+    this.#notifyChange()
+  }
+
+  get selectedCount() {
+    return this.#selected.length
+  }
+
+  /**
+   * 当前渲染的面板深度
+   */
+  #activeDepth?: any
+  get activeDepth() {
+    return Helpers.normalizeActiveDepth(this.#activeDepth, this.minDepth, this.depth)
+  }
+
+  set activeDepth(value) {
+    if (this.#activeDepth === value) return
+    this.#activeDepth = Helpers.normalizeActiveDepth(value, this.minDepth, this.depth)
+    dispatchEvent(this, 'active-depth-change', { detail: { value } })
+  }
+
+  // 世纪视图时，展示哪个世纪的选项
+  // 没有设置时，默认取年份的，年份也没有设置时，取当前年的
+  #activeCentury?: number
+  get activeCentury() {
+    if (this.#activeCentury != null) return this.#activeCentury
+  }
+  set activeCentury(value) {
+    const century = Helpers.normalizeNumber(value)
+    if (century == null) return
+    if (this.#activeCentury !== century) {
+      this.#activeCentury = century
+      dispatchEvent(this, 'active-century-change', { detail: { century } })
+    }
+  }
+
+  // 十年视图时，展示哪个十年的选项
+  // 没有设置时，默认取年份的，年份也没有设置时，取当前年的
+  #activeDecade?: number
+  get activeDecade() {
+    if (this.#activeDecade != null) return this.#activeDecade
+  }
+  set activeDecade(value) {
+    const decade = Helpers.normalizeNumber(value)
+    if (decade == null) return
+    if (this.#activeDecade !== decade) {
+      this.#activeDecade = decade
+      dispatchEvent(this, 'active-decade-change', { detail: { decade } })
+    }
+  }
+
+  // 年度视图，显示哪个年度的数据
+  #activeYear?: number
+  get activeYear() {
+    return this.#activeYear
+  }
+  set activeYear(value) {
+    const year = Helpers.normalizeNumber(value)
+    if (year == null) return
+    if (this.#activeYear !== year) {
+      this.#activeYear = year
+      dispatchEvent(this, 'active-year-change', { detail: { year } })
+    }
+  }
+
+  // 月度视图，显示哪个月的数据
+  #activeMonth?: number
+  get activeMonth() {
+    return this.#activeMonth
+  }
+  set activeMonth(value) {
+    const month = Helpers.normalizeNumber(value)
+    if (month == null) return
+    if (this.#activeMonth !== month) {
+      this.#activeMonth = month
+      dispatchEvent(this, 'active-month-change', { detail: { month } })
     }
   }
 
   /** range 模式，设置 range 起点 */
-  #rangeFrom?: DateModel | null
+  #rangeFrom?: MaybeLeafModel | null
   get rangeFrom() {
     return this.#rangeFrom
   }
   set rangeFrom(value) {
     this.#rangeFrom = value
+    dispatchEvent(this, 'range-from-change', { detail: { value } })
   }
 
   /** range 模式，设置 range 终点 */
-  #rangeTo?: DateModel | null
+  #rangeTo?: MaybeLeafModel | null
+
   /** range 模式，设置了 rangeFrom 但还没设置 rangeTo 时，鼠标移动到其他的日期上，需要渲染预览效果 */
-  maybeRangeTo?: DateModel | null
+  #maybeRangeTo?: MaybeLeafModel | null
+  get maybeRangeTo() {
+    return this.#maybeRangeTo
+  }
+  set maybeRangeTo(value) {
+    this.#maybeRangeTo = value
+    dispatchEvent(this, 'maybe-range-to-change', { detail: { value } })
+  }
+
   get rangeTo() {
     return this.#rangeTo
   }
@@ -224,52 +357,23 @@ export class BlocksDate extends Component {
       this.maybeRangeTo = null
     }
     this.#rangeTo = value
+    dispatchEvent(this, 'range-to-change', { detail: { value } })
   }
 
   #disabledDate?: (
-    data: DateModel,
+    data: ItemModel,
     context: {
       depth: Depth
       viewDepth: Depth
       component: BlocksDate
     }
   ) => boolean
-
   get disabledDate() {
     return this.#disabledDate
   }
-
   set disabledDate(value) {
     this.#disabledDate = value
-  }
-
-  /**
-   * 往上最小层级深度，如：
-   * 当前处于月面板，最小层级为年，则点击标题栏最多可以往上切换到年份面板，而无法继续往上切换到十年、世纪面板视图
-   */
-  get mindepth(): Depth {
-    const value = enumGetter('mindepth', Depths)(this) ?? Depth.Century
-    return normalizeMinDepth(value, this.depth)
-  }
-
-  set mindepth(value) {
-    if (Depths.includes(value)) {
-      enumSetter('mindepth', Depths)(this, normalizeMinDepth(value, this.depth))
-    }
-  }
-
-  /**
-   * 组件初始化的时候，展示哪个层级深度的面板
-   */
-  get startdepth() {
-    const value = enumGetter('startdepth', Depths)(this) ?? this.depth
-    return normalizeViewDepth(value, this.mindepth, this.depth)
-  }
-
-  set startdepth(value) {
-    if (Depths.includes(value)) {
-      enumSetter('startdepth', Depths)(this, normalizeViewDepth(value, this.mindepth, this.depth))
-    }
+    dispatchEvent(this, 'disabled-date-change')
   }
 
   #badges?: Badge[]
@@ -279,150 +383,580 @@ export class BlocksDate extends Component {
 
   set badges(value: Badge[]) {
     this.#badges = value
-    this.render()
+    dispatchEvent(this, 'badges-change', { detail: { value } })
   }
 
-  get startWeekOn(): WeekNumber {
-    const value = enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(this) ?? '1'
-    return Number(value) as WeekNumber
-  }
+  // 面板起始视图状态
+  #setupInitViewData() {
+    const date = Helpers.getClosestDate(this.selected) ?? new Date()
 
-  set startWeekOn(value: WeekNumber) {
-    enumSetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(this, String(value))
-  }
-
-  get multiple() {
-    return this.mode === 'multiple'
-  }
-
-  /**
-   * 当前渲染的面板深度
-   */
-  #viewDepth?: any
-  get viewDepth() {
-    return normalizeViewDepth(this.#viewDepth, this.mindepth, this.depth)
-  }
-
-  set viewDepth(value) {
-    if (this.#viewDepth === value) return
-    this.#viewDepth = normalizeViewDepth(value, this.mindepth, this.depth)
-    this.render()
-  }
-
-  // 世纪视图时，展示哪个世纪的选项
-  // 没有设置时，默认取年份的，年份也没有设置时，取当前年的
-  #viewCentury?: number
-  get viewCentury() {
-    if (this.#viewCentury != null) return this.#viewCentury
-    return yearToCentury(this.viewYear ?? new Date().getFullYear())
-  }
-
-  set viewCentury(value) {
-    const century = normalizeNumber(value)
-    if (century == null) return
-    if (this.#viewCentury !== century) {
-      this.#viewCentury = century
-      if (!isYearInCentury(this.viewYear, century)) {
-        this.#viewYear = firstYearOfDecade(century)
+    switch (this.activeDepth) {
+      case Depth.Month: {
+        this.activeMonth = date.getMonth()
+        this.activeYear = date.getFullYear()
+        return
       }
-      this.render()
-    }
-  }
-
-  // 十年视图时，展示哪个十年的选项
-  // 没有设置时，默认取年份的，年份也没有设置时，取当前年的
-  #viewDecade?: number
-  get viewDecade() {
-    if (this.#viewDecade != null) return this.#viewDecade
-    return yearToDecade(this.viewYear ?? new Date().getFullYear())
-  }
-
-  set viewDecade(value) {
-    const decade = normalizeNumber(value)
-    if (decade == null) return
-    if (this.#viewDecade !== decade) {
-      this.#viewDecade = decade
-      this.#viewCentury = decadeToCentury(decade)
-      if (!isYearInDecade(this.viewYear, decade)) {
-        this.#viewYear = firstYearOfDecade(decade)
+      case Depth.Year: {
+        this.activeYear = date.getFullYear()
+        return
       }
-      this.render()
+      case Depth.Decade: {
+        this.activeDecade = Helpers.yearToDecade(date.getFullYear())
+        return
+      }
+      case Depth.Century: {
+        this.activeCentury = Helpers.yearToCentury(date.getFullYear())
+        return
+      }
     }
   }
 
-  // 年度视图，显示哪个年度的数据
-  #viewYear?: number
-  get viewYear() {
-    return this.#viewYear ?? new Date().getFullYear()
-  }
-
-  set viewYear(value) {
-    const year = normalizeNumber(value)
-    if (year == null) return
-    if (this.#viewYear !== year) {
-      this.#viewYear = year
-      this.#viewDecade = yearToDecade(year)
-      this.#viewCentury = yearToCentury(year)
-      this.render()
+  // 面板顶部导航按钮（前前翻页、前翻页、后翻页、后后翻页）
+  #setupNavButtons() {
+    const render = () => {
+      if (this.activeDepth === Depth.Month) {
+        this.$prevPrev.style.cssText = ''
+        this.$nextNext.style.cssText = ''
+      } else {
+        this.$prevPrev.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
+        this.$nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
+      }
     }
-  }
+    this.onRender(render)
+    this.onConnected(render)
+    this.onConnected(() => {
+      this.addEventListener('active-depth-change', render)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('active-depth-change', render)
+    })
 
-  // 月度视图，显示哪个月的数据
-  #viewMonth?: number
-  get viewMonth() {
-    return this.#viewMonth
-  }
-
-  set viewMonth(value) {
-    if (this.#viewMonth !== value) {
-      this.#viewMonth = value
-      this.render()
+    // 点击 prev 按钮
+    const onPrev = () => {
+      if (this.activeDepth === Depth.Month) {
+        this.showPrevMonth()
+      } else if (this.activeDepth === Depth.Year) {
+        this.showPrevYear()
+      } else if (this.activeDepth === Depth.Decade) {
+        this.showPrevDecade()
+      } else {
+        this.showPrevCentury()
+      }
     }
-  }
-
-  // 组件值
-  get value(): Date | Date[] | null {
-    switch (this.mode) {
-      case 'single':
-        return this.#value.length ? this.#value[0] : null
-      case 'range':
-        return this.#value.length === 2 ? this.#value.slice() : null
-      case 'multiple':
-        return this.#value.length ? this.#value.slice() : null
+    // 点击双重 prev 按钮
+    const onPrevPrev = () => {
+      if (this.activeDepth === Depth.Month) {
+        this.showPrevYear()
+      }
     }
+    // 点击 next 按钮
+    const onNext = () => {
+      if (this.activeDepth === Depth.Month) {
+        this.showNextMonth()
+      } else if (this.activeDepth === Depth.Year) {
+        this.showNextYear()
+      } else if (this.activeDepth === Depth.Decade) {
+        this.showNextDecade()
+      } else {
+        this.showNextCentury()
+      }
+    }
+    // 点击双重 next 按钮
+    const onNextNext = () => {
+      if (this.activeDepth === Depth.Month) {
+        this.showNextYear()
+      }
+    }
+    this.onConnected(() => {
+      this.$prevPrev.onclick = onPrevPrev
+      this.$prev.onclick = onPrev
+      this.$next.onclick = onNext
+      this.$nextNext.onclick = onNextNext
+    })
+    this.onDisconnected(() => {
+      this.$prevPrev.onclick = this.$prev.onclick = this.$next.onclick = this.$nextNext.onclick = null
+    })
   }
 
-  set value(value) {
-    switch (this.mode) {
-      case 'single':
-        if (value === null || value instanceof Date) {
-          this.setValue(value)
-        } else if (value[0] instanceof Date) {
-          this.setValue(value[0])
+  // 面板顶部标题（指示当前面板的可选范围）
+  #setupTitle() {
+    const render = () => {
+      let text: string
+      switch (this.activeDepth) {
+        case Depth.Century: {
+          text = `${Helpers.firstYearOfCentury(this.activeCentury!)} ~ ${Helpers.lastYearOfCentury(
+            this.activeCentury!
+          )}`
+          break
         }
-        break
-      case 'range':
-        if ((Array.isArray(value) && value.length === 2) || value === null) {
-          this.setRange(value as [Date, Date] | null)
+        case Depth.Decade: {
+          text = `${Helpers.firstYearOfDecade(this.activeDecade!)} ~ ${Helpers.lastYearOfDecade(this.activeDecade!)}`
+          break
         }
-        break
-      case 'multiple':
-        if (value instanceof Date) {
-          this.setValues([value])
+        case Depth.Year: {
+          text = `${this.activeYear}`
+          break
+        }
+        default:
+          text = `${this.activeYear} / ${this.activeMonth! + 1}`
+      }
+      this.$title.textContent = text
+    }
+    this.onRender(render)
+    this.onConnected(render)
+    this.onConnected(() => {
+      this.addEventListener('active-depth-change', render)
+      this.addEventListener('active-century-change', render)
+      this.addEventListener('active-decade-change', render)
+      this.addEventListener('active-year-change', render)
+      this.addEventListener('active-month-change', render)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('active-depth-change', render)
+      this.removeEventListener('active-century-change', render)
+      this.removeEventListener('active-decade-change', render)
+      this.removeEventListener('active-year-change', render)
+      this.removeEventListener('active-month-change', render)
+    })
+
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (this.$title.contains(target)) {
+        this.rollUp()
+      }
+    }
+    this.onConnected(() => {
+      this.$layout.addEventListener('click', onClick)
+    })
+    this.onDisconnected(() => {
+      this.$layout.removeEventListener('click', onClick)
+    })
+  }
+
+  // 星期几标题行（仅在月视图渲染）
+  #setupWeekHeader() {
+    const render = () => {
+      const headers = Helpers.generateWeekHeaders(this.startWeekOn)
+      const $weekHeader = this.$weekHeader
+      if (this.activeDepth === Depth.Month) {
+        $weekHeader.style.height = ''
+        $weekHeader.style.opacity = '1'
+
+        if ($weekHeader.children.length !== 7) {
+          $weekHeader.innerHTML = headers.map(header => `<span>${header}</span>`).join('')
         } else {
-          this.setValues(value!)
+          for (let i = 0; i < 7; i += 1) {
+            $weekHeader.children[i].textContent = headers[i]
+          }
         }
-        break
+      } else {
+        $weekHeader.style.height = '0'
+        $weekHeader.style.opacity = '0'
+      }
     }
+    this.onConnected(render)
+    this.onRender(render)
+    this.onAttributeChangedDep('start-week-on', render)
+    this.onConnected(() => {
+      this.addEventListener('active-depth-change', render)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('active-depth-change', render)
+    })
+  }
+
+  // 日期选择按钮
+  #setupDateButtons() {
+    const getModel = ($item: HTMLElement): ItemModel => {
+      return {
+        label: $item.dataset.label!,
+        century: +$item.dataset.century! || 0,
+        decade: +$item.dataset.decade!,
+        year: +$item.dataset.year!,
+        month: +$item.dataset.month!,
+        date: +$item.dataset.date!,
+      }
+    }
+
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      let itemModel: ItemModel | undefined
+      if (target.classList.contains('button-item')) {
+        itemModel = getModel(target)
+      } else if ((target.parentElement as HTMLElement)?.classList.contains('button-item')) {
+        itemModel = getModel(target.parentElement!)
+      }
+      if (typeof itemModel?.year === 'number') {
+        // 点击 disabled 的末级日期，且该日期非激活状态，则直接返回
+        // 如果该日期为激活状态，则可以取消选择（多选时）
+        if (isDisabledLeaf(itemModel) && !this.#isActiveLeaf(itemModel)) {
+          return
+        }
+        // 当前非最深层次，直接往下钻入
+        if (!this.#isLeafDepth()) {
+          return this.drillDown(itemModel)
+        }
+        // 达到可选的最深层次，则执行选择或者取消选择
+        this.#selectByLeafModel(itemModel)
+      }
+    }
+    // range 选择模式，鼠标移入，渲染选中效果
+    const onMouseOver = (e: MouseEvent) => {
+      if (!this.#isLeafDepth()) return
+      if (!this.#isRangeMode()) return
+      if (!this.rangeFrom) return
+      if (this.rangeTo) return
+      const target = e.target as HTMLElement
+      const $button = target.classList.contains('button-item')
+        ? target
+        : (target.parentElement as HTMLElement).classList.contains('button-item')
+        ? (target.parentElement as HTMLElement)
+        : null
+      if (!$button) return
+      this.maybeRangeTo = getModel($button) as MaybeLeafModel
+      render()
+    }
+    this.onConnected(() => {
+      this.$layout.addEventListener('click', onClick)
+      this.$layout.addEventListener('mouseover', onMouseOver)
+    })
+    this.onDisconnected(() => {
+      this.$layout.removeEventListener('click', onClick)
+      this.$layout.removeEventListener('mouseover', onMouseOver)
+    })
+
+    // 子节点是否包含今天
+    const includesToday = (item: ItemModel) => {
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = today.getMonth()
+      switch (this.activeDepth) {
+        case Depth.Year:
+          return item.year === year && item.month === month
+        case Depth.Decade:
+          return item.year === year
+        case Depth.Century:
+          return Math.floor(year / 10) === item.decade
+        default:
+          return false
+      }
+    }
+
+    // 是否有子结点选中（年下的月、日，月下的日等等）
+    const includesActive = (itemModel: ItemModel) => {
+      if (!this.selectedCount) return false
+
+      if (this.#isRangeMode()) {
+        if (this.selectedCount !== 2) return false
+        const [fromTime, toTime] = this.selected.map(date => date.getTime())
+
+        switch (this.activeDepth) {
+          case Depth.Year: {
+            itemModel = itemModel as MonthModel
+            const t1 = Helpers.makeDate(itemModel.year, itemModel.month, 1).getTime()
+            const t2 = Helpers.makeDate(itemModel.year, (itemModel.month ?? 0) + 1, 0).getTime()
+            return fromTime <= t2 && toTime >= t1
+          }
+          case Depth.Decade: {
+            itemModel = itemModel as YearModel
+            const t1 = Helpers.makeDate(itemModel.year, 0, 1).getTime()
+            const t2 = Helpers.makeDate(itemModel.year, 11, 31).getTime()
+            return fromTime <= t2 && toTime >= t1
+          }
+          case Depth.Century: {
+            itemModel = itemModel as DecadeModel
+            const t1 = Helpers.makeDate(itemModel.decade * 10, 0, 1).getTime()
+            const t2 = Helpers.makeDate(itemModel.decade * 10 + 9, 11, 31).getTime()
+            return fromTime <= t2 && toTime >= t1
+          }
+          default:
+            return false
+        }
+      } else {
+        switch (this.activeDepth) {
+          case Depth.Year:
+            return this.selected.some(
+              (t: Date) => t.getMonth() === itemModel.month && t.getFullYear() === itemModel.year
+            )
+          case Depth.Decade:
+            return this.selected.some((t: Date) => t.getFullYear() === itemModel.year)
+          case Depth.Century:
+            return this.selected.some((t: Date) => Math.floor(t.getFullYear() / 10) === itemModel.decade)
+          default:
+            return false
+        }
+      }
+    }
+
+    // 当前选项是否渲染成禁用，仅作用于末级 depth
+    const isDisabledLeaf = (item: ItemModel) => {
+      // 对于多选，需要检查是否抵达数量上限
+      if (this.#limitReached()) return true
+
+      // 如果外部传入了 disabledDate 检查
+      // 校验（depth 末级）选项是否可用
+      if (this.disabledDate) {
+        return this.disabledDate(item, {
+          depth: this.depth,
+          viewDepth: this.activeDepth,
+          component: this,
+        })
+      } else {
+        if (this.activeDepth !== this.depth) return false
+        return false
+      }
+    }
+
+    // 只保留 N 个日期选择按钮
+    const ensureItemCount = (n: number) => {
+      const $list = this.$list
+      let len = $list.children.length ?? 0
+      while (len++ < n) {
+        if (this.#$pool.length) {
+          $list.appendChild(this.#$pool.pop()!)
+        } else {
+          const el = document.createElement('button')
+          el.className = 'button-item'
+          el.appendChild(document.createElement('span'))
+          $list.appendChild(el)
+        }
+      }
+      len = $list.children.length
+      while (len-- > n) {
+        this.#$pool.push($list.removeChild($list.lastElementChild as HTMLButtonElement))
+      }
+      return Array.prototype.slice.call($list.children)
+    }
+
+    // 渲染世纪视图（十年选择按钮）
+    const renderCenturyView = () => {
+      const decades = Helpers.generateDecades(this.activeCentury!)
+      if (!decades.length) return
+      ensureItemCount(10).forEach(($el, i) => {
+        const itemModel = decades[i]
+        boolSetter('disabled')($el, false)
+        $el.classList.toggle('button-item--otherMonth', false)
+        $el.classList.toggle('button-item--today', false)
+        $el.classList.toggle('button-item--active', false)
+        $el.classList.toggle('button-item--includesActive', includesActive(itemModel))
+        $el.classList.toggle('button-item--includesToday', includesToday(itemModel))
+        $el.classList.toggle('button-item--rangeFrom', false)
+        $el.classList.toggle('button-item--rangeTo', false)
+        $el.classList.toggle('button-item--rangeIn', false)
+
+        $el.dataset.century = itemModel.century
+        $el.dataset.decade = itemModel.decade
+        $el.dataset.year = null
+        $el.dataset.month = null
+        $el.dataset.date = null
+        $el.dataset.label = itemModel.label
+
+        $el.lastElementChild.innerHTML = itemModel.label
+        renderBadge($el, itemModel)
+      })
+    }
+
+    // 渲染十年视图（年度选择按钮）
+    const renderDecadeView = () => {
+      const years = Helpers.generateYears(Helpers.decadeToCentury(this.activeDecade!), this.activeDecade!)
+      if (!years.length) return
+      ensureItemCount(10).forEach(($el, i) => {
+        const itemModel = years[i]
+        if (this.depth === Depth.Decade) {
+          boolSetter('disabled')($el, !this.#isActiveLeaf(itemModel) && isDisabledLeaf(itemModel))
+        } else {
+          boolSetter('disabled')($el, false)
+        }
+        $el.classList.toggle('button-item--otherMonth', false)
+        $el.classList.toggle('button-item--today', false)
+        $el.classList.toggle('button-item--active', this.#isActiveLeaf(itemModel))
+        $el.classList.toggle('button-item--includesActive', includesActive(itemModel))
+        $el.classList.toggle('button-item--includesToday', includesToday(itemModel))
+
+        const isRangeMode = this.#isRangeMode()
+        $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(itemModel))
+        $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(itemModel))
+        $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(itemModel))
+
+        $el.dataset.century = itemModel.century
+        $el.dataset.decade = itemModel.decade
+        $el.dataset.year = itemModel.year
+        $el.dataset.month = null
+        $el.dataset.date = null
+        $el.dataset.label = itemModel.label
+
+        $el.lastElementChild.innerHTML = itemModel.label
+        renderBadge($el, itemModel)
+      })
+    }
+
+    // 渲染年视图（月份选择按钮）
+    const renderYearView = () => {
+      const months = Helpers.generateMonths(
+        Helpers.yearToCentury(this.activeYear!),
+        Helpers.yearToDecade(this.activeYear!),
+        this.activeYear!
+      )
+      if (!months.length) return
+      ensureItemCount(12).forEach(($el, i) => {
+        const itemModel = months[i]
+        $el.classList.toggle('button-item--otherMonth', false)
+        $el.classList.toggle('button-item--today', false)
+        $el.classList.toggle('button-item--active', this.#isActiveLeaf(itemModel))
+        $el.classList.toggle('button-item--includesActive', includesActive(itemModel))
+        $el.classList.toggle('button-item--includesToday', includesToday(itemModel))
+
+        const isRangeMode = this.#isRangeMode()
+        $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(itemModel))
+        $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(itemModel))
+        $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(itemModel))
+
+        if (this.depth === Depth.Year) {
+          boolSetter('disabled')($el, !this.#isActiveLeaf(itemModel) && isDisabledLeaf(itemModel))
+        } else {
+          boolSetter('disabled')($el, false)
+        }
+        $el.dataset.century = itemModel.century
+        $el.dataset.decade = itemModel.decade
+        $el.dataset.year = itemModel.year
+        $el.dataset.month = itemModel.month
+        $el.dataset.date = null
+        $el.dataset.label = itemModel.label
+        $el.lastElementChild.innerHTML = itemModel.label
+        renderBadge($el, itemModel)
+      })
+    }
+
+    // 渲染月视图（日期选择按钮）
+    const renderMonthView = () => {
+      const dateList = Helpers.generateDates(
+        Helpers.yearToCentury(this.activeYear!),
+        Helpers.yearToDecade(this.activeYear!),
+        this.activeYear!,
+        this.activeMonth!,
+        this.startWeekOn
+      )
+      if (!dateList.length) return
+      ensureItemCount(42).forEach(($el, i) => {
+        const itemModel = dateList[i]
+        boolSetter('disabled')($el, !this.#isActiveLeaf(itemModel) && isDisabledLeaf(itemModel))
+        // 月视图中，根据周起始日，可能包含上月末的几天，
+        // 以及下月初的某几天，为这些非当前视图对应的日期按钮应用弱化样式
+        $el.classList.toggle('button-item--otherMonth', itemModel.month !== this.activeMonth)
+        $el.classList.toggle('button-item--today', Helpers.isToday(itemModel))
+        $el.classList.toggle('button-item--active', this.#isActiveLeaf(itemModel))
+        $el.classList.toggle('button-item--includesActive', false)
+        $el.classList.toggle('button-item--includesToday', includesToday(itemModel))
+
+        const isRangeMode = this.#isRangeMode()
+        $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(itemModel))
+        $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(itemModel))
+        $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(itemModel))
+
+        $el.dataset.century = itemModel.century
+        $el.dataset.decade = itemModel.decade
+        $el.dataset.year = itemModel.year
+        $el.dataset.month = itemModel.month
+        $el.dataset.date = itemModel.date
+        $el.dataset.label = itemModel.label
+
+        $el.lastElementChild.innerHTML = itemModel.label
+        renderBadge($el, itemModel)
+      })
+    }
+
+    // 日期按钮上渲染事件标志
+    const renderBadge = ($el: HTMLElement, itemModel: ItemModel) => {
+      const badges = this.getBadges(itemModel)
+      let $badge = $el.querySelector('.button-badge')
+      if (badges.length === 0) {
+        $el.title = ''
+        if ($badge) $el.removeChild($badge)
+        return
+      }
+
+      if (!$badge) {
+        $badge = $el.appendChild(document.createElement('i'))
+      }
+
+      $badge.classList.add('button-badge')
+
+      let title = badges
+        .filter(badge => badge.label)
+        .map(badge => badge.label)
+        .join('\n')
+      if (title.length > 100) title = title.slice(0, 97) + '...'
+      $el.title = title
+    }
+
+    const render = () => {
+      ;['body-century', 'body-decade', 'body-year', 'body-month'].forEach(klass => {
+        this.$content.classList.remove(klass)
+      })
+      this.$content.classList.add(`body-${this.activeDepth}`)
+
+      if (this.activeDepth === Depth.Month) {
+        renderMonthView()
+      } else if (this.activeDepth === Depth.Year) {
+        renderYearView()
+      } else if (this.activeDepth === Depth.Decade) {
+        renderDecadeView()
+      } else if (this.activeDepth === Depth.Century) {
+        renderCenturyView()
+      }
+    }
+
+    this.onRender(render)
+    this.onConnected(render)
+    this.onConnected(() => {
+      this.addEventListener('badges-change', render)
+      this.addEventListener('active-depth-change', render)
+      this.addEventListener('active-century-change', render)
+      this.addEventListener('active-decade-change', render)
+      this.addEventListener('active-year-change', render)
+      this.addEventListener('active-month-change', render)
+      this.addEventListener('disabled-date-change', render)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('badges-change', render)
+      this.removeEventListener('active-depth-change', render)
+      this.removeEventListener('active-century-change', render)
+      this.removeEventListener('active-decade-change', render)
+      this.removeEventListener('active-year-change', render)
+      this.removeEventListener('active-month-change', render)
+      this.removeEventListener('disabled-date-change', render)
+    })
+  }
+
+  // loading 状态
+  #setupLoading() {
+    const render = () => {
+      this.$loading.style.display = this.loading ? '' : 'none'
+    }
+    this.onRender(render)
+    this.onConnected(render)
+    this.onAttributeChangedDep('loading', render)
+  }
+
+  #setupFocus() {
+    const onClick = () => this.focus()
+    this.onConnected(() => {
+      this.$layout.addEventListener('click', onClick)
+    })
+    this.onConnected(() => {
+      this.$layout.removeEventListener('click', onClick)
+    })
   }
 
   /** 取消未完成的 range 选择状态 */
   clearUncompleteRange() {
     if (this.mode !== 'range') return
-    if (this.value !== null) {
-      const [from, to] = this.value as [Date, Date]
-      this.rangeFrom = this.#dateToModel(from, this.viewDepth)
-      this.rangeTo = this.#dateToModel(to, this.viewDepth)
+    if (this.selected.length === 2) {
+      const [from, to] = this.selected as [Date, Date]
+      const fromModel = this.#dateToModel(from)
+      const toModel = this.#dateToModel(to)
+      this.rangeFrom = fromModel as MaybeLeafModel
+      this.rangeTo = toModel as MaybeLeafModel
     } else {
       this.rangeFrom = this.rangeTo = null
     }
@@ -430,640 +964,196 @@ export class BlocksDate extends Component {
   }
 
   /** 清空当前的选择值 */
-  clearValue() {
-    this.#value = []
-    if (this.mode === 'range') {
-      this.rangeFrom = this.rangeTo = null
-    }
-    this.render()
+  // ISelectableListComponent
+  clearSelected() {
+    this.selected = []
   }
 
-  // single mode 的值 getter
-  getValue(): Date | null {
-    return this.mode === 'single' ? this.#value[0] ?? null : null
+  // ISelectableListComponent
+  deselect(selected: ISelected) {
+    const date = selected.value
+    this.selected = this.selected.filter(value => !this.dateEquals(value, date))
   }
 
-  // single mode 的值 setter
-  setValue(value: Date | null) {
-    if (this.mode !== 'single') return
-    if (value === null) {
-      if (this.value !== null) {
-        this.clearValue()
+  // 支持 ISelectableListComponent
+  notifySelectListChange() {
+    const value = this.selected.map(date => {
+      return {
+        value: date,
+        label: this.#formatter.content(date),
       }
-      return
-    }
-    const currentValue = this.#value[0]
-    const hasChange = currentValue !== value || !currentValue || currentValue.getTime() !== value.getTime()
-    if (hasChange) {
-      this.#value = [value]
-      this.render()
-      dispatchEvent(this, 'select', { detail: { value: this.value } })
-      dispatchEvent(this, 'change', { detail: { value: this.value } })
-    }
+    })
+    dispatchEvent(this, 'select-list:change', {
+      detail: { value },
+    })
   }
 
-  // range mode 的值 getter
-  getRange(): [Date, Date] | null {
-    return this.mode === 'range' && this.#value.length === 2 ? (this.#value.slice() as [Date, Date]) : null
+  #notifyChange() {
+    this.notifySelectListChange()
+    dispatchEvent(this, 'change', { detail: { selected: this.selected } })
   }
 
-  // range mode 的值 setter
-  setRange(value: [Date, Date] | null) {
-    if (this.mode !== 'range') return
-    if (value === null) {
-      if (this.value !== null) {
-        this.clearValue()
-      }
-      return
-    }
-    if (!Array.isArray(value)) {
-      return
-    }
-    if (!Array.isArray(value) || value.length !== 2 || !value.every(date => date instanceof Date)) {
-      return
-    }
-    const range = value.slice().sort((a: Date, b: Date) => a.getTime() - b.getTime())
-
-    const hasChange = !isAllEqual(this.#value, range)
-    if (hasChange) {
-      this.#value = range
-      this.maybeRangeTo = null
-      if (range.length) {
-        this.rangeFrom = this.#dateToModel(range[0], this.viewDepth)
-        this.rangeTo = this.#dateToModel(range[1], this.viewDepth)
-      } else {
-        this.rangeFrom = this.rangeTo = null
-      }
-      this.render()
-      dispatchEvent(this, 'select', { detail: { value: this.value } })
-      dispatchEvent(this, 'change', { detail: { value: this.value } })
-    }
-  }
-
-  // multiple mode 的值 getter
-  getValues(): Date[] {
-    return this.mode === 'multiple' && this.#value.length ? this.#value.slice() : []
-  }
-
-  // multiple mode 的值 setter
-  setValues(values: Date[]) {
-    if (this.mode !== 'multiple') return
-    if (values.length === 0) {
-      if (this.value !== null) {
-        this.clearValue()
-      }
-      return
-    }
-    if (!Array.isArray(values)) {
-      return
-    }
-    if (
-      !Array.isArray(values) ||
-      values.length > (this.max ?? Infinity) ||
-      !values.every(date => date instanceof Date)
-    ) {
-      return
-    }
-
-    const hasChange = !isAllEqual(this.#value, values)
-    if (hasChange) {
-      this.#value = values
-      this.render()
-      dispatchEvent(this, 'select', { detail: { value: this.value } })
-      dispatchEvent(this, 'change', { detail: { value: this.value } })
-    }
-  }
-
-  isRangeMode() {
+  #isRangeMode() {
     return this.mode === 'range'
   }
 
-  getDecadeRange(decade: number): [number, number] {
-    const from = decade * 10
-    const to = from + 9
-    return [from, to]
-  }
-
   // 是否已经选够最大数量的值
-  limitReached() {
-    if (!this.multiple || !this.max) return false
-    let max = Math.trunc(this.max)
+  #limitReached() {
+    if (this.mode !== 'multiple' || !this.max) return false
+    let max = Math.trunc(Math.abs(this.max))
     if (max < 1) max = 1
-    const len = this.getValues()?.length ?? 0
+    const len = this.selected.length ?? 0
     return len >= max
   }
 
-  switchViewByDate(date: Date) {
-    this.viewMonth = date.getMonth()
-    this.viewYear = date.getFullYear()
-  }
-
-  #getModel($item: HTMLElement): DateModel {
-    return {
-      label: $item.dataset.label!,
-      century: +$item.dataset.century! || 0,
-      decade: +$item.dataset.decade!,
-      year: +$item.dataset.year!,
-      month: +$item.dataset.month!,
-      date: +$item.dataset.date!,
-    }
-  }
-
-  // 渲染面板顶部按钮（前前翻页、前翻页、后翻页、后后翻页）
-  #renderHeaderButtons() {
-    if (this.viewDepth === Depth.Month) {
-      this._ref.$prevPrev.style.cssText = ''
-      this._ref.$nextNext.style.cssText = ''
-    } else {
-      this._ref.$prevPrev.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
-      this._ref.$nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0'
-    }
-  }
-
-  // 渲染面板顶部标题（指示当前面板的可选范围）
-  #renderTitle() {
-    let text: string
-    switch (this.viewDepth) {
-      case Depth.Century: {
-        text = `${firstYearOfCentury(this.viewCentury)} ~ ${lastYearOfCentury(this.viewCentury)}`
-        break
-      }
-      case Depth.Decade: {
-        text = `${firstYearOfDecade(this.viewDecade)} ~ ${lastYearOfDecade(this.viewDecade)}`
-        break
-      }
-      case Depth.Year: {
-        text = `${this.viewYear}`
-        break
-      }
-      default:
-        text = `${this.viewYear} / ${this.viewMonth! + 1}`
-    }
-    this._ref.$title.textContent = text
-  }
-
-  // 渲染日历的星期几标题行（仅在月视图渲染）
-  #renderWeekHeader() {
-    const headers = generateWeekHeaders(this.startWeekOn)
-    const $weekHeader = this._ref.$weekHeader
-    if (this.viewDepth === Depth.Month) {
-      $weekHeader.style.height = ''
-      $weekHeader.style.opacity = '1'
-
-      if ($weekHeader.children.length !== 7) {
-        $weekHeader.innerHTML = headers.map(header => `<span>${header}</span>`).join('')
-      } else {
-        for (let i = 0; i < 7; i += 1) {
-          $weekHeader.children[i].textContent = headers[i]
-        }
-      }
-    } else {
-      $weekHeader.style.height = '0'
-      $weekHeader.style.opacity = '0'
-    }
-  }
-
-  // 渲染 loading 状态
-  #renderLoading() {
-    this._ref.$loading.style.display = this.loading ? '' : 'none'
-  }
-
-  // 渲染日期选择按钮
-  #renderItems() {
-    ;['body-century', 'body-decade', 'body-year', 'body-month'].forEach(klass => {
-      this._ref.$content.classList.remove(klass)
-    })
-    this._ref.$content.classList.add(`body-${this.viewDepth}`)
-
-    if (this.viewDepth === Depth.Month) {
-      this.#renderDateItems()
-    } else if (this.viewDepth === Depth.Year) {
-      this.#renderMonthItems()
-    } else if (this.viewDepth === Depth.Decade) {
-      this.#renderYearItems()
-    } else if (this.viewDepth === Depth.Century) {
-      this.#renderDecadeItems()
-    }
-  }
-
-  // 只保留 N 个日期选择按钮
-  #ensureItemCount(n: number) {
-    const $list = this._ref.$list
-    let len = $list.children.length ?? 0
-    while (len++ < n) {
-      if (this.#$pool.length) {
-        $list.appendChild(this.#$pool.pop()!)
-      } else {
-        const el = document.createElement('button')
-        el.className = 'button-item'
-        el.appendChild(document.createElement('span'))
-        $list.appendChild(el)
-      }
-    }
-    len = $list.children.length
-    while (len-- > n) {
-      this.#$pool.push($list.removeChild($list.lastElementChild as HTMLButtonElement))
-    }
-    return Array.prototype.slice.call($list.children)
-  }
-
-  // 渲染世纪年视图的十年选择按钮
-  #renderDecadeItems() {
-    const decades = generateDecades(this.viewCentury)
-    if (!decades.length) return
-    this.#ensureItemCount(10).forEach(($el, i) => {
-      const model = decades[i]
-      boolSetter('disabled')($el, false)
-      $el.classList.toggle('button-item--otherMonth', false)
-      $el.classList.toggle('button-item--today', false)
-      $el.classList.toggle('button-item--active', false)
-      $el.classList.toggle('button-item--includesActive', this.#includesActive(model))
-      $el.classList.toggle('button-item--rangeFrom', false)
-      $el.classList.toggle('button-item--rangeTo', false)
-      $el.classList.toggle('button-item--rangeIn', false)
-
-      $el.dataset.century = model.century
-      $el.dataset.decade = model.decade
-      $el.dataset.year = null
-      $el.dataset.month = null
-      $el.dataset.date = null
-      $el.dataset.label = model.label
-
-      $el.lastElementChild.innerHTML = model.label
-      this.#renderBadge($el, model)
-    })
-  }
-
-  // 渲染十年视图的年度选择按钮
-  #renderYearItems() {
-    const years = generateYears(this.viewCentury, this.viewDecade)
-    if (!years.length) return
-    this.#ensureItemCount(10).forEach(($el, i) => {
-      const item = years[i]
-      if (this.depth === Depth.Decade) {
-        // TODO, any
-        boolSetter('disabled')($el, !this.#isActiveLeaf(item as any) && this.#isDisabledLeaf(item as any))
-      } else {
-        boolSetter('disabled')($el, false)
-      }
-      $el.classList.toggle('button-item--otherMonth', false)
-      $el.classList.toggle('button-item--today', false)
-      $el.classList.toggle('button-item--active', this.#isActiveLeaf(item as any))
-      $el.classList.toggle('button-item--includesActive', this.#includesActive(item as any))
-
-      const isRangeMode = this.isRangeMode()
-      $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(item as any))
-      $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(item as any))
-      $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(item as any))
-
-      $el.dataset.century = item.century
-      $el.dataset.decade = item.decade
-      $el.dataset.year = item.year
-      $el.dataset.month = null
-      $el.dataset.date = null
-      $el.dataset.label = item.label
-
-      $el.lastElementChild.innerHTML = item.label
-      this.#renderBadge($el, item)
-    })
-  }
-
-  // 渲染年视图的月份选择按钮
-  #renderMonthItems() {
-    const months = generateMonths(this.viewCentury, this.viewDecade, this.viewYear!)
-    if (!months.length) return
-    this.#ensureItemCount(12).forEach(($el, i) => {
-      const item = months[i]
-      $el.classList.toggle('button-item--otherMonth', false)
-      $el.classList.toggle('button-item--today', false)
-      $el.classList.toggle('button-item--active', this.#isActiveLeaf(item as any))
-      $el.classList.toggle('button-item--includesActive', this.#includesActive(item as any))
-      const isRangeMode = this.isRangeMode()
-      $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(item as any))
-      $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(item as any))
-      $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(item as any))
-      if (this.depth === Depth.Year) {
-        boolSetter('disabled')($el, !this.#isActiveLeaf(item as any) && this.#isDisabledLeaf(item as any))
-      } else {
-        boolSetter('disabled')($el, false)
-      }
-      $el.dataset.century = item.century
-      $el.dataset.decade = item.decade
-      $el.dataset.year = item.year
-      $el.dataset.month = item.month
-      $el.dataset.date = null
-      $el.dataset.label = item.label
-      $el.lastElementChild.innerHTML = item.label
-      this.#renderBadge($el, item)
-    })
-  }
-
-  // 渲染月视图的日期选择按钮
-  #renderDateItems() {
-    const dateList = generateDates(this.viewCentury, this.viewDecade, this.viewYear!, this.viewMonth!, this.startWeekOn)
-    if (!dateList.length) return
-    this.#ensureItemCount(42).forEach(($el, i) => {
-      const item = dateList[i]
-      boolSetter('disabled')($el, !this.#isActiveLeaf(item as any) && this.#isDisabledLeaf(item as any))
-      // 月视图中，根据周起始日，可能包含上月末的几天，
-      // 以及下月初的某几天，为这些非当前视图对应的日期按钮应用弱化样式
-      $el.classList.toggle('button-item--otherMonth', item.month !== this.viewMonth)
-      $el.classList.toggle('button-item--today', isToday(item))
-      $el.classList.toggle('button-item--active', this.#isActiveLeaf(item as any))
-      $el.classList.toggle('button-item--includesActive', false)
-      const isRangeMode = this.isRangeMode()
-      $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(item as any))
-      $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(item as any))
-      $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(item as any))
-
-      $el.dataset.century = item.century
-      $el.dataset.decade = item.decade
-      $el.dataset.year = item.year
-      $el.dataset.month = item.month
-      $el.dataset.date = item.date
-      $el.dataset.label = item.label
-
-      $el.lastElementChild.innerHTML = item.label
-      this.#renderBadge($el, item)
-    })
-  }
-
-  // 日期按钮上渲染事件标志
-  #renderBadge($el: HTMLElement, item: DateModel) {
-    const badges = this.getBadges(item)
-    let $badge = $el.querySelector('.button-badge')
-    if (badges.length === 0) {
-      $el.title = ''
-      if ($badge) $el.removeChild($badge)
-      return
-    }
-
-    if (!$badge) {
-      $badge = $el.appendChild(document.createElement('i'))
-    }
-
-    $badge.classList.add('button-badge')
-
-    let title = badges
-      .filter(badge => badge.label)
-      .map(badge => badge.label)
-      .join('\n')
-    if (title.length > 100) title = title.slice(0, 97) + '...'
-    $el.title = title
-  }
-
-  override render() {
-    this.#renderHeaderButtons()
-    this.#renderTitle()
-    this.#renderWeekHeader()
-    this.#renderLoading()
-    this.#renderItems()
-  }
-
-  // 获取当前选项对应的 badge
-  getBadges(item: DateModel) {
-    let badges: Badge[]
-    if (this.viewDepth === Depth.Month) {
-      badges = this.badges.filter(b => item.date === b.date && item.month === b.month && b.year === item.year)
-    } else if (this.viewDepth === Depth.Year) {
-      badges = this.badges.filter(b => item.month === b.month && b.year === item.year)
-    } else if (this.viewDepth === Depth.Decade) {
-      badges = this.badges.filter(b => b.year === item.year)
-    } else if (this.viewDepth === Depth.Century) {
-      badges = this.badges.filter(b => b.year >= item.decade * 10 && b.year <= item.decade * 10 + 9)
-    } else {
-      badges = []
-    }
-    return badges
-  }
-
-  #isRangeFrom(item: DateModel) {
+  #isRangeFrom(itemModel: ItemModel) {
     let obj = this.rangeFrom
     if (!obj) return false
     const obj2 = this.rangeTo ?? this.maybeRangeTo
-    if (obj2 && this.#modelToDate(obj).getTime() > this.#modelToDate(obj2).getTime()) {
+    // 先选大，再选小的情况
+    if (obj2 && this.#leafModelToDate(obj).getTime() > this.#leafModelToDate(obj2).getTime()) {
       obj = obj2
     }
-    return ['year', 'month', 'date'].every(key => (obj as any)[key] === (item as any)[key])
+    return ['year', 'month', 'date'].every(key => (obj as any)[key] === (itemModel as any)[key])
   }
 
-  #isRangeTo(item: DateModel) {
+  #isRangeTo(itemModel: ItemModel) {
     let obj = this.rangeFrom
     if (!obj) return false
     const obj2 = this.rangeTo ?? this.maybeRangeTo
-    if (obj2 && this.#modelToDate(obj).getTime() < this.#modelToDate(obj2).getTime()) {
+    // 先选大，再选小的情况
+    if (obj2 && this.#leafModelToDate(obj).getTime() < this.#leafModelToDate(obj2).getTime()) {
       obj = obj2
     }
-    return ['year', 'month', 'date'].every(key => (obj as any)[key] === (item as any)[key])
+    return ['year', 'month', 'date'].every(key => (obj as any)[key] === (itemModel as any)[key])
   }
 
-  // 当前选项是否渲染成禁用，仅作用于末级 depth
-  #isDisabledLeaf(item: DateModel) {
-    // 对于多选，需要检查是否抵达数量上限
-    if (this.limitReached()) return true
-
-    // 如果外部传入了 disabledDate 检查
-    // 校验（depth 末级）选项是否可用
-    if (this.disabledDate) {
-      return this.disabledDate(item, {
-        depth: this.depth,
-        viewDepth: this.viewDepth,
-        component: this,
-      })
-    } else {
-      if (this.viewDepth !== this.depth) return false
-      return false
-    }
-  }
-
-  #isSameDate(item: DateModel, date: Date) {
-    return date.getFullYear() === item.year && date.getMonth() === item.month && date.getDate() === item.date
-  }
-
-  #isSameMonth(item: DateModel, date: Date) {
-    return date.getFullYear() === item.year && date.getMonth() === item.month
-  }
-
-  #isSameYear(item: DateModel, date: Date) {
-    return date.getFullYear() === item.year
-  }
-
-  #isInRange(item: DateModel) {
+  #isInRange(itemModel: ItemModel) {
     if (!this.#isLeafDepth()) return false
     if (!this.rangeFrom) return false
     if (!this.rangeTo && !this.maybeRangeTo) return false
     let inRange: (t1: Date, t2: Date) => boolean
     if (this.depth === Depth.Month) {
+      const model = itemModel as DayModel
       inRange = (t1: Date, t2: Date) => {
-        const t1Time = makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime()
-        const t2Time = makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime()
-        const itemTime = makeDate(item.year, item.month, item.date).getTime()
+        const t1Time = Helpers.makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime()
+        const t2Time = Helpers.makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime()
+        const itemTime = Helpers.makeDate(model.year, model.month, model.date).getTime()
         return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime
       }
     } else if (this.depth === Depth.Year) {
+      const model = itemModel as MonthModel
       inRange = (t1: Date, t2: Date) => {
-        const t1Time = makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime()
-        const t2Time = makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime()
-        const itemTime = makeDate(item.year, item.month, 1).getTime()
+        const t1Time = Helpers.makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime()
+        const t2Time = Helpers.makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime()
+        const itemTime = Helpers.makeDate(model.year, model.month, 1).getTime()
         return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime
       }
     } else if (this.depth === Depth.Decade) {
+      const model = itemModel as YearModel
       inRange = (t1: Date, t2: Date) => {
         return (
-          Math.min(t1.getFullYear(), t2.getFullYear()) <= item.year &&
-          Math.max(t1.getFullYear(), t2.getFullYear()) >= item.year
+          Math.min(t1.getFullYear(), t2.getFullYear()) <= model.year &&
+          Math.max(t1.getFullYear(), t2.getFullYear()) >= model.year
         )
       }
+    } else {
+      // DecadeModel 无法作为选中值，因此，decade 项不会是 in range。
+      inRange = () => false
     }
 
     const from = this.rangeFrom
     const to = this.rangeTo ?? this.maybeRangeTo
     if (this.depth === Depth.Month) {
-      return inRange!(makeDate(from.year, from.month, from.date), makeDate(to!.year, to!.month, to!.date))
+      return inRange(
+        Helpers.makeDate(from.year, from.month, from.date),
+        Helpers.makeDate(to!.year, to!.month, to!.date)
+      )
     }
     if (this.depth === Depth.Year) {
-      return inRange!(makeDate(from.year, from.month, 1), makeDate(to!.year, to!.month, 1))
+      return inRange(Helpers.makeDate(from.year, from.month, 1), Helpers.makeDate(to!.year, to!.month, 1))
     }
     if (this.depth === Depth.Decade) {
-      return inRange!(makeDate(from.year, 0, 1), makeDate(to!.year, 0, 1))
+      return inRange(Helpers.makeDate(from.year, 0, 1), Helpers.makeDate(to!.year, 0, 1))
     }
   }
 
-  // 当前选项是否选中
-  #isActiveLeaf(item: DateModel) {
+  // 当前选项是否选中（选中的项或者区间的端点）
+  #isActiveLeaf(itemModel: ItemModel) {
     if (!this.#isLeafDepth()) return false
 
-    if (this.isRangeMode()) {
-      return this.#isRangeFrom(item) || this.#isRangeTo(item)
+    if (this.#isRangeMode()) {
+      return this.#isRangeFrom(itemModel) || this.#isRangeTo(itemModel)
     }
 
+    const isSameDate = (item: ItemModel, date: Date) => {
+      return date.getFullYear() === item.year && date.getMonth() === item.month && date.getDate() === item.date
+    }
+    const isSameMonth = (item: ItemModel, date: Date) => {
+      return date.getFullYear() === item.year && date.getMonth() === item.month
+    }
+    const isSameYear = (item: ItemModel, date: Date) => {
+      return date.getFullYear() === item.year
+    }
     const isActive =
       this.depth === Depth.Month
-        ? this.#isSameDate.bind(this, item)
+        ? isSameDate.bind(this, itemModel)
         : this.depth === Depth.Year
-        ? this.#isSameMonth.bind(this, item)
+        ? isSameMonth.bind(this, itemModel)
         : this.depth === Depth.Decade
-        ? this.#isSameYear.bind(this, item)
+        ? isSameYear.bind(this, itemModel)
         : () => false
 
     if (this.mode === 'single') {
-      return this.#value.some(isActive)
+      return this.selected.some(isActive)
     }
 
     if (this.mode === 'multiple') {
-      return this.#value.some(isActive)
-    }
-  }
-
-  // 子节点是否包含今天
-  #includesToday(item: DateModel) {
-    const today = new Date()
-    const year = today.getFullYear()
-    const month = today.getMonth()
-    switch (this.viewDepth) {
-      case Depth.Year:
-        return item.year === year && item.month === month
-      case Depth.Decade:
-        return item.year === year
-      case Depth.Century:
-        return Math.floor(year / 10) === item.decade
-      default:
-        return false
-    }
-  }
-
-  // 是否有子结点选中（年下的月、日，月下的日等等）
-  #includesActive(item: DateModel) {
-    if (!this.#value.length) return false
-
-    if (this.isRangeMode()) {
-      if (this.#value.length !== 2) return false
-      const fromTime = this.#value[0].getTime()
-      const toTime = this.#value[1].getTime()
-      switch (this.viewDepth) {
-        case Depth.Year: {
-          const t1 = makeDate(item.year, item.month, 1).getTime()
-          const t2 = makeDate(item.year, (item.month ?? 0) + 1, 0).getTime()
-          return fromTime <= t2 && toTime >= t1
-        }
-        case Depth.Decade: {
-          const t1 = makeDate(item.year, 0, 1).getTime()
-          const t2 = makeDate(item.year, 11, 31).getTime()
-          return fromTime <= t2 && toTime >= t1
-        }
-        case Depth.Century: {
-          const t1 = makeDate(item.decade * 10, 0, 1).getTime()
-          const t2 = makeDate(item.decade * 10 + 9, 11, 31).getTime()
-          return fromTime <= t2 && toTime >= t1
-        }
-        default:
-          return false
-      }
-    } else {
-      switch (this.viewDepth) {
-        case Depth.Year:
-          return this.#value.some((t: Date) => t.getMonth() === item.month && t.getFullYear() === item.year)
-        case Depth.Decade:
-          return this.#value.some((t: Date) => t.getFullYear() === item.year)
-        case Depth.Century:
-          return this.#value.some((t: Date) => Math.floor(t.getFullYear() / 10) === item.decade)
-        default:
-          return false
-      }
+      return this.selected.some(isActive)
     }
   }
 
   // 当前是否最深的选择深度
   #isLeafDepth() {
-    return this.viewDepth === this.depth
-  }
-
-  // 点击选项时的 handler
-  #onClickItem(item: DateModel) {
-    // 点击 disabled 的末级日期，且该日期非激活状态，则直接返回
-    // 如果该日期为激活状态，则可以取消选择（多选时）
-    if (this.#isDisabledLeaf(item) && !this.#isActiveLeaf(item)) {
-      return
-    }
-
-    // 当前非最深层次，直接往下钻入
-    if (!this.#isLeafDepth()) {
-      return this.drillDown(item)
-    }
-
-    this.selectByModel(item)
+    return this.activeDepth === this.depth
   }
 
   // 选中一个日期
-  selectDate(date: Date) {
-    this.selectByModel(this.#dateToModel(date, this.viewDepth))
+  selectByDate(date: Date) {
+    const itemModel = Helpers.dateToModel(date, this.depth) as MaybeLeafModel
+    this.#selectByLeafModel(itemModel)
   }
 
   // 选中一个日期项
-  selectByModel(item: DateModel) {
+  #selectByLeafModel(itemModel: MaybeLeafModel) {
     if (this.disabled) return
-    let date!: Date
-    switch (this.viewDepth) {
-      // 月视图，当前操作是选择天
-      case Depth.Month: {
-        date = makeDate(item.year, item.month, item.date)
-        break
-      }
-      // 年视图，当前操作是选择月
-      case Depth.Year: {
-        date = makeDate(item.year, item.month, 1)
-        break
-      }
-      // 年代视图，当前操作是选择年
-      case Depth.Decade: {
-        makeDate(item.year, 0, 1)
-        break
-      }
-    }
+    const date = Helpers.modelToDate(itemModel, this.depth)
+
     switch (this.mode) {
       // 单选模式
       case 'single': {
-        this.setValue(date)
+        this.selected = [date]
+        break
+      }
+      // 多选模式
+      case 'multiple': {
+        const values = this.selected.slice()
+        if (this.#isActiveLeaf(itemModel)) {
+          const pred =
+            this.activeDepth === Depth.Month
+              ? (t: Date) =>
+                  t.getDate() === itemModel.date &&
+                  t.getMonth() === itemModel.month &&
+                  t.getFullYear() === itemModel.year
+              : this.activeDepth === Depth.Year
+              ? (t: Date) => t.getMonth() === itemModel.month && t.getFullYear() === itemModel.year
+              : (t: Date) => t.getFullYear() === itemModel.year
+          const index = values.findIndex(pred)
+          if (index !== -1) values.splice(index, 1)
+        } else {
+          values.push(date)
+        }
+        this.selected = values
         break
       }
       // 区间模式
@@ -1071,77 +1161,70 @@ export class BlocksDate extends Component {
         this.maybeRangeTo = null
         // 开始新的区间
         if (!this.rangeFrom || this.rangeTo) {
-          this.clearValue()
-          this.rangeFrom = item
+          this.selected = []
+          this.rangeFrom = itemModel
           this.render()
           return
         }
         // 结束区间
-        this.rangeTo = item
-        this.setRange([
-          makeDate(
+        this.rangeTo = itemModel
+        this.selected = [
+          Helpers.makeDate(
             this.rangeFrom.year,
-            this.viewDepth === Depth.Decade ? 0 : this.rangeFrom.month,
-            this.viewDepth === Depth.Month ? this.rangeFrom.date : 1
+            this.activeDepth === Depth.Decade ? 0 : this.rangeFrom.month,
+            this.activeDepth === Depth.Month ? this.rangeFrom.date : 1
           ),
-          makeDate(
+          Helpers.makeDate(
             this.rangeTo.year,
-            this.viewDepth === Depth.Decade ? 0 : this.rangeTo.month,
-            this.viewDepth === Depth.Month ? this.rangeTo.date : 1
+            this.activeDepth === Depth.Decade ? 0 : this.rangeTo.month,
+            this.activeDepth === Depth.Month ? this.rangeTo.date : 1
           ),
-        ])
-        break
-      }
-      // 多选模式
-      case 'multiple': {
-        const values = this.#value.slice()
-        if (this.#isActiveLeaf(item)) {
-          const pred =
-            this.viewDepth === Depth.Month
-              ? (t: Date) => t.getDate() === item.date && t.getMonth() === item.month && t.getFullYear() === item.year
-              : this.viewDepth === Depth.Year
-              ? (t: Date) => t.getMonth() === item.month && t.getFullYear() === item.year
-              : (t: Date) => t.getFullYear() === item.year
-          const index = values.findIndex(pred)
-          if (index !== -1) values.splice(index, 1)
-        } else {
-          values.push(date)
-        }
-        this.setValues(values)
+        ]
         break
       }
     }
   }
 
   // 当前非处于最深的视图层次，则钻入下一级视图
-  drillDown(item: DateModel) {
+  drillDown(itemModel: ItemModel) {
     if (this.#isLeafDepth()) return
 
-    switch (this.viewDepth) {
+    switch (this.activeDepth) {
       // 年 -> 月
       case Depth.Year: {
-        this.viewMonth = item.month
-        this.viewDepth = Depth.Month
+        this.activeCentury = undefined
+        this.activeDecade = undefined
+        this.activeYear = (itemModel as MonthModel).year
+        this.activeMonth = (itemModel as MonthModel).month
+        this.activeDepth = Depth.Month
         dispatchEvent(this, 'panel-change', {
-          detail: { viewDepth: this.viewDepth },
+          detail: { activeDepth: this.activeDepth },
         })
         break
       }
       // 年代 -> 年
       case Depth.Decade: {
-        this.viewDepth = Depth.Year
-        this.viewYear = item.year
+        this.activeCentury = undefined
+        this.activeDecade = undefined
+        this.activeYear = (itemModel as YearModel).year
+        this.activeMonth = undefined
+
+        this.activeDepth = Depth.Year
         dispatchEvent(this, 'panel-change', {
-          detail: { viewDepth: this.viewDepth },
+          detail: { activeDepth: this.activeDepth },
         })
         break
       }
       // 世纪 -> 年代
       default: {
-        this.viewDepth = Depth.Decade
-        this.viewDecade = item.decade
+        this.activeCentury = undefined
+        this.activeDecade = (itemModel as DecadeModel).decade
+        this.activeYear = undefined
+        this.activeMonth = undefined
+
+        this.activeDepth = Depth.Decade
         dispatchEvent(this, 'panel-change', {
-          detail: { viewDepth: this.viewDepth },
+          detail: { activeDepth: this.activeDepth },
         })
       }
     }
@@ -1149,38 +1232,51 @@ export class BlocksDate extends Component {
 
   // 当前非处于最浅视图层次，则上卷视图
   rollUp() {
-    switch (this.viewDepth) {
+    switch (this.activeDepth) {
       // 月 -> 年
       case Depth.Month: {
-        const upDepth = normalizeViewDepth(Depth.Year, this.mindepth, this.depth)
-        if (this.viewDepth !== upDepth) {
-          this.viewDepth = upDepth
+        const upDepth = Helpers.normalizeActiveDepth(Depth.Year, this.minDepth, this.depth)
+        if (this.activeDepth !== upDepth) {
+          this.activeCentury = undefined
+          this.activeDecade = undefined
+          this.activeYear = this.activeYear
+          this.activeMonth = undefined
+
+          this.activeDepth = upDepth
           dispatchEvent(this, 'panel-change', {
-            detail: { viewDepth: this.viewDepth },
+            detail: { activeDepth: this.activeDepth },
           })
         }
         break
       }
       // 年 -> 年代
       case Depth.Year: {
-        const upDepth = normalizeViewDepth(Depth.Decade, this.mindepth, this.depth)
-        if (this.viewDepth !== upDepth) {
-          this.viewDepth = upDepth
-          this.switchViewByDate(makeDate(this.viewYear!, 0))
+        const upDepth = Helpers.normalizeActiveDepth(Depth.Decade, this.minDepth, this.depth)
+        if (this.activeDepth !== upDepth) {
+          this.activeCentury = undefined
+          this.activeDecade = Helpers.yearToDecade(this.activeYear!)
+          this.activeYear = undefined
+          this.activeMonth = undefined
+
+          this.activeDepth = upDepth
           dispatchEvent(this, 'panel-change', {
-            detail: { viewDepth: this.viewDepth },
+            detail: { activeDepth: this.activeDepth },
           })
         }
         break
       }
       // 年代 -> 世纪
       case Depth.Decade: {
-        const upDepth = normalizeViewDepth(Depth.Century, this.mindepth, this.depth)
-        if (this.viewDepth !== upDepth) {
-          this.viewDepth = upDepth
-          this.switchViewByDate(makeDate(this.viewDecade * 10, 0))
+        const upDepth = Helpers.normalizeActiveDepth(Depth.Century, this.minDepth, this.depth)
+        if (this.activeDepth !== upDepth) {
+          this.activeCentury = Helpers.decadeToCentury(this.activeDecade!)
+          this.activeDecade = undefined
+          this.activeYear = undefined
+          this.activeMonth = undefined
+
+          this.activeDepth = upDepth
           dispatchEvent(this, 'panel-change', {
-            detail: { viewDepth: this.viewDepth },
+            detail: { activeDepth: this.activeDepth },
           })
         }
         break
@@ -1189,211 +1285,202 @@ export class BlocksDate extends Component {
   }
 
   // 仅限 year、month、date 三种 item
-  #modelToDate(item: DateModel) {
-    return makeDate(item.year, item.month || 0, item.date || 1)
+  #leafModelToDate(itemModel: MaybeLeafModel) {
+    return Helpers.makeDate(itemModel.year, itemModel.month || 0, itemModel.date || 1)
   }
 
-  #dateToModel(dateObj: Date, depth: Depth): DateModel {
-    const year = dateObj.getFullYear()
-    const month = dateObj.getMonth()
-    const date = dateObj.getDate()
-    const century = Math.floor(year / 100)
-    const decade = Math.floor(year / 10)
-    const label =
-      depth === Depth.Month
-        ? String(date)
-        : depth === Depth.Year
-        ? String(month + 1)
-        : depth === Depth.Decade
-        ? String(year)
-        : `${decade * 10} ~ ${decade * 10 + 9}`
-    return {
-      label,
-      century,
-      decade,
-      year,
-      month,
-      date,
+  #dateToModel(dateObj: Date): ItemModel {
+    return Helpers.dateToModel(dateObj, this.activeDepth)
+  }
+
+  // 展示 model 所在视图
+  showItemModel(itemModel: ItemModel) {
+    if (Helpers.isDayModel(itemModel)) {
+      this.activeDepth = Helpers.normalizeActiveDepth(Depth.Month, this.minDepth, this.depth)
+      this.activeCentury = itemModel.century
+      this.activeDecade = itemModel.decade
+      this.activeYear = itemModel.year
+      this.activeMonth = itemModel.month
+    } else if (Helpers.isMonthModel(itemModel)) {
+      this.activeDepth = Helpers.normalizeActiveDepth(Depth.Year, this.minDepth, this.depth)
+      this.activeCentury = itemModel.century
+      this.activeDecade = itemModel.decade
+      this.activeYear = itemModel.year
+      this.activeMonth = itemModel.month
+    } else if (Helpers.isYearModel(itemModel)) {
+      this.activeDepth = Helpers.normalizeActiveDepth(Depth.Decade, this.minDepth, this.depth)
+      this.activeCentury = itemModel.century
+      this.activeDecade = itemModel.decade
+      this.activeYear = itemModel.year
+      this.activeMonth = itemModel.month
+    } else if (Helpers.isDecadeModel(itemModel)) {
+      this.activeDepth = Helpers.normalizeActiveDepth(Depth.Century, this.minDepth, this.depth)
+      this.activeCentury = itemModel.century
+      this.activeDecade = itemModel.decade
+      this.activeYear = itemModel.year
+      this.activeMonth = itemModel.month
+    }
+  }
+
+  // 显示日期值所在的视图（最深）
+  showValue(dateObj: Date) {
+    this.activeDepth = this.depth
+    switch (this.depth) {
+      case Depth.Month: {
+        this.activeCentury = undefined
+        this.activeDecade = undefined
+        this.activeYear = dateObj.getFullYear()
+        this.activeMonth = dateObj.getMonth()
+        break
+      }
+      case Depth.Year: {
+        this.activeCentury = undefined
+        this.activeDecade = undefined
+        this.activeYear = dateObj.getFullYear()
+        this.activeMonth = undefined
+        break
+      }
+      case Depth.Decade: {
+        this.activeCentury = undefined
+        this.activeDecade = Helpers.yearToDecade(dateObj.getFullYear())
+        this.activeYear = undefined
+        this.activeMonth = undefined
+        break
+      }
     }
   }
 
   // 显示上个月的选项
   showPrevMonth() {
-    if (this.viewMonth == null) return
-    if (this.viewMonth > 0) {
-      this.viewMonth--
+    if (this.activeMonth == null) return
+    if (this.activeMonth > 0) {
+      this.activeMonth--
     } else {
-      if (this.viewYear) {
-        this.viewYear--
+      if (this.activeYear) {
+        this.activeYear--
       }
-      this.viewMonth = 11
+      this.activeMonth = 11
     }
     dispatchEvent(this, 'prev-month', {
       detail: {
-        century: this.viewCentury,
-        decade: this.viewDecade,
-        year: this.viewYear,
-        month: this.viewMonth,
+        century: this.activeCentury,
+        decade: this.activeDecade,
+        year: this.activeYear,
+        month: this.activeMonth,
       },
     })
   }
 
   // 显示下个月的选项
   showNextMonth() {
-    if (this.viewMonth == null) return
-    if (this.viewMonth < 11) {
-      this.viewMonth++
+    if (this.activeMonth == null) return
+    if (this.activeMonth < 11) {
+      this.activeMonth++
     } else {
-      if (this.viewYear) {
-        this.viewYear++
+      if (this.activeYear) {
+        this.activeYear++
       }
-      this.viewMonth = 0
+      this.activeMonth = 0
     }
     dispatchEvent(this, 'next-month', {
       detail: {
-        century: this.viewCentury,
-        decade: this.viewDecade,
-        year: this.viewYear,
-        month: this.viewMonth,
+        century: this.activeCentury,
+        decade: this.activeDecade,
+        year: this.activeYear,
+        month: this.activeMonth,
       },
     })
   }
 
   // 显示上一年的选项
   showPrevYear() {
-    if (this.viewYear == null) return
-    this.viewYear--
-    dispatchEvent(this, 'prev-year', {
-      detail: {
-        century: this.viewCentury,
-        decade: this.viewDecade,
-        year: this.viewYear,
-      },
-    })
+    if (typeof this.activeYear === 'number') {
+      this.activeYear--
+      dispatchEvent(this, 'prev-year', {
+        detail: {
+          century: this.activeCentury,
+          decade: this.activeDecade,
+          year: this.activeYear,
+        },
+      })
+    }
   }
 
   // 显示下一年的选项
   showNextYear() {
-    if (this.viewYear == null) return
-    this.viewYear++
-    dispatchEvent(this, 'next-year', {
-      detail: {
-        century: this.viewCentury,
-        decade: this.viewDecade,
-        year: this.viewYear,
-      },
-    })
+    if (typeof this.activeYear === 'number') {
+      this.activeYear++
+      dispatchEvent(this, 'next-year', {
+        detail: {
+          century: this.activeCentury,
+          decade: this.activeDecade,
+          year: this.activeYear,
+        },
+      })
+    }
   }
 
   // 显示上个年代（十年）的选项
   showPrevDecade() {
-    this.viewDecade--
-    dispatchEvent(this, 'prev-decade', {
-      detail: { century: this.viewCentury, decade: this.viewDecade },
-    })
+    if (typeof this.activeDecade === 'number') {
+      this.activeDecade--
+      dispatchEvent(this, 'prev-decade', {
+        detail: { century: this.activeCentury, decade: this.activeDecade },
+      })
+    }
   }
 
   // 显示下个年代（十年）的选项
   showNextDecade() {
-    this.viewDecade++
-    dispatchEvent(this, 'next-decade', {
-      detail: { century: this.viewCentury, decade: this.viewDecade },
-    })
+    if (typeof this.activeDecade === 'number') {
+      this.activeDecade++
+      dispatchEvent(this, 'next-decade', {
+        detail: { century: this.activeCentury, decade: this.activeDecade },
+      })
+    }
   }
 
   // 显示上一个世纪的选项
   showPrevCentury() {
-    this.viewCentury--
-    dispatchEvent(this, 'prev-century', {
-      detail: { century: this.viewCentury },
-    })
+    if (typeof this.activeCentury === 'number') {
+      this.activeCentury--
+      dispatchEvent(this, 'prev-century', {
+        detail: { century: this.activeCentury },
+      })
+    }
   }
 
   // 显示下一个世纪的选项
   showNextCentury() {
-    this.viewCentury++
-    dispatchEvent(this, 'next-century', {
-      detail: { century: this.viewCentury },
-    })
+    if (typeof this.activeCentury === 'number') {
+      this.activeCentury++
+      dispatchEvent(this, 'next-century', {
+        detail: { century: this.activeCentury },
+      })
+    }
   }
 
-  // 点击 prev 按钮
-  #onPrev() {
-    if (this.viewDepth === Depth.Month) {
-      this.showPrevMonth()
-    } else if (this.viewDepth === Depth.Year) {
-      this.showPrevYear()
-    } else if (this.viewDepth === Depth.Decade) {
-      this.showPrevDecade()
+  // 检测两个日期是否同一天
+  // 可以根据需要覆盖该实现，默认实现为精确到天即可（时分秒不关心）
+  dateEquals(a: Date, b: Date): boolean {
+    if (a === b) return true
+    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+  }
+
+  // 获取当前选项对应的 badge
+  getBadges(item: ItemModel) {
+    let badges: Badge[]
+    if (this.activeDepth === Depth.Month) {
+      badges = this.badges.filter(b => item.date === b.date && item.month === b.month && b.year === item.year)
+    } else if (this.activeDepth === Depth.Year) {
+      badges = this.badges.filter(b => item.month === b.month && b.year === item.year)
+    } else if (this.activeDepth === Depth.Decade) {
+      badges = this.badges.filter(b => b.year === item.year)
+    } else if (this.activeDepth === Depth.Century) {
+      badges = this.badges.filter(b => b.year >= item.decade * 10 && b.year <= item.decade * 10 + 9)
     } else {
-      this.showPrevCentury()
+      badges = []
     }
-  }
-
-  // 点击双重 prev 按钮
-  #onPrevPrev() {
-    if (this.viewDepth === Depth.Month) {
-      this.showPrevYear()
-    }
-  }
-
-  // 点击 next 按钮
-  #onNext() {
-    if (this.viewDepth === Depth.Month) {
-      this.showNextMonth()
-    } else if (this.viewDepth === Depth.Year) {
-      this.showNextYear()
-    } else if (this.viewDepth === Depth.Decade) {
-      this.showNextDecade()
-    } else {
-      this.showNextCentury()
-    }
-  }
-
-  // 点击双重 next 按钮
-  #onNextNext() {
-    if (this.viewDepth === Depth.Month) {
-      this.showNextYear()
-    }
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
-  }
-
-  static get Depth() {
-    return Depth
-  }
-
-  static override get observedAttributes() {
-    return [
-      // 选择值的深度
-      // month 代表最深按照月展示选项，可以选择到 “天”
-      // year 代表最深按照年份展示选项，可以选择到 “月”
-      // decade 代表最深按照十年展示选项，可以选择到 “年”
-      'depth',
-      // 是否禁用
-      'disabled',
-      // 是否使用 loading 遮罩
-      'loading',
-      // 多选模式的话，最多能选择多少个值
-      'max',
-      // 可切换至的最小深度
-      'mindepth',
-      // 选择模式，支持 single, multiple, range
-      'mode',
-      // 初始化显示的深度
-      'startdepth',
-      // 每周从星期几开始，0 代表星期天，1 代表星期一，顺序类推
-      'start-week-on',
-      // model 值
-      'value',
-    ]
+    return badges
   }
 }

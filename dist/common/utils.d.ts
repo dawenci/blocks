@@ -17,6 +17,7 @@ export declare function kebabCase(str: string): string;
 export declare function capitalize(str: string): string;
 export declare function range(start: number, end: number): number[];
 export declare function isEmpty(obj: object): boolean;
+export declare function uniq<T>(list: T[]): T[];
 export declare const uniqBy: <T>(fn: (item: T) => any, list: ArrayLike<T>) => T[];
 export declare function merge(output: Record<string, any> | Array<any>, to: Record<string, any> | Array<any>, from?: Record<string, any> | Array<any>): any[] | Record<string, any>;
 type Nested<T> = Array<T | Nested<T>>;

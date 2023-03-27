@@ -9,7 +9,7 @@ export const style = /*css*/ `
 /* 过渡过程持续生效 */
 :host(.zoom-enter-transition-active),
 :host(.zoom-leave-transition-active) {
-  display: block;
+  display: inherit;
   transition-delay: 0, 0;
   transition-property: opacity, transform;
   transition-duration: var(--transition-duration, ${__transition_duration}), var(--transition-duration, ${__transition_duration});
@@ -40,7 +40,7 @@ export const style = /*css*/ `
 /* 过渡过程持续生效 */
 :host(.opacity-enter-transition-active),
 :host(.opacity-leave-transition-active) {
-  display: block;
+  display: inherit;
   transition-delay: 0, 0;
   transition-property: opacity;
   transition-duration: var(--transition-duration, ${__transition_duration});
@@ -66,7 +66,7 @@ export const style = /*css*/ `
 /* 过渡过程持续生效 */
 :host(.collapse-appear-enter-transition-active),
 :host(.collapse-appear-leave-transition-active) {
-  display: block;
+  display: inherit;
   overflow: hidden;
   transition-delay: 0, 0;
   transition-property: opacity, height;

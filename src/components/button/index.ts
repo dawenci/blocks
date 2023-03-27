@@ -1,20 +1,29 @@
+import type { ComponentEventListener } from '../component/Component.js'
+import type { ControlBoxEventMap } from '../base-control-box/index.js'
+import type { EnumAttr, EnumAttrs } from '../../decorators/attr.js'
+import { attr, attrs } from '../../decorators/attr.js'
 import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { style } from './style.js'
+import { template } from './template.js'
 import { ControlBox } from '../base-control-box/index.js'
-import { labelTemplate } from './template.js'
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
+import { SetupControlEvent } from '../setup-control-event/index.js'
+import { SetupEmpty } from '../setup-empty/index.js'
 
 const types = ['primary', 'danger', 'warning', 'success', 'link'] as const
 
 export interface BlocksButton extends ControlBox {
-  _ref: ControlBox['_ref'] & {
-    $content: HTMLSpanElement
-    $slot: HTMLSlotElement
-    $icon?: HTMLElement | null
-  }
+  addEventListener<K extends keyof ControlBoxEventMap>(
+    type: K,
+    listener: ComponentEventListener<ControlBoxEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
 
-  _observer: MutationObserver
+  removeEventListener<K extends keyof ControlBoxEventMap>(
+    type: K,
+    listener: ComponentEventListener<ControlBoxEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
 }
 
 @defineClass({
@@ -26,82 +35,61 @@ export class BlocksButton extends ControlBox {
     return 'button'
   }
 
-  @attr('string') accessor icon!: string | null
+  static override get disableEventTypes() {
+    return ['click', 'keydown', 'touchstart']
+  }
 
   @attr('boolean') accessor block!: boolean
 
-  @attr('enum', {
-    enumValues: types,
-  })
-  accessor type!: typeof types | null
+  @attr('boolean') accessor outline!: boolean
 
-  @attr('enum', { enumValues: ['small', 'large'] })
-  accessor size!: 'small' | 'large' | null
+  @attr('enum', { enumValues: types }) accessor type!: EnumAttr<typeof types> | null
+
+  @attrs.size accessor size!: EnumAttrs['size'] | null
+
+  @shadowRef('[part="content"]') accessor $content!: HTMLSpanElement
+
+  @shadowRef('[part="slot"]') accessor $slot!: HTMLSlotElement
 
   constructor() {
     super()
 
-    this._appendContent(labelTemplate())
-    this._ref.$content = this.querySelectorShadow<HTMLSpanElement>('#content')!
-    this._ref.$slot = this.querySelectorShadow('slot')!
+    this.appendContent(template())
+    this._tabIndexFeature.withTabIndex(0)
 
-    captureEventWhenEnable(this, 'keydown', e => {
-      if (e.keyCode === 32 || e.keyCode === 13) {
-        // 阻止空格键的页面滚动行为
-        e.preventDefault()
-
-        this.dispatchEvent(
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        )
-      }
-    })
-
-    // disabled 状态，阻止点击
-    captureEventWhenEnable(this, 'click', () => {
-      // noop
-    })
-
-    this._observer = new MutationObserver(() => {
-      this.setAttribute('aria-label', this.textContent ?? '')
-    })
+    this.#setupContent()
   }
 
-  override render() {
-    super.render()
-    this._ref.$layout.classList.toggle('empty', !this._ref.$slot.assignedNodes().length)
-  }
+  _controlFeature = SetupControlEvent.setup({ component: this })
 
-  override connectedCallback() {
-    super.connectedCallback()
-    this.internalTabIndex = '0'
+  _emptyFeature = SetupEmpty.setup({
+    component: this,
+    predicate: () => !this.$slot.assignedNodes().filter($node => $node.nodeType === 1 || $node.nodeType === 3).length,
+    target: () => this.$layout,
+  })
 
-    this._observer.observe(this, {
-      childList: true,
-      characterData: true,
-      subtree: true,
-    })
-
-    this.render()
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-
-    this._observer.disconnect()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    switch (attrName) {
-      case 'type': {
-        return this.render()
-      }
-      case 'size': {
-        return this.render()
-      }
+  #setupContent() {
+    let _observer: MutationObserver | undefined
+    const updateClass = () => {
+      this._emptyFeature.update()
     }
+    const updateAria = () => {
+      this.setAttribute('aria-label', this.textContent ?? '')
+    }
+    const update = () => {
+      updateAria()
+      updateClass()
+    }
+    this.onConnected(() => {
+      _observer = new MutationObserver(update)
+      _observer.observe(this, { childList: true })
+      update()
+    })
+    this.onDisconnected(() => {
+      if (_observer) {
+        _observer.disconnect()
+        _observer = undefined
+      }
+    })
   }
 }

@@ -1,5 +1,5 @@
 export const style = `
-:host(.dropdown)::part(suffix) {
+bl-select-result.dropdown::part(suffix) {
   transform: rotate(180deg);
 }
 `;

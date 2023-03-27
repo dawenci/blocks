@@ -1,24 +1,11 @@
-import { Component } from '../Component.js';
 import type { NullableEnumAttr } from '../../decorators/attr.js';
-export interface BlocksRow extends Component {
-    _ref: {
-        $slot: HTMLSlotElement;
-    };
-}
+import { Component } from '../component/Component.js';
 export declare class BlocksRow extends Component {
-    static get observedAttributes(): string[];
+    #private;
     accessor gutter: number;
     accessor wrap: boolean;
     accessor align: NullableEnumAttr<['top', 'middle', 'bottom']>;
-    accessor justify: NullableEnumAttr<[
-        'start',
-        'end',
-        'center',
-        'space-around',
-        'space-between'
-    ]>;
+    accessor justify: NullableEnumAttr<['start', 'end', 'center', 'space-around', 'space-between']>;
+    accessor $slot: HTMLSlotElement;
     constructor();
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    _renderGutter(): void;
 }

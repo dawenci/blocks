@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,17 +25,30 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { defineClass } from '../../decorators/defineClass.js';
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { attr } from '../../decorators/attr.js';
-import { BlocksVList } from '../vlist/index.js';
+import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
 import { parseHighlight } from '../../common/highlight.js';
 import { style } from './style.js';
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
+import { BlocksVList } from '../vlist/index.js';
+import { SetupDisabled } from '../setup-disabled/index.js';
+import { SetupTabIndex } from '../setup-tab-index/index.js';
 export let BlocksList = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-list',
             styles: [style],
+            attachShadow: {
+                mode: 'open',
+                delegatesFocus: true,
+            },
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -90,8 +96,7 @@ export let BlocksList = (() => {
             BlocksList = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #checkedSet = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        #border_accessor_storage = __runInitializers(this, _border_initializers, void 0);
+        #border_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _border_initializers, void 0));
         get border() { return this.#border_accessor_storage; }
         set border(value) { this.#border_accessor_storage = value; }
         #stripe_accessor_storage = __runInitializers(this, _stripe_initializers, void 0);
@@ -118,16 +123,42 @@ export let BlocksList = (() => {
         #search_accessor_storage = __runInitializers(this, _search_initializers, void 0);
         get search() { return this.#search_accessor_storage; }
         set search(value) { this.#search_accessor_storage = value; }
+        #checkedSet = new Set();
+        #focusVitem = null;
+        _disabledFeature = SetupDisabled.setup({
+            component: this,
+            predicate() {
+                return this.disabled;
+            },
+            target() {
+                return [this];
+            },
+        });
+        _tabIndexFeature = SetupTabIndex.setup({
+            tabIndex: 0,
+            component: this,
+            disabledPredicate() {
+                return this.disabled;
+            },
+            target() {
+                return [this.$viewport];
+            },
+        });
         constructor() {
             super();
-            this.#checkedSet = new Set();
-            this._ref.$list.onclick = e => {
+            this.#setupEvents();
+            this.onConnected(() => {
+                this.upgradeProperty(['checkedData', 'checked']);
+            });
+        }
+        #setupEvents() {
+            const onListClick = (e) => {
                 if (this.disabled)
                     return;
                 let $item = e.target;
-                if ($item === this._ref.$list)
+                if ($item === this.$list)
                     return;
-                while ($item !== this._ref.$list) {
+                while ($item !== this.$list) {
                     if ($item.classList.contains('item')) {
                         break;
                     }
@@ -135,6 +166,7 @@ export let BlocksList = (() => {
                 }
                 if ($item.hasAttribute('disabled'))
                     return;
+                this.focusById($item.dataset.virtualKey);
                 dispatchEvent(this, 'click-item', {
                     detail: {
                         id: $item.dataset.id,
@@ -142,66 +174,66 @@ export let BlocksList = (() => {
                     },
                 });
                 if (this.checkable) {
-                    this._selectItem($item);
-                }
-            };
-            const isDisabledItem = ($item) => {
-                return this.disabled || $item.hasAttribute('disabled');
-            };
-            captureEventWhenEnable(this, 'keydown', e => {
-                const $focus = this._ref.$list.querySelector(':focus');
-                if (e.key === 'ArrowDown') {
-                    if (!$focus)
+                    const vitem = this.getVirtualItemByKey($item.dataset.virtualKey);
+                    if (!vitem)
                         return;
-                    e.preventDefault();
-                    let $next = $focus.nextElementSibling;
-                    while ($next && isDisabledItem($next)) {
-                        $next = $next.nextElementSibling;
-                    }
-                    if ($next) {
-                        ;
-                        $next.focus();
+                    if (this.multiple && this.#checkedSet.has(vitem.virtualKey)) {
+                        this.deselectById(vitem.virtualKey);
                     }
                     else {
-                        const scrollableBottom = this._ref.$viewport.getScrollableBottom();
-                        const scrollDelta = Math.min(this.viewportHeight / 2, scrollableBottom);
-                        this._ref.$viewport.viewportScrollTop += scrollDelta;
+                        this.selectById(vitem.virtualKey);
                     }
+                }
+            };
+            this.onConnected(() => {
+                this.$list.onclick = onListClick;
+            });
+            this.onDisconnected(() => {
+                this.$list.onclick = null;
+            });
+            const onKeydown = (e) => {
+                if (e.key === 'ArrowDown') {
+                    this.focusNext();
+                    e.preventDefault();
                 }
                 else if (e.key === 'ArrowUp') {
-                    if (!$focus)
-                        return;
+                    this.focusPrev();
                     e.preventDefault();
-                    let $prev = $focus.previousElementSibling;
-                    while ($prev && isDisabledItem($prev)) {
-                        $prev = $prev.previousElementSibling;
-                    }
-                    if ($prev) {
-                        ;
-                        $prev.focus();
-                    }
-                    else {
-                        const scrollableTop = this._ref.$viewport.getScrollableTop();
-                        const scrollDelta = Math.min(this.viewportHeight / 2, scrollableTop);
-                        this._ref.$viewport.viewportScrollTop -= scrollDelta;
-                    }
                 }
                 else if (e.key === ' ' || e.key === 'Enter') {
-                    if (!$focus)
+                    if (!this.checkable || !this.#focusVitem)
                         return;
                     e.preventDefault();
-                    $focus.dispatchEvent(new MouseEvent('click', {
-                        bubbles: true,
-                        cancelable: true,
-                    }));
+                    if (this.multiple && this.#checkedSet.has(this.#focusVitem.virtualKey)) {
+                        this.deselectById(this.#focusVitem.virtualKey);
+                    }
+                    else {
+                        this.selectById(this.#focusVitem.virtualKey);
+                    }
                 }
+            };
+            let clearKeydown;
+            this.onConnected(() => {
+                clearKeydown = captureEventWhenEnable(this, 'keydown', onKeydown);
+            });
+            this.onDisconnected(() => {
+                clearKeydown();
+            });
+            const clearFocus = () => {
+                this.focusById('');
+            };
+            this.onConnected(() => {
+                this.$viewport.addEventListener('blur', clearFocus);
+            });
+            this.onDisconnected(() => {
+                this.$viewport.removeEventListener('blur', clearFocus);
             });
         }
         get checkedData() {
-            return [...(this.#checkedSet ?? [])].map((vitem) => vitem.data);
+            return [...(this.#checkedSet ?? [])].map(vkey => this.getVirtualItemByKey(vkey).data);
         }
         set checkedData(data) {
-            this.#checkedSet = new Set(data.map(data => this.virtualDataMap[this.keyMethod(data)]).filter(vitem => !!vitem));
+            this.#checkedSet = new Set(data.map(data => this.keyMethod(data)).filter(vkey => !!this.getVirtualItemByKey(vkey)));
             this.render();
             dispatchEvent(this, 'select-list:change', {
                 detail: {
@@ -216,8 +248,7 @@ export let BlocksList = (() => {
             return this.checkedData.map(this.keyMethod.bind(this));
         }
         set checked(ids) {
-            const vitems = ids.map(id => this.getVirtualItemByKey(id)).filter(vitem => !!vitem);
-            this.#checkedSet = new Set(vitems);
+            this.#checkedSet = new Set(ids.filter(id => !!this.getVirtualItemByKey(id)));
             this.render();
             dispatchEvent(this, 'select-list:change', {
                 detail: {
@@ -228,19 +259,105 @@ export let BlocksList = (() => {
                 },
             });
         }
-        select(data) {
-            const vitem = this.virtualDataMap[data.value];
-            if (!vitem)
+        focusById(id) {
+            const old = this.#focusVitem;
+            this.#focusVitem = this.getVirtualItemByKey(id) ?? null;
+            if (this.#focusVitem?.virtualKey === old?.virtualKey)
                 return;
-            if (this.#checkedSet.has(vitem))
+            if (this.#focusVitem) {
+                const $item = this.getNodeByVirtualKey(id);
+                if ($item)
+                    this.itemRender($item, this.#focusVitem);
+            }
+            if (old) {
+                const $item = this.getNodeByVirtualKey(old.virtualKey);
+                if ($item)
+                    this.itemRender($item, old);
+            }
+        }
+        focusNext() {
+            const totalCount = this.virtualViewData.length;
+            if (!totalCount)
                 return;
-            if (this.multiple) {
-                this.#checkedSet.add(vitem);
+            let index;
+            const current = this.#focusVitem;
+            if (current) {
+                index = current.virtualViewIndex + 1;
+                if (index >= totalCount)
+                    return;
             }
             else {
-                this.#checkedSet = new Set([vitem]);
+                index = 0;
             }
-            this.render();
+            let result;
+            for (; index < totalCount; ++index) {
+                const vitem = this.virtualViewData[index];
+                if (vitem.data[this.disabledField]) {
+                    continue;
+                }
+                result = vitem;
+                break;
+            }
+            if (result) {
+                this.focusById(result.virtualKey);
+                if (!this.$list.querySelector(`[data-virtual-key="${result.virtualKey}"]`)) {
+                    this.scrollToKey(result.virtualKey, 0);
+                }
+            }
+        }
+        focusPrev() {
+            const totalCount = this.virtualViewData.length;
+            if (!totalCount)
+                return;
+            let index;
+            const current = this.#focusVitem;
+            if (current) {
+                index = current.virtualViewIndex - 1;
+                if (index < 0)
+                    return;
+            }
+            else {
+                index = this.virtualViewData.length - 1;
+            }
+            let result;
+            for (; index >= 0; --index) {
+                const vitem = this.virtualViewData[index];
+                if (vitem.data[this.disabledField]) {
+                    continue;
+                }
+                result = vitem;
+                break;
+            }
+            if (result) {
+                this.focusById(result.virtualKey);
+                if (!this.$list.querySelector(`[data-virtual-key="${result.virtualKey}"]`)) {
+                    this.backScrollToKey(result.virtualKey, 0);
+                }
+            }
+        }
+        select(data) {
+            const vitem = this.getVirtualItemByKey(data.value);
+            if (!vitem)
+                return;
+            const vkey = vitem.virtualKey;
+            if (this.#checkedSet.has(vkey))
+                return;
+            if (this.multiple) {
+                this.#checkedSet.add(vkey);
+                const $item = this.getNodeByVirtualKey(vkey);
+                if ($item)
+                    this.itemRender($item, vitem);
+            }
+            else {
+                const [old] = [...this.#checkedSet.values()];
+                this.#checkedSet = new Set([vkey]);
+                const $new = this.getNodeByVirtualKey(vkey);
+                if ($new)
+                    this.itemRender($new, vitem);
+                const $old = old && this.getNodeByVirtualKey(old);
+                if ($old)
+                    this.itemRender($old, this.getVirtualItemByKey(old));
+            }
             dispatchEvent(this, 'select-list:select', { detail: { value: data } });
             dispatchEvent(this, 'select-list:change', {
                 detail: {
@@ -252,13 +369,13 @@ export let BlocksList = (() => {
             });
         }
         deselect(data) {
-            const vitem = this.virtualDataMap[data.value];
+            const vitem = this.getVirtualItemByKey(data.value);
             if (!vitem)
                 return;
-            if (!this.#checkedSet.has(vitem))
+            const vkey = vitem.virtualKey;
+            if (!this.#checkedSet.has(vkey))
                 return;
-            this.#checkedSet.delete(vitem);
-            this.render();
+            this.#checkedSet.delete(vkey);
             dispatchEvent(this, 'select-list:deselect', { detail: { value: data } });
             dispatchEvent(this, 'select-list:change', {
                 detail: {
@@ -268,6 +385,10 @@ export let BlocksList = (() => {
                     })),
                 },
             });
+            const $item = this.getNodeByVirtualKey(vkey);
+            if ($item) {
+                this.itemRender($item, vitem);
+            }
         }
         searchSelectable(searchString) {
             this.search = searchString;
@@ -277,21 +398,21 @@ export let BlocksList = (() => {
                 this.checkedData = [];
             }
         }
-        _selectItem($item) {
-            const vitem = this.virtualDataMap[$item.dataset.virtualKey];
+        selectById(id) {
+            const vitem = this.getVirtualItemByKey(id);
+            if (!vitem)
+                return;
             const label = this.internalLabelMethod(vitem.data);
             const value = this.keyMethod(vitem.data);
-            if (this.multiple) {
-                if (this.#checkedSet.has(vitem)) {
-                    this.deselect({ value, label });
-                }
-                else {
-                    this.select({ value, label });
-                }
-            }
-            else {
-                this.select({ value, label });
-            }
+            this.select({ value, label });
+        }
+        deselectById(id) {
+            const vitem = this.getVirtualItemByKey(id);
+            if (!vitem)
+                return;
+            const label = this.internalLabelMethod(vitem.data);
+            const value = this.keyMethod(vitem.data);
+            this.deselect({ value, label });
         }
         _renderDisabled() {
             if (this.disabled) {
@@ -370,21 +491,24 @@ export let BlocksList = (() => {
         parseHighlight(label, highlightText) {
             return parseHighlight(label, highlightText);
         }
-        _renderItemDisabled($item, vitem) {
-            const isDisabled = (this.disabled || vitem.data[this.disabledField]) ?? false;
-            if (isDisabled) {
-                $item.removeAttribute('tabindex');
-                $item.setAttribute('disabled', '');
-            }
-            else {
-                $item.setAttribute('tabindex', '-1');
-                $item.removeAttribute('disabled');
-            }
-            if (this.#checkedSet.has(vitem)) {
+        _renderItemFocus($item, vitem) {
+            $item.classList.toggle('focus', !!this.#focusVitem && this.#focusVitem.virtualKey === vitem.virtualKey);
+        }
+        _renderItemChecked($item, vitem) {
+            if (this.#checkedSet.has(vitem.virtualKey)) {
                 $item.classList.add('checked');
             }
             else {
                 $item.classList.remove('checked');
+            }
+        }
+        _renderItemDisabled($item, vitem) {
+            const isDisabled = (this.disabled || vitem.data[this.disabledField]) ?? false;
+            if (isDisabled) {
+                $item.setAttribute('disabled', '');
+            }
+            else {
+                $item.removeAttribute('disabled');
             }
         }
         itemRender($item, vitem) {
@@ -398,7 +522,9 @@ export let BlocksList = (() => {
                     $item.appendChild($fragment);
                 }
                 else {
-                    $item.innerHTML = `<div class="prefix"></div><div class="label"></div><div class="suffix"></div>`;
+                    $item.innerHTML = `<div class="prefix"></div>
+<div class="label"></div>
+<div class="suffix"></div>`;
                 }
             }
             const $label = $item.querySelector('.label');
@@ -416,6 +542,8 @@ export let BlocksList = (() => {
                 $label.innerHTML = label;
             }
             this._renderItemDisabled($item, vitem);
+            this._renderItemChecked($item, vitem);
+            this._renderItemFocus($item, vitem);
         }
     };
     return BlocksList = _classThis;

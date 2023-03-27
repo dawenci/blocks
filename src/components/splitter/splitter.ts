@@ -1,14 +1,14 @@
-import { BlocksSplitterPane } from './pane.js'
 import type { EnumAttr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
-import { Component } from '../Component.js'
-import { template as handleTemplate } from './handle.template.js'
-import { template } from './splitter.template.js'
 import { style } from './splitter.style.js'
+import { template } from './splitter.template.js'
+import { template as handleTemplate } from './handle.template.js'
+import { BlocksSplitterPane } from './pane.js'
+import { Component } from '../component/Component.js'
 
 export interface BlocksSplitter extends Component {
   _ref: {
@@ -44,14 +44,13 @@ export class BlocksSplitter extends Component {
 
     this._ref = { $layout, $panes, $cover, $slot }
 
-    $slot.addEventListener('slotchange', () => {
-      this.panes = $slot.assignedElements().filter($item => $item instanceof BlocksSplitterPane) as BlocksSplitterPane[]
+    this.#setupSlotEvent()
+    this.#setupResizeEvents()
+    this.#setupSizeObserve()
 
-      this._renderDirection()
-      this.layout()
-    })
-
-    this._initResizeEvents()
+    this.onConnected(this.render)
+    this.onAttributeChangedDep('direction', this._renderDirection)
+    this.onAttributeChangedDep('handle-size', this.layout)
   }
 
   _renderDirection() {
@@ -65,30 +64,17 @@ export class BlocksSplitter extends Component {
     return this._ref.$panes[this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight']
   }
 
-  _offSizeObserve?: () => void
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-    this._offSizeObserve = sizeObserve(this, this.layout.bind(this))
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    if (this._offSizeObserve) {
-      this._offSizeObserve()
-      this._offSizeObserve = undefined
-    }
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-
-    if (attrName === 'direction') {
-      this._renderDirection()
-    }
-    if (attrName === 'handle-size') {
-      this.layout()
-    }
+  #setupSizeObserve() {
+    let clear: (() => void) | undefined
+    this.onConnected(() => {
+      clear = sizeObserve(this, this.layout.bind(this))
+    })
+    this.onDisconnected(() => {
+      if (clear) {
+        clear()
+        clear = undefined
+      }
+    })
   }
 
   renderHandles() {
@@ -283,7 +269,23 @@ export class BlocksSplitter extends Component {
     return Array.prototype.indexOf.call(this._ref.$layout.querySelectorAll('.handle'), $handle)
   }
 
-  _initResizeEvents() {
+  #setupSlotEvent() {
+    const onSlotChange = () => {
+      this.panes = this._ref.$slot
+        .assignedElements()
+        .filter($item => $item instanceof BlocksSplitterPane) as BlocksSplitterPane[]
+      this._renderDirection()
+      this.layout()
+    }
+    this.onConnected(() => {
+      this._ref.$slot.addEventListener('slotchange', onSlotChange)
+    })
+    this.onDisconnected(() => {
+      this._ref.$slot.removeEventListener('slotchange', onSlotChange)
+    })
+  }
+
+  #setupResizeEvents() {
     // 开始拖拽调整面板尺寸时，鼠标的坐标，以及面板宽度初始值
     // 用于计算偏移
     let startSize = 0

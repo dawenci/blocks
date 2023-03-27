@@ -50,9 +50,10 @@ export function camelCase(str) {
     str = ('' + str).trim();
     if (!str.length)
         return str;
-    return str
-        .replace(/[-_]+([\S])/g, (_, char) => char.toUpperCase())
-        .replace(/^([A-Z])/, (_, char) => char.toLowerCase());
+    return (str
+        .replace(/([A-Z])([A-Z]+)/g, (_, c1, c2) => c1 + c2.toLowerCase())
+        .replace(/[-_\s\.]+([a-z]?)/g, (_, char) => char && char.toUpperCase())
+        .replace(/^([A-Z])/, (_, char) => char.toLowerCase()));
 }
 export function kebabCase(str) {
     return str.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase()).replace(/[-_\s]{2,}/g, '-');

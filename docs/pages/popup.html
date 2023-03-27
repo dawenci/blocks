@@ -31,6 +31,22 @@
     </section>
 
     <section class="section">
+      <h2>定位说明</h2>
+      <p>Popup 的定位，通过锚定一个矩形区域来实现。</p>
+      <p>Popup 根据 origin 不同，会吸附在该矩形的四条边中的某一条的外侧（设置 `inset` attribute 后在内测），或与该矩形中心对齐（`origin` 为 center 的情况）。</p>
+      <p>有多种方式可以指定这个锚定的布局框：</p>
+      <ol>
+        <li>1. 通过指定原点、宽高，确定一个矩形：设置 `anchorX` & `anchorY` & `anchorWidth` & `anchorHeight` attribute</li>
+        <li>2. 通过指定一个元素的 CSS 选择器，以该元素的矩形框来确定：设置 `anchorSelector`</li>
+        <li>3. 通过 JavaScript API 指定锚定的元素的获取函数: 设置 `anchorElement` 属性</li>
+        <li>4. 使用默认锚定，什么都不用设置，默认使用 `offsetParent` 作为锚定元素</li>
+      </ol>
+      <p>优先级：anchorElement > anchorSelector > anchorX/anchorY/anchorWidth/anchorHeight > 默认</p>
+
+      <p>在确定锚定区域的基础上，可以通过 `offset-x` & `offset-y` 这两个 attribute 来偏移定位。</p>
+    </section>
+
+    <section class="section">
       <h2>默认</h2>
 
       <p>通过 `open` 属性控制显示。默认以 Popup 的中心点为原点，相对于 offsetParent 的中心点进行定位。</p>
@@ -55,7 +71,7 @@
     <section class="section">
       <h2>指定定位</h2>
 
-      <p>Popup 的定位，通过 `anchor`（锚定矩形，注意是个矩形）、 `origin`（原点）、`offset`（偏移）以及 `inset`（内部吸附）4 个属性来共同确定。</p>
+      <p>Popup 的定位，通过 anchor（通过 `anchor-x`/`anchor-y`/`anchor-width`/`anchor-height` 或 `anchor-selector` 或 `anchorElement` 来确定）锚定矩形、 `origin`（原点）、`offset-x`（水平偏移）、`offset-y`（垂直偏移）以及 `inset`（内部吸附）5 个属性来共同确定。</p>
       <p>Popup 会根据 `origin` 和 `inset` 的不同，吸附在 `anchor` 矩形的不同边上（或中心上）。 </p>
       <p>默认未作设置的情况，`anchor` 为 `offsetParent`，即 Popup 的祖先元素中，最近的拥有定位属性的元素；而 `origin` 默认为 `center`，表示默认中心对齐，即 Popup 的中心点和 `offsetParent` 的中心点对齐；`inset` 默认为 false，该属性决定 Popup 是吸附在矩形的外侧，还是内部。</p>
 
@@ -70,7 +86,7 @@
           <div style="position:relative;height:200px;background:#e8e8e8;">
             <div style="width:100px;height:100px;line-height:100px;text-align:center;background:#888;">100 * 100</div>
 
-            <bl-popup class="popup-anchor1" origin="left-start" inset offset="[100,100]">
+            <bl-popup class="popup-anchor1" origin="left-start" inset offset-x="100" offset-y="100">
               <div style="padding:15px;">起始座标：[100,100]</div>
             </bl-popup>
           </div>
@@ -93,7 +109,7 @@
           <div style="height:100px;padding:15px;background:#e8e8e8;">
             <div class="popup-selector1-anchor" style="width:100px;height:100px;line-height:100px;background:#888;text-align:center;">吸附我</div>
 
-            <bl-popup class="popup-selector1" origin="left-start" anchor=".popup-selector1-anchor">
+            <bl-popup class="popup-selector1" origin="left-start" anchor-selector=".popup-selector1-anchor">
               <div style="padding:15px;">左上角吸附于 anchor 右侧</div>
             </bl-popup>
           </div>
@@ -116,7 +132,7 @@
           <div style="position:relative;height:200px;background:#e8e8e8;">
             <div style="width:150px;height:150px;background:#888;">渲染在内部 (10,10) 处</div>
   
-            <bl-popup class="popup-anchor-inset1" origin="top-start" offset="[10,10]" inset>
+            <bl-popup class="popup-anchor-inset1" origin="top-start" offset-x="10" offset-y="10" inset>
               <div style="padding:15px;">座标：[10,10]</div>
             </bl-popup>
           </div>
@@ -127,7 +143,7 @@
     <section class="section">
       <h2>箭头</h2>
 
-      <p>通过 `arrow` 属性控制是否显示箭头。</p>
+      <p>通过 `arrow` 属性控制箭头尺寸。</p>
 
       <div class="case">
         <bl-button
@@ -137,7 +153,7 @@
         </bl-button>
         <template data-codesource="html">
           <div style="position:relative;height:200px;background:#e8e8e8;">
-            <bl-popup origin="top-center" arrow inset class="popup-arrow1">
+            <bl-popup origin="top-center" arrow="8" inset class="popup-arrow1">
               <div style="height:50px;padding:15px;">
                 显示箭头
               </div>
@@ -161,46 +177,46 @@
           <div class="box">
             <div class="top">
               <bl-button id="bottom-end" onclick="document.getElementById('t1').open = !document.getElementById('t1').open">上左</bl-button>
-              <bl-popup id="t1" origin="bottom-end" anchor="#bottom-end" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="t1" origin="bottom-end" anchor-selector="#bottom-end" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
 
               <bl-button id="bottom-center" onclick="document.getElementById('t2').open = !document.getElementById('t2').open">上中</bl-button>
-              <bl-popup id="t2" origin="bottom-center" anchor="#bottom-center" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="t2" origin="bottom-center" anchor-selector="#bottom-center" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
 
               <bl-button id="bottom-start" onclick="document.getElementById('t3').open = !document.getElementById('t3').open">上右</bl-button>
-              <bl-popup id="t3" origin="bottom-start" anchor="#bottom-start" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="t3" origin="bottom-start" anchor-selector="#bottom-start" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
             </div>
 
             <div class="left">
               <bl-button id="right-end" onclick="document.getElementById('l1').open = !document.getElementById('l1').open">左上</bl-button>
-              <bl-popup id="l1" origin="right-end" anchor="#right-end" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="l1" origin="right-end" anchor-selector="#right-end" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
 
               <bl-button id="right-center" onclick="document.getElementById('l2').open = !document.getElementById('l2').open">左中</bl-button>
-              <bl-popup id="l2" origin="right-center" anchor="#right-center" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="l2" origin="right-center" anchor-selector="#right-center" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
 
               <bl-button id="right-start" onclick="document.getElementById('l3').open = !document.getElementById('l3').open">左下</bl-button>
-              <bl-popup id="l3" origin="right-start" anchor="#right-start" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="l3" origin="right-start" anchor-selector="#right-start" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
             </div>
 
             <div class="right">
               <bl-button id="left-end" onclick="document.getElementById('r1').open = !document.getElementById('r1').open">右上</bl-button>
-              <bl-popup id="r1" origin="left-end" anchor="#left-end" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="r1" origin="left-end" anchor-selector="#left-end" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
 
               <bl-button id="left-center" onclick="document.getElementById('r2').open = !document.getElementById('r2').open">右中</bl-button>
-              <bl-popup id="r2" origin="left-center" anchor="#left-center" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="r2" origin="left-center" anchor-selector="#left-center" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
 
               <bl-button id="left-start" onclick="document.getElementById('r3').open = !document.getElementById('r3').open">右下</bl-button>
-              <bl-popup id="r3" origin="left-start" anchor="#left-start" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="r3" origin="left-start" anchor-selector="#left-start" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
             </div>
 
             <div class="bottom">
               <bl-button id="top-end" onclick="document.getElementById('b1').open = !document.getElementById('b1').open">上左</bl-button>
-              <bl-popup id="b1" origin="top-end" anchor="#top-end" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="b1" origin="top-end" anchor-selector="#top-end" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
 
               <bl-button id="top-center" onclick="document.getElementById('b2').open = !document.getElementById('b2').open">下中</bl-button>
-              <bl-popup id="b2" origin="top-center" anchor="#top-center" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="b2" origin="top-center" anchor-selector="#top-center" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
 
               <bl-button id="top-start" onclick="document.getElementById('b3').open = !document.getElementById('b3').open">下右</bl-button>
-              <bl-popup id="b3" origin="top-start" anchor="#top-start" arrow><div style="padding:20px;">POPUP</div></bl-popup>
+              <bl-popup id="b3" origin="top-start" anchor-selector="#top-start" arrow="8"><div style="padding:20px;">POPUP</div></bl-popup>
             </div>
           </div>
         </div>
@@ -242,7 +258,7 @@
           const value = e.detail.value
           const buttons = e.target.parentElement.parentElement.querySelectorAll('.box bl-button')
           ;[].forEach.call(buttons, button => {
-            const popup = document.querySelector(`[anchor='#${button.id}']`)
+            const popup = document.querySelector(`[anchor-selector='#${button.id}']`)
             popup.inset = value
           })
         }
@@ -266,7 +282,7 @@
             <div
               class="popup-autoflip1-anchor"
               style="position:absolute;left:150px;top:80px;width:60px;height:60px;line-height:60px;text-align:center;background:#888;">吸附我</div>
-            <bl-popup autoflip arrow class="popup-autoflip1" origin="left-start" anchor=".popup-autoflip1-anchor">
+            <bl-popup autoflip arrow="8" class="popup-autoflip1" origin="left-start" anchor-selector=".popup-autoflip1-anchor">
               <div style="width:100px;height:100px;">往右下会溢出<br>故往左上翻转</div>
             </bl-popup>
           </div>
@@ -293,10 +309,10 @@
 
             <bl-popup
               class="popup-append-to-body"
-              arrow
+              arrow="8"
               append-to-body
               origin="left-start"
-              anchor=".popup-append-to-body-anchor">
+              anchor-selector=".popup-append-to-body-anchor">
               <div style="padding:15px;">popup 父节点为 body</div>
             </bl-popup>
           </div>
@@ -353,15 +369,56 @@
         </thead>
         <tbody>
           <tr>
-            <td>anchor</td>
-            <td>string | Element | (() => string | Element)</td>
+            <td>anchor-x</td>
+            <td>number</td>
             <td></td>
             <td>
-              Popup 锚定的布局框，是一个矩形区域，
-              Popup 吸附在该矩形的四条边中的某一条的外侧（设置 inset 后在内测），
-              支持传入一个 `[x, y]` 形式的坐标像素值，这是长宽为 0 的矩形的特例，
-              支持标准的 `[x1, y1, x2, y2]` 形式的两个坐标点用于左上角、 右下角，
-              支持传入其他元素的 css selector，表示以该元素的布局矩形为准。
+              Popup 锚定的布局框的左上角 X 座标
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>anchor-y</td>
+            <td>number</td>
+            <td></td>
+            <td>
+              Popup 锚定的布局框的左上角 Y 座标
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>anchor-width</td>
+            <td>number</td>
+            <td></td>
+            <td>
+              Popup 锚定的布局框的宽度
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>anchor-height</td>
+            <td>number</td>
+            <td></td>
+            <td>
+              Popup 锚定的布局框的高度
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>anchor-selector</td>
+            <td>string</td>
+            <td></td>
+            <td>
+              Popup 锚定的元素的 CSS 选择器
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>anchorElement</td>
+            <td>() => HTMLElement</td>
+            <td></td>
+            <td>
+              Popup 锚定的元素的获取方法
             </td>
             <td></td>
           </tr>

@@ -34,15 +34,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../icon/index.js';
 import '../scrollable/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { find, findLast, forEach } from '../../common/utils.js';
-import { dispatchEvent } from '../../common/event.js';
-import { BinaryIndexedTree } from './BinaryIndexedTree.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js';
-import { Component } from '../Component.js';
+import { dispatchEvent } from '../../common/event.js';
+import { find, findLast, forEach } from '../../common/utils.js';
 import { contentTemplate, itemTemplate, loadingTemplate } from './template.js';
 import { style } from './style.js';
+import { BinaryIndexedTree } from './BinaryIndexedTree.js';
+import { Component } from '../component/Component.js';
 const FORCE_SLICE = true;
 const Direction = {
     Vertical: 'vertical',
@@ -81,8 +81,8 @@ export let BlocksVList = (() => {
         static {
             _direction_decorators = [attr('enum', { enumValues: [Direction.Vertical, Direction.Horizontal] })];
             _defaultItemSize_decorators = [attr('int', {
-                    defaults(self) {
-                        const size = parseInt(getComputedStyle(self).getPropertyValue('--item-height'), 10);
+                    defaults: (self) => {
+                        const size = parseInt(getComputedStyle(self).getPropertyValue('--item-height'), 10) || 32;
                         return size;
                     },
                 })];
@@ -137,15 +137,22 @@ export let BlocksVList = (() => {
             const $listSize = shadowRoot.getElementById('list-size');
             const $list = shadowRoot.getElementById('list');
             const $busy = shadowRoot.getElementById('loading');
-            this._ref = {
-                $viewport: $viewport,
-                $listSize: $listSize,
-                $list: $list,
-                $busy: $busy,
-            };
+            this.$viewport = $viewport;
+            this.$listSize = $listSize;
+            this.$list = $list;
+            this.$busy = $busy;
             this.itemHeightStore = new BinaryIndexedTree({
                 defaultFrequency: this.defaultItemSize,
                 maxVal: 0,
+            });
+            this.onConnected(() => {
+                this.initDomEvent();
+                this.upgradeProperty(['data']);
+            });
+            this.onDisconnected(() => {
+                if (this.clearDomEvents) {
+                    this.clearDomEvents();
+                }
             });
         }
         initDomEvent() {
@@ -153,16 +160,16 @@ export let BlocksVList = (() => {
                 this.clearDomEvents();
             }
             const onScroll = this._updateSliceRange.bind(this, undefined);
-            this._ref.$viewport.addEventListener('bl:scroll', onScroll);
+            this.$viewport.addEventListener('bl:scroll', onScroll);
             const onResize = () => {
                 this._resetCalculated();
                 this.redraw();
                 this.restoreAnchor();
             };
-            this._ref.$viewport.addEventListener('bl:resize', onResize);
+            this.$viewport.addEventListener('bl:resize', onResize);
             this.clearDomEvents = () => {
-                this._ref.$viewport.removeEventListener('bl:scroll', onScroll);
-                this._ref.$viewport.removeEventListener('bl:resize', onResize);
+                this.$viewport.removeEventListener('bl:scroll', onScroll);
+                this.$viewport.removeEventListener('bl:resize', onResize);
                 this.clearDomEvents = undefined;
             };
         }
@@ -171,14 +178,13 @@ export let BlocksVList = (() => {
         }
         set data(value) {
             const data = Array.isArray(value) ? value : [];
-            this.#rawData = data;
             this.bindData(data);
         }
         get viewportWidth() {
-            return this._ref.$viewport.clientWidth;
+            return this.$viewport.clientWidth;
         }
         get viewportHeight() {
-            return this._ref.$viewport.clientHeight;
+            return this.$viewport.clientHeight;
         }
         get viewportMainSize() {
             return this.direction === Direction.Vertical ? this.viewportHeight : this.viewportWidth;
@@ -191,26 +197,13 @@ export let BlocksVList = (() => {
         }
         get hasMainScrollbar() {
             return this.direction === Direction.Vertical
-                ? this._ref.$viewport.hasVerticalScrollbar
-                : this._ref.$viewport.hasHorizontalScrollbar;
+                ? this.$viewport.hasVerticalScrollbar
+                : this.$viewport.hasHorizontalScrollbar;
         }
         get hasCrossScrollbar() {
             return this.direction === Direction.Vertical
-                ? this._ref.$viewport.hasHorizontalScrollbar
-                : this._ref.$viewport.hasVerticalScrollbar;
-        }
-        connectedCallback() {
-            this.initDomEvent();
-            if (!this.isDataBound) {
-                super.connectedCallback();
-                this.upgradeProperty(['data']);
-            }
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            if (this.clearDomEvents) {
-                this.clearDomEvents();
-            }
+                ? this.$viewport.hasHorizontalScrollbar
+                : this.$viewport.hasVerticalScrollbar;
         }
         attributeChangedCallback(attrName, oldValue, newValue) {
             super.attributeChangedCallback(attrName, oldValue, newValue);
@@ -218,7 +211,7 @@ export let BlocksVList = (() => {
                 this.redraw();
             }
             if (attrName === 'shadow') {
-                this._ref.$viewport.shadow = this.shadow;
+                this.$viewport.shadow = this.shadow;
             }
         }
         itemSizeMethod($node, options) {
@@ -232,6 +225,7 @@ export let BlocksVList = (() => {
             return !!this.virtualDataMap[virtualKey];
         }
         render() {
+            super.render();
             if (!this.isDataBound && !this.isDataBinding && this.virtualData.length) {
                 this.generateViewData();
                 return;
@@ -243,59 +237,59 @@ export let BlocksVList = (() => {
             this._updateListSize();
             const renderCount = this.virtualSliceData.length;
             if (renderCount === 0) {
-                this._ref.$list.style.transform = '';
-                this._ref.$list.innerHTML = '';
+                this.$list.style.transform = '';
+                this.$list.innerHTML = '';
                 return;
             }
-            const transitionItemCount = this._ref.$list.querySelectorAll('.transition').length;
+            const transitionItemCount = this.$list.querySelectorAll('.transition').length;
             if (this.direction === Direction.Horizontal) {
-                this._ref.$list.style.transform = `translateX(${this._itemOffset(this.sliceFrom)}px)`;
+                this.$list.style.transform = `translateX(${this._itemOffset(this.sliceFrom)}px)`;
             }
             else {
-                this._ref.$list.style.transform = `translateY(${this._itemOffset(this.sliceFrom)}px)`;
+                this.$list.style.transform = `translateY(${this._itemOffset(this.sliceFrom)}px)`;
             }
             const sliceItems = this.virtualSliceData;
             const getFirst = () => transitionItemCount
-                ? find(this._ref.$list.children, $item => $item.virtualViewIndex != null)
-                : this._ref.$list.firstElementChild;
+                ? find(this.$list.children, $item => $item.virtualViewIndex != null)
+                : this.$list.firstElementChild;
             const getLast = () => transitionItemCount
-                ? findLast(this._ref.$list.children, $item => $item.virtualViewIndex != null)
-                : this._ref.$list.lastElementChild;
+                ? findLast(this.$list.children, $item => $item.virtualViewIndex != null)
+                : this.$list.lastElementChild;
             const startKey = sliceItems[0].virtualViewIndex;
             const endKey = sliceItems[sliceItems.length - 1].virtualViewIndex;
             const startItemKey = getFirst()?.virtualViewIndex;
             const endItemKey = getLast()?.virtualViewIndex;
             if (endKey < endItemKey || (endKey === endItemKey && startKey < startItemKey)) {
                 let $last;
-                while (this._ref.$list.children.length && ($last = getLast())?.virtualViewIndex !== endKey) {
-                    $last && this.#$pool.push(this._ref.$list.removeChild($last));
+                while (this.$list.children.length && ($last = getLast())?.virtualViewIndex !== endKey) {
+                    $last && this.#$pool.push(this.$list.removeChild($last));
                 }
-                while (this._ref.$list.children.length > renderCount + transitionItemCount) {
-                    this.#$pool.push(this._ref.$list.removeChild(this._ref.$list.firstElementChild));
+                while (this.$list.children.length > renderCount + transitionItemCount) {
+                    this.#$pool.push(this.$list.removeChild(this.$list.firstElementChild));
                 }
-                while (this._ref.$list.children.length < renderCount + transitionItemCount) {
-                    this._ref.$list.insertBefore(this.#$pool.pop() ?? itemTemplate(), this._ref.$list.firstElementChild);
+                while (this.$list.children.length < renderCount + transitionItemCount) {
+                    this.$list.insertBefore(this.#$pool.pop() ?? itemTemplate(), this.$list.firstElementChild);
                 }
             }
             else {
                 if (startKey > startItemKey || (startKey === startItemKey && endKey > endItemKey)) {
                     let $first;
-                    while (this._ref.$list.children.length && ($first = getFirst())?.virtualViewIndex !== startKey) {
-                        $first && this.#$pool.push(this._ref.$list.removeChild($first));
+                    while (this.$list.children.length && ($first = getFirst())?.virtualViewIndex !== startKey) {
+                        $first && this.#$pool.push(this.$list.removeChild($first));
                     }
                 }
-                while (this._ref.$list.children.length > renderCount + transitionItemCount) {
-                    this.#$pool.push(this._ref.$list.removeChild(this._ref.$list.lastElementChild));
+                while (this.$list.children.length > renderCount + transitionItemCount) {
+                    this.#$pool.push(this.$list.removeChild(this.$list.lastElementChild));
                 }
-                while (this._ref.$list.children.length < renderCount + transitionItemCount) {
-                    this._ref.$list.appendChild(this.#$pool.pop() ?? itemTemplate());
+                while (this.$list.children.length < renderCount + transitionItemCount) {
+                    this.$list.appendChild(this.#$pool.pop() ?? itemTemplate());
                 }
             }
             this.#$pool = [];
             let i = -1;
             let j = -1;
-            while (++i < this._ref.$list.children.length) {
-                const $item = this._ref.$list.children[i];
+            while (++i < this.$list.children.length) {
+                const $item = this.$list.children[i];
                 if ($item.classList.contains('transition'))
                     continue;
                 const vitem = sliceItems[++j];
@@ -305,7 +299,7 @@ export let BlocksVList = (() => {
                 $item.virtualViewIndex = vitem.virtualViewIndex;
                 this.itemRender($item, vitem);
             }
-            this._updateSizeByItems(this._ref.$list.children);
+            this._updateSizeByItems(this.$list.children);
             if (this.afterRender) {
                 this.afterRender();
             }
@@ -319,8 +313,9 @@ export let BlocksVList = (() => {
             if (this.isDataBound && data === this.#rawData) {
                 return;
             }
+            this.#rawData = data;
             this.isDataBinding = true;
-            this._ref.$busy.style.display = '';
+            this.$busy.style.display = '';
             await new Promise(resolve => {
                 setTimeout(resolve);
             });
@@ -343,7 +338,7 @@ export let BlocksVList = (() => {
             }
             this.virtualData = virtualData;
             this.virtualDataMap = virtualDataMap;
-            this._ref.$busy.style.display = 'none';
+            this.$busy.style.display = 'none';
             this.isDataBinding = false;
             this.isDataBound = true;
             dispatchEvent(this, DATA_BOUND, {
@@ -352,7 +347,7 @@ export let BlocksVList = (() => {
             return this.generateViewData();
         }
         async virtualMap(data) {
-            const chunkSize = 5000;
+            const chunkSize = 10000;
             const virtualData = [];
             const len = data.length;
             let index = 0;
@@ -440,7 +435,7 @@ export let BlocksVList = (() => {
             $collapse.classList.add('transition');
             const items = [];
             let $first;
-            forEach(this._ref.$list.children, ($item) => {
+            forEach(this.$list.children, ($item) => {
                 if (keys.includes($item.virtualKey)) {
                     if (!$first)
                         $first = $item;
@@ -448,7 +443,7 @@ export let BlocksVList = (() => {
                 }
             });
             const size = items.reduce((acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0);
-            this._ref.$list.insertBefore($collapse, $first);
+            this.$list.insertBefore($collapse, $first);
             items.reverse();
             while (items.length) {
                 $collapse.appendChild(items.pop());
@@ -457,9 +452,9 @@ export let BlocksVList = (() => {
                 $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`;
                 doTransitionLeave($collapse, 'collapse', () => {
                     Array.prototype.slice.call($collapse.children).forEach($item => {
-                        this._ref.$list.insertBefore($item, $collapse);
+                        this.$list.insertBefore($item, $collapse);
                     });
-                    this._ref.$list.removeChild($collapse);
+                    this.$list.removeChild($collapse);
                     this.nextTick(() => this.redraw());
                 });
             }
@@ -490,7 +485,7 @@ export let BlocksVList = (() => {
             $collapse.classList.add('transition');
             const items = [];
             let $first;
-            forEach(this._ref.$list.children, $item => {
+            forEach(this.$list.children, $item => {
                 if (keys.includes($item.virtualKey)) {
                     if (!$first)
                         $first = $item;
@@ -499,7 +494,7 @@ export let BlocksVList = (() => {
             });
             const size = items.reduce((acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'], 0);
             if ($first) {
-                this._ref.$list.insertBefore($collapse, $first);
+                this.$list.insertBefore($collapse, $first);
             }
             items.reverse();
             while (items.length) {
@@ -508,7 +503,7 @@ export let BlocksVList = (() => {
             if ($collapse.children.length) {
                 $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`;
                 doTransitionEnter($collapse, 'collapse', () => {
-                    this._ref.$list.removeChild($collapse);
+                    this.$list.removeChild($collapse);
                     this.redraw();
                 });
             }
@@ -544,10 +539,22 @@ export let BlocksVList = (() => {
             return 0;
         }
         scrollToIndex(anchorIndex, anchorOffsetRatio = 0) {
-            if (anchorIndex < this.virtualViewData.length) {
+            if (anchorIndex >= 0 && anchorIndex < this.virtualViewData.length) {
                 const start = this._itemOffset(anchorIndex);
                 const offset = Math.floor(this._itemSize(anchorIndex) * anchorOffsetRatio);
                 let scroll = start - offset;
+                if (scroll < 0)
+                    scroll = 0;
+                if (scroll > this.mainSize - this.viewportMainSize)
+                    scroll = this.mainSize - this.viewportMainSize;
+                this.setScrollMain(scroll);
+            }
+        }
+        backScrollToIndex(anchorIndex, anchorOffsetRatio = 0) {
+            if (anchorIndex >= 0 && anchorIndex < this.virtualViewData.length) {
+                const start = this._itemOffset(anchorIndex) + this._itemSize(anchorIndex) - this.viewportMainSize;
+                const offset = Math.floor(this._itemSize(anchorIndex) * anchorOffsetRatio);
+                let scroll = start + offset;
                 if (scroll < 0)
                     scroll = 0;
                 if (scroll > this.mainSize - this.viewportMainSize)
@@ -561,28 +568,32 @@ export let BlocksVList = (() => {
                 this.scrollToIndex(vitem.virtualViewIndex, anchorOffsetRatio);
             }
         }
+        backScrollToKey(key, anchorOffsetRatio) {
+            const vitem = this.virtualDataMap[key];
+            if (vitem.virtualViewIndex !== -1) {
+                this.backScrollToIndex(vitem.virtualViewIndex, anchorOffsetRatio);
+            }
+        }
         restoreAnchor() {
             if (this.anchorIndex) {
                 this.scrollToIndex(this.anchorIndex, this.anchorOffsetRatio);
             }
         }
         getScrollMain() {
-            return this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop'];
+            return this.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop'];
         }
         getScrollCross() {
-            return this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft'];
+            return this.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft'];
         }
         setScrollMain(value) {
-            this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop'] = value;
+            this.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop'] = value;
         }
         setScrollCross(value) {
-            this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft'] = value;
+            this.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft'] = value;
         }
         _updateSliceRange(forceUpdate) {
-            const viewportSize = this.direction === Direction.Horizontal ? this._ref.$viewport.clientWidth : this._ref.$viewport.clientHeight;
-            const viewportStart = this.direction === Direction.Horizontal
-                ? this._ref.$viewport.viewportScrollLeft
-                : this._ref.$viewport.viewportScrollTop;
+            const viewportSize = this.direction === Direction.Horizontal ? this.$viewport.clientWidth : this.$viewport.clientHeight;
+            const viewportStart = this.direction === Direction.Horizontal ? this.$viewport.viewportScrollLeft : this.$viewport.viewportScrollTop;
             const range = this._calcSliceRange(viewportSize, viewportStart);
             if (range.sliceFrom === this.sliceFrom && range.sliceTo === this.sliceTo && !forceUpdate) {
                 return;
@@ -783,7 +794,7 @@ export let BlocksVList = (() => {
             return this.virtualDataMap[virtualKey];
         }
         getNodeByVirtualKey(virtualKey) {
-            return this._ref.$list.querySelector(`[data-virtual-key="${virtualKey}"]`);
+            return this.$list.querySelector(`[data-virtual-key="${virtualKey}"]`);
         }
         _pluckData(virtualData) {
             const data = [];
@@ -796,18 +807,18 @@ export let BlocksVList = (() => {
             const { itemHeightStore } = this;
             if (itemHeightStore) {
                 if (this.direction === Direction.Horizontal) {
-                    this._ref.$list.style.width = '';
-                    this._ref.$list.style.height = this._ref.$listSize.style.height = this.crossSize ? `${this.crossSize}px` : '';
-                    this._ref.$listSize.style.width = `${itemHeightStore.read(itemHeightStore.maxVal)}px`;
+                    this.$list.style.width = '';
+                    this.$list.style.height = this.$listSize.style.height = this.crossSize ? `${this.crossSize}px` : '';
+                    this.$listSize.style.width = `${itemHeightStore.read(itemHeightStore.maxVal)}px`;
                 }
                 else {
-                    this._ref.$list.style.height = '';
-                    this._ref.$list.style.width = this._ref.$listSize.style.width = this.crossSize ? `${this.crossSize}px` : '';
-                    this._ref.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`;
+                    this.$list.style.height = '';
+                    this.$list.style.width = this.$listSize.style.width = this.crossSize ? `${this.crossSize}px` : '';
+                    this.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`;
                 }
             }
-            this._ref.$viewport.toggleViewportClass('main-scrollbar', this.hasMainScrollbar);
-            this._ref.$viewport.toggleViewportClass('cross-scrollbar', this.hasCrossScrollbar);
+            this.$viewport.toggleViewportClass('main-scrollbar', this.hasMainScrollbar);
+            this.$viewport.toggleViewportClass('cross-scrollbar', this.hasCrossScrollbar);
         }
         _resetCalculated() {
             const virtualData = this.virtualData;
@@ -825,7 +836,7 @@ export let BlocksVList = (() => {
         }
         _clearTransition() {
             let flag = false;
-            forEach(this._ref.$list.querySelectorAll('.transition'), $transition => {
+            forEach(this.$list.querySelectorAll('.transition'), $transition => {
                 flag = true;
                 $transition.className = 'transition';
             });

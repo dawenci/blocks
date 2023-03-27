@@ -1,2 +1,1 @@
-export { BlocksNotification, NotificationType, NotificationPlacement } from './notification.js';
-export { blNotify } from './make.js';
+export { BlocksNotification, notificationTypes, NotificationType, NotificationPlacement } from './notification.js';

@@ -5,46 +5,56 @@ export function attr(attrType = 'string', options = { defaults: null }) {
     const decorator = (accessor, ctx) => {
         const attrName = kebabCase(String(ctx.name));
         let getValue;
-        switch (attrType) {
-            case 'string':
-                getValue = strGetter(attrName);
-                break;
-            case 'boolean':
-                getValue = boolGetter(attrName);
-                break;
-            case 'int':
-                getValue = intGetter(attrName);
-                break;
-            case 'enum':
-                getValue = enumGetter(attrName, options.enumValues);
-                break;
-            case 'number':
-                getValue = numGetter(attrName);
-                break;
-            case 'intRange':
-                getValue = intRangeGetter(attrName, options.min, options.max);
-                break;
-        }
         let setValue;
-        switch (attrType) {
-            case 'string':
-                setValue = strSetter(attrName);
-                break;
-            case 'boolean':
-                setValue = boolSetter(attrName);
-                break;
-            case 'int':
-                setValue = intSetter(attrName);
-                break;
-            case 'enum':
-                setValue = enumSetter(attrName, options.enumValues);
-                break;
-            case 'number':
-                setValue = numSetter(attrName);
-                break;
-            case 'intRange':
-                setValue = intRangeSetter(attrName, options.min, options.max);
-                break;
+        if (options.get) {
+            getValue = options.get;
+        }
+        else {
+            switch (attrType) {
+                case 'string':
+                    getValue = strGetter(attrName);
+                    break;
+                case 'boolean':
+                    getValue = boolGetter(attrName);
+                    break;
+                case 'int':
+                    getValue = intGetter(attrName);
+                    break;
+                case 'enum':
+                    getValue = enumGetter(attrName, options.enumValues);
+                    break;
+                case 'number':
+                    getValue = numGetter(attrName);
+                    break;
+                case 'intRange':
+                    getValue = intRangeGetter(attrName, options.min, options.max);
+                    break;
+            }
+        }
+        if (options.set) {
+            setValue = options.set;
+        }
+        else {
+            switch (attrType) {
+                case 'string':
+                    setValue = strSetter(attrName);
+                    break;
+                case 'boolean':
+                    setValue = boolSetter(attrName);
+                    break;
+                case 'int':
+                    setValue = intSetter(attrName);
+                    break;
+                case 'enum':
+                    setValue = enumSetter(attrName, options.enumValues);
+                    break;
+                case 'number':
+                    setValue = numSetter(attrName);
+                    break;
+                case 'intRange':
+                    setValue = intRangeSetter(attrName, options.min, options.max);
+                    break;
+            }
         }
         function getter() {
             const value = getValue(this);
@@ -75,7 +85,7 @@ export function attr(attrType = 'string', options = { defaults: null }) {
             name: String(ctx.name),
             attrType,
             attrName,
-            upgrade: true,
+            upgrade: options.upgrade ?? true,
             observed: options.observed,
         });
         return {

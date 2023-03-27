@@ -1,9 +1,9 @@
 import { makeTemplate } from '../../common/template.js';
 export const template = makeTemplate(`
-<div id="layout">
-  <div id="cover"><slot name="cover"></slot></div>
-  <header id="header"><slot name="header"></slot></header>
-  <div id="body"><slot></slot></div>
-  <div id="footer"><slot name="footer"></slot></div>
+<div part="layout" id="layout">
+  <div part="cover" id="cover"><slot part="cover-slot" name="cover"></slot></div>
+  <header part="header" id="header"><slot part="header-slot" name="header"></slot></header>
+  <div part="body" id="body"><slot part="body-slot"></slot></div>
+  <div part="footer" id="footer"><slot part="footer-slot" name="footer"></slot></div>
 </div>
 `);

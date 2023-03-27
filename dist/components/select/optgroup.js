@@ -32,15 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { Component } from '../Component.js';
-import { template } from './optgroup.template.js';
-import { style } from './option.style.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { Component } from '../component/Component.js';
 export let BlocksOptGroup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-optgroup',
-            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -68,25 +65,8 @@ export let BlocksOptGroup = (() => {
         set disabled(value) { this.#disabled_accessor_storage = value; }
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
-        }
-        render() {
-            const labelEl = this.shadowRoot.querySelector('header');
-            if (this.label) {
-                labelEl.style.display = '';
-                labelEl.textContent = this.label;
-            }
-            else {
-                labelEl.style.display = 'none';
-            }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
         }
     };
     return BlocksOptGroup = _classThis;

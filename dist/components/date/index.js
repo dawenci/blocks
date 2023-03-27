@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,15 +25,27 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import '../loading/index.js';
-import { Depth, Depths, normalizeMinDepth, normalizeViewDepth, getClosestDate, generateMonths, generateDates, generateYears, generateDecades, makeDate, normalizeNumber, yearToDecade, yearToCentury, decadeToCentury, isYearInDecade, firstYearOfDecade, isYearInCentury, firstYearOfCentury, lastYearOfCentury, lastYearOfDecade, generateWeekHeaders, isToday, isAllEqual, } from './helpers.js';
-import { boolSetter, enumGetter, enumSetter } from '../../common/property.js';
-import { dispatchEvent } from '../../common/event.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
-import { style } from './style.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { boolSetter, enumGetter, enumSetter } from '../../common/property.js';
+import { compile } from '../../common/dateFormat.js';
+import { computed } from '../../common/reactive.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { fromAttr } from '../component/reactive.js';
+import { style } from './style.js';
+import { template } from './template.js';
+import { Control } from '../base-control/index.js';
+import { Depth } from './type.js';
+import * as Helpers from './helpers.js';
 export let BlocksDate = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-date',
@@ -54,8 +59,6 @@ export let BlocksDate = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
-    let _disabled_decorators;
-    let _disabled_initializers = [];
     let _loading_decorators;
     let _loading_initializers = [];
     let _max_decorators;
@@ -64,28 +67,111 @@ export let BlocksDate = (() => {
     let _mode_initializers = [];
     let _depth_decorators;
     let _depth_initializers = [];
-    var BlocksDate = class extends Component {
+    let _minDepth_decorators;
+    let _minDepth_initializers = [];
+    let _startDepth_decorators;
+    let _startDepth_initializers = [];
+    let _startWeekOn_decorators;
+    let _startWeekOn_initializers = [];
+    let _format_decorators;
+    let _format_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    let _$title_decorators;
+    let _$title_initializers = [];
+    let _$prevPrev_decorators;
+    let _$prevPrev_initializers = [];
+    let _$prev_decorators;
+    let _$prev_initializers = [];
+    let _$nextNext_decorators;
+    let _$nextNext_initializers = [];
+    let _$next_decorators;
+    let _$next_initializers = [];
+    let _$weekHeader_decorators;
+    let _$weekHeader_initializers = [];
+    let _$content_decorators;
+    let _$content_initializers = [];
+    let _$list_decorators;
+    let _$list_initializers = [];
+    let _$loading_decorators;
+    let _$loading_initializers = [];
+    var BlocksDate = class extends Control {
         static {
-            _disabled_decorators = [attr('boolean')];
             _loading_decorators = [attr('boolean')];
             _max_decorators = [attr('int')];
             _mode_decorators = [attr('enum', { enumValues: ['single', 'multiple', 'range'] })];
-            _depth_decorators = [attr('enum', { enumValues: [Depth.Month, Depth.Year, Depth.Decade] })];
-            __esDecorate(this, null, _disabled_decorators, { kind: "accessor", name: "disabled", static: false, private: false, access: { has: obj => "disabled" in obj, get: obj => obj.disabled, set: (obj, value) => { obj.disabled = value; } } }, _disabled_initializers, _instanceExtraInitializers);
+            _depth_decorators = [attr('enum', { enumValues: Helpers.LeafDepths })];
+            _minDepth_decorators = [attr('string', {
+                    get(element) {
+                        const value = enumGetter('mindepth', Helpers.Depths)(element) ?? Depth.Century;
+                        return Helpers.normalizeMinDepth(value, element.depth);
+                    },
+                    set(element, value) {
+                        if (Helpers.Depths.includes(value)) {
+                            enumSetter('mindepth', Helpers.Depths)(element, Helpers.normalizeMinDepth(value, element.depth));
+                        }
+                    },
+                })];
+            _startDepth_decorators = [attr('string', {
+                    get(element) {
+                        const value = enumGetter('startdepth', Helpers.Depths)(element) ?? element.depth;
+                        return Helpers.normalizeActiveDepth(value, element.minDepth, element.depth);
+                    },
+                    set(element, value) {
+                        if (Helpers.Depths.includes(value)) {
+                            enumSetter('startdepth', Helpers.Depths)(element, Helpers.normalizeActiveDepth(value, element.minDepth, element.depth));
+                        }
+                    },
+                })];
+            _startWeekOn_decorators = [attr('string', {
+                    get(element) {
+                        const value = enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(element) ?? '1';
+                        return Number(value);
+                    },
+                    set(element, value) {
+                        enumSetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(element, String(value));
+                    },
+                })];
+            _format_decorators = [attr('string', { defaults: 'YYYY-MM-DD' })];
+            _$layout_decorators = [shadowRef('[part="layout"]')];
+            _$title_decorators = [shadowRef('.header-title')];
+            _$prevPrev_decorators = [shadowRef('.button-prevPrev')];
+            _$prev_decorators = [shadowRef('.button-prev')];
+            _$nextNext_decorators = [shadowRef('.button-nextNext')];
+            _$next_decorators = [shadowRef('.button-next')];
+            _$weekHeader_decorators = [shadowRef('.week-header')];
+            _$content_decorators = [shadowRef('#body')];
+            _$list_decorators = [shadowRef('.button-list')];
+            _$loading_decorators = [shadowRef('.body-loading')];
             __esDecorate(this, null, _loading_decorators, { kind: "accessor", name: "loading", static: false, private: false, access: { has: obj => "loading" in obj, get: obj => obj.loading, set: (obj, value) => { obj.loading = value; } } }, _loading_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _max_decorators, { kind: "accessor", name: "max", static: false, private: false, access: { has: obj => "max" in obj, get: obj => obj.max, set: (obj, value) => { obj.max = value; } } }, _max_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _mode_decorators, { kind: "accessor", name: "mode", static: false, private: false, access: { has: obj => "mode" in obj, get: obj => obj.mode, set: (obj, value) => { obj.mode = value; } } }, _mode_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _depth_decorators, { kind: "accessor", name: "depth", static: false, private: false, access: { has: obj => "depth" in obj, get: obj => obj.depth, set: (obj, value) => { obj.depth = value; } } }, _depth_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _minDepth_decorators, { kind: "accessor", name: "minDepth", static: false, private: false, access: { has: obj => "minDepth" in obj, get: obj => obj.minDepth, set: (obj, value) => { obj.minDepth = value; } } }, _minDepth_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _startDepth_decorators, { kind: "accessor", name: "startDepth", static: false, private: false, access: { has: obj => "startDepth" in obj, get: obj => obj.startDepth, set: (obj, value) => { obj.startDepth = value; } } }, _startDepth_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _startWeekOn_decorators, { kind: "accessor", name: "startWeekOn", static: false, private: false, access: { has: obj => "startWeekOn" in obj, get: obj => obj.startWeekOn, set: (obj, value) => { obj.startWeekOn = value; } } }, _startWeekOn_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _format_decorators, { kind: "accessor", name: "format", static: false, private: false, access: { has: obj => "format" in obj, get: obj => obj.format, set: (obj, value) => { obj.format = value; } } }, _format_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$title_decorators, { kind: "accessor", name: "$title", static: false, private: false, access: { has: obj => "$title" in obj, get: obj => obj.$title, set: (obj, value) => { obj.$title = value; } } }, _$title_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$prevPrev_decorators, { kind: "accessor", name: "$prevPrev", static: false, private: false, access: { has: obj => "$prevPrev" in obj, get: obj => obj.$prevPrev, set: (obj, value) => { obj.$prevPrev = value; } } }, _$prevPrev_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$prev_decorators, { kind: "accessor", name: "$prev", static: false, private: false, access: { has: obj => "$prev" in obj, get: obj => obj.$prev, set: (obj, value) => { obj.$prev = value; } } }, _$prev_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$nextNext_decorators, { kind: "accessor", name: "$nextNext", static: false, private: false, access: { has: obj => "$nextNext" in obj, get: obj => obj.$nextNext, set: (obj, value) => { obj.$nextNext = value; } } }, _$nextNext_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$next_decorators, { kind: "accessor", name: "$next", static: false, private: false, access: { has: obj => "$next" in obj, get: obj => obj.$next, set: (obj, value) => { obj.$next = value; } } }, _$next_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$weekHeader_decorators, { kind: "accessor", name: "$weekHeader", static: false, private: false, access: { has: obj => "$weekHeader" in obj, get: obj => obj.$weekHeader, set: (obj, value) => { obj.$weekHeader = value; } } }, _$weekHeader_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$content_decorators, { kind: "accessor", name: "$content", static: false, private: false, access: { has: obj => "$content" in obj, get: obj => obj.$content, set: (obj, value) => { obj.$content = value; } } }, _$content_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$list_decorators, { kind: "accessor", name: "$list", static: false, private: false, access: { has: obj => "$list" in obj, get: obj => obj.$list, set: (obj, value) => { obj.$list = value; } } }, _$list_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$loading_decorators, { kind: "accessor", name: "$loading", static: false, private: false, access: { has: obj => "$loading" in obj, get: obj => obj.$loading, set: (obj, value) => { obj.$loading = value; } } }, _$loading_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksDate = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #$pool = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        #value;
-        #disabled_accessor_storage = __runInitializers(this, _disabled_initializers, void 0);
-        get disabled() { return this.#disabled_accessor_storage; }
-        set disabled(value) { this.#disabled_accessor_storage = value; }
-        #loading_accessor_storage = __runInitializers(this, _loading_initializers, void 0);
+        static get observedAttributes() {
+            return ['value'];
+        }
+        static get Depth() {
+            return Depth;
+        }
+        #loading_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _loading_initializers, void 0));
         get loading() { return this.#loading_accessor_storage; }
         set loading(value) { this.#loading_accessor_storage = value; }
         #max_accessor_storage = __runInitializers(this, _max_initializers, void 0);
@@ -97,65 +183,426 @@ export let BlocksDate = (() => {
         #depth_accessor_storage = __runInitializers(this, _depth_initializers, Depth.Month);
         get depth() { return this.#depth_accessor_storage; }
         set depth(value) { this.#depth_accessor_storage = value; }
+        #minDepth_accessor_storage = __runInitializers(this, _minDepth_initializers, void 0);
+        get minDepth() { return this.#minDepth_accessor_storage; }
+        set minDepth(value) { this.#minDepth_accessor_storage = value; }
+        #startDepth_accessor_storage = __runInitializers(this, _startDepth_initializers, void 0);
+        get startDepth() { return this.#startDepth_accessor_storage; }
+        set startDepth(value) { this.#startDepth_accessor_storage = value; }
+        #startWeekOn_accessor_storage = __runInitializers(this, _startWeekOn_initializers, void 0);
+        get startWeekOn() { return this.#startWeekOn_accessor_storage; }
+        set startWeekOn(value) { this.#startWeekOn_accessor_storage = value; }
+        #format_accessor_storage = __runInitializers(this, _format_initializers, void 0);
+        get format() { return this.#format_accessor_storage; }
+        set format(value) { this.#format_accessor_storage = value; }
+        #formatter = computed(format => compile(format), [fromAttr(this, 'format')]);
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$title_accessor_storage = __runInitializers(this, _$title_initializers, void 0);
+        get $title() { return this.#$title_accessor_storage; }
+        set $title(value) { this.#$title_accessor_storage = value; }
+        #$prevPrev_accessor_storage = __runInitializers(this, _$prevPrev_initializers, void 0);
+        get $prevPrev() { return this.#$prevPrev_accessor_storage; }
+        set $prevPrev(value) { this.#$prevPrev_accessor_storage = value; }
+        #$prev_accessor_storage = __runInitializers(this, _$prev_initializers, void 0);
+        get $prev() { return this.#$prev_accessor_storage; }
+        set $prev(value) { this.#$prev_accessor_storage = value; }
+        #$nextNext_accessor_storage = __runInitializers(this, _$nextNext_initializers, void 0);
+        get $nextNext() { return this.#$nextNext_accessor_storage; }
+        set $nextNext(value) { this.#$nextNext_accessor_storage = value; }
+        #$next_accessor_storage = __runInitializers(this, _$next_initializers, void 0);
+        get $next() { return this.#$next_accessor_storage; }
+        set $next(value) { this.#$next_accessor_storage = value; }
+        #$weekHeader_accessor_storage = __runInitializers(this, _$weekHeader_initializers, void 0);
+        get $weekHeader() { return this.#$weekHeader_accessor_storage; }
+        set $weekHeader(value) { this.#$weekHeader_accessor_storage = value; }
+        #$content_accessor_storage = __runInitializers(this, _$content_initializers, void 0);
+        get $content() { return this.#$content_accessor_storage; }
+        set $content(value) { this.#$content_accessor_storage = value; }
+        #$list_accessor_storage = __runInitializers(this, _$list_initializers, void 0);
+        get $list() { return this.#$list_accessor_storage; }
+        set $list(value) { this.#$list_accessor_storage = value; }
+        #$loading_accessor_storage = __runInitializers(this, _$loading_initializers, void 0);
+        get $loading() { return this.#$loading_accessor_storage; }
+        set $loading(value) { this.#$loading_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
-            const $panel = shadowRoot.querySelector('#layout');
-            const $title = $panel.querySelector('.header-title');
-            const $prevPrev = $panel.querySelector('.button-prevPrev');
-            const $prev = $panel.querySelector('.button-prev');
-            const $nextNext = $panel.querySelector('.button-nextNext');
-            const $next = $panel.querySelector('.button-next');
-            const $weekHeader = $panel.querySelector('.week-header');
-            const $content = $panel.querySelector('#body');
-            const $list = $panel.querySelector('.button-list');
-            const $loading = $panel.querySelector('.body-loading');
-            this._ref = {
-                $panel,
-                $title,
-                $prevPrev,
-                $prev,
-                $nextNext,
-                $next,
-                $weekHeader,
-                $content,
-                $list,
-                $loading,
+            this.appendShadowChild(template());
+            this._tabIndexFeature.withTabIndex(null);
+            this.activeDepth = this.startDepth;
+            this.#setupInitViewData();
+            this.#setupNavButtons();
+            this.#setupTitle();
+            this.#setupDateButtons();
+            this.#setupWeekHeader();
+            this.#setupLoading();
+            this.#setupFocus();
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
+        }
+        #$pool = [];
+        #selected = [];
+        get selected() {
+            return this.#selected;
+        }
+        set selected(values) {
+            let newValues;
+            let currentValues;
+            switch (this.mode) {
+                case 'single': {
+                    newValues = values[0] instanceof Date ? values.slice(0, 1) : [];
+                    currentValues = this.#selected.slice(0, 1);
+                    break;
+                }
+                case 'multiple': {
+                    newValues = (values.every(value => value instanceof Date) ? values : []).slice(0, this.max ?? Infinity);
+                    currentValues = this.#selected;
+                    break;
+                }
+                case 'range': {
+                    newValues = (values.length === 2 &&
+                        values.every(date => {
+                            return date instanceof Date && Helpers.maybeLeafModel(this.#dateToModel(date));
+                        })
+                        ? values
+                        : []).sort((a, b) => a.getTime() - b.getTime());
+                    currentValues = this.#selected;
+                    break;
+                }
+            }
+            if (currentValues.length === newValues.length &&
+                currentValues.every((date, i) => this.dateEquals(date, newValues[i]))) {
+                return;
+            }
+            this.#selected = newValues;
+            if (this.mode === 'range') {
+                if (!newValues.length) {
+                    this.rangeFrom = this.rangeTo = this.maybeRangeTo = null;
+                }
+                else {
+                    this.rangeFrom = this.#dateToModel(newValues[0]);
+                    this.rangeTo = this.#dateToModel(newValues[1]);
+                    this.maybeRangeTo = null;
+                }
+            }
+            this.render();
+            this.#notifyChange();
+        }
+        get selectedCount() {
+            return this.#selected.length;
+        }
+        #activeDepth;
+        get activeDepth() {
+            return Helpers.normalizeActiveDepth(this.#activeDepth, this.minDepth, this.depth);
+        }
+        set activeDepth(value) {
+            if (this.#activeDepth === value)
+                return;
+            this.#activeDepth = Helpers.normalizeActiveDepth(value, this.minDepth, this.depth);
+            dispatchEvent(this, 'active-depth-change', { detail: { value } });
+        }
+        #activeCentury;
+        get activeCentury() {
+            if (this.#activeCentury != null)
+                return this.#activeCentury;
+        }
+        set activeCentury(value) {
+            const century = Helpers.normalizeNumber(value);
+            if (century == null)
+                return;
+            if (this.#activeCentury !== century) {
+                this.#activeCentury = century;
+                dispatchEvent(this, 'active-century-change', { detail: { century } });
+            }
+        }
+        #activeDecade;
+        get activeDecade() {
+            if (this.#activeDecade != null)
+                return this.#activeDecade;
+        }
+        set activeDecade(value) {
+            const decade = Helpers.normalizeNumber(value);
+            if (decade == null)
+                return;
+            if (this.#activeDecade !== decade) {
+                this.#activeDecade = decade;
+                dispatchEvent(this, 'active-decade-change', { detail: { decade } });
+            }
+        }
+        #activeYear;
+        get activeYear() {
+            return this.#activeYear;
+        }
+        set activeYear(value) {
+            const year = Helpers.normalizeNumber(value);
+            if (year == null)
+                return;
+            if (this.#activeYear !== year) {
+                this.#activeYear = year;
+                dispatchEvent(this, 'active-year-change', { detail: { year } });
+            }
+        }
+        #activeMonth;
+        get activeMonth() {
+            return this.#activeMonth;
+        }
+        set activeMonth(value) {
+            const month = Helpers.normalizeNumber(value);
+            if (month == null)
+                return;
+            if (this.#activeMonth !== month) {
+                this.#activeMonth = month;
+                dispatchEvent(this, 'active-month-change', { detail: { month } });
+            }
+        }
+        #rangeFrom;
+        get rangeFrom() {
+            return this.#rangeFrom;
+        }
+        set rangeFrom(value) {
+            this.#rangeFrom = value;
+            dispatchEvent(this, 'range-from-change', { detail: { value } });
+        }
+        #rangeTo;
+        #maybeRangeTo;
+        get maybeRangeTo() {
+            return this.#maybeRangeTo;
+        }
+        set maybeRangeTo(value) {
+            this.#maybeRangeTo = value;
+            dispatchEvent(this, 'maybe-range-to-change', { detail: { value } });
+        }
+        get rangeTo() {
+            return this.#rangeTo;
+        }
+        set rangeTo(value) {
+            if (value !== null) {
+                this.maybeRangeTo = null;
+            }
+            this.#rangeTo = value;
+            dispatchEvent(this, 'range-to-change', { detail: { value } });
+        }
+        #disabledDate;
+        get disabledDate() {
+            return this.#disabledDate;
+        }
+        set disabledDate(value) {
+            this.#disabledDate = value;
+            dispatchEvent(this, 'disabled-date-change');
+        }
+        #badges;
+        get badges() {
+            return this.#badges ?? [];
+        }
+        set badges(value) {
+            this.#badges = value;
+            dispatchEvent(this, 'badges-change', { detail: { value } });
+        }
+        #setupInitViewData() {
+            const date = Helpers.getClosestDate(this.selected) ?? new Date();
+            switch (this.activeDepth) {
+                case Depth.Month: {
+                    this.activeMonth = date.getMonth();
+                    this.activeYear = date.getFullYear();
+                    return;
+                }
+                case Depth.Year: {
+                    this.activeYear = date.getFullYear();
+                    return;
+                }
+                case Depth.Decade: {
+                    this.activeDecade = Helpers.yearToDecade(date.getFullYear());
+                    return;
+                }
+                case Depth.Century: {
+                    this.activeCentury = Helpers.yearToCentury(date.getFullYear());
+                    return;
+                }
+            }
+        }
+        #setupNavButtons() {
+            const render = () => {
+                if (this.activeDepth === Depth.Month) {
+                    this.$prevPrev.style.cssText = '';
+                    this.$nextNext.style.cssText = '';
+                }
+                else {
+                    this.$prevPrev.style.cssText = 'transfrom:scale(0,0);flex:0 0 0';
+                    this.$nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0';
+                }
             };
-            this.#$pool = [];
-            this.#value = [];
-            this.viewDepth = this.startdepth;
-            this.switchViewByDate(getClosestDate(this.#value) ?? new Date());
-            $panel.onclick = e => {
+            this.onRender(render);
+            this.onConnected(render);
+            this.onConnected(() => {
+                this.addEventListener('active-depth-change', render);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('active-depth-change', render);
+            });
+            const onPrev = () => {
+                if (this.activeDepth === Depth.Month) {
+                    this.showPrevMonth();
+                }
+                else if (this.activeDepth === Depth.Year) {
+                    this.showPrevYear();
+                }
+                else if (this.activeDepth === Depth.Decade) {
+                    this.showPrevDecade();
+                }
+                else {
+                    this.showPrevCentury();
+                }
+            };
+            const onPrevPrev = () => {
+                if (this.activeDepth === Depth.Month) {
+                    this.showPrevYear();
+                }
+            };
+            const onNext = () => {
+                if (this.activeDepth === Depth.Month) {
+                    this.showNextMonth();
+                }
+                else if (this.activeDepth === Depth.Year) {
+                    this.showNextYear();
+                }
+                else if (this.activeDepth === Depth.Decade) {
+                    this.showNextDecade();
+                }
+                else {
+                    this.showNextCentury();
+                }
+            };
+            const onNextNext = () => {
+                if (this.activeDepth === Depth.Month) {
+                    this.showNextYear();
+                }
+            };
+            this.onConnected(() => {
+                this.$prevPrev.onclick = onPrevPrev;
+                this.$prev.onclick = onPrev;
+                this.$next.onclick = onNext;
+                this.$nextNext.onclick = onNextNext;
+            });
+            this.onDisconnected(() => {
+                this.$prevPrev.onclick = this.$prev.onclick = this.$next.onclick = this.$nextNext.onclick = null;
+            });
+        }
+        #setupTitle() {
+            const render = () => {
+                let text;
+                switch (this.activeDepth) {
+                    case Depth.Century: {
+                        text = `${Helpers.firstYearOfCentury(this.activeCentury)} ~ ${Helpers.lastYearOfCentury(this.activeCentury)}`;
+                        break;
+                    }
+                    case Depth.Decade: {
+                        text = `${Helpers.firstYearOfDecade(this.activeDecade)} ~ ${Helpers.lastYearOfDecade(this.activeDecade)}`;
+                        break;
+                    }
+                    case Depth.Year: {
+                        text = `${this.activeYear}`;
+                        break;
+                    }
+                    default:
+                        text = `${this.activeYear} / ${this.activeMonth + 1}`;
+                }
+                this.$title.textContent = text;
+            };
+            this.onRender(render);
+            this.onConnected(render);
+            this.onConnected(() => {
+                this.addEventListener('active-depth-change', render);
+                this.addEventListener('active-century-change', render);
+                this.addEventListener('active-decade-change', render);
+                this.addEventListener('active-year-change', render);
+                this.addEventListener('active-month-change', render);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('active-depth-change', render);
+                this.removeEventListener('active-century-change', render);
+                this.removeEventListener('active-decade-change', render);
+                this.removeEventListener('active-year-change', render);
+                this.removeEventListener('active-month-change', render);
+            });
+            const onClick = (e) => {
                 const target = e.target;
-                if ($prevPrev.contains(target)) {
-                    this.#onPrevPrev();
-                }
-                else if ($prev.contains(target)) {
-                    this.#onPrev();
-                }
-                else if ($next.contains(target)) {
-                    this.#onNext();
-                }
-                else if ($nextNext.contains(target)) {
-                    this.#onNextNext();
-                }
-                else if ($title.contains(target)) {
+                if (this.$title.contains(target)) {
                     this.rollUp();
                 }
-                else if (target.classList.contains('button-item')) {
-                    this.#onClickItem(this.#getModel(target));
+            };
+            this.onConnected(() => {
+                this.$layout.addEventListener('click', onClick);
+            });
+            this.onDisconnected(() => {
+                this.$layout.removeEventListener('click', onClick);
+            });
+        }
+        #setupWeekHeader() {
+            const render = () => {
+                const headers = Helpers.generateWeekHeaders(this.startWeekOn);
+                const $weekHeader = this.$weekHeader;
+                if (this.activeDepth === Depth.Month) {
+                    $weekHeader.style.height = '';
+                    $weekHeader.style.opacity = '1';
+                    if ($weekHeader.children.length !== 7) {
+                        $weekHeader.innerHTML = headers.map(header => `<span>${header}</span>`).join('');
+                    }
+                    else {
+                        for (let i = 0; i < 7; i += 1) {
+                            $weekHeader.children[i].textContent = headers[i];
+                        }
+                    }
+                }
+                else {
+                    $weekHeader.style.height = '0';
+                    $weekHeader.style.opacity = '0';
+                }
+            };
+            this.onConnected(render);
+            this.onRender(render);
+            this.onAttributeChangedDep('start-week-on', render);
+            this.onConnected(() => {
+                this.addEventListener('active-depth-change', render);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('active-depth-change', render);
+            });
+        }
+        #setupDateButtons() {
+            const getModel = ($item) => {
+                return {
+                    label: $item.dataset.label,
+                    century: +$item.dataset.century || 0,
+                    decade: +$item.dataset.decade,
+                    year: +$item.dataset.year,
+                    month: +$item.dataset.month,
+                    date: +$item.dataset.date,
+                };
+            };
+            const onClick = (e) => {
+                const target = e.target;
+                let itemModel;
+                if (target.classList.contains('button-item')) {
+                    itemModel = getModel(target);
                 }
                 else if (target.parentElement?.classList.contains('button-item')) {
-                    this.#onClickItem(this.#getModel(target.parentElement));
+                    itemModel = getModel(target.parentElement);
                 }
-                this.focus();
+                if (typeof itemModel?.year === 'number') {
+                    if (isDisabledLeaf(itemModel) && !this.#isActiveLeaf(itemModel)) {
+                        return;
+                    }
+                    if (!this.#isLeafDepth()) {
+                        return this.drillDown(itemModel);
+                    }
+                    this.#selectByLeafModel(itemModel);
+                }
             };
-            $panel.onmouseover = e => {
+            const onMouseOver = (e) => {
                 if (!this.#isLeafDepth())
                     return;
-                if (!this.isRangeMode())
+                if (!this.#isRangeMode())
                     return;
                 if (!this.rangeFrom)
                     return;
@@ -169,607 +616,372 @@ export let BlocksDate = (() => {
                         : null;
                 if (!$button)
                     return;
-                this.maybeRangeTo = this.#getModel($button);
-                this.render();
+                this.maybeRangeTo = getModel($button);
+                render();
             };
-        }
-        #rangeFrom;
-        get rangeFrom() {
-            return this.#rangeFrom;
-        }
-        set rangeFrom(value) {
-            this.#rangeFrom = value;
-        }
-        #rangeTo;
-        maybeRangeTo;
-        get rangeTo() {
-            return this.#rangeTo;
-        }
-        set rangeTo(value) {
-            if (value !== null) {
-                this.maybeRangeTo = null;
-            }
-            this.#rangeTo = value;
-        }
-        #disabledDate;
-        get disabledDate() {
-            return this.#disabledDate;
-        }
-        set disabledDate(value) {
-            this.#disabledDate = value;
-        }
-        get mindepth() {
-            const value = enumGetter('mindepth', Depths)(this) ?? Depth.Century;
-            return normalizeMinDepth(value, this.depth);
-        }
-        set mindepth(value) {
-            if (Depths.includes(value)) {
-                enumSetter('mindepth', Depths)(this, normalizeMinDepth(value, this.depth));
-            }
-        }
-        get startdepth() {
-            const value = enumGetter('startdepth', Depths)(this) ?? this.depth;
-            return normalizeViewDepth(value, this.mindepth, this.depth);
-        }
-        set startdepth(value) {
-            if (Depths.includes(value)) {
-                enumSetter('startdepth', Depths)(this, normalizeViewDepth(value, this.mindepth, this.depth));
-            }
-        }
-        #badges;
-        get badges() {
-            return this.#badges ?? [];
-        }
-        set badges(value) {
-            this.#badges = value;
-            this.render();
-        }
-        get startWeekOn() {
-            const value = enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(this) ?? '1';
-            return Number(value);
-        }
-        set startWeekOn(value) {
-            enumSetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(this, String(value));
-        }
-        get multiple() {
-            return this.mode === 'multiple';
-        }
-        #viewDepth;
-        get viewDepth() {
-            return normalizeViewDepth(this.#viewDepth, this.mindepth, this.depth);
-        }
-        set viewDepth(value) {
-            if (this.#viewDepth === value)
-                return;
-            this.#viewDepth = normalizeViewDepth(value, this.mindepth, this.depth);
-            this.render();
-        }
-        #viewCentury;
-        get viewCentury() {
-            if (this.#viewCentury != null)
-                return this.#viewCentury;
-            return yearToCentury(this.viewYear ?? new Date().getFullYear());
-        }
-        set viewCentury(value) {
-            const century = normalizeNumber(value);
-            if (century == null)
-                return;
-            if (this.#viewCentury !== century) {
-                this.#viewCentury = century;
-                if (!isYearInCentury(this.viewYear, century)) {
-                    this.#viewYear = firstYearOfDecade(century);
+            this.onConnected(() => {
+                this.$layout.addEventListener('click', onClick);
+                this.$layout.addEventListener('mouseover', onMouseOver);
+            });
+            this.onDisconnected(() => {
+                this.$layout.removeEventListener('click', onClick);
+                this.$layout.removeEventListener('mouseover', onMouseOver);
+            });
+            const includesToday = (item) => {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = today.getMonth();
+                switch (this.activeDepth) {
+                    case Depth.Year:
+                        return item.year === year && item.month === month;
+                    case Depth.Decade:
+                        return item.year === year;
+                    case Depth.Century:
+                        return Math.floor(year / 10) === item.decade;
+                    default:
+                        return false;
                 }
-                this.render();
-            }
-        }
-        #viewDecade;
-        get viewDecade() {
-            if (this.#viewDecade != null)
-                return this.#viewDecade;
-            return yearToDecade(this.viewYear ?? new Date().getFullYear());
-        }
-        set viewDecade(value) {
-            const decade = normalizeNumber(value);
-            if (decade == null)
-                return;
-            if (this.#viewDecade !== decade) {
-                this.#viewDecade = decade;
-                this.#viewCentury = decadeToCentury(decade);
-                if (!isYearInDecade(this.viewYear, decade)) {
-                    this.#viewYear = firstYearOfDecade(decade);
+            };
+            const includesActive = (itemModel) => {
+                if (!this.selectedCount)
+                    return false;
+                if (this.#isRangeMode()) {
+                    if (this.selectedCount !== 2)
+                        return false;
+                    const [fromTime, toTime] = this.selected.map(date => date.getTime());
+                    switch (this.activeDepth) {
+                        case Depth.Year: {
+                            itemModel = itemModel;
+                            const t1 = Helpers.makeDate(itemModel.year, itemModel.month, 1).getTime();
+                            const t2 = Helpers.makeDate(itemModel.year, (itemModel.month ?? 0) + 1, 0).getTime();
+                            return fromTime <= t2 && toTime >= t1;
+                        }
+                        case Depth.Decade: {
+                            itemModel = itemModel;
+                            const t1 = Helpers.makeDate(itemModel.year, 0, 1).getTime();
+                            const t2 = Helpers.makeDate(itemModel.year, 11, 31).getTime();
+                            return fromTime <= t2 && toTime >= t1;
+                        }
+                        case Depth.Century: {
+                            itemModel = itemModel;
+                            const t1 = Helpers.makeDate(itemModel.decade * 10, 0, 1).getTime();
+                            const t2 = Helpers.makeDate(itemModel.decade * 10 + 9, 11, 31).getTime();
+                            return fromTime <= t2 && toTime >= t1;
+                        }
+                        default:
+                            return false;
+                    }
                 }
-                this.render();
-            }
-        }
-        #viewYear;
-        get viewYear() {
-            return this.#viewYear ?? new Date().getFullYear();
-        }
-        set viewYear(value) {
-            const year = normalizeNumber(value);
-            if (year == null)
-                return;
-            if (this.#viewYear !== year) {
-                this.#viewYear = year;
-                this.#viewDecade = yearToDecade(year);
-                this.#viewCentury = yearToCentury(year);
-                this.render();
-            }
-        }
-        #viewMonth;
-        get viewMonth() {
-            return this.#viewMonth;
-        }
-        set viewMonth(value) {
-            if (this.#viewMonth !== value) {
-                this.#viewMonth = value;
-                this.render();
-            }
-        }
-        get value() {
-            switch (this.mode) {
-                case 'single':
-                    return this.#value.length ? this.#value[0] : null;
-                case 'range':
-                    return this.#value.length === 2 ? this.#value.slice() : null;
-                case 'multiple':
-                    return this.#value.length ? this.#value.slice() : null;
-            }
-        }
-        set value(value) {
-            switch (this.mode) {
-                case 'single':
-                    if (value === null || value instanceof Date) {
-                        this.setValue(value);
+                else {
+                    switch (this.activeDepth) {
+                        case Depth.Year:
+                            return this.selected.some((t) => t.getMonth() === itemModel.month && t.getFullYear() === itemModel.year);
+                        case Depth.Decade:
+                            return this.selected.some((t) => t.getFullYear() === itemModel.year);
+                        case Depth.Century:
+                            return this.selected.some((t) => Math.floor(t.getFullYear() / 10) === itemModel.decade);
+                        default:
+                            return false;
                     }
-                    else if (value[0] instanceof Date) {
-                        this.setValue(value[0]);
-                    }
-                    break;
-                case 'range':
-                    if ((Array.isArray(value) && value.length === 2) || value === null) {
-                        this.setRange(value);
-                    }
-                    break;
-                case 'multiple':
-                    if (value instanceof Date) {
-                        this.setValues([value]);
+                }
+            };
+            const isDisabledLeaf = (item) => {
+                if (this.#limitReached())
+                    return true;
+                if (this.disabledDate) {
+                    return this.disabledDate(item, {
+                        depth: this.depth,
+                        viewDepth: this.activeDepth,
+                        component: this,
+                    });
+                }
+                else {
+                    if (this.activeDepth !== this.depth)
+                        return false;
+                    return false;
+                }
+            };
+            const ensureItemCount = (n) => {
+                const $list = this.$list;
+                let len = $list.children.length ?? 0;
+                while (len++ < n) {
+                    if (this.#$pool.length) {
+                        $list.appendChild(this.#$pool.pop());
                     }
                     else {
-                        this.setValues(value);
+                        const el = document.createElement('button');
+                        el.className = 'button-item';
+                        el.appendChild(document.createElement('span'));
+                        $list.appendChild(el);
                     }
-                    break;
-            }
+                }
+                len = $list.children.length;
+                while (len-- > n) {
+                    this.#$pool.push($list.removeChild($list.lastElementChild));
+                }
+                return Array.prototype.slice.call($list.children);
+            };
+            const renderCenturyView = () => {
+                const decades = Helpers.generateDecades(this.activeCentury);
+                if (!decades.length)
+                    return;
+                ensureItemCount(10).forEach(($el, i) => {
+                    const itemModel = decades[i];
+                    boolSetter('disabled')($el, false);
+                    $el.classList.toggle('button-item--otherMonth', false);
+                    $el.classList.toggle('button-item--today', false);
+                    $el.classList.toggle('button-item--active', false);
+                    $el.classList.toggle('button-item--includesActive', includesActive(itemModel));
+                    $el.classList.toggle('button-item--includesToday', includesToday(itemModel));
+                    $el.classList.toggle('button-item--rangeFrom', false);
+                    $el.classList.toggle('button-item--rangeTo', false);
+                    $el.classList.toggle('button-item--rangeIn', false);
+                    $el.dataset.century = itemModel.century;
+                    $el.dataset.decade = itemModel.decade;
+                    $el.dataset.year = null;
+                    $el.dataset.month = null;
+                    $el.dataset.date = null;
+                    $el.dataset.label = itemModel.label;
+                    $el.lastElementChild.innerHTML = itemModel.label;
+                    renderBadge($el, itemModel);
+                });
+            };
+            const renderDecadeView = () => {
+                const years = Helpers.generateYears(Helpers.decadeToCentury(this.activeDecade), this.activeDecade);
+                if (!years.length)
+                    return;
+                ensureItemCount(10).forEach(($el, i) => {
+                    const itemModel = years[i];
+                    if (this.depth === Depth.Decade) {
+                        boolSetter('disabled')($el, !this.#isActiveLeaf(itemModel) && isDisabledLeaf(itemModel));
+                    }
+                    else {
+                        boolSetter('disabled')($el, false);
+                    }
+                    $el.classList.toggle('button-item--otherMonth', false);
+                    $el.classList.toggle('button-item--today', false);
+                    $el.classList.toggle('button-item--active', this.#isActiveLeaf(itemModel));
+                    $el.classList.toggle('button-item--includesActive', includesActive(itemModel));
+                    $el.classList.toggle('button-item--includesToday', includesToday(itemModel));
+                    const isRangeMode = this.#isRangeMode();
+                    $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(itemModel));
+                    $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(itemModel));
+                    $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(itemModel));
+                    $el.dataset.century = itemModel.century;
+                    $el.dataset.decade = itemModel.decade;
+                    $el.dataset.year = itemModel.year;
+                    $el.dataset.month = null;
+                    $el.dataset.date = null;
+                    $el.dataset.label = itemModel.label;
+                    $el.lastElementChild.innerHTML = itemModel.label;
+                    renderBadge($el, itemModel);
+                });
+            };
+            const renderYearView = () => {
+                const months = Helpers.generateMonths(Helpers.yearToCentury(this.activeYear), Helpers.yearToDecade(this.activeYear), this.activeYear);
+                if (!months.length)
+                    return;
+                ensureItemCount(12).forEach(($el, i) => {
+                    const itemModel = months[i];
+                    $el.classList.toggle('button-item--otherMonth', false);
+                    $el.classList.toggle('button-item--today', false);
+                    $el.classList.toggle('button-item--active', this.#isActiveLeaf(itemModel));
+                    $el.classList.toggle('button-item--includesActive', includesActive(itemModel));
+                    $el.classList.toggle('button-item--includesToday', includesToday(itemModel));
+                    const isRangeMode = this.#isRangeMode();
+                    $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(itemModel));
+                    $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(itemModel));
+                    $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(itemModel));
+                    if (this.depth === Depth.Year) {
+                        boolSetter('disabled')($el, !this.#isActiveLeaf(itemModel) && isDisabledLeaf(itemModel));
+                    }
+                    else {
+                        boolSetter('disabled')($el, false);
+                    }
+                    $el.dataset.century = itemModel.century;
+                    $el.dataset.decade = itemModel.decade;
+                    $el.dataset.year = itemModel.year;
+                    $el.dataset.month = itemModel.month;
+                    $el.dataset.date = null;
+                    $el.dataset.label = itemModel.label;
+                    $el.lastElementChild.innerHTML = itemModel.label;
+                    renderBadge($el, itemModel);
+                });
+            };
+            const renderMonthView = () => {
+                const dateList = Helpers.generateDates(Helpers.yearToCentury(this.activeYear), Helpers.yearToDecade(this.activeYear), this.activeYear, this.activeMonth, this.startWeekOn);
+                if (!dateList.length)
+                    return;
+                ensureItemCount(42).forEach(($el, i) => {
+                    const itemModel = dateList[i];
+                    boolSetter('disabled')($el, !this.#isActiveLeaf(itemModel) && isDisabledLeaf(itemModel));
+                    $el.classList.toggle('button-item--otherMonth', itemModel.month !== this.activeMonth);
+                    $el.classList.toggle('button-item--today', Helpers.isToday(itemModel));
+                    $el.classList.toggle('button-item--active', this.#isActiveLeaf(itemModel));
+                    $el.classList.toggle('button-item--includesActive', false);
+                    $el.classList.toggle('button-item--includesToday', includesToday(itemModel));
+                    const isRangeMode = this.#isRangeMode();
+                    $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(itemModel));
+                    $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(itemModel));
+                    $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(itemModel));
+                    $el.dataset.century = itemModel.century;
+                    $el.dataset.decade = itemModel.decade;
+                    $el.dataset.year = itemModel.year;
+                    $el.dataset.month = itemModel.month;
+                    $el.dataset.date = itemModel.date;
+                    $el.dataset.label = itemModel.label;
+                    $el.lastElementChild.innerHTML = itemModel.label;
+                    renderBadge($el, itemModel);
+                });
+            };
+            const renderBadge = ($el, itemModel) => {
+                const badges = this.getBadges(itemModel);
+                let $badge = $el.querySelector('.button-badge');
+                if (badges.length === 0) {
+                    $el.title = '';
+                    if ($badge)
+                        $el.removeChild($badge);
+                    return;
+                }
+                if (!$badge) {
+                    $badge = $el.appendChild(document.createElement('i'));
+                }
+                $badge.classList.add('button-badge');
+                let title = badges
+                    .filter(badge => badge.label)
+                    .map(badge => badge.label)
+                    .join('\n');
+                if (title.length > 100)
+                    title = title.slice(0, 97) + '...';
+                $el.title = title;
+            };
+            const render = () => {
+                ;
+                ['body-century', 'body-decade', 'body-year', 'body-month'].forEach(klass => {
+                    this.$content.classList.remove(klass);
+                });
+                this.$content.classList.add(`body-${this.activeDepth}`);
+                if (this.activeDepth === Depth.Month) {
+                    renderMonthView();
+                }
+                else if (this.activeDepth === Depth.Year) {
+                    renderYearView();
+                }
+                else if (this.activeDepth === Depth.Decade) {
+                    renderDecadeView();
+                }
+                else if (this.activeDepth === Depth.Century) {
+                    renderCenturyView();
+                }
+            };
+            this.onRender(render);
+            this.onConnected(render);
+            this.onConnected(() => {
+                this.addEventListener('badges-change', render);
+                this.addEventListener('active-depth-change', render);
+                this.addEventListener('active-century-change', render);
+                this.addEventListener('active-decade-change', render);
+                this.addEventListener('active-year-change', render);
+                this.addEventListener('active-month-change', render);
+                this.addEventListener('disabled-date-change', render);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('badges-change', render);
+                this.removeEventListener('active-depth-change', render);
+                this.removeEventListener('active-century-change', render);
+                this.removeEventListener('active-decade-change', render);
+                this.removeEventListener('active-year-change', render);
+                this.removeEventListener('active-month-change', render);
+                this.removeEventListener('disabled-date-change', render);
+            });
+        }
+        #setupLoading() {
+            const render = () => {
+                this.$loading.style.display = this.loading ? '' : 'none';
+            };
+            this.onRender(render);
+            this.onConnected(render);
+            this.onAttributeChangedDep('loading', render);
+        }
+        #setupFocus() {
+            const onClick = () => this.focus();
+            this.onConnected(() => {
+                this.$layout.addEventListener('click', onClick);
+            });
+            this.onConnected(() => {
+                this.$layout.removeEventListener('click', onClick);
+            });
         }
         clearUncompleteRange() {
             if (this.mode !== 'range')
                 return;
-            if (this.value !== null) {
-                const [from, to] = this.value;
-                this.rangeFrom = this.#dateToModel(from, this.viewDepth);
-                this.rangeTo = this.#dateToModel(to, this.viewDepth);
+            if (this.selected.length === 2) {
+                const [from, to] = this.selected;
+                const fromModel = this.#dateToModel(from);
+                const toModel = this.#dateToModel(to);
+                this.rangeFrom = fromModel;
+                this.rangeTo = toModel;
             }
             else {
                 this.rangeFrom = this.rangeTo = null;
             }
             this.render();
         }
-        clearValue() {
-            this.#value = [];
-            if (this.mode === 'range') {
-                this.rangeFrom = this.rangeTo = null;
-            }
-            this.render();
+        clearSelected() {
+            this.selected = [];
         }
-        getValue() {
-            return this.mode === 'single' ? this.#value[0] ?? null : null;
+        deselect(selected) {
+            const date = selected.value;
+            this.selected = this.selected.filter(value => !this.dateEquals(value, date));
         }
-        setValue(value) {
-            if (this.mode !== 'single')
-                return;
-            if (value === null) {
-                if (this.value !== null) {
-                    this.clearValue();
-                }
-                return;
-            }
-            const currentValue = this.#value[0];
-            const hasChange = currentValue !== value || !currentValue || currentValue.getTime() !== value.getTime();
-            if (hasChange) {
-                this.#value = [value];
-                this.render();
-                dispatchEvent(this, 'select', { detail: { value: this.value } });
-                dispatchEvent(this, 'change', { detail: { value: this.value } });
-            }
+        notifySelectListChange() {
+            const value = this.selected.map(date => {
+                return {
+                    value: date,
+                    label: this.#formatter.content(date),
+                };
+            });
+            dispatchEvent(this, 'select-list:change', {
+                detail: { value },
+            });
         }
-        getRange() {
-            return this.mode === 'range' && this.#value.length === 2 ? this.#value.slice() : null;
+        #notifyChange() {
+            this.notifySelectListChange();
+            dispatchEvent(this, 'change', { detail: { selected: this.selected } });
         }
-        setRange(value) {
-            if (this.mode !== 'range')
-                return;
-            if (value === null) {
-                if (this.value !== null) {
-                    this.clearValue();
-                }
-                return;
-            }
-            if (!Array.isArray(value)) {
-                return;
-            }
-            if (!Array.isArray(value) || value.length !== 2 || !value.every(date => date instanceof Date)) {
-                return;
-            }
-            const range = value.slice().sort((a, b) => a.getTime() - b.getTime());
-            const hasChange = !isAllEqual(this.#value, range);
-            if (hasChange) {
-                this.#value = range;
-                this.maybeRangeTo = null;
-                if (range.length) {
-                    this.rangeFrom = this.#dateToModel(range[0], this.viewDepth);
-                    this.rangeTo = this.#dateToModel(range[1], this.viewDepth);
-                }
-                else {
-                    this.rangeFrom = this.rangeTo = null;
-                }
-                this.render();
-                dispatchEvent(this, 'select', { detail: { value: this.value } });
-                dispatchEvent(this, 'change', { detail: { value: this.value } });
-            }
-        }
-        getValues() {
-            return this.mode === 'multiple' && this.#value.length ? this.#value.slice() : [];
-        }
-        setValues(values) {
-            if (this.mode !== 'multiple')
-                return;
-            if (values.length === 0) {
-                if (this.value !== null) {
-                    this.clearValue();
-                }
-                return;
-            }
-            if (!Array.isArray(values)) {
-                return;
-            }
-            if (!Array.isArray(values) ||
-                values.length > (this.max ?? Infinity) ||
-                !values.every(date => date instanceof Date)) {
-                return;
-            }
-            const hasChange = !isAllEqual(this.#value, values);
-            if (hasChange) {
-                this.#value = values;
-                this.render();
-                dispatchEvent(this, 'select', { detail: { value: this.value } });
-                dispatchEvent(this, 'change', { detail: { value: this.value } });
-            }
-        }
-        isRangeMode() {
+        #isRangeMode() {
             return this.mode === 'range';
         }
-        getDecadeRange(decade) {
-            const from = decade * 10;
-            const to = from + 9;
-            return [from, to];
-        }
-        limitReached() {
-            if (!this.multiple || !this.max)
+        #limitReached() {
+            if (this.mode !== 'multiple' || !this.max)
                 return false;
-            let max = Math.trunc(this.max);
+            let max = Math.trunc(Math.abs(this.max));
             if (max < 1)
                 max = 1;
-            const len = this.getValues()?.length ?? 0;
+            const len = this.selected.length ?? 0;
             return len >= max;
         }
-        switchViewByDate(date) {
-            this.viewMonth = date.getMonth();
-            this.viewYear = date.getFullYear();
-        }
-        #getModel($item) {
-            return {
-                label: $item.dataset.label,
-                century: +$item.dataset.century || 0,
-                decade: +$item.dataset.decade,
-                year: +$item.dataset.year,
-                month: +$item.dataset.month,
-                date: +$item.dataset.date,
-            };
-        }
-        #renderHeaderButtons() {
-            if (this.viewDepth === Depth.Month) {
-                this._ref.$prevPrev.style.cssText = '';
-                this._ref.$nextNext.style.cssText = '';
-            }
-            else {
-                this._ref.$prevPrev.style.cssText = 'transfrom:scale(0,0);flex:0 0 0';
-                this._ref.$nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0';
-            }
-        }
-        #renderTitle() {
-            let text;
-            switch (this.viewDepth) {
-                case Depth.Century: {
-                    text = `${firstYearOfCentury(this.viewCentury)} ~ ${lastYearOfCentury(this.viewCentury)}`;
-                    break;
-                }
-                case Depth.Decade: {
-                    text = `${firstYearOfDecade(this.viewDecade)} ~ ${lastYearOfDecade(this.viewDecade)}`;
-                    break;
-                }
-                case Depth.Year: {
-                    text = `${this.viewYear}`;
-                    break;
-                }
-                default:
-                    text = `${this.viewYear} / ${this.viewMonth + 1}`;
-            }
-            this._ref.$title.textContent = text;
-        }
-        #renderWeekHeader() {
-            const headers = generateWeekHeaders(this.startWeekOn);
-            const $weekHeader = this._ref.$weekHeader;
-            if (this.viewDepth === Depth.Month) {
-                $weekHeader.style.height = '';
-                $weekHeader.style.opacity = '1';
-                if ($weekHeader.children.length !== 7) {
-                    $weekHeader.innerHTML = headers.map(header => `<span>${header}</span>`).join('');
-                }
-                else {
-                    for (let i = 0; i < 7; i += 1) {
-                        $weekHeader.children[i].textContent = headers[i];
-                    }
-                }
-            }
-            else {
-                $weekHeader.style.height = '0';
-                $weekHeader.style.opacity = '0';
-            }
-        }
-        #renderLoading() {
-            this._ref.$loading.style.display = this.loading ? '' : 'none';
-        }
-        #renderItems() {
-            ;
-            ['body-century', 'body-decade', 'body-year', 'body-month'].forEach(klass => {
-                this._ref.$content.classList.remove(klass);
-            });
-            this._ref.$content.classList.add(`body-${this.viewDepth}`);
-            if (this.viewDepth === Depth.Month) {
-                this.#renderDateItems();
-            }
-            else if (this.viewDepth === Depth.Year) {
-                this.#renderMonthItems();
-            }
-            else if (this.viewDepth === Depth.Decade) {
-                this.#renderYearItems();
-            }
-            else if (this.viewDepth === Depth.Century) {
-                this.#renderDecadeItems();
-            }
-        }
-        #ensureItemCount(n) {
-            const $list = this._ref.$list;
-            let len = $list.children.length ?? 0;
-            while (len++ < n) {
-                if (this.#$pool.length) {
-                    $list.appendChild(this.#$pool.pop());
-                }
-                else {
-                    const el = document.createElement('button');
-                    el.className = 'button-item';
-                    el.appendChild(document.createElement('span'));
-                    $list.appendChild(el);
-                }
-            }
-            len = $list.children.length;
-            while (len-- > n) {
-                this.#$pool.push($list.removeChild($list.lastElementChild));
-            }
-            return Array.prototype.slice.call($list.children);
-        }
-        #renderDecadeItems() {
-            const decades = generateDecades(this.viewCentury);
-            if (!decades.length)
-                return;
-            this.#ensureItemCount(10).forEach(($el, i) => {
-                const model = decades[i];
-                boolSetter('disabled')($el, false);
-                $el.classList.toggle('button-item--otherMonth', false);
-                $el.classList.toggle('button-item--today', false);
-                $el.classList.toggle('button-item--active', false);
-                $el.classList.toggle('button-item--includesActive', this.#includesActive(model));
-                $el.classList.toggle('button-item--rangeFrom', false);
-                $el.classList.toggle('button-item--rangeTo', false);
-                $el.classList.toggle('button-item--rangeIn', false);
-                $el.dataset.century = model.century;
-                $el.dataset.decade = model.decade;
-                $el.dataset.year = null;
-                $el.dataset.month = null;
-                $el.dataset.date = null;
-                $el.dataset.label = model.label;
-                $el.lastElementChild.innerHTML = model.label;
-                this.#renderBadge($el, model);
-            });
-        }
-        #renderYearItems() {
-            const years = generateYears(this.viewCentury, this.viewDecade);
-            if (!years.length)
-                return;
-            this.#ensureItemCount(10).forEach(($el, i) => {
-                const item = years[i];
-                if (this.depth === Depth.Decade) {
-                    boolSetter('disabled')($el, !this.#isActiveLeaf(item) && this.#isDisabledLeaf(item));
-                }
-                else {
-                    boolSetter('disabled')($el, false);
-                }
-                $el.classList.toggle('button-item--otherMonth', false);
-                $el.classList.toggle('button-item--today', false);
-                $el.classList.toggle('button-item--active', this.#isActiveLeaf(item));
-                $el.classList.toggle('button-item--includesActive', this.#includesActive(item));
-                const isRangeMode = this.isRangeMode();
-                $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(item));
-                $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(item));
-                $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(item));
-                $el.dataset.century = item.century;
-                $el.dataset.decade = item.decade;
-                $el.dataset.year = item.year;
-                $el.dataset.month = null;
-                $el.dataset.date = null;
-                $el.dataset.label = item.label;
-                $el.lastElementChild.innerHTML = item.label;
-                this.#renderBadge($el, item);
-            });
-        }
-        #renderMonthItems() {
-            const months = generateMonths(this.viewCentury, this.viewDecade, this.viewYear);
-            if (!months.length)
-                return;
-            this.#ensureItemCount(12).forEach(($el, i) => {
-                const item = months[i];
-                $el.classList.toggle('button-item--otherMonth', false);
-                $el.classList.toggle('button-item--today', false);
-                $el.classList.toggle('button-item--active', this.#isActiveLeaf(item));
-                $el.classList.toggle('button-item--includesActive', this.#includesActive(item));
-                const isRangeMode = this.isRangeMode();
-                $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(item));
-                $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(item));
-                $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(item));
-                if (this.depth === Depth.Year) {
-                    boolSetter('disabled')($el, !this.#isActiveLeaf(item) && this.#isDisabledLeaf(item));
-                }
-                else {
-                    boolSetter('disabled')($el, false);
-                }
-                $el.dataset.century = item.century;
-                $el.dataset.decade = item.decade;
-                $el.dataset.year = item.year;
-                $el.dataset.month = item.month;
-                $el.dataset.date = null;
-                $el.dataset.label = item.label;
-                $el.lastElementChild.innerHTML = item.label;
-                this.#renderBadge($el, item);
-            });
-        }
-        #renderDateItems() {
-            const dateList = generateDates(this.viewCentury, this.viewDecade, this.viewYear, this.viewMonth, this.startWeekOn);
-            if (!dateList.length)
-                return;
-            this.#ensureItemCount(42).forEach(($el, i) => {
-                const item = dateList[i];
-                boolSetter('disabled')($el, !this.#isActiveLeaf(item) && this.#isDisabledLeaf(item));
-                $el.classList.toggle('button-item--otherMonth', item.month !== this.viewMonth);
-                $el.classList.toggle('button-item--today', isToday(item));
-                $el.classList.toggle('button-item--active', this.#isActiveLeaf(item));
-                $el.classList.toggle('button-item--includesActive', false);
-                const isRangeMode = this.isRangeMode();
-                $el.classList.toggle('button-item--rangeFrom', isRangeMode && this.#isRangeFrom(item));
-                $el.classList.toggle('button-item--rangeTo', isRangeMode && this.#isRangeTo(item));
-                $el.classList.toggle('button-item--rangeIn', isRangeMode && this.#isInRange(item));
-                $el.dataset.century = item.century;
-                $el.dataset.decade = item.decade;
-                $el.dataset.year = item.year;
-                $el.dataset.month = item.month;
-                $el.dataset.date = item.date;
-                $el.dataset.label = item.label;
-                $el.lastElementChild.innerHTML = item.label;
-                this.#renderBadge($el, item);
-            });
-        }
-        #renderBadge($el, item) {
-            const badges = this.getBadges(item);
-            let $badge = $el.querySelector('.button-badge');
-            if (badges.length === 0) {
-                $el.title = '';
-                if ($badge)
-                    $el.removeChild($badge);
-                return;
-            }
-            if (!$badge) {
-                $badge = $el.appendChild(document.createElement('i'));
-            }
-            $badge.classList.add('button-badge');
-            let title = badges
-                .filter(badge => badge.label)
-                .map(badge => badge.label)
-                .join('\n');
-            if (title.length > 100)
-                title = title.slice(0, 97) + '...';
-            $el.title = title;
-        }
-        render() {
-            this.#renderHeaderButtons();
-            this.#renderTitle();
-            this.#renderWeekHeader();
-            this.#renderLoading();
-            this.#renderItems();
-        }
-        getBadges(item) {
-            let badges;
-            if (this.viewDepth === Depth.Month) {
-                badges = this.badges.filter(b => item.date === b.date && item.month === b.month && b.year === item.year);
-            }
-            else if (this.viewDepth === Depth.Year) {
-                badges = this.badges.filter(b => item.month === b.month && b.year === item.year);
-            }
-            else if (this.viewDepth === Depth.Decade) {
-                badges = this.badges.filter(b => b.year === item.year);
-            }
-            else if (this.viewDepth === Depth.Century) {
-                badges = this.badges.filter(b => b.year >= item.decade * 10 && b.year <= item.decade * 10 + 9);
-            }
-            else {
-                badges = [];
-            }
-            return badges;
-        }
-        #isRangeFrom(item) {
+        #isRangeFrom(itemModel) {
             let obj = this.rangeFrom;
             if (!obj)
                 return false;
             const obj2 = this.rangeTo ?? this.maybeRangeTo;
-            if (obj2 && this.#modelToDate(obj).getTime() > this.#modelToDate(obj2).getTime()) {
+            if (obj2 && this.#leafModelToDate(obj).getTime() > this.#leafModelToDate(obj2).getTime()) {
                 obj = obj2;
             }
-            return ['year', 'month', 'date'].every(key => obj[key] === item[key]);
+            return ['year', 'month', 'date'].every(key => obj[key] === itemModel[key]);
         }
-        #isRangeTo(item) {
+        #isRangeTo(itemModel) {
             let obj = this.rangeFrom;
             if (!obj)
                 return false;
             const obj2 = this.rangeTo ?? this.maybeRangeTo;
-            if (obj2 && this.#modelToDate(obj).getTime() < this.#modelToDate(obj2).getTime()) {
+            if (obj2 && this.#leafModelToDate(obj).getTime() < this.#leafModelToDate(obj2).getTime()) {
                 obj = obj2;
             }
-            return ['year', 'month', 'date'].every(key => obj[key] === item[key]);
+            return ['year', 'month', 'date'].every(key => obj[key] === itemModel[key]);
         }
-        #isDisabledLeaf(item) {
-            if (this.limitReached())
-                return true;
-            if (this.disabledDate) {
-                return this.disabledDate(item, {
-                    depth: this.depth,
-                    viewDepth: this.viewDepth,
-                    component: this,
-                });
-            }
-            else {
-                if (this.viewDepth !== this.depth)
-                    return false;
-                return false;
-            }
-        }
-        #isSameDate(item, date) {
-            return date.getFullYear() === item.year && date.getMonth() === item.month && date.getDate() === item.date;
-        }
-        #isSameMonth(item, date) {
-            return date.getFullYear() === item.year && date.getMonth() === item.month;
-        }
-        #isSameYear(item, date) {
-            return date.getFullYear() === item.year;
-        }
-        #isInRange(item) {
+        #isInRange(itemModel) {
             if (!this.#isLeafDepth())
                 return false;
             if (!this.rangeFrom)
@@ -778,176 +990,100 @@ export let BlocksDate = (() => {
                 return false;
             let inRange;
             if (this.depth === Depth.Month) {
+                const model = itemModel;
                 inRange = (t1, t2) => {
-                    const t1Time = makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime();
-                    const t2Time = makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime();
-                    const itemTime = makeDate(item.year, item.month, item.date).getTime();
+                    const t1Time = Helpers.makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime();
+                    const t2Time = Helpers.makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime();
+                    const itemTime = Helpers.makeDate(model.year, model.month, model.date).getTime();
                     return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime;
                 };
             }
             else if (this.depth === Depth.Year) {
+                const model = itemModel;
                 inRange = (t1, t2) => {
-                    const t1Time = makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime();
-                    const t2Time = makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime();
-                    const itemTime = makeDate(item.year, item.month, 1).getTime();
+                    const t1Time = Helpers.makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime();
+                    const t2Time = Helpers.makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime();
+                    const itemTime = Helpers.makeDate(model.year, model.month, 1).getTime();
                     return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime;
                 };
             }
             else if (this.depth === Depth.Decade) {
+                const model = itemModel;
                 inRange = (t1, t2) => {
-                    return (Math.min(t1.getFullYear(), t2.getFullYear()) <= item.year &&
-                        Math.max(t1.getFullYear(), t2.getFullYear()) >= item.year);
+                    return (Math.min(t1.getFullYear(), t2.getFullYear()) <= model.year &&
+                        Math.max(t1.getFullYear(), t2.getFullYear()) >= model.year);
                 };
+            }
+            else {
+                inRange = () => false;
             }
             const from = this.rangeFrom;
             const to = this.rangeTo ?? this.maybeRangeTo;
             if (this.depth === Depth.Month) {
-                return inRange(makeDate(from.year, from.month, from.date), makeDate(to.year, to.month, to.date));
+                return inRange(Helpers.makeDate(from.year, from.month, from.date), Helpers.makeDate(to.year, to.month, to.date));
             }
             if (this.depth === Depth.Year) {
-                return inRange(makeDate(from.year, from.month, 1), makeDate(to.year, to.month, 1));
+                return inRange(Helpers.makeDate(from.year, from.month, 1), Helpers.makeDate(to.year, to.month, 1));
             }
             if (this.depth === Depth.Decade) {
-                return inRange(makeDate(from.year, 0, 1), makeDate(to.year, 0, 1));
+                return inRange(Helpers.makeDate(from.year, 0, 1), Helpers.makeDate(to.year, 0, 1));
             }
         }
-        #isActiveLeaf(item) {
+        #isActiveLeaf(itemModel) {
             if (!this.#isLeafDepth())
                 return false;
-            if (this.isRangeMode()) {
-                return this.#isRangeFrom(item) || this.#isRangeTo(item);
+            if (this.#isRangeMode()) {
+                return this.#isRangeFrom(itemModel) || this.#isRangeTo(itemModel);
             }
+            const isSameDate = (item, date) => {
+                return date.getFullYear() === item.year && date.getMonth() === item.month && date.getDate() === item.date;
+            };
+            const isSameMonth = (item, date) => {
+                return date.getFullYear() === item.year && date.getMonth() === item.month;
+            };
+            const isSameYear = (item, date) => {
+                return date.getFullYear() === item.year;
+            };
             const isActive = this.depth === Depth.Month
-                ? this.#isSameDate.bind(this, item)
+                ? isSameDate.bind(this, itemModel)
                 : this.depth === Depth.Year
-                    ? this.#isSameMonth.bind(this, item)
+                    ? isSameMonth.bind(this, itemModel)
                     : this.depth === Depth.Decade
-                        ? this.#isSameYear.bind(this, item)
+                        ? isSameYear.bind(this, itemModel)
                         : () => false;
             if (this.mode === 'single') {
-                return this.#value.some(isActive);
+                return this.selected.some(isActive);
             }
             if (this.mode === 'multiple') {
-                return this.#value.some(isActive);
-            }
-        }
-        #includesToday(item) {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = today.getMonth();
-            switch (this.viewDepth) {
-                case Depth.Year:
-                    return item.year === year && item.month === month;
-                case Depth.Decade:
-                    return item.year === year;
-                case Depth.Century:
-                    return Math.floor(year / 10) === item.decade;
-                default:
-                    return false;
-            }
-        }
-        #includesActive(item) {
-            if (!this.#value.length)
-                return false;
-            if (this.isRangeMode()) {
-                if (this.#value.length !== 2)
-                    return false;
-                const fromTime = this.#value[0].getTime();
-                const toTime = this.#value[1].getTime();
-                switch (this.viewDepth) {
-                    case Depth.Year: {
-                        const t1 = makeDate(item.year, item.month, 1).getTime();
-                        const t2 = makeDate(item.year, (item.month ?? 0) + 1, 0).getTime();
-                        return fromTime <= t2 && toTime >= t1;
-                    }
-                    case Depth.Decade: {
-                        const t1 = makeDate(item.year, 0, 1).getTime();
-                        const t2 = makeDate(item.year, 11, 31).getTime();
-                        return fromTime <= t2 && toTime >= t1;
-                    }
-                    case Depth.Century: {
-                        const t1 = makeDate(item.decade * 10, 0, 1).getTime();
-                        const t2 = makeDate(item.decade * 10 + 9, 11, 31).getTime();
-                        return fromTime <= t2 && toTime >= t1;
-                    }
-                    default:
-                        return false;
-                }
-            }
-            else {
-                switch (this.viewDepth) {
-                    case Depth.Year:
-                        return this.#value.some((t) => t.getMonth() === item.month && t.getFullYear() === item.year);
-                    case Depth.Decade:
-                        return this.#value.some((t) => t.getFullYear() === item.year);
-                    case Depth.Century:
-                        return this.#value.some((t) => Math.floor(t.getFullYear() / 10) === item.decade);
-                    default:
-                        return false;
-                }
+                return this.selected.some(isActive);
             }
         }
         #isLeafDepth() {
-            return this.viewDepth === this.depth;
+            return this.activeDepth === this.depth;
         }
-        #onClickItem(item) {
-            if (this.#isDisabledLeaf(item) && !this.#isActiveLeaf(item)) {
-                return;
-            }
-            if (!this.#isLeafDepth()) {
-                return this.drillDown(item);
-            }
-            this.selectByModel(item);
+        selectByDate(date) {
+            const itemModel = Helpers.dateToModel(date, this.depth);
+            this.#selectByLeafModel(itemModel);
         }
-        selectDate(date) {
-            this.selectByModel(this.#dateToModel(date, this.viewDepth));
-        }
-        selectByModel(item) {
+        #selectByLeafModel(itemModel) {
             if (this.disabled)
                 return;
-            let date;
-            switch (this.viewDepth) {
-                case Depth.Month: {
-                    date = makeDate(item.year, item.month, item.date);
-                    break;
-                }
-                case Depth.Year: {
-                    date = makeDate(item.year, item.month, 1);
-                    break;
-                }
-                case Depth.Decade: {
-                    makeDate(item.year, 0, 1);
-                    break;
-                }
-            }
+            const date = Helpers.modelToDate(itemModel, this.depth);
             switch (this.mode) {
                 case 'single': {
-                    this.setValue(date);
-                    break;
-                }
-                case 'range': {
-                    this.maybeRangeTo = null;
-                    if (!this.rangeFrom || this.rangeTo) {
-                        this.clearValue();
-                        this.rangeFrom = item;
-                        this.render();
-                        return;
-                    }
-                    this.rangeTo = item;
-                    this.setRange([
-                        makeDate(this.rangeFrom.year, this.viewDepth === Depth.Decade ? 0 : this.rangeFrom.month, this.viewDepth === Depth.Month ? this.rangeFrom.date : 1),
-                        makeDate(this.rangeTo.year, this.viewDepth === Depth.Decade ? 0 : this.rangeTo.month, this.viewDepth === Depth.Month ? this.rangeTo.date : 1),
-                    ]);
+                    this.selected = [date];
                     break;
                 }
                 case 'multiple': {
-                    const values = this.#value.slice();
-                    if (this.#isActiveLeaf(item)) {
-                        const pred = this.viewDepth === Depth.Month
-                            ? (t) => t.getDate() === item.date && t.getMonth() === item.month && t.getFullYear() === item.year
-                            : this.viewDepth === Depth.Year
-                                ? (t) => t.getMonth() === item.month && t.getFullYear() === item.year
-                                : (t) => t.getFullYear() === item.year;
+                    const values = this.selected.slice();
+                    if (this.#isActiveLeaf(itemModel)) {
+                        const pred = this.activeDepth === Depth.Month
+                            ? (t) => t.getDate() === itemModel.date &&
+                                t.getMonth() === itemModel.month &&
+                                t.getFullYear() === itemModel.year
+                            : this.activeDepth === Depth.Year
+                                ? (t) => t.getMonth() === itemModel.month && t.getFullYear() === itemModel.year
+                                : (t) => t.getFullYear() === itemModel.year;
                         const index = values.findIndex(pred);
                         if (index !== -1)
                             values.splice(index, 1);
@@ -955,252 +1091,293 @@ export let BlocksDate = (() => {
                     else {
                         values.push(date);
                     }
-                    this.setValues(values);
+                    this.selected = values;
+                    break;
+                }
+                case 'range': {
+                    this.maybeRangeTo = null;
+                    if (!this.rangeFrom || this.rangeTo) {
+                        this.selected = [];
+                        this.rangeFrom = itemModel;
+                        this.render();
+                        return;
+                    }
+                    this.rangeTo = itemModel;
+                    this.selected = [
+                        Helpers.makeDate(this.rangeFrom.year, this.activeDepth === Depth.Decade ? 0 : this.rangeFrom.month, this.activeDepth === Depth.Month ? this.rangeFrom.date : 1),
+                        Helpers.makeDate(this.rangeTo.year, this.activeDepth === Depth.Decade ? 0 : this.rangeTo.month, this.activeDepth === Depth.Month ? this.rangeTo.date : 1),
+                    ];
                     break;
                 }
             }
         }
-        drillDown(item) {
+        drillDown(itemModel) {
             if (this.#isLeafDepth())
                 return;
-            switch (this.viewDepth) {
+            switch (this.activeDepth) {
                 case Depth.Year: {
-                    this.viewMonth = item.month;
-                    this.viewDepth = Depth.Month;
+                    this.activeCentury = undefined;
+                    this.activeDecade = undefined;
+                    this.activeYear = itemModel.year;
+                    this.activeMonth = itemModel.month;
+                    this.activeDepth = Depth.Month;
                     dispatchEvent(this, 'panel-change', {
-                        detail: { viewDepth: this.viewDepth },
+                        detail: { activeDepth: this.activeDepth },
                     });
                     break;
                 }
                 case Depth.Decade: {
-                    this.viewDepth = Depth.Year;
-                    this.viewYear = item.year;
+                    this.activeCentury = undefined;
+                    this.activeDecade = undefined;
+                    this.activeYear = itemModel.year;
+                    this.activeMonth = undefined;
+                    this.activeDepth = Depth.Year;
                     dispatchEvent(this, 'panel-change', {
-                        detail: { viewDepth: this.viewDepth },
+                        detail: { activeDepth: this.activeDepth },
                     });
                     break;
                 }
                 default: {
-                    this.viewDepth = Depth.Decade;
-                    this.viewDecade = item.decade;
+                    this.activeCentury = undefined;
+                    this.activeDecade = itemModel.decade;
+                    this.activeYear = undefined;
+                    this.activeMonth = undefined;
+                    this.activeDepth = Depth.Decade;
                     dispatchEvent(this, 'panel-change', {
-                        detail: { viewDepth: this.viewDepth },
+                        detail: { activeDepth: this.activeDepth },
                     });
                 }
             }
         }
         rollUp() {
-            switch (this.viewDepth) {
+            switch (this.activeDepth) {
                 case Depth.Month: {
-                    const upDepth = normalizeViewDepth(Depth.Year, this.mindepth, this.depth);
-                    if (this.viewDepth !== upDepth) {
-                        this.viewDepth = upDepth;
+                    const upDepth = Helpers.normalizeActiveDepth(Depth.Year, this.minDepth, this.depth);
+                    if (this.activeDepth !== upDepth) {
+                        this.activeCentury = undefined;
+                        this.activeDecade = undefined;
+                        this.activeYear = this.activeYear;
+                        this.activeMonth = undefined;
+                        this.activeDepth = upDepth;
                         dispatchEvent(this, 'panel-change', {
-                            detail: { viewDepth: this.viewDepth },
+                            detail: { activeDepth: this.activeDepth },
                         });
                     }
                     break;
                 }
                 case Depth.Year: {
-                    const upDepth = normalizeViewDepth(Depth.Decade, this.mindepth, this.depth);
-                    if (this.viewDepth !== upDepth) {
-                        this.viewDepth = upDepth;
-                        this.switchViewByDate(makeDate(this.viewYear, 0));
+                    const upDepth = Helpers.normalizeActiveDepth(Depth.Decade, this.minDepth, this.depth);
+                    if (this.activeDepth !== upDepth) {
+                        this.activeCentury = undefined;
+                        this.activeDecade = Helpers.yearToDecade(this.activeYear);
+                        this.activeYear = undefined;
+                        this.activeMonth = undefined;
+                        this.activeDepth = upDepth;
                         dispatchEvent(this, 'panel-change', {
-                            detail: { viewDepth: this.viewDepth },
+                            detail: { activeDepth: this.activeDepth },
                         });
                     }
                     break;
                 }
                 case Depth.Decade: {
-                    const upDepth = normalizeViewDepth(Depth.Century, this.mindepth, this.depth);
-                    if (this.viewDepth !== upDepth) {
-                        this.viewDepth = upDepth;
-                        this.switchViewByDate(makeDate(this.viewDecade * 10, 0));
+                    const upDepth = Helpers.normalizeActiveDepth(Depth.Century, this.minDepth, this.depth);
+                    if (this.activeDepth !== upDepth) {
+                        this.activeCentury = Helpers.decadeToCentury(this.activeDecade);
+                        this.activeDecade = undefined;
+                        this.activeYear = undefined;
+                        this.activeMonth = undefined;
+                        this.activeDepth = upDepth;
                         dispatchEvent(this, 'panel-change', {
-                            detail: { viewDepth: this.viewDepth },
+                            detail: { activeDepth: this.activeDepth },
                         });
                     }
                     break;
                 }
             }
         }
-        #modelToDate(item) {
-            return makeDate(item.year, item.month || 0, item.date || 1);
+        #leafModelToDate(itemModel) {
+            return Helpers.makeDate(itemModel.year, itemModel.month || 0, itemModel.date || 1);
         }
-        #dateToModel(dateObj, depth) {
-            const year = dateObj.getFullYear();
-            const month = dateObj.getMonth();
-            const date = dateObj.getDate();
-            const century = Math.floor(year / 100);
-            const decade = Math.floor(year / 10);
-            const label = depth === Depth.Month
-                ? String(date)
-                : depth === Depth.Year
-                    ? String(month + 1)
-                    : depth === Depth.Decade
-                        ? String(year)
-                        : `${decade * 10} ~ ${decade * 10 + 9}`;
-            return {
-                label,
-                century,
-                decade,
-                year,
-                month,
-                date,
-            };
+        #dateToModel(dateObj) {
+            return Helpers.dateToModel(dateObj, this.activeDepth);
+        }
+        showItemModel(itemModel) {
+            if (Helpers.isDayModel(itemModel)) {
+                this.activeDepth = Helpers.normalizeActiveDepth(Depth.Month, this.minDepth, this.depth);
+                this.activeCentury = itemModel.century;
+                this.activeDecade = itemModel.decade;
+                this.activeYear = itemModel.year;
+                this.activeMonth = itemModel.month;
+            }
+            else if (Helpers.isMonthModel(itemModel)) {
+                this.activeDepth = Helpers.normalizeActiveDepth(Depth.Year, this.minDepth, this.depth);
+                this.activeCentury = itemModel.century;
+                this.activeDecade = itemModel.decade;
+                this.activeYear = itemModel.year;
+                this.activeMonth = itemModel.month;
+            }
+            else if (Helpers.isYearModel(itemModel)) {
+                this.activeDepth = Helpers.normalizeActiveDepth(Depth.Decade, this.minDepth, this.depth);
+                this.activeCentury = itemModel.century;
+                this.activeDecade = itemModel.decade;
+                this.activeYear = itemModel.year;
+                this.activeMonth = itemModel.month;
+            }
+            else if (Helpers.isDecadeModel(itemModel)) {
+                this.activeDepth = Helpers.normalizeActiveDepth(Depth.Century, this.minDepth, this.depth);
+                this.activeCentury = itemModel.century;
+                this.activeDecade = itemModel.decade;
+                this.activeYear = itemModel.year;
+                this.activeMonth = itemModel.month;
+            }
+        }
+        showValue(dateObj) {
+            this.activeDepth = this.depth;
+            switch (this.depth) {
+                case Depth.Month: {
+                    this.activeCentury = undefined;
+                    this.activeDecade = undefined;
+                    this.activeYear = dateObj.getFullYear();
+                    this.activeMonth = dateObj.getMonth();
+                    break;
+                }
+                case Depth.Year: {
+                    this.activeCentury = undefined;
+                    this.activeDecade = undefined;
+                    this.activeYear = dateObj.getFullYear();
+                    this.activeMonth = undefined;
+                    break;
+                }
+                case Depth.Decade: {
+                    this.activeCentury = undefined;
+                    this.activeDecade = Helpers.yearToDecade(dateObj.getFullYear());
+                    this.activeYear = undefined;
+                    this.activeMonth = undefined;
+                    break;
+                }
+            }
         }
         showPrevMonth() {
-            if (this.viewMonth == null)
+            if (this.activeMonth == null)
                 return;
-            if (this.viewMonth > 0) {
-                this.viewMonth--;
+            if (this.activeMonth > 0) {
+                this.activeMonth--;
             }
             else {
-                if (this.viewYear) {
-                    this.viewYear--;
+                if (this.activeYear) {
+                    this.activeYear--;
                 }
-                this.viewMonth = 11;
+                this.activeMonth = 11;
             }
             dispatchEvent(this, 'prev-month', {
                 detail: {
-                    century: this.viewCentury,
-                    decade: this.viewDecade,
-                    year: this.viewYear,
-                    month: this.viewMonth,
+                    century: this.activeCentury,
+                    decade: this.activeDecade,
+                    year: this.activeYear,
+                    month: this.activeMonth,
                 },
             });
         }
         showNextMonth() {
-            if (this.viewMonth == null)
+            if (this.activeMonth == null)
                 return;
-            if (this.viewMonth < 11) {
-                this.viewMonth++;
+            if (this.activeMonth < 11) {
+                this.activeMonth++;
             }
             else {
-                if (this.viewYear) {
-                    this.viewYear++;
+                if (this.activeYear) {
+                    this.activeYear++;
                 }
-                this.viewMonth = 0;
+                this.activeMonth = 0;
             }
             dispatchEvent(this, 'next-month', {
                 detail: {
-                    century: this.viewCentury,
-                    decade: this.viewDecade,
-                    year: this.viewYear,
-                    month: this.viewMonth,
+                    century: this.activeCentury,
+                    decade: this.activeDecade,
+                    year: this.activeYear,
+                    month: this.activeMonth,
                 },
             });
         }
         showPrevYear() {
-            if (this.viewYear == null)
-                return;
-            this.viewYear--;
-            dispatchEvent(this, 'prev-year', {
-                detail: {
-                    century: this.viewCentury,
-                    decade: this.viewDecade,
-                    year: this.viewYear,
-                },
-            });
+            if (typeof this.activeYear === 'number') {
+                this.activeYear--;
+                dispatchEvent(this, 'prev-year', {
+                    detail: {
+                        century: this.activeCentury,
+                        decade: this.activeDecade,
+                        year: this.activeYear,
+                    },
+                });
+            }
         }
         showNextYear() {
-            if (this.viewYear == null)
-                return;
-            this.viewYear++;
-            dispatchEvent(this, 'next-year', {
-                detail: {
-                    century: this.viewCentury,
-                    decade: this.viewDecade,
-                    year: this.viewYear,
-                },
-            });
+            if (typeof this.activeYear === 'number') {
+                this.activeYear++;
+                dispatchEvent(this, 'next-year', {
+                    detail: {
+                        century: this.activeCentury,
+                        decade: this.activeDecade,
+                        year: this.activeYear,
+                    },
+                });
+            }
         }
         showPrevDecade() {
-            this.viewDecade--;
-            dispatchEvent(this, 'prev-decade', {
-                detail: { century: this.viewCentury, decade: this.viewDecade },
-            });
+            if (typeof this.activeDecade === 'number') {
+                this.activeDecade--;
+                dispatchEvent(this, 'prev-decade', {
+                    detail: { century: this.activeCentury, decade: this.activeDecade },
+                });
+            }
         }
         showNextDecade() {
-            this.viewDecade++;
-            dispatchEvent(this, 'next-decade', {
-                detail: { century: this.viewCentury, decade: this.viewDecade },
-            });
+            if (typeof this.activeDecade === 'number') {
+                this.activeDecade++;
+                dispatchEvent(this, 'next-decade', {
+                    detail: { century: this.activeCentury, decade: this.activeDecade },
+                });
+            }
         }
         showPrevCentury() {
-            this.viewCentury--;
-            dispatchEvent(this, 'prev-century', {
-                detail: { century: this.viewCentury },
-            });
+            if (typeof this.activeCentury === 'number') {
+                this.activeCentury--;
+                dispatchEvent(this, 'prev-century', {
+                    detail: { century: this.activeCentury },
+                });
+            }
         }
         showNextCentury() {
-            this.viewCentury++;
-            dispatchEvent(this, 'next-century', {
-                detail: { century: this.viewCentury },
-            });
+            if (typeof this.activeCentury === 'number') {
+                this.activeCentury++;
+                dispatchEvent(this, 'next-century', {
+                    detail: { century: this.activeCentury },
+                });
+            }
         }
-        #onPrev() {
-            if (this.viewDepth === Depth.Month) {
-                this.showPrevMonth();
+        dateEquals(a, b) {
+            if (a === b)
+                return true;
+            return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+        }
+        getBadges(item) {
+            let badges;
+            if (this.activeDepth === Depth.Month) {
+                badges = this.badges.filter(b => item.date === b.date && item.month === b.month && b.year === item.year);
             }
-            else if (this.viewDepth === Depth.Year) {
-                this.showPrevYear();
+            else if (this.activeDepth === Depth.Year) {
+                badges = this.badges.filter(b => item.month === b.month && b.year === item.year);
             }
-            else if (this.viewDepth === Depth.Decade) {
-                this.showPrevDecade();
+            else if (this.activeDepth === Depth.Decade) {
+                badges = this.badges.filter(b => b.year === item.year);
+            }
+            else if (this.activeDepth === Depth.Century) {
+                badges = this.badges.filter(b => b.year >= item.decade * 10 && b.year <= item.decade * 10 + 9);
             }
             else {
-                this.showPrevCentury();
+                badges = [];
             }
-        }
-        #onPrevPrev() {
-            if (this.viewDepth === Depth.Month) {
-                this.showPrevYear();
-            }
-        }
-        #onNext() {
-            if (this.viewDepth === Depth.Month) {
-                this.showNextMonth();
-            }
-            else if (this.viewDepth === Depth.Year) {
-                this.showNextYear();
-            }
-            else if (this.viewDepth === Depth.Decade) {
-                this.showNextDecade();
-            }
-            else {
-                this.showNextCentury();
-            }
-        }
-        #onNextNext() {
-            if (this.viewDepth === Depth.Month) {
-                this.showNextYear();
-            }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
-        }
-        static get Depth() {
-            return Depth;
-        }
-        static get observedAttributes() {
-            return [
-                'depth',
-                'disabled',
-                'loading',
-                'max',
-                'mindepth',
-                'mode',
-                'startdepth',
-                'start-week-on',
-                'value',
-            ];
+            return badges;
         }
     };
     return BlocksDate = _classThis;

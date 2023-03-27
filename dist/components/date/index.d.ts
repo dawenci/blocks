@@ -1,16 +1,16 @@
-import '../loading/index.js';
-import { DateModel, Depth } from './helpers.js';
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
+import type { ComponentEventListener } from '../component/Component.js';
+import type { MaybeLeafModel, ItemModel, MaybeLeafDepth } from './type.js';
 import type { EnumAttr } from '../../decorators/attr.js';
-interface DateEventMap extends ComponentEventMap {
-    select: CustomEvent<{
-        value: Date[] | [Date, Date] | null;
-    }>;
+import type { ISelectListEventMap, ISelected } from '../../common/connectSelectable.js';
+import '../loading/index.js';
+import { Control } from '../base-control/index.js';
+import { Depth } from './type.js';
+interface DateEventMap extends ISelectListEventMap {
     change: CustomEvent<{
-        value: Date[] | [Date, Date] | null;
+        selected: Date[];
     }>;
     'panel-change': CustomEvent<{
-        viewDepth: Depth;
+        activeDepth: Depth;
     }>;
     'prev-month': CustomEvent<{
         century: number;
@@ -48,6 +48,12 @@ interface DateEventMap extends ComponentEventMap {
     'next-century': CustomEvent<{
         century: number;
     }>;
+    'active-depth-change': CustomEvent<{
+        value: Depth;
+    }>;
+    'badges-change': CustomEvent<{
+        value: Badge[];
+    }>;
 }
 type Badge = {
     year: number;
@@ -56,84 +62,73 @@ type Badge = {
     label?: string;
 };
 type WeekNumber = 1 | 2 | 3 | 4 | 5 | 6 | 0;
-export interface BlocksDate extends Component {
-    _ref: {
-        $panel: HTMLElement;
-        $title: HTMLButtonElement;
-        $prevPrev: HTMLButtonElement;
-        $prev: HTMLButtonElement;
-        $nextNext: HTMLButtonElement;
-        $next: HTMLButtonElement;
-        $weekHeader: HTMLElement;
-        $content: HTMLElement;
-        $list: HTMLElement;
-        $loading: HTMLElement;
-    };
+export interface BlocksDate extends Control {
     addEventListener<K extends keyof DateEventMap>(type: K, listener: ComponentEventListener<DateEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof DateEventMap>(type: K, listener: ComponentEventListener<DateEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksDate extends Component {
+export declare class BlocksDate extends Control {
     #private;
+    static get observedAttributes(): string[];
+    static get Depth(): typeof Depth;
+    accessor loading: boolean;
+    accessor max: number | null;
+    accessor mode: EnumAttr<['single', 'multiple', 'range']>;
+    accessor depth: MaybeLeafDepth;
+    accessor minDepth: Depth;
+    accessor startDepth: Depth;
+    accessor startWeekOn: WeekNumber;
+    accessor format: string;
+    accessor $layout: HTMLElement;
+    accessor $title: HTMLButtonElement;
+    accessor $prevPrev: HTMLButtonElement;
+    accessor $prev: HTMLButtonElement;
+    accessor $nextNext: HTMLButtonElement;
+    accessor $next: HTMLButtonElement;
+    accessor $weekHeader: HTMLElement;
+    accessor $content: HTMLElement;
+    accessor $list: HTMLElement;
+    accessor $loading: HTMLElement;
     constructor();
-    get rangeFrom(): DateModel | null | undefined;
-    set rangeFrom(value: DateModel | null | undefined);
-    maybeRangeTo?: DateModel | null;
-    get rangeTo(): DateModel | null | undefined;
-    set rangeTo(value: DateModel | null | undefined);
-    get disabledDate(): ((data: DateModel, context: {
+    get selected(): Date[];
+    set selected(values: Date[]);
+    get selectedCount(): number;
+    get activeDepth(): Depth;
+    set activeDepth(value: Depth);
+    get activeCentury(): number | undefined;
+    set activeCentury(value: number | undefined);
+    get activeDecade(): number | undefined;
+    set activeDecade(value: number | undefined);
+    get activeYear(): number | undefined;
+    set activeYear(value: number | undefined);
+    get activeMonth(): number | undefined;
+    set activeMonth(value: number | undefined);
+    get rangeFrom(): MaybeLeafModel | null | undefined;
+    set rangeFrom(value: MaybeLeafModel | null | undefined);
+    get maybeRangeTo(): MaybeLeafModel | null | undefined;
+    set maybeRangeTo(value: MaybeLeafModel | null | undefined);
+    get rangeTo(): MaybeLeafModel | null | undefined;
+    set rangeTo(value: MaybeLeafModel | null | undefined);
+    get disabledDate(): ((data: ItemModel, context: {
         depth: Depth;
         viewDepth: Depth;
         component: BlocksDate;
     }) => boolean) | undefined;
-    set disabledDate(value: ((data: DateModel, context: {
+    set disabledDate(value: ((data: ItemModel, context: {
         depth: Depth;
         viewDepth: Depth;
         component: BlocksDate;
     }) => boolean) | undefined);
-    accessor disabled: boolean;
-    accessor loading: boolean;
-    accessor max: number | null;
-    accessor mode: EnumAttr<['single', 'multiple', 'range']>;
-    accessor depth: EnumAttr<[Depth.Month, Depth.Year, Depth.Decade]>;
-    get mindepth(): Depth;
-    set mindepth(value: Depth);
-    get startdepth(): Depth;
-    set startdepth(value: Depth);
     get badges(): Badge[];
     set badges(value: Badge[]);
-    get startWeekOn(): WeekNumber;
-    set startWeekOn(value: WeekNumber);
-    get multiple(): boolean;
-    get viewDepth(): Depth;
-    set viewDepth(value: Depth);
-    get viewCentury(): number;
-    set viewCentury(value: number);
-    get viewDecade(): number;
-    set viewDecade(value: number);
-    get viewYear(): number;
-    set viewYear(value: number);
-    get viewMonth(): number | undefined;
-    set viewMonth(value: number | undefined);
-    get value(): Date | Date[] | null;
-    set value(value: Date | Date[] | null);
     clearUncompleteRange(): void;
-    clearValue(): void;
-    getValue(): Date | null;
-    setValue(value: Date | null): void;
-    getRange(): [Date, Date] | null;
-    setRange(value: [Date, Date] | null): void;
-    getValues(): Date[];
-    setValues(values: Date[]): void;
-    isRangeMode(): boolean;
-    getDecadeRange(decade: number): [number, number];
-    limitReached(): boolean;
-    switchViewByDate(date: Date): void;
-    render(): void;
-    getBadges(item: DateModel): Badge[];
-    selectDate(date: Date): void;
-    selectByModel(item: DateModel): void;
-    drillDown(item: DateModel): void;
+    clearSelected(): void;
+    deselect(selected: ISelected): void;
+    notifySelectListChange(): void;
+    selectByDate(date: Date): void;
+    drillDown(itemModel: ItemModel): void;
     rollUp(): void;
+    showItemModel(itemModel: ItemModel): void;
+    showValue(dateObj: Date): void;
     showPrevMonth(): void;
     showNextMonth(): void;
     showPrevYear(): void;
@@ -142,9 +137,7 @@ export declare class BlocksDate extends Component {
     showNextDecade(): void;
     showPrevCentury(): void;
     showNextCentury(): void;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    static get Depth(): typeof Depth;
-    static get observedAttributes(): string[];
+    dateEquals(a: Date, b: Date): boolean;
+    getBadges(item: ItemModel): Badge[];
 }
 export {};

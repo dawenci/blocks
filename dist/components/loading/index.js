@@ -33,11 +33,11 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { getRegisteredSvgIcon } from '../../icon/index.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
 import { style } from './style.js';
-import { domRef } from '../../decorators/domRef.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 export let BlocksLoading = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-loading',
@@ -51,7 +51,7 @@ export let BlocksLoading = (() => {
     let _$layout_initializers = [];
     var BlocksLoading = class extends Component {
         static {
-            _$layout_decorators = [domRef('#layout')];
+            _$layout_decorators = [shadowRef('#layout')];
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksLoading = _classThis = _classDescriptor.value;
@@ -64,16 +64,14 @@ export let BlocksLoading = (() => {
         constructor() {
             super();
             this.shadowRoot.appendChild(template());
+            this.onConnected(this.render);
         }
         render() {
+            super.render();
             if (!this.$icon) {
                 this.$icon = getRegisteredSvgIcon('loading');
                 this.$layout.appendChild(this.$icon);
             }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
         }
     };
     return BlocksLoading = _classThis;

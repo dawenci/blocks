@@ -1,2 +1,1 @@
-export declare const styleTemplate: () => HTMLStyleElement;
-export declare const inputTemplate: () => HTMLInputElement;
+export declare const template: () => HTMLInputElement;

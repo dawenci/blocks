@@ -1,14 +1,10 @@
-export type AttrType =
-  | 'string'
-  | 'number'
-  | 'int'
-  | 'enum'
-  | 'boolean'
-  | 'intRange'
+export type AttrType = 'string' | 'number' | 'int' | 'enum' | 'boolean' | 'intRange'
 
 export type AttrOptions = {
   /** 不为 false，则会自动添加到组件类的 observedAttributes 数组中 */
   observed?: boolean
+  /** 是否需要 upgrade */
+  upgrade?: boolean
 
   /** 对于 enum 类型，需要提供 enum 的项 */
   enumValues?: any[] | readonly any[]
@@ -17,12 +13,28 @@ export type AttrOptions = {
   min?: number
   max?: number
 
+  // 指定自定义的访问器
+  get?: (element: any) => any
+  set?: (element: any, value: any) => void
+
+  /** getter 拿到的默认值，如果是函数，则返回调用的结果 */
+  defaults?: any | ((componentInstance: any) => any)
+}
+
+export type PropOptions = {
+  /** 是否需要 upgrade */
+  upgrade?: boolean
+
+  // 指定自定义的访问器
+  get?: (element: any) => any
+  set?: (element: any, value: any) => void
+
   /** getter 拿到的默认值，如果是函数，则返回调用的结果 */
   defaults?: any | ((componentInstance: any) => any)
 }
 
 export type DecoratorRecord = {
-  type: 'attr' | 'prop' | 'domRef'
+  type: 'attr' | 'prop' | 'shadowRef'
   name: string
   attrType?: string
   attrName?: string

@@ -1,13 +1,6 @@
-let templateCache: HTMLTemplateElement
+import { makeFragmentTemplate } from '../../common/template.js'
 
-export function template() {
-  if (templateCache) return templateCache
-
-  const template = document.createElement('template')
-  template.innerHTML = /*html*/ `
-  <a id="link"><slot></slot></a>
-  <div id="separator"></div>
-  `
-
-  return (templateCache = template)
-}
+export const template = makeFragmentTemplate(/*html*/ `
+<a id="link"><slot></slot></a>
+<div id="separator"></div>
+`)

@@ -10,25 +10,29 @@ export const makeStyleTemplate = (content) => {
     };
 };
 export const makeTemplate = (html) => {
-    let cache;
+    let cloneTemplate;
     return () => {
-        if (cache) {
-            return cache.content.firstElementChild.cloneNode(true);
+        if (cloneTemplate) {
+            return cloneTemplate.cloneNode(true);
         }
-        cache = document.createElement('template');
-        cache.innerHTML = html;
-        return cache.content.firstElementChild.cloneNode(true);
+        const $tempParent = document.createElement('div');
+        $tempParent.innerHTML = html;
+        if ($tempParent.childElementCount > 1) {
+            throw new Error('More than one root node.');
+        }
+        cloneTemplate = $tempParent.removeChild($tempParent.firstElementChild);
+        return cloneTemplate.cloneNode(true);
     };
 };
 export const makeFragmentTemplate = (html) => {
-    let cache;
+    const $fragment = document.createDocumentFragment();
+    const $tempParent = document.createElement('div');
+    $tempParent.innerHTML = html;
+    while ($tempParent.children.length) {
+        $fragment.appendChild($tempParent.children[0]);
+    }
     return () => {
-        if (cache) {
-            return cache.content.cloneNode(true);
-        }
-        cache = document.createElement('template');
-        cache.innerHTML = html;
-        return cache.content.cloneNode(true);
+        return $fragment.cloneNode(true);
     };
 };
 export const makeDomTemplate = (template) => {

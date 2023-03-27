@@ -34,14 +34,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../icon/index.js';
 import '../popup-menu/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { style } from './menu-item.style.js';
-import { template } from './menu-item.template.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
-import { Component } from '../Component.js';
-import { PopupOrigin } from '../popup/index.js';
+import { template } from './menu-item.template.js';
+import { style } from './menu-item.style.js';
 import { BlocksPopupMenu } from '../popup-menu/index.js';
+import { Component } from '../component/Component.js';
+import { PopupOrigin } from '../popup/index.js';
 export let BlocksNavMenuItem = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-nav-menu-item',
@@ -100,7 +100,7 @@ export let BlocksNavMenuItem = (() => {
             this.$label = shadowRoot.getElementById('label');
             this.$icon = shadowRoot.getElementById('icon');
             this.$arrow = shadowRoot.getElementById('arrow');
-            this.$layout.addEventListener('click', e => {
+            const onClick = (e) => {
                 if (this.disabled)
                     return;
                 if (this.hasSubmenu) {
@@ -128,34 +128,52 @@ export let BlocksNavMenuItem = (() => {
                 if (this.$rootMenu) {
                     dispatchEvent(this.$rootMenu, 'active', { detail: { $item: this } });
                 }
-            });
-            this.onmouseenter = () => {
-                if (!this.isInlineMode && this.$submenu) {
-                    if (!document.body.contains(this.$submenu)) {
-                        document.body.appendChild(this.$submenu);
+            };
+            this.onConnected(() => {
+                this.render();
+                this.$layout.addEventListener('click', onClick);
+                this.onmouseenter = () => {
+                    if (!this.isInlineMode && this.$submenu) {
+                        if (!document.body.contains(this.$submenu)) {
+                            document.body.appendChild(this.$submenu);
+                        }
+                        this.$submenu.clearEnterTimer();
+                        this.clearEnterTimer();
+                        this._enterTimer = setTimeout(() => {
+                            ;
+                            this.$submenu.open = true;
+                        }, this.$hostMenu?.enterDelay ?? 0);
+                        clearTimeout(this._leaveTimer);
+                        this.$submenu.clearLeaveTimer();
                     }
-                    this.$submenu.clearEnterTimer();
-                    this.clearEnterTimer();
-                    this._enterTimer = setTimeout(() => {
-                        ;
-                        this.$submenu.open = true;
-                    }, this.$hostMenu?.enterDelay ?? 0);
-                    clearTimeout(this._leaveTimer);
-                    this.$submenu.clearLeaveTimer();
+                };
+                this.onmouseleave = () => {
+                    if (!this.isInlineMode && this.$submenu) {
+                        this.$submenu.clearLeaveTimer();
+                        this.clearLeaveTimer();
+                        this._leaveTimer = setTimeout(() => {
+                            ;
+                            this.$submenu.open = false;
+                        }, this.$hostMenu?.leaveDelay ?? 0);
+                        clearTimeout(this._enterTimer);
+                        this.$submenu.clearEnterTimer();
+                    }
+                };
+            });
+            this.onDisconnected(() => {
+                this.$layout.removeEventListener('click', onClick);
+                this.onmouseenter = null;
+                this.onmouseleave = null;
+                if (this.$submenu && document.body.contains(this.$submenu)) {
+                    this.$submenu.parentElement.removeChild(this.$submenu);
                 }
-            };
-            this.onmouseleave = () => {
-                if (!this.isInlineMode && this.$submenu) {
-                    this.$submenu.clearLeaveTimer();
-                    this.clearLeaveTimer();
-                    this._leaveTimer = setTimeout(() => {
-                        ;
-                        this.$submenu.open = false;
-                    }, this.$hostMenu?.leaveDelay ?? 0);
-                    clearTimeout(this._enterTimer);
-                    this.$submenu.clearEnterTimer();
+            });
+            this.onAttributeChangedDep('expand', () => {
+                if (this.$submenu) {
+                    ;
+                    this.$submenu.expand = this.expand;
                 }
-            };
+            });
         }
         #hostMenu;
         get $hostMenu() {
@@ -202,6 +220,7 @@ export let BlocksNavMenuItem = (() => {
             this.render();
         }
         render() {
+            super.render();
             const data = this.data;
             this.disabled = !!data.disabled;
             if (data.icon) {
@@ -222,7 +241,7 @@ export let BlocksNavMenuItem = (() => {
                 if (!this.isInlineMode) {
                     this.$submenu = document.createElement('bl-popup-menu');
                     this.$submenu.appendToBody = true;
-                    this.$submenu.anchor = () => this;
+                    this.$submenu.anchorElement = () => this;
                     if (this.$rootMenu.horizontal && this.$hostMenu.level === 0) {
                         this.$submenu.origin = PopupOrigin.TopStart;
                     }
@@ -246,23 +265,6 @@ export let BlocksNavMenuItem = (() => {
             else {
                 this.classList.remove('has-submenu');
                 this.$submenu = undefined;
-            }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            if (this.$submenu && document.body.contains(this.$submenu)) {
-                this.$submenu.parentElement.removeChild(this.$submenu);
-            }
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'expand' && this.$submenu) {
-                ;
-                this.$submenu.expand = this.expand;
             }
         }
         clearEnterTimer() {

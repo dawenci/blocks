@@ -3,6 +3,8 @@ export const style = `
 :host {
   display: inline-block;
   box-sizing: border-box;
+
+  --size: 18px;
 }
 
 #layout {
@@ -11,12 +13,15 @@ export const style = `
   justify-content: flex-end;
   align-items: center;
 }
+#layout:focus {
+  outline: none;
+}
 
 button {
   position: relative;
   overflow: hidden;
-  width: 18px;
-  height: 18px;
+  width: var(--size);
+  height: var(--size);
   margin: 0 2px;
   padding: 0;
   border: 0;
@@ -52,8 +57,8 @@ svg {
   right: auto;
   bottom: 0;
   left: 0;
-  width: 18px;
-  height: 18px;
+  width: var(--size);
+  height: var(--size);
   margin: auto;
 }
 
@@ -69,6 +74,9 @@ button > .part {
 
 button {
   fill: #f0f0f0;
+}
+:focus button {
+  fill: #e0e0e0;
 }
 button.selected {
   fill: #fadb14;

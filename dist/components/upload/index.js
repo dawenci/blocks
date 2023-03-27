@@ -34,16 +34,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../button/index.js';
 import '../progress/index.js';
-import { uploadRequest } from './uploadRequest.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { strSetter } from '../../common/property.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { dispatchEvent } from '../../common/event.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
 import { itemTemplate } from './item.template.js';
+import { strSetter } from '../../common/property.js';
 import { style } from './style.js';
+import { template } from './template.js';
+import { uploadRequest } from './uploadRequest.js';
+import { Component } from '../component/Component.js';
 const DEFAULT_ICON_MAP = Object.freeze({
     'file-image': /^image\//,
     'file-pdf': /\/pdf$/,
@@ -282,6 +282,7 @@ export let BlocksUpload = (() => {
             this.render();
         }
         render() {
+            super.render();
             if (this.dragDrop) {
                 this.ref.$dropZone.style.display = 'block';
                 this.ref.$chooseButton.style.display = 'none';

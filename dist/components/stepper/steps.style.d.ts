@@ -1,0 +1,1 @@
+export declare const style = "\n/* <component>steps */\n:host {\n  display: block;\n  box-sizing: border-box;\n}\n#layout {\n  display: flex;\n}\n:host(:not([direction=\"vertical\"])) #layout,\n:host([direction=\"horizontal\"]) #layout {\n  flex-flow: row nowrap;\n}\n:host([direction=\"vertical\"]) #layout {\n  flex-flow: column nowrap;\n}\n";

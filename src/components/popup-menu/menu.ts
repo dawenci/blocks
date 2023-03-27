@@ -1,16 +1,18 @@
 import type { EnumAttrs } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
-import { BlocksPopup } from '../popup/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { forEach } from '../../common/utils.js'
+import { itemTemplate, groupTemplate } from './menu.template.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { BlocksPopupMenuGroup } from './menu-group.js'
 import { BlocksPopupMenuItem } from './menu-item.js'
 import { BlocksNavMenu } from '../nav-menu/menu.js'
 import { BlocksNavMenuItem } from '../nav-menu/menu-item.js'
 import { BlocksNavMenuGroup } from '../nav-menu/menu-group.js'
-import { itemTemplate, groupTemplate } from './menu.template.js'
+import { BlocksPopup } from '../popup/index.js'
 
+// TODO: 解决 Firefox 不支持 :host-context 样式的问题
+// TODO: 多级菜单，z-index 的问题
 @defineClass({
   customElement: 'bl-popup-menu',
 })
@@ -24,8 +26,8 @@ export class BlocksPopupMenu extends BlocksPopup {
   @attr('int') accessor level = 0
 
   private _data: (MenuItem | MenuGroup)[]
-  private _leaveTimer?: number
-  private _enterTimer?: number
+  private _leaveTimer?: ReturnType<typeof setTimeout>
+  private _enterTimer?: ReturnType<typeof setTimeout>
   private _clearClickOutside?: () => void
 
   $parentItem?: BlocksPopupMenuItem | BlocksNavMenuItem

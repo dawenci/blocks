@@ -210,6 +210,3 @@ export function useColorWithOpacity(color, opacity) {
     console.warn('Invalid color: ', color);
     return '';
 }
-;
-window.rgb2hsv = rgb2hsv;
-window.hsv2rgb = hsv2rgb;

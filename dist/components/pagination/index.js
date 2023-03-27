@@ -33,13 +33,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import '../icon/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
-import { template } from './template.js';
-import { style } from './style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
 import { forEach } from '../../common/utils.js';
-import { Component } from '../Component.js';
+import { style } from './style.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 export let BlocksPagination = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-pagination',
@@ -122,25 +122,42 @@ export let BlocksPagination = (() => {
                 $sizes,
                 $total,
             };
-            $prev.onclick = () => this._prev();
-            $next.onclick = () => this._next();
-            $items.onclick = e => {
-                if (this.disabled)
-                    return;
-                let $button = e.target;
-                if ($button.tagName === 'BL-ICON') {
-                    $button = $button.parentElement;
-                }
-                if ($button.tagName !== 'BUTTON')
-                    return;
-                if ($button.classList.contains('quick-prev')) {
-                    return this._quickPrev();
-                }
-                else if ($button.classList.contains('quick-next')) {
-                    return this._quickNext();
-                }
-                this.current = +$button.textContent;
-            };
+            this.onConnected(() => {
+                $prev.onclick = () => this._prev();
+                $next.onclick = () => this._next();
+                $items.onclick = e => {
+                    if (this.disabled)
+                        return;
+                    let $button = e.target;
+                    if ($button.tagName === 'BL-ICON') {
+                        $button = $button.parentElement;
+                    }
+                    if ($button.tagName !== 'BUTTON')
+                        return;
+                    if ($button.classList.contains('quick-prev')) {
+                        return this._quickPrev();
+                    }
+                    else if ($button.classList.contains('quick-next')) {
+                        return this._quickNext();
+                    }
+                    this.current = +$button.textContent;
+                };
+            });
+            this.onDisconnected(() => {
+                $prev.onclick = $next.onclick = $items.onclick = null;
+            });
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
+            this.onAttributeChangedDep('current', () => {
+                dispatchEvent(this, 'bl:pagination:current-change', {
+                    detail: { current: this.current },
+                });
+            });
+            this.onAttributeChangedDep('page-size', () => {
+                dispatchEvent(this, 'bl:pagination:page-size-change', {
+                    detail: { pageSize: this.pageSize },
+                });
+            });
         }
         get showQuickJumper() {
             return;
@@ -154,25 +171,8 @@ export let BlocksPagination = (() => {
         get itemCount() {
             return Math.ceil(this.total / this.pageSize);
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
-            if (attrName === 'current') {
-                dispatchEvent(this, 'bl:pagination:current-change', {
-                    detail: { current: this.current },
-                });
-            }
-            if (attrName === 'page-size') {
-                dispatchEvent(this, 'bl:pagination:page-size-change', {
-                    detail: { pageSize: this.pageSize },
-                });
-            }
-        }
         render() {
+            super.render();
             this._renderPager();
             this._ref.$prev.disabled = this.current === 1;
             this._ref.$next.disabled = this.current === this.itemCount;

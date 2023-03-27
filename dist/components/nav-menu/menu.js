@@ -32,12 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
+import './menu-group.js';
+import './menu-item.js';
 import { attr, attrs } from '../../decorators/attr.js';
-import { style } from './menu.style.js';
 import { contentTemplate, groupTemplate, itemTemplate } from './menu.template.js';
-import { Component } from '../Component.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { forEach } from '../../common/utils.js';
+import { style } from './menu.style.js';
+import { Component } from '../component/Component.js';
 export let BlocksNavMenu = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-nav-menu',
@@ -127,7 +129,7 @@ export let BlocksNavMenu = (() => {
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(contentTemplate());
             this._data = [];
-            this.addEventListener('active', (e) => {
+            const onActive = (e) => {
                 this.clearActive();
                 let $item = e.detail.$item;
                 while ($item) {
@@ -135,7 +137,15 @@ export let BlocksNavMenu = (() => {
                     $item.active = true;
                     $item = $item.$hostMenu.$parentItem;
                 }
+            };
+            this.onConnected(() => {
+                this.render();
+                this.addEventListener('active', onActive);
             });
+            this.onDisconnected(() => {
+                this.removeEventListener('active', onActive);
+            });
+            this.onAttributeChanged(this.render);
         }
         get data() {
             return this._data;
@@ -202,20 +212,13 @@ export let BlocksNavMenu = (() => {
             this.appendChild(fragment);
         }
         render() {
+            super.render();
             if (this.horizontal) {
                 this.horizontalRender();
             }
             else {
                 this.verticalRender();
             }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
         }
     };
     return BlocksNavMenu = _classThis;

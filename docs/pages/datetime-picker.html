@@ -39,22 +39,11 @@
     </section>
 
     <section class="section">
-      <h2>区间</h2>
-
-      <div class="case">
-        <template data-codesource="html">
-          <bl-datetime-picker range></bl-datetime-picker>
-        </template>
-      </div>
-    </section>
-
-    <section class="section">
       <h2>可以清空</h2>
 
       <div class="case">
         <template data-codesource="html">
           <bl-datetime-picker clearable></bl-datetime-picker>
-          <bl-datetime-picker range clearable></bl-datetime-picker>
         </template>
       </div>
     </section>
@@ -64,7 +53,7 @@
 
       <div class="case">
         <template data-codesource="html">
-          <bl-datetime-picker prefix-icon="date" suffix-icon="date"></bl-datetime-picker>
+          <bl-datetime-picker prefix-icon="date" suffix-icon="date" clearable></bl-datetime-picker>
         </template>
       </div>
     </section>
@@ -97,13 +86,6 @@
             <td></td>
           </tr>
           <tr>
-            <td>range</td>
-            <td>boolean</td>
-            <td></td>
-            <td>是否区间模式。</td>
-            <td></td>
-          </tr>
-          <tr>
             <td>readonly</td>
             <td></td>
             <td></td>
@@ -127,9 +109,9 @@
 
           <tr>
             <td>value</td>
-            <td>null | Date | [Date, Date]</td>
+            <td>null | Date</td>
             <td></td>
-            <td>读写组件 model，null 表示未选中，Date 为单选的值读写，[Date, Date] 为 range 模式的值读写。</td>
+            <td>读写组件 model，null 表示未选中，Date 为单选的值读写。</td>
             <td></td>
           </tr>
         </tbody>
@@ -147,8 +129,8 @@
         <tbody>
           <tr>
             <td>change</td>
-            <td>CustomEvent<{ value: null | Date | [Date, Date] }></td>
-            <td>value 变化时触发。值清空时，CustomEvent 的 detail.value 为 `null`，否则区间模式为 [Date, Date]，单选模式为 Date。</td>
+            <td>CustomEvent<{ value: null | Date }></td>
+            <td>value 变化时触发。值清空时，CustomEvent 的 detail.value 为 `null`。</td>
           </tr>
           <tr>
             <td>opened</td>

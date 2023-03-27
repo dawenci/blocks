@@ -1,6 +1,6 @@
-import * as runtime from './runtime/index.js';
-import { ELEMENT_PREFIX, FOR_PREFIX, HTML_PREFIX, IF_PREFIX, TEXT_PREFIX } from './constants.js';
+import { ELEMENT_PREFIX, FOR_PREFIX, HTML_PREFIX, IF_PREFIX, TEXT_PREFIX, ATTR_PREFIX } from './constants.js';
 import { EnvRecord } from './EnvRecord.js';
+import { Code } from './Code.js';
 export var ContextType;
 (function (ContextType) {
     ContextType[ContextType["Root"] = 0] = "Root";
@@ -9,21 +9,42 @@ export var ContextType;
     ContextType[ContextType["Html"] = 3] = "Html";
 })(ContextType || (ContextType = {}));
 export class ContextBase {
-    spaceSize = '    ';
-    _code = '';
-    _codes = [];
-    _eIndex = 0;
-    _tIndex = 0;
-    _ifIndex = 0;
-    _forIndex = 0;
-    _htmlIndex = 0;
-    _indent = 0;
-    _binding = [];
+    type;
+    codeMaker = new Code();
+    _elementCount = 0;
+    _textCount = 0;
+    _ifCount = 0;
+    _forCount = 0;
+    _htmlCount = 0;
+    _attrCount = 0;
+    _topElements = [];
+    _topTexts = [];
+    _topIfs = [];
+    _topFors = [];
+    _topHtmls = [];
+    _ownBindings = [];
+    _ownFreeBindings = [];
+    _ownDepEnvNames = [];
+    _envs = [];
     _rootCtx = this;
     _parentCtx = this;
     _childrenCtx = [];
-    _envs = [];
-    _childBlockMakerCodes = [];
+    topLevelVars = [];
+    get isStatic() {
+        return !this._ownBindings.length && this._childrenCtx.every(ctx => ctx.isStatic);
+    }
+    _hasFreeBinding;
+    get hasFreeBinding() {
+        if (this._hasFreeBinding != null)
+            return this._hasFreeBinding;
+        const result = !!this._ownFreeBindings.length || this._childrenCtx.some(ctx => ctx.hasFreeBinding);
+        return (this._hasFreeBinding = result);
+    }
+    get allFreeBindings() {
+        return this._childrenCtx.reduce((acc, ctx) => {
+            return acc.concat(ctx.allFreeBindings);
+        }, this._ownFreeBindings);
+    }
     get parentCtx() {
         return this._parentCtx;
     }
@@ -39,125 +60,122 @@ export class ContextBase {
             ctx = ctx._parentCtx;
         return ctx;
     }
+    get closestEnvCtx() {
+        const type = this.type;
+        if (type === 0 || 2) {
+            return this;
+        }
+        return this.parentCtx.closestEnvCtx;
+    }
     get env() {
-        return this._envs[this._envs.length - 1];
+        return this.envs[this._envs.length - 1];
     }
     get envName() {
         return this.env.name;
     }
     get envs() {
-        return this.isRoot() ? this._envs : [...new Set(this.parentCtx.envs.concat(this._envs))];
+        return this._envs;
     }
     get envNames() {
-        return this.envs.map(item => item.name).join(', ');
+        return this.envs.map(item => item.name).join(',');
     }
-    allVars = [];
-    topLevelVars = [];
-    isRoot() {
-        return this instanceof RootContext;
-    }
-    get code() {
-        return this._code;
-    }
-    get indentSpaces() {
-        return this.repeat(this.spaceSize, this.indent);
-    }
-    get indent() {
-        return this._indent;
-    }
-    set indent(n) {
-        this._indent = n;
-    }
-    repeat(c, n) {
-        let ret = '';
-        while (n--) {
-            ret += c;
-        }
-        return ret;
+    getCode() {
+        return this.codeMaker.code;
     }
     declareIf(isTop = false) {
-        const name = `${IF_PREFIX}${++this._ifIndex}`;
-        this.allVars.push(name);
-        this.allVars.push(`${name}_com`);
-        this.allVars.push(`${name}_val`);
-        if (isTop)
+        const index = ++this._ifCount;
+        const name = IF_PREFIX + index;
+        if (isTop) {
+            this._topIfs.push(index);
             this.topLevelVars.push(name);
+        }
         return name;
     }
     declareFor(isTop = false) {
-        const name = `${FOR_PREFIX}${++this._forIndex}`;
-        this.allVars.push(name);
-        this.allVars.push(`${name}_blocks`);
-        this.allVars.push(`${name}_val`);
-        if (isTop)
+        const index = ++this._forCount;
+        const name = FOR_PREFIX + index;
+        if (isTop) {
+            this._topFors.push(index);
             this.topLevelVars.push(name);
+        }
         return name;
     }
     declareHtml(isTop = false) {
-        const name = `${HTML_PREFIX}${++this._htmlIndex}`;
-        this.allVars.push(name);
-        this.allVars.push(`${name}_com`);
-        this.allVars.push(`${name}_val`);
-        if (isTop)
+        const index = ++this._htmlCount;
+        const name = HTML_PREFIX + index;
+        if (isTop) {
+            this._topHtmls.push(index);
             this.topLevelVars.push(name);
+        }
         return name;
     }
     declareElement(isTop = false) {
-        const name = `${ELEMENT_PREFIX}${++this._eIndex}`;
-        this.allVars.push(name);
-        if (isTop)
+        const index = ++this._elementCount;
+        const name = ELEMENT_PREFIX + index;
+        if (isTop) {
+            this._topElements.push(index);
             this.topLevelVars.push(name);
+        }
         return name;
     }
     declareText(isTop = false) {
-        const name = `${TEXT_PREFIX}${++this._tIndex}`;
-        this.allVars.push(name, name + '_val');
-        if (isTop)
+        const index = ++this._textCount;
+        const name = TEXT_PREFIX + index;
+        if (isTop) {
+            this._topTexts.push(index);
             this.topLevelVars.push(name);
+        }
         return name;
     }
-    declareAttr(elName, attrName) {
-        const name = `${elName}_${attrName}`;
-        this.allVars.push(name);
+    declareAttr() {
+        const name = ATTR_PREFIX + ++this._attrCount;
         return name;
     }
-    getCodeDeclareVars() {
-        return this.indentSpaces + 'var ' + this.allVars.join(',') + '\n';
+    getAllVars(sep) {
+        let output = '';
+        for (let i = 1; i <= this._elementCount; i += 1) {
+            const name = ELEMENT_PREFIX + i;
+            output += (output ? sep : '') + name;
+        }
+        for (let i = 1; i <= this._textCount; i += 1) {
+            const name = TEXT_PREFIX + i;
+            output += (output ? sep : '') + name + sep + name + '_val';
+        }
+        for (let i = 1; i <= this._ifCount; i += 1) {
+            const name = IF_PREFIX + i;
+            output += (output ? sep : '') + name + sep + name + '_com' + sep + name + '_val';
+        }
+        for (let i = 1; i <= this._forCount; i += 1) {
+            const name = FOR_PREFIX + i;
+            output += (output ? sep : '') + name + sep + name + '_blocks' + sep + name + '_val';
+        }
+        for (let i = 1; i <= this._htmlCount; i += 1) {
+            const name = HTML_PREFIX + i;
+            output += (output ? sep : '') + name + sep + name + '_com' + sep + name + '_val';
+        }
+        for (let i = 1; i <= this._attrCount; i += 1) {
+            const name = ATTR_PREFIX + i;
+            output += (output ? sep : '') + name;
+        }
+        return output;
     }
     addBinding(binding) {
-        this._binding.push(binding);
+        this._ownBindings.push(binding);
+        if (this._ownDepEnvNames.indexOf(binding.envName) === -1) {
+            this._ownDepEnvNames.push(binding.envName);
+        }
+        if (binding.envName !== this.envName) {
+            this._ownFreeBindings.push(binding);
+        }
     }
-    indentLines(code, indent = 0) {
-        const spaces = this.repeat(this.spaceSize, indent);
-        return (spaces +
-            code.trim().replaceAll(/\n/g, newline => {
-                return newline + spaces;
-            }));
-    }
-    appendCode(code) {
-        this._code += code;
-    }
-    prependCode(code) {
-        this._code = code + this._code;
-    }
-    prependLine(line) {
-        this.prependCode(this.indentSpaces + line + '\n');
-    }
-    appendLine(line) {
-        this.appendCode(this.indentSpaces + line + '\n');
-    }
-    blockStart(line) {
-        this.appendLine(line);
-        this._indent += 1;
-    }
-    blockEnd(line) {
-        this._indent -= 1;
-        this.appendLine(line);
-    }
-    blockEndAndStart(line) {
-        this._indent -= 1;
-        this.appendLine(line);
-        this._indent += 1;
+}
+export class RootContext extends ContextBase {
+    type = 0;
+    _childBlockMakerCodes = [];
+    constructor() {
+        super();
+        this._envs = [EnvRecord.root()];
+        this.codeMaker._indent = 1;
     }
 }
 class IfContext extends ContextBase {
@@ -166,38 +184,31 @@ class IfContext extends ContextBase {
     varName;
     dataKey;
     makeFuncName;
-    constructor(varName, dataKey) {
+    constructor(varName, dataKey, parentCtx) {
         super();
-        this._indent = 1;
+        this.makeFuncName = `make_if_${++IfContext.uid}/*${dataKey}*/`;
         this.varName = varName;
         this.dataKey = dataKey;
-        this.makeFuncName = `/*If:${dataKey}*/make_if_${++IfContext.uid}`;
+        this.parentCtx = parentCtx;
+        this.codeMaker._indent = 1;
+        this._envs = parentCtx.envs;
     }
 }
 export { IfContext };
-export class RootContext extends ContextBase {
-    type = 0;
-    constructor() {
-        super();
-        this._envs = [EnvRecord.root()];
-    }
-    compile() {
-        return new Function('{dom, noop, resolve }', '{ data } = {}', this.code).bind(null, Object.assign(runtime));
-    }
-}
 class ForContext extends ContextBase {
     static uid = 0;
     type = 2;
     varName;
     dataKey;
     makeFuncName;
-    constructor(varName, dataKey, newEnv) {
+    constructor(varName, dataKey, newEnv, parentCtx) {
         super();
-        this._indent = 1;
+        this.makeFuncName = `make_for_${++ForContext.uid}/*${dataKey}*/`;
         this.varName = varName;
         this.dataKey = dataKey;
-        this._envs.push(EnvRecord.for(newEnv));
-        this.makeFuncName = `/*For:${dataKey}*/make_for_${++ForContext.uid}`;
+        this.parentCtx = parentCtx;
+        this.codeMaker._indent = 1;
+        this._envs = parentCtx.envs.concat(EnvRecord.for(newEnv));
     }
 }
 export { ForContext };
@@ -207,12 +218,14 @@ class HtmlContext extends ContextBase {
     varName;
     dataKey;
     makeFuncName;
-    constructor(varName, dataKey) {
+    constructor(varName, dataKey, parentCtx) {
         super();
-        this._indent = 1;
+        this.makeFuncName = `make_html_${++HtmlContext.uid}/*${dataKey}*/`;
         this.varName = varName;
         this.dataKey = dataKey;
-        this.makeFuncName = `/*Html:${dataKey}*/make_html_${++HtmlContext.uid}`;
+        this.parentCtx = parentCtx;
+        this.codeMaker._indent = 1;
+        this._envs = parentCtx.envs;
     }
 }
 export { HtmlContext };

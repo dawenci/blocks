@@ -27,7 +27,7 @@
         <bl-button id="default">消息</bl-button>
 
         <script type="module">
-          import { blNotify } from '../../dist/components/notification/index.js'
+          import { blNotify } from '../../dist/modules/notification/index.js'
           document.getElementById('default').onclick = () => {
             blNotify({ title: '消息通知', content: '这里是消息内容' })
           }
@@ -46,7 +46,7 @@
         <bl-button id="placement-bottomLeft">bottom-left</bl-button>
         <bl-button id="placement-bottomRight">bottom-right</bl-button>
         <script type="module">
-          import { blNotify } from '../../dist/components/notification/index.js'
+          import { blNotify } from '../../dist/modules/notification/index.js'
           (() => {
             const title = '消息通知'
             const content = '这里是消息内容'
@@ -80,7 +80,7 @@
         <bl-button id="info">信息</bl-button>
         <bl-button id="warning">警告</bl-button>
         <script type="module">
-          import { blNotify } from '../../dist/components/notification/index.js'
+          import { blNotify } from '../../dist/modules/notification/index.js'
           (() => {
             const title = '消息通知'
             const content = '这里是消息内容'
@@ -110,7 +110,7 @@
       <div data-codesource="html">
         <bl-button id="closeable">成功</bl-button>
         <script type="module">
-          import { blNotify } from '../../dist/components/notification/index.js'
+          import { blNotify } from '../../dist/modules/notification/index.js'
           (() => {
             const title = '消息通知'
             const content = '这里是消息内容'
@@ -132,7 +132,7 @@
         <bl-button id="duration0">永远不自动关闭</bl-button>
 
         <script type="module">
-          import { blNotify } from '../../dist/components/notification/index.js'
+          import { blNotify } from '../../dist/modules/notification/index.js'
           (() => {
             const title = '消息通知'
             const content = '这里是消息内容'
@@ -156,7 +156,7 @@
         <bl-button id="onclose">onclose消息</bl-button>
 
         <script type="module">
-          import { blNotify } from '../../dist/components/notification/index.js'
+          import { blNotify } from '../../dist/modules/notification/index.js'
           (() => {
             const title = '消息通知'
             const content = '这里是消息内容'

@@ -1,4 +1,5 @@
-import { ComponentEventMap } from '../Component.js';
+import type { ComponentEventMap } from '../component/Component.js';
+import { Component } from '../component/Component.js';
 export interface WithOpenTransitionEventMap extends ComponentEventMap {
     opened: CustomEvent;
     closed: CustomEvent;
@@ -6,13 +7,8 @@ export interface WithOpenTransitionEventMap extends ComponentEventMap {
         value: boolean;
     }>;
 }
-export declare class WithOpenTransition extends HTMLElement {
-    onOpen?: () => void;
-    onClose?: () => void;
-    static get observedAttributes(): string[];
-    get open(): boolean;
-    set open(value: boolean);
-    get openTransitionName(): string;
-    set openTransitionName(value: string);
-    _onOpenAttributeChange(): void;
+export declare class WithOpenTransition extends Component {
+    accessor open: boolean;
+    accessor openTransitionName: string;
+    setupMixin(): void;
 }

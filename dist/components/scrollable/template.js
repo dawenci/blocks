@@ -1,11 +1,11 @@
 import { makeTemplate } from '../../common/template.js';
 export const template = makeTemplate(`
-<div id="layout">
-  <div id="viewport">
-    <slot></slot>
+<div part="layout" id="layout">
+  <div part="viewport" id="viewport">
+    <slot part="default-slot"></slot>
   </div>
-  <div class="track" id="horizontal"><b class="thumb"></b></div>
-  <div class="track" id="vertical"><b class="thumb"></b></div>
+  <div part="horizontal-track" class="track" id="horizontal"><b part="horizontal-thumb" class="thumb"></b></div>
+  <div part="vertical-track" class="track" id="vertical"><b part="vertical-thumb" class="thumb"></b></div>
   <b id="top"></b>
   <b id="right"></b>
   <b id="bottom"></b>

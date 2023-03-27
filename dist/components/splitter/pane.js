@@ -32,11 +32,11 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { Component } from '../Component.js';
-import { template } from './pane.template.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { style } from './pane.style.js';
+import { template } from './pane.template.js';
+import { Component } from '../component/Component.js';
 export let BlocksSplitterPane = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-splitter-pane',
@@ -100,9 +100,16 @@ export let BlocksSplitterPane = (() => {
         constructor() {
             super();
             this.shadowRoot.appendChild(template());
-            this.addEventListener('mouseenter', () => {
+            const onMouseEnter = () => {
                 this.getSplitter().setActiveHandle(this);
+            };
+            this.onConnected(() => {
+                this.addEventListener('mouseenter', onMouseEnter);
             });
+            this.onDisconnected(() => {
+                this.removeEventListener('mouseenter', onMouseEnter);
+            });
+            this.onConnected(this.render);
         }
         _size;
         get size() {
@@ -119,10 +126,6 @@ export let BlocksSplitterPane = (() => {
             const posProp = this.getSplitter().direction === 'horizontal' ? 'left' : 'top';
             this.style[sizeProp] = this.getSplitter().getPaneSize(this) + 'px';
             this.style[posProp] = this.getSplitter().getPanePosition(this) + 'px';
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
         }
         collapse() {
             this.getSplitter().collapsePane(this);

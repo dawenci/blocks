@@ -32,12 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
-import { style } from './style.js';
-import { Control } from '../base-control/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { style } from './style.js';
+import { template } from './template.js';
+import { Control } from '../base-control/index.js';
+import { SetupControlEvent } from '../setup-control-event/index.js';
 export let BlocksSwitch = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-switch',
@@ -51,12 +53,16 @@ export let BlocksSwitch = (() => {
     let _checked_initializers = [];
     let _size_decorators;
     let _size_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
     var BlocksSwitch = class extends Control {
         static {
             _checked_decorators = [attr('boolean')];
             _size_decorators = [attrs.size];
+            _$layout_decorators = [shadowRef('[part="layout"]')];
             __esDecorate(this, null, _checked_decorators, { kind: "accessor", name: "checked", static: false, private: false, access: { has: obj => "checked" in obj, get: obj => obj.checked, set: (obj, value) => { obj.checked = value; } } }, _checked_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksSwitch = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -64,31 +70,38 @@ export let BlocksSwitch = (() => {
         static get role() {
             return 'switch';
         }
+        static get disableEventTypes() {
+            return ['click', 'keydown'];
+        }
         #checked_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _checked_initializers, void 0));
         get checked() { return this.#checked_accessor_storage; }
         set checked(value) { this.#checked_accessor_storage = value; }
         #size_accessor_storage = __runInitializers(this, _size_initializers, void 0);
         get size() { return this.#size_accessor_storage; }
         set size(value) { this.#size_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
         constructor() {
             super();
-            captureEventWhenEnable(this, 'click', () => {
-                this.checked = !this.checked;
-            });
-            captureEventWhenEnable(this, 'keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    this.checked = !this.checked;
-                }
-            });
-        }
-        connectedCallback() {
-            super.connectedCallback();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'checked') {
+            this.appendShadowChild(template());
+            this._tabIndexFeature.withTabIndex(0);
+            this.#setupEvents();
+            this.onAttributeChangedDep('checked', () => {
                 dispatchEvent(this, 'change', { detail: { value: this.checked } });
-            }
+            });
+        }
+        _controlFeature = SetupControlEvent.setup({ component: this });
+        #setupEvents() {
+            const onClick = () => {
+                this.checked = !this.checked;
+            };
+            this.onConnected(() => {
+                this.addEventListener('click', onClick);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('click', onClick);
+            });
         }
     };
     return BlocksSwitch = _classThis;

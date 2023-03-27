@@ -1,12 +1,13 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { sizeObserve } from '../../common/sizeObserve.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
-import { setStyles } from '../../common/style.js'
 import { onDragMove, OnEnd, OnMove, OnStart } from '../../common/onDragMove.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
-import { template } from './template.js'
+import { setStyles } from '../../common/style.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
+import { sizeObserve } from '../../common/sizeObserve.js'
 import { style } from './style.js'
+import { template } from './template.js'
+import { Component, ComponentEventListener, ComponentEventMap } from '../component/Component.js'
 
 export interface ScrollableEventMap extends ComponentEventMap {
   'bl:scroll': CustomEvent
@@ -53,6 +54,13 @@ export class BlocksScrollable extends Component {
   #canScrollTop?: boolean
   #canScrollBottom?: boolean
 
+  @shadowRef('[part="layout"]') accessor $layout!: HTMLElement
+  @shadowRef('[part="viewport"]') accessor $viewport!: HTMLElement
+  @shadowRef('[part="horizontal-track"]') accessor $horizontal!: HTMLElement
+  @shadowRef('[part="vertical-track"]') accessor $vertical!: HTMLElement
+  @shadowRef('[part="horizontal-thumb"]') accessor $horizontalThumb!: HTMLElement
+  @shadowRef('[part="vertical-thumb"]') accessor $verticalThumb!: HTMLElement
+
   constructor() {
     super()
 
@@ -91,6 +99,8 @@ export class BlocksScrollable extends Component {
       }
       dispatchEvent(this, 'bl:scroll')
     }
+
+    this.onConnected(this.render)
   }
 
   get canScrollLeft() {
@@ -100,7 +110,7 @@ export class BlocksScrollable extends Component {
   set canScrollLeft(value) {
     if (this.#canScrollLeft !== value) {
       this.#canScrollLeft = value
-      this._ref.$layout.classList.toggle('shadow-left', value)
+      this.$layout.classList.toggle('shadow-left', value)
       dispatchEvent(this, 'bl:change:can-scroll-left', { detail: { value } })
     }
   }
@@ -112,7 +122,7 @@ export class BlocksScrollable extends Component {
   set canScrollRight(value) {
     if (this.#canScrollRight !== value) {
       this.#canScrollRight = value
-      this._ref.$layout.classList.toggle('shadow-right', this.canScrollRight)
+      this.$layout.classList.toggle('shadow-right', this.canScrollRight)
       dispatchEvent(this, 'bl:change:can-scroll-right', { detail: { value } })
     }
   }
@@ -124,7 +134,7 @@ export class BlocksScrollable extends Component {
   set canScrollTop(value) {
     if (this.#canScrollTop !== value) {
       this.#canScrollTop = value
-      this._ref.$layout.classList.toggle('shadow-top', this.canScrollTop)
+      this.$layout.classList.toggle('shadow-top', this.canScrollTop)
       dispatchEvent(this, 'bl:change:can-scroll-top', { detail: { value } })
     }
   }
@@ -136,39 +146,39 @@ export class BlocksScrollable extends Component {
   set canScrollBottom(value) {
     if (this.#canScrollBottom !== value) {
       this.#canScrollBottom = value
-      this._ref.$layout.classList.toggle('shadow-bottom', this.canScrollBottom)
+      this.$layout.classList.toggle('shadow-bottom', this.canScrollBottom)
       dispatchEvent(this, 'bl:change:can-scroll-bottom', { detail: { value } })
     }
   }
 
   get viewportScrollLeft() {
-    return this._ref.$viewport.scrollLeft
+    return this.$viewport.scrollLeft
   }
 
   set viewportScrollLeft(value) {
-    this._ref.$viewport.scrollLeft = value
+    this.$viewport.scrollLeft = value
     this._updateScrollbar()
   }
 
   get viewportScrollTop() {
-    return this._ref.$viewport.scrollTop
+    return this.$viewport.scrollTop
   }
 
   set viewportScrollTop(value) {
-    this._ref.$viewport.scrollTop = value
+    this.$viewport.scrollTop = value
     this._updateScrollbar()
   }
 
   get hasVerticalScrollbar() {
-    return this._ref.$viewport.scrollHeight > this._ref.$viewport.clientHeight
+    return this.$viewport.scrollHeight > this.$viewport.clientHeight
   }
 
   get hasHorizontalScrollbar() {
-    return this._ref.$viewport.scrollWidth > this._ref.$viewport.clientWidth
+    return this.$viewport.scrollWidth > this.$viewport.clientWidth
   }
 
   toggleViewportClass(className: string, value: boolean) {
-    this._ref.$viewport.classList.toggle(className, value)
+    this.$viewport.classList.toggle(className, value)
   }
 
   _updateScrollbar() {
@@ -179,14 +189,14 @@ export class BlocksScrollable extends Component {
       scrollHeight: contentHeight,
       scrollTop: contentTopSpace,
       scrollLeft: contentLeftSpace,
-    } = this._ref.$viewport
+    } = this.$viewport
     const showHorizontal = contentWidth > viewportWidth
     const showVertical = contentHeight > viewportHeight
 
     if (showHorizontal) {
-      this._ref.$horizontal.style.display = 'block'
+      this.$horizontal.style.display = 'block'
 
-      const trackWidth = this._ref.$horizontal.clientWidth
+      const trackWidth = this.$horizontal.clientWidth
       const contentRightSpace = contentWidth - contentLeftSpace - viewportWidth
       // 滚动条尺寸（不小于 20px）
       const thumbWidth = Math.max(Math.round((viewportWidth / contentWidth) * trackWidth), 20)
@@ -194,32 +204,32 @@ export class BlocksScrollable extends Component {
       const horizontalTrackSpace = trackWidth - thumbWidth
       const thumbLeft = horizontalTrackSpace * (contentLeftSpace / (contentLeftSpace + contentRightSpace))
 
-      setStyles(this._ref.$horizontalThumb, {
+      setStyles(this.$horizontalThumb, {
         transform: `translateX(${thumbLeft}px)`,
         width: `${thumbWidth}px`,
       })
       this._updateShadowState()
       this._udpateScrollbarState()
     } else {
-      this._ref.$horizontal.style.display = 'none'
+      this.$horizontal.style.display = 'none'
     }
 
     if (showVertical) {
-      this._ref.$vertical.style.display = 'block'
-      const trackHeight = this._ref.$vertical.clientHeight
+      this.$vertical.style.display = 'block'
+      const trackHeight = this.$vertical.clientHeight
       const contentBottomSpace = contentHeight - contentTopSpace - viewportHeight
       // 滚动条尺寸（不小于 20px）
       const thumbHeight = Math.max(Math.round((viewportHeight / contentHeight) * trackHeight), 20)
       const verticalTrackSpace = trackHeight - thumbHeight
       const thumbTop = verticalTrackSpace * (contentTopSpace / (contentTopSpace + contentBottomSpace))
-      setStyles(this._ref.$verticalThumb, {
+      setStyles(this.$verticalThumb, {
         transform: `translateY(${thumbTop}px)`,
         height: `${thumbHeight}px`,
       })
       this._updateShadowState()
       this._udpateScrollbarState()
     } else {
-      this._ref.$vertical.style.display = 'none'
+      this.$vertical.style.display = 'none'
     }
   }
 
@@ -229,11 +239,11 @@ export class BlocksScrollable extends Component {
       clientHeight: viewportHeight,
       scrollWidth: contentWidth,
       scrollHeight: contentHeight,
-    } = this._ref.$viewport
-    const trackWidth = this._ref.$horizontal.clientWidth
-    const trackHeight = this._ref.$vertical.clientHeight
-    const thumbWidth = this._ref.$horizontalThumb.offsetWidth
-    const thumbHeight = this._ref.$verticalThumb.offsetHeight
+    } = this.$viewport
+    const trackWidth = this.$horizontal.clientWidth
+    const trackHeight = this.$vertical.clientHeight
+    const thumbWidth = this.$horizontalThumb.offsetWidth
+    const thumbHeight = this.$verticalThumb.offsetHeight
     const thumbTop = this._getThumbTop()
     const thumbLeft = this._getThumbLeft()
 
@@ -245,42 +255,42 @@ export class BlocksScrollable extends Component {
     const horizontalContentSpace = contentWidth - viewportWidth
     const contentOffsetLeft = (thumbLeft / horizontalTrackSpace) * horizontalContentSpace
 
-    this._ref.$viewport.scrollTop = contentOffsetTop
-    this._ref.$viewport.scrollLeft = contentOffsetLeft
+    this.$viewport.scrollTop = contentOffsetTop
+    this.$viewport.scrollLeft = contentOffsetLeft
   }
 
   _getThumbTop() {
-    return parseFloat((this._ref.$verticalThumb.style.transform ?? '').slice(11, -3)) || 0
+    return parseFloat((this.$verticalThumb.style.transform ?? '').slice(11, -3)) || 0
   }
 
   _getThumbLeft() {
-    return parseFloat((this._ref.$horizontalThumb.style.transform ?? '').slice(11, -3)) || 0
+    return parseFloat((this.$horizontalThumb.style.transform ?? '').slice(11, -3)) || 0
   }
 
   // 顶部还可以滚动的距离
   getScrollableTop() {
-    return this._ref.$viewport.scrollTop
+    return this.$viewport.scrollTop
   }
 
   // 右边还可以滚动的距离
   getScrollableRight() {
-    const $viewport = this._ref.$viewport
+    const $viewport = this.$viewport
     return $viewport.scrollWidth - ($viewport.scrollLeft + $viewport.clientWidth)
   }
 
   // 下方还可以滚动的距离
   getScrollableBottom() {
-    const $viewport = this._ref.$viewport
+    const $viewport = this.$viewport
     return $viewport.scrollHeight - ($viewport.scrollTop + $viewport.clientHeight)
   }
 
   // 左边还可以滚动的距离
   getScrollableLeft() {
-    this._ref.$viewport.scrollLeft
+    this.$viewport.scrollLeft
   }
 
   _updateShadowState() {
-    const { scrollLeft, scrollTop, scrollWidth, scrollHeight, clientWidth, clientHeight } = this._ref.$viewport
+    const { scrollLeft, scrollTop, scrollWidth, scrollHeight, clientWidth, clientHeight } = this.$viewport
 
     this.canScrollLeft = scrollLeft > 0
     this.canScrollRight = scrollWidth - (scrollLeft + clientWidth) > 0
@@ -289,8 +299,8 @@ export class BlocksScrollable extends Component {
   }
 
   _udpateScrollbarState() {
-    this._ref.$layout.classList.toggle('vertical-scrollbar', this.hasVerticalScrollbar)
-    this._ref.$layout.classList.toggle('horizontal-scrollbar', this.hasHorizontalScrollbar)
+    this.$layout.classList.toggle('vertical-scrollbar', this.hasVerticalScrollbar)
+    this.$layout.classList.toggle('horizontal-scrollbar', this.hasHorizontalScrollbar)
   }
 
   _initMoveEvents() {
@@ -303,21 +313,21 @@ export class BlocksScrollable extends Component {
       stopImmediatePropagation()
 
       if (isVertical) {
-        const trackHeight = this._ref.$vertical.clientHeight
-        const thumbHeight = this._ref.$verticalThumb.offsetHeight
+        const trackHeight = this.$vertical.clientHeight
+        const thumbHeight = this.$verticalThumb.offsetHeight
         let thumbTop = startThumbPosition + (current.pageY - startMousePosition)
         if (thumbTop === 0 || thumbTop + thumbHeight === trackHeight) return
         if (thumbTop < 0) thumbTop = 0
         if (thumbTop + thumbHeight > trackHeight) thumbTop = trackHeight - thumbHeight
-        this._ref.$verticalThumb.style.transform = `translateY(${thumbTop}px)`
+        this.$verticalThumb.style.transform = `translateY(${thumbTop}px)`
       } else {
-        const trackWidth = this._ref.$horizontal.clientWidth
-        const thumbWidth = this._ref.$horizontalThumb.offsetWidth
+        const trackWidth = this.$horizontal.clientWidth
+        const thumbWidth = this.$horizontalThumb.offsetWidth
         let thumbLeft = startThumbPosition + (current.pageX - startMousePosition)
         if (thumbLeft === 0 || thumbLeft + thumbWidth === trackWidth) return
         if (thumbLeft < 0) thumbLeft = 0
         if (thumbLeft + thumbWidth > trackWidth) thumbLeft = trackWidth - thumbWidth
-        this._ref.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
+        this.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
       }
 
       this._updateShadowState()
@@ -329,8 +339,8 @@ export class BlocksScrollable extends Component {
       this.#draggingFlag = false
 
       dispatchEvent(this, 'bl:drag-scroll-end')
-      this._ref.$layout.classList.remove('dragging', 'dragging-vertical')
-      this._ref.$layout.classList.remove('dragging', 'dragging-horizontal')
+      this.$layout.classList.remove('dragging', 'dragging-vertical')
+      this.$layout.classList.remove('dragging', 'dragging-horizontal')
     }
 
     const onStart: OnStart = ({ preventDefault, stopImmediatePropagation, $target, start }) => {
@@ -338,30 +348,29 @@ export class BlocksScrollable extends Component {
       stopImmediatePropagation()
       this.#draggingFlag = true
 
-      isVertical = this._ref.$vertical.contains($target)
+      isVertical = this.$vertical.contains($target)
 
       // 点击的是滑轨，将滑块移动到点击处（滑块中点对准点击处）
       if ($target.tagName !== 'B') {
         if (isVertical) {
           // 期望滑块的中点座标
-          const middle = start.clientY - this._ref.$vertical.getBoundingClientRect().top
+          const middle = start.clientY - this.$vertical.getBoundingClientRect().top
           // 推算出 top 座标
-          const thumbHeight = this._ref.$verticalThumb.offsetHeight
+          const thumbHeight = this.$verticalThumb.offsetHeight
           let thumbTop = middle - thumbHeight / 2
           if (thumbTop < 0) thumbTop = 0
-          if (thumbTop + thumbHeight > this._ref.$vertical.clientHeight)
-            thumbTop = this._ref.$vertical.clientHeight - thumbHeight
-          this._ref.$verticalThumb.style.transform = `translateY(${thumbTop}px)`
+          if (thumbTop + thumbHeight > this.$vertical.clientHeight) thumbTop = this.$vertical.clientHeight - thumbHeight
+          this.$verticalThumb.style.transform = `translateY(${thumbTop}px)`
         } else {
           // 期望滑块的中点座标
-          const center = start.clientX - this._ref.$horizontal.getBoundingClientRect().left
+          const center = start.clientX - this.$horizontal.getBoundingClientRect().left
           // 推算出滑块 left 座标
-          const thumbWidth = this._ref.$horizontalThumb.offsetWidth
+          const thumbWidth = this.$horizontalThumb.offsetWidth
           let thumbLeft = center - thumbWidth / 2
           if (thumbLeft < 0) thumbLeft = 0
-          if (thumbLeft + thumbWidth > this._ref.$horizontal.clientWidth)
-            thumbLeft = this._ref.$horizontal.clientWidth - thumbWidth
-          this._ref.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
+          if (thumbLeft + thumbWidth > this.$horizontal.clientWidth)
+            thumbLeft = this.$horizontal.clientWidth - thumbWidth
+          this.$horizontalThumb.style.transform = `translateX(${thumbLeft}px)`
         }
 
         this._updateShadowState()
@@ -372,11 +381,11 @@ export class BlocksScrollable extends Component {
 
       // 点击的是滑块，则启用拖动模式
       if (isVertical) {
-        this._ref.$layout.classList.add('dragging', 'dragging-vertical')
+        this.$layout.classList.add('dragging', 'dragging-vertical')
         startThumbPosition = this._getThumbTop()
         startMousePosition = start.pageY
       } else {
-        this._ref.$layout.classList.add('dragging', 'dragging-horizontal')
+        this.$layout.classList.add('dragging', 'dragging-horizontal')
         startThumbPosition = this._getThumbLeft()
         startMousePosition = start.pageX
       }
@@ -384,21 +393,16 @@ export class BlocksScrollable extends Component {
       dispatchEvent(this, 'drag-scroll-start')
     }
 
-    onDragMove(this._ref.$vertical, {
+    onDragMove(this.$vertical, {
       onStart,
       onMove,
       onEnd,
     })
 
-    onDragMove(this._ref.$horizontal, {
+    onDragMove(this.$horizontal, {
       onStart,
       onMove,
       onEnd,
     })
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
   }
 }

@@ -1,36 +1,23 @@
-import '../loading/index.js'
+import type { ComponentEventListener } from '../component/Component.js'
+import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 import '../icon/index.js'
+import '../loading/index.js'
+import { attr } from '../../decorators/attr.js'
 import { defineClass } from '../../decorators/defineClass.js'
 import { disabledSetter } from '../../common/propertyAccessor.js'
-import { onWheel } from '../../common/onWheel.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { forEach } from '../../common/utils.js'
-import { contentTemplate } from './template.js'
+import { onWheel } from '../../common/onWheel.js'
 import { style } from './style.js'
-import { Component, ComponentEventListener } from '../Component.js'
-import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js'
+import { template } from './template.js'
+import { Control } from '../base-control/index.js'
+import { WithOpenTransition } from '../with-open-transition/index.js'
 
 type ImageTransformStates = Map<HTMLImageElement, { scale: number; rotate: number }>
 
 export type BlocksImageViewerEventMap = WithOpenTransitionEventMap
 
-export interface BlocksImageViewer extends Component, WithOpenTransition {
-  _ref: {
-    $slot: HTMLSlotElement
-    $mask: HTMLElement
-    $layout: HTMLElement
-    $toolbar: HTMLElement
-    $thumbnails: HTMLElement
-    $content: HTMLElement
-    $active: HTMLImageElement
-    $prev: HTMLButtonElement
-    $next: HTMLButtonElement
-    $closeButton: HTMLButtonElement
-    $rotateLeftButton: HTMLButtonElement
-    $rotateRightButton: HTMLButtonElement
-    $zoomInButton: HTMLButtonElement
-    $zoomOutButton: HTMLButtonElement
-  }
-
+export interface BlocksImageViewer extends Control, WithOpenTransition {
   imgMap: ImageTransformStates
 
   addEventListener<K extends keyof BlocksImageViewerEventMap>(
@@ -46,54 +33,49 @@ export interface BlocksImageViewer extends Component, WithOpenTransition {
   ): void
 }
 
+// TODO: thumbnails
 @defineClass({
   customElement: 'bl-image-viewer',
   mixins: [WithOpenTransition],
   styles: [style],
 })
-export class BlocksImageViewer extends Component {
+export class BlocksImageViewer extends Control {
+  @attr('boolean') accessor closeOnClickMask!: boolean
+  @attr('boolean') accessor closeOnPressEscape!: boolean
+
+  @shadowRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('slot') accessor $slot!: HTMLSlotElement
+  @shadowRef('#mask') accessor $mask!: HTMLElement
+  @shadowRef('#toolbar') accessor $toolbar!: HTMLElement
+  @shadowRef('#thumbnails') accessor $thumbnails!: HTMLElement
+  @shadowRef('#content') accessor $content!: HTMLElement
+  @shadowRef('#active') accessor $active!: HTMLImageElement
+  @shadowRef('#prev') accessor $prev!: HTMLButtonElement
+  @shadowRef('#next') accessor $next!: HTMLButtonElement
+  @shadowRef('#close') accessor $closeButton!: HTMLButtonElement
+  @shadowRef('#rotate-left') accessor $rotateLeftButton!: HTMLButtonElement
+  @shadowRef('#rotate-right') accessor $rotateRightButton!: HTMLButtonElement
+  @shadowRef('#zoom-in') accessor $zoomInButton!: HTMLButtonElement
+  @shadowRef('#zoom-out') accessor $zoomOutButton!: HTMLButtonElement
+
   constructor() {
     super()
 
-    const $layout = contentTemplate()
-
-    this.shadowRoot!.appendChild($layout)
-
-    const $slot = $layout.querySelector('slot')!
-    const $mask = $layout.querySelector('#mask') as HTMLElement
-    const $toolbar = $layout.querySelector('#toolbar') as HTMLElement
-    const $thumbnails = $layout.querySelector('#thumbnails') as HTMLElement
-    const $content = $layout.querySelector('#content') as HTMLElement
-    const $active = $layout.querySelector('#active') as HTMLImageElement
-    const $prev = $layout.querySelector('#prev') as HTMLButtonElement
-    const $next = $layout.querySelector('#next') as HTMLButtonElement
-    const $closeButton = $layout.querySelector('#close') as HTMLButtonElement
-    const $rotateLeftButton = $layout.querySelector('#rotate-left') as HTMLButtonElement
-    const $rotateRightButton = $layout.querySelector('#rotate-right') as HTMLButtonElement
-    const $zoomInButton = $layout.querySelector('#zoom-in') as HTMLButtonElement
-    const $zoomOutButton = $layout.querySelector('#zoom-out') as HTMLButtonElement
-
-    this._ref = {
-      $slot,
-      $mask,
-      $layout,
-      $toolbar,
-      $thumbnails,
-      $content,
-      $active,
-      $prev,
-      $next,
-      $closeButton,
-      $rotateLeftButton,
-      $rotateRightButton,
-      $zoomInButton,
-      $zoomOutButton,
-    }
+    this.appendShadowChild(template())
+    this._tabIndexFeature.withTabIndex(0)
 
     this.imgMap = new Map()
 
+    this.#setupContent()
+    this.#setupEvents()
+
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
+  }
+
+  #setupContent() {
     const onSlotChange = () => {
-      const imgs = $slot.assignedElements().filter(el => el.nodeName === 'IMG') as HTMLImageElement[]
+      const imgs = this.$slot.assignedElements().filter(el => el.nodeName === 'IMG') as HTMLImageElement[]
 
       const newMap: ImageTransformStates = new Map()
       imgs.forEach($img => {
@@ -109,39 +91,40 @@ export class BlocksImageViewer extends Component {
       this.imgMap = newMap
       this.imgs = imgs
     }
-    $slot.addEventListener('slotchange', onSlotChange)
-    onSlotChange()
+    this.$slot.addEventListener('slotchange', onSlotChange)
+  }
 
-    $prev.onclick = () => {
+  #setupEvents() {
+    this.$prev.onclick = () => {
       this.prev()
     }
 
-    $next.onclick = () => {
+    this.$next.onclick = () => {
       this.next()
     }
 
-    $rotateLeftButton.onclick = () => {
+    this.$rotateLeftButton.onclick = () => {
       this.rotateLeft()
     }
 
-    $rotateRightButton.onclick = () => {
+    this.$rotateRightButton.onclick = () => {
       this.rotateRight()
     }
 
-    $zoomInButton.onclick = () => {
+    this.$zoomInButton.onclick = () => {
       this.zoomIn()
     }
 
-    $zoomOutButton.onclick = () => {
+    this.$zoomOutButton.onclick = () => {
       this.zoomOut()
     }
 
-    $closeButton.onclick = () => {
+    this.$closeButton.onclick = () => {
       this.open = false
     }
 
-    $mask.onclick = () => {
-      this.open = false
+    this.$mask.onclick = () => {
+      if (this.closeOnClickMask) this.open = false
     }
 
     onWheel(this, (e, data) => {
@@ -153,13 +136,13 @@ export class BlocksImageViewer extends Component {
     })
 
     this.addEventListener('opened', () => {
-      $layout.focus()
+      this.$layout.focus()
     })
 
     this.addEventListener('keydown', e => {
       switch (e.key) {
         case 'Escape': {
-          this.open = false
+          if (this.closeOnPressEscape) this.open = false
           break
         }
         case 'ArrowLeft': {
@@ -200,19 +183,6 @@ export class BlocksImageViewer extends Component {
   set activeImg(value) {
     this._activeImg = value
     this._renderCurrent()
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'open') {
-      this._onOpenAttributeChange()
-    }
-    this.render()
   }
 
   zoomIn() {
@@ -274,6 +244,7 @@ export class BlocksImageViewer extends Component {
   }
 
   override render() {
+    super.render()
     this._renderCurrent()
     this._renderNavButton()
     this._renderToolbar()
@@ -281,7 +252,7 @@ export class BlocksImageViewer extends Component {
 
   _renderCurrent() {
     if (this.activeImg) {
-      const { $active } = this._ref
+      const { $active } = this
       if ($active.src !== this.activeImg.src) {
         $active.style.opacity = '0'
         $active.src = this.activeImg.src
@@ -298,29 +269,28 @@ export class BlocksImageViewer extends Component {
   }
 
   _renderNavButton() {
-    const { $prev, $next } = this._ref
     const display = this.imgs.length > 1 ? 'block' : 'none'
-    $prev.style.display = $next.style.display = display
+    this.$prev.style.display = this.$next.style.display = display
 
-    disabledSetter($prev, !!this.activeImg && this.activeImg === this.imgs[0])
-    disabledSetter($next, !!this.activeImg && this.activeImg === this.imgs[this.imgs.length - 1])
+    disabledSetter(this.$prev, !!this.activeImg && this.activeImg === this.imgs[0])
+    disabledSetter(this.$next, !!this.activeImg && this.activeImg === this.imgs[this.imgs.length - 1])
   }
 
   _renderToolbar() {
     if (!this.activeImg) {
-      const buttons = this._ref.$toolbar.querySelectorAll('.button') as unknown as HTMLButtonElement[]
+      const buttons = this.$toolbar.querySelectorAll('.button') as unknown as HTMLButtonElement[]
       forEach(buttons, $button => {
         disabledSetter($button, true)
       })
       return
     }
 
-    const buttons = this._ref.$toolbar.querySelectorAll('.button') as unknown as HTMLButtonElement[]
+    const buttons = this.$toolbar.querySelectorAll('.button') as unknown as HTMLButtonElement[]
 
     forEach(buttons, $button => {
       disabledSetter($button, false)
     })
     const { scale } = this.imgMap.get(this.activeImg)!
-    disabledSetter(this._ref.$zoomOutButton, scale === 0.2)
+    disabledSetter(this.$zoomOutButton, scale === 0.2)
   }
 }

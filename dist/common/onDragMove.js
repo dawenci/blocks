@@ -22,11 +22,6 @@ export function onDragMove($el, options) {
             onMoveCancel(event);
             return;
         }
-        const $from = event.relatedTarget || event.toElement;
-        if (event.type === 'mousemove' && (!$from || $from.nodeName === 'HTML')) {
-            onMoveCancel(event);
-            return;
-        }
         current = getPoint(event);
         offset = getOffset(start, current);
         if (typeof options.onMove === 'function') {

@@ -1,11 +1,13 @@
-import { defineClass } from '../../decorators/defineClass.js'
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import type { Token } from '../../common/dateFormat.js'
 import { attr } from '../../decorators/attr.js'
-import { template } from './template.js'
-import { style } from './style.js'
-import { padLeft } from '../../common/utils.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
-import { parseDateFormat, Token } from './parseDateFormat.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
+import { padLeft } from '../../common/utils.js'
+import { style } from './style.js'
+import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 interface CountDownEventMap extends ComponentEventMap {
   start: CustomEvent<void>
@@ -14,10 +16,6 @@ interface CountDownEventMap extends ComponentEventMap {
 }
 
 export interface BlocksCountdown extends Component {
-  _ref: {
-    $layout: HTMLElement
-  }
-
   addEventListener<K extends keyof CountDownEventMap>(
     type: K,
     listener: ComponentEventListener<CountDownEventMap[K]>,
@@ -37,19 +35,31 @@ export interface BlocksCountdown extends Component {
 })
 export class BlocksCountdown extends Component {
   // timestamp
-  @attr('number', { defaults: () => Date.now() })
-  accessor value!: number
+  @attr('number', { defaults: () => Date.now() }) accessor value!: number
 
-  @attr('string')
-  accessor format = 'H:mm:ss'
+  @attr('string') accessor format = 'H:mm:ss'
+
+  @shadowRef('#layout') accessor $layout!: HTMLElement
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
-    this._ref = {
-      $layout: shadowRoot.querySelector('#layout') as HTMLDivElement,
-    }
+
+    this.appendShadowChild(template())
+
+    this.onConnected(() => {
+      this.run()
+    })
+    this.onDisconnected(() => {
+      this.stop()
+    })
+
+    this.onAttributeChanged(name => {
+      if (name === 'value') {
+        this.run()
+      } else {
+        this.render()
+      }
+    })
   }
 
   // 根据当前显示的最小值，决定计时的调整值
@@ -74,6 +84,7 @@ export class BlocksCountdown extends Component {
   }
 
   override render() {
+    super.render()
     const { format, value: deadline } = this
     let day = 0
     let hour = 0
@@ -101,7 +112,7 @@ export class BlocksCountdown extends Component {
       millisecond = 0
     }
 
-    patchDom(this._ref.$layout, parseDateFormat(this.format), {
+    patchDom(this.$layout, tokenize(this.format), {
       day,
       hour,
       minute,
@@ -112,7 +123,7 @@ export class BlocksCountdown extends Component {
 
   #running = false
   #rAFId?: number
-  #timerId?: number
+  #timerId?: ReturnType<typeof setTimeout>
   run() {
     if (this.value - Date.now() <= 0) {
       return
@@ -160,25 +171,6 @@ export class BlocksCountdown extends Component {
       this.#timerId = undefined
     }
   }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.run()
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    this.stop()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'value') {
-      this.run()
-    } else {
-      this.render()
-    }
-  }
 }
 
 type VarName = 'day' | 'hour' | 'minute' | 'second' | 'millisecond'
@@ -221,4 +213,50 @@ function patchDom(dom: HTMLElement, tokens: Token[], vars: Record<VarName, numbe
     el.setAttribute('part', type)
     el.textContent = text
   })
+}
+
+function tokenize(str: string) {
+  const tokens: Token[] = []
+  const len = str.length
+  let pos = 0
+  let text = ''
+  const pushText = () => {
+    if (text) {
+      tokens.push({ type: 'text', payload: text })
+      text = ''
+    }
+  }
+  function eatVar(type: 'day', payload: 'D' | 'DD'): void
+  function eatVar(type: 'hour', payload: 'H' | 'HH'): void
+  function eatVar(type: 'minute', payload: 'm' | 'mm'): void
+  function eatVar(type: 'second', payload: 's' | 'ss'): void
+  function eatVar(type: 'millisecond', payload: 'SSS'): void
+  function eatVar(type: any, payload: any): void {
+    pushText()
+    tokens.push({ type, payload })
+    pos += payload.length
+  }
+  const eatText = () => {
+    text += str[pos]
+    pos += 1
+  }
+  while (pos < len) {
+    const ch = str[pos]
+    const ch2 = str[pos + 1]
+    if (ch === 'D') {
+      eatVar('day', ch2 === 'D' ? 'DD' : 'D')
+    } else if (ch === 'H') {
+      eatVar('hour', ch2 === 'H' ? 'HH' : 'H')
+    } else if (ch === 'm') {
+      eatVar('minute', ch2 === 'm' ? 'mm' : 'm')
+    } else if (ch === 's') {
+      eatVar('second', ch2 === 's' ? 'ss' : 's')
+    } else if (str.substr(pos, 3) === 'SSS') {
+      eatVar('millisecond', 'SSS')
+    } else {
+      eatText()
+    }
+  }
+  pushText()
+  return tokens
 }

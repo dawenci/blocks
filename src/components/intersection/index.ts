@@ -1,8 +1,8 @@
-import { dispatchEvent } from '../../common/event.js'
-import { Component } from '../Component.js'
-import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { dispatchEvent } from '../../common/event.js'
+import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-intersection',
@@ -20,6 +20,19 @@ export class BlocksIntersection extends Component {
     super()
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template().content.cloneNode(true))
+
+    this.onConnected(() => {
+      this.render()
+      this._initObserver()
+    })
+
+    this.onDisconnected(() => {
+      this._removeObserver()
+    })
+
+    this.onAttributeChanged(() => {
+      this._initObserver()
+    })
   }
 
   _root?: any
@@ -96,21 +109,5 @@ export class BlocksIntersection extends Component {
     if (this._observer) {
       this._observer.disconnect()
     }
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-    this._initObserver()
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    this._removeObserver()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this._initObserver()
   }
 }

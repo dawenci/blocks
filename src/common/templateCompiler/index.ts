@@ -1,15 +1,24 @@
 // 绑定语法：
-// - attr 绑定： <div bl:attr-name="dataKey">
+//
+// - attr 绑定:
+//   <div bl-attr="attr-name1:dataKey1, attr-name2:dataKey2">
 // - prop 绑定：
-//    <div bl-prop:attr-name="dataKey">
-//    <div bl-prop:attr-name.camel="dataKey">
+//   <div bl-prop="propName1:dataKey1, propName2:dataKey2">
 // - event 绑定：
-//     <div bl-on:event-name.capture.once.stop.stopImmediate.prevent.passive="callback">
-//     <div bl-on:event-name.camel.capture.once.stop.stopImmediate.prevent.passive="callback">
-// - text 绑定：{dataKey}
-// - html 绑定：<bl-html content="dataKey"></bl-html>
-// - if 绑定：<bl-if cond="dataKey">...</bl-if>
-// - for 绑定 <bl-for each:item-env="list">{itemEnv.someText}</bl-for>
-//            OR
-//            <bl-for each:item-env="list" index="indexEnv">{indexEnv.value} - {itemEnv.someText}</bl-for>
+//   <div bl-on="event-name.capture.once.stop.stopImmediate.prevent.passive:callback, event-name2:callback2">
+// - text 绑定：
+//   <t text="dataKey"></t>
+// - html 绑定：
+//   <rich html="dataKey"></rich>
+// - if 绑定：
+//   <if cond="dataKey">...</if>
+// - for 绑定:
+//   <for each="items" as="itemEnv"><t text="itemEnv.dataKey"></for>
+//
+import { createElement, Fragment } from './jsx.js'
+
+export { setup } from './generate.js'
 export { compile } from './compile.js'
+export { Widget } from './Widget.js'
+export const jsx = { createElement, Fragment }
+export type { JsxFactory } from './jsx.js'

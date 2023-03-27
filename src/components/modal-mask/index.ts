@@ -1,9 +1,27 @@
-import { defineClass } from '../../decorators/defineClass.js'
+import type { ComponentEventListener } from '../component/Component.js'
+import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 import { attr } from '../../decorators/attr.js'
-import { style } from './style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
-import { Component, ComponentEventListener } from '../Component.js'
-import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js'
+import { style } from './style.js'
+import { Component } from '../component/Component.js'
+import { WithOpenTransition } from '../with-open-transition/index.js'
+
+export type BlocksModalMaskEventMap = WithOpenTransitionEventMap
+
+export interface BlocksModalMask extends WithOpenTransition {
+  addEventListener<K extends keyof BlocksModalMaskEventMap>(
+    type: K,
+    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof BlocksModalMaskEventMap>(
+    type: K,
+    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+}
 
 @defineClass({
   customElement: 'bl-modal-mask',
@@ -15,25 +33,21 @@ export class BlocksModalMask extends Component {
 
   override connectedCallback() {
     super.connectedCallback()
+
     this.openTransitionName = 'opacity'
     this.render()
 
     // 设置初始样式，确保动画生效
     if (this.open) {
-      this._updateVisible()
+      this._updateScrollLock()
     }
+
+    this.onAttributeChangedDep('open', () => {
+      this._updateScrollLock()
+    })
   }
 
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-
-    if (attrName == 'open') {
-      this._onOpenAttributeChange()
-      this._updateVisible()
-    }
-  }
-
-  _updateVisible() {
+  _updateScrollLock() {
     if (this.open) {
       this._lockScroll()
     } else {
@@ -71,20 +85,4 @@ export class BlocksModalMask extends Component {
       this.isScrollLocked = false
     }
   }
-}
-
-export type BlocksModalMaskEventMap = WithOpenTransitionEventMap
-
-export interface BlocksModalMask extends Component, WithOpenTransition {
-  addEventListener<K extends keyof BlocksModalMaskEventMap>(
-    type: K,
-    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
-    options?: boolean | AddEventListenerOptions
-  ): void
-
-  removeEventListener<K extends keyof BlocksModalMaskEventMap>(
-    type: K,
-    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
-    options?: boolean | EventListenerOptions
-  ): void
 }

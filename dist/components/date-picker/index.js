@@ -32,17 +32,18 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import '../popup/index.js';
-import '../button/index.js';
-import { BlocksInput } from '../input/index.js';
-import { BlocksDate } from '../date/index.js';
-import { onClickOutside } from '../../common/onClickOutside.js';
-import { dispatchEvent } from '../../common/event.js';
-import { boolSetter } from '../../common/property.js';
-import { Component } from '../Component.js';
-import { inputTemplate, popupTemplate } from './template.js';
-import { style } from './style.js';
+import { attr } from '../../decorators/attr.js';
+import { connectSelectable } from '../../common/connectSelectable.js';
 import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { popupTemplate, resultTemplate } from './template.js';
+import { onClickOutside } from '../../common/onClickOutside.js';
+import { style } from './style.js';
+import { BlocksDate } from '../date/index.js';
+import { BlocksSelectResult } from '../select-result/index.js';
+import { BlocksPopup } from '../popup/index.js';
+import { Control } from '../base-control/index.js';
 export let BlocksDatePicker = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-date-picker',
@@ -51,173 +52,243 @@ export let BlocksDatePicker = (() => {
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    var BlocksDatePicker = class extends Component {
+    let _instanceExtraInitializers = [];
+    let _format_decorators;
+    let _format_initializers = [];
+    let _open_decorators;
+    let _open_initializers = [];
+    let _mode_decorators;
+    let _mode_initializers = [];
+    let _$result_decorators;
+    let _$result_initializers = [];
+    var BlocksDatePicker = class extends Control {
         static {
+            _format_decorators = [attr('string', { defaults: 'YYYY-MM-DD' })];
+            _open_decorators = [attr('boolean')];
+            _mode_decorators = [attr('enum', { enumValues: ['single', 'multiple'] })];
+            _$result_decorators = [shadowRef('#result')];
+            __esDecorate(this, null, _format_decorators, { kind: "accessor", name: "format", static: false, private: false, access: { has: obj => "format" in obj, get: obj => obj.format, set: (obj, value) => { obj.format = value; } } }, _format_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _mode_decorators, { kind: "accessor", name: "mode", static: false, private: false, access: { has: obj => "mode" in obj, get: obj => obj.mode, set: (obj, value) => { obj.mode = value; } } }, _mode_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$result_decorators, { kind: "accessor", name: "$result", static: false, private: false, access: { has: obj => "$result" in obj, get: obj => obj.$result, set: (obj, value) => { obj.$result = value; } } }, _$result_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksDatePicker = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return BlocksDate.observedAttributes.concat(BlocksInput.observedAttributes);
+            return [
+                ...BlocksPopup.observedAttributes,
+                ...BlocksDate.observedAttributes,
+                ...BlocksSelectResult.observedAttributes,
+            ];
         }
-        #prevValue;
-        #clearClickOutside;
+        static get disableEventTypes() {
+            return ['click', 'touchstart', 'keydown'];
+        }
+        #format_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _format_initializers, void 0));
+        get format() { return this.#format_accessor_storage; }
+        set format(value) { this.#format_accessor_storage = value; }
+        #open_accessor_storage = __runInitializers(this, _open_initializers, void 0);
+        get open() { return this.#open_accessor_storage; }
+        set open(value) { this.#open_accessor_storage = value; }
+        #mode_accessor_storage = __runInitializers(this, _mode_initializers, 'single');
+        get mode() { return this.#mode_accessor_storage; }
+        set mode(value) { this.#mode_accessor_storage = value; }
+        #$result_accessor_storage = __runInitializers(this, _$result_initializers, void 0);
+        get $result() { return this.#$result_accessor_storage; }
+        set $result(value) { this.#$result_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            const $input = shadowRoot.appendChild(inputTemplate());
-            const $popup = popupTemplate();
-            const $date = $popup.querySelector('bl-date');
-            $popup.anchor = () => $input;
-            $input.onfocus = $input.onclick = () => {
-                $popup.open = true;
-            };
-            $date.addEventListener('select', () => {
-                switch ($date.mode) {
-                    case 'single': {
-                        this.#prevValue = null;
-                        this.render();
-                        $popup.open = false;
-                        break;
+            this.appendShadowChild(resultTemplate());
+            this._tabIndexFeature.withTarget(() => [this.$result]).withTabIndex(0);
+            this.#setupPopup();
+            this.#setupResult();
+            connectSelectable(this.$result, this.$date, {
+                afterHandleListChange: () => {
+                    if (this.mode === 'single') {
+                        this.open = false;
                     }
-                    case 'range': {
-                        this.#prevValue = null;
-                        this.render();
-                        $popup.open = false;
-                        break;
-                    }
-                    case 'multiple': {
-                        this.render();
-                        break;
-                    }
-                }
+                },
+                afterHandleResultClear: () => {
+                    this.open = false;
+                    this.blur();
+                },
             });
-            $date.addEventListener('change', () => {
-                if ($date.mode !== 'multiple') {
-                    dispatchEvent(this, 'change', { detail: { value: this.value } });
-                }
-            });
-            $popup.querySelector('bl-button').onclick = this._confirm.bind(this);
-            $popup.addEventListener('open-changed', () => {
-                boolSetter('popup-open')(this, $popup.open);
-            });
-            $popup.addEventListener('opened', () => {
-                if ($date.mode !== null) {
-                    this.#prevValue = $date.value;
-                }
-                ;
-                $popup.querySelector('#action').style.display = $date.mode === 'multiple' ? 'block' : 'none';
-                this.#initClickOutside();
-                dispatchEvent(this, 'opened');
-            });
-            $popup.addEventListener('closed', () => {
-                if ($date.mode !== null && this.#prevValue) {
-                    $date.value = this.#prevValue;
-                    this.#prevValue = null;
-                }
-                this.#destroyClickOutside();
-                dispatchEvent(this, 'closed');
-            });
-            $input.addEventListener('click-clear', () => {
-                $date.clearValue();
-                this.#prevValue = $date.value;
-                this.render();
-            });
-            this._ref = {
-                $popup,
-                $date,
-                $input,
-            };
-        }
-        _confirm() {
-            this.#prevValue = null;
-            this.value = this._ref.$date.getValues();
-            dispatchEvent(this, 'change', { detail: { value: this.value } });
-            this.render();
-            this._ref.$popup.open = false;
-        }
-        render() {
-            if (this._ref.$date.mode === 'range') {
-                this._ref.$input.value = (this.value ?? [])
-                    .map((date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
-                    .join(' ~ ');
-            }
-            else if (this._ref.$date.mode === 'multiple') {
-                this._ref.$input.value = (this.value ?? [])
-                    .map((date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`)
-                    .join(', ');
-            }
-            else {
-                const date = this.value;
-                this._ref.$input.value = date ? `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}` : '';
-            }
         }
         get value() {
-            return this._ref.$date.value;
+            return this.$result.value;
         }
         set value(value) {
-            this._ref.$date.value = value;
+            if (value) {
+                this.$date.showValue(value);
+                this.$date.selectByDate(value);
+            }
+            else {
+                this.$date.selected = [];
+            }
+        }
+        get values() {
+            return this.$result.values;
+        }
+        set values(values) {
+            this.$date.selected = values;
         }
         get disabledDate() {
-            return this._ref.$date.disabledDate;
+            return this.$date.disabledDate;
         }
         set disabledDate(value) {
-            this._ref.$date.disabledDate = value;
+            this.$date.disabledDate = value;
         }
-        getDateProp(prop) {
-            return this._ref.$date[prop];
+        #setupResult() {
+            this.onConnected(() => {
+                if (this.$result.placeholder == null) {
+                    this.$result.placeholder = '请选择日期';
+                }
+            });
+            this.onAttributeChanged((attrName, _, newValue) => {
+                if (BlocksSelectResult.observedAttributes.includes(attrName)) {
+                    this.$result.setAttribute(attrName, newValue);
+                }
+                if (attrName === 'mode') {
+                    this.$result.multiple = newValue === 'multiple';
+                }
+            });
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
+            this.onAttributeChangedDep('format', () => {
+                this.$date.notifySelectListChange();
+            });
         }
-        setDateProp(prop, value) {
-            ;
-            this._ref.$date[prop] = value;
-        }
-        getInputProp(prop) {
-            return this._ref.$input[prop];
-        }
-        setInputProp(prop, value) {
-            ;
-            this._ref.$input[prop] = value;
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            document.body.appendChild(this._ref.$popup);
-            this.render();
-            this._ref.$popup.querySelector('#action').style.display =
-                this._ref.$date.mode === 'multiple' ? 'block' : 'none';
-            if (this._ref.$input.placeholder == null) {
-                this._ref.$input.placeholder = '请选择日期';
-            }
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            document.body.removeChild(this._ref.$popup);
-            this.#destroyClickOutside();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (BlocksInput.observedAttributes.includes(attrName)) {
-                this._ref.$input.setAttribute(attrName, newValue);
-            }
-            if (BlocksDate.observedAttributes.includes(attrName)) {
-                this._ref.$date.setAttribute(attrName, newValue);
-            }
-            this.render();
-        }
-        #initClickOutside() {
-            if (!this.#clearClickOutside) {
-                this.#clearClickOutside = onClickOutside([this, this._ref.$popup], () => {
-                    if (this._ref.$popup.open) {
-                        this._ref.$date.clearUncompleteRange();
-                        this._ref.$popup.open = false;
+        #setupPopup() {
+            this.$popup = popupTemplate();
+            this.$date = this.$popup.querySelector('bl-date');
+            this.$confirmButton = this.$popup.querySelector('bl-button');
+            this.$popup.anchorElement = () => this.$result;
+            let isClickClear = false;
+            const onClearStart = () => {
+                isClickClear = true;
+            };
+            const onFocus = () => {
+                if (!isClickClear) {
+                    if (!this.open) {
+                        this.$date.showValue(this.$date.selected[this.$date.selected.length - 1] ?? new Date());
                     }
+                    this.open = true;
+                }
+                isClickClear = false;
+            };
+            const onClearEnd = () => {
+                isClickClear = false;
+            };
+            this.onConnected(() => {
+                this.addEventListener('mousedown-clear', onClearStart);
+                this.addEventListener('focus', onFocus);
+                this.addEventListener('click-clear', onClearEnd);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('mousedown-clear', onClearStart);
+                this.removeEventListener('focus', onFocus);
+                this.removeEventListener('click-clear', onClearEnd);
+            });
+            this.onDisconnected(() => {
+                document.body.removeChild(this.$popup);
+            });
+            this.onAttributeChanged((name, _, val) => {
+                if (BlocksPopup.observedAttributes.includes(name)) {
+                    if (name === 'open') {
+                        if (this.open && !document.body.contains(this.$popup)) {
+                            document.body.appendChild(this.$popup);
+                        }
+                        this.$popup.open = this.open;
+                    }
+                    else {
+                        this.$popup.setAttribute(name, val);
+                    }
+                }
+            });
+            {
+                let clear;
+                const eventStart = () => {
+                    if (!clear) {
+                        clear = onClickOutside([this, this.$popup], () => {
+                            if (this.open) {
+                                this.$date.clearUncompleteRange();
+                                this.open = false;
+                            }
+                        });
+                    }
+                };
+                const eventStop = () => {
+                    if (clear) {
+                        clear();
+                        clear = undefined;
+                    }
+                };
+                this.onConnected(() => {
+                    this.$popup.addEventListener('opened', eventStart);
+                    this.$popup.addEventListener('closed', eventStop);
+                });
+                this.onDisconnected(() => {
+                    this.$popup.removeEventListener('opened', eventStart);
+                    this.$popup.removeEventListener('closed', eventStop);
+                });
+                this.onDisconnected(eventStop);
+            }
+            {
+                const onOpened = () => {
+                    dispatchEvent(this, 'opened');
+                };
+                const onClosed = () => {
+                    dispatchEvent(this, 'closed');
+                };
+                this.onConnected(() => {
+                    this.$popup.addEventListener('opened', onOpened);
+                    this.$popup.addEventListener('closed', onClosed);
+                });
+                this.onDisconnected(() => {
+                    this.$popup.removeEventListener('opened', onOpened);
+                    this.$popup.removeEventListener('closed', onClosed);
                 });
             }
+            this.#setupDate();
+            this.#setupConfirm();
         }
-        #destroyClickOutside() {
-            if (this.#clearClickOutside) {
-                this.#clearClickOutside();
-                this.#clearClickOutside = undefined;
-            }
+        #setupDate() {
+            const reEmitChange = () => {
+                if (this.$date.mode !== 'multiple') {
+                    dispatchEvent(this, 'change', { detail: { value: this.value } });
+                }
+            };
+            this.onConnected(() => {
+                this.$date.addEventListener('change', reEmitChange);
+            });
+            this.onDisconnected(() => {
+                this.$date.removeEventListener('change', reEmitChange);
+            });
+            this.onAttributeChanged((attrName, _, newValue) => {
+                if (BlocksDate.observedAttributes.includes(attrName)) {
+                    this.$date.setAttribute(attrName, newValue);
+                }
+            });
+        }
+        #setupConfirm() {
+            const onClickConfirm = () => {
+                dispatchEvent(this, 'change', { detail: { value: this.value } });
+                this.render();
+                this.open = false;
+            };
+            const renderAction = () => {
+                const val = this.$date.mode;
+                this.$popup.querySelector('#action').style.display = val === 'multiple' ? 'block' : 'none';
+            };
+            this.$popup.onConnected(renderAction);
+            this.$date.onAttributeChangedDep('mode', renderAction);
+            this.onConnected(() => {
+                this.$confirmButton.onclick = onClickConfirm;
+            });
+            this.onDisconnected(() => {
+                this.$confirmButton.onclick = null;
+            });
         }
     };
     return BlocksDatePicker = _classThis;

@@ -32,13 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { domRef } from '../../decorators/domRef.js';
-import { style } from './style.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js';
-import { Component } from '../Component.js';
+import { style } from './style.js';
 import { template } from './template.js';
+import { Component } from '../component/Component.js';
 export let BlocksIcon = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-icon',
@@ -58,7 +58,7 @@ export let BlocksIcon = (() => {
         static {
             _value_decorators = [attr('string')];
             _fill_decorators = [attr('string')];
-            _$layout_decorators = [domRef('#layout')];
+            _$layout_decorators = [shadowRef('#layout')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _fill_decorators, { kind: "accessor", name: "fill", static: false, private: false, access: { has: obj => "fill" in obj, get: obj => obj.fill, set: (obj, value) => { obj.fill = value; } } }, _fill_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
@@ -78,8 +78,11 @@ export let BlocksIcon = (() => {
         constructor() {
             super();
             this.shadowRoot.appendChild(template());
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
         }
         render() {
+            super.render();
             const { $layout } = this;
             if ($layout.firstElementChild) {
                 $layout.removeChild($layout.firstElementChild);
@@ -92,14 +95,6 @@ export let BlocksIcon = (() => {
             if (icon) {
                 $layout.appendChild(icon);
             }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
         }
     };
     return BlocksIcon = _classThis;

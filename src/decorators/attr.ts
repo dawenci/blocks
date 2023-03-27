@@ -21,11 +21,9 @@ import type { AttrType, AttrOptions } from './decorators.js'
  * getter 从 attribute 中取值（根据 type 做类型转换）
  * setter 将设置 attribute
  * defaults 为 getter 拿到 null 时的回退值，如果不设，并且 accessor 有初始化值，则将该初始化值设置为 defaults
+ * > 注意：boolean 类型的 defaults 设置是无效的，因为默认永远会是 false
  */
-export function attr(
-  attrType: AttrType = 'string',
-  options: AttrOptions = { defaults: null }
-) {
+export function attr(attrType: AttrType = 'string', options: AttrOptions = { defaults: null }) {
   const decorator = <This extends Element, Value>(
     accessor: {
       get: () => Value
@@ -35,47 +33,56 @@ export function attr(
   ) => {
     const attrName = kebabCase(String(ctx.name))
     let getValue: (element: This) => any
-    switch (attrType) {
-      case 'string':
-        getValue = strGetter(attrName)
-        break
-      case 'boolean':
-        getValue = boolGetter(attrName)
-        break
-      case 'int':
-        getValue = intGetter(attrName)
-        break
-      case 'enum':
-        getValue = enumGetter(attrName, options.enumValues!)
-        break
-      case 'number':
-        getValue = numGetter(attrName)
-        break
-      case 'intRange':
-        getValue = intRangeGetter(attrName, options.min!, options.max!)
-        break
+    let setValue: (element: Element, value: Value) => void
+
+    if (options.get) {
+      getValue = options.get
+    } else {
+      switch (attrType) {
+        case 'string':
+          getValue = strGetter(attrName)
+          break
+        case 'boolean':
+          getValue = boolGetter(attrName)
+          break
+        case 'int':
+          getValue = intGetter(attrName)
+          break
+        case 'enum':
+          getValue = enumGetter(attrName, options.enumValues!)
+          break
+        case 'number':
+          getValue = numGetter(attrName)
+          break
+        case 'intRange':
+          getValue = intRangeGetter(attrName, options.min!, options.max!)
+          break
+      }
     }
 
-    let setValue: (element: Element, value: Value) => void
-    switch (attrType) {
-      case 'string':
-        setValue = strSetter(attrName)
-        break
-      case 'boolean':
-        setValue = boolSetter(attrName)
-        break
-      case 'int':
-        setValue = intSetter(attrName)
-        break
-      case 'enum':
-        setValue = enumSetter(attrName, options.enumValues!)
-        break
-      case 'number':
-        setValue = numSetter(attrName)
-        break
-      case 'intRange':
-        setValue = intRangeSetter(attrName, options.min!, options.max!)
-        break
+    if (options.set) {
+      setValue = options.set
+    } else {
+      switch (attrType) {
+        case 'string':
+          setValue = strSetter(attrName)
+          break
+        case 'boolean':
+          setValue = boolSetter(attrName)
+          break
+        case 'int':
+          setValue = intSetter(attrName)
+          break
+        case 'enum':
+          setValue = enumSetter(attrName, options.enumValues!)
+          break
+        case 'number':
+          setValue = numSetter(attrName)
+          break
+        case 'intRange':
+          setValue = intRangeSetter(attrName, options.min!, options.max!)
+          break
+      }
     }
 
     function getter(this: This): Value {
@@ -108,7 +115,7 @@ export function attr(
       name: String(ctx.name),
       attrType,
       attrName,
-      upgrade: true,
+      upgrade: options.upgrade ?? true,
       observed: options.observed,
     })
 
@@ -123,7 +130,7 @@ export function attr(
 
 // 常用 attr
 export type EnumAttr<A extends readonly any[]> = A[number]
-export type NullableEnumAttr<A extends readonly any[]> = A[number] | null
+export type NullableEnumAttr<A extends readonly any[]> = EnumAttr<A> | null
 export type EnumAttrs = {
   size: EnumAttr<['small', 'large']>
 }

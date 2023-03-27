@@ -9,6 +9,16 @@ export function clamp(val, min, max) {
     }
     return val < min ? min : val > max ? max : val;
 }
+function clampVal(value) {
+    value = Math.trunc(value);
+    if (value > 4294967296) {
+        value = 4294967296;
+    }
+    else if (value < 0) {
+        value = 0;
+    }
+    return value;
+}
 class Color {
     static TRANSPARENT = Object.freeze(new Color(0, 0, 0, 0));
     static WHITE = Object.freeze(new Color(255, 255, 255, 255));
@@ -31,9 +41,19 @@ class Color {
     }
     static fromHex(hexString) {
         hexString = hexString.indexOf('#') === 0 ? hexString.substring(1) : hexString;
-        const r = parseInt(hexString.substr(0, 2), 16) || 0;
-        const g = parseInt(hexString.substr(2, 2), 16) || 0;
-        const b = parseInt(hexString.substr(4, 2), 16) || 0;
+        let r;
+        let g;
+        let b;
+        if (hexString.length === 3) {
+            r = parseInt(hexString[0] + hexString[0], 16) || 0;
+            g = parseInt(hexString[1] + hexString[1], 16) || 0;
+            b = parseInt(hexString[2] + hexString[2], 16) || 0;
+        }
+        else {
+            r = parseInt(hexString.substr(0, 2), 16) || 0;
+            g = parseInt(hexString.substr(2, 2), 16) || 0;
+            b = parseInt(hexString.substr(4, 2), 16) || 0;
+        }
         let alpha8bit = parseInt(hexString.substr(6, 2), 16);
         if (Number.isNaN(alpha8bit))
             alpha8bit = 255;
@@ -105,6 +125,7 @@ class Color {
         return this._val;
     }
     set value(value) {
+        value = clampVal(value);
         this._val = value;
         this._alpha = ((value & 0xff000000) >>> 24) * toFloat;
     }
@@ -153,8 +174,12 @@ class Color {
             this._val = Color.toValue(r, g, b, Color.to8BitAlpha(alpha));
             this._alpha = alpha;
         }
+        else if (typeof r === 'number') {
+            this._val = clampVal(r || 0);
+            this._alpha = this.a * toFloat;
+        }
         else {
-            this._val = r;
+            this._val = 0;
             this._alpha = this.a * toFloat;
         }
     }

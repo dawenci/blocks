@@ -13,18 +13,27 @@ export const makeStyleTemplate = (content: string): (() => HTMLStyleElement) => 
   }
 }
 
+export interface IMakeTemplate {
+  <T extends HTMLElement>(html: string): () => T
+  <K extends keyof HTMLElementTagNameMap>(html: string): () => HTMLElementTagNameMap[K]
+}
+
 /**
  * 通过 html 内容（单个根节点），构造对应的 html 元素的克隆函数
  */
-export const makeTemplate = <T extends HTMLElement>(html: string): (() => T) => {
-  let cache: HTMLTemplateElement
+export const makeTemplate: IMakeTemplate = (html: string) => {
+  let cloneTemplate: any
   return () => {
-    if (cache) {
-      return cache.content.firstElementChild!.cloneNode(true) as T
+    if (cloneTemplate) {
+      return cloneTemplate.cloneNode(true)
     }
-    cache = document.createElement('template')
-    cache.innerHTML = html
-    return cache.content.firstElementChild!.cloneNode(true) as T
+    const $tempParent = document.createElement('div')
+    $tempParent.innerHTML = html
+    if ($tempParent.childElementCount > 1) {
+      throw new Error('More than one root node.')
+    }
+    cloneTemplate = $tempParent.removeChild($tempParent.firstElementChild as any)
+    return cloneTemplate.cloneNode(true)
   }
 }
 
@@ -32,14 +41,17 @@ export const makeTemplate = <T extends HTMLElement>(html: string): (() => T) => 
  * 通过 html 内容（可以多个根节点），构造对应的 DocumentFragment 的克隆函数
  */
 export const makeFragmentTemplate = (html: string): (() => DocumentFragment) => {
-  let cache: HTMLTemplateElement
+  // 注意：因为使用 `template` 标签的 `innerHTML` 方式创建的组件，表现为未链接至组件原型的情况，
+  // 即构造的时候，只是一个普通的元素，直至挂载的时候，才会链接到组件原型并执行对应的构造函数、connectedCallback。
+  // 因此，不能直接使用 template 标签。
+  const $fragment = document.createDocumentFragment()
+  const $tempParent = document.createElement('div')
+  $tempParent.innerHTML = html
+  while ($tempParent.children.length) {
+    $fragment.appendChild($tempParent.children[0])
+  }
   return () => {
-    if (cache) {
-      return cache.content.cloneNode(true) as DocumentFragment
-    }
-    cache = document.createElement('template')
-    cache.innerHTML = html
-    return cache.content.cloneNode(true) as DocumentFragment
+    return $fragment.cloneNode(true) as DocumentFragment
   }
 }
 

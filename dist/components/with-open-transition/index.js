@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,12 +25,19 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { defineClass } from '../../decorators/defineClass.js';
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { attr } from '../../decorators/attr.js';
-import { style } from './style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js';
-import { Component } from '../Component.js';
+import { style } from './style.js';
+import { Component } from '../component/Component.js';
 export let WithOpenTransition = (() => {
     let _classDecorators = [defineClass({
             styles: [style],
@@ -60,36 +60,35 @@ export let WithOpenTransition = (() => {
             WithOpenTransition = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        onOpen = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        onClose;
-        #open_accessor_storage = __runInitializers(this, _open_initializers, void 0);
+        #open_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _open_initializers, void 0));
         get open() { return this.#open_accessor_storage; }
         set open(value) { this.#open_accessor_storage = value; }
         #openTransitionName_accessor_storage = __runInitializers(this, _openTransitionName_initializers, void 0);
         get openTransitionName() { return this.#openTransitionName_accessor_storage; }
         set openTransitionName(value) { this.#openTransitionName_accessor_storage = value; }
-        _onOpenAttributeChange() {
-            if (this.open) {
-                doTransitionEnter(this, this.openTransitionName, () => {
-                    if (this.onOpen) {
-                        this.onOpen();
-                    }
-                    dispatchEvent(this, 'opened');
+        setupMixin() {
+            const _onOpenAttributeChange = () => {
+                if (this.open) {
+                    doTransitionEnter(this, this.openTransitionName, () => {
+                        dispatchEvent(this, 'opened');
+                    });
+                }
+                else {
+                    doTransitionLeave(this, this.openTransitionName, () => {
+                        dispatchEvent(this, 'closed');
+                    });
+                }
+                dispatchEvent(this, 'open-changed', {
+                    detail: {
+                        value: this.open,
+                    },
                 });
-            }
-            else {
-                doTransitionLeave(this, this.openTransitionName, () => {
-                    if (this.onClose) {
-                        this.onClose();
-                    }
-                    dispatchEvent(this, 'closed');
-                });
-            }
-            dispatchEvent(this, 'open-changed', {
-                detail: {
-                    value: this.open,
-                },
+            };
+            this.onConnected(() => {
+                if (this.open)
+                    _onOpenAttributeChange();
             });
+            this.onAttributeChangedDep('open', _onOpenAttributeChange);
         }
     };
     return WithOpenTransition = _classThis;

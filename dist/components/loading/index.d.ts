@@ -1,12 +1,7 @@
-import { Component } from '../Component.js';
-export interface BlocksLoading extends Component {
-    _ref: {
-        $layout: HTMLElement;
-        $icon?: SVGElement;
-    };
-}
+import { Component } from '../component/Component.js';
 export declare class BlocksLoading extends Component {
+    accessor $layout: HTMLElement;
+    $icon?: SVGElement;
     constructor();
     render(): void;
-    connectedCallback(): void;
 }

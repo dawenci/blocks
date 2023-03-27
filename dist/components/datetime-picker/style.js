@@ -26,9 +26,6 @@ input {
   height: var(--bl-height-base, ${__height_base});
   text-align: center;
 }
-:host([range]) input:hover {
-  background-color: rgba(0, 0, 0, .025);
-}
 input:focus {
   outline: 0;
 }
@@ -39,28 +36,11 @@ input::placeholder {
   text-align: center;
   color: var(--bl-fg-placeholder);
 }
-
-#from-date,
-#to-date {
-  width: 140px;
-}
-#from-date.active {
-  background-image: linear-gradient(to right, transparent, var(--bl-bg-hover));
-}
-#to-date.active {
+#result.active {
   background-image: linear-gradient(to left, transparent, var(--bl-bg-hover));
 }
-#separator {
-  margin: auto 4px;
-  color: var(--bl-fg-secondary);
-}
-:host(:not([range])) #separator,
-:host(:not([range])) #from-date {
-  display: none;
-}
 
-:host([range]) #from-date,
-:host(:not([range])) #to-date {
+#result {
   padding-left: 4px;
 }
 `;

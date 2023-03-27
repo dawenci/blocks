@@ -1,12 +1,13 @@
 import '../popup/index.js';
 import '../list/index.js';
-import { makeDomTemplate, makeStyleTemplate } from '../../common/template.js';
+import { makeDomTemplate, makeFragmentTemplate, makeStyleTemplate } from '../../common/template.js';
 export const styleTemplate = makeStyleTemplate(`
 bl-list {
-  width: 200px;
-  height: 240px;
+  width: 100%;
+  height: 100%;
   font-size: 14px;
 }
 `);
+export const template = makeFragmentTemplate(`<slot></slot>`);
 export const popupTemplate = makeDomTemplate(document.createElement('bl-popup'));
 export const listTemplate = makeDomTemplate(document.createElement('bl-list'));

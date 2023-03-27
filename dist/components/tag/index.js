@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
-import { domRef } from '../../decorators/domRef.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
-import { Component } from '../Component.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { getElementTarget } from '../../common/getElementTarget.js';
-import { template } from './template.js';
 import { style } from './style.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 const types = ['primary', 'danger', 'warning', 'success'];
 export let BlocksTag = (() => {
     let _classDecorators = [defineClass({
@@ -69,7 +69,7 @@ export let BlocksTag = (() => {
             _closeable_decorators = [attr('boolean')];
             _outline_decorators = [attr('boolean')];
             _size_decorators = [attrs.size];
-            _$layout_decorators = [domRef('#layout')];
+            _$layout_decorators = [shadowRef('#layout')];
             __esDecorate(this, null, _round_decorators, { kind: "accessor", name: "round", static: false, private: false, access: { has: obj => "round" in obj, get: obj => obj.round, set: (obj, value) => { obj.round = value; } } }, _round_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _type_decorators, { kind: "accessor", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type, set: (obj, value) => { obj.type = value; } } }, _type_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeable_decorators, { kind: "accessor", name: "closeable", static: false, private: false, access: { has: obj => "closeable" in obj, get: obj => obj.closeable, set: (obj, value) => { obj.closeable = value; } } }, _closeable_initializers, _instanceExtraInitializers);
@@ -102,13 +102,22 @@ export let BlocksTag = (() => {
             super();
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template());
-            shadowRoot.addEventListener('click', e => {
+            const onClick = (e) => {
                 if (getElementTarget(e)?.id === 'close') {
                     dispatchEvent(this, 'close');
                 }
+            };
+            this.onConnected(() => {
+                this.$layout.addEventListener('click', onClick);
             });
+            this.onDisconnected(() => {
+                this.$layout.removeEventListener('click', onClick);
+            });
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
         }
         render() {
+            super.render();
             if (this.closeable) {
                 if (!this.shadowRoot.getElementById('close')) {
                     const button = this.$layout.appendChild(document.createElement('button'));
@@ -121,14 +130,6 @@ export let BlocksTag = (() => {
                     button.parentElement.removeChild(button);
                 }
             }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
         }
     };
     return BlocksTag = _classThis;

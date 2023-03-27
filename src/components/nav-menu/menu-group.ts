@@ -1,11 +1,12 @@
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
-import { forEach } from '../../common/utils.js'
-import { Component } from '../Component.js'
-import { style } from './menu-group.style.js'
-import { contentTemplate, itemTemplate } from './menu-group.template.js'
+import type { BlocksNavMenu } from './menu.js'
 import './menu-item.js'
-import { BlocksNavMenu } from './menu.js'
+import { attr } from '../../decorators/attr.js'
+import { contentTemplate, itemTemplate } from './menu-group.template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
+import { forEach } from '../../common/utils.js'
+import { style } from './menu-group.style.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-nav-menu-group',
@@ -18,17 +19,20 @@ export class BlocksNavMenuGroup extends Component {
 
   @attr('boolean') accessor collapse!: boolean
 
+  @shadowRef('#head') accessor $head!: HTMLElement
+
+  @shadowRef('#body') accessor $body!: HTMLElement
+
   private _data!: MenuGroup
-  $head: HTMLElement
-  $body: HTMLElement
 
   constructor() {
     super()
 
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(contentTemplate())
-    this.$head = shadowRoot.getElementById('head')!
-    this.$body = shadowRoot.getElementById('body')!
+
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
   }
 
   // 持有当前 group 的 menu
@@ -49,17 +53,8 @@ export class BlocksNavMenuGroup extends Component {
     this.render()
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
-  }
-
   override render() {
+    super.render()
     const data = this.data
     if (data.title) {
       this.$head.textContent = data.title

@@ -30,6 +30,10 @@ export const style = /*css*/ `
   background-color: rgba(0,0,0,.25);
   cursor: pointer;
 }
+#layout:focus-visible {
+  outline: 0 none;
+}
+
 :host(:not([disabled]):hover) #layout,
 :host(:not([disabled]):focus) #layout {
   background-color: rgba(0,0,0,.20);

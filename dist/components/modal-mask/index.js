@@ -32,11 +32,11 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { style } from './style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js';
-import { Component } from '../Component.js';
+import { style } from './style.js';
+import { Component } from '../component/Component.js';
 import { WithOpenTransition } from '../with-open-transition/index.js';
 export let BlocksModalMask = (() => {
     let _classDecorators = [defineClass({
@@ -66,17 +66,13 @@ export let BlocksModalMask = (() => {
             this.openTransitionName = 'opacity';
             this.render();
             if (this.open) {
-                this._updateVisible();
+                this._updateScrollLock();
             }
+            this.onAttributeChangedDep('open', () => {
+                this._updateScrollLock();
+            });
         }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName == 'open') {
-                this._onOpenAttributeChange();
-                this._updateVisible();
-            }
-        }
-        _updateVisible() {
+        _updateScrollLock() {
             if (this.open) {
                 this._lockScroll();
             }

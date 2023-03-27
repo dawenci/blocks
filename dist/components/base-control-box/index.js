@@ -32,14 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
-import { style } from './style.js';
-import { dispatchEvent } from '../../common/event.js';
-import { Control } from '../base-control/index.js';
-import { loadingTemplate, prefixTemplate, suffixTemplate } from './template.js';
 import { append, mountAfter, mountBefore, prepend, unmount } from '../../common/mount.js';
+import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js';
+import { loadingTemplate, prefixTemplate, suffixTemplate, template } from './template.js';
+import { style } from './style.js';
+import { Control } from '../base-control/index.js';
 export let ControlBox = (() => {
     let _classDecorators = [defineClass({
             styles: [style],
@@ -54,14 +55,30 @@ export let ControlBox = (() => {
     let _prefixIcon_initializers = [];
     let _suffixIcon_decorators;
     let _suffixIcon_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    let _$loading_decorators;
+    let _$loading_initializers = [];
+    let _$prefix_decorators;
+    let _$prefix_initializers = [];
+    let _$suffix_decorators;
+    let _$suffix_initializers = [];
     var ControlBox = class extends Control {
         static {
             _loading_decorators = [attr('boolean')];
             _prefixIcon_decorators = [attr('string')];
             _suffixIcon_decorators = [attr('string')];
+            _$layout_decorators = [shadowRef('[part="layout"]')];
+            _$loading_decorators = [shadowRef('[part="loading"]', false)];
+            _$prefix_decorators = [shadowRef('[part="prefix"]', false)];
+            _$suffix_decorators = [shadowRef('[part="suffix"]', false)];
             __esDecorate(this, null, _loading_decorators, { kind: "accessor", name: "loading", static: false, private: false, access: { has: obj => "loading" in obj, get: obj => obj.loading, set: (obj, value) => { obj.loading = value; } } }, _loading_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _prefixIcon_decorators, { kind: "accessor", name: "prefixIcon", static: false, private: false, access: { has: obj => "prefixIcon" in obj, get: obj => obj.prefixIcon, set: (obj, value) => { obj.prefixIcon = value; } } }, _prefixIcon_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _suffixIcon_decorators, { kind: "accessor", name: "suffixIcon", static: false, private: false, access: { has: obj => "suffixIcon" in obj, get: obj => obj.suffixIcon, set: (obj, value) => { obj.suffixIcon = value; } } }, _suffixIcon_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$loading_decorators, { kind: "accessor", name: "$loading", static: false, private: false, access: { has: obj => "$loading" in obj, get: obj => obj.$loading, set: (obj, value) => { obj.$loading = value; } } }, _$loading_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$prefix_decorators, { kind: "accessor", name: "$prefix", static: false, private: false, access: { has: obj => "$prefix" in obj, get: obj => obj.$prefix, set: (obj, value) => { obj.$prefix = value; } } }, _$prefix_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$suffix_decorators, { kind: "accessor", name: "$suffix", static: false, private: false, access: { has: obj => "$suffix" in obj, get: obj => obj.$suffix, set: (obj, value) => { obj.$suffix = value; } } }, _$suffix_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             ControlBox = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -75,115 +92,125 @@ export let ControlBox = (() => {
         #suffixIcon_accessor_storage = __runInitializers(this, _suffixIcon_initializers, void 0);
         get suffixIcon() { return this.#suffixIcon_accessor_storage; }
         set suffixIcon(value) { this.#suffixIcon_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$loading_accessor_storage = __runInitializers(this, _$loading_initializers, void 0);
+        get $loading() { return this.#$loading_accessor_storage; }
+        set $loading(value) { this.#$loading_accessor_storage = value; }
+        #$prefix_accessor_storage = __runInitializers(this, _$prefix_initializers, void 0);
+        get $prefix() { return this.#$prefix_accessor_storage; }
+        set $prefix(value) { this.#$prefix_accessor_storage = value; }
+        #$suffix_accessor_storage = __runInitializers(this, _$suffix_initializers, void 0);
+        get $suffix() { return this.#$suffix_accessor_storage; }
+        set $suffix(value) { this.#$suffix_accessor_storage = value; }
         constructor() {
             super();
-            this._ref.$layout.addEventListener('click', e => {
-                const target = e.target;
-                if (this._ref.$prefix && this._ref.$prefix.contains(target)) {
-                    dispatchEvent(this, 'click-prefix-icon');
-                    return;
-                }
-                if (this._ref.$suffix && this._ref.$suffix.contains(target)) {
-                    dispatchEvent(this, 'click-suffix-icon');
-                    return;
-                }
-            });
+            this.appendShadowChild(template());
+            this.#setupLoadingFeature();
+            this.#setupPrefixIconFeature();
+            this.#setupSuffixIconFeature();
+            this._tabIndexFeature.withTarget(() => [this.$layout]);
+            this._disabledFeature.withPredicate(() => this.disabled || this.loading);
         }
-        _appendContent($el) {
-            const $suffix = this._ref.$suffix;
+        appendContent($el) {
+            const $suffix = this.$suffix;
             if ($suffix) {
                 mountBefore($el, $suffix);
             }
             else {
-                append($el, this._ref.$layout);
+                append($el, this.$layout);
             }
             return $el;
         }
+        #setupLoadingFeature() {
+            this.onConnected(this._renderLoading);
+            this.onAttributeChangedDep('loading', this._renderLoading);
+            this.onRender(this._renderLoading);
+        }
         _renderLoading() {
-            this._ref.$layout.classList.toggle('with-loading', this.loading);
+            this.$layout.classList.toggle('with-loading', this.loading);
             if (this.loading) {
-                if (!this._ref.$loading) {
-                    const $loading = (this._ref.$loading = loadingTemplate());
+                if (!this.$loading) {
+                    const $loading = loadingTemplate();
                     $loading.appendChild(getRegisteredSvgIcon('loading'));
-                    prepend($loading, this._ref.$layout);
+                    prepend($loading, this.$layout);
                 }
             }
             else {
-                if (this._ref.$loading) {
-                    unmount(this._ref.$loading);
-                    this._ref.$loading = undefined;
+                if (this.$loading) {
+                    unmount(this.$loading);
                 }
             }
+        }
+        #setupPrefixIconFeature() {
+            const onClick = (e) => {
+                const target = e.target;
+                if (this.$prefix && this.$prefix.contains(target)) {
+                    dispatchEvent(this, 'click-prefix-icon');
+                    return;
+                }
+            };
+            this.onConnected(() => {
+                this._renderPrefixIcon();
+                this.$layout.addEventListener('click', onClick);
+            });
+            this.onDisconnected(() => {
+                this.$layout.removeEventListener('click', onClick);
+            });
+            this.onAttributeChangedDep('prefix-icon', this._renderPrefixIcon);
+            this.onRender(this._renderPrefixIcon);
         }
         _renderPrefixIcon() {
             const $prefixIcon = this.prefixIcon ? getRegisteredSvgIcon(this.prefixIcon) ?? parseSvg(this.prefixIcon) : null;
-            this._ref.$layout.classList.toggle('with-prefix', !!$prefixIcon);
+            this.$layout.classList.toggle('with-prefix', !!$prefixIcon);
             if ($prefixIcon) {
-                const $prefix = (this._ref.$prefix = this._ref.$prefix ?? prefixTemplate());
+                const $prefix = this.$prefix ?? prefixTemplate();
                 $prefix.innerHTML = '';
                 $prefix.appendChild($prefixIcon);
-                if (this._ref.$loading) {
-                    mountAfter($prefix, this._ref.$loading);
+                if (this.$loading) {
+                    mountAfter($prefix, this.$loading);
                 }
                 else {
-                    prepend($prefix, this._ref.$layout);
+                    prepend($prefix, this.$layout);
                 }
             }
             else {
-                if (this._ref.$prefix) {
-                    unmount(this._ref.$prefix);
-                    this._ref.$prefix = undefined;
+                if (this.$prefix) {
+                    unmount(this.$prefix);
                 }
             }
+        }
+        #setupSuffixIconFeature() {
+            const onClick = (e) => {
+                const target = e.target;
+                if (this.$suffix && this.$suffix.contains(target)) {
+                    dispatchEvent(this, 'click-suffix-icon');
+                    return;
+                }
+            };
+            this.onConnected(() => {
+                this._renderSuffixIcon();
+                this.$layout.addEventListener('click', onClick);
+            });
+            this.onDisconnected(() => {
+                this.$layout.removeEventListener('click', onClick);
+            });
+            this.onAttributeChangedDep('suffix-icon', this._renderSuffixIcon);
+            this.onRender(this._renderSuffixIcon);
         }
         _renderSuffixIcon() {
             const $suffixIcon = this.suffixIcon ? getRegisteredSvgIcon(this.suffixIcon) ?? parseSvg(this.suffixIcon) : null;
-            this._ref.$layout.classList.toggle('with-suffix', !!$suffixIcon);
+            this.$layout.classList.toggle('with-suffix', !!$suffixIcon);
             if ($suffixIcon) {
-                const $suffix = (this._ref.$suffix = this._ref.$suffix ?? suffixTemplate());
+                const $suffix = this.$suffix ?? suffixTemplate();
                 $suffix.innerHTML = '';
                 $suffix.appendChild($suffixIcon);
-                append($suffix, this._ref.$layout);
+                append($suffix, this.$layout);
             }
             else {
-                if (this._ref.$suffix) {
-                    unmount(this._ref.$suffix);
-                    this._ref.$suffix = undefined;
-                }
-            }
-        }
-        render() {
-            super.render();
-            this._renderDisabled();
-            this._renderPrefixIcon();
-            this._renderSuffixIcon();
-            this._renderLoading();
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            switch (attrName) {
-                case 'disabled': {
-                    this._renderDisabled();
-                    break;
-                }
-                case 'loading': {
-                    this._renderLoading();
-                    break;
-                }
-                case 'prefix-icon': {
-                    this._renderPrefixIcon();
-                    break;
-                }
-                case 'suffix-icon': {
-                    this._renderSuffixIcon();
-                    break;
-                }
-                default: {
-                    break;
+                if (this.$suffix) {
+                    unmount(this.$suffix);
                 }
             }
         }

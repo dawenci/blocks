@@ -6,21 +6,23 @@ export const enum EnvType {
 }
 
 export class EnvRecord {
+  static uid = 0
+
   type: EnvType
   rawName: string
   name: string
 
-  constructor(type: EnvType, name: string) {
+  constructor(type: EnvType, rawName: string) {
     this.type = type
-    this.rawName = name
-    this.name = ENV_PREFIX + name
+    this.rawName = rawName
+    this.name = `${ENV_PREFIX}${++EnvRecord.uid}`
   }
 
   static root() {
     return new EnvRecord(EnvType.Root, 'root')
   }
 
-  static for(name: string) {
-    return new EnvRecord(EnvType.For, name)
+  static for(rawName: string) {
+    return new EnvRecord(EnvType.For, rawName)
   }
 }

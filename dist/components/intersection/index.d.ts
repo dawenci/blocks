@@ -1,4 +1,4 @@
-import { Component } from '../Component.js';
+import { Component } from '../component/Component.js';
 export declare class BlocksIntersection extends Component {
     static get observedAttributes(): string[];
     accessor rootMargin: string;
@@ -12,7 +12,4 @@ export declare class BlocksIntersection extends Component {
     _observer?: any;
     _initObserver(): void;
     _removeObserver(): void;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
 }

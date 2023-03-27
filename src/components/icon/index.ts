@@ -1,10 +1,10 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { domRef } from '../../decorators/domRef.js'
-import { style } from './style.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
-import { Component } from '../Component.js'
+import { style } from './style.js'
 import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-icon',
@@ -15,14 +15,18 @@ export class BlocksIcon extends Component {
 
   @attr('string') accessor fill!: string | null
 
-  @domRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('#layout') accessor $layout!: HTMLElement
 
   constructor() {
     super()
     this.shadowRoot!.appendChild(template())
+
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
   }
 
   override render() {
+    super.render()
     const { $layout } = this
     if ($layout.firstElementChild) {
       $layout.removeChild($layout.firstElementChild)
@@ -38,15 +42,5 @@ export class BlocksIcon extends Component {
     if (icon) {
       $layout.appendChild(icon)
     }
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
   }
 }

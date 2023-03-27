@@ -1,4 +1,4 @@
-import { __height_base, __height_large, __height_small, __radius_base } from '../../theme/var-light.js';
+import { __height_base, __height_large, __height_small, __radius_base, __transition_duration, } from '../../theme/var-light.js';
 import '../icon/index.js';
 import '../input/index.js';
 import '../color/index.js';
@@ -12,12 +12,15 @@ export const style = `
   cursor: default;
   position: relative;
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVQYV2M4gwH+YwCGIasIUwhT25BVBADtzYNYrHvv4gAAAABJRU5ErkJggg==) repeat;
+
+  --duration: var(--transition-duration, ${__transition_duration});
 }
-:host(:focus) {
+:host(:focus),
+:host(:focus-within) {
   outline: 0 none;
 }
 
-:host([disabled]) #result,
+:host([disabled]) #layout,
 :host([disabled]) bl-icon {
   cursor: not-allowed;
 }
@@ -31,11 +34,14 @@ export const style = `
   height: var(--bl-height-large, ${__height_large});
 }
 
-#result {
+#layout {
   position: relative;
   width: 100%;
   height: 100%;
   border-radius: var(--bl-radius-base, ${__radius_base});
+}
+#layout:focus-visible {
+  outline: 0 none;
 }
 bl-icon {
   box-sizing: border-box;
@@ -50,8 +56,12 @@ bl-icon {
   margin: auto;
   border-radius: var(--bl-radius-base, ${__radius_base});
   fill: rgba(255,255,255,.8);
+  transition: all var(--duration);
 }
 bl-icon.light {
   fill: rgba(0,0,0,.5);
+}
+#layout.dropdown bl-icon {
+  transform: rotate(180deg);
 }
 `;

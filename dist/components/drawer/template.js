@@ -1,17 +1,16 @@
 import { makeFragmentTemplate } from '../../common/template.js';
 export const contentTemplate = makeFragmentTemplate(`
-<div id="layout">
-<header id="header">
-  <div id="name">
-    <slot name="name">
-      <span id="name-prop"></span>
-    </slot>
-  </div>
-  <button id="close">
-    <bl-icon value="cross"></bl-icon>
-  </button>
+<header part="header">
+  <slot part="header-slot" name="header">
+    <h1></h1>
+  </slot>
 </header>
-<div id="body"><slot></slot></div>
-<footer id="footer"><slot name="footer"></slot></footer>
-</div>
+
+<section part="body">
+  <slot part="default-slot" id="body"></slot>
+</section>
+
+<footer part="footer">
+  <slot part="footer-slot" name="footer"></slot>
+</footer>
 `);

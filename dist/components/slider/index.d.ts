@@ -1,27 +1,22 @@
-import { Component } from '../Component.js';
-export declare class BlocksSlider extends Component {
+import { Control } from '../base-control/index.js';
+export declare class BlocksSlider extends Control {
     #private;
     static get role(): string;
-    static get observedAttributes(): string[];
-    ref: {
-        $layout: HTMLElement;
-        $track: HTMLElement;
-        $trackBg: HTMLElement;
-        $point: HTMLButtonElement;
-    };
+    static get observedAttributes(): readonly ["disabled", "max", "min", "size", "step", "round", "value", "vertical"];
+    static get disableEventTypes(): string[];
     accessor shadowSize: number;
     accessor size: number;
     accessor min: number;
     accessor max: number;
-    accessor disabled: boolean;
+    accessor step: number;
     accessor vertical: boolean;
     accessor round: number;
+    accessor $layout: HTMLElement;
+    accessor $track: HTMLElement;
+    accessor $trackBg: HTMLElement;
+    accessor $point: HTMLButtonElement;
     constructor();
     get value(): number;
     set value(value: number);
     render(): void;
-    _renderDisabled(): void;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
 }

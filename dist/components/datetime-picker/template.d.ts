@@ -5,6 +5,6 @@ import '../result/index.js';
 import '../time/index.js';
 import '../button/index.js';
 import { BlocksPopup } from '../popup/index.js';
-export declare const styleTemplate: () => HTMLStyleElement;
+export declare const inputTemplate: () => import("../input/index").BlocksInput;
 export declare const contentTemplate: () => HTMLElement;
 export declare const popupTemplate: () => BlocksPopup;

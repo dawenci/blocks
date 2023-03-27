@@ -1,20 +1,19 @@
-import { BlocksPopup } from '../popup/index.js';
+import type { EnumAttrs } from '../../decorators/attr.js';
 import { BlocksPopupMenuItem } from './menu-item.js';
 import { BlocksNavMenu } from '../nav-menu/menu.js';
 import { BlocksNavMenuItem } from '../nav-menu/menu-item.js';
-import type { EnumAttrs } from '../../decorators/attr.js';
+import { BlocksPopup } from '../popup/index.js';
 export declare class BlocksPopupMenu extends BlocksPopup {
-    static get observedAttributes(): string[];
+    accessor enterDelay: number;
+    accessor leaveDelay: number;
+    accessor size: EnumAttrs['size'];
+    accessor level: number;
     private _data;
     private _leaveTimer?;
     private _enterTimer?;
     private _clearClickOutside?;
     $parentItem?: BlocksPopupMenuItem | BlocksNavMenuItem;
     $parentMenu?: BlocksPopupMenu | BlocksNavMenu;
-    accessor enterDelay: number;
-    accessor leaveDelay: number;
-    accessor size: EnumAttrs['size'];
-    accessor level: number;
     constructor();
     get data(): (MenuItem | MenuGroup)[];
     set data(value: (MenuItem | MenuGroup)[]);

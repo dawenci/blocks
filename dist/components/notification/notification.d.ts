@@ -1,5 +1,5 @@
-import { Component } from '../Component.js';
 import type { NullableEnumAttr } from '../../decorators/attr.js';
+import { Component } from '../component/Component.js';
 export declare enum NotificationPlacement {
     TopRight = "top-right",
     BottomRight = "bottom-right",
@@ -24,7 +24,6 @@ export interface BlocksNotification extends Component {
 }
 export declare class BlocksNotification extends Component {
     #private;
-    static get observedAttributes(): string[];
     accessor closeable: boolean;
     accessor duration: number;
     accessor type: NullableEnumAttr<typeof notificationTypes>;
@@ -32,8 +31,6 @@ export declare class BlocksNotification extends Component {
     close(): void;
     render(): void;
     destroy(): void;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     _clearAutoClose(): void;
     _setAutoClose(): void;
 }

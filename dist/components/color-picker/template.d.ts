@@ -1,7 +1,3 @@
-import '../icon/index.js';
-import '../input/index.js';
-import '../color/index.js';
-export declare function template(): {
-    inputTemplate: HTMLTemplateElement;
-    popupTemplate: HTMLTemplateElement;
-};
+import type { BlocksPopup } from '../popup/index.js';
+export declare const resultTemplate: () => HTMLElement;
+export declare const popupTemplate: () => BlocksPopup;

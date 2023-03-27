@@ -296,6 +296,3 @@ export function useColorWithOpacity(color: string, opacity: number): string {
   console.warn('Invalid color: ', color)
   return ''
 }
-
-;(window as any).rgb2hsv = rgb2hsv
-;(window as any).hsv2rgb = hsv2rgb

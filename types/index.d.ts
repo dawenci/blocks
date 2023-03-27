@@ -13,3 +13,7 @@ interface MenuGroup {
   title: string
   data: MenuItem[]
 }
+
+type OneOf<A extends readonly string[]> = A[number]
+
+type ConcatStr<S1 extends string, S2 extends string> = `${S1}${S2}`

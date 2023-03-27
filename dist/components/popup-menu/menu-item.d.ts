@@ -1,20 +1,19 @@
-import '../../components/popup/index.js';
 import '../../components/icon/index.js';
-import { BlocksPopupMenu } from './menu.js';
-import { Component } from '../Component.js';
+import '../../components/popup/index.js';
 import { BlocksNavMenu } from '../nav-menu/menu.js';
+import { BlocksPopupMenu } from './menu.js';
+import { Component } from '../component/Component.js';
 export declare class BlocksPopupMenuItem extends Component {
     #private;
-    static get observedAttributes(): string[];
-    _enterTimer?: number;
-    _leaveTimer?: number;
+    accessor disabled: boolean;
+    accessor link: boolean;
+    accessor active: boolean;
+    _enterTimer?: ReturnType<typeof setTimeout>;
+    _leaveTimer?: ReturnType<typeof setTimeout>;
     $layout: HTMLElement;
     $label: HTMLElement;
     $icon: HTMLElement;
     $arrow: HTMLElement;
-    accessor disabled: boolean;
-    accessor link: boolean;
-    accessor active: boolean;
     constructor();
     get $submenu(): BlocksPopupMenu | undefined;
     set $submenu($menu: BlocksPopupMenu | undefined);
@@ -27,8 +26,6 @@ export declare class BlocksPopupMenuItem extends Component {
     get data(): any;
     set data(value: any);
     render(): void;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
     clearEnterTimer(): void;
     clearLeaveTimer(): void;
     clearActive(): void;

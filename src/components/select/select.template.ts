@@ -1,9 +1,15 @@
-import { __radius_base } from '../../theme/var-light.js'
+import '../popup/index.js'
+import '../list/index.js'
 import { makeTemplate } from '../../common/template.js'
 import { BlocksPopup } from '../popup/index.js'
+import { BlocksSelectResult } from '../select-result/index.js'
 
-export const slotTemplate = makeTemplate<HTMLSlotElement>(/*html*/ `<slot style="display:none;"></slot>`)
+export const resultTemplate = makeTemplate<BlocksSelectResult>(/*html*/ `<bl-select-result></bl-select-result>`)
 
-export const popupTemplate = makeTemplate<BlocksPopup>(/*html*/ `<bl-popup append-to-body origin="top-start" arrow>
-<div class="option-list" style="overflow:hidden;min-height:20px;border-radius:var(--bl-radius-base, ${__radius_base});"></div>
-</bl-popup>`)
+export const slotTemplate = makeTemplate<HTMLSlotElement>(/*html*/ `<slot part="slot" style="display:none;"></slot>`)
+
+export const popupTemplate = makeTemplate<BlocksPopup>(/*html*/ `
+<bl-popup append-to-body origin="top-start" arrow>
+  <bl-list class="option-list" checkable id-field="value" label-field="label"></bl-list>
+</bl-popup>
+`)

@@ -12,8 +12,17 @@ export function defineClass(targetOrOptions, ctx) {
                             if (name === 'constructor' && target.prototype.constructor) {
                                 return;
                             }
-                            Object.defineProperty(target.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
-                                Object.create(null));
+                            const desc = Object.getOwnPropertyDescriptor(baseCtor.prototype, name) || Object.create(null);
+                            if (name === 'setupMixin' && target.prototype.setupMixin) {
+                                const fn1 = target.prototype.setupMixin;
+                                const fn2 = desc.value;
+                                const newFn = function () {
+                                    fn1.call(this);
+                                    fn2.call(this);
+                                };
+                                desc.value = newFn;
+                            }
+                            Object.defineProperty(target.prototype, name, desc);
                         });
                     });
                     appendObservedAttributes(target, targetOrOptions.mixins.reduce((acc, ctor) => acc.concat(ctor.observedAttributes ?? []), []));
@@ -62,9 +71,7 @@ export function defineClass(targetOrOptions, ctx) {
 }
 export function handleMembers(target) {
     const data = getDecoratorData();
-    appendObservedAttributes(target, data
-        .filter(record => record.type === 'attr' && record.observed !== false)
-        .map(record => record.attrName));
+    appendObservedAttributes(target, data.filter(record => record.type === 'attr' && record.observed !== false).map(record => record.attrName));
     appendUpgradeProperties(target, data.filter(record => record.upgrade).map(record => record.name));
     clearDecoratorData();
 }
@@ -75,9 +82,7 @@ export function appendObservedAttributes(target, observedAttrs) {
     if (observedAttrs.length) {
         let newGetter;
         if (hasObservedAttributes(target)) {
-            const mergedAttrs = [
-                ...new Set((target.observedAttributes ?? []).concat(observedAttrs)),
-            ];
+            const mergedAttrs = [...new Set((target.observedAttributes ?? []).concat(observedAttrs))];
             newGetter = () => mergedAttrs;
         }
         else {
@@ -97,9 +102,7 @@ export function appendUpgradeProperties(target, upgradeProps) {
     if (upgradeProps.length) {
         let newGetter;
         if (hasUpgradeProperties(target)) {
-            const mergedProps = [
-                ...new Set((target.upgradeProperties ?? []).concat(upgradeProps)),
-            ];
+            const mergedProps = [...new Set((target.upgradeProperties ?? []).concat(upgradeProps))];
             newGetter = () => mergedProps;
         }
         else {
@@ -120,7 +123,7 @@ export function appendComponentStyles(target, $fragment) {
         const $styleFragment = hasStyles(target)
             ? target._$componentStyle.cloneNode(true)
             : document.createDocumentFragment();
-        $styleFragment.appendChild($fragment);
+        $styleFragment.appendChild($fragment.cloneNode(true));
         Object.defineProperty(target, '_$componentStyle', {
             get: () => $styleFragment,
             enumerable: true,

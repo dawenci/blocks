@@ -1,10 +1,20 @@
-import { makeTemplate } from '../../common/template.js';
-export const template = makeTemplate(`
-<div id="layout">
-  <button></button>
-  <button></button>
-  <button></button>
-  <button></button>
-  <button></button>
-</div>
-`);
+export const template = (() => {
+    const $layout = document.createElement('div');
+    $layout.id = 'layout';
+    const $button = document.createElement('button');
+    const $star = document.createElement('span');
+    $star.classList.add('star');
+    $star.innerHTML = `<svg viewBox="0 0 1024 1024">
+    <path d="M36.25718557 429.15536554a23.78714112 23.78714112 0 0 1-8.73813334-26.2144l3.88361444-12.13629554a23.78714112 23.78714112 0 0 1 21.3598811-16.99081557l309.91246222-24.75804444 118.8871589-285.59132445A24.75804445 24.75804445 0 0 1 506.27166777 47.8814811h12.6217489a23.78714112 23.78714112 0 0 1 22.81623666 15.53446002l119.32406557 285.68841443 309.91246222 24.75804445a23.78714112 23.78714112 0 0 1 21.3598811 16.99081443l3.88361444 12.13629668a23.78714112 23.78714112 0 0 1-7.28177778 26.2144l-233.74506667 200.78288555 71.79832889 300.9801489a24.75804445 24.75804445 0 0 1-9.22358443 25.72894777l-14.07810446 7.76723001a24.27259221 24.27259221 0 0 1-27.13675776 0l-263.84308224-160.19911111-265.39652664 161.80110222a24.27259221 24.27259221 0 0 1-27.1367589 0l-10.67994112-7.28177778a24.75804445 24.75804445 0 0 1-9.22358443-25.72894891l69.8565211-303.11613553z"></path>
+  </svg>`;
+    const $star2 = $star.cloneNode(true);
+    $star2.classList.add('part');
+    $button.appendChild($star);
+    $button.appendChild($star2);
+    for (let i = 1; i <= 5; ++i) {
+        $layout.appendChild($button.cloneNode(true)).dataset.value = String(i);
+    }
+    return () => {
+        return $layout.cloneNode(true);
+    };
+})();

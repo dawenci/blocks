@@ -1,30 +1,26 @@
+import type { EnumAttr } from '../../decorators/attr.js'
+import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 import '../icon/index.js'
 import '../modal-mask/index.js'
-import { setStyles } from '../../common/style.js'
-import { onClickOutside } from '../../common/onClickOutside.js'
-import { onKey } from '../../common/onKey.js'
-import { capitalize } from '../../common/utils.js'
-import { contentTemplate } from './template.js'
-import { style } from './style.js'
-import { BlocksModalMask } from '../modal-mask/index.js'
-import { Control } from '../base-control/index.js'
-import { applyMixins } from '../../common/applyMixins.js'
-import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js'
-import { ComponentEventListener } from '../Component.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import type { EnumAttr } from '../../decorators/attr.js'
+import { capitalize } from '../../common/utils.js'
+import { contentTemplate as template } from './template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { dispatchEvent, onceEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
+import { onKeymap } from '../../common/onKeymap.js'
+import { setStyles } from '../../common/style.js'
+import { style } from './style.js'
+import { append, mountBefore, unmount } from '../../common/mount.js'
+import { BlocksModalMask } from '../modal-mask/index.js'
+import { BlocksPopup } from '../popup/index.js'
+import { ComponentEventListener } from '../component/Component.js'
+import { SetupClickOutside } from '../setup-click-outside/index.js'
 
 type BlocksDrawerEventMap = WithOpenTransitionEventMap
 
-export interface BlocksDrawer extends Control, WithOpenTransition {
-  _ref: Control['_ref'] & {
-    $name: HTMLElement
-    $close: HTMLButtonElement
-    $mask?: BlocksModalMask
-    $firstFocusable?: HTMLButtonElement
-    $lastFocusable?: HTMLButtonElement
-  }
+export interface BlocksDrawer extends BlocksPopup {
+  $mask: BlocksModalMask | null
 
   addEventListener<K extends keyof BlocksDrawerEventMap>(
     type: K,
@@ -43,235 +39,286 @@ export interface BlocksDrawer extends Control, WithOpenTransition {
   customElement: 'bl-drawer',
   styles: [style],
 })
-export class BlocksDrawer extends Control {
-  @attr('boolean') accessor capturefocus!: boolean
+export class BlocksDrawer extends BlocksPopup {
+  @attr('boolean') accessor closeOnClickMask!: boolean
   @attr('boolean') accessor closeOnClickOutside!: boolean
-  @attr('boolean') accessor closeOnEscape!: boolean
+  @attr('boolean') accessor closeOnPressEscape!: boolean
   @attr('boolean') accessor mask!: boolean
-  @attr('boolean') accessor open!: boolean
-  @attr('string') accessor name!: string
+  @attr('boolean') accessor closeable!: boolean
+
+  /** 标题 */
+  @attr('string') accessor titleText = ''
   @attr('string') accessor size = '30%'
   @attr('enum', { enumValues: ['right', 'left', 'bottom', 'top'] })
   accessor placement: EnumAttr<['right', 'left', 'bottom', 'top']> = 'right'
 
+  @shadowRef('[part="close"]', false) accessor $close!: HTMLButtonElement | null
+  @shadowRef('[part="header"]') accessor $header!: HTMLElement
+  @shadowRef('[part="body"]') accessor $body!: HTMLElement
+  @shadowRef('[part="footer"]') accessor $footer!: HTMLElement
+  @shadowRef('[part="header-slot"]') accessor $headerSlot!: HTMLSlotElement
+  @shadowRef('[part="default-slot"]') accessor $bodySlot!: HTMLSlotElement
+  @shadowRef('[part="footer-slot"]') accessor $footerSlot!: HTMLSlotElement
+
+  _clickOutside: SetupClickOutside<this> = SetupClickOutside.setup({
+    component: this,
+    target() {
+      return this.$mask ? [this, this.$mask] : [this]
+    },
+    update() {
+      this.open = false
+    },
+  })
+
   constructor() {
     super()
 
-    this._appendContent(contentTemplate())
+    this.$layout.removeChild(this.$slot)
+    this.$layout.appendChild(template())
 
-    const shadowRoot = this.shadowRoot!
-    const $name = shadowRoot.getElementById('name-prop')!
-    const $close = shadowRoot.getElementById('close') as HTMLButtonElement
-    Object.assign(this._ref, { $name, $close })
-    $close.onclick = () => (this.open = false)
-
-    if (this.capturefocus) {
-      this._captureFocus()
-    }
+    this.#setupPopup()
+    this.#setupMask()
+    this.#setupClose()
+    this.#setupHeader()
+    this.#setupFooter()
+    this.#setupPlacement()
+    this.#setupClickOutside()
+    this.#setupKeymap()
   }
 
-  override render() {
-    const top = '0'
-    const right = '0'
-    const bottom = '0'
-    const left = '0'
-    switch (this.placement) {
-      case 'right': {
-        setStyles(this, {
-          top,
-          right,
-          bottom,
-          left: 'auto',
-          height: '100vh',
-          width: this.size,
-        })
-        break
+  #setupPopup() {
+    this.onConnected(() => {
+      this.autofocus = true
+      if (this.parentElement !== document.body) {
+        document.body.appendChild(this)
       }
-      case 'left': {
-        setStyles(this, {
-          top,
-          right: 'auto',
-          bottom,
-          left,
-          height: '100vh',
-          width: this.size,
-        })
-        break
-      }
-      case 'bottom': {
-        setStyles(this, {
-          top: 'auto',
-          right,
-          bottom,
-          left,
-          width: '100vw',
-          height: this.size,
-        })
-        break
-      }
-      case 'top': {
-        setStyles(this, {
-          top,
-          right,
-          bottom: 'auto',
-          left,
-          width: '100vw',
-          height: this.size,
-        })
-        break
-      }
-    }
-
-    this._ref.$name.textContent = this.name
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-
-    if (this.parentElement !== document.body) {
-      document.body.appendChild(this)
-    }
-
-    this.render()
-
-    if (this.mask) {
-      const $mask = this._ensureMask()
-      this.parentElement?.insertBefore?.($mask, this)
-      $mask!.open = this.open
-    }
-
-    this._initClickOutside()
-    this._initKeydown()
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    if (this._ref.$mask && document.body.contains(this._ref.$mask)) {
-      this._ref.$mask.open = false
-      this._ref.$mask.parentElement!.removeChild(this._ref.$mask)
-    }
-
-    this._destroyClickOutside()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'open') {
+    })
+    this.onConnected(() => {
       this.openTransitionName = `open${capitalize(this.placement)}`
-      this._onOpenAttributeChange()
-      if (this.mask && this._ref.$mask) {
-        this._ref.$mask.open = newValue
+    })
+    this.onAttributeChangedDep('placement', () => {
+      this.openTransitionName = `open${capitalize(this.placement)}`
+    })
+  }
+
+  #setupMask() {
+    const _ensureMask = () => {
+      if (!this.$mask) {
+        this.$mask = document.createElement('bl-modal-mask')
+        mountBefore(this.$mask, this)
+        this.$mask.open = this.open
+        dispatchEvent(this, 'mask-mounted')
+
+        // 避免点击 mask 的时候，dialog blur
+        // 注：mousedown 到 mouseup 之间，dialog 会发生 blur
+        const _refocus = () => {
+          if (document.activeElement && !this.$layout.contains(document.activeElement)) {
+            ;(document.activeElement as any).blur()
+          }
+          this.focus()
+          this.removeEventListener('blur', _refocus)
+        }
+        this.$mask.addEventListener('mousedown', () => {
+          _refocus()
+          this.addEventListener('blur', _refocus)
+        })
+        this.$mask.addEventListener('mouseup', () => {
+          _refocus()
+          if (this.closeOnClickMask) {
+            this.open = false
+          }
+        })
       }
     }
-
-    if (attrName === 'mask' && this.mask) {
-      if (this.mask && !this._ref.$mask) {
-        const $mask = this._ensureMask()
-        this.parentElement?.insertBefore?.($mask, this)
-        $mask.open = this.open
-      } else {
-        if (this._ref.$mask && document.body.contains(this._ref.$mask)) {
-          const $mask = this._ref.$mask!
-          $mask.open = false
-          $mask.parentElement!.removeChild(this._ref.$mask)
+    const _destroyMask = () => {
+      if (!this.$mask) return
+      if (document.body.contains(this.$mask)) {
+        if (this.$mask.open) {
+          const destroy = () => {
+            unmount(this.$mask!)
+            this.$mask = null
+          }
+          onceEvent(this.$mask, 'closed', destroy)
+          this.$mask.open = false
+        } else {
+          unmount(this.$mask)
+          this.$mask = null
         }
       }
     }
 
-    if (attrName === 'close-on-click-outside') {
-      if (this.closeOnClickOutside) {
-        this._initClickOutside
-      } else {
-        this._destroyClickOutside()
-      }
-    }
+    this.onConnected(() => {
+      if (this.mask && this.open) _ensureMask()
+    })
 
-    if (attrName === 'close-on-escape') {
-      if (this.closeOnEscape) {
-        this._initKeydown()
-      } else {
-        this._destroyKeydown()
-      }
-    }
+    this.onDisconnected(() => {
+      _destroyMask()
+    })
 
-    if (attrName === 'capturefocus') {
-      if (this.capturefocus) {
-        this._captureFocus()
-      } else {
-        this._stopCaptureFocus()
+    this.onAttributeChangedDeps(['mask', 'open'], () => {
+      if (!this.$mask && this.mask && this.open) {
+        return _ensureMask()
       }
-    }
+      if (this.$mask && !this.mask) {
+        return _destroyMask()
+      }
+      if (this.mask && this.$mask) {
+        this.$mask.open = this.open
+        return
+      }
+    })
   }
 
-  #clearKeydown?: () => void
-  _initKeydown() {
-    if (this.closeOnEscape && !this.#clearKeydown) {
-      this.#clearKeydown = onKey('escape', () => {
-        if (this.open) this.open = false
+  #setupClose() {
+    const update = () => {
+      if (this.closeable && !this.$close) {
+        const $close = document.createElement('button')
+        $close.setAttribute('part', 'close')
+        $close.onclick = () => {
+          this.open = false
+        }
+        // if (this.$lastFocusable) {
+        //   mountBefore($close, this.$lastFocusable)
+        // } else {
+        //   append($close, this.$layout)
+        // }
+        append($close, this.$layout)
+        return
+      }
+
+      if (!this.closeable && this.$close) {
+        unmount(this.$close)
+      }
+    }
+
+    this.onConnected(update)
+    this.onRender(update)
+    this.onAttributeChangedDep('closeable', update)
+  }
+
+  #setupHeader() {
+    const update = () => {
+      if (this.querySelectorHost('[slot="header"]')) {
+        this.$layout.classList.remove('no-header')
+      } else if (this.titleText) {
+        this.$layout.classList.remove('no-header')
+        const $title = this.querySelectorShadow('h1') as HTMLElement
+        $title.innerText = this.titleText
+      } else {
+        this.$layout.classList.add('no-header')
+      }
+    }
+    this.onConnected(() => {
+      this.$headerSlot.addEventListener('slotchange', update)
+    })
+    this.onDisconnected(() => {
+      this.$headerSlot.removeEventListener('slotchange', update)
+    })
+    this.onConnected(update)
+    this.onRender(update)
+    this.onAttributeChangedDep('title-text', update)
+  }
+
+  #setupFooter() {
+    const update = () => {
+      if (this.querySelector('[slot="footer"]')) {
+        this.$layout.classList.remove('no-footer')
+      } else {
+        this.$layout.classList.add('no-footer')
+      }
+    }
+    this.onConnected(update)
+    this.onRender(update)
+    this.onConnected(() => {
+      this.$footerSlot.addEventListener('slotchange', update)
+    })
+    this.onDisconnected(() => {
+      this.$footerSlot.removeEventListener('slotchange', update)
+    })
+  }
+
+  #setupKeymap() {
+    let clear: (() => void) | undefined
+    const _initKeydown = () => {
+      if (this.closeOnPressEscape && !clear) {
+        clear = onKeymap(document, [
+          {
+            key: 'escape',
+            handler: () => {
+              if (this.open) this.open = false
+            },
+          },
+        ])
+      }
+    }
+
+    const _destroyKeydown = () => {
+      if (clear) {
+        clear()
+        clear = undefined
+      }
+    }
+
+    this.onConnected(() => {
+      _initKeydown()
+    })
+
+    this.onDisconnected(() => {
+      _destroyKeydown()
+    })
+
+    this.onAttributeChangedDep('close-on-press-escape', () => {
+      if (this.closeOnPressEscape) {
+        _initKeydown()
+      } else {
+        _destroyKeydown()
+      }
+    })
+  }
+
+  #setupPlacement() {
+    const update = () => {
+      const top = '0'
+      const right = '0'
+      const bottom = '0'
+      const left = '0'
+      switch (this.placement) {
+        case 'right': {
+          setStyles(this, { top, right, bottom, left: 'auto', height: '100vh', width: this.size })
+          break
+        }
+        case 'left': {
+          setStyles(this, { top, right: 'auto', bottom, left, height: '100vh', width: this.size })
+          break
+        }
+        case 'bottom': {
+          setStyles(this, { top: 'auto', right, bottom, left, width: '100vw', height: this.size })
+          break
+        }
+        case 'top': {
+          setStyles(this, { top, right, bottom: 'auto', left, width: '100vw', height: this.size })
+          break
+        }
+      }
+    }
+    this.onRender(update)
+    this.onConnected(update)
+    this.onAttributeChangedDeps(['placement', 'size'], update)
+  }
+
+  #setupClickOutside() {
+    this.onConnected(() => {
+      this.addEventListener('opened', () => {
+        if (this.closeOnClickOutside) this._clickOutside.bind()
       })
-    }
-  }
-
-  _destroyKeydown() {
-    if (this.#clearKeydown) {
-      this.#clearKeydown()
-      this.#clearKeydown = undefined
-    }
-  }
-
-  #clearClickOutside?: () => void
-  _initClickOutside() {
-    if (this.closeOnClickOutside && !this.#clearClickOutside) {
-      this.#clearClickOutside = onClickOutside(this, () => {
-        if (this.open) this.open = false
+      this.addEventListener('closed', () => {
+        this._clickOutside.unbind()
       })
-    }
-  }
+    })
 
-  _destroyClickOutside() {
-    if (this.#clearClickOutside) {
-      this.#clearClickOutside()
-      this.#clearClickOutside = undefined
-    }
-  }
-
-  _ensureMask() {
-    if (!this._ref.$mask) {
-      this._ref.$mask = document.createElement('bl-modal-mask')
-    }
-    this._ref.$mask.open = this.open
-    return this._ref.$mask
-  }
-
-  // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
-  _captureFocus() {
-    const { $layout } = this._ref
-    this._ref.$firstFocusable =
-      $layout.querySelector('#first') || $layout.insertBefore(document.createElement('button'), $layout.firstChild)
-    this._ref.$lastFocusable = $layout.querySelector('#last') || $layout.appendChild(document.createElement('button'))
-    this._ref.$firstFocusable.id = 'first'
-    this._ref.$lastFocusable.id = 'last'
-    this._ref.$firstFocusable.onkeydown = e => {
-      if (e.key === 'Tab' && e.shiftKey) {
-        this._ref.$lastFocusable?.focus?.()
-      }
-    }
-    this._ref.$lastFocusable.onkeydown = e => {
-      if (e.key === 'Tab' && !e.shiftKey) {
-        this._ref.$firstFocusable?.focus?.()
-      }
-    }
-  }
-
-  // 停止强制捕获焦点
-  _stopCaptureFocus() {
-    if (this._ref.$firstFocusable?.parentElement) {
-      this._ref.$layout.removeChild(this._ref.$firstFocusable)
-    }
-    if (this._ref.$lastFocusable?.parentElement) {
-      this._ref.$layout.removeChild(this._ref.$lastFocusable)
-    }
+    this.onAttributeChangedDep('close-on-click-outside', () => {
+      if (this.closeOnClickOutside) this._clickOutside.bind()
+      else this._clickOutside.unbind()
+    })
   }
 }
-
-applyMixins(BlocksDrawer, [WithOpenTransition])

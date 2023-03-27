@@ -1,14 +1,16 @@
-import '../scrollable/index.js'
+import type { BlocksScrollable } from '../scrollable/index.js'
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import '../scrollable/index.js'
 import { attr, attrs } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
-import { scrollTo } from '../../common/scrollTo.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { find, forEach, range } from '../../common/utils.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
-import { template } from './template.js'
+import { scrollTo } from '../../common/scrollTo.js'
 import { style } from './style.js'
-import { BlocksScrollable } from '../scrollable/index.js'
+import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 interface TimeEventMap extends ComponentEventMap {
   change: CustomEvent<{
@@ -22,13 +24,6 @@ const mutableAttrs = ['hour', 'minute', 'second', 'size'] as const
 type MutableAttrs = (typeof mutableAttrs)[number]
 
 export interface BlocksTime extends Component {
-  _ref: {
-    $layout: HTMLElement
-    $hours: BlocksScrollable
-    $minutes: BlocksScrollable
-    $seconds: BlocksScrollable
-  }
-
   addEventListener<K extends keyof TimeEventMap>(
     type: K,
     listener: ComponentEventListener<TimeEventMap[K]>,
@@ -42,6 +37,7 @@ export interface BlocksTime extends Component {
   ): void
 }
 
+// TODO: 滚动时，自动选择
 @defineClass({
   customElement: 'bl-time',
   styles: [style],
@@ -55,6 +51,11 @@ export class BlocksTime extends Component {
 
   @attrs.size accessor size!: EnumAttrs['size']
 
+  @shadowRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('#hours') accessor $hours!: BlocksScrollable
+  @shadowRef('#minutes') accessor $minutes!: BlocksScrollable
+  @shadowRef('#seconds') accessor $seconds!: BlocksScrollable
+
   #scrollFlag?: Promise<void>
   #batchChange?: Promise<void>
 
@@ -64,18 +65,6 @@ export class BlocksTime extends Component {
     const shadowRoot = this.shadowRoot!
 
     shadowRoot.appendChild(template())
-
-    const $layout = shadowRoot.getElementById('layout') as HTMLElement
-    const $hours = shadowRoot.getElementById('hours') as BlocksScrollable
-    const $minutes = shadowRoot.getElementById('minutes') as BlocksScrollable
-    const $seconds = shadowRoot.getElementById('seconds') as BlocksScrollable
-
-    this._ref = {
-      $layout,
-      $hours,
-      $minutes,
-      $seconds,
-    }
 
     const handler = (prop: 'hour' | 'minute' | 'second') => {
       return (e: Event) => {
@@ -95,9 +84,54 @@ export class BlocksTime extends Component {
         }
       }
     }
-    $hours.onclick = handler('hour')
-    $minutes.onclick = handler('minute')
-    $seconds.onclick = handler('second')
+    const hourHandler = handler('hour')
+    const minuteHandler = handler('minute')
+    const secondHandler = handler('second')
+    this.onConnected(() => {
+      this.$hours.onclick = hourHandler
+      this.$minutes.onclick = minuteHandler
+      this.$seconds.onclick = secondHandler
+    })
+    this.onDisconnected(() => {
+      this.$hours.onclick = this.$minutes.onclick = this.$seconds.onclick = null
+    })
+
+    this.onConnected(() => {
+      this.render()
+    })
+
+    this.onAttributeChangedDeps(['hour', 'minute', 'second'], (attrName, oldValue, newValue) => {
+      if (newValue === null) {
+        forEach(this.$layout.querySelectorAll('.active'), active => {
+          active.classList.remove('active')
+        })
+        if (attrName !== 'hour' && this.hour !== null) this.hour = null
+        if (attrName !== 'minute' && this.minute !== null) this.minute = null
+        if (attrName !== 'second' && this.second !== null) this.second = null
+        this.render()
+      } else {
+        const $list = this[`$${attrName as Exclude<MutableAttrs, 'size'>}s`]
+
+        const $old = $list.querySelector('.active')
+        if ($old) {
+          $old.classList.remove('active')
+        }
+
+        const $new = find($list.children, $li => +$li.textContent! === +newValue)
+        if ($new) {
+          $new.classList.add('active')
+        }
+
+        if (attrName !== 'hour' && !this.hour && this.hour !== 0) this.hour = 0
+        if (attrName !== 'minute' && !this.minute && this.minute !== 0) this.minute = 0
+        if (attrName !== 'second' && !this.second && this.second !== 0) this.second = 0
+
+        this.render()
+      }
+
+      this.scrollToActive()
+      this.triggerChange()
+    })
   }
 
   #disabledHour?: (
@@ -169,51 +203,13 @@ export class BlocksTime extends Component {
     this.second = value[2]
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
   override attributeChangedCallback(attrName: MutableAttrs, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
     this.upgradeProperty(['disabledHour', 'disabledMinute', 'disabledSecond'])
-
-    if (['hour', 'minute', 'second'].includes(attrName)) {
-      if (newValue === null) {
-        forEach(this._ref.$layout.querySelectorAll('.active'), active => {
-          active.classList.remove('active')
-        })
-        if (attrName !== 'hour' && this.hour !== null) this.hour = null
-        if (attrName !== 'minute' && this.minute !== null) this.minute = null
-        if (attrName !== 'second' && this.second !== null) this.second = null
-        this.render()
-      } else {
-        const $list = this._ref[`$${attrName as Exclude<MutableAttrs, 'size'>}s`]
-
-        const $old = $list.querySelector('.active')
-        if ($old) {
-          $old.classList.remove('active')
-        }
-
-        const $new = find($list.children, $li => +$li.textContent! === +newValue)
-        if ($new) {
-          $new.classList.add('active')
-        }
-
-        if (attrName !== 'hour' && !this.hour && this.hour !== 0) this.hour = 0
-        if (attrName !== 'minute' && !this.minute && this.minute !== 0) this.minute = 0
-        if (attrName !== 'second' && !this.second && this.second !== 0) this.second = 0
-
-        this.render()
-      }
-
-      this.scrollToActive()
-      this.triggerChange()
-    }
   }
 
   #renderDisabled() {
-    const { $hours, $minutes, $seconds } = this._ref
+    const { $hours, $minutes, $seconds } = this
     const ctx = {
       hour: this.hour,
       minute: this.minute,
@@ -238,7 +234,8 @@ export class BlocksTime extends Component {
   }
 
   override render() {
-    const { $hours, $minutes, $seconds } = this._ref
+    super.render()
+    const { $hours, $minutes, $seconds } = this
     if (!$hours.children.length) {
       range(0, 23).forEach(n => {
         const $item = $hours.appendChild(document.createElement('div'))
@@ -277,7 +274,7 @@ export class BlocksTime extends Component {
   }
 
   _scrollToActive() {
-    const { $layout, $hours, $minutes, $seconds } = this._ref
+    const { $layout, $hours, $minutes, $seconds } = this
     if (this.hour == null && this.minute == null && this.second == null) {
       forEach([$hours, $minutes, $seconds], $panel => {
         scrollTo($panel, 0, { property: 'viewportScrollTop', duration: 0.16 })

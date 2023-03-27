@@ -1,15 +1,16 @@
+import type { BlocksScrollable } from '../scrollable/index.js'
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
 import '../icon/index.js'
 import '../scrollable/index.js'
-import { BlocksScrollable } from '../scrollable/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { find, findLast, forEach } from '../../common/utils.js'
-import { dispatchEvent } from '../../common/event.js'
-import { BinaryIndexedTree } from './BinaryIndexedTree.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
+import { dispatchEvent } from '../../common/event.js'
+import { find, findLast, forEach } from '../../common/utils.js'
 import { contentTemplate, itemTemplate, loadingTemplate } from './template.js'
 import { style } from './style.js'
+import { BinaryIndexedTree } from './BinaryIndexedTree.js'
+import { Component } from '../component/Component.js'
 
 const FORCE_SLICE = true
 
@@ -83,12 +84,10 @@ export class VirtualItem {
 }
 
 export interface BlocksVList extends Component {
-  _ref: {
-    $viewport: BlocksScrollable
-    $listSize: HTMLElement
-    $list: HTMLElement
-    $busy: HTMLElement
-  }
+  $viewport: BlocksScrollable
+  $listSize: HTMLElement
+  $list: HTMLElement
+  $busy: HTMLElement
 
   beforeRender?(): void
   afterRender?(): void
@@ -105,6 +104,7 @@ export interface BlocksVList extends Component {
   itemRender($item: HTMLElement, vitem: any): void
 }
 
+// TODO: 所有 async 方法提供同步版本，以便在小数据量时简化使用
 @defineClass({
   styles: [style],
 })
@@ -117,8 +117,10 @@ export class BlocksVList extends Component {
   accessor direction: DirectionUnion = Direction.Vertical
 
   @attr('int', {
-    defaults(self: BlocksVList) {
-      const size = parseInt(getComputedStyle(self).getPropertyValue('--item-height'), 10)
+    defaults: (self: BlocksVList) => {
+      // list 的 dom 没有挂载之前，
+      // 尽管 shadowRoot 中已经存在 css，但依然无法获取到，因此末尾使用 32 兜底，以免最终渲染为 0 列表不显示
+      const size = parseInt(getComputedStyle(self).getPropertyValue('--item-height'), 10) || 32
       return size
     },
   })
@@ -173,17 +175,25 @@ export class BlocksVList extends Component {
     const $list = shadowRoot.getElementById('list') as HTMLElement
     const $busy = shadowRoot.getElementById('loading') as HTMLElement
 
-    this._ref = {
-      $viewport: $viewport,
-      $listSize: $listSize,
-      $list: $list,
-      $busy: $busy,
-    }
+    this.$viewport = $viewport
+    this.$listSize = $listSize
+    this.$list = $list
+    this.$busy = $busy
 
     // 视图条目对应的条目高度存储
     this.itemHeightStore = new BinaryIndexedTree({
       defaultFrequency: this.defaultItemSize!,
       maxVal: 0,
+    })
+
+    this.onConnected(() => {
+      this.initDomEvent()
+      this.upgradeProperty(['data'])
+    })
+    this.onDisconnected(() => {
+      if (this.clearDomEvents) {
+        this.clearDomEvents()
+      }
     })
   }
 
@@ -194,7 +204,7 @@ export class BlocksVList extends Component {
 
     // 虚拟列表滚动数据渲染
     const onScroll = this._updateSliceRange.bind(this, undefined)
-    this._ref.$viewport.addEventListener('bl:scroll', onScroll)
+    this.$viewport.addEventListener('bl:scroll', onScroll)
 
     // 容器尺寸变化，完全重绘
     const onResize = () => {
@@ -202,11 +212,11 @@ export class BlocksVList extends Component {
       this.redraw()
       this.restoreAnchor()
     }
-    this._ref.$viewport.addEventListener('bl:resize', onResize)
+    this.$viewport.addEventListener('bl:resize', onResize)
 
     this.clearDomEvents = () => {
-      this._ref.$viewport.removeEventListener('bl:scroll', onScroll)
-      this._ref.$viewport.removeEventListener('bl:resize', onResize)
+      this.$viewport.removeEventListener('bl:scroll', onScroll)
+      this.$viewport.removeEventListener('bl:resize', onResize)
       this.clearDomEvents = undefined
     }
   }
@@ -217,16 +227,15 @@ export class BlocksVList extends Component {
 
   set data(value) {
     const data = Array.isArray(value) ? value : []
-    this.#rawData = data
     this.bindData(data)
   }
 
   get viewportWidth() {
-    return this._ref.$viewport.clientWidth
+    return this.$viewport.clientWidth
   }
 
   get viewportHeight() {
-    return this._ref.$viewport.clientHeight
+    return this.$viewport.clientHeight
   }
 
   // 视口主轴方向尺寸
@@ -246,31 +255,14 @@ export class BlocksVList extends Component {
 
   get hasMainScrollbar() {
     return this.direction === Direction.Vertical
-      ? this._ref.$viewport.hasVerticalScrollbar
-      : this._ref.$viewport.hasHorizontalScrollbar
+      ? this.$viewport.hasVerticalScrollbar
+      : this.$viewport.hasHorizontalScrollbar
   }
 
   get hasCrossScrollbar() {
     return this.direction === Direction.Vertical
-      ? this._ref.$viewport.hasHorizontalScrollbar
-      : this._ref.$viewport.hasVerticalScrollbar
-  }
-
-  override connectedCallback() {
-    this.initDomEvent()
-
-    if (!this.isDataBound) {
-      // TODO
-      super.connectedCallback()
-      this.upgradeProperty(['data'])
-    }
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    if (this.clearDomEvents) {
-      this.clearDomEvents()
-    }
+      ? this.$viewport.hasHorizontalScrollbar
+      : this.$viewport.hasVerticalScrollbar
   }
 
   override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
@@ -279,7 +271,7 @@ export class BlocksVList extends Component {
       this.redraw()
     }
     if (attrName === 'shadow') {
-      this._ref.$viewport.shadow = this.shadow
+      this.$viewport.shadow = this.shadow
     }
   }
 
@@ -305,7 +297,8 @@ export class BlocksVList extends Component {
     return !!this.virtualDataMap[virtualKey]
   }
 
-  override render(): void {
+  override render() {
+    super.render()
     if (!this.isDataBound && !this.isDataBinding && this.virtualData!.length) {
       this.generateViewData()
       return
@@ -320,29 +313,29 @@ export class BlocksVList extends Component {
     const renderCount = this.virtualSliceData!.length
 
     if (renderCount === 0) {
-      this._ref.$list.style.transform = ''
-      this._ref.$list.innerHTML = ''
+      this.$list.style.transform = ''
+      this.$list.innerHTML = ''
       return
     }
 
     // 列表中，存在多少个动画元素
-    const transitionItemCount = this._ref.$list.querySelectorAll('.transition').length
+    const transitionItemCount = this.$list.querySelectorAll('.transition').length
 
     if (this.direction === Direction.Horizontal) {
-      this._ref.$list.style.transform = `translateX(${this._itemOffset(this.sliceFrom!)}px)`
+      this.$list.style.transform = `translateX(${this._itemOffset(this.sliceFrom!)}px)`
     } else {
-      this._ref.$list.style.transform = `translateY(${this._itemOffset(this.sliceFrom!)}px)`
+      this.$list.style.transform = `translateY(${this._itemOffset(this.sliceFrom!)}px)`
     }
 
     const sliceItems = this.virtualSliceData
     const getFirst = () =>
       transitionItemCount
-        ? find(this._ref.$list.children, $item => ($item as any).virtualViewIndex != null)
-        : this._ref.$list.firstElementChild
+        ? find(this.$list.children, $item => ($item as any).virtualViewIndex != null)
+        : this.$list.firstElementChild
     const getLast = () =>
       transitionItemCount
-        ? findLast(this._ref.$list.children, $item => ($item as any).virtualViewIndex != null)
-        : this._ref.$list.lastElementChild
+        ? findLast(this.$list.children, $item => ($item as any).virtualViewIndex != null)
+        : this.$list.lastElementChild
 
     // 渲染条目 DOM，针对滚动的场景做优化
     const startKey = sliceItems[0].virtualViewIndex
@@ -354,34 +347,34 @@ export class BlocksVList extends Component {
     if (endKey < endItemKey || (endKey === endItemKey && startKey < startItemKey)) {
       // 结尾对齐
       let $last
-      while (this._ref.$list.children.length && ($last = getLast() as any)?.virtualViewIndex !== endKey) {
-        $last && this.#$pool.push(this._ref.$list.removeChild($last))
+      while (this.$list.children.length && ($last = getLast() as any)?.virtualViewIndex !== endKey) {
+        $last && this.#$pool.push(this.$list.removeChild($last))
       }
 
       // 保证数量一致
-      while (this._ref.$list.children.length > renderCount + transitionItemCount) {
-        this.#$pool.push(this._ref.$list.removeChild(this._ref.$list.firstElementChild as HTMLElement))
+      while (this.$list.children.length > renderCount + transitionItemCount) {
+        this.#$pool.push(this.$list.removeChild(this.$list.firstElementChild as HTMLElement))
       }
-      while (this._ref.$list.children.length < renderCount + transitionItemCount) {
-        this._ref.$list.insertBefore(this.#$pool.pop() ?? itemTemplate(), this._ref.$list.firstElementChild)
+      while (this.$list.children.length < renderCount + transitionItemCount) {
+        this.$list.insertBefore(this.#$pool.pop() ?? itemTemplate(), this.$list.firstElementChild)
       }
     } else {
       // 下滚
       if (startKey > startItemKey || (startKey === startItemKey && endKey > endItemKey)) {
         // 开头对齐
         let $first
-        while (this._ref.$list.children.length && ($first = getFirst() as any)?.virtualViewIndex !== startKey) {
-          $first && this.#$pool.push(this._ref.$list.removeChild($first) as HTMLElement)
+        while (this.$list.children.length && ($first = getFirst() as any)?.virtualViewIndex !== startKey) {
+          $first && this.#$pool.push(this.$list.removeChild($first) as HTMLElement)
         }
       }
 
       // 保证数量一致
-      while (this._ref.$list.children.length > renderCount + transitionItemCount) {
-        this.#$pool.push(this._ref.$list.removeChild(this._ref.$list.lastElementChild as HTMLElement))
+      while (this.$list.children.length > renderCount + transitionItemCount) {
+        this.#$pool.push(this.$list.removeChild(this.$list.lastElementChild as HTMLElement))
       }
 
-      while (this._ref.$list.children.length < renderCount + transitionItemCount) {
-        this._ref.$list.appendChild(this.#$pool.pop() ?? itemTemplate())
+      while (this.$list.children.length < renderCount + transitionItemCount) {
+        this.$list.appendChild(this.#$pool.pop() ?? itemTemplate())
       }
     }
     this.#$pool = []
@@ -389,8 +382,8 @@ export class BlocksVList extends Component {
     // 渲染条目内部内容
     let i = -1
     let j = -1
-    while (++i < this._ref.$list.children.length) {
-      const $item = this._ref.$list.children[i] as ElementWithData
+    while (++i < this.$list.children.length) {
+      const $item = this.$list.children[i] as ElementWithData
       if ($item.classList.contains('transition')) continue
       const vitem = sliceItems[++j]
 
@@ -401,7 +394,7 @@ export class BlocksVList extends Component {
     }
 
     // 过滤出未计算过高度的条目
-    this._updateSizeByItems(this._ref.$list.children as unknown as ElementWithData[])
+    this._updateSizeByItems(this.$list.children as unknown as ElementWithData[])
 
     if (this.afterRender) {
       this.afterRender()
@@ -420,9 +413,10 @@ export class BlocksVList extends Component {
     if (this.isDataBound && data === this.#rawData) {
       return
     }
+    this.#rawData = data
 
     this.isDataBinding = true
-    this._ref.$busy.style.display = ''
+    this.$busy.style.display = ''
     await new Promise(resolve => {
       setTimeout(resolve)
     })
@@ -453,7 +447,7 @@ export class BlocksVList extends Component {
     this.virtualData = virtualData
     this.virtualDataMap = virtualDataMap
 
-    this._ref.$busy.style.display = 'none'
+    this.$busy.style.display = 'none'
     this.isDataBinding = false
     this.isDataBound = true
 
@@ -470,7 +464,7 @@ export class BlocksVList extends Component {
    * 子类根据需要重写该方法
    */
   async virtualMap(data: object[]): Promise<VirtualItem[]> {
-    const chunkSize = 5000
+    const chunkSize = 10000
     const virtualData: VirtualItem[] = []
     const len = data.length
     let index = 0
@@ -591,7 +585,7 @@ export class BlocksVList extends Component {
     $collapse.classList.add('transition')
     const items: ElementWithData[] = []
     let $first: ElementWithData
-    forEach(this._ref.$list.children as any, ($item: ElementWithData) => {
+    forEach(this.$list.children as any, ($item: ElementWithData) => {
       if (keys.includes($item.virtualKey)) {
         if (!$first) $first = $item
         items.push($item)
@@ -601,7 +595,7 @@ export class BlocksVList extends Component {
       (acc, $item) => acc + $item[this.direction === Direction.Horizontal ? 'offsetWidth' : 'offsetHeight'],
       0
     )
-    this._ref.$list.insertBefore($collapse, $first!)
+    this.$list.insertBefore($collapse, $first!)
     items.reverse()
     while (items.length) {
       $collapse.appendChild(items.pop()!)
@@ -610,9 +604,9 @@ export class BlocksVList extends Component {
       $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
       doTransitionLeave($collapse, 'collapse', () => {
         Array.prototype.slice.call($collapse.children).forEach($item => {
-          this._ref.$list.insertBefore($item, $collapse)
+          this.$list.insertBefore($item, $collapse)
         })
-        this._ref.$list.removeChild($collapse)
+        this.$list.removeChild($collapse)
         this.nextTick(() => this.redraw())
       })
     }
@@ -655,7 +649,7 @@ export class BlocksVList extends Component {
 
     const items: ElementWithData[] = []
     let $first: ElementWithData
-    forEach(this._ref.$list.children as unknown as ElementWithData[], $item => {
+    forEach(this.$list.children as unknown as ElementWithData[], $item => {
       if (keys.includes($item.virtualKey)) {
         if (!$first) $first = $item
         items.push($item)
@@ -666,7 +660,7 @@ export class BlocksVList extends Component {
       0
     )
     if ($first!) {
-      this._ref.$list.insertBefore($collapse, $first)
+      this.$list.insertBefore($collapse, $first)
     }
     items.reverse()
     while (items.length) {
@@ -675,7 +669,7 @@ export class BlocksVList extends Component {
     if ($collapse.children.length) {
       $collapse.style[this.direction === Direction.Horizontal ? 'width' : 'height'] = `${size}px`
       doTransitionEnter($collapse, 'collapse', () => {
-        this._ref.$list.removeChild($collapse)
+        this.$list.removeChild($collapse)
         this.redraw()
       })
     }
@@ -738,10 +732,22 @@ export class BlocksVList extends Component {
   // 滚动到锚定位置，仅在高度都已经计算后才生效，否则滚动到目的地，
   // 高度经过计算发生变化的话，无法对准
   scrollToIndex(anchorIndex: number, anchorOffsetRatio = 0) {
-    if (anchorIndex < this.virtualViewData.length) {
+    if (anchorIndex >= 0 && anchorIndex < this.virtualViewData.length) {
       const start = this._itemOffset(anchorIndex)
       const offset = Math.floor(this._itemSize(anchorIndex) * anchorOffsetRatio)
       let scroll = start - offset
+      if (scroll < 0) scroll = 0
+      if (scroll > this.mainSize - this.viewportMainSize) scroll = this.mainSize - this.viewportMainSize
+      this.setScrollMain(scroll)
+    }
+  }
+
+  // 往前滚动到锚定位置（上一项出现在容器末尾）
+  backScrollToIndex(anchorIndex: number, anchorOffsetRatio = 0) {
+    if (anchorIndex >= 0 && anchorIndex < this.virtualViewData.length) {
+      const start = this._itemOffset(anchorIndex) + this._itemSize(anchorIndex) - this.viewportMainSize
+      const offset = Math.floor(this._itemSize(anchorIndex) * anchorOffsetRatio)
+      let scroll = start + offset
       if (scroll < 0) scroll = 0
       if (scroll > this.mainSize - this.viewportMainSize) scroll = this.mainSize - this.viewportMainSize
       this.setScrollMain(scroll)
@@ -759,6 +765,16 @@ export class BlocksVList extends Component {
   }
 
   /**
+   * 往前滚动到指定数据 key 的条目位置
+   */
+  backScrollToKey(key: string, anchorOffsetRatio: number) {
+    const vitem = this.virtualDataMap[key]
+    if (vitem.virtualViewIndex !== -1) {
+      this.backScrollToIndex(vitem.virtualViewIndex, anchorOffsetRatio)
+    }
+  }
+
+  /**
    * 重新滚动到锚点
    */
   restoreAnchor() {
@@ -771,38 +787,36 @@ export class BlocksVList extends Component {
    * 获取 viewport 主轴方向滚过去的距离
    */
   getScrollMain() {
-    return this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop']
+    return this.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop']
   }
 
   /**
    * 获取 viewport 侧轴方向滚过去的距离
    */
   getScrollCross() {
-    return this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft']
+    return this.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft']
   }
 
   /**
    * 设置 viewport 主轴方向滚过去的距离
    */
   setScrollMain(value: number) {
-    this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop'] = value
+    this.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollLeft' : 'viewportScrollTop'] = value
   }
 
   /**
    * 设置 viewport 侧轴方向滚过去的距离
    */
   setScrollCross(value: number) {
-    this._ref.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft'] = value
+    this.$viewport[this.direction === Direction.Horizontal ? 'viewportScrollTop' : 'viewportScrollLeft'] = value
   }
 
   // 更新数据切片范围，可以提供 ture 参数强制重新绘制
   _updateSliceRange(forceUpdate?: boolean) {
     const viewportSize =
-      this.direction === Direction.Horizontal ? this._ref.$viewport.clientWidth : this._ref.$viewport.clientHeight
+      this.direction === Direction.Horizontal ? this.$viewport.clientWidth : this.$viewport.clientHeight
     const viewportStart =
-      this.direction === Direction.Horizontal
-        ? this._ref.$viewport.viewportScrollLeft
-        : this._ref.$viewport.viewportScrollTop
+      this.direction === Direction.Horizontal ? this.$viewport.viewportScrollLeft : this.$viewport.viewportScrollTop
 
     // 计算出准确的切片区间
     const range = this._calcSliceRange(viewportSize, viewportStart)
@@ -1107,7 +1121,7 @@ export class BlocksVList extends Component {
 
   // 通过 key 获取对应的数据 DOM
   getNodeByVirtualKey(virtualKey: string): HTMLElement {
-    return this._ref.$list.querySelector(`[data-virtual-key="${virtualKey}"]`) as HTMLElement
+    return this.$list.querySelector(`[data-virtual-key="${virtualKey}"]`) as HTMLElement
   }
 
   // 将包裹数据列表，转换成原始数据列表
@@ -1126,17 +1140,17 @@ export class BlocksVList extends Component {
     const { itemHeightStore } = this
     if (itemHeightStore) {
       if (this.direction === Direction.Horizontal) {
-        this._ref.$list.style.width = ''
-        this._ref.$list.style.height = this._ref.$listSize.style.height = this.crossSize ? `${this.crossSize}px` : ''
-        this._ref.$listSize.style.width = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
+        this.$list.style.width = ''
+        this.$list.style.height = this.$listSize.style.height = this.crossSize ? `${this.crossSize}px` : ''
+        this.$listSize.style.width = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
       } else {
-        this._ref.$list.style.height = ''
-        this._ref.$list.style.width = this._ref.$listSize.style.width = this.crossSize ? `${this.crossSize}px` : ''
-        this._ref.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
+        this.$list.style.height = ''
+        this.$list.style.width = this.$listSize.style.width = this.crossSize ? `${this.crossSize}px` : ''
+        this.$listSize.style.height = `${itemHeightStore.read(itemHeightStore.maxVal)}px`
       }
     }
-    this._ref.$viewport.toggleViewportClass('main-scrollbar', this.hasMainScrollbar)
-    this._ref.$viewport.toggleViewportClass('cross-scrollbar', this.hasCrossScrollbar)
+    this.$viewport.toggleViewportClass('main-scrollbar', this.hasMainScrollbar)
+    this.$viewport.toggleViewportClass('cross-scrollbar', this.hasCrossScrollbar)
   }
 
   // 重置尺寸的已计算状态，用于已计算出来的值全部失效的情况
@@ -1163,7 +1177,7 @@ export class BlocksVList extends Component {
   // 提前结束动画
   _clearTransition(): Promise<boolean> {
     let flag = false
-    forEach(this._ref.$list.querySelectorAll('.transition'), $transition => {
+    forEach(this.$list.querySelectorAll('.transition'), $transition => {
       flag = true
       $transition.className = 'transition'
     })

@@ -32,14 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { BlocksPopup } from '../popup/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { forEach } from '../../common/utils.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
 import { style } from './style.js';
+import { template } from './template.js';
+import { BlocksPopup } from '../popup/index.js';
+import { Component } from '../component/Component.js';
 export let BlocksTooltip = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-tooltip',
@@ -57,16 +58,20 @@ export let BlocksTooltip = (() => {
     let _closeDelay_initializers = [];
     let _triggerMode_decorators;
     let _triggerMode_initializers = [];
+    let _$slot_decorators;
+    let _$slot_initializers = [];
     var BlocksTooltip = class extends Component {
         static {
             _content_decorators = [attr('string')];
             _openDelay_decorators = [attr('int')];
             _closeDelay_decorators = [attr('int')];
             _triggerMode_decorators = [attr('enum', { enumValues: ['hover', 'click'] })];
+            _$slot_decorators = [shadowRef('#slot')];
             __esDecorate(this, null, _content_decorators, { kind: "accessor", name: "content", static: false, private: false, access: { has: obj => "content" in obj, get: obj => obj.content, set: (obj, value) => { obj.content = value; } } }, _content_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _openDelay_decorators, { kind: "accessor", name: "openDelay", static: false, private: false, access: { has: obj => "openDelay" in obj, get: obj => obj.openDelay, set: (obj, value) => { obj.openDelay = value; } } }, _openDelay_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeDelay_decorators, { kind: "accessor", name: "closeDelay", static: false, private: false, access: { has: obj => "closeDelay" in obj, get: obj => obj.closeDelay, set: (obj, value) => { obj.closeDelay = value; } } }, _closeDelay_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _triggerMode_decorators, { kind: "accessor", name: "triggerMode", static: false, private: false, access: { has: obj => "triggerMode" in obj, get: obj => obj.triggerMode, set: (obj, value) => { obj.triggerMode = value; } } }, _triggerMode_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksTooltip = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -86,58 +91,24 @@ export let BlocksTooltip = (() => {
         #triggerMode_accessor_storage = __runInitializers(this, _triggerMode_initializers, 'hover');
         get triggerMode() { return this.#triggerMode_accessor_storage; }
         set triggerMode(value) { this.#triggerMode_accessor_storage = value; }
-        $slot;
+        #$slot_accessor_storage = __runInitializers(this, _$slot_initializers, void 0);
+        get $slot() { return this.#$slot_accessor_storage; }
+        set $slot(value) { this.#$slot_accessor_storage = value; }
         $popup;
-        _enterTimer;
-        _leaveTimer;
-        _clearClickOutside;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template());
-            this.$slot = shadowRoot.getElementById('slot');
-            this.$popup = document.createElement('bl-popup');
-            this.$popup.anchor = () => this.$slot.assignedElements()?.[0] ?? this;
-            this.$popup.setAttribute('arrow', '');
-            this.$popup.setAttribute('append-to-body', '');
-            this.$popup.setAttribute('origin', 'bottom-center');
-            forEach(this.attributes, attr => {
-                if (BlocksPopup.observedAttributes.includes(attr.name)) {
-                    this.$popup.setAttribute(attr.name, attr.value);
-                }
+            this.#setupPopup();
+            this.#setupShowHide();
+            this.onConnected(() => {
+                document.body.appendChild(this.$popup);
+                this.render();
             });
-            this.addEventListener('click', e => {
-                clearTimeout(this._leaveTimer);
-                this.open = true;
+            this.onDisconnected(() => {
+                document.body.removeChild(this.$popup);
             });
-            const onmouseenter = () => {
-                if (this.triggerMode === 'hover') {
-                    clearTimeout(this._leaveTimer);
-                    clearTimeout(this._enterTimer);
-                    this._enterTimer = setTimeout(() => {
-                        this.open = true;
-                    }, this.openDelay ?? 0);
-                }
-            };
-            const onmouseleave = () => {
-                if (this.triggerMode === 'hover') {
-                    clearTimeout(this._enterTimer);
-                    clearTimeout(this._leaveTimer);
-                    this._leaveTimer = setTimeout(() => {
-                        this.open = false;
-                    }, this.closeDelay ?? 0);
-                }
-            };
-            this.addEventListener('mouseenter', onmouseenter);
-            this.$popup.addEventListener('mouseenter', onmouseenter);
-            this.addEventListener('mouseleave', onmouseleave);
-            this.$popup.addEventListener('mouseleave', onmouseleave);
-            this.$popup.addEventListener('opened', () => {
-                this._initClickOutside();
-            });
-            this.$popup.addEventListener('closed', () => {
-                this._destroyClickOutside();
-            });
+            this.onAttributeChanged(this.render);
         }
         get open() {
             return this.$popup.open;
@@ -146,35 +117,74 @@ export let BlocksTooltip = (() => {
             this.$popup.open = value;
         }
         render() {
+            super.render();
             this.$popup.innerHTML = `<div style="padding:15px;font-size:14px;">${this.content}</div>`;
         }
-        connectedCallback() {
-            super.connectedCallback();
-            document.body.appendChild(this.$popup);
-            this.render();
+        #setupPopup() {
+            this.$popup = document.createElement('bl-popup');
+            this.$popup.anchorElement = () => this.$slot.assignedElements()?.[0] ?? this;
+            this.$popup.setAttribute('arrow', '8');
+            this.$popup.setAttribute('append-to-body', '');
+            this.$popup.setAttribute('origin', 'bottom-center');
+            forEach(this.attributes, attr => {
+                if (BlocksPopup.observedAttributes.includes(attr.name)) {
+                    this.$popup.setAttribute(attr.name, attr.value);
+                }
+            });
+            this.onAttributeChangedDeps(BlocksPopup.observedAttributes, (name, _, val) => {
+                this.$popup.setAttribute(name, val);
+            });
         }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            document.body.removeChild(this.$popup);
-            this._destroyClickOutside();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (BlocksPopup.observedAttributes.includes(attrName)) {
-                this.$popup.setAttribute(attrName, newValue);
-            }
-            this.render();
-        }
-        _initClickOutside() {
-            if (!this._clearClickOutside) {
-                this._clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false));
-            }
-        }
-        _destroyClickOutside() {
-            if (this._clearClickOutside) {
-                this._clearClickOutside();
-                this._clearClickOutside = undefined;
-            }
+        #setupShowHide() {
+            let _enterTimer;
+            let _leaveTimer;
+            let _clearClickOutside;
+            this.addEventListener('click', e => {
+                clearTimeout(_leaveTimer);
+                this.open = true;
+            });
+            const onmouseenter = () => {
+                if (this.triggerMode === 'hover') {
+                    clearTimeout(_leaveTimer);
+                    clearTimeout(_enterTimer);
+                    _enterTimer = setTimeout(() => {
+                        this.open = true;
+                    }, this.openDelay ?? 0);
+                }
+            };
+            const onmouseleave = () => {
+                if (this.triggerMode === 'hover') {
+                    clearTimeout(_enterTimer);
+                    clearTimeout(_leaveTimer);
+                    _leaveTimer = setTimeout(() => {
+                        this.open = false;
+                    }, this.closeDelay ?? 0);
+                }
+            };
+            this.addEventListener('mouseenter', onmouseenter);
+            this.$popup.addEventListener('mouseenter', onmouseenter);
+            this.addEventListener('mouseleave', onmouseleave);
+            this.$popup.addEventListener('mouseleave', onmouseleave);
+            const _initClickOutside = () => {
+                if (!_clearClickOutside) {
+                    _clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false));
+                }
+            };
+            const _destroyClickOutside = () => {
+                if (_clearClickOutside) {
+                    _clearClickOutside();
+                    _clearClickOutside = undefined;
+                }
+            };
+            this.$popup.addEventListener('opened', () => {
+                _initClickOutside();
+            });
+            this.$popup.addEventListener('closed', () => {
+                _destroyClickOutside();
+            });
+            this.onDisconnected(() => {
+                _destroyClickOutside();
+            });
         }
     };
     return BlocksTooltip = _classThis;

@@ -1,4 +1,5 @@
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
+import { Component } from '../component/Component.js';
 declare enum State {
     Init = "Init",
     OperandLeft = "OperandLeft",
@@ -17,17 +18,14 @@ interface CalcEventMap extends ComponentEventMap {
     }>;
 }
 export interface BlocksCalc extends Component {
-    _ref: {
-        $layout: HTMLDivElement;
-        $result: HTMLDivElement;
-        $input: HTMLDivElement;
-    };
     addEventListener<K extends keyof CalcEventMap>(type: K, listener: ComponentEventListener<CalcEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof CalcEventMap>(type: K, listener: ComponentEventListener<CalcEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
 export declare class BlocksCalc extends Component {
-    static get observedAttributes(): string[];
     accessor screen: string;
+    accessor $layout: HTMLDivElement;
+    accessor $result: HTMLDivElement;
+    accessor $input: HTMLDivElement;
     memory: number;
     operand: number | null;
     operator: string | null;
@@ -57,9 +55,6 @@ export declare class BlocksCalc extends Component {
         label: string;
     }[];
     get keymap(): Map<string, string>;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     render(): void;
     onScreenChange(): void;
     onKeyPress(event: KeyboardEvent): void;

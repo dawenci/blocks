@@ -32,12 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { domRef } from '../../decorators/domRef.js';
-import { template } from './row.template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { style } from './row.style.js';
-import { Component } from '../Component.js';
+import { template } from './row.template.js';
+import { Component } from '../component/Component.js';
 export let BlocksRow = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-row',
@@ -66,7 +66,7 @@ export let BlocksRow = (() => {
                     enumValues: ['start', 'end', 'center', 'space-around', 'space-between'],
                     observed: false,
                 })];
-            _$slot_decorators = [domRef('slot')];
+            _$slot_decorators = [shadowRef('slot')];
             __esDecorate(this, null, _gutter_decorators, { kind: "accessor", name: "gutter", static: false, private: false, access: { has: obj => "gutter" in obj, get: obj => obj.gutter, set: (obj, value) => { obj.gutter = value; } } }, _gutter_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _wrap_decorators, { kind: "accessor", name: "wrap", static: false, private: false, access: { has: obj => "wrap" in obj, get: obj => obj.wrap, set: (obj, value) => { obj.wrap = value; } } }, _wrap_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _align_decorators, { kind: "accessor", name: "align", static: false, private: false, access: { has: obj => "align" in obj, get: obj => obj.align, set: (obj, value) => { obj.align = value; } } }, _align_initializers, _instanceExtraInitializers);
@@ -95,36 +95,35 @@ export let BlocksRow = (() => {
             super();
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template());
+            this.#setupGutter();
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this._renderGutter();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'gutter') {
-                this._renderGutter();
-            }
-        }
-        _renderGutter() {
-            const cols = this.$slot.assignedElements();
-            if (this.gutter) {
-                const half = this.gutter / 2;
-                this.style.marginLeft = -half + 'px';
-                this.style.marginRight = -half + 'px';
-                cols.forEach($col => {
-                    $col.style.paddingLeft = half + 'px';
-                    $col.style.paddingRight = half + 'px';
-                });
-            }
-            else {
-                this.style.marginLeft = '';
-                this.style.marginRight = '';
-                cols.forEach($col => {
-                    $col.style.paddingLeft = '';
-                    $col.style.paddingRight = '';
-                });
-            }
+        #setupGutter() {
+            const _renderGutter = () => {
+                const cols = this.$slot.assignedElements();
+                if (this.gutter) {
+                    const half = this.gutter / 2;
+                    this.style.marginLeft = -half + 'px';
+                    this.style.marginRight = -half + 'px';
+                    cols.forEach($col => {
+                        $col.style.paddingLeft = half + 'px';
+                        $col.style.paddingRight = half + 'px';
+                    });
+                }
+                else {
+                    this.style.marginLeft = '';
+                    this.style.marginRight = '';
+                    cols.forEach($col => {
+                        $col.style.paddingLeft = '';
+                        $col.style.paddingRight = '';
+                    });
+                }
+            };
+            this.onConnected(() => {
+                _renderGutter();
+            });
+            this.onAttributeChangedDep('gutter', () => {
+                _renderGutter();
+            });
         }
     };
     return BlocksRow = _classThis;

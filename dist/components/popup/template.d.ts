@@ -1,2 +1,1 @@
-export declare const popupStyleTemplate: () => HTMLStyleElement;
-export declare const popupTemplate: () => DocumentFragment;
+export declare const template: () => HTMLElement;

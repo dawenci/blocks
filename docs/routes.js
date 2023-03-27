@@ -34,8 +34,18 @@ export default [
   },
   {
     category: 'COMPONENTS',
+    title: 'date-range-picker',
+    url: 'pages/date-range-picker.html',
+  },
+  {
+    category: 'COMPONENTS',
     title: 'datetime-picker',
     url: 'pages/datetime-picker.html',
+  },
+  {
+    category: 'COMPONENTS',
+    title: 'datetime-range-picker',
+    url: 'pages/datetime-range-picker.html',
   },
   { category: 'COMPONENTS', title: 'dialog', url: 'pages/dialog.html' },
   { category: 'COMPONENTS', title: 'drawer', url: 'pages/drawer.html' },

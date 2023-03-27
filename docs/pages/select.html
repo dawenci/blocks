@@ -32,9 +32,9 @@
       <h2>默认</h2>
 
       <template data-codesource="html">
-        <bl-select>
+        <bl-select placeholder="请选择">
           <bl-option value="A">选项A</bl-option>
-          <bl-option value="B">选项B</bl-option>
+          <bl-option value="B" selected>选项B</bl-option>
           <bl-option value="C">选项C</bl-option>
           <bl-option value="D">选项D</bl-option>
         </bl-select>
@@ -45,7 +45,7 @@
       <h2>可清除</h2>
 
       <template data-codesource="html">
-        <bl-select clearable>
+        <bl-select clearable placeholder="请选择">
           <bl-option value="A">选项A</bl-option>
           <bl-option value="B">选项B</bl-option>
           <bl-option value="C">选项C</bl-option>
@@ -78,7 +78,6 @@
       <template data-codesource="html">
         <bl-select
           multiple
-          multiple-mode="plain"
           clearable
           tag-clearable>
           <bl-optgroup label="Group A">
@@ -97,7 +96,7 @@
 
         <bl-select
           multiple
-          multiple-mode="tag"
+          max-tag-count="1"
           clearable
           tag-clearable>
           <bl-optgroup label="Group A">
@@ -137,7 +136,7 @@
       <h2>可筛选</h2>
 
       <template data-codesource="html">
-        <bl-select searchable>
+        <bl-select searchable clearable placeholder="请选择">
           <bl-option value="A">选项A</bl-option>
           <bl-option value="B">选项B</bl-option>
           <bl-option value="C">选项C</bl-option>
@@ -148,7 +147,8 @@
           multiple
           multiple-mode="tag"
           clearable
-          searchable>
+          searchable
+          placeholder="请选择">
           <bl-optgroup label="Group A">
             <bl-option value="A">选项A</bl-option>
             <bl-option value="B">选项B</bl-option>

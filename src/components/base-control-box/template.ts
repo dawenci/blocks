@@ -1,6 +1,6 @@
 import { makeTemplate } from '../../common/template.js'
 
-export const layoutTemplate = makeTemplate(/*html*/ `<div id="layout"></div>`)
+export const template = makeTemplate(/*html*/ `<div part="layout" id="layout"></div>`)
 
 export const loadingTemplate = makeTemplate(/*html*/ `<span part="loading" id="loading"></span>`)
 

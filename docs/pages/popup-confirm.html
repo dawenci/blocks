@@ -50,8 +50,8 @@
     <section class="section">
       <h2>按钮事件处理</h2>
 
-      <p>设置 `confirm` 和 `cancel` 为函数，可以处理确定、取消按钮的事件。</p>
-      <p>如果 confirm 函数返回 Promise，则会进入 loading，等待 Promise 结束。</p>
+      <p>设置 `onConfirm` 和 `onCancel` 为函数，可以处理确定、取消按钮的事件。</p>
+      <p>如果 `onConfirm` 函数返回 Promise，则会进入 loading，等待 Promise 结束。</p>
 
       <div class="case">
         <div data-codesource="html">
@@ -68,12 +68,15 @@
         <template data-codesource="script">
           <script>
             const widget = document.getElementById('default')
-            widget.confirm = () => {
-              return new Promise((resolve) => {
-                setTimeout(resolve, 2000)
+            widget.onConfirm = () => {
+              return new Promise(resolve => {
+                setTimeout(resolve, 1000)
               })
             }
-            widget.cancel = () => {
+            widget.onCancel = () => {
+              return new Promise(resolve => {
+                setTimeout(resolve, 1000)
+              })
             }
           </script>
         </template>

@@ -32,11 +32,11 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { template } from './column.template.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { style } from './column.style.js';
-import { Component } from '../Component.js';
+import { template } from './column.template.js';
+import { Component } from '../component/Component.js';
 export let BlocksColumn = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-col',

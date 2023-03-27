@@ -1,16 +1,15 @@
+import type { NullableEnumAttr } from '../../decorators/attr.js'
 import '../loading/index.js'
 import '../icon/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import type { NullableEnumAttr } from '../../decorators/attr.js'
-import { strGetter, strSetter } from '../../common/property.js'
-import { dispatchEvent } from '../../common/event.js'
-import { makeMessages } from '../../i18n/makeMessages.js'
-import { Component } from '../Component.js'
-
 import { contentTemplate, fallbackTemplate, placeholderTemplate } from './template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
+import { makeMessages } from '../../i18n/makeMessages.js'
+import { strGetter, strSetter } from '../../common/property.js'
 import { style } from './style.js'
-import { domRef } from '../../decorators/domRef.js'
+import { Component } from '../component/Component.js'
 
 const getMessage = makeMessages('image', {
   placeholderText: '加载中',
@@ -46,9 +45,9 @@ export class BlocksImage extends Component {
   })
   accessor fit!: NullableEnumAttr<['none', 'fill', 'contain', 'cover', 'scale-down']>
 
-  @domRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('#layout') accessor $layout!: HTMLElement
 
-  @domRef('#img') accessor $img!: HTMLImageElement
+  @shadowRef('#img') accessor $img!: HTMLImageElement
 
   constructor() {
     super()
@@ -56,22 +55,44 @@ export class BlocksImage extends Component {
     this.shadowRoot!.appendChild(contentTemplate())
     this._ref = {} as any
 
-    const { $img } = this
+    this.#setupLoad()
 
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
+  }
+
+  #setupLoad() {
     this._status = 'init'
-    $img.addEventListener('load', () => {
+    const onLoad = () => {
       if (this._status === 'loading') {
         this._status = 'loaded'
         this._renderSuccess()
         dispatchEvent(this, 'loaded')
       }
-    })
-
-    $img.addEventListener('error', () => {
+    }
+    const onError = () => {
       if (this._status === 'loading') {
         this._status = 'error'
         this._renderFail()
         dispatchEvent(this, 'error')
+      }
+    }
+    this.onConnected(() => {
+      this.$img.addEventListener('load', onLoad)
+      this.$img.addEventListener('error', onError)
+      if (!this.manual) {
+        this.load()
+      }
+    })
+    this.onDisconnected(() => {
+      this.$img.removeEventListener('load', onLoad)
+      this.$img.removeEventListener('error', onError)
+    })
+    this.onAttributeChangedDep('src', () => {
+      if (!this.manual) {
+        this.load()
+      } else {
+        this._reset()
       }
     })
   }
@@ -142,10 +163,10 @@ export class BlocksImage extends Component {
   }
 
   override render() {
+    super.render()
     if (this.$img.getAttribute('alt') !== this.alt) {
       strSetter('alt')(this.$img, this.alt)
     }
-
     switch (this._status) {
       case 'loading':
         return this._renderLoading()
@@ -164,26 +185,5 @@ export class BlocksImage extends Component {
     this.$img.src = this.src!
     this._renderLoading()
     dispatchEvent(this, 'loading')
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-    if (!this.manual) {
-      this.load()
-    }
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'src') {
-      if (!this.manual) {
-        this.load()
-      } else {
-        this._reset()
-      }
-    } else {
-      this.render()
-    }
   }
 }

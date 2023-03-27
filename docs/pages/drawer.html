@@ -37,11 +37,9 @@
         <bl-button onclick="document.getElementById('default').open = !document.getElementById('default').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
-          <bl-drawer id="default" name="标题内容">
-            <div style="padding:15px;">
-              这里是抽屉的内容。
-            </div>
-          </bl-drawer>          
+          <bl-drawer id="default">
+            <div>这里是抽屉的内容。</div>
+          </bl-drawer>
         </template>
       </div>
     </section>
@@ -54,8 +52,25 @@
         <bl-button onclick="document.getElementById('mask').open = true">打开</bl-button>
 
         <template data-codesource="html">
-          <bl-drawer id="mask" mask name="遮罩例子">
-            <div style="padding: 15px;">
+          <bl-drawer id="mask" mask closeable title-text="遮罩例子">
+            <div>
+              这里是抽屉的内容。
+            </div>
+          </bl-drawer>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>点击遮罩关闭</h2>
+
+      <div class="case">
+        <bl-button onclick="document.getElementById('mask-close').open = true">打开</bl-button>
+
+        <template data-codesource="html">
+          <bl-drawer id="mask-close" mask closeable close-on-click-mask title-text="点击遮罩关闭">
+            <div>
               这里是抽屉的内容。
             </div>
           </bl-drawer>
@@ -71,8 +86,8 @@
         <bl-button onclick="document.getElementById('clickOutside').open = !document.getElementById('clickOutside').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
-          <bl-drawer id="clickOutside" close-on-click-outside name="点击外部关闭">
-            <div style="padding: 15px;">
+          <bl-drawer id="clickOutside" closeable close-on-click-outside title-text="点击外部关闭">
+            <div>
               这里是抽屉的内容。
             </div>
           </bl-drawer>
@@ -88,37 +103,11 @@
         <bl-button onclick="document.getElementById('escape').open = !document.getElementById('escape').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
-          <bl-drawer id="escape" close-on-escape name="按下 Esc 关闭">
-            <div style="padding: 15px;">
-              这里是抽屉的内容。
-            </div>
+          <bl-drawer id="escape" closeable close-on-press-escape title-text="按下 Esc 关闭">
+            <div>这里是抽屉的内容。</div>
           </bl-drawer>
         </template>
       </div>
-    </section>
-
-
-    <section class="section">
-      <h2>限制焦点</h2>
-
-      <div class="case">
-        <bl-button onclick="document.getElementById('capturefocus').open = !document.getElementById('capturefocus').open">打开 / 关闭</bl-button>
-
-        <template data-codesource="html">
-          <bl-drawer
-            id="capturefocus" capturefocus>
-            <div slot="name"><input type="text" value="name"></div>
-
-            <div style="padding:15px;">
-              <input value="body" />
-            </div>
-
-            <div slot="footer">
-              <input type="text" value="footer">
-            </div>
-          </bl-drawer>
-        </div>
-      </template>
     </section>
 
 
@@ -130,22 +119,16 @@
         <bl-button onclick="document.getElementById('top').open = !document.getElementById('top').open">top</bl-button>
         <bl-button onclick="document.getElementById('bottom').open = !document.getElementById('bottom').open">bottom</bl-button>
         <template data-codesource="html">
-          <bl-drawer id="left" placement="left" name="left" close-on-escape>
-            <div style="padding: 15px;">
-              这里是抽屉的内容。
-            </div>
+          <bl-drawer id="left" placement="left" title-text="left" closeable close-on-press-escape>
+            <div>这里是抽屉的内容。</div>
           </bl-drawer>
 
-          <bl-drawer id="top" placement="top" name="top" close-on-escape>
-            <div style="padding: 15px;">
-              这里是抽屉的内容。
-            </div>
+          <bl-drawer id="top" placement="top" title-text="top" closeable close-on-press-escape>
+            <div>这里是抽屉的内容。</div>
           </bl-drawer>
 
-          <bl-drawer id="bottom" placement="bottom" name="bottom" close-on-escape>
-            <div style="padding: 15px;">
-              这里是抽屉的内容。
-            </div>
+          <bl-drawer id="bottom" placement="bottom" title-text="bottom" closeable close-on-press-escape>
+            <div>这里是抽屉的内容。</div>
           </bl-drawer>
         </template>
       </div>
@@ -153,19 +136,15 @@
     
 
     <section class="section">
-      <h2>name slot</h2>
+      <h2>header slot</h2>
 
       <div class="case">
         <bl-button onclick="document.getElementById('slot-name').open = !document.getElementById('slot-name').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
-          <bl-drawer id="slot-name" closeable name="忽略的name">
-            <span slot="name">
-              <strong>slot</strong>自定义标题
-            </span>
-            <div style="padding:15px;">
-              这里是抽屉的内容。
-            </div>
+          <bl-drawer id="slot-name" closeable title-text="忽略 title text">
+            <h2 slot="header">这里是 header slot 的内容</h2>
+            <div>这里是抽屉的内容。</div>
           </bl-drawer>
         </template>
       </div>
@@ -180,11 +159,9 @@
         
         <template data-codesource="html">
           <bl-drawer id="slot-footer" closeable name="footer slot">
-            <div style="padding:15px;">
-              这里是抽屉的内容。
-            </div>
+            <div>这里是抽屉的内容。</div>
 
-            <div slot="footer" style="padding:5px;border-top:1px solid #e8e8e8;text-align:center;">
+            <div slot="footer" style="width:100%;text-align:center;">
               <bl-button onclick="document.getElementById('slot-footer').open = false">
                 关闭
               </bl-button>
@@ -195,19 +172,27 @@
     </section>
 
     <section class="section">
-      <h2>dark</h2>
+      <h2>限制焦点</h2>
 
       <div class="case">
-        <bl-button onclick="document.getElementById('dark').open = !document.getElementById('dark').open">打开 / 关闭</bl-button>
+        <bl-button onclick="document.getElementById('capturefocus').open = !document.getElementById('capturefocus').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
-          <bl-drawer blocks-theme="dark" id="dark" name="Dark mode">
-            <div style="padding:15px;">
-              这里是抽屉的内容。<br>
+          <bl-drawer id="capturefocus" closeable capturefocus>
+            <div slot="header">
+              <input type="text" value="header" style="width:100%">
+            </div>
+
+            <div>
+              <input value="body" style="width:100%" />
+            </div>
+
+            <div slot="footer">
+              <input type="text" value="footer" style="width:100%">
             </div>
           </bl-drawer>
-        </template>
-      </div>
+        </div>
+      </template>
     </section>
 
     <section class="section">
@@ -240,7 +225,7 @@
             <td></td>
           </tr>
           <tr>
-            <td>close-on-escape</td>
+            <td>close-on-press-escape</td>
             <td>boolean</td>
             <td>false</td>
             <td>是否在按下 Esc 时，自动关闭 Drawer。</td>
@@ -279,13 +264,6 @@
             <td>string</td>
             <td>30%</td>
             <td>Drawer 的尺寸，用作 width/height 的 style 值。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>name</td>
-            <td>string</td>
-            <td></td>
-            <td>抽屉的标题</td>
             <td></td>
           </tr>
         </tbody>

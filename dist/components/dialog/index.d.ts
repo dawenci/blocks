@@ -1,43 +1,33 @@
-import '../button/index.js';
+import type { ComponentEventListener } from '../component/Component.js';
+import type { BlocksModalMask } from '../modal-mask/index.js';
+import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js';
 import '../modal-mask/index.js';
-import { BlocksModalMask } from '../modal-mask/index.js';
-import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js';
-import { Control } from '../base-control/index.js';
-import { ComponentEventListener } from '../Component.js';
+import { BlocksPopup } from '../popup/index.js';
+import { SetupClickOutside } from '../setup-click-outside/index.js';
 type BlocksDialogEventMap = WithOpenTransitionEventMap;
-interface BlocksDialog extends Control, WithOpenTransition {
-    _ref: Control['_ref'] & {
-        $mask: BlocksModalMask;
-        $firstFocusable?: HTMLButtonElement;
-        $lastFocusable?: HTMLButtonElement;
-        $close?: HTMLButtonElement;
-    };
+interface BlocksDialog extends BlocksPopup {
+    $mask: BlocksModalMask | null;
     addEventListener<K extends keyof BlocksDialogEventMap>(type: K, listener: ComponentEventListener<BlocksDialogEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof BlocksDialogEventMap>(type: K, listener: ComponentEventListener<BlocksDialogEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-declare class BlocksDialog extends Control {
+declare class BlocksDialog extends BlocksPopup {
     #private;
-    static get observedAttributes(): string[];
     static get role(): string;
     accessor mask: boolean;
     accessor closeable: boolean;
-    accessor capturefocus: boolean;
-    accessor appendToBody: boolean;
     accessor titleText: string;
-    removeAfterClose: boolean;
+    accessor unmountAfterClose: boolean;
+    accessor closeOnClickMask: boolean;
+    accessor closeOnClickOutside: boolean;
+    accessor closeOnPressEscape: boolean;
+    accessor $close: HTMLButtonElement | null;
+    accessor $header: HTMLElement;
+    accessor $body: HTMLElement;
+    accessor $footer: HTMLElement;
+    accessor $headerSlot: HTMLSlotElement;
+    accessor $footerSlot: HTMLSlotElement;
+    accessor $bodySlot: HTMLSlotElement;
     constructor();
-    render(): void;
-    _captureFocus(): void;
-    _stopCaptureFocus(): void;
-    _updateVisible(): void;
-    _renderClose(): void;
-    _renderHeader(): void;
-    _renderFooter(): void;
-    _focus(): void;
-    _blur(): void;
-    connectedCallback(): void;
-    _initDragEvents(): void;
-    disconnectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
+    _clickOutside: SetupClickOutside<this>;
 }
 export { BlocksDialog };

@@ -1,6 +1,6 @@
 import '../button/index.js';
 import '../progress/index.js';
-import { Component } from '../Component.js';
+import { Component } from '../component/Component.js';
 type Options = {
     includes?: any[];
     file: any;
@@ -22,7 +22,14 @@ export interface BlocksUpload extends Component {
     };
 }
 export declare class BlocksUpload extends Component {
-    static get observedAttributes(): string[];
+    accessor accept: string | null;
+    accessor action: string;
+    accessor autoUpload: boolean;
+    accessor disabled: boolean;
+    accessor dragDrop: boolean;
+    accessor multiple: boolean;
+    accessor withCredentials: boolean;
+    accessor name: string;
     _list: Array<{
         file: File;
         filename: string;
@@ -36,14 +43,6 @@ export declare class BlocksUpload extends Component {
     onAbort?: (error: Error, options: Options) => void;
     onError?: (error: Error, options: Options) => void;
     onSuccess?: (data: any, options: Options) => void;
-    accessor accept: string | null;
-    accessor action: string;
-    accessor autoUpload: boolean;
-    accessor disabled: boolean;
-    accessor dragDrop: boolean;
-    accessor multiple: boolean;
-    accessor withCredentials: boolean;
-    accessor name: string;
     constructor();
     get data(): any;
     set data(value: any);

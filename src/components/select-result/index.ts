@@ -1,8 +1,8 @@
+import type { EnumAttrs } from '../../decorators/attr.js'
+import type { ISelected, ISelectResultComponent, ISelectResultEventMap } from '../../common/connectSelectable.js'
 import '../tag/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js'
 import { attr, attrs } from '../../decorators/attr.js'
-import { EnumAttrs } from '../../decorators/attr.js'
-import { dispatchEvent } from '../../common/event.js'
 import {
   contentTemplate,
   moreTemplate,
@@ -11,25 +11,20 @@ import {
   tagTemplate,
   valueTextTemplate,
 } from './template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { style } from './style.js'
 import { BlocksTag } from '../tag/index.js'
-import { ComponentEventListener } from '../Component.js'
-import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js'
 import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
-import { ISelected, ISelectResultComponent, ISelectResultEventMap } from '../../common/connectSelectable.js'
+import { ComponentEventListener } from '../component/Component.js'
 
 interface BlocksSelectResultEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
   search: CustomEvent<{ value: string }>
+  'select-result:accept': CustomEvent<{ value: ISelected[] }>
 }
 
 export interface BlocksSelectResult extends ClearableControlBox, ISelectResultComponent {
-  _ref: ClearableControlBox['_ref'] & {
-    $content: HTMLElement
-    $search?: HTMLInputElement
-    $plainTextValue?: HTMLElement
-    $placeholder?: HTMLElement
-  }
-
   addEventListener<K extends keyof BlocksSelectResultEventMap>(
     type: K,
     listener: ComponentEventListener<BlocksSelectResultEventMap[K]>,
@@ -47,20 +42,7 @@ export interface BlocksSelectResult extends ClearableControlBox, ISelectResultCo
   customElement: 'bl-select-result',
   styles: [style],
 })
-export class BlocksSelectResult extends ClearableControlBox {
-  static override get observedAttributes() {
-    return super.observedAttributes.concat([
-      'clearable',
-      'max-tag-count',
-      'multiple',
-      'placeholder',
-      'prefix-icon',
-      'searchable',
-      'size',
-      'suffix-icon',
-    ])
-  }
-
+export class BlocksSelectResult extends ClearableControlBox implements ISelectResultComponent {
   @attrs.size accessor size!: EnumAttrs['size']
 
   @attr('boolean') accessor multiple!: boolean
@@ -71,37 +53,67 @@ export class BlocksSelectResult extends ClearableControlBox {
 
   @attr('string') accessor placeholder!: string | null
 
+  @shadowRef('[part="content"]') accessor $content!: HTMLElement
+  @shadowRef('[part="search"]', false) accessor $search!: HTMLInputElement | null
+  @shadowRef('[part="value-text"]', false) accessor $valueText!: HTMLElement | null
+  @shadowRef('[part="placeholder"]', false) accessor $placeholder!: HTMLElement | null
+
   constructor() {
     super()
 
-    this._ref.$content = this._appendContent(contentTemplate())
-
-    // 输入内容，发出搜索事件，方便候选列表过滤
-    this._ref.$layout.oninput = e => {
-      const searchString = (e.target as any).value
-      this.#notifySearch(searchString)
-    }
-
-    // 点击清空按钮，发出清空事件，方便候选列表清理
-    this.addEventListener('click-clear', () => {
-      this.#notifyClear()
+    this.appendContent(contentTemplate())
+    this._tabIndexFeature
+      .withTabIndex(0)
+      // 有搜索时，焦点设置在搜索框，否则设置在 $layout
+      .withTarget(() => (this.searchable ? [this.$search!] : [this.$layout]))
+      .withPostUpdate(() => {
+        if (this.searchable) {
+          if (this.$layout.tabIndex !== -1) {
+            this.$layout.tabIndex = -1
+          }
+        } else {
+          if (this.$search && this.$search.tabIndex !== -1) {
+            this.$search.tabIndex = -1
+          }
+        }
+      })
+    this.onAttributeChangedDep('searchable', () => {
+      this._tabIndexFeature.update()
     })
 
-    // 点击 tag 上的 close 按钮，发出取消选择事件，方便候选列表取消选中状态
-    this._ref.$layout.onclose = e => {
-      const $tag = e.target as BlocksTag
-      const label = $tag.textContent ?? ''
-      const value = $tag.dataset.value
-      this.deselect({ value, label })
-    }
+    this.#setupMultiple()
+    this.#setupEmptyClass()
+    this.#setupPlaceholder()
+    this.#setupData()
+    this.#setupSize()
+    this.#setupSearch()
+    this.#setupDeselect()
+    this.#setupClear()
+
+    this.onConnected(this.render)
+  }
+
+  // 记录 multiple 模式下，tag 对应的 value
+  #tagSelectedMap = new WeakMap<BlocksTag, ISelected>()
+
+  #data: ISelected[] = []
+  get data() {
+    return this.#data
+  }
+
+  set data(selected: ISelected[]) {
+    this.#data = selected
+    this._reanderData()
+  }
+
+  get dataCount() {
+    return this.data.length
   }
 
   #formatter?: (item: ISelected) => string
+  #defaultFormatter: (item: ISelected) => string = (item: ISelected) => item?.label ?? ''
   get formatter() {
-    if (this.#formatter) {
-      return this.#formatter
-    }
-    return (item: ISelected) => item?.label ?? ''
+    return this.#formatter ?? this.#defaultFormatter
   }
 
   set formatter(value) {
@@ -111,18 +123,147 @@ export class BlocksSelectResult extends ClearableControlBox {
     this.render()
   }
 
-  get label() {
-    return this._ref.$content.textContent
+  get label(): string {
+    return this.data[0]?.label ?? ''
+  }
+  get labels(): string[] {
+    return this.data.map(item => item.label)
   }
 
-  _value?: ISelected | ISelected[] | null = null
-  get value() {
-    return this._value
+  get value(): any | null {
+    return this.data[0]?.value ?? null
+  }
+  get values(): any[] {
+    return this.data.map(item => item.value)
   }
 
-  set value(value) {
-    this._value = value
-    this._renderValue()
+  // ISelectResultComponent 接口实现
+  acceptSelected(selected: ISelected[]) {
+    if (this.multiple) {
+      this.data = selected.slice()
+    } else {
+      this.data = selected.slice(0, 1)
+    }
+    dispatchEvent(this, 'select-result:accept', { detail: { value: this.data } })
+  }
+
+  #setupEmptyClass() {
+    this._emptyFeature.withPredicate(() => !this.dataCount)
+    const render = () => this._emptyFeature.update()
+    this.onRender(render)
+    this.onConnected(render)
+    this.onConnected(() => {
+      this.addEventListener('select-result:clear', render)
+      this.addEventListener('select-result:deselect', render)
+      this.addEventListener('select-result:accept', render)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('select-result:clear', render)
+      this.removeEventListener('select-result:deselect', render)
+      this.removeEventListener('select-result:accept', render)
+    })
+  }
+
+  #setupMultiple() {
+    const render = () => {
+      this.$layout.classList.toggle('single', !this.multiple)
+      this.$layout.classList.toggle('multiple', this.multiple)
+    }
+    this.onRender(render)
+    this.onConnected(render)
+    this.onAttributeChangedDep('multiple', render)
+  }
+
+  #setupPlaceholder() {
+    const render = () => {
+      if (this.placeholder) {
+        if (!this.$placeholder) {
+          const $placeholder = placeholderTemplate()
+          mountAfter($placeholder, this.$content)
+        }
+        this.$placeholder!.textContent = this.placeholder
+        this.$placeholder!.style.left = this.$content.offsetLeft + 'px'
+      } else {
+        if (this.$placeholder) {
+          unmount(this.$placeholder)
+        }
+      }
+    }
+    this.onRender(render)
+    this.onConnected(render)
+    this.onAttributeChangedDeps(['placeholder', 'prefix-icon', 'loading'], render)
+  }
+
+  #setupClear() {
+    // SelectResultEventMap 接口实现
+    const notifyClear = () => {
+      if (this.disabled) return
+      dispatchEvent(this, 'select-result:clear')
+    }
+
+    // 点击清空按钮，发出清空事件，方便候选列表清理
+    this.onConnected(() => {
+      this.addEventListener('click-clear', notifyClear)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('click-clear', notifyClear)
+    })
+  }
+
+  #setupDeselect() {
+    // SelectResultEventMap 接口实现
+    const notifyDeselect = <T extends ISelected>(selected: T) => {
+      if (this.disabled) return
+      dispatchEvent(this, 'select-result:deselect', { detail: { value: selected } })
+    }
+    // 点击 tag 上的 close 按钮，发出取消选择事件，方便候选列表取消选中状态
+    const onDeselect = (e: Event) => {
+      const $tag = e.target as BlocksTag
+      notifyDeselect(this.#tagSelectedMap.get($tag)!)
+    }
+    this.onConnected(() => {
+      this.$layout.addEventListener('close', onDeselect)
+    })
+    this.onDisconnected(() => {
+      this.$layout.removeEventListener('close', onDeselect)
+    })
+  }
+
+  #setupSearch() {
+    this.onRender(this._renderSearchable)
+    this.onAttributeChangedDep('searchable', this._renderSearchable)
+    this.addEventListener('select-result:search', e => {
+      this.$layout.classList.toggle('searching', !!e.detail.searchString.length)
+    })
+    // 输入内容，发出搜索事件，方便候选列表过滤
+    this.$layout.oninput = e => {
+      const searchString = (e.target as any).value
+      this.#notifySearch(searchString)
+    }
+  }
+  _renderSearchable() {
+    if (this.searchable) {
+      if (!this.$search) {
+        const $search = searchTemplate()
+        if (this.$valueText) {
+          mountBefore($search, this.$valueText)
+        } else {
+          append($search, this.$content)
+        }
+        this._tabIndexFeature.update()
+      }
+    } else {
+      if (this.$search) {
+        unmount(this.$search)
+      }
+    }
+  }
+
+  clearSearch() {
+    if (this.$search) {
+      this.$search.value = ''
+      this.#notifySearch('')
+    }
   }
 
   // SelectResultEventMap 接口实现
@@ -131,180 +272,50 @@ export class BlocksSelectResult extends ClearableControlBox {
     dispatchEvent(this, 'select-result:search', { detail: { searchString } })
   }
 
-  // SelectResultEventMap 接口实现
-  #notifyClear() {
-    if (this.disabled) return
-    dispatchEvent(this, 'select-result:clear')
+  #setupData() {
+    this.onRender(this._reanderData)
+    this.onAttributeChangedDep('max-tag-count', this._reanderData)
   }
 
-  // SelectResultEventMap 接口实现
-  #notifyDeselect<T extends ISelected>(selected: T) {
-    if (this.disabled) return
-    dispatchEvent(this, 'select-result:deselect', {
-      detail: { value: selected },
-    })
-  }
-
-  // ISelectResultComponent 接口实现
-  acceptSelected(value: ISelected[]) {
-    if (this.multiple) {
-      const currentValues = this.getValues()
-      const isSame =
-        currentValues.length === value.length &&
-        currentValues.every((item, index) => item.value === value[index].value && item.label === value[index].label)
-      if (isSame) {
-        return
-      }
-      this.value = value.slice()
-    } else {
-      if (value.length === 0) {
-        this.value = null
-      } else {
-        this.value = value[0]
-      }
-    }
-  }
-
-  // ISelectResultComponent 接口可选实现
-  select(selected: ISelected) {
-    // 单选模式
-    if (!this.multiple) {
-      this.acceptSelected([selected])
-    }
-    // 多选模式
-    else {
-      const values = this.getValues().filter(item => item.value !== selected.value)
-      values.push(selected)
-      this.acceptSelected(values)
-    }
-  }
-
-  // ISelectResultComponent 接口可选实现
-  deselect(selected: ISelected) {
-    const values = this.getValues()
-    const newValues = values.filter(item => item.value !== selected.value)
-    this.acceptSelected(newValues)
-    this._renderValue()
-    this.#notifyDeselect(selected)
-  }
-
-  getValue(): ISelected | null {
-    if (this.value == null) {
-      return null
-    }
-    if (Array.isArray(this.value)) {
-      return this.value[0] ?? null
-    }
-    return this.value
-  }
-
-  getValues(): ISelected[] {
-    if (this.value == null) {
-      return []
-    }
-    if (Array.isArray(this.value)) {
-      return this.value
-    }
-    return [this.value]
-  }
-
-  clearValue() {
-    this._value = null
-    this._renderValue()
-  }
-
-  override _isEmpty() {
-    return this.multiple ? !this._ref.$content.querySelectorAll('bl-tag').length : !this._ref.$content.textContent
-  }
-
-  clearSearch() {
-    if (this._ref.$search) {
-      this._ref.$search.value = ''
-      this.#notifySearch('')
-    }
-  }
-
-  _renderClass() {
-    this._ref.$layout.classList.toggle('single', !this.multiple)
-    this._ref.$layout.classList.toggle('multiple', this.multiple)
-  }
-
-  _renderPlaceholder() {
-    if (this.placeholder) {
-      if (!this._ref.$placeholder) {
-        this._ref.$placeholder = placeholderTemplate()
-        mountAfter(this._ref.$placeholder, this._ref.$content)
-      }
-      this._ref.$placeholder.textContent = this.placeholder
-      this._ref.$placeholder.style.left = this._ref.$content.offsetLeft + 'px'
-    } else {
-      if (this._ref.$placeholder) {
-        unmount(this._ref.$placeholder)
-        this._ref.$placeholder = undefined
-      }
-    }
-  }
-
-  _renderSearchable() {
-    // 有搜索时，将 layout 的 tab 焦点功能取消，方便聚焦到搜索框，否则启用 layout 的 tab 聚焦
-    this.internalTabIndex = this.searchable ? '-1' : '0'
-
-    if (this.searchable) {
-      if (!this._ref.$search) {
-        const $search = searchTemplate()
-        this._ref.$search = $search
-        if (this._ref.$plainTextValue) {
-          mountBefore($search, this._ref.$plainTextValue)
-        } else {
-          append($search, this._ref.$content)
-        }
-      }
-    } else {
-      if (this._ref.$search) {
-        unmount(this._ref.$search)
-      }
-    }
-  }
-
-  _renderValue() {
-    this._ref.$layout.classList.toggle('empty', !this.getValues().length)
+  _reanderData() {
+    this.$layout.classList.toggle('has-result', !!this.dataCount)
 
     // 准备 DOM
     if (!this.multiple) {
-      if (!this._ref.$plainTextValue) {
-        this._ref.$plainTextValue = valueTextTemplate()
-        append(this._ref.$plainTextValue, this._ref.$content)
+      if (!this.$valueText) {
+        const $valueText = valueTextTemplate()
+        append($valueText, this.$content)
       } else {
-        this._ref.$plainTextValue.textContent = ''
+        this.$valueText.textContent = ''
       }
       // 清空 tag
-      this._ref.$content.querySelectorAll('bl-tag').forEach(unmount)
-    } else if (this._ref.$plainTextValue) {
-      unmount(this._ref.$plainTextValue)
+      this.$content.querySelectorAll('bl-tag').forEach(unmount)
+    } else if (this.$valueText) {
+      unmount(this.$valueText)
     }
 
     // 单个结果模式
     if (!this.multiple) {
-      const value = this.getValue()
-      this._ref.$plainTextValue!.textContent = value ? this.formatter(value) : ''
+      const value = this.data[0]
+      this.$valueText!.textContent = value ? this.formatter(value) : ''
       return
     }
 
     // 多个结果模式
-    const values = this.getValues()
+    const values = this.data
     const tagCount = Math.min(values.length, this.maxTagCount)
     const hiddenCount = values.length - tagCount
     // 准备 tag dom
-    const $tags = this._ref.$content.getElementsByTagName('bl-tag')
+    const $tags = this.$content.getElementsByTagName('bl-tag')
     while ($tags.length > tagCount) {
       unmount($tags[$tags.length - 1])
     }
     while ($tags.length < tagCount) {
       const $tag = tagTemplate()
-      if (this._ref.$search) {
-        mountBefore($tag, this._ref.$search)
+      if (this.$search) {
+        mountBefore($tag, this.$search)
       } else {
-        append($tag, this._ref.$content)
+        append($tag, this.$content)
       }
     }
     // 更新 tag 内容
@@ -312,22 +323,21 @@ export class BlocksSelectResult extends ClearableControlBox {
       const item = values[i]
       const $tag = $tags[i]
       const label = this.formatter(item)
-      const value = item.value
       $tag.size = this.size
       $tag.textContent = label
-      $tag.dataset.value = value
+      this.#tagSelectedMap.set($tag, item)
       $tag.closeable = this.clearable
     }
     // 对于 max-tag-count 限制了数量的，后面展示数字
-    let $more = this._ref.$content.querySelector<HTMLElement>('.more')
+    let $more = this.$content.querySelector<HTMLElement>('.more')
     if (hiddenCount > 0) {
       if (!$more) {
         $more = moreTemplate()
         $more.innerText = `+${hiddenCount}`
-        if (this._ref.$search) {
-          mountBefore($more, this._ref.$search)
+        if (this.$search) {
+          mountBefore($more, this.$search)
         } else {
-          append($more, this._ref.$content)
+          append($more, this.$content)
         }
       } else {
         $more.innerText = `+${hiddenCount}`
@@ -339,48 +349,7 @@ export class BlocksSelectResult extends ClearableControlBox {
     }
   }
 
-  override render() {
-    super.render()
-    this._renderClass()
-    this._renderPlaceholder()
-    this._renderSearchable()
-    this._renderValue()
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-
-    switch (attrName) {
-      case 'max-tag-count': {
-        this._renderValue()
-        break
-      }
-      case 'multiple': {
-        this._renderClass()
-        break
-      }
-      case 'placeholder': {
-        this._renderPlaceholder()
-        break
-      }
-      case 'searchable': {
-        this._renderSearchable()
-        break
-      }
-      case 'prefix-icon':
-      case 'loading': {
-        this._renderPlaceholder()
-        break
-      }
-      case 'size': {
-        this.render()
-        break
-      }
-    }
+  #setupSize() {
+    this.onAttributeChangedDep('size', this.render)
   }
 }

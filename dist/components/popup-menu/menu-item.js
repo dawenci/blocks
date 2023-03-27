@@ -32,15 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import '../../components/popup/index.js';
 import '../../components/icon/index.js';
-import { dispatchEvent } from '../../common/event.js';
-import { Component } from '../Component.js';
-import { contentTemplate, menuTemplate } from './menu-item.template.js';
-import { style } from './menu-item.style.js';
-import { PopupOrigin } from '../../components/popup/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import '../../components/popup/index.js';
 import { attr } from '../../decorators/attr.js';
+import { contentTemplate, menuTemplate } from './menu-item.template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent } from '../../common/event.js';
+import { style } from './menu-item.style.js';
+import { Component } from '../component/Component.js';
+import { PopupOrigin } from '../../components/popup/index.js';
 export let BlocksPopupMenuItem = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup-menu-item',
@@ -91,7 +91,7 @@ export let BlocksPopupMenuItem = (() => {
             this.$label = shadowRoot.getElementById('label');
             this.$icon = shadowRoot.getElementById('icon');
             this.$arrow = shadowRoot.getElementById('arrow');
-            this.addEventListener('click', e => {
+            const onClick = (e) => {
                 if (this.disabled)
                     return;
                 if (this.hasSubmenu) {
@@ -118,8 +118,8 @@ export let BlocksPopupMenuItem = (() => {
                 }
                 ;
                 this.$hostMenu.closeAll();
-            });
-            this.onmouseenter = () => {
+            };
+            const onMouseEnter = () => {
                 if (this.$submenu) {
                     if (!document.body.contains(this.$submenu)) {
                         document.body.appendChild(this.$submenu);
@@ -133,7 +133,7 @@ export let BlocksPopupMenuItem = (() => {
                     clearTimeout(this.$submenu._leaveTimer);
                 }
             };
-            this.onmouseleave = () => {
+            const onMouseLeave = () => {
                 if (this.$submenu) {
                     clearTimeout(this.$submenu._leaveTimer);
                     clearTimeout(this._leaveTimer);
@@ -145,6 +145,22 @@ export let BlocksPopupMenuItem = (() => {
                     clearTimeout(this.$submenu._enterTimer);
                 }
             };
+            this.onConnected(() => {
+                this.addEventListener('click', onClick);
+                this.addEventListener('mouseenter', onMouseEnter);
+                this.addEventListener('mouseleave', onMouseLeave);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('click', onClick);
+                this.removeEventListener('mouseenter', onMouseEnter);
+                this.removeEventListener('mouseleave', onMouseLeave);
+            });
+            this.onConnected(this.render);
+            this.onDisconnected(() => {
+                if (this.$submenu && document.body.contains(this.$submenu)) {
+                    this.$submenu.parentElement.removeChild(this.$submenu);
+                }
+            });
         }
         #submenu;
         get $submenu() {
@@ -181,6 +197,7 @@ export let BlocksPopupMenuItem = (() => {
             this.render();
         }
         render() {
+            super.render();
             const data = this.data;
             this.disabled = !!data.disabled;
             if (data.icon) {
@@ -206,23 +223,13 @@ export let BlocksPopupMenuItem = (() => {
                 this.$submenu.$parentItem = this;
                 this.$submenu.$parentMenu = this.$hostMenu;
                 this.$submenu.level = this.$hostMenu.level + 1;
-                this.$submenu.anchor = () => this;
+                this.$submenu.anchorElement = () => this;
                 this.$submenu.origin = PopupOrigin.LeftStart;
                 this.$submenu.data = data.children;
             }
             else {
                 this.classList.remove('has-submenu');
                 this.$submenu = undefined;
-            }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            if (this.$submenu && document.body.contains(this.$submenu)) {
-                this.$submenu.parentElement.removeChild(this.$submenu);
             }
         }
         clearEnterTimer() {

@@ -1,7 +1,8 @@
-import { BlocksVList, VListEventMap } from '../vlist/index.js';
-import { BlocksTable } from './table.js';
-import { RowColumn } from './RowColumn.js';
-import { ComponentEventListener } from '../Component.js';
+import type { BlocksTable } from './table.js';
+import type { ComponentEventListener } from '../component/Component.js';
+import type { RowColumn } from './RowColumn.js';
+import type { VListEventMap } from '../vlist/index.js';
+import { BlocksVList } from '../vlist/index.js';
 export type CellElement = HTMLElement & {
     column: RowColumn;
     data: any;
@@ -17,10 +18,8 @@ export interface BlocksTableBodyEventMap extends VListEventMap {
     }>;
 }
 export interface BlocksTableBody extends BlocksVList {
-    _ref: BlocksVList['_ref'] & {
-        $host: BlocksTable;
-        $summary?: HTMLElement;
-    };
+    $host: BlocksTable;
+    $summary?: HTMLElement;
     addEventListener<K extends keyof BlocksTableBodyEventMap>(type: K, listener: ComponentEventListener<BlocksTableBodyEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof BlocksTableBodyEventMap>(type: K, listener: ComponentEventListener<BlocksTableBodyEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
@@ -31,12 +30,11 @@ export declare class BlocksTableBody extends BlocksVList {
     flattenColumns: RowColumn[];
     fixedLeftColumns: RowColumn[];
     fixedRightColumns: RowColumn[];
+    accessor border: boolean;
     accessor sortField: string | null;
     accessor sortOrder: string | null;
     accessor summaryHeight: number;
     constructor();
-    get $host(): BlocksTable;
-    set $host(table: BlocksTable);
     get shouldRenderSummary(): boolean;
     sortMethod(data: any[]): Promise<any[]>;
     beforeRender(): void;

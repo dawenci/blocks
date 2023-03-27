@@ -1,9 +1,9 @@
-import { Component } from '../Component.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { domRef } from '../../decorators/domRef.js'
-import { template } from './template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { style } from './style.js'
+import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-badge',
@@ -12,22 +12,17 @@ import { style } from './style.js'
 export class BlocksBadge extends Component {
   @attr('string') accessor value = ''
 
-  @domRef('#badge')
-  accessor $badge: Element | null = null
+  @shadowRef('#badge') accessor $badge: Element | null = null
 
   constructor() {
     super()
+    this.appendShadowChild(template())
 
-    this.shadowRoot!.appendChild(template())
-  }
-
-  override render() {
-    this.$badge!.textContent = this.value
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-
-    this.render()
+    const render = () => {
+      this.$badge!.textContent = this.value
+    }
+    this.onConnected(render)
+    this.onAttributeChangedDep('value', render)
+    this.onRender(render)
   }
 }

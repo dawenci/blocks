@@ -1,12 +1,10 @@
-import { Component } from '../Component.js';
-import { BlocksNavMenuItem } from './menu-item.js';
+import type { BlocksNavMenuItem } from './menu-item.js';
 import type { EnumAttrs } from '../../decorators/attr.js';
+import './menu-group.js';
+import './menu-item.js';
+import { Component } from '../component/Component.js';
 export declare class BlocksNavMenu extends Component {
     static get role(): string;
-    static get observedAttributes(): string[];
-    _data: (MenuItem | MenuGroup)[];
-    $parentMenu?: BlocksNavMenu;
-    $parentItem?: BlocksNavMenuItem;
     accessor enterDelay: number;
     accessor leaveDelay: number;
     accessor size: EnumAttrs['size'];
@@ -16,6 +14,9 @@ export declare class BlocksNavMenu extends Component {
     accessor inline: boolean;
     accessor horizontal: boolean;
     accessor collapse: boolean;
+    _data: (MenuItem | MenuGroup)[];
+    $parentMenu?: BlocksNavMenu;
+    $parentItem?: BlocksNavMenuItem;
     constructor();
     get data(): (MenuItem | MenuGroup)[];
     set data(value: (MenuItem | MenuGroup)[]);
@@ -25,6 +26,4 @@ export declare class BlocksNavMenu extends Component {
     horizontalRender(): void;
     verticalRender(): void;
     render(): void;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
 }

@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { template } from './template.js';
-import { style } from './style.js';
-import { padLeft } from '../../common/utils.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
-import { parseDateFormat } from './parseDateFormat.js';
-import { Component } from '../Component.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { padLeft } from '../../common/utils.js';
+import { style } from './style.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 export let BlocksCountdown = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-countdown',
@@ -53,12 +53,16 @@ export let BlocksCountdown = (() => {
     let _value_initializers = [];
     let _format_decorators;
     let _format_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
     var BlocksCountdown = class extends Component {
         static {
             _value_decorators = [attr('number', { defaults: () => Date.now() })];
             _format_decorators = [attr('string')];
+            _$layout_decorators = [shadowRef('#layout')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _format_decorators, { kind: "accessor", name: "format", static: false, private: false, access: { has: obj => "format" in obj, get: obj => obj.format, set: (obj, value) => { obj.format = value; } } }, _format_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksCountdown = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -69,13 +73,26 @@ export let BlocksCountdown = (() => {
         #format_accessor_storage = __runInitializers(this, _format_initializers, 'H:mm:ss');
         get format() { return this.#format_accessor_storage; }
         set format(value) { this.#format_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
-            this._ref = {
-                $layout: shadowRoot.querySelector('#layout'),
-            };
+            this.appendShadowChild(template());
+            this.onConnected(() => {
+                this.run();
+            });
+            this.onDisconnected(() => {
+                this.stop();
+            });
+            this.onAttributeChanged(name => {
+                if (name === 'value') {
+                    this.run();
+                }
+                else {
+                    this.render();
+                }
+            });
         }
         #getOffsetByFormat() {
             const { format } = this;
@@ -92,6 +109,7 @@ export let BlocksCountdown = (() => {
                                 : 0;
         }
         render() {
+            super.render();
             const { format, value: deadline } = this;
             let day = 0;
             let hour = 0;
@@ -119,7 +137,7 @@ export let BlocksCountdown = (() => {
             else {
                 millisecond = 0;
             }
-            patchDom(this._ref.$layout, parseDateFormat(this.format), {
+            patchDom(this.$layout, tokenize(this.format), {
                 day,
                 hour,
                 minute,
@@ -169,23 +187,6 @@ export let BlocksCountdown = (() => {
                 this.#timerId = undefined;
             }
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this.run();
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            this.stop();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'value') {
-                this.run();
-            }
-            else {
-                this.render();
-            }
-        }
     };
     return BlocksCountdown = _classThis;
 })();
@@ -224,4 +225,49 @@ function patchDom(dom, tokens, vars) {
         el.setAttribute('part', type);
         el.textContent = text;
     });
+}
+function tokenize(str) {
+    const tokens = [];
+    const len = str.length;
+    let pos = 0;
+    let text = '';
+    const pushText = () => {
+        if (text) {
+            tokens.push({ type: 'text', payload: text });
+            text = '';
+        }
+    };
+    function eatVar(type, payload) {
+        pushText();
+        tokens.push({ type, payload });
+        pos += payload.length;
+    }
+    const eatText = () => {
+        text += str[pos];
+        pos += 1;
+    };
+    while (pos < len) {
+        const ch = str[pos];
+        const ch2 = str[pos + 1];
+        if (ch === 'D') {
+            eatVar('day', ch2 === 'D' ? 'DD' : 'D');
+        }
+        else if (ch === 'H') {
+            eatVar('hour', ch2 === 'H' ? 'HH' : 'H');
+        }
+        else if (ch === 'm') {
+            eatVar('minute', ch2 === 'm' ? 'mm' : 'm');
+        }
+        else if (ch === 's') {
+            eatVar('second', ch2 === 's' ? 'ss' : 's');
+        }
+        else if (str.substr(pos, 3) === 'SSS') {
+            eatVar('millisecond', 'SSS');
+        }
+        else {
+            eatText();
+        }
+    }
+    pushText();
+    return tokens;
 }

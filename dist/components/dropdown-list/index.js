@@ -32,19 +32,24 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { connectSelectable } from '../../common/connectSelectable.js';
+import { attr } from '../../decorators/attr.js';
+import { connectSelectable, } from '../../common/connectSelectable.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { listTemplate, popupTemplate, styleTemplate, template } from './template.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
-import { Component } from '../Component.js';
 import { BlocksList } from '../list/index.js';
 import { BlocksPopup, PopupOrigin } from '../popup/index.js';
-import { listTemplate, popupTemplate, styleTemplate } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { Control } from '../base-control/index.js';
 const ATTRS = BlocksPopup.observedAttributes.concat(BlocksList.observedAttributes);
 export let BlocksDropdownList = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-dropdown-list',
+            attachShadow: {
+                mode: 'open',
+                delegatesFocus: true,
+            },
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -66,7 +71,9 @@ export let BlocksDropdownList = (() => {
     let _checkable_initializers = [];
     let _multiple_decorators;
     let _multiple_initializers = [];
-    var BlocksDropdownList = class extends Component {
+    let _$slot_decorators;
+    let _$slot_initializers = [];
+    var BlocksDropdownList = class extends Control {
         static {
             _triggerMode_decorators = [attr('enum', { enumValues: ['hover', 'click'] })];
             _open_decorators = [attr('boolean')];
@@ -76,6 +83,7 @@ export let BlocksDropdownList = (() => {
             _labelField_decorators = [attr('string')];
             _checkable_decorators = [attr('boolean')];
             _multiple_decorators = [attr('boolean')];
+            _$slot_decorators = [shadowRef('slot')];
             __esDecorate(this, null, _triggerMode_decorators, { kind: "accessor", name: "triggerMode", static: false, private: false, access: { has: obj => "triggerMode" in obj, get: obj => obj.triggerMode, set: (obj, value) => { obj.triggerMode = value; } } }, _triggerMode_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _origin_decorators, { kind: "accessor", name: "origin", static: false, private: false, access: { has: obj => "origin" in obj, get: obj => obj.origin, set: (obj, value) => { obj.origin = value; } } }, _origin_initializers, _instanceExtraInitializers);
@@ -84,6 +92,7 @@ export let BlocksDropdownList = (() => {
             __esDecorate(this, null, _labelField_decorators, { kind: "accessor", name: "labelField", static: false, private: false, access: { has: obj => "labelField" in obj, get: obj => obj.labelField, set: (obj, value) => { obj.labelField = value; } } }, _labelField_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _checkable_decorators, { kind: "accessor", name: "checkable", static: false, private: false, access: { has: obj => "checkable" in obj, get: obj => obj.checkable, set: (obj, value) => { obj.checkable = value; } } }, _checkable_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _multiple_decorators, { kind: "accessor", name: "multiple", static: false, private: false, access: { has: obj => "multiple" in obj, get: obj => obj.multiple, set: (obj, value) => { obj.multiple = value; } } }, _multiple_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksDropdownList = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -115,63 +124,38 @@ export let BlocksDropdownList = (() => {
         #multiple_accessor_storage = __runInitializers(this, _multiple_initializers, void 0);
         get multiple() { return this.#multiple_accessor_storage; }
         set multiple(value) { this.#multiple_accessor_storage = value; }
+        #$slot_accessor_storage = __runInitializers(this, _$slot_initializers, void 0);
+        get $slot() { return this.#$slot_accessor_storage; }
+        set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
-            const $slot = this.shadowRoot.appendChild(document.createElement('slot'));
-            const $popup = popupTemplate();
-            const $list = listTemplate();
-            $popup.appendChildren([styleTemplate(), $list]);
-            this._ref = {
-                $slot,
-                $popup,
-                $list,
-            };
-            const defaultAnchorGetter = () => $slot.assignedElements()?.[0] ?? this;
-            this.setAnchorGetter(defaultAnchorGetter);
-            $popup.autoflip = true;
-            $popup.anchor = () => (this.getAnchorGetter() ?? defaultAnchorGetter)();
-            connectSelectable(this, $list);
-            this.addEventListener('focus', () => {
-                this.openPopup();
-            }, true);
-            this.addEventListener('click', () => {
-                this.openPopup();
+            this.appendShadowChild(template());
+            this.$popup = popupTemplate();
+            this.$list = listTemplate();
+            this.$popup.appendChildren([styleTemplate(), this.$list]);
+            connectSelectable(this, this.$list, {
+                afterHandleListChange: () => {
+                    if (!this.multiple) {
+                        this.open = false;
+                    }
+                },
+                afterHandleResultClear: () => {
+                    this.closePopup();
+                    if (document.activeElement) {
+                        ;
+                        document.activeElement.blur();
+                    }
+                },
             });
-            const onEnter = () => {
-                if (this.triggerMode === 'hover') {
-                    this.openPopup();
-                }
-            };
-            const onLeave = () => {
-                if (this.triggerMode === 'hover') {
-                    clearTimeout(this._hideTimer);
-                    this._hideTimer = setTimeout(() => {
-                        this.closePopup();
-                    }, 200);
-                }
-            };
-            this.addEventListener('mouseenter', onEnter);
-            $popup.addEventListener('mouseenter', onEnter);
-            this.addEventListener('mouseleave', onLeave);
-            $popup.addEventListener('mouseleave', onLeave);
-            $popup.addEventListener('opened', () => {
-                this.#initClickOutside();
-                this.redrawList();
-            });
-            $popup.addEventListener('closed', () => {
-                this.#destroyClickOutside();
-            });
-            $list.addEventListener('click-item', (event) => {
-                dispatchEvent(this, 'click-item', { detail: { id: event.detail.id } });
-            });
+            this.#setupPopup();
+            this.#setupList();
+            this.onConnected(this.render);
         }
         _findResultComponent() {
             const canAcceptValue = ($el) => {
-                return (typeof $el.acceptSelected === 'function' ||
-                    (typeof $el.select === 'function' &&
-                        typeof $el.deselect === 'function'));
+                return typeof $el.acceptSelected === 'function';
             };
-            return this._ref.$slot.assignedElements().find(canAcceptValue);
+            return this.$slot.assignedElements().find(canAcceptValue);
         }
         acceptSelected(value) {
             const $result = this._findResultComponent();
@@ -179,35 +163,23 @@ export let BlocksDropdownList = (() => {
                 $result.acceptSelected(value);
             }
         }
-        select(data) {
-            const $result = this._findResultComponent();
-            if ($result && $result.select) {
-                $result.select(data);
-            }
-        }
-        deselect(data) {
-            const $result = this._findResultComponent();
-            if ($result && $result.deselect) {
-                $result.deselect(data);
-            }
-        }
         get data() {
-            return this._ref.$list.data;
+            return this.$list.data;
         }
         set data(value) {
-            this._ref.$list.data = value;
+            this.$list.data = value;
         }
         get checked() {
-            return this._ref.$list.checked;
+            return this.$list.checked;
         }
         set checked(ids) {
-            this._ref.$list.checked = ids;
+            this.$list.checked = ids;
         }
         get checkedData() {
-            return this._ref.$list.checkedData;
+            return this.$list.checkedData;
         }
         set checkedData(value) {
-            this._ref.$list.checkedData = value;
+            this.$list.checkedData = value;
         }
         #anchorGetter;
         getAnchorGetter() {
@@ -217,59 +189,109 @@ export let BlocksDropdownList = (() => {
             this.#anchorGetter = value;
         }
         openPopup() {
-            clearTimeout(this._hideTimer);
             this.open = true;
         }
         closePopup() {
-            clearTimeout(this._hideTimer);
             this.open = false;
+            this.blur();
         }
         redrawList() {
-            this._ref.$list.redraw();
+            this.$list.redraw();
         }
-        connectedCallback() {
-            super.connectedCallback();
-            if (!document.body.contains(this._ref.$popup)) {
-                this._ref.$popup.appendTo(document.body);
-            }
-            if (!this.hasAttribute('origin')) {
-                this.origin = PopupOrigin.TopStart;
-            }
-            this.render();
-        }
-        disconnectedCallback() {
-            document.body.removeChild(this._ref.$popup);
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (BlocksPopup.observedAttributes.includes(attrName)) {
-                if (attrName === 'open') {
-                    this._ref.$popup.open = this.open;
+        #setupPopup() {
+            this.onConnected(() => {
+                if (!this.hasAttribute('origin')) {
+                    this.origin = PopupOrigin.TopStart;
+                }
+                const defaultAnchorGetter = () => this.$slot.assignedElements()?.[0] ?? this;
+                this.setAnchorGetter(defaultAnchorGetter);
+                this.$popup.arrow = 8;
+                this.$popup.autoflip = true;
+                this.$popup.anchorElement = () => (this.getAnchorGetter() ?? defaultAnchorGetter)();
+                this.$popup.style.width = '200px';
+                this.$popup.style.height = '240px';
+            });
+            this.onDisconnected(() => {
+                document.body.removeChild(this.$popup);
+            });
+            this.onAttributeChangedDeps(BlocksPopup.observedAttributes, (name, _, newValue) => {
+                if (name === 'open') {
+                    if (this.open && !document.body.contains(this.$popup)) {
+                        document.body.appendChild(this.$popup);
+                    }
+                    this.$popup.open = this.open;
                 }
                 else {
-                    this._ref.$popup.setAttribute(attrName, newValue);
+                    this.$popup.setAttribute(name, newValue);
                 }
-            }
-            if (BlocksList.observedAttributes.includes(attrName)) {
-                this._ref.$list.setAttribute(attrName, newValue);
-            }
-            if (attrName === 'open' && this.open) {
-                this.redrawList();
-            }
+            });
+            let clear;
+            const initClickOutside = () => {
+                if (!clear) {
+                    clear = onClickOutside([this, this.$popup], () => {
+                        this.open = false;
+                    });
+                }
+            };
+            const destroyClickOutside = () => {
+                if (clear) {
+                    clear();
+                    clear = undefined;
+                }
+            };
+            const onOpened = () => initClickOutside();
+            const onClosed = () => destroyClickOutside();
+            this.onConnected(() => {
+                this.$popup.addEventListener('opened', onOpened);
+                this.$popup.addEventListener('closed', onClosed);
+            });
+            this.onDisconnected(() => {
+                this.$popup.removeEventListener('opened', onOpened);
+                this.$popup.removeEventListener('closed', onClosed);
+            });
+            let isClickClear = false;
+            const onClearStart = () => {
+                isClickClear = true;
+            };
+            const onClearEnd = () => {
+                isClickClear = false;
+            };
+            const onSlotFocus = () => {
+                if (!isClickClear)
+                    this.openPopup();
+                isClickClear = false;
+            };
+            this.onConnected(() => {
+                this.addEventListener('mousedown-clear', onClearStart);
+                this.addEventListener('focus', onSlotFocus, true);
+                this.addEventListener('click', onSlotFocus, true);
+                this.addEventListener('click-clear', onClearEnd);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('mousedown-clear', onClearStart);
+                this.removeEventListener('focus', onSlotFocus, true);
+                this.removeEventListener('click', onSlotFocus, true);
+                this.removeEventListener('click-clear', onClearEnd);
+            });
         }
-        #clearClickOutside;
-        #initClickOutside() {
-            if (!this.#clearClickOutside) {
-                this.#clearClickOutside = onClickOutside([this, this._ref.$popup], () => {
-                    this.open = false;
-                });
-            }
-        }
-        #destroyClickOutside() {
-            if (this.#clearClickOutside) {
-                this.#clearClickOutside();
-                this.#clearClickOutside = undefined;
-            }
+        #setupList() {
+            this.onAttributeChanged((attrName, _, newValue) => {
+                if (BlocksList.observedAttributes.includes(attrName)) {
+                    this.$list.setAttribute(attrName, newValue);
+                }
+            });
+            const onOpened = () => this.redrawList();
+            const onClickItem = (event) => {
+                dispatchEvent(this, 'click-item', { detail: { id: event.detail.id } });
+            };
+            this.onConnected(() => {
+                this.$list.addEventListener('click-item', onClickItem);
+                this.$popup.addEventListener('opened', onOpened);
+            });
+            this.onDisconnected(() => {
+                this.$list.removeEventListener('click-item', onClickItem);
+                this.$popup.removeEventListener('opened', onOpened);
+            });
         }
     };
     return BlocksDropdownList = _classThis;

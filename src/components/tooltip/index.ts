@@ -1,12 +1,13 @@
 import type { EnumAttr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { BlocksPopup } from '../popup/index.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { forEach } from '../../common/utils.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
-import { Component } from '../Component.js'
-import { template } from './template.js'
 import { style } from './style.js'
+import { template } from './template.js'
+import { BlocksPopup } from '../popup/index.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-tooltip',
@@ -26,68 +27,28 @@ export class BlocksTooltip extends Component {
   @attr('enum', { enumValues: ['hover', 'click'] })
   accessor triggerMode: EnumAttr<['hover', 'click']> = 'hover'
 
-  private $slot: HTMLSlotElement
-  private $popup: BlocksPopup
-  private _enterTimer?: number
-  private _leaveTimer?: number
-  private _clearClickOutside?: () => void
+  @shadowRef('#slot') accessor $slot!: HTMLSlotElement
+  $popup!: BlocksPopup
 
   constructor() {
     super()
 
     const shadowRoot = this.shadowRoot!
-
     shadowRoot.appendChild(template())
 
-    this.$slot = shadowRoot.getElementById('slot') as HTMLSlotElement
-    this.$popup = document.createElement('bl-popup')
+    this.#setupPopup()
+    this.#setupShowHide()
 
-    this.$popup.anchor = () => this.$slot.assignedElements()?.[0] ?? this
-    this.$popup.setAttribute('arrow', '')
-    this.$popup.setAttribute('append-to-body', '')
-    this.$popup.setAttribute('origin', 'bottom-center')
-    forEach(this.attributes, attr => {
-      if (BlocksPopup.observedAttributes.includes(attr.name)) {
-        this.$popup.setAttribute(attr.name, attr.value)
-      }
+    this.onConnected(() => {
+      document.body.appendChild(this.$popup)
+      this.render()
     })
 
-    this.addEventListener('click', e => {
-      clearTimeout(this._leaveTimer)
-      this.open = true
+    this.onDisconnected(() => {
+      document.body.removeChild(this.$popup)
     })
 
-    const onmouseenter = () => {
-      if (this.triggerMode === 'hover') {
-        clearTimeout(this._leaveTimer)
-        clearTimeout(this._enterTimer)
-        this._enterTimer = setTimeout(() => {
-          this.open = true
-        }, this.openDelay ?? 0)
-      }
-    }
-
-    const onmouseleave = () => {
-      if (this.triggerMode === 'hover') {
-        clearTimeout(this._enterTimer)
-        clearTimeout(this._leaveTimer)
-        this._leaveTimer = setTimeout(() => {
-          this.open = false
-        }, this.closeDelay ?? 0)
-      }
-    }
-
-    this.addEventListener('mouseenter', onmouseenter)
-    this.$popup.addEventListener('mouseenter', onmouseenter)
-    this.addEventListener('mouseleave', onmouseleave)
-    this.$popup.addEventListener('mouseleave', onmouseleave)
-
-    this.$popup.addEventListener('opened', () => {
-      this._initClickOutside()
-    })
-    this.$popup.addEventListener('closed', () => {
-      this._destroyClickOutside()
-    })
+    this.onAttributeChanged(this.render)
   }
 
   get open() {
@@ -99,39 +60,84 @@ export class BlocksTooltip extends Component {
   }
 
   override render() {
+    super.render()
     this.$popup.innerHTML = `<div style="padding:15px;font-size:14px;">${this.content}</div>`
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    document.body.appendChild(this.$popup)
-    this.render()
+  #setupPopup() {
+    this.$popup = document.createElement('bl-popup')
+
+    this.$popup.anchorElement = () => this.$slot.assignedElements()?.[0] ?? this
+    this.$popup.setAttribute('arrow', '8')
+    this.$popup.setAttribute('append-to-body', '')
+    this.$popup.setAttribute('origin', 'bottom-center')
+    forEach(this.attributes, attr => {
+      if (BlocksPopup.observedAttributes.includes(attr.name)) {
+        this.$popup.setAttribute(attr.name, attr.value)
+      }
+    })
+    this.onAttributeChangedDeps(BlocksPopup.observedAttributes, (name, _, val) => {
+      this.$popup.setAttribute(name, val as string)
+    })
   }
 
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    document.body.removeChild(this.$popup)
-    this._destroyClickOutside()
-  }
+  #setupShowHide() {
+    let _enterTimer: ReturnType<typeof setTimeout>
+    let _leaveTimer: ReturnType<typeof setTimeout>
+    let _clearClickOutside: (() => void) | undefined
 
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (BlocksPopup.observedAttributes.includes(attrName)) {
-      this.$popup.setAttribute(attrName, newValue)
+    this.addEventListener('click', e => {
+      clearTimeout(_leaveTimer)
+      this.open = true
+    })
+
+    const onmouseenter = () => {
+      if (this.triggerMode === 'hover') {
+        clearTimeout(_leaveTimer)
+        clearTimeout(_enterTimer)
+        _enterTimer = setTimeout(() => {
+          this.open = true
+        }, this.openDelay ?? 0)
+      }
     }
-    this.render()
-  }
 
-  _initClickOutside() {
-    if (!this._clearClickOutside) {
-      this._clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false))
+    const onmouseleave = () => {
+      if (this.triggerMode === 'hover') {
+        clearTimeout(_enterTimer)
+        clearTimeout(_leaveTimer)
+        _leaveTimer = setTimeout(() => {
+          this.open = false
+        }, this.closeDelay ?? 0)
+      }
     }
-  }
 
-  _destroyClickOutside() {
-    if (this._clearClickOutside) {
-      this._clearClickOutside()
-      this._clearClickOutside = undefined
+    this.addEventListener('mouseenter', onmouseenter)
+    this.$popup.addEventListener('mouseenter', onmouseenter)
+    this.addEventListener('mouseleave', onmouseleave)
+    this.$popup.addEventListener('mouseleave', onmouseleave)
+
+    const _initClickOutside = () => {
+      if (!_clearClickOutside) {
+        _clearClickOutside = onClickOutside([this, this.$popup], () => (this.open = false))
+      }
     }
+
+    const _destroyClickOutside = () => {
+      if (_clearClickOutside) {
+        _clearClickOutside()
+        _clearClickOutside = undefined
+      }
+    }
+
+    this.$popup.addEventListener('opened', () => {
+      _initClickOutside()
+    })
+    this.$popup.addEventListener('closed', () => {
+      _destroyClickOutside()
+    })
+
+    this.onDisconnected(() => {
+      _destroyClickOutside()
+    })
   }
 }

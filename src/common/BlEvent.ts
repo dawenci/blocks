@@ -1,14 +1,14 @@
+type IdType = `${number}`
 const uniqueId = (function () {
   let id = 0
-  return function uniqueId(prefix: string): string {
-    return (prefix || '') + id++
+  return function uniqueId(): IdType {
+    return `${id++}`
   }
 })()
 
 const isEmpty = (() => {
   const hasOwn = Object.prototype.hasOwnProperty
-  return function isEmpty(obj: any) {
-    if (obj == null) return true
+  return function isEmpty(obj: object) {
     for (const p in obj) {
       if (hasOwn.call(obj, p)) return false
     }
@@ -16,429 +16,427 @@ const isEmpty = (() => {
   }
 })()
 
-function once(func: (...args: any[]) => any): (...args: any[]) => any {
-  let called = false
-  let memo: any
-  return function (...args: any[]) {
-    if (called) return memo
-    called = true
-    return (memo = func(...args))
+const isPlainObject = (() => {
+  const toString = Object.prototype.toString
+  return function (obj: any): boolean {
+    return toString.call(obj) === '[object Object]'
   }
+})()
+
+function isBlEvent(obj: unknown): obj is BlEvent {
+  return typeof (obj as BlEvent)?.on === 'function'
 }
 
 /**
  * 映射 `{ event: callback }` 为 ` { event: onceWrapper } ` 的包裹形式
  * `offer` 用来在 `onceWrapper` 调用后解包
- *
- * @param {*} map
- * @param {*} name
- * @param {*} callback
- * @param {*} offer
- * @returns
  */
-function onceMap(map: Record<string, any>, name: string, callback: any, offer: any) {
-  if (typeof callback !== 'function') return map
-
-  const _once = (map[name] = once(function (this: any) {
-    offer(name, _once)
-    // eslint-disable-next-line prefer-rest-params
-    callback.apply(this, arguments)
-  }))
-  ;(_once as any)._callback = callback
-
-  return map
-}
-
-/**
- * 使用该 events 迭代器简化不同输入形式的事件的绑定、解绑、触发等等功能
- * iteratee api 迭代输入的事件，
- * 事件支持以下输入形式：
- * 1. `event, callback` （标准情况）
- * 2. `event1 event2, callback` （空格分割多个事件名称）
- * 3. `{ event: callback }` （jQuery-style 事件映射）
- *
- * @param {Function} iteratee 事件处理 api，例如 onApi, offApi, triggerApi 等等
- * @param {*} events 事件回调映射对象
- * @param {*} name 事件名称
- * @param {*} callback
- * @param {*} opts
- * @returns
- */
-function iterateEvents(
-  iteratee: (events: any, name: any, callback: any, args: any) => any,
-  events: any,
-  name: any,
-  callback: any,
-  opts: any
+function onceMap(
+  output: Record<string, BlHandler>,
+  type: string,
+  callback: BlHandler,
+  offer: (type: string, cb: BlHandler) => void
 ) {
-  // 使用该正则分离用空格分割的多个事件名称
-  const eventSplitter = /\s+/
+  if (typeof callback !== 'function') return output
 
-  let i = 0
-  let names
+  const _once = (output[type] = function (this: any, ...args: any[]) {
+    offer(type, _once)
+    callback.apply(this, args)
+  })
 
-  // 处理 jQuery 风格 event maps
-  if (name && typeof name === 'object') {
-    if (callback !== void 0 && 'context' in opts && opts.context === void 0) {
-      opts.context = callback
-    }
-    for (names = Object.keys(name ?? {}); i < names.length; i++) {
-      events = iterateEvents(iteratee, events, names[i], name[names[i]], opts)
-    }
-  } else if (name && eventSplitter.test(name)) {
-    // 处理使用空格分割的事件
-    for (names = name.split(eventSplitter); i < names.length; i++) {
-      events = iteratee(events, names[i], callback, opts)
-    }
-  } else {
-    // 处理简单的标准事件绑定方式
-    events = iteratee(events, name, callback, opts)
-  }
+  ;(_once as BlHandler)._callback = callback
 
-  return events
+  return output
 }
 
-// iterateEvents 的迭代函数
+function makeOnceWrapper(
+  typeOrMap: string | string[] | Record<string, BlHandler>,
+  callback: any,
+  offer: any
+): Record<string, BlHandler> {
+  const output = Object.create(null)
+  if (typeof typeOrMap === 'string') {
+    onceMap(output, typeOrMap, callback, offer)
+  } else if (Array.isArray(typeOrMap)) {
+    typeOrMap.forEach(name => onceMap(output, name, callback, offer))
+  } else if (isPlainObject(typeOrMap)) {
+    const obj = typeOrMap
+    Object.keys(obj).forEach(name => onceMap(output, name, obj[name], offer))
+  }
+  return output
+}
+
 // 向 `events` 对象添加事件回调
-function onIteratee(events: any, name: any, callback: any, options: any) {
-  if (callback) {
-    const handlers = events[name] || (events[name] = [])
-    const context = options.context
-    const ctx = context || options.ctx
+function addBinding(events: BlBindingsMap, type: string, callback: BlHandler): void {
+  const handlers = events[type] ?? (events[type] = [])
 
-    // 监听计数，用以判断是否清理内存
-    const listening = options.listening
-    if (listening) listening.count += 1
+  // 如果当前是 listenTo，listening 对象的引用计数自增
+  _currentListening?.refInc()
 
-    handlers.push({ callback, context, ctx, listening })
-  }
-  return events
+  handlers.push({ callback, listening: _currentListening })
 }
 
-// iterateEvents 的迭代函数
-// 从 `events` 对象中移除事件回调
-function offIteratee(events: any, name: any, callback: any, options: any) {
-  if (!events) return
-
-  const context = options.context
-  const listeners = options.listeners
-  let i = 0
-  let names
-
-  // Delete all event listeners and "drop" events.
-  if (!name && !context && !callback) {
-    for (names = Object.keys(listeners ?? {}); i < names.length; i++) {
-      listeners[names[i]]._cleanup()
-    }
-    return
+function normalizeAndAddEvent(
+  events: BlBindingsMap,
+  typeOrKv: string | string[] | Record<string, BlHandler>,
+  callback?: any
+): void {
+  if (typeof typeOrKv === 'string') {
+    if (!callback) return
+    addBinding(events, typeOrKv, callback)
+  } else if (Array.isArray(typeOrKv)) {
+    if (!callback) return
+    typeOrKv.forEach(name => addBinding(events, name, callback))
+  } else if (isPlainObject(typeOrKv)) {
+    const obj = typeOrKv
+    Object.keys(obj).forEach(name => {
+      const callback = obj[name] as BlHandler
+      if (!callback) return
+      addBinding(events, name, callback)
+    })
   }
+}
 
-  names = name ? [name] : Object.keys(events)
-  for (; i < names.length; i++) {
-    name = names[i]
-    const handlers = events[name]
+// 从 `events` 对象中移除事件回调
+function removeBinding(events: BlBindingsMap, type?: string | undefined, callback?: BlHandler): void {
+  // 如果没有指定 type（undefined、null），则移除的过滤范围为所有事件 type
+  const names: string[] = typeof type === 'string' ? [type] : Object.keys(events)
+  for (let i = 0; i < names.length; i++) {
+    type = names[i]
+    const handlers = events[type]
+    if (!handlers) return
 
-    // Bail out if there are no events stored.
-    if (!handlers) break
-
-    // 查找是否还有剩余的事件
     const remaining = []
     for (let j = 0; j < handlers.length; j++) {
       const handler = handlers[j]
-      if (
-        (callback && callback !== handler.callback && callback !== handler.callback._callback) ||
-        (context && context !== handler.context)
-      ) {
+      // 指定了 callback 时，只能解绑 callback 也匹配的条目
+      if (callback && callback !== handler.callback && callback !== handler.callback._callback) {
         remaining.push(handler)
-      } else {
-        const listening = handler.listening
-        if (listening) listening.off(name, callback)
+      }
+
+      // 否则同名的全部解绑
+      else {
+        handler.listening?.refDec()
       }
     }
 
     // 如果还有事件，则替换
     if (remaining.length) {
-      events[name] = remaining
-    } else {
-      // 否则做清理
-      delete events[name]
+      events[type] = remaining
+    }
+    // 否则做清理
+    else {
+      delete events[type]
     }
   }
-
-  return events
 }
 
-// iterateEvents 的迭代函数
-// 触发符合要求的事件回调
-function triggerIteratee(objEvents: any, name: any, callback: any, args: any) {
-  if (objEvents) {
-    const events = objEvents[name]
-    let allEvents = objEvents.all
-    if (events && allEvents) allEvents = allEvents.slice()
-    if (events) trigger(events, args)
-    if (allEvents) trigger(allEvents, [name].concat(args))
+function normalizeAndRemoveEvent(events: BlBindingsMap, typeOrMapOrCb?: any, callback?: BlHandler): void {
+  if (typeOrMapOrCb == null || typeof typeOrMapOrCb === 'string') {
+    removeBinding(events, typeOrMapOrCb, callback)
   }
-  return objEvents
+
+  if (typeof typeOrMapOrCb === 'function') {
+    removeBinding(events, void 0, typeOrMapOrCb)
+  } else if (Array.isArray(typeOrMapOrCb)) {
+    typeOrMapOrCb.forEach(name => {
+      if (name) {
+        removeBinding(events, name, callback)
+      }
+    })
+  } else if (isPlainObject(typeOrMapOrCb)) {
+    const obj = typeOrMapOrCb
+    Object.keys(obj).forEach(name => {
+      const callback = obj[name] as BlHandler
+      removeBinding(events, name, callback)
+    })
+  }
+}
+
+// 触发符合要求的事件回调
+// !注意，当 trigger 的 type 为 'all'，并且确实有监听 'all' 事件，
+// !则会触发 2 次，第一次 type 恰好等于 'all' 触发的，另一次是所有事件 type 触发时，联动触发的 'all'
+function triggerEvents(events: BlBindingsMap, type: string | string[], args: any) {
+  const types = Array.isArray(type) ? type : [type]
+  types.forEach(type => {
+    const handlers = events[type]
+
+    let allEvents = events.all
+
+    if (handlers && allEvents) {
+      allEvents = allEvents.slice()
+    }
+
+    if (handlers) {
+      trigger(handlers, args)
+    }
+
+    if (allEvents) {
+      trigger(allEvents, [type].concat(args))
+    }
+  })
 }
 
 // 针对 3 个以内的参数进行优化
-function trigger(events: any[], args: any[]) {
-  const count = events.length
+function trigger(handlerRecords: any[], args: any[]) {
+  const count = handlerRecords.length
   const arg1 = args[0]
   const arg2 = args[1]
   const arg3 = args[2]
-
-  let event
   let i = -1
   switch (args.length) {
     case 0:
-      while (++i < count) (event = events[i]).callback.call(event.ctx)
+      while (++i < count) handlerRecords[i].callback()
       return
     case 1:
-      while (++i < count) (event = events[i]).callback.call(event.ctx, arg1)
+      while (++i < count) handlerRecords[i].callback(arg1)
       return
     case 2:
-      while (++i < count) (event = events[i]).callback.call(event.ctx, arg1, arg2)
+      while (++i < count) handlerRecords[i].callback(arg1, arg2)
       return
     case 3:
-      while (++i < count) (event = events[i]).callback.call(event.ctx, arg1, arg2, arg3)
+      while (++i < count) handlerRecords[i].callback(arg1, arg2, arg3)
       return
     default:
-      while (++i < count) (event = events[i]).callback.apply(event.ctx, args)
+      while (++i < count) handlerRecords[i].callback(...args)
       return
   }
 }
 
-// 私有全局变量，用来给 listeners 和 listenees 共享使用.
-let _listening: any
+const EVENTS_FIELD = '_bl_events_'
+const ID_FIELD = '_bl_event_id_'
+const LISTENER_FIELD = '_bl_listeners_'
+const LISTENING_FIELD = '_bl_listening_'
+// const EVENTS_FIELD = Symbol('_bl_events_')
+// const ID_FIELD = Symbol('_bl_event_id_')
+// const LISTENER_FIELD = Symbol('_bl_listeners_')
+// const LISTENING_FIELD = Symbol('_bl_listening_')
+
+// 私有全局变量
+// 调用 .listenTo 的时候，此处临时引用对应的 Listening 对象，
+// 方便 listenTo 内部调用对方 .on 方法的时候，可以读取到上下文
+let _currentListening: any
+
+export type BlBindingsMap = Record<string, Array<{ callback: BlHandler; listening: Listening }>>
+export type ListenerMap = Record<IdType, Listening>
+export type BlHandler = {
+  (...args: any[]): any
+  _callback?: BlHandler
+}
+
+/**
+ * Listening 类，用来维护两个 BlEvent 对象的监听（listenTo）关系，
+ * 使用引用计数，每次 listenTo +1，每次 off -1，引用计数为 0 时销毁。
+ */
+export class Listening {
+  refCount = 0
+  listenerId: IdType
+  listenToId: IdType
+
+  constructor(public listener: BlEvent, public target: BlEvent) {
+    this.listener = listener
+    this.target = target
+    this.listenerId = listener[ID_FIELD]!
+    this.listenToId = target[ID_FIELD]!
+  }
+
+  refInc() {
+    ++this.refCount
+  }
+
+  refDec() {
+    if (--this.refCount === 0) this.cleanup()
+  }
+
+  cleanup() {
+    delete this.listener[LISTENING_FIELD]![this.listenToId]
+    delete this.target[LISTENER_FIELD]![this.listenerId]
+  }
+}
 
 export class BlEvent {
   // 记录实践绑定
   // 只有需要的时候才生成
-  __events__?: any
+  [EVENTS_FIELD]?: BlBindingsMap;
 
   // id，监听时，用来辨识对象，
   // 只有需要的时候才生成
-  __listenId__?: string
+  [ID_FIELD]?: IdType;
 
   // 记录监听本事件对象的其他对象
   // 只有需要的时候才生成
-  __listeners__?: any
+  [LISTENER_FIELD]?: ListenerMap;
 
   // 记录监听中的其他事件对象的引用
   // 只有需要的时候才生成
-  __listeningTo__?: any
+  [LISTENING_FIELD]?: ListenerMap
 
-  /**
-   * 绑定事件
-   *
-   * @param {string} name 事件名称，传入 `'all'` 关键字会绑定所有触发
-   * @param {Function} callback
-   * @param {any} context
-   */
-  on(name: string, callback?: any, context?: any): this
-  on(name: Record<string, any>, context?: any): this
-  on(name: string | Record<string, any>, callback?: any, context?: any): this {
-    // 使用 onIteratee 统一化绑定事件
-    this.__events__ = iterateEvents(onIteratee, this.__events__ || {}, name, callback, {
-      context,
-      ctx: this,
-      listening: _listening,
-    })
+  /** 监听事件（绑定单个 type 到 callback） */
+  on(type: string, callback: BlHandler): this
+  /** 监听事件（绑定一组 type 到同一个 callback） */
+  on(types: string[], callback: BlHandler): this
+  /** 监听事件（以对象 key 为 type，value 为 callback，绑定 type 到 callback） */
+  on(keyValue: Record<string, BlHandler>): this
+  // 实现
+  on(typeOrKv: string | string[] | Record<string, BlHandler>, callback?: any): this {
+    const events = (this[EVENTS_FIELD] = this[EVENTS_FIELD] ?? Object.create(null))
 
-    if (_listening) {
-      const listeners = this.__listeners__ || (this.__listeners__ = {})
-      listeners[_listening.id] = _listening
-      // Allow the listening to use a counter,
-      // instead of tracking callbacks for library interop
-      _listening.interop = false
+    normalizeAndAddEvent(events, typeOrKv, callback)
+
+    // 当前是另外一个 BlEvent(即 listener) 正在 listenTo this
+    // 将该 listener 添加到订阅者列表中
+    if (_currentListening) {
+      const listeners = this[LISTENER_FIELD] || (this[LISTENER_FIELD] = Object.create(null))
+      listeners[_currentListening.id] = _currentListening
     }
 
     return this
   }
 
-  /**
-   * 移除一个或者多个事件处理器，参数越齐全，移除的范围越精准（小）
-   * 1. 三个参数，移除 context 上的指定 name 的 callback 对应的事件
-   * 2. 两个参数，如果 context 为 null，移除所有 callback 函数对应的事件
-   * 3. 没有参数，如果 name 为 null，移除所有绑定的事件
-   *
-   * @param {string} name
-   * @param {Function} callback
-   * @param {any} context
-   * @returns
-   * @memberof Event
-   */
-  off(name?: any, callback?: any, context?: any) {
-    if (!this.__events__) return this
+  /** 监听一次事件（绑定单个 type 到 callback） */
+  once(type: string, callback: BlHandler): this
+  /** 监听一次事件（绑定一组 type 到同一个 callback） */
+  once(types: string[], callback: BlHandler): this
+  /** 监听一次事件（以对象 key 为 type，value 为 callback，绑定 type 到 callback） */
+  once(keyValue: Record<string, BlHandler>): this
+  // 实现
+  once(typeOrKv: string | string[] | Record<string, BlHandler>, callback?: any): this {
+    return this.on(makeOnceWrapper(typeOrKv, callback, this.off.bind(this)))
+  }
 
-    // 使用 offIteratee 统一、批量解除事件绑定
-    this.__events__ = iterateEvents(offIteratee, this.__events__, name, callback, {
-      context: context,
-      listeners: this.__listeners__,
-    })
-
+  /** 移除所有事件绑定 */
+  off(): this
+  /** 移除指定 callback 的所有事件绑定 */
+  off(callback: BlHandler): this
+  /** 移除指定 type 的所有事件绑定 */
+  off(type: string): this
+  /** 移除指定 type、callback 的事件绑定 */
+  off(type: string, callback: BlHandler): this
+  /** 移除指定的一组 type 的所有事件绑定 */
+  off(types: string[]): this
+  /** 移除指定的一组 type 的，并且指定 callback 的所有事件绑定 */
+  off(types: string[], callback: BlHandler): this
+  /** 移除事件（以对象 key 为 type，value 为 callback，移除对应 type、callback 的所有事件） */
+  off(keyValue: Record<string, BlHandler>): this
+  // 实现
+  off(typeOrKvOrCb?: any, callback?: BlHandler) {
+    const events = this[EVENTS_FIELD]
+    if (!events) return this
+    normalizeAndRemoveEvent(events, typeOrKvOrCb, callback)
     return this
   }
 
   // 激发事件
-  trigger(name: any, ...rest: any[]) {
-    if (!this.__events__) return this
-    iterateEvents(triggerIteratee, this.__events__, name, void 0, rest)
+  trigger(type: string | string[], ...payloads: any[]) {
+    const events = this[EVENTS_FIELD]
+    if (!events) return this
+    triggerEvents(events, type, payloads)
     return this
   }
 
-  /**
-   * `on` 的 IOC 版本，便于后续解绑
-   *
-   * @param {*} target 目标事件对象
-   * @param {*} name 事件名称
-   * @param {*} [callback] 事件处理器
-   */
-  listenTo(target: any, name: any, callback?: any) {
-    if (!target) return this
+  /** 监听事件（绑定单个 type 到 callback），`on` 的 IOC 版本，便于后续解绑 */
+  listenTo(other: BlEvent, type: string, callback: BlHandler): this
+  /** 监听事件（绑定一组 type 到同一个 callback），`on` 的 IOC 版本，便于后续解绑 */
+  listenTo(other: BlEvent, types: string[], callback: BlHandler): this
+  /** 监听事件（以对象 key 为 type，value 为 callback，绑定 type 到 callback），`on` 的 IOC 版本，便于后续解绑 */
+  listenTo(other: BlEvent, keyValue: Record<string, BlHandler>): this
+  // 实现
+  listenTo(other: BlEvent, typeOrKv: string | string[] | Record<string, BlHandler>, callback?: BlHandler): this {
+    if (!isBlEvent(other)) return this
 
     // 监听的目标的 ID
-    const id = target.__listenId__ || (target.__listenId__ = uniqueId('l'))
+    const id = other[ID_FIELD] || (other[ID_FIELD] = uniqueId())
 
     // 保存监听信息的对象，如果还不存在，则创建
-    const listeningTo = this.__listeningTo__ || (this.__listeningTo__ = {})
+    const listeningMap = this[LISTENING_FIELD] || (this[LISTENING_FIELD] = Object.create(null))
 
-    // 从记录对象里面查找是否对该目标对象有过监听
-    // 若当前对象还未监听 `target` 上的其他事件，
-    // 需要先设置引用追踪 listening callbacks
-    let listening = (_listening = listeningTo[id])
-    if (!listening) {
-      // 有可能从未监听过任何其他对象的事件，初始化自己的 ID
-      if (!this.__listenId__) {
-        this.__listenId__ = uniqueId('l')
-      }
-
-      // 初始化一个 Listening 对象，
-      // 用来管理本对象对 target 对象的所有监听
-      // 同时更新全局变量 `_listening`，后续尝试 `target.on` 时会用到
-      listening = _listening = listeningTo[id] = new Listening(this, target)
+    // 之前已经监听过 other，则取出 Listening 对象使用，否则就是首次监听，需要做一些初始化
+    _currentListening = listeningMap[id]
+    if (!_currentListening) {
+      // 未监听过任何其他对象的话，初始化自己的 ID
+      if (!this[ID_FIELD]) this[ID_FIELD] = uniqueId()
+      _currentListening = listeningMap[id] = new Listening(this, other)
     }
 
-    // 尝试在 `target` 上绑定 callbacks
-    // 使用 try-catch 避免污染全局共享用的 `_listening` 变量
-    let error
-    try {
-      // this 指向本对象
-      target.on(name, callback, this)
-    } catch (e) {
-      error = e
-    }
-    // 清理共享变量
-    _listening = void 0
-
-    if (error) throw error
-
-    // 如果目标 `target` 不是 Events 的实例，
-    // 使用 listening 手动追踪其 events
-    if (listening.interop) {
-      listening.on(name, callback)
-    }
-    return this
-  }
-
-  // 停止监听指定事件或者所有监听的对象
-  stopListening(obj?: any, name?: any, callback?: any) {
-    const listeningTo = this.__listeningTo__
-    if (!listeningTo) return this
-
-    const ids = obj ? [obj.__listenId__] : Object.keys(listeningTo)
-    for (let i = 0; i < ids.length; i++) {
-      const listening = listeningTo[ids[i]]
-
-      // 如果 listening 不存在，说明当前对象
-      // 没有监听 `obj`，无需处理提前退出
-      if (!listening) break
-
-      listening.target.off(name, callback, this)
-
-      if (listening.interop) {
-        listening.off(name, callback)
-      }
-    }
-    if (isEmpty(listeningTo)) this.__listeningTo__ = void 0
+    other.on(typeOrKv as any, callback as any)
+    _currentListening = void 0
 
     return this
   }
 
-  // 绑定一次性事件
-  once(name: any, callback: any, context?: any) {
-    // Map the event into a `{event: once}` object.
-    const events = iterateEvents(onceMap, {}, name, callback, this.off.bind(this))
-    if (typeof name === 'string' && (context === undefined || context === null)) {
-      callback = void 0
-    }
-    return this.on(events, callback, context)
+  /** 监一次听事件（绑定单个 type 到 callback），`once` 的 IOC 版本，便于后续解绑 */
+  listenToOnce(other: BlEvent, type: string, callback: BlHandler): this
+  /** 监听一次事件（绑定一组 type 到同一个 callback），`once` 的 IOC 版本，便于后续解绑 */
+  listenToOnce(other: BlEvent, types: string[], callback: BlHandler): this
+  /** 监听一次事件（以对象 key 为 type，value 为 callback，绑定 type 到 callback），`once` 的 IOC 版本，便于后续解绑 */
+  listenToOnce(other: BlEvent, keyValue: Record<string, BlHandler>): this
+  // 实现
+  listenToOnce(other: BlEvent, typeOrKv: string | string[] | Record<string, BlHandler>, callback?: BlHandler): this {
+    const events = makeOnceWrapper(typeOrKv, callback, this.stopListening.bind(this, other))
+    return this.listenTo(other, events)
   }
 
-  // once 的 IOC 版本
-  listenToOnce(obj: any, name: any, callback: any) {
-    // Map the event into a `{event: once}` object.
-    const events = iterateEvents(onceMap, {}, name, callback, this.stopListening.bind(this, obj))
-    return this.listenTo(obj, events)
+  /** 停止监听所有事件 */
+  stopListening(): this
+  /** 停止对的指定的 callback 的所有事件的监听 */
+  stopListening(callback: BlHandler): this
+  /** 停止对的指定的 type 的所有事件的监听 */
+  stopListening(type: string): this
+  /** 停止对的指定的一组 type 的所有事件的监听 */
+  stopListening(types: string[]): this
+  /** 停止对 other 的所有事件的监听 */
+  stopListening(other: BlEvent): this
+  /** 停止对 other 的指定的 callback 的所有事件的监听 */
+  stopListening(other: BlEvent, callback: BlHandler): this
+  /** 停止对 other 的指定的 type、callback 的事件的监听（通过对象指定） */
+  stopListening(other: BlEvent, events: Record<string, BlHandler>): this
+  /** 停止对 other 的指定的 type 的事件的监听（通过 type 指定） */
+  stopListening(other: BlEvent, type: string): this
+  /** 停止对 other 的指定的 type、callback 的事件的监听（通过 type 和 callback 指定） */
+  stopListening(other: BlEvent, type: string, callback: BlHandler): this
+  /** 停止对 other 的指定的一组 type 的事件的监听（通过 type 数组指定） */
+  stopListening(other: BlEvent, types: string[]): this
+  /** 停止对 other 的指定的一组 type 和指定 callback 的事件的监听（通过 type 数组和 callback 指定） */
+  stopListening(other: BlEvent, types: string[], callback: BlHandler): this
+  // 实现
+  stopListening(other?: any, typeOrKvOrCb?: any, callback?: any): this {
+    const listeningMap = this[LISTENING_FIELD]
+    if (!listeningMap) return this
+
+    const hasTarget = isBlEvent(other)
+    if (!hasTarget) {
+      callback = typeOrKvOrCb
+      typeOrKvOrCb = other
+    }
+
+    const stop = (listening: Listening) => {
+      if (typeOrKvOrCb && callback) {
+        listening.target.off(typeOrKvOrCb /*type or types*/, callback)
+      } else {
+        listening.target.off(typeOrKvOrCb /*type or types or callback or key-value*/)
+      }
+    }
+
+    // stop 单个目标
+    if (hasTarget) {
+      const id = other[ID_FIELD]
+      const listening = id ? listeningMap[id] : null
+      // listening 不存在则表示当前对象并没有监听 other
+      if (listening) {
+        stop(listening)
+      }
+    }
+    // stop 所有的目标
+    else {
+      const ids = Object.keys(listeningMap) as IdType[]
+      for (let i = 0; i < ids.length; i++) {
+        const listening = listeningMap[ids[i]]
+        stop(listening)
+      }
+    }
+
+    if (isEmpty(listeningMap)) this[LISTENING_FIELD] = void 0
+
+    return this
   }
 }
-
-// Listening 类，用来维护某个事件对另一个事件对象的所有监听
-// 用于记录一个 Listening，追踪绑定、并在回调全部 offed 之后清理内存。
-class Listening {
-  __events__: any = void 0
-  id: any
-  interop = true
-  count = 0
-  on: any
-
-  constructor(public listener: any, public target: any) {
-    this.listener = listener
-    this.target = target
-    this.id = listener.__listenId__
-  }
-
-  // Offs a callback (or several).
-  // Uses an optimized counter if the listenee uses Events.
-  // Otherwise, falls back to manual tracking to support events
-  // library interop.
-  off(name: any, callback: any) {
-    let shouldCleanup
-
-    // 对于 Events 实例的处理
-    if (this.interop) {
-      this.__events__ = iterateEvents(offIteratee, this.__events__, name, callback, {
-        context: void 0,
-        listeners: void 0,
-      })
-      shouldCleanup = !this.__events__
-    } else {
-      // 对于其他支持 event 的对象
-      this.count--
-      shouldCleanup = this.count === 0
-    }
-
-    if (shouldCleanup) {
-      this._cleanup()
-    }
-  }
-
-  /**
-   * 在 listener 对 target 没有任何事件监听的时候，
-   * 解除引用关系，以便内存回收
-   *
-   * @memberof Listening
-   */
-  _cleanup() {
-    // 解除 listener 对 target 的引用
-    delete this.listener.__listeningTo__[this.target.__listenId__]
-
-    // 对于其他支持 Events api 的非 Events 对象的处理
-    if (!this.interop) {
-      delete this.target.__listeners__[this.id]
-    }
-  }
-}
-
-Listening.prototype.on = BlEvent.prototype.on

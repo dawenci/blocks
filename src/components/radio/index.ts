@@ -1,12 +1,13 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
-import { ComponentEventListener, ComponentEventMap } from '../Component.js'
-import { labelTemplate, radioTemplate } from './template.js'
-import { style } from './style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
+import { style } from './style.js'
+import { template } from './template.js'
+import { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
 import { Control } from '../base-control/index.js'
-import { domRef } from '../../decorators/domRef.js'
+import { SetupControlEvent } from '../setup-control-event/index.js'
+import { SetupEmpty } from '../setup-empty/index.js'
 
 interface RadioEventMap extends ComponentEventMap {
   change: CustomEvent<{ checked: boolean }>
@@ -35,30 +36,54 @@ export class BlocksRadio extends Control {
     return 'radio'
   }
 
-  @attr('string') accessor name!: string
+  static override get disableEventTypes() {
+    return ['click', 'keydown', 'touchstart']
+  }
 
+  @attr('string') accessor name!: string
   @attr('boolean') accessor checked!: boolean
 
-  @domRef('#radio') accessor $radio!: HTMLElement
-
-  @domRef('#label') accessor $label!: HTMLLabelElement
-
-  @domRef('slot') accessor $slot!: HTMLSlotElement
+  @shadowRef('[part="layout"]') accessor $layout!: HTMLElement
+  @shadowRef('[part="radio"]') accessor $radio!: HTMLElement
+  @shadowRef('[part="label"]') accessor $label!: HTMLLabelElement
+  @shadowRef('[part="slot"]') accessor $slot!: HTMLSlotElement
 
   constructor() {
     super()
 
-    this.$layout.appendChild(radioTemplate())
-    const $label = this.$layout.appendChild(labelTemplate())
-    const $slot = $label.querySelector('slot')!
+    this.appendShadowChild(template())
+    this._tabIndexFeature.withTabIndex(0)
 
-    const toggleEmptyClass = () => {
-      $label.classList.toggle('empty', !$slot.assignedNodes().length)
-    }
-    toggleEmptyClass()
-    $slot.addEventListener('slotchange', toggleEmptyClass)
+    this.#setupCheck()
+  }
 
-    const check = () => {
+  _controlFeature = SetupControlEvent.setup({ component: this })
+
+  _emptyFeature = SetupEmpty.setup({
+    component: this,
+    predicate: () => {
+      const $nodes = this.$slot.assignedNodes()
+      for (let i = 0; i < $nodes.length; ++i) {
+        if ($nodes[i].nodeType === 1) return false
+        if ($nodes[i].nodeType === 3 && $nodes[i].nodeValue?.trim()) return false
+      }
+      return true
+    },
+    target: () => this.$label,
+    init: () => {
+      const toggle = () => this._emptyFeature.update()
+      this.onConnected(() => {
+        this.$slot.addEventListener('slotchange', toggle)
+      })
+      this.onDisconnected(() => {
+        this.$slot.removeEventListener('slotchange', toggle)
+      })
+    },
+  })
+
+  #setupCheck() {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented) return
       if (!this.checked && this.name) {
         document.getElementsByName(this.name).forEach(el => {
           if (el !== this && el instanceof BlocksRadio) {
@@ -69,25 +94,17 @@ export class BlocksRadio extends Control {
       }
     }
 
-    captureEventWhenEnable(this, 'click', check)
-    captureEventWhenEnable(this, 'keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        check()
-        e.preventDefault()
-      }
+    this.onConnected(() => {
+      this.addEventListener('click', onClick)
     })
-  }
+    this.onDisconnected(() => {
+      this.removeEventListener('click', onClick)
+    })
 
-  override connectedCallback() {
-    super.connectedCallback()
-    this.internalTabIndex = '0'
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'checked') {
-      dispatchEvent(this, 'change', { detail: { checked: this.checked } })
-    }
+    this.onAttributeChangedDep('checked', () => {
+      const payload = { detail: { checked: this.checked } }
+      dispatchEvent(this, 'bl:radio:change', payload)
+      dispatchEvent(this, 'change', payload)
+    })
   }
 }

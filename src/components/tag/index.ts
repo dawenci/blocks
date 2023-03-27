@@ -1,12 +1,12 @@
 import type { EnumAttrs } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
-import { domRef } from '../../decorators/domRef.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
-import { Component } from '../Component.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { getElementTarget } from '../../common/getElementTarget.js'
-import { template } from './template.js'
 import { style } from './style.js'
+import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 const types = ['primary', 'danger', 'warning', 'success'] as const
 
@@ -25,7 +25,7 @@ export class BlocksTag extends Component {
 
   @attrs.size accessor size!: EnumAttrs['size']
 
-  @domRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('#layout') accessor $layout!: HTMLElement
 
   constructor() {
     super()
@@ -33,14 +33,24 @@ export class BlocksTag extends Component {
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template())
 
-    shadowRoot.addEventListener('click', e => {
+    const onClick = (e: MouseEvent) => {
       if (getElementTarget(e)?.id === 'close') {
         dispatchEvent(this, 'close')
       }
+    }
+    this.onConnected(() => {
+      this.$layout.addEventListener('click', onClick)
     })
+    this.onDisconnected(() => {
+      this.$layout.removeEventListener('click', onClick)
+    })
+
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
   }
 
   override render() {
+    super.render()
     if (this.closeable) {
       if (!this.shadowRoot!.getElementById('close')) {
         const button = this.$layout.appendChild(document.createElement('button'))
@@ -52,15 +62,5 @@ export class BlocksTag extends Component {
         button.parentElement!.removeChild(button)
       }
     }
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
   }
 }

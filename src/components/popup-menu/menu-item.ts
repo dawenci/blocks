@@ -1,15 +1,15 @@
-import '../../components/popup/index.js'
 import '../../components/icon/index.js'
-import { dispatchEvent } from '../../common/event.js'
-import { BlocksPopupMenu } from './menu.js'
-import { Component } from '../Component.js'
-import { BlocksNavMenu } from '../nav-menu/menu.js'
+import '../../components/popup/index.js'
+import { attr } from '../../decorators/attr.js'
 import { contentTemplate, menuTemplate } from './menu-item.template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { dispatchEvent } from '../../common/event.js'
 import { style } from './menu-item.style.js'
 import { BlocksIcon } from '../../components/icon/index.js'
+import { BlocksNavMenu } from '../nav-menu/menu.js'
+import { BlocksPopupMenu } from './menu.js'
+import { Component } from '../component/Component.js'
 import { PopupOrigin } from '../../components/popup/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr } from '../../decorators/attr.js'
 
 @defineClass({
   customElement: 'bl-popup-menu-item',
@@ -22,8 +22,8 @@ export class BlocksPopupMenuItem extends Component {
 
   @attr('boolean') accessor active!: boolean
 
-  _enterTimer?: number
-  _leaveTimer?: number
+  _enterTimer?: ReturnType<typeof setTimeout>
+  _leaveTimer?: ReturnType<typeof setTimeout>
 
   $layout: HTMLElement
   $label: HTMLElement
@@ -40,7 +40,7 @@ export class BlocksPopupMenuItem extends Component {
     this.$icon = shadowRoot.getElementById('icon')!
     this.$arrow = shadowRoot.getElementById('arrow')!
 
-    this.addEventListener('click', e => {
+    const onClick = (e: MouseEvent) => {
       if (this.disabled) return
       if (this.hasSubmenu) {
         // 点击立即显示子菜单
@@ -68,9 +68,8 @@ export class BlocksPopupMenuItem extends Component {
         dispatchEvent(this.$rootMenu, 'active', { detail: { $item: this } })
       }
       ;(this.$hostMenu as any).closeAll()
-    })
-
-    this.onmouseenter = () => {
+    }
+    const onMouseEnter = () => {
       if (this.$submenu) {
         if (!document.body.contains(this.$submenu)) {
           document.body.appendChild(this.$submenu)
@@ -88,8 +87,7 @@ export class BlocksPopupMenuItem extends Component {
         clearTimeout((this.$submenu as any)._leaveTimer)
       }
     }
-
-    this.onmouseleave = () => {
+    const onMouseLeave = () => {
       if (this.$submenu) {
         // 清理子菜单 leave 的 timer，控制权交给 this 的 timer
         clearTimeout((this.$submenu as any)._leaveTimer)
@@ -103,6 +101,23 @@ export class BlocksPopupMenuItem extends Component {
         clearTimeout((this.$submenu as any)._enterTimer)
       }
     }
+    this.onConnected(() => {
+      this.addEventListener('click', onClick)
+      this.addEventListener('mouseenter', onMouseEnter)
+      this.addEventListener('mouseleave', onMouseLeave)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('click', onClick)
+      this.removeEventListener('mouseenter', onMouseEnter)
+      this.removeEventListener('mouseleave', onMouseLeave)
+    })
+
+    this.onConnected(this.render)
+    this.onDisconnected(() => {
+      if (this.$submenu && document.body.contains(this.$submenu)) {
+        this.$submenu.parentElement!.removeChild(this.$submenu)
+      }
+    })
   }
 
   #submenu?: BlocksPopupMenu
@@ -146,6 +161,7 @@ export class BlocksPopupMenuItem extends Component {
   }
 
   override render() {
+    super.render()
     const data = this.data
     this.disabled = !!data.disabled
 
@@ -173,24 +189,12 @@ export class BlocksPopupMenuItem extends Component {
       this.$submenu.$parentItem = this
       this.$submenu.$parentMenu = this.$hostMenu
       this.$submenu.level = this.$hostMenu!.level + 1
-      this.$submenu.anchor = () => this
+      this.$submenu.anchorElement = () => this
       this.$submenu.origin = PopupOrigin.LeftStart
       this.$submenu.data = data.children
     } else {
       this.classList.remove('has-submenu')
       this.$submenu = undefined
-    }
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    if (this.$submenu && document.body.contains(this.$submenu)) {
-      this.$submenu.parentElement!.removeChild(this.$submenu)
     }
   }
 

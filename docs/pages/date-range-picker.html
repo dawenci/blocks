@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>date-range-picker</title>
+  <link rel="stylesheet" href="../../src/theme/var.css">
+  <link rel="stylesheet" href="../page.css">
+  <link rel="stylesheet" href="../highlight/styles/default.css">
+  <link rel="stylesheet" href="../highlight/styles/vs2015.css">
+  <script src="../highlight/highlight.pack.js"></script>
+  <script type="module" src="../code-support.js"></script>
+</head>
+<body>
+  <article>
+    <header>
+      <h1>date-range-picker</h1>
+    </header>
+
+    <section class="section">
+      <h2>依赖引入</h2>
+
+      <p>根据自己项目调整 src 的路径</p>
+
+      <div data-codesource="html" data-title="依赖引入" on>
+        <script type="module" src="../../dist/components/date-range-picker/index.js"></script>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>区间选择</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <bl-date-range-picker clearable></bl-date-range-picker>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>disabled</h2>
+
+      <div class="case">
+        <template data-codesource="html">
+          <bl-date-range-picker disabled></bl-date-range-picker>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>API</h2>
+
+      <h3>Attrs / Props</h3>
+      <p>支持传入 date 组件的属性控制日期面板。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>属性名</th>
+            <th>类型</th>
+            <th>默认值</th>
+            <th>说明</th>
+            <th>必须</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>clearable</td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>是否可以清除值（显示清除按钮）。</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <table class="api-events">
+        <thead>
+          <tr>
+            <th>事件名称</th>
+            <th>事件对象</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>closed</td>
+            <td></td>
+            <td>日期面板关闭时触发。</td>
+          </tr>
+          <tr>
+            <td>input</td>
+            <td>{ detail: { value } }</td>
+            <td>value 值变化时触发。</td>
+          </tr>
+          <tr>
+            <td>opened</td>
+            <td></td>
+            <td>日期面板打开时触发。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </article>
+</body>
+</html>

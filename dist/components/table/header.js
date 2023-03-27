@@ -32,12 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
 import { setStyles } from '../../common/style.js';
-import { Component } from '../Component.js';
-import { template } from './header-template.js';
 import { style } from './header.style.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { template } from './header-template.js';
+import { Component } from '../component/Component.js';
 export let BlocksTableHeader = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-table-header',
@@ -46,15 +47,20 @@ export let BlocksTableHeader = (() => {
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
+    let _instanceExtraInitializers = [];
+    let _border_decorators;
+    let _border_initializers = [];
     var BlocksTableHeader = class extends Component {
         static {
+            _border_decorators = [attr('boolean')];
+            __esDecorate(this, null, _border_decorators, { kind: "accessor", name: "border", static: false, private: false, access: { has: obj => "border" in obj, get: obj => obj.border, set: (obj, value) => { obj.border = value; } } }, _border_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksTableHeader = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return [];
-        }
+        #border_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _border_initializers, void 0));
+        get border() { return this.#border_accessor_storage; }
+        set border(value) { this.#border_accessor_storage = value; }
         _columns = [];
         fixedLeftColumns = [];
         fixedRightColumns = [];
@@ -65,10 +71,8 @@ export let BlocksTableHeader = (() => {
             shadowRoot.appendChild(comTemplate.content.cloneNode(true));
             const $viewport = shadowRoot.querySelector('#viewport');
             const $canvas = shadowRoot.querySelector('.columns');
-            this._ref = {
-                $viewport,
-                $canvas,
-            };
+            this.$viewport = $viewport;
+            this.$canvas = $canvas;
             this._initHoverEvent();
             $canvas.onclick = (e) => {
                 let $el = e.target;
@@ -104,12 +108,6 @@ export let BlocksTableHeader = (() => {
                 }
             };
         }
-        get $host() {
-            return this._ref.$host;
-        }
-        set $host(table) {
-            this._ref.$host = table;
-        }
         get columns() {
             return this._columns;
         }
@@ -118,16 +116,16 @@ export let BlocksTableHeader = (() => {
             this.render();
         }
         get viewportScrollLeft() {
-            return this._ref.$viewport.scrollLeft;
+            return this.$viewport.scrollLeft;
         }
         set viewportScrollLeft(value) {
-            this._ref.$viewport.scrollLeft = value;
+            this.$viewport.scrollLeft = value;
         }
         _initHoverEvent() {
-            this._ref.$canvas.addEventListener('mouseover', e => {
+            this.$canvas.addEventListener('mouseover', e => {
                 let $cell = e.target;
                 let _$cell;
-                while ($cell && $cell !== this._ref.$canvas) {
+                while ($cell && $cell !== this.$canvas) {
                     if ($cell.classList.contains('cell')) {
                         if ($cell === _$cell)
                             return;
@@ -172,6 +170,7 @@ export let BlocksTableHeader = (() => {
             return value;
         }
         render() {
+            super.render();
             const columns = this.$host?.columns ?? [];
             this.fixedLeftColumns = columns.filter(column => column.fixedLeft);
             this.fixedRightColumns = columns.filter(column => column.fixedRight).reverse();
@@ -254,8 +253,8 @@ export let BlocksTableHeader = (() => {
                     $wrap.appendChild($cell);
                 }
             };
-            this._ref.$canvas.innerHTML = '';
-            columns.forEach(column => render(column, this._ref.$canvas));
+            this.$canvas.innerHTML = '';
+            columns.forEach(column => render(column, this.$canvas));
         }
         connectedCallback() {
             super.connectedCallback();

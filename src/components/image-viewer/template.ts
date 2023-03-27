@@ -1,7 +1,7 @@
 import { makeTemplate } from '../../common/template.js'
 
-export const contentTemplate = makeTemplate(/*html*/ `
-<div id="layout" tabindex="0">
+export const template = makeTemplate(/*html*/ `
+<div id="layout">
   <div id="content">
     <div id="mask"></div>
     <img id="active" />

@@ -1,4 +1,1 @@
-export declare function template(): {
-    comTemplate: HTMLTemplateElement;
-    popupTemplate: HTMLTemplateElement;
-};
+export declare const template: () => DocumentFragment;

@@ -75,12 +75,24 @@ export function round(x: number, digits = 0): number {
   return (sign * x) / digits
 }
 
+// export function camelCase(str: string): string {
+//   str = ('' + str).trim()
+//   if (!str.length) return str
+//   return str
+//     .replace(/[-_]+([\S])/g, (_, char) => char.toUpperCase())
+//     .replace(/^([A-Z])/, (_, char) => char.toLowerCase())
+// }
 export function camelCase(str: string): string {
   str = ('' + str).trim()
   if (!str.length) return str
-  return str
-    .replace(/[-_]+([\S])/g, (_, char) => char.toUpperCase())
-    .replace(/^([A-Z])/, (_, char) => char.toLowerCase())
+  return (
+    str
+      // 先转换连续的大写，避免去空格分割线之后，错误地将分布在空格横线两侧的大写字符转换掉
+      .replace(/([A-Z])([A-Z]+)/g, (_, c1, c2) => c1 + c2.toLowerCase())
+      // 问号在括号内，分组里如果不是小写字母，char 会捕获到空字符串，而不用担心是 undefined
+      .replace(/[-_\s\.]+([a-z]?)/g, (_, char) => char && char.toUpperCase())
+      .replace(/^([A-Z])/, (_, char) => char.toLowerCase())
+  )
 }
 
 export function kebabCase(str: string): string {

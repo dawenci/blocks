@@ -32,12 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
-import { BlocksPopup } from '../popup/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { forEach } from '../../common/utils.js';
-import { onClickOutside } from '../../common/onClickOutside.js';
 import { itemTemplate, groupTemplate } from './menu.template.js';
+import { onClickOutside } from '../../common/onClickOutside.js';
+import { BlocksPopup } from '../popup/index.js';
 export let BlocksPopupMenu = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup-menu',

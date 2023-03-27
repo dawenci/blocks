@@ -32,12 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { style } from './style.js';
-import { domRef } from '../../decorators/domRef.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 const status = ['success', 'error', 'warning'];
 export let BlocksProgress = (() => {
     let _classDecorators = [defineClass({
@@ -63,8 +63,8 @@ export let BlocksProgress = (() => {
             _value_decorators = [attr('number')];
             _status_decorators = [attr('enum', { enumValues: status })];
             _percentage_decorators = [attr('boolean')];
-            _$progress_decorators = [domRef('#progress')];
-            _$value_decorators = [domRef('#value')];
+            _$progress_decorators = [shadowRef('#progress')];
+            _$value_decorators = [shadowRef('#value')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _status_decorators, { kind: "accessor", name: "status", static: false, private: false, access: { has: obj => "status" in obj, get: obj => obj.status, set: (obj, value) => { obj.status = value; } } }, _status_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _percentage_decorators, { kind: "accessor", name: "percentage", static: false, private: false, access: { has: obj => "percentage" in obj, get: obj => obj.percentage, set: (obj, value) => { obj.percentage = value; } } }, _percentage_initializers, _instanceExtraInitializers);
@@ -92,8 +92,11 @@ export let BlocksProgress = (() => {
         constructor() {
             super();
             this.shadowRoot.appendChild(template());
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
         }
         render() {
+            super.render();
             this.$progress.style.width = `${this.value}%`;
             if (this.percentage) {
                 this.$value.style.display = 'block';
@@ -102,14 +105,6 @@ export let BlocksProgress = (() => {
             else {
                 this.$value.style.display = 'none';
             }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
         }
     };
     return BlocksProgress = _classThis;

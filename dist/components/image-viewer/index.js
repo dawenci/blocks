@@ -32,15 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import '../loading/index.js';
 import '../icon/index.js';
+import '../loading/index.js';
+import { attr } from '../../decorators/attr.js';
 import { defineClass } from '../../decorators/defineClass.js';
 import { disabledSetter } from '../../common/propertyAccessor.js';
-import { onWheel } from '../../common/onWheel.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { forEach } from '../../common/utils.js';
-import { contentTemplate } from './template.js';
+import { onWheel } from '../../common/onWheel.js';
 import { style } from './style.js';
-import { Component } from '../Component.js';
+import { template } from './template.js';
+import { Control } from '../base-control/index.js';
 import { WithOpenTransition } from '../with-open-transition/index.js';
 export let BlocksImageViewer = (() => {
     let _classDecorators = [defineClass({
@@ -51,48 +53,138 @@ export let BlocksImageViewer = (() => {
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    var BlocksImageViewer = class extends Component {
+    let _instanceExtraInitializers = [];
+    let _closeOnClickMask_decorators;
+    let _closeOnClickMask_initializers = [];
+    let _closeOnPressEscape_decorators;
+    let _closeOnPressEscape_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    let _$slot_decorators;
+    let _$slot_initializers = [];
+    let _$mask_decorators;
+    let _$mask_initializers = [];
+    let _$toolbar_decorators;
+    let _$toolbar_initializers = [];
+    let _$thumbnails_decorators;
+    let _$thumbnails_initializers = [];
+    let _$content_decorators;
+    let _$content_initializers = [];
+    let _$active_decorators;
+    let _$active_initializers = [];
+    let _$prev_decorators;
+    let _$prev_initializers = [];
+    let _$next_decorators;
+    let _$next_initializers = [];
+    let _$closeButton_decorators;
+    let _$closeButton_initializers = [];
+    let _$rotateLeftButton_decorators;
+    let _$rotateLeftButton_initializers = [];
+    let _$rotateRightButton_decorators;
+    let _$rotateRightButton_initializers = [];
+    let _$zoomInButton_decorators;
+    let _$zoomInButton_initializers = [];
+    let _$zoomOutButton_decorators;
+    let _$zoomOutButton_initializers = [];
+    var BlocksImageViewer = class extends Control {
         static {
+            _closeOnClickMask_decorators = [attr('boolean')];
+            _closeOnPressEscape_decorators = [attr('boolean')];
+            _$layout_decorators = [shadowRef('#layout')];
+            _$slot_decorators = [shadowRef('slot')];
+            _$mask_decorators = [shadowRef('#mask')];
+            _$toolbar_decorators = [shadowRef('#toolbar')];
+            _$thumbnails_decorators = [shadowRef('#thumbnails')];
+            _$content_decorators = [shadowRef('#content')];
+            _$active_decorators = [shadowRef('#active')];
+            _$prev_decorators = [shadowRef('#prev')];
+            _$next_decorators = [shadowRef('#next')];
+            _$closeButton_decorators = [shadowRef('#close')];
+            _$rotateLeftButton_decorators = [shadowRef('#rotate-left')];
+            _$rotateRightButton_decorators = [shadowRef('#rotate-right')];
+            _$zoomInButton_decorators = [shadowRef('#zoom-in')];
+            _$zoomOutButton_decorators = [shadowRef('#zoom-out')];
+            __esDecorate(this, null, _closeOnClickMask_decorators, { kind: "accessor", name: "closeOnClickMask", static: false, private: false, access: { has: obj => "closeOnClickMask" in obj, get: obj => obj.closeOnClickMask, set: (obj, value) => { obj.closeOnClickMask = value; } } }, _closeOnClickMask_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _closeOnPressEscape_decorators, { kind: "accessor", name: "closeOnPressEscape", static: false, private: false, access: { has: obj => "closeOnPressEscape" in obj, get: obj => obj.closeOnPressEscape, set: (obj, value) => { obj.closeOnPressEscape = value; } } }, _closeOnPressEscape_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$mask_decorators, { kind: "accessor", name: "$mask", static: false, private: false, access: { has: obj => "$mask" in obj, get: obj => obj.$mask, set: (obj, value) => { obj.$mask = value; } } }, _$mask_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$toolbar_decorators, { kind: "accessor", name: "$toolbar", static: false, private: false, access: { has: obj => "$toolbar" in obj, get: obj => obj.$toolbar, set: (obj, value) => { obj.$toolbar = value; } } }, _$toolbar_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$thumbnails_decorators, { kind: "accessor", name: "$thumbnails", static: false, private: false, access: { has: obj => "$thumbnails" in obj, get: obj => obj.$thumbnails, set: (obj, value) => { obj.$thumbnails = value; } } }, _$thumbnails_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$content_decorators, { kind: "accessor", name: "$content", static: false, private: false, access: { has: obj => "$content" in obj, get: obj => obj.$content, set: (obj, value) => { obj.$content = value; } } }, _$content_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$active_decorators, { kind: "accessor", name: "$active", static: false, private: false, access: { has: obj => "$active" in obj, get: obj => obj.$active, set: (obj, value) => { obj.$active = value; } } }, _$active_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$prev_decorators, { kind: "accessor", name: "$prev", static: false, private: false, access: { has: obj => "$prev" in obj, get: obj => obj.$prev, set: (obj, value) => { obj.$prev = value; } } }, _$prev_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$next_decorators, { kind: "accessor", name: "$next", static: false, private: false, access: { has: obj => "$next" in obj, get: obj => obj.$next, set: (obj, value) => { obj.$next = value; } } }, _$next_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$closeButton_decorators, { kind: "accessor", name: "$closeButton", static: false, private: false, access: { has: obj => "$closeButton" in obj, get: obj => obj.$closeButton, set: (obj, value) => { obj.$closeButton = value; } } }, _$closeButton_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$rotateLeftButton_decorators, { kind: "accessor", name: "$rotateLeftButton", static: false, private: false, access: { has: obj => "$rotateLeftButton" in obj, get: obj => obj.$rotateLeftButton, set: (obj, value) => { obj.$rotateLeftButton = value; } } }, _$rotateLeftButton_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$rotateRightButton_decorators, { kind: "accessor", name: "$rotateRightButton", static: false, private: false, access: { has: obj => "$rotateRightButton" in obj, get: obj => obj.$rotateRightButton, set: (obj, value) => { obj.$rotateRightButton = value; } } }, _$rotateRightButton_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$zoomInButton_decorators, { kind: "accessor", name: "$zoomInButton", static: false, private: false, access: { has: obj => "$zoomInButton" in obj, get: obj => obj.$zoomInButton, set: (obj, value) => { obj.$zoomInButton = value; } } }, _$zoomInButton_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$zoomOutButton_decorators, { kind: "accessor", name: "$zoomOutButton", static: false, private: false, access: { has: obj => "$zoomOutButton" in obj, get: obj => obj.$zoomOutButton, set: (obj, value) => { obj.$zoomOutButton = value; } } }, _$zoomOutButton_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksImageViewer = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
+        #closeOnClickMask_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _closeOnClickMask_initializers, void 0));
+        get closeOnClickMask() { return this.#closeOnClickMask_accessor_storage; }
+        set closeOnClickMask(value) { this.#closeOnClickMask_accessor_storage = value; }
+        #closeOnPressEscape_accessor_storage = __runInitializers(this, _closeOnPressEscape_initializers, void 0);
+        get closeOnPressEscape() { return this.#closeOnPressEscape_accessor_storage; }
+        set closeOnPressEscape(value) { this.#closeOnPressEscape_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$slot_accessor_storage = __runInitializers(this, _$slot_initializers, void 0);
+        get $slot() { return this.#$slot_accessor_storage; }
+        set $slot(value) { this.#$slot_accessor_storage = value; }
+        #$mask_accessor_storage = __runInitializers(this, _$mask_initializers, void 0);
+        get $mask() { return this.#$mask_accessor_storage; }
+        set $mask(value) { this.#$mask_accessor_storage = value; }
+        #$toolbar_accessor_storage = __runInitializers(this, _$toolbar_initializers, void 0);
+        get $toolbar() { return this.#$toolbar_accessor_storage; }
+        set $toolbar(value) { this.#$toolbar_accessor_storage = value; }
+        #$thumbnails_accessor_storage = __runInitializers(this, _$thumbnails_initializers, void 0);
+        get $thumbnails() { return this.#$thumbnails_accessor_storage; }
+        set $thumbnails(value) { this.#$thumbnails_accessor_storage = value; }
+        #$content_accessor_storage = __runInitializers(this, _$content_initializers, void 0);
+        get $content() { return this.#$content_accessor_storage; }
+        set $content(value) { this.#$content_accessor_storage = value; }
+        #$active_accessor_storage = __runInitializers(this, _$active_initializers, void 0);
+        get $active() { return this.#$active_accessor_storage; }
+        set $active(value) { this.#$active_accessor_storage = value; }
+        #$prev_accessor_storage = __runInitializers(this, _$prev_initializers, void 0);
+        get $prev() { return this.#$prev_accessor_storage; }
+        set $prev(value) { this.#$prev_accessor_storage = value; }
+        #$next_accessor_storage = __runInitializers(this, _$next_initializers, void 0);
+        get $next() { return this.#$next_accessor_storage; }
+        set $next(value) { this.#$next_accessor_storage = value; }
+        #$closeButton_accessor_storage = __runInitializers(this, _$closeButton_initializers, void 0);
+        get $closeButton() { return this.#$closeButton_accessor_storage; }
+        set $closeButton(value) { this.#$closeButton_accessor_storage = value; }
+        #$rotateLeftButton_accessor_storage = __runInitializers(this, _$rotateLeftButton_initializers, void 0);
+        get $rotateLeftButton() { return this.#$rotateLeftButton_accessor_storage; }
+        set $rotateLeftButton(value) { this.#$rotateLeftButton_accessor_storage = value; }
+        #$rotateRightButton_accessor_storage = __runInitializers(this, _$rotateRightButton_initializers, void 0);
+        get $rotateRightButton() { return this.#$rotateRightButton_accessor_storage; }
+        set $rotateRightButton(value) { this.#$rotateRightButton_accessor_storage = value; }
+        #$zoomInButton_accessor_storage = __runInitializers(this, _$zoomInButton_initializers, void 0);
+        get $zoomInButton() { return this.#$zoomInButton_accessor_storage; }
+        set $zoomInButton(value) { this.#$zoomInButton_accessor_storage = value; }
+        #$zoomOutButton_accessor_storage = __runInitializers(this, _$zoomOutButton_initializers, void 0);
+        get $zoomOutButton() { return this.#$zoomOutButton_accessor_storage; }
+        set $zoomOutButton(value) { this.#$zoomOutButton_accessor_storage = value; }
         constructor() {
             super();
-            const $layout = contentTemplate();
-            this.shadowRoot.appendChild($layout);
-            const $slot = $layout.querySelector('slot');
-            const $mask = $layout.querySelector('#mask');
-            const $toolbar = $layout.querySelector('#toolbar');
-            const $thumbnails = $layout.querySelector('#thumbnails');
-            const $content = $layout.querySelector('#content');
-            const $active = $layout.querySelector('#active');
-            const $prev = $layout.querySelector('#prev');
-            const $next = $layout.querySelector('#next');
-            const $closeButton = $layout.querySelector('#close');
-            const $rotateLeftButton = $layout.querySelector('#rotate-left');
-            const $rotateRightButton = $layout.querySelector('#rotate-right');
-            const $zoomInButton = $layout.querySelector('#zoom-in');
-            const $zoomOutButton = $layout.querySelector('#zoom-out');
-            this._ref = {
-                $slot,
-                $mask,
-                $layout,
-                $toolbar,
-                $thumbnails,
-                $content,
-                $active,
-                $prev,
-                $next,
-                $closeButton,
-                $rotateLeftButton,
-                $rotateRightButton,
-                $zoomInButton,
-                $zoomOutButton,
-            };
+            this.appendShadowChild(template());
+            this._tabIndexFeature.withTabIndex(0);
             this.imgMap = new Map();
+            this.#setupContent();
+            this.#setupEvents();
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
+        }
+        #setupContent() {
             const onSlotChange = () => {
-                const imgs = $slot.assignedElements().filter(el => el.nodeName === 'IMG');
+                const imgs = this.$slot.assignedElements().filter(el => el.nodeName === 'IMG');
                 const newMap = new Map();
                 imgs.forEach($img => {
                     if (this.imgMap.has($img)) {
@@ -108,31 +200,33 @@ export let BlocksImageViewer = (() => {
                 this.imgMap = newMap;
                 this.imgs = imgs;
             };
-            $slot.addEventListener('slotchange', onSlotChange);
-            onSlotChange();
-            $prev.onclick = () => {
+            this.$slot.addEventListener('slotchange', onSlotChange);
+        }
+        #setupEvents() {
+            this.$prev.onclick = () => {
                 this.prev();
             };
-            $next.onclick = () => {
+            this.$next.onclick = () => {
                 this.next();
             };
-            $rotateLeftButton.onclick = () => {
+            this.$rotateLeftButton.onclick = () => {
                 this.rotateLeft();
             };
-            $rotateRightButton.onclick = () => {
+            this.$rotateRightButton.onclick = () => {
                 this.rotateRight();
             };
-            $zoomInButton.onclick = () => {
+            this.$zoomInButton.onclick = () => {
                 this.zoomIn();
             };
-            $zoomOutButton.onclick = () => {
+            this.$zoomOutButton.onclick = () => {
                 this.zoomOut();
             };
-            $closeButton.onclick = () => {
+            this.$closeButton.onclick = () => {
                 this.open = false;
             };
-            $mask.onclick = () => {
-                this.open = false;
+            this.$mask.onclick = () => {
+                if (this.closeOnClickMask)
+                    this.open = false;
             };
             onWheel(this, (e, data) => {
                 if (data.spinY > 0) {
@@ -143,12 +237,13 @@ export let BlocksImageViewer = (() => {
                 }
             });
             this.addEventListener('opened', () => {
-                $layout.focus();
+                this.$layout.focus();
             });
             this.addEventListener('keydown', e => {
                 switch (e.key) {
                     case 'Escape': {
-                        this.open = false;
+                        if (this.closeOnPressEscape)
+                            this.open = false;
                         break;
                     }
                     case 'ArrowLeft': {
@@ -185,17 +280,6 @@ export let BlocksImageViewer = (() => {
         set activeImg(value) {
             this._activeImg = value;
             this._renderCurrent();
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'open') {
-                this._onOpenAttributeChange();
-            }
-            this.render();
         }
         zoomIn() {
             if (!this.activeImg)
@@ -252,13 +336,14 @@ export let BlocksImageViewer = (() => {
             this._renderToolbar();
         }
         render() {
+            super.render();
             this._renderCurrent();
             this._renderNavButton();
             this._renderToolbar();
         }
         _renderCurrent() {
             if (this.activeImg) {
-                const { $active } = this._ref;
+                const { $active } = this;
                 if ($active.src !== this.activeImg.src) {
                     $active.style.opacity = '0';
                     $active.src = this.activeImg.src;
@@ -275,26 +360,25 @@ export let BlocksImageViewer = (() => {
             }
         }
         _renderNavButton() {
-            const { $prev, $next } = this._ref;
             const display = this.imgs.length > 1 ? 'block' : 'none';
-            $prev.style.display = $next.style.display = display;
-            disabledSetter($prev, !!this.activeImg && this.activeImg === this.imgs[0]);
-            disabledSetter($next, !!this.activeImg && this.activeImg === this.imgs[this.imgs.length - 1]);
+            this.$prev.style.display = this.$next.style.display = display;
+            disabledSetter(this.$prev, !!this.activeImg && this.activeImg === this.imgs[0]);
+            disabledSetter(this.$next, !!this.activeImg && this.activeImg === this.imgs[this.imgs.length - 1]);
         }
         _renderToolbar() {
             if (!this.activeImg) {
-                const buttons = this._ref.$toolbar.querySelectorAll('.button');
+                const buttons = this.$toolbar.querySelectorAll('.button');
                 forEach(buttons, $button => {
                     disabledSetter($button, true);
                 });
                 return;
             }
-            const buttons = this._ref.$toolbar.querySelectorAll('.button');
+            const buttons = this.$toolbar.querySelectorAll('.button');
             forEach(buttons, $button => {
                 disabledSetter($button, false);
             });
             const { scale } = this.imgMap.get(this.activeImg);
-            disabledSetter(this._ref.$zoomOutButton, scale === 0.2);
+            disabledSetter(this.$zoomOutButton, scale === 0.2);
         }
     };
     return BlocksImageViewer = _classThis;

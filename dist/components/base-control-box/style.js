@@ -65,7 +65,8 @@ export const style = `
 --font-size: var(--font-size-large);
 }
 :host(:focus),
-:host(:focus-within) {
+:host(:focus-within),
+:host(:focus-visible) {
 --bg: var(--bg-hover);
 --fg: var(--fg-hover);
 --border-color: var(--border-color-hover);
@@ -130,6 +131,9 @@ position: relative;
 width: 100%;
 height: 100%;
 text-align: inherit;
+}
+#layout:focus-visible {
+  outline: 0 none;
 }
 .with-loading {
 padding-left: var(--padding);

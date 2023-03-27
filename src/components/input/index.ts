@@ -1,15 +1,14 @@
-import '../popup/index.js'
-import '../date/index.js'
+import type { EnumAttrs } from '../../decorators/attr.js'
+import { attr, attrs } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { disabledSetter } from '../../common/propertyAccessor.js'
 import { dispatchEvent } from '../../common/event.js'
-import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
-import { ComponentEventListener } from '../Component.js'
-import { ISelected, ISelectResultEventMap, ISelectResultComponent } from '../../common/connectSelectable.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import type { EnumAttrs } from '../../decorators/attr.js'
-import { template } from './template.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { style } from './style.js'
+import { template } from './template.js'
+import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
+import { ComponentEventListener } from '../component/Component.js'
+import { ISelected, ISelectResultEventMap, ISelectResultComponent } from '../../common/connectSelectable.js'
 
 const INPUT_ATTRS = [
   'value',
@@ -24,20 +23,13 @@ const INPUT_ATTRS = [
   'minlength',
   'maxlength',
   'autocomplete',
-]
+] as const
 
 interface BlocksInputEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
   change: CustomEvent<{ value: string }>
 }
 
 export interface BlocksInput extends ClearableControlBox, ISelectResultComponent {
-  _ref: ClearableControlBox['_ref'] & {
-    $input: HTMLInputElement
-    $prefix?: HTMLElement
-    $suffix?: HTMLElement
-    $clear?: HTMLButtonElement
-  }
-
   addEventListener<K extends keyof BlocksInputEventMap>(
     type: K,
     listener: ComponentEventListener<BlocksInputEventMap[K]>,
@@ -55,9 +47,13 @@ export interface BlocksInput extends ClearableControlBox, ISelectResultComponent
   customElement: 'bl-input',
   styles: [style],
 })
-export class BlocksInput extends ClearableControlBox {
+export class BlocksInput extends ClearableControlBox implements ISelectResultComponent {
   static get role() {
     return 'input'
+  }
+
+  static override get disableEventTypes() {
+    return ['click', 'keydown', 'touchstart']
   }
 
   @attr('string') accessor value!: string | null
@@ -89,76 +85,87 @@ export class BlocksInput extends ClearableControlBox {
   /* file/email */
   @attr('boolean') accessor multiple!: boolean
 
+  @shadowRef('[part="input"]') accessor $input!: HTMLInputElement
+
   constructor() {
     super()
 
-    const $input = this._appendContent((this._ref.$input = template()))
+    this.appendContent(template())
+    this._tabIndexFeature.withTabIndex(0).withTarget(() => [this.$input])
 
-    $input.oninput = $input.onchange = () => {
-      // 实现 ISelectResultComponent 事件
-      dispatchEvent(this, 'select-result:clear')
-      dispatchEvent(this, 'select-result:search', {
-        detail: { searchString: $input.value },
-      })
+    this.#setupDisableFeature()
+    this.#setupValueModify()
+  }
 
-      this.setValue($input.value)
+  #setupDisableFeature() {
+    this._disabledFeature.withPostUpdate(() => {
+      disabledSetter(this.$input, this.disabled)
+    })
+  }
+
+  // 实现 ISelectResultComponent 事件
+  #notifyClear() {
+    dispatchEvent(this, 'select-result:clear')
+  }
+
+  // 实现 ISelectResultComponent 事件
+  #notifyDeselect() {
+    dispatchEvent(this, 'select-result:deselect')
+  }
+
+  // 实现 ISelectResultComponent 事件
+  #notifySearch(searchString: string) {
+    dispatchEvent(this, 'select-result:search', { detail: { searchString } })
+  }
+
+  #setupValueModify() {
+    this._emptyFeature.withPredicate(() => {
+      return !this.value
+    })
+
+    const onChange = () => {
+      this.value = this.$input.value
     }
-    this.addEventListener('click-clear', () => {
-      this.clearValue()
-      // 实现 ISelectResultComponent 事件
-      dispatchEvent(this, 'select-result:clear')
-      dispatchEvent(this, 'select-result:search', {
-        detail: { searchString: '' },
-      })
+    const onClear = () => {
+      this.value = ''
+      this.#notifyClear()
+    }
+    this.onConnected(() => {
+      this.$input.oninput = this.$input.onchange = onChange
+      this.addEventListener('click-clear', onClear)
+    })
+    this.onDisconnected(() => {
+      this.$input.oninput = this.$input.onchange = null
+      this.removeEventListener('click-clear', onClear)
+    })
+
+    this.onAttributeChangedDeps(INPUT_ATTRS, (name, _: any, val: any): void => {
+      if (name === 'value') {
+        if (this.$input.value !== val) {
+          this.$input.value = val
+        }
+      } else {
+        this.$input.setAttribute(name, val)
+      }
+      dispatchEvent(this, 'change', { detail: { value: this.value } })
+    })
+
+    this.onAttributeChangedDep('value', () => {
+      this._emptyFeature.update()
     })
   }
 
   // 实现 ISelectResultComponent 方法
   acceptSelected(value: ISelected[]) {
     const label = value.map(item => item.label).join(', ')
-    if (label) {
-      this.setValue(label)
-    }
+    this.value = label
   }
 
-  setValue(value: string) {
-    this.value = value
-    this._renderEmpty()
-  }
-
-  clearValue() {
-    this._ref.$input.value = ''
+  clearSearch() {
+    this.#notifySearch('')
   }
 
   override focus() {
-    this._ref.$input.focus()
-  }
-
-  override _isEmpty() {
-    return !this._ref.$input.value
-  }
-
-  override _renderDisabled() {
-    super._renderDisabled()
-    disabledSetter(this._ref.$input, this.disabled)
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-
-    if (INPUT_ATTRS.includes(attrName)) {
-      if (attrName === 'value') {
-        if (this._ref.$input.value !== newValue) {
-          this._ref.$input.value = newValue
-        }
-      } else {
-        this._ref.$input.setAttribute(attrName, newValue)
-      }
-      dispatchEvent(this, 'change', { detail: { value: this.value } })
-    }
+    this.$input.focus()
   }
 }

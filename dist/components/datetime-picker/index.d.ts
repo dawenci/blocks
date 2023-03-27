@@ -1,35 +1,38 @@
+import type { BlocksButton } from '../button/index.js';
+import type { ISelectResultComponent, ISelectableListComponent } from '../../common/connectSelectable.js';
+import '../button/index.js';
+import '../popup/index.js';
+import { BlocksDate } from '../date/index.js';
 import { BlocksInput } from '../input/index.js';
 import { BlocksPopup } from '../popup/index.js';
-import { BlocksDate } from '../date/index.js';
 import { BlocksTime } from '../time/index.js';
-import { BlocksButton } from '../button/index.js';
-import { ClearableControlBox } from '../base-clearable-control-box/index.js';
-export interface BlocksDateTimePicker extends ClearableControlBox {
-    _ref: ClearableControlBox['_ref'] & {
-        $content: HTMLElement;
-        $fromDate: BlocksInput;
-        $toDate: BlocksInput;
-        $popup: BlocksPopup;
-        $date: BlocksDate;
-        $time: BlocksTime;
-        $timeValue: HTMLElement;
-        $confirm: BlocksButton;
-    };
+import { Control } from '../base-control/index.js';
+export interface BlocksDateTimePicker extends Control {
+    $popup: BlocksPopup;
+    $date: BlocksDate;
+    $time: BlocksTime;
+    $timeValue: HTMLElement;
+    $confirmButton: BlocksButton;
 }
-export declare class BlocksDateTimePicker extends ClearableControlBox {
+export declare class BlocksDateTimePicker extends Control implements ISelectableListComponent {
     #private;
-    accessor range: boolean;
-    accessor placeholderFrom: string;
-    accessor placeholderTo: string;
+    static get observedAttributes(): string[];
+    static get disableEventTypes(): readonly string[];
+    accessor format: string;
+    accessor open: boolean;
+    accessor placeholder: string;
+    accessor $content: HTMLElement;
+    accessor $result: HTMLInputElement & ISelectResultComponent;
+    accessor $input: BlocksInput;
     constructor();
-    get disabledDate(): ((data: import("../date/helpers").DateModel, context: {
-        depth: import("../date/helpers").Depth;
-        viewDepth: import("../date/helpers").Depth;
+    get disabledDate(): ((data: import("../date/type").ItemModel, context: {
+        depth: import("../date/type").Depth;
+        viewDepth: import("../date/type").Depth;
         component: BlocksDate;
     }) => boolean) | undefined;
-    set disabledDate(value: ((data: import("../date/helpers").DateModel, context: {
-        depth: import("../date/helpers").Depth;
-        viewDepth: import("../date/helpers").Depth;
+    set disabledDate(value: ((data: import("../date/type").ItemModel, context: {
+        depth: import("../date/type").Depth;
+        viewDepth: import("../date/type").Depth;
         component: BlocksDate;
     }) => boolean) | undefined);
     get disabledHour(): ((data: number, context: {
@@ -68,13 +71,8 @@ export declare class BlocksDateTimePicker extends ClearableControlBox {
         second: number | null;
         component: BlocksTime;
     }) => boolean) | undefined);
-    get activeValue(): Date | null;
-    set activeValue(value: Date | null);
-    get value(): null | Date | [Date, Date];
-    set value(value: null | Date | [Date, Date]);
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
+    get value(): null | Date;
+    set value(value: null | Date);
+    clearSelected(): void;
     render(): void;
-    static get observedAttributes(): string[];
 }

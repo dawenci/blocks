@@ -25,6 +25,10 @@ export const style = /*css*/ `
   height: 100%;
   overflow: scroll;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+#viewport::-webkit-scrollbar {
+  display: none;
 }
 
 .track {

@@ -1,23 +1,21 @@
-import { ComponentEventListener } from '../Component.js';
-import { ControlBox, ControlBoxEventMap } from '../base-control-box/index.js';
+import type { ComponentEventListener } from '../component/Component.js';
+import type { ControlBoxEventMap } from '../base-control-box/index.js';
+import { ControlBox } from '../base-control-box/index.js';
+import { SetupEmpty } from '../setup-empty/index.js';
 export interface ClearableControlBoxEventMap extends ControlBoxEventMap {
     'click-clear': CustomEvent;
 }
 export interface ClearableControlBox extends ControlBox {
-    _ref: ControlBox['_ref'] & {
-        $clear?: HTMLButtonElement;
-    };
     addEventListener<K extends keyof ClearableControlBoxEventMap>(type: K, listener: ComponentEventListener<ClearableControlBoxEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof ClearableControlBoxEventMap>(type: K, listener: ComponentEventListener<ClearableControlBoxEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
 export declare class ClearableControlBox extends ControlBox {
+    #private;
     accessor clearable: boolean;
+    accessor $clear: HTMLButtonElement;
     constructor();
-    _isEmpty(): boolean;
-    _appendContent<T extends HTMLElement | DocumentFragment>($el: T): T;
-    _renderSuffixIcon(): void;
-    _renderEmpty(): void;
+    _emptyFeature: SetupEmpty<this>;
     _renderClearable(): void;
-    render(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
+    appendContent<T extends HTMLElement | DocumentFragment>($el: T): T;
+    _renderSuffixIcon(): void;
 }

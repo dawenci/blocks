@@ -1,12 +1,12 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { forEach } from '../../common/utils.js'
-import { Component } from '../Component.js'
-import { BlocksNavMenu } from '../nav-menu/menu.js'
 import { contentTemplate, itemTemplate } from './menu-group.template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { forEach } from '../../common/utils.js'
 import { style } from './menu-group.style.js'
-import { BlocksPopupMenuItem } from './menu-item.js'
+import { BlocksNavMenu } from '../nav-menu/menu.js'
 import { BlocksPopupMenu } from './menu.js'
+import { BlocksPopupMenuItem } from './menu-item.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-popup-menu-group',
@@ -26,6 +26,9 @@ export class BlocksPopupMenuGroup extends Component {
     shadowRoot.appendChild(contentTemplate())
     this.$head = shadowRoot.getElementById('head')!
     this.$body = shadowRoot.getElementById('body')!
+
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
   }
 
   #hostMenu!: BlocksPopupMenu | BlocksNavMenu
@@ -45,17 +48,8 @@ export class BlocksPopupMenuGroup extends Component {
     this.render()
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
-  }
-
   override render() {
+    super.render()
     const data = this.data
     if (data.title) {
       this.$head.textContent = data.title

@@ -1,5 +1,5 @@
-import { Component } from '../Component.js';
-import { NullableEnumAttr } from '../../decorators/attr.js';
+import type { NullableEnumAttr } from '../../decorators/attr.js';
+import { Component } from '../component/Component.js';
 declare const status: string[];
 export interface BlocksProgress extends Component {
     _ref: {
@@ -8,13 +8,12 @@ export interface BlocksProgress extends Component {
     };
 }
 export declare class BlocksProgress extends Component {
-    static get observedAttributes(): string[];
     accessor value: number | null;
     accessor status: NullableEnumAttr<typeof status>;
     accessor percentage: boolean;
+    accessor $progress: HTMLElement;
+    accessor $value: HTMLElement;
     constructor();
     render(): void;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: string, newValue: string): void;
 }
 export {};

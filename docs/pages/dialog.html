@@ -37,7 +37,7 @@
         <bl-button onclick="document.querySelector('#default').open = !document.querySelector('#default').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
-          <bl-dialog id="default" title-text="对话框的标题">
+          <bl-dialog id="default">
             <div style="padding: 50px 100px;">
               这里是对话框的内容。
             </div>
@@ -54,6 +54,56 @@
 
         <template data-codesource="html">
           <bl-dialog id="mask" closeable mask title-text="带遮罩的对话框">
+            <div style="padding:50px 100px;">
+              这里是对话框的内容。
+            </div>
+          </bl-dialog>
+        </template>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>点击遮罩关闭</h2>
+
+      <div class="case">
+        <bl-button onclick="document.querySelector('#mask-close').open = true">打开</bl-button>
+
+        <template data-codesource="html">
+          <bl-dialog id="mask-close" closeable mask close-on-click-mask title-text="点击遮罩关闭">
+            <div style="padding:50px 100px;">
+              这里是对话框的内容。
+            </div>
+          </bl-dialog>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>点击外部关闭</h2>
+
+      <div class="case" id="case-clickOutside">
+        <bl-button onclick="document.querySelector('#clickOutside').open = !document.querySelector('#clickOutside').open">打开 / 关闭</bl-button>
+
+        <template data-codesource="html">
+          <bl-dialog id="clickOutside" closeable close-on-click-outside title-text="点击外部关闭">
+            <div style="padding:50px 100px;">
+              这里是对话框的内容。
+            </div>
+          </bl-dialog>
+        </template>
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>Esc 关闭</h2>
+
+      <div class="case" id="case-close-on-press-escape">
+        <bl-button onclick="document.querySelector('#close-on-press-escape').open = !document.querySelector('#close-on-press-escape').open">打开 / 关闭</bl-button>
+
+        <template data-codesource="html">
+          <bl-dialog id="close-on-press-escape" closeable mask close-on-press-escape title-text="Esc 关闭">
             <div style="padding:50px 100px;">
               这里是对话框的内容。
             </div>

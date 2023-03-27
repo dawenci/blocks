@@ -1,13 +1,10 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { selectedSetter } from '../../common/propertyAccessor.js'
-import { Component } from '../Component.js'
-import { template } from './option.template.js'
-import { style } from './option.style.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-option',
-  styles: [style],
 })
 export class BlocksOption extends Component {
   @attr('string') accessor value!: string | null
@@ -28,37 +25,25 @@ export class BlocksOption extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-
-    const fragment = template().cloneNode(true)
-    shadowRoot.appendChild(fragment)
+    this.onAttributeChangedDep('selected', (_, oldValue, newValue) => {
+      if (newValue !== oldValue) {
+        const eventType = newValue === null ? 'deselect' : 'select'
+        if (!this.#silentFlag) {
+          this.dispatchEvent(
+            new CustomEvent(eventType, {
+              bubbles: true,
+              cancelable: true,
+              composed: true,
+            })
+          )
+        }
+      }
+    })
   }
 
   silentSelected(value: boolean) {
     this.#silentFlag = true
     selectedSetter(this, value)
     this.#silentFlag = false
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'selected' && newValue !== oldValue) {
-      const eventType = newValue === null ? 'deselect' : 'select'
-      if (!this.#silentFlag) {
-        this.dispatchEvent(
-          new CustomEvent(eventType, {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-          })
-        )
-      }
-    }
-    this.render()
   }
 }

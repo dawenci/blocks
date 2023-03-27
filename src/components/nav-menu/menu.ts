@@ -1,13 +1,17 @@
-import { defineClass } from '../../decorators/defineClass.js'
-import { attr, attrs } from '../../decorators/attr.js'
+import type { BlocksNavMenuItem } from './menu-item.js'
 import type { EnumAttrs } from '../../decorators/attr.js'
-import { style } from './menu.style.js'
+import './menu-group.js'
+import './menu-item.js'
+import { attr, attrs } from '../../decorators/attr.js'
 import { contentTemplate, groupTemplate, itemTemplate } from './menu.template.js'
-import { Component } from '../Component.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { forEach } from '../../common/utils.js'
-import { BlocksNavMenuItem } from './menu-item.js'
+import { style } from './menu.style.js'
+import { Component } from '../component/Component.js'
 
-// TODO, collapse 模式，tooltip 显示一级菜单文本
+// TODO: collapse 模式，tooltip 显示一级菜单文本
+// TODO: collapse 和 inline 互斥，inline 和 horizontal 互斥
+// TODO: 解决 Firefox 不支持 :host-context 样式的问题
 @defineClass({
   customElement: 'bl-nav-menu',
   styles: [style],
@@ -47,7 +51,7 @@ export class BlocksNavMenu extends Component {
 
     this._data = []
 
-    this.addEventListener('active', (e: Event) => {
+    const onActive = (e: Event) => {
       this.clearActive()
       let $item = (e as CustomEvent).detail.$item
       while ($item) {
@@ -55,7 +59,18 @@ export class BlocksNavMenu extends Component {
         $item.active = true
         $item = $item.$hostMenu.$parentItem
       }
+    }
+
+    this.onConnected(() => {
+      this.render()
+      this.addEventListener('active', onActive)
     })
+
+    this.onDisconnected(() => {
+      this.removeEventListener('active', onActive)
+    })
+
+    this.onAttributeChanged(this.render)
   }
 
   get data() {
@@ -133,6 +148,7 @@ export class BlocksNavMenu extends Component {
   }
 
   override render() {
+    super.render()
     // 水平模式
     if (this.horizontal) {
       this.horizontalRender()
@@ -141,17 +157,6 @@ export class BlocksNavMenu extends Component {
     else {
       this.verticalRender()
     }
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    // collapse 和 inline 互斥，inline 和 horizontal 互斥
-    this.render()
   }
 }
 

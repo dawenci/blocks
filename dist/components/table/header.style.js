@@ -121,7 +121,7 @@ export const style = `
 
 /* border 参数为 true */
 /* 为 cell 绘制竖直方向分割线 */
-:host-context(bl-table[border]) .cell {
+:host([border]) .cell {
   border-right: 1px solid var(--bl-border-color-base, ${__border_color_base});
 }
 `;

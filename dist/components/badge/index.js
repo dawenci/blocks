@@ -32,12 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { Component } from '../Component.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { domRef } from '../../decorators/domRef.js';
-import { template } from './template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { style } from './style.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 export let BlocksBadge = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-badge',
@@ -54,7 +54,7 @@ export let BlocksBadge = (() => {
     var BlocksBadge = class extends Component {
         static {
             _value_decorators = [attr('string')];
-            _$badge_decorators = [domRef('#badge')];
+            _$badge_decorators = [shadowRef('#badge')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$badge_decorators, { kind: "accessor", name: "$badge", static: false, private: false, access: { has: obj => "$badge" in obj, get: obj => obj.$badge, set: (obj, value) => { obj.$badge = value; } } }, _$badge_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
@@ -69,14 +69,13 @@ export let BlocksBadge = (() => {
         set $badge(value) { this.#$badge_accessor_storage = value; }
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
-        }
-        render() {
-            this.$badge.textContent = this.value;
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
+            this.appendShadowChild(template());
+            const render = () => {
+                this.$badge.textContent = this.value;
+            };
+            this.onConnected(render);
+            this.onAttributeChangedDep('value', render);
+            this.onRender(render);
         }
     };
     return BlocksBadge = _classThis;

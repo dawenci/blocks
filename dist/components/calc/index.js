@@ -32,13 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { forEach } from '../../common/utils.js';
-import { Component } from '../Component.js';
 import { style } from './style.js';
 import { template } from './template.js';
+import { Component } from '../component/Component.js';
 var State;
 (function (State) {
     State["Init"] = "Init";
@@ -60,17 +61,38 @@ export let BlocksCalc = (() => {
     let _instanceExtraInitializers = [];
     let _screen_decorators;
     let _screen_initializers = [];
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    let _$result_decorators;
+    let _$result_initializers = [];
+    let _$input_decorators;
+    let _$input_initializers = [];
     var BlocksCalc = class extends Component {
         static {
             _screen_decorators = [attr('string')];
+            _$layout_decorators = [shadowRef('#layout')];
+            _$result_decorators = [shadowRef('.Calc-screen-result')];
+            _$input_decorators = [shadowRef('.Calc-screen-input')];
             __esDecorate(this, null, _screen_decorators, { kind: "accessor", name: "screen", static: false, private: false, access: { has: obj => "screen" in obj, get: obj => obj.screen, set: (obj, value) => { obj.screen = value; } } }, _screen_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$result_decorators, { kind: "accessor", name: "$result", static: false, private: false, access: { has: obj => "$result" in obj, get: obj => obj.$result, set: (obj, value) => { obj.$result = value; } } }, _$result_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$input_decorators, { kind: "accessor", name: "$input", static: false, private: false, access: { has: obj => "$input" in obj, get: obj => obj.$input, set: (obj, value) => { obj.$input = value; } } }, _$input_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksCalc = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #screen_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _screen_initializers, ''));
+        #screen_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _screen_initializers, '0'));
         get screen() { return this.#screen_accessor_storage; }
         set screen(value) { this.#screen_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$result_accessor_storage = __runInitializers(this, _$result_initializers, void 0);
+        get $result() { return this.#$result_accessor_storage; }
+        set $result(value) { this.#$result_accessor_storage = value; }
+        #$input_accessor_storage = __runInitializers(this, _$input_initializers, void 0);
+        get $input() { return this.#$input_accessor_storage; }
+        set $input(value) { this.#$input_accessor_storage = value; }
         memory = 0;
         operand = null;
         operator = null;
@@ -84,13 +106,16 @@ export let BlocksCalc = (() => {
         makeFn = (op) => op === '+' ? this.makeAdd : op === '-' ? this.makeSub : op === '*' ? this.makeMul : this.makeDiv;
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            const $layout = shadowRoot.getElementById('layout');
-            const $result = shadowRoot.querySelector('.Calc-screen-result');
-            const $input = shadowRoot.querySelector('.Calc-screen-input');
-            this._ref = { $layout, $result, $input };
-            this.screen = '0';
+            this.shadowRoot.appendChild(template());
+            this.onConnected(() => {
+                this.render();
+                this.$layout.onkeypress = this.onKeyPress.bind(this);
+            });
+            this.onDisconnected(() => {
+                this.$layout.onkeypress = null;
+            });
+            this.onAttributeChanged(this.render);
+            this.onAttributeChangedDep('screen', this.onScreenChange);
         }
         get memoryKeys() {
             return [
@@ -157,24 +182,9 @@ export let BlocksCalc = (() => {
                 ['.', '.'],
             ]);
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-            this._ref.$layout.onkeypress = this.onKeyPress.bind(this);
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            this._ref.$layout.onkeypress = null;
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
-            if (attrName === 'screen') {
-                this.onScreenChange();
-            }
-        }
         render() {
-            this._ref.$input.innerHTML = this.screen ?? '';
+            super.render();
+            this.$input.innerHTML = this.screen ?? '';
             const $span = document.createElement('span');
             $span.className = 'Calc-keyboard-key';
             const makeButton = (data) => {
@@ -184,25 +194,25 @@ export let BlocksCalc = (() => {
                 $button.onclick = () => this.input(data.value);
                 return $button;
             };
-            const $memory = this._ref.$layout.querySelector('.Calc-keyboard-memory');
+            const $memory = this.$layout.querySelector('.Calc-keyboard-memory');
             if (!$memory.children.length) {
                 this.memoryKeys.forEach(key => {
                     $memory.appendChild(makeButton(key));
                 });
             }
-            const $actions = this._ref.$layout.querySelector('.Calc-keyboard-actions');
+            const $actions = this.$layout.querySelector('.Calc-keyboard-actions');
             if (!$actions.children.length) {
                 this.actionKeys.forEach(key => {
                     $actions.appendChild(makeButton(key));
                 });
             }
-            const $numbers = this._ref.$layout.querySelector('.Calc-keyboard-numbers');
+            const $numbers = this.$layout.querySelector('.Calc-keyboard-numbers');
             if (!$numbers.children.length) {
                 this.numberKeys.forEach(key => {
                     $numbers.appendChild(makeButton(key));
                 });
             }
-            const $operators = this._ref.$layout.querySelector('.Calc-keyboard-operators');
+            const $operators = this.$layout.querySelector('.Calc-keyboard-operators');
             if (!$operators.children.length) {
                 this.operatorKeys.forEach(key => {
                     $operators.appendChild(makeButton(key));
@@ -217,7 +227,7 @@ export let BlocksCalc = (() => {
             }
         }
         onScreenChange() {
-            const { $result, $input } = this._ref;
+            const { $result, $input } = this;
             if (!$result || !$input)
                 return;
             requestAnimationFrame(() => {
@@ -225,10 +235,10 @@ export let BlocksCalc = (() => {
                 const inputWidth = $input.clientWidth;
                 if (inputWidth > wrapperWidth) {
                     const scaleRatio = wrapperWidth / inputWidth;
-                    this._ref.$input.style.transform = `scale(${scaleRatio})`;
+                    this.$input.style.transform = `scale(${scaleRatio})`;
                 }
                 else {
-                    this._ref.$input.style.transform = '';
+                    this.$input.style.transform = '';
                 }
             });
             dispatchEvent(this, 'bl:calc:screen', {

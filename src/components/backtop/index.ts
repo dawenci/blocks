@@ -1,43 +1,35 @@
-import { scrollTo } from '../../common/scrollTo.js'
-import { Component } from '../Component.js'
-import { make as makeModel } from './model.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { template } from './template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { fromAttr } from '../component/reactive.js'
+import { scrollTo } from '../../common/scrollTo.js'
 import { style } from './style.js'
 import { strSetter } from '../../common/property.js'
+import { template } from './template.js'
+import { Component } from '../component/Component.js'
+import { computed, reactive, subscribe, unsubscribe } from '../../common/reactive.js'
 
 @defineClass({
   customElement: 'bl-backtop',
   styles: [style],
 })
 export class BlocksBackTop extends Component {
-  #clearup?: () => void
-  #target?: () => Node
-  _model = makeModel()
+  @attr('number') accessor duration = 0
 
-  @attr('number')
-  accessor duration = 0
+  @attr('number') accessor threshold = 400
 
-  @attr('number')
-  accessor threshold = 400
+  #scrolled = reactive(0)
+
+  visible = computed((scrolled, threshold) => scrolled >= threshold, [this.#scrolled, fromAttr(this, 'threshold')])
 
   constructor() {
     super()
+    this.appendShadowChild(template())
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
-
-    this.addEventListener('click', () => {
-      scrollTo(this.targetElement as HTMLElement, 0, {
-        duration: this._model.get('duration'),
-        done: () => this.render(),
-      })
-    })
-
-    this._model.on('update:visible', this.render, this)
+    this.#setupTarget()
+    this.#setupButton()
   }
 
+  #target?: () => Node
   get target(): string | Node | null {
     if (this.#target) {
       return this.#target() ?? null
@@ -77,51 +69,43 @@ export class BlocksBackTop extends Component {
     return window
   }
 
-  override render() {
-    const scrollTop = this._model.get('scrolled')
-    if (scrollTop >= this.threshold) {
-      this.style.display = ''
-    } else {
-      this.style.display = 'none'
+  #setupButton() {
+    const render = () => {
+      this.style.display = this.visible.content ? '' : 'none'
     }
+    const onClick = () => {
+      scrollTo(this.targetElement as HTMLElement, 0, {
+        duration: this.duration,
+        done: render,
+      })
+    }
+    this.onConnected(() => {
+      this.addEventListener('click', onClick)
+      subscribe(this.visible, render)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('click', onClick)
+      unsubscribe(this.visible, render)
+    })
+    this.onRender(render)
+    this.onConnected(render)
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-
-    this.render()
-
-    const onTargetScroll = (e: Event) => {
-      if (e.target === this.targetElement) {
-        this._model.set('scrolled', (this.targetElement as any).scrollTop)
-      }
-    }
+  #setupTarget() {
     const scrollEventOptions = {
       capture: true,
       passive: true,
     }
-    document.addEventListener('scroll', onTargetScroll, scrollEventOptions)
-    this.#clearup = () => {
+    const onTargetScroll = (e: Event) => {
+      if (e.target === this.targetElement) {
+        this.#scrolled.content = (this.targetElement as any).scrollTop
+      }
+    }
+    this.onConnected(() => {
+      document.addEventListener('scroll', onTargetScroll, scrollEventOptions)
+    })
+    this.onDisconnected(() => {
       document.removeEventListener('scroll', onTargetScroll, scrollEventOptions)
-    }
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-
-    if (attrName === 'duration') {
-      this._model.set('duration', this.duration)
-    }
-    if (attrName === 'threshold') {
-      this._model.set('threshold', this.threshold)
-    }
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-
-    if (this.#clearup) {
-      this.#clearup()
-    }
+    })
   }
 }

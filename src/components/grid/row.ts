@@ -1,11 +1,11 @@
 import type { NullableEnumAttr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { domRef } from '../../decorators/domRef.js'
-import { template } from './row.template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { style } from './row.style.js'
-import { Component } from '../Component.js'
+import { template } from './row.template.js'
 import { BlocksColumn } from './column.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-row',
@@ -29,44 +29,44 @@ export class BlocksRow extends Component {
   })
   accessor justify!: NullableEnumAttr<['start', 'end', 'center', 'space-around', 'space-between']>
 
-  @domRef('slot') accessor $slot!: HTMLSlotElement
+  @shadowRef('slot') accessor $slot!: HTMLSlotElement
 
   constructor() {
     super()
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template())
+
+    this.#setupGutter()
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    this._renderGutter()
-  }
+  #setupGutter() {
+    const _renderGutter = () => {
+      const cols = this.$slot.assignedElements() as BlocksColumn[]
 
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'gutter') {
-      this._renderGutter()
+      if (this.gutter) {
+        const half = this.gutter / 2
+        this.style.marginLeft = -half + 'px'
+        this.style.marginRight = -half + 'px'
+        cols.forEach($col => {
+          $col.style.paddingLeft = half + 'px'
+          $col.style.paddingRight = half + 'px'
+        })
+      } else {
+        this.style.marginLeft = ''
+        this.style.marginRight = ''
+        cols.forEach($col => {
+          $col.style.paddingLeft = ''
+          $col.style.paddingRight = ''
+        })
+      }
     }
-  }
 
-  _renderGutter() {
-    const cols = this.$slot.assignedElements() as BlocksColumn[]
+    this.onConnected(() => {
+      _renderGutter()
+    })
 
-    if (this.gutter) {
-      const half = this.gutter / 2
-      this.style.marginLeft = -half + 'px'
-      this.style.marginRight = -half + 'px'
-      cols.forEach($col => {
-        $col.style.paddingLeft = half + 'px'
-        $col.style.paddingRight = half + 'px'
-      })
-    } else {
-      this.style.marginLeft = ''
-      this.style.marginRight = ''
-      cols.forEach($col => {
-        $col.style.paddingLeft = ''
-        $col.style.paddingRight = ''
-      })
-    }
+    this.onAttributeChangedDep('gutter', () => {
+      _renderGutter()
+    })
   }
 }

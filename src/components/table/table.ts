@@ -1,20 +1,22 @@
-import '../scrollable/index.js'
-import './header.js'
+import type { BlocksTableBody, CellElement } from './body.js'
+import type { BlocksTableHeader, CellElement as HeaderCell } from './header.js'
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import type { RowColumn } from './RowColumn.js'
+import type { VirtualItem } from '../vlist/index.js'
 import './body.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import './header.js'
+import '../scrollable/index.js'
 import { attr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
-import { sizeObserve } from '../../common/sizeObserve.js'
-import { make, RowColumn } from './RowColumn.js'
-import { setStyles } from '../../common/style.js'
+import { make } from './RowColumn.js'
 import { onDragMove } from '../../common/onDragMove.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
+import { setStyles } from '../../common/style.js'
+import { sizeObserve } from '../../common/sizeObserve.js'
 import { style } from './table.style.js'
-import { BlocksTableHeader, CellElement as HeaderCell } from './header.js'
-import { BlocksTableBody, CellElement } from './body.js'
-import { VirtualItem } from '../vlist/index.js'
+import { Component } from '../component/Component.js'
 
-let gridId = 0
+// let gridId = 0
 
 type EnterCellEvent = {
   $cell: CellElement
@@ -28,13 +30,12 @@ export interface BlocksTableEventMap extends ComponentEventMap {
 }
 
 export interface BlocksTable extends Component {
-  _ref: {
-    $mainHeader: BlocksTableHeader
-    $mainBody: BlocksTableBody
-    $resizeHandle: ResizeHandler
-    $fixedLeftShadow?: HTMLElement
-    $fixedRightShadow?: HTMLElement
-  }
+  $mainHeader: BlocksTableHeader
+  $mainBody: BlocksTableBody
+  $resizeHandle: ResizeHandler
+  $fixedLeftShadow?: HTMLElement
+  $fixedRightShadow?: HTMLElement
+
   addEventListener<K extends keyof BlocksTableEventMap>(
     type: K,
     listener: ComponentEventListener<BlocksTableEventMap[K]>,
@@ -58,28 +59,32 @@ export class BlocksTable extends Component {
   disableActiveMethod?: (vitem: VirtualItem) => boolean
   shouldShowFixedColumns?: () => boolean
 
-  static override get observedAttributes() {
-    return ['border']
-  }
-
   @attr('boolean') accessor border!: boolean
+
+  // 数据排序方法
+  // @Prop({ type: Function }) sortMethod?: (a: any, b: any) => number
+
+  // 数据禁止切换激活的检查方法
+  // @Prop({ type: Function, default: () => false })
+  // disableActiveMethod
 
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-
     // 表头
-    const $mainHeader = shadowRoot.appendChild(document.createElement('bl-table-header')) as BlocksTableHeader
+    const $mainHeader = document.createElement('bl-table-header') as BlocksTableHeader
     $mainHeader.$host = this
+    this.appendShadowChild($mainHeader)
 
     // 表身
-    const $mainBody = shadowRoot.appendChild(document.createElement('bl-table-body')) as BlocksTableBody
+    const $mainBody = document.createElement('bl-table-body') as BlocksTableBody
     $mainBody.$host = this
+    this.appendShadowChild($mainBody)
 
     // 列宽拖拽柄
-    const $resizeHandle = shadowRoot.appendChild(document.createElement('div')) as unknown as ResizeHandler
+    const $resizeHandle = document.createElement('div') as unknown as ResizeHandler
     $resizeHandle.id = 'resize-handle'
+    this.appendShadowChild($resizeHandle)
 
     // 水平滚动，同步 header 的左右滚动
     $mainBody.addEventListener('bl:scroll', () => {
@@ -115,13 +120,13 @@ export class BlocksTable extends Component {
       $mainBody.sortOrder = column.sortOrder
     })
 
-    this._ref = {
-      $mainHeader,
-      $mainBody,
-      $resizeHandle,
-    }
+    this.$mainHeader = $mainHeader
+    this.$mainBody = $mainBody
+    this.$resizeHandle = $resizeHandle
 
     this._initResizeEvent()
+
+    this.#setupBorder()
   }
 
   get data() {
@@ -130,7 +135,7 @@ export class BlocksTable extends Component {
 
   set data(value) {
     this._data = value
-    this._ref.$mainBody.data = value
+    this.$mainBody.data = value
   }
 
   get columns() {
@@ -139,17 +144,10 @@ export class BlocksTable extends Component {
 
   set columns(value) {
     this._columns = (value ?? []).map((options: Partial<RowColumn>) => make(options))
-    this._ref.$mainHeader.columns = value
-    this._ref.$mainBody.columns = value
+    this.$mainHeader.columns = value
+    this.$mainBody.columns = value
     this._updateFiexedColumnShadow()
   }
-
-  // 数据排序方法
-  // @Prop({ type: Function }) sortMethod?: (a: any, b: any) => number
-
-  // 数据禁止切换激活的检查方法
-  // @Prop({ type: Function, default: () => false })
-  // disableActiveMethod
 
   // 当前的激活行
   activeRow: VirtualItem | null = null
@@ -158,48 +156,47 @@ export class BlocksTable extends Component {
 
   resizeHandlerRight = -5
 
-  // 当前实例是否 VGrid
-  gridId = ++gridId
+  // gridId = ++gridId
 
   resizehandler = null
 
   resizeStartOffset = 0
 
   _updateFiexedColumnShadow() {
-    const { $mainBody } = this._ref
+    const { $mainBody } = this
     const leftSize = $mainBody.getFixedLeftShadowPosition()
     const rightSize = $mainBody.getFixedRightShadowPosition()
 
-    if (leftSize && $mainBody._ref.$viewport.canScrollLeft) {
-      if (!this._ref.$fixedLeftShadow) {
-        this._ref.$fixedLeftShadow = document.createElement('div')
-        this._ref.$fixedLeftShadow.id = 'fixed-left-shadow'
+    if (leftSize && $mainBody.$viewport.canScrollLeft) {
+      if (!this.$fixedLeftShadow) {
+        this.$fixedLeftShadow = document.createElement('div')
+        this.$fixedLeftShadow.id = 'fixed-left-shadow'
       }
-      if (!this._ref.$fixedLeftShadow.parentNode) {
-        this.shadowRoot!.appendChild(this._ref.$fixedLeftShadow)
+      if (!this.$fixedLeftShadow.parentNode) {
+        this.shadowRoot!.appendChild(this.$fixedLeftShadow)
       }
-      this._ref.$fixedLeftShadow.style.left = leftSize - 1 + 'px'
+      this.$fixedLeftShadow.style.left = leftSize - 1 + 'px'
     } else {
-      if (this._ref.$fixedLeftShadow) {
-        if (this._ref.$fixedLeftShadow.parentNode) {
-          this.shadowRoot!.removeChild(this._ref.$fixedLeftShadow)
+      if (this.$fixedLeftShadow) {
+        if (this.$fixedLeftShadow.parentNode) {
+          this.shadowRoot!.removeChild(this.$fixedLeftShadow)
         }
       }
     }
 
-    if (rightSize && $mainBody._ref.$viewport.canScrollRight) {
-      if (!this._ref.$fixedRightShadow) {
-        this._ref.$fixedRightShadow = document.createElement('div')
-        this._ref.$fixedRightShadow.id = 'fixed-right-shadow'
+    if (rightSize && $mainBody.$viewport.canScrollRight) {
+      if (!this.$fixedRightShadow) {
+        this.$fixedRightShadow = document.createElement('div')
+        this.$fixedRightShadow.id = 'fixed-right-shadow'
       }
-      if (!this._ref.$fixedRightShadow.parentNode) {
-        this.shadowRoot!.appendChild(this._ref.$fixedRightShadow)
+      if (!this.$fixedRightShadow.parentNode) {
+        this.shadowRoot!.appendChild(this.$fixedRightShadow)
       }
-      this._ref.$fixedRightShadow.style.right = rightSize + 'px'
+      this.$fixedRightShadow.style.right = rightSize + 'px'
     } else {
-      if (this._ref.$fixedRightShadow) {
-        if (this._ref.$fixedRightShadow.parentNode) {
-          this.shadowRoot!.removeChild(this._ref.$fixedRightShadow)
+      if (this.$fixedRightShadow) {
+        if (this.$fixedRightShadow.parentNode) {
+          this.shadowRoot!.removeChild(this.$fixedRightShadow)
         }
       }
     }
@@ -208,8 +205,9 @@ export class BlocksTable extends Component {
   }
 
   override render() {
-    this._ref.$mainHeader.render()
-    this._ref.$mainBody.render()
+    super.render()
+    this.$mainHeader.render()
+    this.$mainBody.render()
   }
 
   _clearResizeHandler?: () => void
@@ -229,6 +227,15 @@ export class BlocksTable extends Component {
     if (this._clearResizeHandler) {
       this._clearResizeHandler()
     }
+  }
+
+  #setupBorder() {
+    const update = () => {
+      this.$mainHeader.border = this.border
+      this.$mainBody.border = this.border
+    }
+    this.onAttributeChangedDep('border', update)
+    update()
   }
 
   // 获取（可选过滤条件的）末级列
@@ -297,14 +304,14 @@ export class BlocksTable extends Component {
   // @Provide()
   getCanvasWidth() {
     const columnsMinWidth = this.getLeafColumnsWith().reduce((acc, column) => acc + column.minWidth, 0)
-    const bodyWidth = this._ref.$mainBody?.clientWidth ?? this.width ?? 400
+    const bodyWidth = this.$mainBody?.clientWidth ?? this.width ?? 400
     return Math.max(bodyWidth, columnsMinWidth)
   }
 
   // 进行布局，调整各列的宽度以适配排版容器
   layout(canvasWidth: number) {
-    this._ref.$mainHeader._ref.$canvas.style.width = canvasWidth + 'px'
-    this._ref.$mainBody.crossSize = canvasWidth
+    this.$mainHeader.$canvas.style.width = canvasWidth + 'px'
+    this.$mainBody.crossSize = canvasWidth
 
     // 已分配的宽度
     const sum = this.getLeafColumnsWith().reduce((acc, column) => acc + column.width, 0)
@@ -333,7 +340,7 @@ export class BlocksTable extends Component {
 
   // 激活某行
   active(rowKey: string) {
-    const row = this._ref.$mainBody.getVirtualItemByKey(rowKey)
+    const row = this.$mainBody.getVirtualItemByKey(rowKey)
 
     // 目标行不存在，则清除当前激活行后退出
     if (!row) {
@@ -478,17 +485,17 @@ export class BlocksTable extends Component {
       return newX
     }
 
-    onDragMove(this._ref.$resizeHandle, {
+    onDragMove(this.$resizeHandle, {
       onStart: () => {
         this.classList.add('resizing')
-        startX = parseInt(this._ref.$resizeHandle.style.left, 10)
-        column = this._ref.$resizeHandle.column
-        $cell = this._ref.$resizeHandle.$cell
+        startX = parseInt(this.$resizeHandle.style.left, 10)
+        column = this.$resizeHandle.column
+        $cell = this.$resizeHandle.$cell
       },
 
       onMove: ({ offset }) => {
         const newX = update(offset)
-        this._ref.$resizeHandle.style.left = newX + 'px'
+        this.$resizeHandle.style.left = newX + 'px'
       },
 
       onEnd: ({ offset }) => {
@@ -497,9 +504,9 @@ export class BlocksTable extends Component {
         const offsetX = newX - startX
         if (offsetX !== 0) {
           column.width += offsetX
-          this._ref.$mainHeader.render()
-          this._ref.$mainBody._resetCalculated()
-          this._ref.$mainBody.redraw()
+          this.$mainHeader.render()
+          this.$mainBody._resetCalculated()
+          this.$mainBody.redraw()
         }
       },
 

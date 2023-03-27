@@ -1,98 +1,85 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { domRef } from '../../decorators/domRef.js'
-import { Component } from '../Component.js'
-import { append, mountBefore } from '../../common/mount.js'
-import { strSetter } from '../../common/property.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { Component } from '../component/Component.js'
+import { SetupDisabled } from '../setup-disabled/index.js'
+import { SetupTabIndex } from '../setup-tab-index/index.js'
 
-export interface Control extends Component {
-  _ref: {
-    $layout: HTMLDivElement
-  }
-}
-
+/**
+ * 控件基类
+ * 提供 disabled 功能
+ */
 @defineClass({
   attachShadow: {
     mode: 'open',
-    // 代理焦点，
-    // 1. 点击 shadow DOM 内某个不可聚焦的区域，则第一个可聚焦区域将成为焦点
-    // 2. 当 shadow DOM 内的节点获得焦点时，除了聚焦的元素外，:focus 还会应用到宿主
-    // 3. 自己的 slot 中的元素聚焦，宿主不会获得焦点，但是 :focus-within 生效
+    // https://github.com/WICG/webcomponents/blob/gh-pages/proposals/ShadowRoot-delegatesFocus-Proposal.md
+    // https://github.com/TakayoshiKochi/tabindex-focus-navigation-explainer/blob/master/TabindexFocusNavigationExplainer.md
+    // 该属性用于确定是否将焦点活动委托给 shadow 处理（设置后不可修改），
+    //
+    // 对于默认不可聚焦的元素，delegatesFocus 为 true 时的影响：
+    // 1. tab 导航：
+    //   对于 host 的 tabIndex >= 0 的情况，正向移动焦点过程，会跳过 host，直接聚焦到 shadow tree 中首个可聚焦的元素上，反向移动焦点时，到了第一个可聚焦的元素上，再移动也会直接跳过 host；
+    //   对于 host 的 tabIndex < 0 的情况，则会直接跳过整棵 shadow tree。
+    //   > 注：如果没有 delegatesFocus: true，正向 tab 移动焦点时，会先聚焦到 host（而不是跳过），继续移动时才会到第一个可聚焦的 shadow tree 元素，反向移动同理，从第一个可聚焦 shadow tree 元素上往前移动焦点时，焦点会移动到 host 上（而不是跳过）。
+    //   > 注：host 上没有设置 tabIndex，等同于 tabindex="0"
+    //
+    // 2. focus() 方法的行为：
+    //   在 host 上调用 focus() 方法，会将焦点委派给其首个可聚焦的 shadow tree 元素，如果存在嵌套 shadow tree，则会递归该过程。如果最终没有可聚焦的元素，则焦点会应用在 host 自身上面。
+    //   > 注：如果没有 delegatesFocus: true，调用 host 的 focus() 方法，不会尝试进入 shadow tree 里面的可聚焦元素。
+    //
+    // 3. autofocus 行为：
+    //   如果设置了 autofocus attribute，在页面加载完成时，会触发类似调用 focus() 方法时的焦点转移行为。
+    //
+    // 4. 响应鼠标 click：
+    //   如果点击 shadow tree 中可聚焦的区域，则对应元素获得焦点。如果点击的是不可聚焦的区域，则 shadow tree 中首个可聚焦元素获得焦点。
+    //
+    // 5. CSS 的 :focus 伪类：
+    //   任何后代 shadow tree 上的元素获得焦点时，host 元素上的 :focus 选择器（例如：#host:focus）将会匹配。
+    //   > 注：如果没有 delegatesFocus: true，shadow tree 中的元素聚焦时，host的:focus 选择器不会匹配。
+    //
+    // 以上内容是针对默认不可聚焦的元素（如 div），调用 shadowRoot 的 setForceFocusable() 方法，可以无视 tabIndex、delegatesFocus 的设置，强行表现为默认可聚焦元素（类似 a）。默认可聚焦元素就算不设置 tabIndex，也等同 tabindex="0"，并且总可以聚焦。默认不可聚焦元素，没有 delegatesFocus 且不设置 tabIndex 时，是不可以聚焦的。
+    //
+    // 注意：自己的 slot 中的元素聚焦，宿主不会获得焦点，但是 :focus-within 生效
+    //
     delegatesFocus: true,
   },
 })
 export class Control extends Component {
-  @attr('boolean')
-  accessor disabled!: boolean
+  static override get observedAttributes(): readonly string[] {
+    return ['tabindex', ...super.observedAttributes]
+  }
 
-  @domRef('#layout')
-  accessor $layout!: HTMLDivElement
+  /**
+   * 组件 disabled 时，禁用的事件
+   */
+  static get disableEventTypes(): readonly string[] {
+    return []
+  }
+
+  @attr('boolean') accessor disabled!: boolean
 
   constructor() {
     super()
-
-    const shadowRoot = this.shadowRoot!
-
-    const $layout = document.createElement('div')
-    $layout.id = 'layout'
-
-    this._ref = {
-      $layout: shadowRoot.appendChild($layout),
-    }
   }
 
-  // 配置组件的可聚焦性
-  // 子类根据需要在 `constructor` 中初始化改属性
-  //
-  // 1. 默认为字符串 `'-1'`，效果为组件可以点击聚焦，但不能 tab 聚焦。
-  // 该行为适用于组件子孙元素本身有需要聚焦的 input、button 之类的元素，
-  // tab 的时候希望直接聚焦到这些内部控件，而不是组件自身的场景。
-  //
-  // 2. 如果子孙元素没有其他可聚焦的控件，而组件本身又需要可以 tab 聚焦，则可以在组件构造的时候，初始化当前值为字符串 `0` 或正数字符串。
-  //
-  // 3. 如果组件自身没有可聚焦的子孙元素，且需要禁用聚焦，则在 `constructor` 中将该属性设置为 `null` 即可。
-  #internalTabIndex: `${number}` | null = '-1'
-  get internalTabIndex() {
-    return this.#internalTabIndex
-  }
+  _disabledFeature = SetupDisabled.setup({
+    component: this,
+    predicate() {
+      return this.disabled
+    },
+    target() {
+      return [this]
+    },
+  })
 
-  set internalTabIndex(value: `${number}` | null) {
-    this.#internalTabIndex = value
-    this._renderDisabled()
-  }
-
-  _renderDisabled() {
-    if (this.disabled || this.internalTabIndex == null) {
-      this.setAttribute('aria-disabled', 'true')
-      strSetter('tabindex')(this._ref.$layout, null)
-    } else {
-      strSetter('tabindex')(this._ref.$layout, this.internalTabIndex)
-      this.setAttribute('aria-disabled', 'false')
-    }
-  }
-
-  _appendStyle($style: HTMLStyleElement) {
-    mountBefore($style, this._ref.$layout)
-  }
-
-  _appendContent<T extends HTMLElement | DocumentFragment>($el: T) {
-    append($el, this._ref.$layout)
-    return $el
-  }
-
-  override render() {
-    this._renderDisabled()
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this._renderDisabled()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'disabled') {
-      this._renderDisabled()
-    }
-  }
+  _tabIndexFeature = SetupTabIndex.setup({
+    component: this,
+    disabledPredicate() {
+      return this.disabled
+    },
+    target() {
+      const children = this.shadowRoot?.children
+      if (children) return [children[children.length - 1]]
+      return []
+    },
+  })
 }

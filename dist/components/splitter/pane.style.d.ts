@@ -1,0 +1,1 @@
+export declare const style = "\n:host {\n  display: block;\n  position: absolute;\n  box-sizing: border-box;\n}\n:host(.horizontal) {\n  height: 100%;\n  width: auto;\n}\n:host(.vertical) {\n  width: 100%;\n  height: auto;\n}\n#content {\n  position: relative;\n  z-index: 1;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  padding: 0;\n}\n";

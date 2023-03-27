@@ -1,11 +1,13 @@
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import type { RowColumn } from './RowColumn.js'
+import { attr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
-import { template } from './header-template.js'
 import { style } from './header.style.js'
-import { RowColumn } from './RowColumn.js'
+import { template } from './header-template.js'
 import { BlocksTable } from './table.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { Component } from '../component/Component.js'
 
 export type CellElement = HTMLElement & { column: RowColumn }
 
@@ -15,11 +17,9 @@ export interface TableHeaderEventMap extends ComponentEventMap {
 }
 
 export interface BlocksTableHeader extends Component {
-  _ref: {
-    $host?: BlocksTable
-    $viewport: HTMLElement
-    $canvas: HTMLElement
-  }
+  $host: BlocksTable
+  $viewport: HTMLElement
+  $canvas: HTMLElement
 
   addEventListener<K extends keyof TableHeaderEventMap>(
     type: K,
@@ -38,9 +38,7 @@ export interface BlocksTableHeader extends Component {
   styles: [style],
 })
 export class BlocksTableHeader extends Component {
-  static override get observedAttributes() {
-    return []
-  }
+  @attr('boolean') accessor border!: boolean
 
   _columns: RowColumn[] = []
   fixedLeftColumns: RowColumn[] = []
@@ -56,10 +54,8 @@ export class BlocksTableHeader extends Component {
     const $viewport = shadowRoot.querySelector('#viewport') as HTMLElement
     const $canvas = shadowRoot.querySelector('.columns') as HTMLElement
 
-    this._ref = {
-      $viewport,
-      $canvas,
-    }
+    this.$viewport = $viewport
+    this.$canvas = $canvas
 
     this._initHoverEvent()
 
@@ -99,14 +95,6 @@ export class BlocksTableHeader extends Component {
     }
   }
 
-  get $host() {
-    return this._ref.$host
-  }
-
-  set $host(table: BlocksTable | undefined) {
-    this._ref.$host = table
-  }
-
   get columns() {
     return this._columns
   }
@@ -117,18 +105,18 @@ export class BlocksTableHeader extends Component {
   }
 
   get viewportScrollLeft() {
-    return this._ref.$viewport.scrollLeft
+    return this.$viewport.scrollLeft
   }
 
   set viewportScrollLeft(value) {
-    this._ref.$viewport.scrollLeft = value
+    this.$viewport.scrollLeft = value
   }
 
   _initHoverEvent() {
-    this._ref.$canvas.addEventListener('mouseover', e => {
+    this.$canvas.addEventListener('mouseover', e => {
       let $cell = e.target as CellElement | null
       let _$cell!: HTMLElement & { column: RowColumn }
-      while ($cell && $cell !== this._ref.$canvas) {
+      while ($cell && $cell !== this.$canvas) {
         if ($cell.classList.contains('cell')) {
           if ($cell === _$cell) return
           _$cell = $cell
@@ -173,6 +161,7 @@ export class BlocksTableHeader extends Component {
   }
 
   override render() {
+    super.render()
     const columns = this.$host?.columns ?? []
     this.fixedLeftColumns = columns.filter(column => column.fixedLeft)
     this.fixedRightColumns = columns.filter(column => column.fixedRight).reverse()
@@ -262,8 +251,8 @@ export class BlocksTableHeader extends Component {
       }
     }
 
-    this._ref.$canvas.innerHTML = ''
-    columns.forEach(column => render(column, this._ref.$canvas))
+    this.$canvas.innerHTML = ''
+    columns.forEach(column => render(column, this.$canvas))
   }
 
   override connectedCallback() {

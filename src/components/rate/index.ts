@@ -1,39 +1,46 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { getRegisteredSvgIcon } from '../../icon/store.js'
-import { forEach } from '../../common/utils.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { enumGetter, enumSetter } from '../../common/property.js'
-import { Component } from '../Component.js'
-import { template } from './template.js'
+import { forEach } from '../../common/utils.js'
 import { style } from './style.js'
+import { template } from './template.js'
+import { Control } from '../base-control/index.js'
 
-const halfValueGetter = enumGetter('value', ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
-const halfValueSetter = enumSetter('value', ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
-const valueGetter = enumGetter('value', ['1', '2', '3', '4', '5'])
-const valueSetter = enumSetter('value', ['1', '2', '3', '4', '5'])
-
-const $STAR_ICON = getRegisteredSvgIcon('star')!
-
-export interface BlocksRate extends Component {
-  ref: {
-    $layout: HTMLElement
-  }
-}
+const halfValueGetter = enumGetter('value', ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
+const halfValueSetter = enumSetter('value', ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
+const valueGetter = enumGetter('value', ['0', '1', '2', '3', '4', '5'])
+const valueSetter = enumSetter('value', ['0', '1', '2', '3', '4', '5'])
 
 @defineClass({
   customElement: 'bl-rate',
   styles: [style],
 })
-export class BlocksRate extends Component {
-  static override get observedAttributes() {
-    return [
-      // model 值
-      'value',
-    ]
+export class BlocksRate extends Control {
+  static override get disableEventTypes(): readonly string[] {
+    return ['click', 'mouseover', 'mouseleave', 'keydown']
   }
 
-  /** 允许 toggle 高亮 */
-  @attr('boolean') accessor clearable!: boolean
+  @attr('number', {
+    get: self => {
+      if (self.resultMode) return +self.getAttribute('value')
+      const value = self.half ? halfValueGetter(self) : valueGetter(self)
+      if (value == null) return 0
+      return +value
+    },
+
+    set: (self, value: any) => {
+      if (self.resultMode) {
+        self.setAttribute('value', value)
+      }
+      if (self.half) {
+        halfValueSetter(self, String(value))
+      } else {
+        valueSetter(self, String(value))
+      }
+    },
+  })
+  accessor value!: number
 
   /** 允许选择半颗星 */
   @attr('boolean') accessor half!: boolean
@@ -41,94 +48,106 @@ export class BlocksRate extends Component {
   /** 结果模式，可以百分比高亮星星 */
   @attr('boolean') accessor resultMode!: boolean
 
-  _hoverValue?: number
+  @shadowRef('#layout') accessor $layout!: HTMLElement
 
   constructor() {
     super()
     const shadowRoot = this.shadowRoot!
     shadowRoot.appendChild(template())
 
-    const $layout = shadowRoot.getElementById('layout') as HTMLElement
+    this._tabIndexFeature.withTarget(() => [this.$layout]).withTabIndex(0)
 
-    this.ref = { $layout }
+    this.#setupEvents()
 
-    forEach($layout.children as unknown as HTMLButtonElement[], ($button, index) => {
-      $button.onmouseover = e => {
-        if (this.resultMode) return
-
-        if (!this.half) {
-          this._hoverValue = index + 1
-        } else {
-          let el = e.target as HTMLElement
-          while (!el.classList.contains('star')) {
-            el = el.parentElement!
-          }
-          this._hoverValue = index + (el.classList.contains('part') ? 0.5 : 1)
-        }
-        this.updateSelect()
-      }
-
-      $button.onclick = e => {
-        if (this.resultMode) return
-        if (!this.half) {
-          this.value = index + 1
-        } else {
-          let el = e.target as HTMLElement
-          while (!el.classList.contains('star')) {
-            el = el.parentElement!
-          }
-          this.value = index + (el.classList.contains('part') ? 0.5 : 1)
-        }
-        this.updateSelect()
-      }
-    })
-
-    $layout.onmouseleave = e => {
-      this._hoverValue = undefined
-      this.updateSelect()
-    }
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
   }
 
-  get value() {
-    const value = this.resultMode ? this.getAttribute('value') : this.half ? halfValueGetter(this) : valueGetter(this)
-    if (value == null) return null
-    return +value as 1 | 2 | 3 | 4 | 5
+  #hoverValue?: number
+  get hoverValue() {
+    return this.#hoverValue
   }
 
-  set value(value: any) {
+  set hoverValue(value) {
+    this.#hoverValue = value
+    this.render()
+  }
+
+  override render() {
     if (this.resultMode) {
-      this.setAttribute('value', value)
-    }
-    if (this.half) {
-      halfValueSetter(this, '' + value)
+      this.#renderResult()
     } else {
-      valueSetter(this, '' + value)
+      this.#renderSelection()
     }
   }
 
-  updateSelect() {
-    if (this.resultMode) {
-      const value = this.value ?? 0
-      let acc = 0
-      forEach(this.ref.$layout.children as unknown as HTMLButtonElement[], $button => {
-        if (value - acc >= 1) {
-          $button.className = 'selected'
-          acc += 1
-        } else if (value - acc > 0) {
-          $button.className = 'partially-selected'
-          const n = value - acc
-          ;($button.querySelector('.part') as HTMLElement).style.width = `${n * 100}%`
-          acc += n
-        } else {
-          $button.className = ''
+  #setupEvents() {
+    const getElContainsTarget = <T extends HTMLElement>(e: MouseEvent, tagName: string): T | null => {
+      let $el = e.target as Element | null
+      while ($el && $el !== this.$layout) {
+        if ($el.tagName === tagName) {
+          return $el as T
         }
-      })
-      return
+        $el = $el.parentElement
+      }
+      return null
     }
 
-    const value = +(this._hoverValue ?? this.value ?? 0)
+    const getValue = (e: MouseEvent) => {
+      const $button = getElContainsTarget(e, 'BUTTON')!
+      if (!this.half) return Number($button.dataset.value)
+      const $star = getElContainsTarget(e, 'SPAN')!
+      return Number($button.dataset.value) - ($star.classList.contains('part') ? 0.5 : 0)
+    }
+
+    const onMouseOver = (e: MouseEvent) => {
+      if (this.resultMode) return
+      const $button = getElContainsTarget(e, 'BUTTON')
+      if (!$button) return
+      this.hoverValue = getValue(e)
+    }
+    const onClick = (e: MouseEvent) => {
+      if (this.resultMode) return
+      const $button = getElContainsTarget(e, 'BUTTON')
+      if (!$button) return
+      this.value = getValue(e)
+    }
+    const onMouseLeave = () => {
+      this.hoverValue = undefined
+    }
+
+    const onKeydown = (e: KeyboardEvent) => {
+      if (this.resultMode) return
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        if (this.value < 5) {
+          this.value += this.half ? 0.5 : 1
+        }
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        if (this.value > 0) {
+          this.value -= this.half ? 0.5 : 1
+        }
+      }
+    }
+
+    this.onConnected(() => {
+      this.$layout.addEventListener('keydown', onKeydown)
+      this.$layout.addEventListener('mouseover', onMouseOver)
+      this.$layout.addEventListener('click', onClick)
+      this.$layout.addEventListener('mouseleave', onMouseLeave)
+    })
+    this.onDisconnected(() => {
+      this.$layout.removeEventListener('keydown', onKeydown)
+      this.$layout.removeEventListener('mouseover', onMouseOver)
+      this.$layout.removeEventListener('click', onClick)
+      this.$layout.removeEventListener('mouseleave', onMouseLeave)
+    })
+  }
+
+  #renderSelection() {
+    const value = +(this.hoverValue ?? this.value ?? 0)
     let acc = 0
-    forEach(this.ref.$layout.children as unknown as HTMLButtonElement[], $button => {
+    forEach(this.$layout.children as unknown as HTMLButtonElement[], $button => {
       if (value - acc >= 1) {
         $button.className = 'selected'
         acc += 1
@@ -142,28 +161,21 @@ export class BlocksRate extends Component {
     })
   }
 
-  override render() {
-    const star = document.createElement('span')
-    star.className = 'star'
-    star.appendChild($STAR_ICON.cloneNode(true))
-    forEach(this.ref.$layout.children as unknown as HTMLButtonElement[], $button => {
-      if ($button.children.length !== 2) {
-        $button.innerHTML = ''
-        $button.appendChild(star.cloneNode(true))
-        $button.appendChild(star.cloneNode(true) as HTMLElement).classList.add('part')
+  #renderResult() {
+    const value = this.value ?? 0
+    let acc = 0
+    forEach(this.$layout.children as unknown as HTMLButtonElement[], $button => {
+      if (value - acc >= 1) {
+        $button.className = 'selected'
+        acc += 1
+      } else if (value - acc > 0) {
+        $button.className = 'partially-selected'
+        const n = value - acc
+        ;($button.querySelector('.part') as HTMLElement).style.width = `${n * 100}%`
+        acc += n
+      } else {
+        $button.className = ''
       }
     })
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-    this.updateSelect()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
-    this.updateSelect()
   }
 }

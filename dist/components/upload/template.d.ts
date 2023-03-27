@@ -1,4 +1,1 @@
-export declare function template(): {
-    comTemplate: HTMLTemplateElement;
-    itemTemplate: HTMLTemplateElement;
-};
+export declare const template: () => HTMLElement;

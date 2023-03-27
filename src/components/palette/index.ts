@@ -1,5 +1,5 @@
-import { Component } from '../Component.js'
 import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 export class BlocksPalette extends Component {
   constructor() {

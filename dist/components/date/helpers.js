@@ -1,50 +1,19 @@
+import { Depth } from './type.js';
 import { range } from '../../common/utils.js';
-export var Depth;
-(function (Depth) {
-    Depth["Month"] = "month";
-    Depth["Year"] = "year";
-    Depth["Decade"] = "decade";
-    Depth["Century"] = "century";
-})(Depth || (Depth = {}));
 export const Depths = [Depth.Month, Depth.Year, Depth.Decade, Depth.Century];
+export const LeafDepths = [Depth.Month, Depth.Year, Depth.Decade];
 export const DepthValue = Object.freeze({
     [Depth.Century]: 0,
     [Depth.Decade]: 1,
     [Depth.Year]: 2,
     [Depth.Month]: 3,
 });
-export function getFirstDate(year, month) {
-    return new Date(year, month, 1);
-}
-export function getLastDate(year, month) {
-    return new Date(year, month + 1, 0);
-}
-export function getFirstDateOfNextMonth(year, month) {
-    return new Date(year, month + 1, 1);
-}
-export function getLastDateOfPrevMonth(year, month) {
-    return getLastDate(year, month - 1);
-}
-export function getClosestDate(dates = []) {
-    const now = Date.now();
-    let offset = Infinity;
-    let result = null;
-    for (let i = 0; i < dates.length; i += 1) {
-        const current = dates[i];
-        const currentOffset = Math.abs(current.getTime() - now);
-        if (currentOffset < offset) {
-            result = current;
-            offset = currentOffset;
-        }
-    }
-    return result;
-}
 export function normalizeMinDepth(min, depth) {
     if (!min)
         return Depth.Century;
     return DepthValue[depth] < DepthValue[min] ? depth : min;
 }
-export function normalizeViewDepth(view, min, depth) {
+export function normalizeActiveDepth(view, min, depth) {
     if (!view)
         return depth;
     if (DepthValue[view] < DepthValue[min]) {
@@ -55,16 +24,20 @@ export function normalizeViewDepth(view, min, depth) {
     }
     return view;
 }
-export function generateMonths(century, decade, year) {
-    const results = range(0, 11).map(month => ({
-        label: String(month + 1),
-        century,
-        decade,
-        year,
-        month,
-        date: undefined,
-    }));
-    return results;
+export function maybeLeafModel(model) {
+    return typeof model.year === 'number';
+}
+export function isDecadeModel(model) {
+    return typeof model.decade === 'number';
+}
+export function isYearModel(model) {
+    return typeof model.year === 'number' && model.month == null;
+}
+export function isMonthModel(model) {
+    return typeof model.month === 'number' && model.date == null;
+}
+export function isDayModel(model) {
+    return typeof model.date === 'number';
 }
 export function generateDates(century, decade, year, month, startWeekOn) {
     if (year == null || month == null)
@@ -113,6 +86,17 @@ export function generateDates(century, decade, year, month, startWeekOn) {
         });
         date++;
     }
+    return results;
+}
+export function generateMonths(century, decade, year) {
+    const results = range(0, 11).map(month => ({
+        label: String(month + 1),
+        century,
+        decade,
+        year,
+        month,
+        date: undefined,
+    }));
     return results;
 }
 export function generateYears(century, decade) {
@@ -192,4 +176,67 @@ export function isToday(model) {
 }
 export function isAllEqual(arr1, arr2) {
     return arr1.length === arr2.length && arr1.every((date, index) => date.getTime() === arr2[index].getTime());
+}
+export function modelToDate(model, viewDepth) {
+    switch (viewDepth) {
+        case Depth.Month: {
+            return makeDate(model.year, model.month, model.date);
+        }
+        case Depth.Year: {
+            return makeDate(model.year, model.month, 1);
+        }
+        case Depth.Decade: {
+            return makeDate(model.year, 0, 1);
+        }
+        default:
+            throw new Error('never');
+    }
+}
+export function dateToModel(dateObj, depth) {
+    const year = dateObj.getFullYear();
+    const month = dateObj.getMonth();
+    const date = dateObj.getDate();
+    const century = Math.floor(year / 100);
+    const decade = Math.floor(year / 10);
+    const label = depth === Depth.Month
+        ? String(date)
+        : depth === Depth.Year
+            ? String(month + 1)
+            : depth === Depth.Decade
+                ? String(year)
+                : `${decade * 10} ~ ${decade * 10 + 9}`;
+    return {
+        label,
+        century,
+        decade,
+        year,
+        month,
+        date,
+    };
+}
+export function getClosestDate(dates = []) {
+    const now = Date.now();
+    let offset = Infinity;
+    let result = null;
+    for (let i = 0; i < dates.length; i += 1) {
+        const current = dates[i];
+        const currentOffset = Math.abs(current.getTime() - now);
+        if (currentOffset < offset) {
+            result = current;
+            offset = currentOffset;
+        }
+    }
+    return result;
+}
+function getFirstDate(year, month) {
+    return new Date(year, month, 1);
+}
+function getLastDate(year, month) {
+    return new Date(year, month + 1, 0);
+}
+function getFirstDateOfNextMonth(year, month) {
+    return new Date(year, month + 1, 1);
+}
+function getLastDateOfPrevMonth(year, month) {
+    return getLastDate(year, month - 1);
 }

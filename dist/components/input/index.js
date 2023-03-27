@@ -32,15 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import '../popup/index.js';
-import '../date/index.js';
+import { attr, attrs } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { disabledSetter } from '../../common/propertyAccessor.js';
 import { dispatchEvent } from '../../common/event.js';
-import { ClearableControlBox } from '../base-clearable-control-box/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr, attrs } from '../../decorators/attr.js';
-import { template } from './template.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { style } from './style.js';
+import { template } from './template.js';
+import { ClearableControlBox } from '../base-clearable-control-box/index.js';
 const INPUT_ATTRS = [
     'value',
     'type',
@@ -92,6 +91,8 @@ export let BlocksInput = (() => {
     let _size_initializers = [];
     let _multiple_decorators;
     let _multiple_initializers = [];
+    let _$input_decorators;
+    let _$input_initializers = [];
     var BlocksInput = class extends ClearableControlBox {
         static {
             _value_decorators = [attr('string')];
@@ -108,6 +109,7 @@ export let BlocksInput = (() => {
             _autofocus_decorators = [attr('boolean')];
             _size_decorators = [attrs.size];
             _multiple_decorators = [attr('boolean')];
+            _$input_decorators = [shadowRef('[part="input"]')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _type_decorators, { kind: "accessor", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type, set: (obj, value) => { obj.type = value; } } }, _type_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _step_decorators, { kind: "accessor", name: "step", static: false, private: false, access: { has: obj => "step" in obj, get: obj => obj.step, set: (obj, value) => { obj.step = value; } } }, _step_initializers, _instanceExtraInitializers);
@@ -122,12 +124,16 @@ export let BlocksInput = (() => {
             __esDecorate(this, null, _autofocus_decorators, { kind: "accessor", name: "autofocus", static: false, private: false, access: { has: obj => "autofocus" in obj, get: obj => obj.autofocus, set: (obj, value) => { obj.autofocus = value; } } }, _autofocus_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _multiple_decorators, { kind: "accessor", name: "multiple", static: false, private: false, access: { has: obj => "multiple" in obj, get: obj => obj.multiple, set: (obj, value) => { obj.multiple = value; } } }, _multiple_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$input_decorators, { kind: "accessor", name: "$input", static: false, private: false, access: { has: obj => "$input" in obj, get: obj => obj.$input, set: (obj, value) => { obj.$input = value; } } }, _$input_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksInput = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get role() {
             return 'input';
+        }
+        static get disableEventTypes() {
+            return ['click', 'keydown', 'touchstart'];
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
@@ -171,63 +177,73 @@ export let BlocksInput = (() => {
         #multiple_accessor_storage = __runInitializers(this, _multiple_initializers, void 0);
         get multiple() { return this.#multiple_accessor_storage; }
         set multiple(value) { this.#multiple_accessor_storage = value; }
+        #$input_accessor_storage = __runInitializers(this, _$input_initializers, void 0);
+        get $input() { return this.#$input_accessor_storage; }
+        set $input(value) { this.#$input_accessor_storage = value; }
         constructor() {
             super();
-            const $input = this._appendContent((this._ref.$input = template()));
-            $input.oninput = $input.onchange = () => {
-                dispatchEvent(this, 'select-result:clear');
-                dispatchEvent(this, 'select-result:search', {
-                    detail: { searchString: $input.value },
-                });
-                this.setValue($input.value);
+            this.appendContent(template());
+            this._tabIndexFeature.withTabIndex(0).withTarget(() => [this.$input]);
+            this.#setupDisableFeature();
+            this.#setupValueModify();
+        }
+        #setupDisableFeature() {
+            this._disabledFeature.withPostUpdate(() => {
+                disabledSetter(this.$input, this.disabled);
+            });
+        }
+        #notifyClear() {
+            dispatchEvent(this, 'select-result:clear');
+        }
+        #notifyDeselect() {
+            dispatchEvent(this, 'select-result:deselect');
+        }
+        #notifySearch(searchString) {
+            dispatchEvent(this, 'select-result:search', { detail: { searchString } });
+        }
+        #setupValueModify() {
+            this._emptyFeature.withPredicate(() => {
+                return !this.value;
+            });
+            const onChange = () => {
+                this.value = this.$input.value;
             };
-            this.addEventListener('click-clear', () => {
-                this.clearValue();
-                dispatchEvent(this, 'select-result:clear');
-                dispatchEvent(this, 'select-result:search', {
-                    detail: { searchString: '' },
-                });
+            const onClear = () => {
+                this.value = '';
+                this.#notifyClear();
+            };
+            this.onConnected(() => {
+                this.$input.oninput = this.$input.onchange = onChange;
+                this.addEventListener('click-clear', onClear);
+            });
+            this.onDisconnected(() => {
+                this.$input.oninput = this.$input.onchange = null;
+                this.removeEventListener('click-clear', onClear);
+            });
+            this.onAttributeChangedDeps(INPUT_ATTRS, (name, _, val) => {
+                if (name === 'value') {
+                    if (this.$input.value !== val) {
+                        this.$input.value = val;
+                    }
+                }
+                else {
+                    this.$input.setAttribute(name, val);
+                }
+                dispatchEvent(this, 'change', { detail: { value: this.value } });
+            });
+            this.onAttributeChangedDep('value', () => {
+                this._emptyFeature.update();
             });
         }
         acceptSelected(value) {
             const label = value.map(item => item.label).join(', ');
-            if (label) {
-                this.setValue(label);
-            }
+            this.value = label;
         }
-        setValue(value) {
-            this.value = value;
-            this._renderEmpty();
-        }
-        clearValue() {
-            this._ref.$input.value = '';
+        clearSearch() {
+            this.#notifySearch('');
         }
         focus() {
-            this._ref.$input.focus();
-        }
-        _isEmpty() {
-            return !this._ref.$input.value;
-        }
-        _renderDisabled() {
-            super._renderDisabled();
-            disabledSetter(this._ref.$input, this.disabled);
-        }
-        connectedCallback() {
-            super.connectedCallback();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (INPUT_ATTRS.includes(attrName)) {
-                if (attrName === 'value') {
-                    if (this._ref.$input.value !== newValue) {
-                        this._ref.$input.value = newValue;
-                    }
-                }
-                else {
-                    this._ref.$input.setAttribute(attrName, newValue);
-                }
-                dispatchEvent(this, 'change', { detail: { value: this.value } });
-            }
+            this.$input.focus();
         }
     };
     return BlocksInput = _classThis;

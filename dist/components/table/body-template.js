@@ -58,12 +58,12 @@ export function template() {
 }
 
 /* border 参数为 true, 为 cell 绘制竖直方向分割线 */
-:host-context(bl-table[border]) .cell {
+:host([border]) .cell {
   border-right: 1px solid var(--bl-border-color-base, ${__border_color_base});
 }
 
 /* 最后一列不要右描边。 */
-:host-context(bl-table[border]) .cell:last-child {
+:host([border]) .cell:last-child {
   border-right: 0 none;
 }
 `;

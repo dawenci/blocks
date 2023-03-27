@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test</title>
+  <script type="module" src="../dist/components/backtop/index.js"></script>
+</head>
+
+<body>
+  <div data-cy="scrollable" class="scrollable" style="width:100px;height:100px;overflow:auto;">
+    <div style="height:1000px;"></div>
+  </div>
+  <bl-backtop data-cy="backtop" duration=".1" target="[data-cy=scrollable]"></bl-backtop>
+
+  <div data-cy="scrollable2" class="scrollable2" style="width:100px;height:100px;overflow:auto;">
+    <div style="height:1000px;"></div>
+  </div>
+  <bl-backtop data-cy="backtop2" duration=".1" target="[data-cy=scrollable2]"></bl-backtop>
+</body>
+</html>

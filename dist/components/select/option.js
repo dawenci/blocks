@@ -32,16 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { selectedSetter } from '../../common/propertyAccessor.js';
-import { Component } from '../Component.js';
-import { template } from './option.template.js';
-import { style } from './option.style.js';
+import { Component } from '../component/Component.js';
 export let BlocksOption = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-option',
-            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -88,32 +85,23 @@ export let BlocksOption = (() => {
         #silentFlag;
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            const fragment = template().cloneNode(true);
-            shadowRoot.appendChild(fragment);
+            this.onAttributeChangedDep('selected', (_, oldValue, newValue) => {
+                if (newValue !== oldValue) {
+                    const eventType = newValue === null ? 'deselect' : 'select';
+                    if (!this.#silentFlag) {
+                        this.dispatchEvent(new CustomEvent(eventType, {
+                            bubbles: true,
+                            cancelable: true,
+                            composed: true,
+                        }));
+                    }
+                }
+            });
         }
         silentSelected(value) {
             this.#silentFlag = true;
             selectedSetter(this, value);
             this.#silentFlag = false;
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'selected' && newValue !== oldValue) {
-                const eventType = newValue === null ? 'deselect' : 'select';
-                if (!this.#silentFlag) {
-                    this.dispatchEvent(new CustomEvent(eventType, {
-                        bubbles: true,
-                        cancelable: true,
-                        composed: true,
-                    }));
-                }
-            }
-            this.render();
         }
     };
     return BlocksOption = _classThis;

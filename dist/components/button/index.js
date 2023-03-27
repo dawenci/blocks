@@ -32,12 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import { attr, attrs } from '../../decorators/attr.js';
 import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { style } from './style.js';
+import { template } from './template.js';
 import { ControlBox } from '../base-control-box/index.js';
-import { labelTemplate } from './template.js';
-import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
+import { SetupControlEvent } from '../setup-control-event/index.js';
+import { SetupEmpty } from '../setup-empty/index.js';
 const types = ['primary', 'danger', 'warning', 'success', 'link'];
 export let BlocksButton = (() => {
     let _classDecorators = [defineClass({
@@ -48,26 +50,32 @@ export let BlocksButton = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
-    let _icon_decorators;
-    let _icon_initializers = [];
     let _block_decorators;
     let _block_initializers = [];
+    let _outline_decorators;
+    let _outline_initializers = [];
     let _type_decorators;
     let _type_initializers = [];
     let _size_decorators;
     let _size_initializers = [];
+    let _$content_decorators;
+    let _$content_initializers = [];
+    let _$slot_decorators;
+    let _$slot_initializers = [];
     var BlocksButton = class extends ControlBox {
         static {
-            _icon_decorators = [attr('string')];
             _block_decorators = [attr('boolean')];
-            _type_decorators = [attr('enum', {
-                    enumValues: types,
-                })];
-            _size_decorators = [attr('enum', { enumValues: ['small', 'large'] })];
-            __esDecorate(this, null, _icon_decorators, { kind: "accessor", name: "icon", static: false, private: false, access: { has: obj => "icon" in obj, get: obj => obj.icon, set: (obj, value) => { obj.icon = value; } } }, _icon_initializers, _instanceExtraInitializers);
+            _outline_decorators = [attr('boolean')];
+            _type_decorators = [attr('enum', { enumValues: types })];
+            _size_decorators = [attrs.size];
+            _$content_decorators = [shadowRef('[part="content"]')];
+            _$slot_decorators = [shadowRef('[part="slot"]')];
             __esDecorate(this, null, _block_decorators, { kind: "accessor", name: "block", static: false, private: false, access: { has: obj => "block" in obj, get: obj => obj.block, set: (obj, value) => { obj.block = value; } } }, _block_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _outline_decorators, { kind: "accessor", name: "outline", static: false, private: false, access: { has: obj => "outline" in obj, get: obj => obj.outline, set: (obj, value) => { obj.outline = value; } } }, _outline_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _type_decorators, { kind: "accessor", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type, set: (obj, value) => { obj.type = value; } } }, _type_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$content_decorators, { kind: "accessor", name: "$content", static: false, private: false, access: { has: obj => "$content" in obj, get: obj => obj.$content, set: (obj, value) => { obj.$content = value; } } }, _$content_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksButton = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -75,66 +83,62 @@ export let BlocksButton = (() => {
         static get role() {
             return 'button';
         }
-        #icon_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _icon_initializers, void 0));
-        get icon() { return this.#icon_accessor_storage; }
-        set icon(value) { this.#icon_accessor_storage = value; }
-        #block_accessor_storage = __runInitializers(this, _block_initializers, void 0);
+        static get disableEventTypes() {
+            return ['click', 'keydown', 'touchstart'];
+        }
+        #block_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _block_initializers, void 0));
         get block() { return this.#block_accessor_storage; }
         set block(value) { this.#block_accessor_storage = value; }
+        #outline_accessor_storage = __runInitializers(this, _outline_initializers, void 0);
+        get outline() { return this.#outline_accessor_storage; }
+        set outline(value) { this.#outline_accessor_storage = value; }
         #type_accessor_storage = __runInitializers(this, _type_initializers, void 0);
         get type() { return this.#type_accessor_storage; }
         set type(value) { this.#type_accessor_storage = value; }
         #size_accessor_storage = __runInitializers(this, _size_initializers, void 0);
         get size() { return this.#size_accessor_storage; }
         set size(value) { this.#size_accessor_storage = value; }
+        #$content_accessor_storage = __runInitializers(this, _$content_initializers, void 0);
+        get $content() { return this.#$content_accessor_storage; }
+        set $content(value) { this.#$content_accessor_storage = value; }
+        #$slot_accessor_storage = __runInitializers(this, _$slot_initializers, void 0);
+        get $slot() { return this.#$slot_accessor_storage; }
+        set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
-            this._appendContent(labelTemplate());
-            this._ref.$content = this.querySelectorShadow('#content');
-            this._ref.$slot = this.querySelectorShadow('slot');
-            captureEventWhenEnable(this, 'keydown', e => {
-                if (e.keyCode === 32 || e.keyCode === 13) {
-                    e.preventDefault();
-                    this.dispatchEvent(new MouseEvent('click', {
-                        bubbles: true,
-                        cancelable: true,
-                    }));
-                }
-            });
-            captureEventWhenEnable(this, 'click', () => {
-            });
-            this._observer = new MutationObserver(() => {
+            this.appendContent(template());
+            this._tabIndexFeature.withTabIndex(0);
+            this.#setupContent();
+        }
+        _controlFeature = SetupControlEvent.setup({ component: this });
+        _emptyFeature = SetupEmpty.setup({
+            component: this,
+            predicate: () => !this.$slot.assignedNodes().filter($node => $node.nodeType === 1 || $node.nodeType === 3).length,
+            target: () => this.$layout,
+        });
+        #setupContent() {
+            let _observer;
+            const updateClass = () => {
+                this._emptyFeature.update();
+            };
+            const updateAria = () => {
                 this.setAttribute('aria-label', this.textContent ?? '');
+            };
+            const update = () => {
+                updateAria();
+                updateClass();
+            };
+            this.onConnected(() => {
+                _observer = new MutationObserver(update);
+                _observer.observe(this, { childList: true });
+                update();
             });
-        }
-        render() {
-            super.render();
-            this._ref.$layout.classList.toggle('empty', !this._ref.$slot.assignedNodes().length);
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.internalTabIndex = '0';
-            this._observer.observe(this, {
-                childList: true,
-                characterData: true,
-                subtree: true,
+            this.onDisconnected(() => {
+                if (_observer) {
+                    _observer.disconnect();
+                    _observer = undefined;
+                }
             });
-            this.render();
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            this._observer.disconnect();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            switch (attrName) {
-                case 'type': {
-                    return this.render();
-                }
-                case 'size': {
-                    return this.render();
-                }
-            }
         }
     };
     return BlocksButton = _classThis;

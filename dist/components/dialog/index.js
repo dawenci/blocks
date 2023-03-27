@@ -32,20 +32,21 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import '../button/index.js';
 import '../modal-mask/index.js';
-import { getRegisteredSvgIcon } from '../../icon/store.js';
-import { onDragMove } from '../../common/onDragMove.js';
-import { dialogTemplate } from './template.js';
-import { style } from './style.js';
-import { WithOpenTransition } from '../with-open-transition/index.js';
-import { Control } from '../base-control/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { template } from './template.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { dispatchEvent, onceEvent } from '../../common/event.js';
+import { onDragMove } from '../../common/onDragMove.js';
+import { onKeymap } from '../../common/onKeymap.js';
+import { style } from './style.js';
+import { mountBefore, unmount, append } from '../../common/mount.js';
+import { BlocksPopup } from '../popup/index.js';
+import { SetupClickOutside } from '../setup-click-outside/index.js';
 let BlocksDialog = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-dialog',
-            mixins: [WithOpenTransition],
             styles: [style],
         })];
     let _classDescriptor;
@@ -56,24 +57,60 @@ let BlocksDialog = (() => {
     let _mask_initializers = [];
     let _closeable_decorators;
     let _closeable_initializers = [];
-    let _capturefocus_decorators;
-    let _capturefocus_initializers = [];
-    let _appendToBody_decorators;
-    let _appendToBody_initializers = [];
     let _titleText_decorators;
     let _titleText_initializers = [];
-    var BlocksDialog = class extends Control {
+    let _unmountAfterClose_decorators;
+    let _unmountAfterClose_initializers = [];
+    let _closeOnClickMask_decorators;
+    let _closeOnClickMask_initializers = [];
+    let _closeOnClickOutside_decorators;
+    let _closeOnClickOutside_initializers = [];
+    let _closeOnPressEscape_decorators;
+    let _closeOnPressEscape_initializers = [];
+    let _$close_decorators;
+    let _$close_initializers = [];
+    let _$header_decorators;
+    let _$header_initializers = [];
+    let _$body_decorators;
+    let _$body_initializers = [];
+    let _$footer_decorators;
+    let _$footer_initializers = [];
+    let _$headerSlot_decorators;
+    let _$headerSlot_initializers = [];
+    let _$bodySlot_decorators;
+    let _$bodySlot_initializers = [];
+    let _$footerSlot_decorators;
+    let _$footerSlot_initializers = [];
+    var BlocksDialog = class extends BlocksPopup {
         static {
             _mask_decorators = [attr('boolean')];
             _closeable_decorators = [attr('boolean')];
-            _capturefocus_decorators = [attr('boolean')];
-            _appendToBody_decorators = [attr('boolean')];
             _titleText_decorators = [attr('string')];
+            _unmountAfterClose_decorators = [attr('boolean')];
+            _closeOnClickMask_decorators = [attr('boolean')];
+            _closeOnClickOutside_decorators = [attr('boolean')];
+            _closeOnPressEscape_decorators = [attr('boolean')];
+            _$close_decorators = [shadowRef('[part="close"]')];
+            _$header_decorators = [shadowRef('[part="header"]')];
+            _$body_decorators = [shadowRef('[part="body"]')];
+            _$footer_decorators = [shadowRef('[part="footer"]')];
+            _$headerSlot_decorators = [shadowRef('[part="header-slot"]')];
+            _$bodySlot_decorators = [shadowRef('[part="default-slot"]')];
+            _$footerSlot_decorators = [shadowRef('[part="footer-slot"]')];
             __esDecorate(this, null, _mask_decorators, { kind: "accessor", name: "mask", static: false, private: false, access: { has: obj => "mask" in obj, get: obj => obj.mask, set: (obj, value) => { obj.mask = value; } } }, _mask_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeable_decorators, { kind: "accessor", name: "closeable", static: false, private: false, access: { has: obj => "closeable" in obj, get: obj => obj.closeable, set: (obj, value) => { obj.closeable = value; } } }, _closeable_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _capturefocus_decorators, { kind: "accessor", name: "capturefocus", static: false, private: false, access: { has: obj => "capturefocus" in obj, get: obj => obj.capturefocus, set: (obj, value) => { obj.capturefocus = value; } } }, _capturefocus_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _appendToBody_decorators, { kind: "accessor", name: "appendToBody", static: false, private: false, access: { has: obj => "appendToBody" in obj, get: obj => obj.appendToBody, set: (obj, value) => { obj.appendToBody = value; } } }, _appendToBody_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _titleText_decorators, { kind: "accessor", name: "titleText", static: false, private: false, access: { has: obj => "titleText" in obj, get: obj => obj.titleText, set: (obj, value) => { obj.titleText = value; } } }, _titleText_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _unmountAfterClose_decorators, { kind: "accessor", name: "unmountAfterClose", static: false, private: false, access: { has: obj => "unmountAfterClose" in obj, get: obj => obj.unmountAfterClose, set: (obj, value) => { obj.unmountAfterClose = value; } } }, _unmountAfterClose_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _closeOnClickMask_decorators, { kind: "accessor", name: "closeOnClickMask", static: false, private: false, access: { has: obj => "closeOnClickMask" in obj, get: obj => obj.closeOnClickMask, set: (obj, value) => { obj.closeOnClickMask = value; } } }, _closeOnClickMask_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _closeOnClickOutside_decorators, { kind: "accessor", name: "closeOnClickOutside", static: false, private: false, access: { has: obj => "closeOnClickOutside" in obj, get: obj => obj.closeOnClickOutside, set: (obj, value) => { obj.closeOnClickOutside = value; } } }, _closeOnClickOutside_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _closeOnPressEscape_decorators, { kind: "accessor", name: "closeOnPressEscape", static: false, private: false, access: { has: obj => "closeOnPressEscape" in obj, get: obj => obj.closeOnPressEscape, set: (obj, value) => { obj.closeOnPressEscape = value; } } }, _closeOnPressEscape_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$close_decorators, { kind: "accessor", name: "$close", static: false, private: false, access: { has: obj => "$close" in obj, get: obj => obj.$close, set: (obj, value) => { obj.$close = value; } } }, _$close_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$header_decorators, { kind: "accessor", name: "$header", static: false, private: false, access: { has: obj => "$header" in obj, get: obj => obj.$header, set: (obj, value) => { obj.$header = value; } } }, _$header_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$body_decorators, { kind: "accessor", name: "$body", static: false, private: false, access: { has: obj => "$body" in obj, get: obj => obj.$body, set: (obj, value) => { obj.$body = value; } } }, _$body_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$footer_decorators, { kind: "accessor", name: "$footer", static: false, private: false, access: { has: obj => "$footer" in obj, get: obj => obj.$footer, set: (obj, value) => { obj.$footer = value; } } }, _$footer_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$headerSlot_decorators, { kind: "accessor", name: "$headerSlot", static: false, private: false, access: { has: obj => "$headerSlot" in obj, get: obj => obj.$headerSlot, set: (obj, value) => { obj.$headerSlot = value; } } }, _$headerSlot_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$bodySlot_decorators, { kind: "accessor", name: "$bodySlot", static: false, private: false, access: { has: obj => "$bodySlot" in obj, get: obj => obj.$bodySlot, set: (obj, value) => { obj.$bodySlot = value; } } }, _$bodySlot_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$footerSlot_decorators, { kind: "accessor", name: "$footerSlot", static: false, private: false, access: { has: obj => "$footerSlot" in obj, get: obj => obj.$footerSlot, set: (obj, value) => { obj.$footerSlot = value; } } }, _$footerSlot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksDialog = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -87,235 +124,288 @@ let BlocksDialog = (() => {
         #closeable_accessor_storage = __runInitializers(this, _closeable_initializers, void 0);
         get closeable() { return this.#closeable_accessor_storage; }
         set closeable(value) { this.#closeable_accessor_storage = value; }
-        #capturefocus_accessor_storage = __runInitializers(this, _capturefocus_initializers, void 0);
-        get capturefocus() { return this.#capturefocus_accessor_storage; }
-        set capturefocus(value) { this.#capturefocus_accessor_storage = value; }
-        #appendToBody_accessor_storage = __runInitializers(this, _appendToBody_initializers, void 0);
-        get appendToBody() { return this.#appendToBody_accessor_storage; }
-        set appendToBody(value) { this.#appendToBody_accessor_storage = value; }
         #titleText_accessor_storage = __runInitializers(this, _titleText_initializers, '');
         get titleText() { return this.#titleText_accessor_storage; }
         set titleText(value) { this.#titleText_accessor_storage = value; }
-        removeAfterClose = false;
+        #unmountAfterClose_accessor_storage = __runInitializers(this, _unmountAfterClose_initializers, void 0);
+        get unmountAfterClose() { return this.#unmountAfterClose_accessor_storage; }
+        set unmountAfterClose(value) { this.#unmountAfterClose_accessor_storage = value; }
+        #closeOnClickMask_accessor_storage = __runInitializers(this, _closeOnClickMask_initializers, void 0);
+        get closeOnClickMask() { return this.#closeOnClickMask_accessor_storage; }
+        set closeOnClickMask(value) { this.#closeOnClickMask_accessor_storage = value; }
+        #closeOnClickOutside_accessor_storage = __runInitializers(this, _closeOnClickOutside_initializers, void 0);
+        get closeOnClickOutside() { return this.#closeOnClickOutside_accessor_storage; }
+        set closeOnClickOutside(value) { this.#closeOnClickOutside_accessor_storage = value; }
+        #closeOnPressEscape_accessor_storage = __runInitializers(this, _closeOnPressEscape_initializers, void 0);
+        get closeOnPressEscape() { return this.#closeOnPressEscape_accessor_storage; }
+        set closeOnPressEscape(value) { this.#closeOnPressEscape_accessor_storage = value; }
+        #$close_accessor_storage = __runInitializers(this, _$close_initializers, void 0);
+        get $close() { return this.#$close_accessor_storage; }
+        set $close(value) { this.#$close_accessor_storage = value; }
+        #$header_accessor_storage = __runInitializers(this, _$header_initializers, void 0);
+        get $header() { return this.#$header_accessor_storage; }
+        set $header(value) { this.#$header_accessor_storage = value; }
+        #$body_accessor_storage = __runInitializers(this, _$body_initializers, void 0);
+        get $body() { return this.#$body_accessor_storage; }
+        set $body(value) { this.#$body_accessor_storage = value; }
+        #$footer_accessor_storage = __runInitializers(this, _$footer_initializers, void 0);
+        get $footer() { return this.#$footer_accessor_storage; }
+        set $footer(value) { this.#$footer_accessor_storage = value; }
+        #$headerSlot_accessor_storage = __runInitializers(this, _$headerSlot_initializers, void 0);
+        get $headerSlot() { return this.#$headerSlot_accessor_storage; }
+        set $headerSlot(value) { this.#$headerSlot_accessor_storage = value; }
+        #$bodySlot_accessor_storage = __runInitializers(this, _$bodySlot_initializers, void 0);
+        get $bodySlot() { return this.#$bodySlot_accessor_storage; }
+        set $bodySlot(value) { this.#$bodySlot_accessor_storage = value; }
+        #$footerSlot_accessor_storage = __runInitializers(this, _$footerSlot_initializers, void 0);
+        get $footerSlot() { return this.#$footerSlot_accessor_storage; }
+        set $footerSlot(value) { this.#$footerSlot_accessor_storage = value; }
         constructor() {
             super();
-            this._ref.$layout.appendChild(dialogTemplate());
-            const $mask = document.createElement('bl-modal-mask');
-            this._ref.$mask = $mask;
-            const _refocus = () => {
-                this.focus();
-                this.removeEventListener('blur', _refocus);
-            };
-            $mask.addEventListener('mousedown', () => {
-                this.focus();
-                this.addEventListener('blur', _refocus);
-            });
-            $mask.addEventListener('mouseup', () => {
-                this.removeEventListener('blur', _refocus);
-            });
-            this.addEventListener('opened', () => {
-                this._focus();
-            });
-            this.addEventListener('closed', () => {
-                this._blur();
-                if (this.removeAfterClose) {
-                    this.parentElement && this.parentElement.removeChild(this);
-                }
-            });
-            this._ref.$layout.addEventListener('slotchange', () => {
-                this.render();
-            });
-            if (this.capturefocus) {
-                this._captureFocus();
-            }
+            this.$layout.removeChild(this.$slot);
+            this.$layout.appendChild(template());
+            this.#setupPopup();
+            this.#setupMask();
+            this.#setupHeader();
+            this.#setupFooter();
+            this.#setupClose();
+            this.#setupDragEvent();
+            this.#setupClickOutside();
+            this.#setupKeymap();
         }
-        render() {
-            super.render();
-            this._renderHeader();
-            this._renderFooter();
-            this._renderClose();
+        _clickOutside = SetupClickOutside.setup({
+            component: this,
+            target() {
+                return this.$mask ? [this, this.$mask] : [this];
+            },
+            update() {
+                this.open = false;
+            },
+        });
+        #setupPopup() {
+            this.onConnected(() => {
+                this.autofocus = true;
+                if (this.parentElement !== document.body) {
+                    document.body.appendChild(this);
+                }
+            });
         }
-        _captureFocus() {
-            this._ref.$firstFocusable =
-                this._ref.$layout.querySelector('#first') ||
-                    this._ref.$layout.insertBefore(document.createElement('button'), this._ref.$layout.firstChild);
-            this._ref.$lastFocusable =
-                this._ref.$layout.querySelector('#last') || this._ref.$layout.appendChild(document.createElement('button'));
-            this._ref.$firstFocusable.id = 'first';
-            this._ref.$lastFocusable.id = 'last';
-            this._ref.$firstFocusable.onkeydown = e => {
-                if (e.key === 'Tab' && e.shiftKey) {
-                    this._ref.$lastFocusable?.focus?.();
-                }
-            };
-            this._ref.$lastFocusable.onkeydown = e => {
-                if (e.key === 'Tab' && !e.shiftKey) {
-                    this._ref.$firstFocusable?.focus?.();
-                }
-            };
-        }
-        _stopCaptureFocus() {
-            if (this._ref.$firstFocusable?.parentElement) {
-                this._ref.$layout.removeChild(this._ref.$firstFocusable);
-            }
-            if (this._ref.$lastFocusable?.parentElement) {
-                this._ref.$layout.removeChild(this._ref.$lastFocusable);
-            }
-        }
-        _updateVisible() {
-            if (this.open) {
-                if (!this.style.left) {
-                    this.style.left = (document.body.clientWidth - this.offsetWidth) / 2 + 'px';
-                }
-                if (!this.style.top) {
-                    this.style.top = (document.body.clientHeight - this.offsetHeight) / 2 + 'px';
-                }
-                if (this._ref.$mask) {
-                    this._ref.$mask.open = true;
-                }
-            }
-            else {
-                if (this._ref.$mask) {
-                    this._ref.$mask.open = false;
-                }
-            }
-        }
-        _renderClose() {
-            if (this.closeable) {
-                if (!this._ref.$close) {
-                    this._ref.$close = document.createElement('button');
-                    this._ref.$close.id = 'close';
-                    this._ref.$close.appendChild(getRegisteredSvgIcon('cross'));
-                    this._ref.$close.onclick = () => {
-                        this.open = false;
+        #setupMask() {
+            const _ensureMask = () => {
+                if (!this.$mask) {
+                    this.$mask = document.createElement('bl-modal-mask');
+                    mountBefore(this.$mask, this);
+                    this.$mask.open = this.open;
+                    dispatchEvent(this, 'mask-mounted');
+                    const _refocus = () => {
+                        if (document.activeElement && !this.$layout.contains(document.activeElement)) {
+                            ;
+                            document.activeElement.blur();
+                        }
+                        this.focus();
+                        this.removeEventListener('blur', _refocus);
                     };
-                    if (this._ref.$lastFocusable) {
-                        this._ref.$layout.insertBefore(this._ref.$close, this._ref.$lastFocusable);
+                    this.$mask.addEventListener('mousedown', () => {
+                        _refocus();
+                        this.addEventListener('blur', _refocus);
+                    });
+                    this.$mask.addEventListener('mouseup', () => {
+                        _refocus();
+                        if (this.closeOnClickMask) {
+                            this.open = false;
+                        }
+                    });
+                }
+            };
+            const _destroyMask = () => {
+                if (!this.$mask)
+                    return;
+                if (document.body.contains(this.$mask)) {
+                    if (this.$mask.open) {
+                        const destroy = () => {
+                            unmount(this.$mask);
+                            this.$mask = null;
+                        };
+                        onceEvent(this.$mask, 'closed', destroy);
+                        this.$mask.open = false;
                     }
                     else {
-                        this._ref.$layout.appendChild(this._ref.$close);
+                        unmount(this.$mask);
+                        this.$mask = null;
                     }
                 }
-            }
-            else {
-                if (this._ref.$close) {
-                    this._ref.$close.parentElement.removeChild(this._ref.$close);
-                    this._ref.$close = undefined;
+            };
+            this.onConnected(() => {
+                if (this.mask && this.open)
+                    _ensureMask();
+            });
+            this.onDisconnected(() => {
+                _destroyMask();
+            });
+            this.onAttributeChangedDeps(['mask', 'open'], () => {
+                if (!this.$mask && this.mask && this.open) {
+                    return _ensureMask();
                 }
-            }
+                if (this.$mask && !this.mask) {
+                    return _destroyMask();
+                }
+                if (this.mask && this.$mask) {
+                    this.$mask.open = this.open;
+                    return;
+                }
+            });
         }
-        _renderHeader() {
-            if (this.querySelectorHost('[slot="header"]')) {
-                this._ref.$layout.classList.remove('no-header');
-            }
-            else if (this.titleText) {
-                this._ref.$layout.classList.remove('no-header');
-                const $title = this.querySelectorShadow('h1');
-                $title.innerText = this.titleText;
-            }
-            else {
-                this._ref.$layout.classList.add('no-header');
-            }
+        #setupClose() {
+            const update = () => {
+                if (this.closeable && !this.$close) {
+                    const $close = document.createElement('button');
+                    $close.setAttribute('part', 'close');
+                    $close.onclick = () => {
+                        this.open = false;
+                    };
+                    if (this._focusCapture.$lastFocusable) {
+                        mountBefore($close, this._focusCapture.$lastFocusable);
+                    }
+                    else {
+                        append($close, this.$layout);
+                    }
+                    return;
+                }
+                if (!this.closeable && this.$close) {
+                    unmount(this.$close);
+                }
+            };
+            this.onConnected(update);
+            this.onRender(update);
+            this.onAttributeChangedDep('closeable', update);
         }
-        _renderFooter() {
-            if (this.querySelector('[slot="footer"]')) {
-                this._ref.$layout.classList.remove('no-footer');
-            }
-            else {
-                this._ref.$layout.classList.add('no-footer');
-            }
+        #setupHeader() {
+            const update = () => {
+                if (this.querySelectorHost('[slot="header"]')) {
+                    this.$layout.classList.remove('no-header');
+                }
+                else if (this.titleText) {
+                    this.$layout.classList.remove('no-header');
+                    const $title = this.querySelectorShadow('h1');
+                    $title.innerText = this.titleText;
+                }
+                else {
+                    this.$layout.classList.add('no-header');
+                }
+            };
+            this.onConnected(() => {
+                this.$headerSlot.addEventListener('slotchange', update);
+            });
+            this.onDisconnected(() => {
+                this.$headerSlot.removeEventListener('slotchange', update);
+            });
+            this.onConnected(update);
+            this.onRender(update);
+            this.onAttributeChangedDep('title-text', update);
         }
-        #prevFocus;
-        _focus() {
-            if (!this.#prevFocus) {
-                this.#prevFocus = document.activeElement;
-            }
-            this.focus();
+        #setupFooter() {
+            const update = () => {
+                if (this.querySelector('[slot="footer"]')) {
+                    this.$layout.classList.remove('no-footer');
+                }
+                else {
+                    this.$layout.classList.add('no-footer');
+                }
+            };
+            this.onConnected(update);
+            this.onRender(update);
+            this.onConnected(() => {
+                this.$footerSlot.addEventListener('slotchange', update);
+            });
+            this.onDisconnected(() => {
+                this.$footerSlot.removeEventListener('slotchange', update);
+            });
         }
-        _blur() {
-            this.blur();
-            if (this.#prevFocus) {
-                ;
-                this.#prevFocus?.focus?.();
-                this.#prevFocus = undefined;
-            }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.setAttribute('tabindex', '-1');
-            if (this.parentElement !== document.body) {
-                document.body.appendChild(this);
-            }
-            if (this.mask) {
-                this.parentElement?.insertBefore?.(this._ref.$mask, this);
-            }
-            this._renderHeader();
-            this._renderFooter();
-            this._initDragEvents();
-        }
-        _initDragEvents() {
-            let startX;
-            let startY;
-            const isHeader = (target) => {
-                if (this._ref.$layout.querySelector('header').contains(target)) {
+        #setupDragEvent() {
+            const isBody = (target) => {
+                if (this.$body.contains(target)) {
                     return true;
                 }
                 if (this.contains(target)) {
                     let el = target;
                     while (el && el !== this) {
-                        if (el.slot === 'header')
+                        if (el.slot === '')
                             return true;
                         el = el.parentElement;
                     }
                 }
                 return false;
             };
-            onDragMove(this._ref.$layout, {
-                onStart: ({ $target, stop }) => {
-                    if (!isHeader($target))
-                        return stop();
-                    const marginLeft = parseFloat(window.getComputedStyle(this).marginLeft || '0');
-                    const marginTop = parseFloat(window.getComputedStyle(this).marginTop || '0');
-                    startX = this.offsetLeft - marginLeft;
-                    startY = this.offsetTop - marginTop;
-                },
-                onMove: ({ offset }) => {
-                    this.style.left = startX + offset.x + 'px';
-                    this.style.top = startY + offset.y + 'px';
-                },
+            const setupDragEvent = () => {
+                let startX;
+                let startY;
+                onDragMove(this.$layout, {
+                    onStart: ({ $target, stop }) => {
+                        if (isBody($target))
+                            return stop();
+                        startX = this.offsetX;
+                        startY = this.offsetY;
+                    },
+                    onMove: ({ offset }) => {
+                        this.offsetX = startX + offset.x;
+                        this.offsetY = startY + offset.y;
+                    },
+                });
+            };
+            setupDragEvent();
+        }
+        #setupKeymap() {
+            let clear;
+            const _initKeydown = () => {
+                if (this.closeOnPressEscape && !clear) {
+                    clear = onKeymap(document, [
+                        {
+                            key: 'escape',
+                            handler: () => {
+                                if (this.open)
+                                    this.open = false;
+                            },
+                        },
+                    ]);
+                }
+            };
+            const _destroyKeydown = () => {
+                if (clear) {
+                    clear();
+                    clear = undefined;
+                }
+            };
+            this.onConnected(() => {
+                _initKeydown();
             });
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            if (this._ref.$mask && this._ref.$mask.parentElement) {
-                this._ref.$mask.parentElement.removeChild(this._ref.$mask);
-            }
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName == 'open' && this.shadowRoot) {
-                this._onOpenAttributeChange();
-                this._updateVisible();
-            }
-            if (attrName === 'mask') {
-                if (this.mask) {
-                    this.parentElement?.insertBefore?.(this._ref.$mask, this);
-                }
-                else if (this._ref.$mask.parentElement) {
-                    this._ref.$mask.parentElement.removeChild(this._ref.$mask);
-                }
-            }
-            if (attrName === 'title-text') {
-                this._renderHeader();
-            }
-            if (attrName === 'capturefocus') {
-                if (this.capturefocus) {
-                    this._captureFocus();
+            this.onDisconnected(() => {
+                _destroyKeydown();
+            });
+            this.onAttributeChangedDep('close-on-press-escape', () => {
+                if (this.closeOnPressEscape) {
+                    _initKeydown();
                 }
                 else {
-                    this._stopCaptureFocus();
+                    _destroyKeydown();
                 }
-            }
+            });
+        }
+        #setupClickOutside() {
+            this.onConnected(() => {
+                this.addEventListener('opened', () => {
+                    if (this.closeOnClickOutside)
+                        this._clickOutside.bind();
+                });
+                this.addEventListener('closed', () => {
+                    this._clickOutside.unbind();
+                });
+            });
+            this.onAttributeChangedDep('close-on-click-outside', () => {
+                if (this.closeOnClickOutside)
+                    this._clickOutside.bind();
+                else
+                    this._clickOutside.unbind();
+            });
         }
     };
     return BlocksDialog = _classThis;

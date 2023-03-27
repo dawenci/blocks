@@ -1,6 +1,7 @@
-import { BlocksVList, VirtualItem, VListEventMap } from '../vlist/index.js';
-import { ComponentEventListener } from '../Component.js';
-import { ISelectableListComponent, ISelectListEventMap } from '../../common/connectSelectable.js';
+import type { ComponentEventListener } from '../component/Component.js';
+import type { ISelectableListComponent, ISelectListEventMap } from '../../common/connectSelectable.js';
+import type { VListEventMap } from '../vlist/index.js';
+import { BlocksVList, VirtualItem } from '../vlist/index.js';
 export type NodeData = {
     [index: number]: any;
     [key: string]: any;
@@ -47,9 +48,6 @@ export interface BLocksTree extends BlocksVList, ISelectableListComponent {
 export declare class BlocksTree extends BlocksVList {
     #private;
     static get observedAttributes(): string[];
-    labelMethod?: (data: any) => string;
-    uniqCid: string;
-    _checkedSet: Set<VirtualNode>;
     accessor activeKey: string | null;
     accessor activable: boolean;
     accessor checkable: boolean;
@@ -64,6 +62,8 @@ export declare class BlocksTree extends BlocksVList {
     accessor idField: string | null;
     accessor labelField: string | null;
     accessor search: string | null;
+    labelMethod?: (data: any) => string;
+    _checkedSet: Set<VirtualNode>;
     constructor();
     get checkedData(): NodeData[];
     set checkedData(value: NodeData[]);
@@ -72,8 +72,6 @@ export declare class BlocksTree extends BlocksVList {
     select(data: NodeData): void;
     deselect(data: NodeData): void;
     clearSelected(): void;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     internalLabelMethod(data: any): any;
     internalKeyMethod(data: any): any;
     filterMethod(data: any[]): Promise<any[]>;
@@ -96,7 +94,6 @@ export declare class BlocksTree extends BlocksVList {
     foldAll(): void;
     expandAll(): void;
     virtualMap(data: NodeData[]): Promise<VirtualNode[]>;
-    render(): void;
     level(node: VirtualNode): number;
     isTopLevel(node: VirtualNode): boolean;
     hasChild(node: VirtualNode): boolean;

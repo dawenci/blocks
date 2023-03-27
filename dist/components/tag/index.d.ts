@@ -1,17 +1,14 @@
-import { Component } from '../Component.js';
 import type { EnumAttrs } from '../../decorators/attr.js';
-export interface BlocksTag extends Component {
-    ref: {
-        $layout: HTMLElement;
-    };
-}
+import { Component } from '../component/Component.js';
+declare const types: readonly ["primary", "danger", "warning", "success"];
 export declare class BlocksTag extends Component {
-    static get observedAttributes(): string[];
+    accessor round: boolean;
+    accessor type: (typeof types)[number];
     accessor closeable: boolean;
     accessor outline: boolean;
     accessor size: EnumAttrs['size'];
+    accessor $layout: HTMLElement;
     constructor();
     render(): void;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
 }
+export {};

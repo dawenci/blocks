@@ -1,21 +1,3 @@
-export function transitionEnter(el, name) {
-    el.classList.remove(`${name}-leave-transition-active`);
-    el.classList.remove(`${name}-leave-transition-from`);
-    el.classList.remove(`${name}-leave-transition-to`);
-    el.classList.add(`${name}-enter-transition-active`);
-    el.classList.add(`${name}-enter-transition-from`);
-    el.offsetHeight;
-    el.classList.replace(`${name}-enter-transition-from`, `${name}-enter-transition-to`);
-}
-export function transitionLeave(el, name) {
-    el.classList.remove(`${name}-enter-transition-active`);
-    el.classList.remove(`${name}-enter-transition-from`);
-    el.classList.remove(`${name}-enter-transition-to`);
-    el.classList.add(`${name}-leave-transition-active`);
-    el.classList.add(`${name}-leave-transition-from`);
-    el.offsetHeight;
-    el.classList.replace(`${name}-leave-transition-from`, `${name}-leave-transition-to`);
-}
 export function doTransitionEnter(el, name, onEnd) {
     transitionEnter(el, name);
     if (el._clearOnTransitionEnd) {
@@ -48,16 +30,34 @@ export function doTransitionLeave(el, name, onEnd) {
         }
     });
 }
-export function isTransitionEnter(el, name) {
-    return el.classList.contains(`${name}-enter-transition-active`);
-}
-export function isTransitionLeave(el, name) {
-    return el.classList.contains(`${name}-leave-transition-active`);
-}
 export function isTransition(el, name) {
     return isTransitionEnter(el, name) || isTransitionLeave(el, name);
 }
-export function clearTransition(el, name) {
+function transitionEnter(el, name) {
+    el.classList.remove(`${name}-leave-transition-active`);
+    el.classList.remove(`${name}-leave-transition-from`);
+    el.classList.remove(`${name}-leave-transition-to`);
+    el.classList.add(`${name}-enter-transition-active`);
+    el.classList.add(`${name}-enter-transition-from`);
+    el.offsetHeight;
+    el.classList.replace(`${name}-enter-transition-from`, `${name}-enter-transition-to`);
+}
+function transitionLeave(el, name) {
+    el.classList.remove(`${name}-enter-transition-active`);
+    el.classList.remove(`${name}-enter-transition-from`);
+    el.classList.remove(`${name}-enter-transition-to`);
+    el.classList.add(`${name}-leave-transition-active`);
+    el.classList.add(`${name}-leave-transition-from`);
+    el.offsetHeight;
+    el.classList.replace(`${name}-leave-transition-from`, `${name}-leave-transition-to`);
+}
+function isTransitionEnter(el, name) {
+    return el.classList.contains(`${name}-enter-transition-active`);
+}
+function isTransitionLeave(el, name) {
+    return el.classList.contains(`${name}-leave-transition-active`);
+}
+function clearTransition(el, name) {
     el.classList.remove(`${name}-enter-transition-active`);
     el.classList.remove(`${name}-enter-transition-from`);
     el.classList.remove(`${name}-enter-transition-to`);
@@ -65,7 +65,7 @@ export function clearTransition(el, name) {
     el.classList.remove(`${name}-leave-transition-from`);
     el.classList.remove(`${name}-leave-transition-to`);
 }
-export function onTransitionEnd(el, callback) {
+function onTransitionEnd(el, callback) {
     const { transitionTimeout, transitionPropCount } = getTransitionInfo(el);
     const { animationTimeout, animationPropCount } = getAnimationInfo(el);
     const type = transitionTimeout >= animationTimeout ? 'TRANSITION' : 'ANIMATION';

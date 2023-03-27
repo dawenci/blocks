@@ -1,10 +1,11 @@
 import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr, attrs } from '../../decorators/attr.js'
-import { Component } from '../Component.js'
-import { template } from './steps.template.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { style } from './steps.style.js'
-import { domRef } from '../../decorators/domRef.js'
+import { template } from './steps.template.js'
+import { BlocksStep } from './step.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-stepper',
@@ -16,18 +17,35 @@ export class BlocksSteps extends Component {
 
   @attrs.size accessor size!: EnumAttrs['size']
 
-  @domRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('#layout') accessor $layout!: HTMLElement
 
-  @domRef('slot') accessor $slot!: HTMLSlotElement
+  @shadowRef('slot') accessor $slot!: HTMLSlotElement
 
   constructor() {
     super()
     this.shadowRoot!.appendChild(template())
+
+    this.onConnected(this.render)
+
+    this.#setupSlot()
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
+  #setupSlot() {
+    const updateItemDirection = () => {
+      this.$slot.assignedElements().forEach($step => {
+        if ($step instanceof BlocksStep) {
+          $step.direction = this.direction
+        }
+      })
+    }
+    this.onAttributeChangedDep('direction', updateItemDirection)
+    this.onConnected(() => {
+      updateItemDirection()
+      this.$slot.addEventListener('slotchange', updateItemDirection)
+    })
+    this.onDisconnected(() => {
+      this.$slot.removeEventListener('slotchange', updateItemDirection)
+    })
   }
 
   stepIndex($step: HTMLElement) {

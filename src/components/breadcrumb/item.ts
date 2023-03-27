@@ -1,43 +1,39 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { domRef } from '../../decorators/domRef.js'
-import { style } from './item.style.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { strSetter } from '../../common/property.js'
-import { Component } from '../Component.js'
+import { style } from './item.style.js'
 import { template } from './item.template.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-breadcrumb-item',
   styles: [style],
 })
 export class BlocksBreadcrumbItem extends Component {
-  @attr('string') accessor href = 'javascript(void 0)'
+  @attr('string') accessor href = ''
 
-  @domRef('#separator') accessor $separator!: HTMLDivElement
+  @shadowRef('#separator') accessor $separator!: HTMLDivElement
 
-  @domRef('#link') accessor $link!: HTMLAnchorElement
+  @shadowRef('#link') accessor $link!: HTMLAnchorElement
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
+    this.appendShadowChild(template())
 
-    shadowRoot.appendChild(template().content.cloneNode(true))
+    this.#setupLink()
   }
 
+  #setupLink() {
+    const render = () => {
+      strSetter('href')(this.$link, this.href || null)
+    }
+    this.onRender(render)
+    this.onConnected(render)
+    this.onAttributeChangedDep('href', render)
+  }
   _renderSeparator(separator: string) {
     if (this.parentElement?.lastElementChild === this) return
     this.$separator.textContent = separator
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'href') {
-      strSetter('href')(this.$link, newValue)
-    }
   }
 }

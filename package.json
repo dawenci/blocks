@@ -8,9 +8,18 @@
     "test": "tests"
   },
   "scripts": {
+    "dev": "tsc -w",
     "build": "tsc -d",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write \"src/{components,common,icon,theme}/**/*.{ts,js}\""
+    "format": "prettier --write \"src/{components,common,icon,theme}/**/*.{ts,js}\"",
+    "serve": "http-server -c-1",
+    "open:doc": "node scripts/open-in-browser.js http://localhost:8080/docs/index.html",
+    "serve:doc": "pnpm run open:doc && pnpm run serve",
+
+    "e2e:prepare": "pnpx nyc instrument ./dist ./tests/dist",
+    "e2e:headless": "pnpx cypress run",
+    "e2e:gui": "pnpx cypress open",
+    "e2e:report": "pnpx nyc report --reporter=lcov --reporter=text"
   },
   "repository": {
     "type": "git",
@@ -26,12 +35,18 @@
   },
   "homepage": "https://github.com/dawenci/blocks#readme",
   "devDependencies": {
+    "@cypress/code-coverage": "^3.10.4",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
+    "cypress": "^12.9.0",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "nyc": "^15.1.0",
     "prettier": "^2.8.4",
     "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
   }
 }

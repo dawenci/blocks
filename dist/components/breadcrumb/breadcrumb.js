@@ -32,11 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
+import './item.js';
 import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { style } from './breadcrumb.style.js';
-import { Component } from '../Component.js';
 import { template } from './breadcrumb.template.js';
+import { Component } from '../component/Component.js';
 export let BlocksBreadcrumb = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-breadcrumb',
@@ -48,10 +50,14 @@ export let BlocksBreadcrumb = (() => {
     let _instanceExtraInitializers = [];
     let _separator_decorators;
     let _separator_initializers = [];
+    let _$slot_decorators;
+    let _$slot_initializers = [];
     var BlocksBreadcrumb = class extends Component {
         static {
             _separator_decorators = [attr('string')];
+            _$slot_decorators = [shadowRef('slot')];
             __esDecorate(this, null, _separator_decorators, { kind: "accessor", name: "separator", static: false, private: false, access: { has: obj => "separator" in obj, get: obj => obj.separator, set: (obj, value) => { obj.separator = value; } } }, _separator_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksBreadcrumb = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -59,40 +65,31 @@ export let BlocksBreadcrumb = (() => {
         #separator_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _separator_initializers, '/'));
         get separator() { return this.#separator_accessor_storage; }
         set separator(value) { this.#separator_accessor_storage = value; }
-        #clearup;
+        #$slot_accessor_storage = __runInitializers(this, _$slot_initializers, void 0);
+        get $slot() { return this.#$slot_accessor_storage; }
+        set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            this._ref = {
-                $slot: shadowRoot.querySelector('slot'),
-            };
+            this.appendShadowChild(template());
+            this.#setupSeparator();
         }
-        render() {
-            this._ref.$slot.assignedElements().forEach($item => {
-                if (isItem($item)) {
-                    $item._renderSeparator(this.separator);
-                }
+        #setupSeparator() {
+            const render = () => {
+                this.$slot.assignedElements().forEach($item => {
+                    if (isItem($item)) {
+                        $item._renderSeparator(this.separator);
+                    }
+                });
+            };
+            this.onRender(render);
+            this.onConnected(render);
+            this.onAttributeChangedDep('separator', render);
+            this.onConnected(() => {
+                this.$slot.addEventListener('slotchange', render);
             });
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-            const onSlotChange = () => this.render();
-            this._ref.$slot.addEventListener('slotchange', onSlotChange);
-            this.#clearup = () => {
-                this._ref.$slot.removeEventListener('slotchange', onSlotChange);
-            };
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            if (this.#clearup) {
-                this.#clearup();
-            }
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
+            this.onDisconnected(() => {
+                this.$slot.removeEventListener('slotchange', render);
+            });
         }
     };
     return BlocksBreadcrumb = _classThis;

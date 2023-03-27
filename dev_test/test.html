@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>COMPILER TEST</title>
+    <link rel="stylesheet" href="../src/theme/var.css" />
+    <link rel="stylesheet" href="../docs/page.css" />
+    <link rel="stylesheet" href="../docs/highlight/styles/default.css" />
+    <link rel="stylesheet" href="../docs/highlight/styles/vs2015.css" />
+    <script src="../docs/highlight/highlight.pack.js"></script>
+    <script type="module" src="../docs/code-support.js"></script>
+  </head>
+  <body>
+    <style>
+      .test:first-of-type {
+        display: none;
+      }
+
+      article {
+        flex: 1 1 40%;
+        width: 40%;
+        height: 100%;
+        padding: 0;
+      }
+      .test {
+        border: 1px solid #ccc;
+        margin: 10px;
+        padding: 10px;
+      }
+      .list-item {
+        margin: 10px;
+        border: 1px solid #ccc;
+      }
+      .code {
+        flex: 1 1 60%;
+        width: 60%;
+        height: 100%;
+        overflow: auto;
+        margin: 0;
+        padding: 0;
+      }
+      pre {
+        margin: 0;
+        padding: 0;
+      }
+      code {
+        margin: 0;
+        padding: 20px 0;
+      }
+    </style>
+
+    <article>
+      <div class="test" bl-on="click.once<-onClick">
+        <!-- <div class="test"> -->
+        <div bl-prop="prop-name<-prop"></div>
+        <input bl-attr="value<-title" bl-on="input<-onInput" />
+        <p bl-attr="title<-title">prefix <t text="text"></t> suffix</p>
+
+        <template>
+          测试Template
+          <p>测试 Template P</p>
+        </template>
+
+        <if cond="cond">
+          <p>外层 IF block: <t text="cond"></t></p>
+          <if cond="cond2">内层 if block <t text="cond2"></t></if>
+        </if>
+
+        <!-- each:item="list" -->
+        <for each="list1" as="item1">
+          <p><t text="item1.name"></t> - <t text="item1.nested.value"></t></p>
+        </for>
+
+        <for each="list2" as="item">
+          <div class="list-item">
+            <h3>list item</h3>
+            <p>List Item: <t text="item.itemName"></t><t text="title"></t></p>
+          </div>
+        </for>
+
+        <rich html="html"></rich>
+        <p><t text="nestData.dot"></t></p>
+        <p><t text='nestData[ "index1" ]'></t></p>
+        <p><t text="nestData['index2']"></t></p>
+      </div>
+
+    </article>
+
+    <div class="code">
+      <pre><code></code></pre>
+    </div>
+
+
+    <script type="module">
+      import { Widget } from '../dist/common/templateCompiler/index.js'
+      import { compile } from '../dist/common/templateCompiler/index.js'
+      import { template } from '../dist/common/templateCompiler/example.js'
+      import { BlModel } from '../dist/common/BlModel.js'
+
+      const makeWidget = Widget(template)
+      // const makeWidget = Widget(() => document.querySelector('.test'))
+
+      const widget = window.widget = makeWidget(new BlModel({
+        prop: 1,
+
+        html: '<div style="color:red">测试富文本渲染（不安全：XSS）</div>',
+        title: 'INIT_TITLE',
+        text: 'INIT_TEXT',
+        cond: true,
+        cond2: true,
+        nestData: {
+          dot: '嵌套对象访问（点语法）',
+          index1: '嵌套对象访问（字符串 key 1）',
+          index2: '嵌套对象访问（字符串 key 2）',
+        },
+        onInput: e => {
+          window.model.set('title', e.target.value)
+        },
+        onClick: e => {
+          console.log('click', e)
+        },
+
+        list1: [
+          { name: 'list1: list item 1', nested: { value: 1 } },
+          { name: 'list1: list item 2', nested: { value: 2 } },
+        ],
+
+        list2: [
+          new BlModel({ itemName: 'list2: item 1' }),
+          new BlModel({ itemName: 'list2: item 2' })
+        ],
+      }), document.querySelector('article'))
+
+      document.querySelector('code').innerHTML = widget.code
+      hljs.highlightBlock(document.querySelector('code'))
+    </script>
+  </body>
+</html>

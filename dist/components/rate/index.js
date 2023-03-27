@@ -32,19 +32,18 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { getRegisteredSvgIcon } from '../../icon/store.js';
-import { forEach } from '../../common/utils.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { enumGetter, enumSetter } from '../../common/property.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
+import { forEach } from '../../common/utils.js';
 import { style } from './style.js';
-const halfValueGetter = enumGetter('value', ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']);
-const halfValueSetter = enumSetter('value', ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']);
-const valueGetter = enumGetter('value', ['1', '2', '3', '4', '5']);
-const valueSetter = enumSetter('value', ['1', '2', '3', '4', '5']);
-const $STAR_ICON = getRegisteredSvgIcon('star');
+import { template } from './template.js';
+import { Control } from '../base-control/index.js';
+const halfValueGetter = enumGetter('value', ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']);
+const halfValueSetter = enumSetter('value', ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']);
+const valueGetter = enumGetter('value', ['0', '1', '2', '3', '4', '5']);
+const valueSetter = enumSetter('value', ['0', '1', '2', '3', '4', '5']);
 export let BlocksRate = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-rate',
@@ -54,123 +53,156 @@ export let BlocksRate = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
-    let _clearable_decorators;
-    let _clearable_initializers = [];
+    let _value_decorators;
+    let _value_initializers = [];
     let _half_decorators;
     let _half_initializers = [];
     let _resultMode_decorators;
     let _resultMode_initializers = [];
-    var BlocksRate = class extends Component {
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    var BlocksRate = class extends Control {
         static {
-            _clearable_decorators = [attr('boolean')];
+            _value_decorators = [attr('number', {
+                    get: self => {
+                        if (self.resultMode)
+                            return +self.getAttribute('value');
+                        const value = self.half ? halfValueGetter(self) : valueGetter(self);
+                        if (value == null)
+                            return 0;
+                        return +value;
+                    },
+                    set: (self, value) => {
+                        if (self.resultMode) {
+                            self.setAttribute('value', value);
+                        }
+                        if (self.half) {
+                            halfValueSetter(self, String(value));
+                        }
+                        else {
+                            valueSetter(self, String(value));
+                        }
+                    },
+                })];
             _half_decorators = [attr('boolean')];
             _resultMode_decorators = [attr('boolean')];
-            __esDecorate(this, null, _clearable_decorators, { kind: "accessor", name: "clearable", static: false, private: false, access: { has: obj => "clearable" in obj, get: obj => obj.clearable, set: (obj, value) => { obj.clearable = value; } } }, _clearable_initializers, _instanceExtraInitializers);
+            _$layout_decorators = [shadowRef('#layout')];
+            __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _half_decorators, { kind: "accessor", name: "half", static: false, private: false, access: { has: obj => "half" in obj, get: obj => obj.half, set: (obj, value) => { obj.half = value; } } }, _half_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _resultMode_decorators, { kind: "accessor", name: "resultMode", static: false, private: false, access: { has: obj => "resultMode" in obj, get: obj => obj.resultMode, set: (obj, value) => { obj.resultMode = value; } } }, _resultMode_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksRate = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        static get observedAttributes() {
-            return [
-                'value',
-            ];
+        static get disableEventTypes() {
+            return ['click', 'mouseover', 'mouseleave', 'keydown'];
         }
-        #clearable_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _clearable_initializers, void 0));
-        get clearable() { return this.#clearable_accessor_storage; }
-        set clearable(value) { this.#clearable_accessor_storage = value; }
+        #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
+        get value() { return this.#value_accessor_storage; }
+        set value(value) { this.#value_accessor_storage = value; }
         #half_accessor_storage = __runInitializers(this, _half_initializers, void 0);
         get half() { return this.#half_accessor_storage; }
         set half(value) { this.#half_accessor_storage = value; }
         #resultMode_accessor_storage = __runInitializers(this, _resultMode_initializers, void 0);
         get resultMode() { return this.#resultMode_accessor_storage; }
         set resultMode(value) { this.#resultMode_accessor_storage = value; }
-        _hoverValue;
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template());
-            const $layout = shadowRoot.getElementById('layout');
-            this.ref = { $layout };
-            forEach($layout.children, ($button, index) => {
-                $button.onmouseover = e => {
-                    if (this.resultMode)
-                        return;
-                    if (!this.half) {
-                        this._hoverValue = index + 1;
-                    }
-                    else {
-                        let el = e.target;
-                        while (!el.classList.contains('star')) {
-                            el = el.parentElement;
-                        }
-                        this._hoverValue = index + (el.classList.contains('part') ? 0.5 : 1);
-                    }
-                    this.updateSelect();
-                };
-                $button.onclick = e => {
-                    if (this.resultMode)
-                        return;
-                    if (!this.half) {
-                        this.value = index + 1;
-                    }
-                    else {
-                        let el = e.target;
-                        while (!el.classList.contains('star')) {
-                            el = el.parentElement;
-                        }
-                        this.value = index + (el.classList.contains('part') ? 0.5 : 1);
-                    }
-                    this.updateSelect();
-                };
-            });
-            $layout.onmouseleave = e => {
-                this._hoverValue = undefined;
-                this.updateSelect();
-            };
+            this._tabIndexFeature.withTarget(() => [this.$layout]).withTabIndex(0);
+            this.#setupEvents();
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
         }
-        get value() {
-            const value = this.resultMode ? this.getAttribute('value') : this.half ? halfValueGetter(this) : valueGetter(this);
-            if (value == null)
-                return null;
-            return +value;
+        #hoverValue;
+        get hoverValue() {
+            return this.#hoverValue;
         }
-        set value(value) {
+        set hoverValue(value) {
+            this.#hoverValue = value;
+            this.render();
+        }
+        render() {
             if (this.resultMode) {
-                this.setAttribute('value', value);
-            }
-            if (this.half) {
-                halfValueSetter(this, '' + value);
+                this.#renderResult();
             }
             else {
-                valueSetter(this, '' + value);
+                this.#renderSelection();
             }
         }
-        updateSelect() {
-            if (this.resultMode) {
-                const value = this.value ?? 0;
-                let acc = 0;
-                forEach(this.ref.$layout.children, $button => {
-                    if (value - acc >= 1) {
-                        $button.className = 'selected';
-                        acc += 1;
+        #setupEvents() {
+            const getElContainsTarget = (e, tagName) => {
+                let $el = e.target;
+                while ($el && $el !== this.$layout) {
+                    if ($el.tagName === tagName) {
+                        return $el;
                     }
-                    else if (value - acc > 0) {
-                        $button.className = 'partially-selected';
-                        const n = value - acc;
-                        $button.querySelector('.part').style.width = `${n * 100}%`;
-                        acc += n;
+                    $el = $el.parentElement;
+                }
+                return null;
+            };
+            const getValue = (e) => {
+                const $button = getElContainsTarget(e, 'BUTTON');
+                if (!this.half)
+                    return Number($button.dataset.value);
+                const $star = getElContainsTarget(e, 'SPAN');
+                return Number($button.dataset.value) - ($star.classList.contains('part') ? 0.5 : 0);
+            };
+            const onMouseOver = (e) => {
+                if (this.resultMode)
+                    return;
+                const $button = getElContainsTarget(e, 'BUTTON');
+                if (!$button)
+                    return;
+                this.hoverValue = getValue(e);
+            };
+            const onClick = (e) => {
+                if (this.resultMode)
+                    return;
+                const $button = getElContainsTarget(e, 'BUTTON');
+                if (!$button)
+                    return;
+                this.value = getValue(e);
+            };
+            const onMouseLeave = () => {
+                this.hoverValue = undefined;
+            };
+            const onKeydown = (e) => {
+                if (this.resultMode)
+                    return;
+                if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+                    if (this.value < 5) {
+                        this.value += this.half ? 0.5 : 1;
                     }
-                    else {
-                        $button.className = '';
+                }
+                else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                    if (this.value > 0) {
+                        this.value -= this.half ? 0.5 : 1;
                     }
-                });
-                return;
-            }
-            const value = +(this._hoverValue ?? this.value ?? 0);
+                }
+            };
+            this.onConnected(() => {
+                this.$layout.addEventListener('keydown', onKeydown);
+                this.$layout.addEventListener('mouseover', onMouseOver);
+                this.$layout.addEventListener('click', onClick);
+                this.$layout.addEventListener('mouseleave', onMouseLeave);
+            });
+            this.onDisconnected(() => {
+                this.$layout.removeEventListener('keydown', onKeydown);
+                this.$layout.removeEventListener('mouseover', onMouseOver);
+                this.$layout.removeEventListener('click', onClick);
+                this.$layout.removeEventListener('mouseleave', onMouseLeave);
+            });
+        }
+        #renderSelection() {
+            const value = +(this.hoverValue ?? this.value ?? 0);
             let acc = 0;
-            forEach(this.ref.$layout.children, $button => {
+            forEach(this.$layout.children, $button => {
                 if (value - acc >= 1) {
                     $button.className = 'selected';
                     acc += 1;
@@ -185,27 +217,24 @@ export let BlocksRate = (() => {
                 }
             });
         }
-        render() {
-            const star = document.createElement('span');
-            star.className = 'star';
-            star.appendChild($STAR_ICON.cloneNode(true));
-            forEach(this.ref.$layout.children, $button => {
-                if ($button.children.length !== 2) {
-                    $button.innerHTML = '';
-                    $button.appendChild(star.cloneNode(true));
-                    $button.appendChild(star.cloneNode(true)).classList.add('part');
+        #renderResult() {
+            const value = this.value ?? 0;
+            let acc = 0;
+            forEach(this.$layout.children, $button => {
+                if (value - acc >= 1) {
+                    $button.className = 'selected';
+                    acc += 1;
+                }
+                else if (value - acc > 0) {
+                    $button.className = 'partially-selected';
+                    const n = value - acc;
+                    $button.querySelector('.part').style.width = `${n * 100}%`;
+                    acc += n;
+                }
+                else {
+                    $button.className = '';
                 }
             });
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-            this.updateSelect();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
-            this.updateSelect();
         }
     };
     return BlocksRate = _classThis;

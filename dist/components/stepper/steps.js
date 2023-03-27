@@ -32,12 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr, attrs } from '../../decorators/attr.js';
-import { Component } from '../Component.js';
-import { template } from './steps.template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { style } from './steps.style.js';
-import { domRef } from '../../decorators/domRef.js';
+import { template } from './steps.template.js';
+import { BlocksStep } from './step.js';
+import { Component } from '../component/Component.js';
 export let BlocksSteps = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-stepper',
@@ -59,8 +60,8 @@ export let BlocksSteps = (() => {
         static {
             _direction_decorators = [attr('enum', { enumValues: ['horizontal', 'vertical'] })];
             _size_decorators = [attrs.size];
-            _$layout_decorators = [domRef('#layout')];
-            _$slot_decorators = [domRef('slot')];
+            _$layout_decorators = [shadowRef('#layout')];
+            _$slot_decorators = [shadowRef('slot')];
             __esDecorate(this, null, _direction_decorators, { kind: "accessor", name: "direction", static: false, private: false, access: { has: obj => "direction" in obj, get: obj => obj.direction, set: (obj, value) => { obj.direction = value; } } }, _direction_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
@@ -84,10 +85,25 @@ export let BlocksSteps = (() => {
         constructor() {
             super();
             this.shadowRoot.appendChild(template());
+            this.onConnected(this.render);
+            this.#setupSlot();
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
+        #setupSlot() {
+            const updateItemDirection = () => {
+                this.$slot.assignedElements().forEach($step => {
+                    if ($step instanceof BlocksStep) {
+                        $step.direction = this.direction;
+                    }
+                });
+            };
+            this.onAttributeChangedDep('direction', updateItemDirection);
+            this.onConnected(() => {
+                updateItemDirection();
+                this.$slot.addEventListener('slotchange', updateItemDirection);
+            });
+            this.onDisconnected(() => {
+                this.$slot.removeEventListener('slotchange', updateItemDirection);
+            });
         }
         stepIndex($step) {
             return this.$slot.assignedElements().findIndex($el => $el === $step);

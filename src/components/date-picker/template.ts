@@ -1,19 +1,29 @@
 import { makeElement } from '../../common/makeElement.js'
 import { makeDomTemplate } from '../../common/template.js'
-import { BlocksInput } from '../input/index.js'
 import { PopupOrigin } from '../popup/index.js'
 
-export const inputTemplate = (() => {
-  const $input = makeElement({
+export const resultTemplate = makeDomTemplate(
+  makeElement({
+    tagName: 'bl-select-result',
+    props: {
+      id: 'result',
+      suffixIcon: 'date',
+    },
+  })
+)
+
+export const inputTemplate = makeDomTemplate(
+  makeElement({
     tagName: 'bl-input',
     props: {
       id: 'result',
       suffixIcon: 'date',
-      readonly: true,
+    },
+    attrs: {
+      readonly: '',
     },
   })
-  return () => $input.cloneNode(true) as BlocksInput
-})()
+)
 
 export const popupTemplate = makeDomTemplate(
   makeElement({
@@ -22,7 +32,7 @@ export const popupTemplate = makeDomTemplate(
       appendToBody: true,
       className: 'date-picker-popup',
       origin: PopupOrigin.TopStart,
-      arrow: true,
+      arrow: 8,
       autoflip: true,
     },
     children: [

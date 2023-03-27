@@ -19,6 +19,7 @@ export const style = /*css*/ `
   height: 100%;
 }
 #placeholder {
+  display: block;
   overflow: hidden;
   white-space: nowrap;
   position: absolute;
@@ -31,7 +32,8 @@ export const style = /*css*/ `
   color: var(--bl-fg-placeholder, ${__fg_placeholder});
   pointer-events: none;
 }
-#content:not(:empty) + #placeholder {
+.searching #placeholder,
+.has-result #placeholder {
   display: none;
 }
 
@@ -77,7 +79,8 @@ bl-tag:focus {
   padding: 0 12px;
 }
 /* 输入搜索内容后（placeholder 不显示）的搜索框相邻的结果值隐藏 */
-.single .search:not(:placeholder-shown) + .value-text {
+/*.single .search:not(:placeholder-shown) + .value-text*/
+.single.searching .value-text {
   visibility: hidden;
 }
 

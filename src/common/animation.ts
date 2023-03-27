@@ -1,40 +1,4 @@
 /**
- * 执行 enter 过渡
- * @export
- * @param {HTMLElement} el 执行过渡动画的元素
- * @param {string} name 过渡的名称
- * @returns
- */
-export function transitionEnter(el: HTMLElement, name: string): void {
-  el.classList.remove(`${name}-leave-transition-active`)
-  el.classList.remove(`${name}-leave-transition-from`)
-  el.classList.remove(`${name}-leave-transition-to`)
-
-  el.classList.add(`${name}-enter-transition-active`)
-  el.classList.add(`${name}-enter-transition-from`)
-  el.offsetHeight
-  el.classList.replace(`${name}-enter-transition-from`, `${name}-enter-transition-to`)
-}
-
-/**
- * 执行 leave 过渡
- * @export
- * @param {HTMLElement} el 执行过渡动画的元素
- * @param {string} name 过渡的名称
- * @returns
- */
-export function transitionLeave(el: HTMLElement, name: string): void {
-  el.classList.remove(`${name}-enter-transition-active`)
-  el.classList.remove(`${name}-enter-transition-from`)
-  el.classList.remove(`${name}-enter-transition-to`)
-
-  el.classList.add(`${name}-leave-transition-active`)
-  el.classList.add(`${name}-leave-transition-from`)
-  el.offsetHeight
-  el.classList.replace(`${name}-leave-transition-from`, `${name}-leave-transition-to`)
-}
-
-/**
  * 执行 enter 过渡，等待过渡完成后，执行回调
  * @export
  * @param {HTMLElement} el 执行过渡动画的元素
@@ -78,28 +42,6 @@ export function doTransitionLeave(el: HTMLElement, name: string, onEnd: () => vo
 }
 
 /**
- * 检查是否 enter 过渡
- * @export
- * @param {HTMLElement} el 执行过渡动画的元素
- * @param {string} name 过渡的名称
- * @returns
- */
-export function isTransitionEnter(el: HTMLElement, name: string): boolean {
-  return el.classList.contains(`${name}-enter-transition-active`)
-}
-
-/**
- * 检查是否 leave 过渡
- * @export
- * @param {HTMLElement} el 执行过渡动画的元素
- * @param {string} name 过渡的名称
- * @returns
- */
-export function isTransitionLeave(el: HTMLElement, name: string): boolean {
-  return el.classList.contains(`${name}-leave-transition-active`)
-}
-
-/**
  * 检查是否过渡
  * @export
  * @param {HTMLElement} el 执行过渡动画的元素
@@ -110,7 +52,65 @@ export function isTransition(el: HTMLElement, name: string): boolean {
   return isTransitionEnter(el, name) || isTransitionLeave(el, name)
 }
 
-export function clearTransition(el: HTMLElement, name: string): void {
+/**
+ * 执行 enter 过渡
+ * @export
+ * @param {HTMLElement} el 执行过渡动画的元素
+ * @param {string} name 过渡的名称
+ * @returns
+ */
+function transitionEnter(el: HTMLElement, name: string): void {
+  el.classList.remove(`${name}-leave-transition-active`)
+  el.classList.remove(`${name}-leave-transition-from`)
+  el.classList.remove(`${name}-leave-transition-to`)
+
+  el.classList.add(`${name}-enter-transition-active`)
+  el.classList.add(`${name}-enter-transition-from`)
+  el.offsetHeight
+  el.classList.replace(`${name}-enter-transition-from`, `${name}-enter-transition-to`)
+}
+
+/**
+ * 执行 leave 过渡
+ * @export
+ * @param {HTMLElement} el 执行过渡动画的元素
+ * @param {string} name 过渡的名称
+ * @returns
+ */
+function transitionLeave(el: HTMLElement, name: string): void {
+  el.classList.remove(`${name}-enter-transition-active`)
+  el.classList.remove(`${name}-enter-transition-from`)
+  el.classList.remove(`${name}-enter-transition-to`)
+
+  el.classList.add(`${name}-leave-transition-active`)
+  el.classList.add(`${name}-leave-transition-from`)
+  el.offsetHeight
+  el.classList.replace(`${name}-leave-transition-from`, `${name}-leave-transition-to`)
+}
+
+/**
+ * 检查是否 enter 过渡
+ * @export
+ * @param {HTMLElement} el 执行过渡动画的元素
+ * @param {string} name 过渡的名称
+ * @returns
+ */
+function isTransitionEnter(el: HTMLElement, name: string): boolean {
+  return el.classList.contains(`${name}-enter-transition-active`)
+}
+
+/**
+ * 检查是否 leave 过渡
+ * @export
+ * @param {HTMLElement} el 执行过渡动画的元素
+ * @param {string} name 过渡的名称
+ * @returns
+ */
+function isTransitionLeave(el: HTMLElement, name: string): boolean {
+  return el.classList.contains(`${name}-leave-transition-active`)
+}
+
+function clearTransition(el: HTMLElement, name: string): void {
   el.classList.remove(`${name}-enter-transition-active`)
   el.classList.remove(`${name}-enter-transition-from`)
   el.classList.remove(`${name}-enter-transition-to`)
@@ -125,7 +125,7 @@ export function clearTransition(el: HTMLElement, name: string): void {
  * @param {HTMLElement} el 执行过渡动画的元素
  * @param {() => void} callback 动画执行完毕的回调
  */
-export function onTransitionEnd(el: HTMLElement, callback: () => void): () => void {
+function onTransitionEnd(el: HTMLElement, callback: () => void): () => void {
   // 从样式中提取动画的执行总时间、需要执行动画的属性数量
   const { transitionTimeout, transitionPropCount } = getTransitionInfo(el)
   const { animationTimeout, animationPropCount } = getAnimationInfo(el)

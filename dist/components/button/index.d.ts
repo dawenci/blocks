@@ -1,24 +1,26 @@
+import type { ComponentEventListener } from '../component/Component.js';
+import type { ControlBoxEventMap } from '../base-control-box/index.js';
+import type { EnumAttr, EnumAttrs } from '../../decorators/attr.js';
 import { ControlBox } from '../base-control-box/index.js';
+import { SetupControlEvent } from '../setup-control-event/index.js';
+import { SetupEmpty } from '../setup-empty/index.js';
 declare const types: readonly ["primary", "danger", "warning", "success", "link"];
 export interface BlocksButton extends ControlBox {
-    _ref: ControlBox['_ref'] & {
-        $content: HTMLSpanElement;
-        $slot: HTMLSlotElement;
-        $icon?: HTMLElement | null;
-    };
-    _observer: MutationObserver;
+    addEventListener<K extends keyof ControlBoxEventMap>(type: K, listener: ComponentEventListener<ControlBoxEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof ControlBoxEventMap>(type: K, listener: ComponentEventListener<ControlBoxEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
 export declare class BlocksButton extends ControlBox {
+    #private;
     static get role(): string;
-    static get observedAttributes(): string[];
-    accessor icon: string | null;
+    static get disableEventTypes(): string[];
     accessor block: boolean;
-    accessor type: typeof types | null;
-    accessor size: 'small' | 'large' | null;
+    accessor outline: boolean;
+    accessor type: EnumAttr<typeof types> | null;
+    accessor size: EnumAttrs['size'] | null;
+    accessor $content: HTMLSpanElement;
+    accessor $slot: HTMLSlotElement;
     constructor();
-    render(): void;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
+    _controlFeature: SetupControlEvent<this>;
+    _emptyFeature: SetupEmpty<this>;
 }
 export {};

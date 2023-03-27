@@ -34,19 +34,19 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../popup/index.js';
 import '../time/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { domRef } from '../../decorators/domRef.js';
-import { BlocksInput } from '../input/index.js';
-import { BlocksTime } from '../time/index.js';
+import { boolSetter } from '../../common/property.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { padLeft } from '../../common/utils.js';
-import { boolSetter } from '../../common/property.js';
-import { dispatchEvent } from '../../common/event.js';
-import { Component } from '../Component.js';
 import { style } from './style.js';
 import { template } from './template.js';
 import { template as popupTemplate } from './popup.template.js';
+import { BlocksInput } from '../input/index.js';
+import { BlocksTime } from '../time/index.js';
+import { Component } from '../component/Component.js';
 export let BlocksTimePicker = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-time-picker',
@@ -69,7 +69,7 @@ export let BlocksTimePicker = (() => {
             _hour_decorators = [attr('intRange', { min: 0, max: 23 })];
             _minute_decorators = [attr('intRange', { min: 0, max: 59 })];
             _second_decorators = [attr('intRange', { min: 0, max: 59 })];
-            _$input_decorators = [domRef('#result')];
+            _$input_decorators = [shadowRef('#result')];
             __esDecorate(this, null, _hour_decorators, { kind: "accessor", name: "hour", static: false, private: false, access: { has: obj => "hour" in obj, get: obj => obj.hour, set: (obj, value) => { obj.hour = value; } } }, _hour_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _minute_decorators, { kind: "accessor", name: "minute", static: false, private: false, access: { has: obj => "minute" in obj, get: obj => obj.minute, set: (obj, value) => { obj.minute = value; } } }, _minute_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _second_decorators, { kind: "accessor", name: "second", static: false, private: false, access: { has: obj => "second" in obj, get: obj => obj.second, set: (obj, value) => { obj.second = value; } } }, _second_initializers, _instanceExtraInitializers);
@@ -110,7 +110,7 @@ export let BlocksTimePicker = (() => {
                 $popup,
                 $time,
             };
-            $popup.anchor = () => $input;
+            $popup.anchorElement = () => $input;
             const $confirm = $popup.querySelector('bl-button');
             const onFocus = () => {
                 $time.scrollToActive();
@@ -136,7 +136,6 @@ export let BlocksTimePicker = (() => {
                     minute: $time.minute,
                     second: $time.second,
                 };
-                this._initClickOutside();
             };
             $popup.addEventListener('opened', onOpened);
             const onClosed = () => {
@@ -146,33 +145,55 @@ export let BlocksTimePicker = (() => {
                     $time.second = this._prevValue.second;
                     this._prevValue = null;
                 }
-                this._destroyClickOutside();
             };
             $popup.addEventListener('closed', onClosed);
             const onConfirm = this._confirm.bind(this);
             $confirm.onclick = onConfirm;
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            document.body.appendChild(this._ref.$popup);
-            this.render();
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            document.body.removeChild(this._ref.$popup);
-            this._destroyClickOutside();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (BlocksInput.observedAttributes.includes(attrName)) {
+            this.onConnected(this.render);
+            this.#setupPopup();
+            this.onAttributeChangedDeps(BlocksInput.observedAttributes, (attrName, oldValue, newValue) => {
                 this.$input.setAttribute(attrName, newValue);
-            }
-            if (BlocksTime.observedAttributes.includes(attrName)) {
+            });
+            this.onAttributeChangedDeps(BlocksTime.observedAttributes, (attrName, oldValue, newValue) => {
                 this._ref.$time.setAttribute(attrName, newValue);
-            }
-            this.render();
+            });
+            this.onAttributeChanged(this.render);
+        }
+        #setupPopup() {
+            const _initClickOutside = () => {
+                if (!this.#clearup) {
+                    this.#clearup = onClickOutside([this, this._ref.$popup], () => {
+                        if (this._ref.$popup.open)
+                            this._ref.$popup.open = false;
+                    });
+                }
+            };
+            const _destroyClickOutside = () => {
+                if (this.#clearup) {
+                    this.#clearup();
+                    this.#clearup = undefined;
+                }
+            };
+            const onOpened = () => {
+                _initClickOutside();
+            };
+            const onClosed = () => {
+                _destroyClickOutside();
+            };
+            this.onConnected(() => {
+                document.body.appendChild(this._ref.$popup);
+                this._ref.$popup.addEventListener('opened', onOpened);
+                this._ref.$popup.addEventListener('closed', onClosed);
+            });
+            this.onDisconnected(() => {
+                document.body.removeChild(this._ref.$popup);
+                _destroyClickOutside();
+                this._ref.$popup.removeEventListener('opened', onOpened);
+                this._ref.$popup.removeEventListener('closed', onClosed);
+            });
         }
         render() {
+            super.render();
             const { $time } = this._ref;
             if ([$time.hour, $time.minute, $time.second].some(v => Object.is(v, NaN) || v == null)) {
                 this.$input.value = '';
@@ -194,20 +215,6 @@ export let BlocksTimePicker = (() => {
                 },
             });
             $popup.open = false;
-        }
-        _initClickOutside() {
-            if (!this.#clearup) {
-                this.#clearup = onClickOutside([this, this._ref.$popup], () => {
-                    if (this._ref.$popup.open)
-                        this._ref.$popup.open = false;
-                });
-            }
-        }
-        _destroyClickOutside() {
-            if (this.#clearup) {
-                this.#clearup();
-                this.#clearup = undefined;
-            }
         }
     };
     return BlocksTimePicker = _classThis;

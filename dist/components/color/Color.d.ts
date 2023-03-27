@@ -1,0 +1,51 @@
+export type ColorTuple3 = [number, number, number];
+export type ColorTuple4 = [number, number, number, number];
+export type ColorFormat = 'rgb' | 'rgba' | 'hex' | '#rrggbb' | '#rrggbbaa' | '#rgb' | 'hsl' | 'hsla' | 'hsv' | 'hsva';
+export declare function clamp(val: number, min: number, max: number): number;
+export interface Color {
+    _val: number;
+    _alpha: number;
+}
+export declare class Color {
+    static TRANSPARENT: Readonly<Color>;
+    static WHITE: Readonly<Color>;
+    static BLACK: Readonly<Color>;
+    static GRAY: Readonly<Color>;
+    static RED: Readonly<Color>;
+    static GREEN: Readonly<Color>;
+    static BLUE: Readonly<Color>;
+    static CYAN: Readonly<Color>;
+    static MAGENTA: Readonly<Color>;
+    static YELLOW: Readonly<Color>;
+    static toValue(r: number, g: number, b: number, a?: number): number;
+    static to8BitAlpha(alpha: number): number;
+    static fromRgb(r: number, g: number, b: number, alpha?: number): Color;
+    static fromHex(hexString: string): Color;
+    static fromHsv(h: number, s: number, v: number, alpha?: number): Color;
+    static fromHsl(h: number, s: number, l: number, alpha?: number): Color;
+    static equals(a: Color, b: Color, epsilon?: number): boolean;
+    static format(color: Color, fmt?: ColorFormat): string;
+    get value(): number;
+    set value(value: number);
+    get r(): number;
+    set r(red: number);
+    get g(): number;
+    set g(green: number);
+    get b(): number;
+    set b(blue: number);
+    get a(): number;
+    set a(alpha: number);
+    get alpha(): number;
+    set alpha(alpha: number);
+    constructor(val: number);
+    constructor(hexString: string);
+    constructor(r: number, g: number, b: number, alpha?: number);
+    equals(other: Color): boolean;
+    toString(fmt?: ColorFormat): string;
+    toRgb(): ColorTuple3;
+    toRgba(): ColorTuple4;
+    toHsv(): ColorTuple3;
+    toHsva(): ColorTuple4;
+    toHsl(): ColorTuple3;
+    toHsla(): ColorTuple4;
+}

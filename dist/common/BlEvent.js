@@ -1,14 +1,12 @@
 const uniqueId = (function () {
     let id = 0;
-    return function uniqueId(prefix) {
-        return (prefix || '') + id++;
+    return function uniqueId() {
+        return `${id++}`;
     };
 })();
 const isEmpty = (() => {
     const hasOwn = Object.prototype.hasOwnProperty;
     return function isEmpty(obj) {
-        if (obj == null)
-            return true;
         for (const p in obj) {
             if (hasOwn.call(obj, p))
                 return false;
@@ -16,272 +14,271 @@ const isEmpty = (() => {
         return true;
     };
 })();
-function once(func) {
-    let called = false;
-    let memo;
-    return function (...args) {
-        if (called)
-            return memo;
-        called = true;
-        return (memo = func(...args));
+const isPlainObject = (() => {
+    const toString = Object.prototype.toString;
+    return function (obj) {
+        return toString.call(obj) === '[object Object]';
     };
+})();
+function isBlEvent(obj) {
+    return typeof obj?.on === 'function';
 }
-function onceMap(map, name, callback, offer) {
+function onceMap(output, type, callback, offer) {
     if (typeof callback !== 'function')
-        return map;
-    const _once = (map[name] = once(function () {
-        offer(name, _once);
-        callback.apply(this, arguments);
-    }));
+        return output;
+    const _once = (output[type] = function (...args) {
+        offer(type, _once);
+        callback.apply(this, args);
+    });
     _once._callback = callback;
-    return map;
+    return output;
 }
-function iterateEvents(iteratee, events, name, callback, opts) {
-    const eventSplitter = /\s+/;
-    let i = 0;
-    let names;
-    if (name && typeof name === 'object') {
-        if (callback !== void 0 && 'context' in opts && opts.context === void 0) {
-            opts.context = callback;
-        }
-        for (names = Object.keys(name ?? {}); i < names.length; i++) {
-            events = iterateEvents(iteratee, events, names[i], name[names[i]], opts);
-        }
+function makeOnceWrapper(typeOrMap, callback, offer) {
+    const output = Object.create(null);
+    if (typeof typeOrMap === 'string') {
+        onceMap(output, typeOrMap, callback, offer);
     }
-    else if (name && eventSplitter.test(name)) {
-        for (names = name.split(eventSplitter); i < names.length; i++) {
-            events = iteratee(events, names[i], callback, opts);
-        }
+    else if (Array.isArray(typeOrMap)) {
+        typeOrMap.forEach(name => onceMap(output, name, callback, offer));
     }
-    else {
-        events = iteratee(events, name, callback, opts);
+    else if (isPlainObject(typeOrMap)) {
+        const obj = typeOrMap;
+        Object.keys(obj).forEach(name => onceMap(output, name, obj[name], offer));
     }
-    return events;
+    return output;
 }
-function onIteratee(events, name, callback, options) {
-    if (callback) {
-        const handlers = events[name] || (events[name] = []);
-        const context = options.context;
-        const ctx = context || options.ctx;
-        const listening = options.listening;
-        if (listening)
-            listening.count += 1;
-        handlers.push({ callback, context, ctx, listening });
-    }
-    return events;
+function addBinding(events, type, callback) {
+    const handlers = events[type] ?? (events[type] = []);
+    _currentListening?.refInc();
+    handlers.push({ callback, listening: _currentListening });
 }
-function offIteratee(events, name, callback, options) {
-    if (!events)
-        return;
-    const context = options.context;
-    const listeners = options.listeners;
-    let i = 0;
-    let names;
-    if (!name && !context && !callback) {
-        for (names = Object.keys(listeners ?? {}); i < names.length; i++) {
-            listeners[names[i]]._cleanup();
-        }
-        return;
+function normalizeAndAddEvent(events, typeOrKv, callback) {
+    if (typeof typeOrKv === 'string') {
+        if (!callback)
+            return;
+        addBinding(events, typeOrKv, callback);
     }
-    names = name ? [name] : Object.keys(events);
-    for (; i < names.length; i++) {
-        name = names[i];
-        const handlers = events[name];
+    else if (Array.isArray(typeOrKv)) {
+        if (!callback)
+            return;
+        typeOrKv.forEach(name => addBinding(events, name, callback));
+    }
+    else if (isPlainObject(typeOrKv)) {
+        const obj = typeOrKv;
+        Object.keys(obj).forEach(name => {
+            const callback = obj[name];
+            if (!callback)
+                return;
+            addBinding(events, name, callback);
+        });
+    }
+}
+function removeBinding(events, type, callback) {
+    const names = typeof type === 'string' ? [type] : Object.keys(events);
+    for (let i = 0; i < names.length; i++) {
+        type = names[i];
+        const handlers = events[type];
         if (!handlers)
-            break;
+            return;
         const remaining = [];
         for (let j = 0; j < handlers.length; j++) {
             const handler = handlers[j];
-            if ((callback && callback !== handler.callback && callback !== handler.callback._callback) ||
-                (context && context !== handler.context)) {
+            if (callback && callback !== handler.callback && callback !== handler.callback._callback) {
                 remaining.push(handler);
             }
             else {
-                const listening = handler.listening;
-                if (listening)
-                    listening.off(name, callback);
+                handler.listening?.refDec();
             }
         }
         if (remaining.length) {
-            events[name] = remaining;
+            events[type] = remaining;
         }
         else {
-            delete events[name];
+            delete events[type];
         }
     }
-    return events;
 }
-function triggerIteratee(objEvents, name, callback, args) {
-    if (objEvents) {
-        const events = objEvents[name];
-        let allEvents = objEvents.all;
-        if (events && allEvents)
-            allEvents = allEvents.slice();
-        if (events)
-            trigger(events, args);
-        if (allEvents)
-            trigger(allEvents, [name].concat(args));
+function normalizeAndRemoveEvent(events, typeOrMapOrCb, callback) {
+    if (typeOrMapOrCb == null || typeof typeOrMapOrCb === 'string') {
+        removeBinding(events, typeOrMapOrCb, callback);
     }
-    return objEvents;
+    if (typeof typeOrMapOrCb === 'function') {
+        removeBinding(events, void 0, typeOrMapOrCb);
+    }
+    else if (Array.isArray(typeOrMapOrCb)) {
+        typeOrMapOrCb.forEach(name => {
+            if (name) {
+                removeBinding(events, name, callback);
+            }
+        });
+    }
+    else if (isPlainObject(typeOrMapOrCb)) {
+        const obj = typeOrMapOrCb;
+        Object.keys(obj).forEach(name => {
+            const callback = obj[name];
+            removeBinding(events, name, callback);
+        });
+    }
 }
-function trigger(events, args) {
-    const count = events.length;
+function triggerEvents(events, type, args) {
+    const types = Array.isArray(type) ? type : [type];
+    types.forEach(type => {
+        const handlers = events[type];
+        let allEvents = events.all;
+        if (handlers && allEvents) {
+            allEvents = allEvents.slice();
+        }
+        if (handlers) {
+            trigger(handlers, args);
+        }
+        if (allEvents) {
+            trigger(allEvents, [type].concat(args));
+        }
+    });
+}
+function trigger(handlerRecords, args) {
+    const count = handlerRecords.length;
     const arg1 = args[0];
     const arg2 = args[1];
     const arg3 = args[2];
-    let event;
     let i = -1;
     switch (args.length) {
         case 0:
             while (++i < count)
-                (event = events[i]).callback.call(event.ctx);
+                handlerRecords[i].callback();
             return;
         case 1:
             while (++i < count)
-                (event = events[i]).callback.call(event.ctx, arg1);
+                handlerRecords[i].callback(arg1);
             return;
         case 2:
             while (++i < count)
-                (event = events[i]).callback.call(event.ctx, arg1, arg2);
+                handlerRecords[i].callback(arg1, arg2);
             return;
         case 3:
             while (++i < count)
-                (event = events[i]).callback.call(event.ctx, arg1, arg2, arg3);
+                handlerRecords[i].callback(arg1, arg2, arg3);
             return;
         default:
             while (++i < count)
-                (event = events[i]).callback.apply(event.ctx, args);
+                handlerRecords[i].callback(...args);
             return;
     }
 }
-let _listening;
-export class BlEvent {
-    __events__;
-    __listenId__;
-    __listeners__;
-    __listeningTo__;
-    on(name, callback, context) {
-        this.__events__ = iterateEvents(onIteratee, this.__events__ || {}, name, callback, {
-            context,
-            ctx: this,
-            listening: _listening,
-        });
-        if (_listening) {
-            const listeners = this.__listeners__ || (this.__listeners__ = {});
-            listeners[_listening.id] = _listening;
-            _listening.interop = false;
-        }
-        return this;
-    }
-    off(name, callback, context) {
-        if (!this.__events__)
-            return this;
-        this.__events__ = iterateEvents(offIteratee, this.__events__, name, callback, {
-            context: context,
-            listeners: this.__listeners__,
-        });
-        return this;
-    }
-    trigger(name, ...rest) {
-        if (!this.__events__)
-            return this;
-        iterateEvents(triggerIteratee, this.__events__, name, void 0, rest);
-        return this;
-    }
-    listenTo(target, name, callback) {
-        if (!target)
-            return this;
-        const id = target.__listenId__ || (target.__listenId__ = uniqueId('l'));
-        const listeningTo = this.__listeningTo__ || (this.__listeningTo__ = {});
-        let listening = (_listening = listeningTo[id]);
-        if (!listening) {
-            if (!this.__listenId__) {
-                this.__listenId__ = uniqueId('l');
-            }
-            listening = _listening = listeningTo[id] = new Listening(this, target);
-        }
-        let error;
-        try {
-            target.on(name, callback, this);
-        }
-        catch (e) {
-            error = e;
-        }
-        _listening = void 0;
-        if (error)
-            throw error;
-        if (listening.interop) {
-            listening.on(name, callback);
-        }
-        return this;
-    }
-    stopListening(obj, name, callback) {
-        const listeningTo = this.__listeningTo__;
-        if (!listeningTo)
-            return this;
-        const ids = obj ? [obj.__listenId__] : Object.keys(listeningTo);
-        for (let i = 0; i < ids.length; i++) {
-            const listening = listeningTo[ids[i]];
-            if (!listening)
-                break;
-            listening.target.off(name, callback, this);
-            if (listening.interop) {
-                listening.off(name, callback);
-            }
-        }
-        if (isEmpty(listeningTo))
-            this.__listeningTo__ = void 0;
-        return this;
-    }
-    once(name, callback, context) {
-        const events = iterateEvents(onceMap, {}, name, callback, this.off.bind(this));
-        if (typeof name === 'string' && (context === undefined || context === null)) {
-            callback = void 0;
-        }
-        return this.on(events, callback, context);
-    }
-    listenToOnce(obj, name, callback) {
-        const events = iterateEvents(onceMap, {}, name, callback, this.stopListening.bind(this, obj));
-        return this.listenTo(obj, events);
-    }
-}
-class Listening {
+const EVENTS_FIELD = '_bl_events_';
+const ID_FIELD = '_bl_event_id_';
+const LISTENER_FIELD = '_bl_listeners_';
+const LISTENING_FIELD = '_bl_listening_';
+let _currentListening;
+export class Listening {
     listener;
     target;
-    __events__ = void 0;
-    id;
-    interop = true;
-    count = 0;
-    on;
+    refCount = 0;
+    listenerId;
+    listenToId;
     constructor(listener, target) {
         this.listener = listener;
         this.target = target;
         this.listener = listener;
         this.target = target;
-        this.id = listener.__listenId__;
+        this.listenerId = listener[ID_FIELD];
+        this.listenToId = target[ID_FIELD];
     }
-    off(name, callback) {
-        let shouldCleanup;
-        if (this.interop) {
-            this.__events__ = iterateEvents(offIteratee, this.__events__, name, callback, {
-                context: void 0,
-                listeners: void 0,
-            });
-            shouldCleanup = !this.__events__;
-        }
-        else {
-            this.count--;
-            shouldCleanup = this.count === 0;
-        }
-        if (shouldCleanup) {
-            this._cleanup();
-        }
+    refInc() {
+        ++this.refCount;
     }
-    _cleanup() {
-        delete this.listener.__listeningTo__[this.target.__listenId__];
-        if (!this.interop) {
-            delete this.target.__listeners__[this.id];
-        }
+    refDec() {
+        if (--this.refCount === 0)
+            this.cleanup();
+    }
+    cleanup() {
+        delete this.listener[LISTENING_FIELD][this.listenToId];
+        delete this.target[LISTENER_FIELD][this.listenerId];
     }
 }
-Listening.prototype.on = BlEvent.prototype.on;
+export class BlEvent {
+    [EVENTS_FIELD];
+    [ID_FIELD];
+    [LISTENER_FIELD];
+    [LISTENING_FIELD];
+    on(typeOrKv, callback) {
+        const events = (this[EVENTS_FIELD] = this[EVENTS_FIELD] ?? Object.create(null));
+        normalizeAndAddEvent(events, typeOrKv, callback);
+        if (_currentListening) {
+            const listeners = this[LISTENER_FIELD] || (this[LISTENER_FIELD] = Object.create(null));
+            listeners[_currentListening.id] = _currentListening;
+        }
+        return this;
+    }
+    once(typeOrKv, callback) {
+        return this.on(makeOnceWrapper(typeOrKv, callback, this.off.bind(this)));
+    }
+    off(typeOrKvOrCb, callback) {
+        const events = this[EVENTS_FIELD];
+        if (!events)
+            return this;
+        normalizeAndRemoveEvent(events, typeOrKvOrCb, callback);
+        return this;
+    }
+    trigger(type, ...payloads) {
+        const events = this[EVENTS_FIELD];
+        if (!events)
+            return this;
+        triggerEvents(events, type, payloads);
+        return this;
+    }
+    listenTo(other, typeOrKv, callback) {
+        if (!isBlEvent(other))
+            return this;
+        const id = other[ID_FIELD] || (other[ID_FIELD] = uniqueId());
+        const listeningMap = this[LISTENING_FIELD] || (this[LISTENING_FIELD] = Object.create(null));
+        _currentListening = listeningMap[id];
+        if (!_currentListening) {
+            if (!this[ID_FIELD])
+                this[ID_FIELD] = uniqueId();
+            _currentListening = listeningMap[id] = new Listening(this, other);
+        }
+        other.on(typeOrKv, callback);
+        _currentListening = void 0;
+        return this;
+    }
+    listenToOnce(other, typeOrKv, callback) {
+        const events = makeOnceWrapper(typeOrKv, callback, this.stopListening.bind(this, other));
+        return this.listenTo(other, events);
+    }
+    stopListening(other, typeOrKvOrCb, callback) {
+        const listeningMap = this[LISTENING_FIELD];
+        if (!listeningMap)
+            return this;
+        const hasTarget = isBlEvent(other);
+        if (!hasTarget) {
+            callback = typeOrKvOrCb;
+            typeOrKvOrCb = other;
+        }
+        const stop = (listening) => {
+            if (typeOrKvOrCb && callback) {
+                listening.target.off(typeOrKvOrCb, callback);
+            }
+            else {
+                listening.target.off(typeOrKvOrCb);
+            }
+        };
+        if (hasTarget) {
+            const id = other[ID_FIELD];
+            const listening = id ? listeningMap[id] : null;
+            if (listening) {
+                stop(listening);
+            }
+        }
+        else {
+            const ids = Object.keys(listeningMap);
+            for (let i = 0; i < ids.length; i++) {
+                const listening = listeningMap[ids[i]];
+                stop(listening);
+            }
+        }
+        if (isEmpty(listeningMap))
+            this[LISTENING_FIELD] = void 0;
+        return this;
+    }
+}

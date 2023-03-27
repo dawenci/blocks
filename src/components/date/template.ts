@@ -1,7 +1,7 @@
 import { makeTemplate } from '../../common/template.js'
 
 export const template = makeTemplate(/*html*/ `
-<div id="layout" tabindex="-1">
+<div part="layout" id="layout">
   <header id="header">
     <button class="header-button button-prevPrev"></button>
     <button class="header-button button-prev"></button>

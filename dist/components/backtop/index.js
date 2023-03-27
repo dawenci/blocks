@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,14 +25,22 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { scrollTo } from '../../common/scrollTo.js';
-import { Component } from '../Component.js';
-import { make as makeModel } from './model.js';
-import { defineClass } from '../../decorators/defineClass.js';
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import { attr } from '../../decorators/attr.js';
-import { template } from './template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { fromAttr } from '../component/reactive.js';
+import { scrollTo } from '../../common/scrollTo.js';
 import { style } from './style.js';
 import { strSetter } from '../../common/property.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
+import { computed, reactive, subscribe, unsubscribe } from '../../common/reactive.js';
 export let BlocksBackTop = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-backtop',
@@ -63,27 +64,21 @@ export let BlocksBackTop = (() => {
             BlocksBackTop = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #clearup = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        #target;
-        _model = makeModel();
-        #duration_accessor_storage = __runInitializers(this, _duration_initializers, 0);
+        #duration_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _duration_initializers, 0));
         get duration() { return this.#duration_accessor_storage; }
         set duration(value) { this.#duration_accessor_storage = value; }
         #threshold_accessor_storage = __runInitializers(this, _threshold_initializers, 400);
         get threshold() { return this.#threshold_accessor_storage; }
         set threshold(value) { this.#threshold_accessor_storage = value; }
+        #scrolled = reactive(0);
+        visible = computed((scrolled, threshold) => scrolled >= threshold, [this.#scrolled, fromAttr(this, 'threshold')]);
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
-            this.addEventListener('click', () => {
-                scrollTo(this.targetElement, 0, {
-                    duration: this._model.get('duration'),
-                    done: () => this.render(),
-                });
-            });
-            this._model.on('update:visible', this.render, this);
+            this.appendShadowChild(template());
+            this.#setupTarget();
+            this.#setupButton();
         }
+        #target;
         get target() {
             if (this.#target) {
                 return this.#target() ?? null;
@@ -122,46 +117,43 @@ export let BlocksBackTop = (() => {
             }
             return window;
         }
-        render() {
-            const scrollTop = this._model.get('scrolled');
-            if (scrollTop >= this.threshold) {
-                this.style.display = '';
-            }
-            else {
-                this.style.display = 'none';
-            }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-            const onTargetScroll = (e) => {
-                if (e.target === this.targetElement) {
-                    this._model.set('scrolled', this.targetElement.scrollTop);
-                }
+        #setupButton() {
+            const render = () => {
+                this.style.display = this.visible.content ? '' : 'none';
             };
+            const onClick = () => {
+                scrollTo(this.targetElement, 0, {
+                    duration: this.duration,
+                    done: render,
+                });
+            };
+            this.onConnected(() => {
+                this.addEventListener('click', onClick);
+                subscribe(this.visible, render);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('click', onClick);
+                unsubscribe(this.visible, render);
+            });
+            this.onRender(render);
+            this.onConnected(render);
+        }
+        #setupTarget() {
             const scrollEventOptions = {
                 capture: true,
                 passive: true,
             };
-            document.addEventListener('scroll', onTargetScroll, scrollEventOptions);
-            this.#clearup = () => {
-                document.removeEventListener('scroll', onTargetScroll, scrollEventOptions);
+            const onTargetScroll = (e) => {
+                if (e.target === this.targetElement) {
+                    this.#scrolled.content = this.targetElement.scrollTop;
+                }
             };
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'duration') {
-                this._model.set('duration', this.duration);
-            }
-            if (attrName === 'threshold') {
-                this._model.set('threshold', this.threshold);
-            }
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            if (this.#clearup) {
-                this.#clearup();
-            }
+            this.onConnected(() => {
+                document.addEventListener('scroll', onTargetScroll, scrollEventOptions);
+            });
+            this.onDisconnected(() => {
+                document.removeEventListener('scroll', onTargetScroll, scrollEventOptions);
+            });
         }
     };
     return BlocksBackTop = _classThis;

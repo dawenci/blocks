@@ -1,2 +1,1 @@
-export declare const dialogStyleTemplate: () => HTMLStyleElement;
-export declare const dialogTemplate: () => DocumentFragment;
+export declare const template: () => DocumentFragment;

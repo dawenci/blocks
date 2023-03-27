@@ -1,10 +1,12 @@
-import { defineClass } from '../../decorators/defineClass.js'
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
 import { attr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { forEach } from '../../common/utils.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js'
 import { style } from './style.js'
 import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 enum State {
   // 初始化状态
@@ -29,12 +31,6 @@ interface CalcEventMap extends ComponentEventMap {
 }
 
 export interface BlocksCalc extends Component {
-  _ref: {
-    $layout: HTMLDivElement
-    $result: HTMLDivElement
-    $input: HTMLDivElement
-  }
-
   addEventListener<K extends keyof CalcEventMap>(
     type: K,
     listener: ComponentEventListener<CalcEventMap[K]>,
@@ -53,7 +49,11 @@ export interface BlocksCalc extends Component {
   styles: [style],
 })
 export class BlocksCalc extends Component {
-  @attr('string') accessor screen = ''
+  @attr('string') accessor screen = '0'
+
+  @shadowRef('#layout') accessor $layout!: HTMLDivElement
+  @shadowRef('.Calc-screen-result') accessor $result!: HTMLDivElement
+  @shadowRef('.Calc-screen-input') accessor $input!: HTMLDivElement
 
   memory = 0
   operand: number | null = null
@@ -71,15 +71,18 @@ export class BlocksCalc extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
+    this.shadowRoot!.appendChild(template())
 
-    const $layout = shadowRoot.getElementById('layout') as HTMLDivElement
-    const $result = shadowRoot.querySelector('.Calc-screen-result') as HTMLDivElement
-    const $input = shadowRoot.querySelector('.Calc-screen-input') as HTMLDivElement
-    this._ref = { $layout, $result, $input }
+    this.onConnected(() => {
+      this.render()
+      this.$layout.onkeypress = this.onKeyPress.bind(this)
+    })
+    this.onDisconnected(() => {
+      this.$layout.onkeypress = null
+    })
 
-    this.screen = '0'
+    this.onAttributeChanged(this.render)
+    this.onAttributeChangedDep('screen', this.onScreenChange)
   }
 
   get memoryKeys() {
@@ -152,28 +155,9 @@ export class BlocksCalc extends Component {
     ])
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-    this._ref.$layout.onkeypress = this.onKeyPress.bind(this)
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    this._ref.$layout.onkeypress = null
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
-
-    if (attrName === 'screen') {
-      this.onScreenChange()
-    }
-  }
-
   override render() {
-    this._ref.$input.innerHTML = this.screen ?? ''
+    super.render()
+    this.$input.innerHTML = this.screen ?? ''
 
     const $span = document.createElement('span')
     $span.className = 'Calc-keyboard-key'
@@ -186,28 +170,28 @@ export class BlocksCalc extends Component {
     }
 
     // render memory
-    const $memory = this._ref.$layout.querySelector('.Calc-keyboard-memory') as HTMLDivElement
+    const $memory = this.$layout.querySelector('.Calc-keyboard-memory') as HTMLDivElement
     if (!$memory.children.length) {
       this.memoryKeys.forEach(key => {
         $memory.appendChild(makeButton(key))
       })
     }
 
-    const $actions = this._ref.$layout.querySelector('.Calc-keyboard-actions') as HTMLDivElement
+    const $actions = this.$layout.querySelector('.Calc-keyboard-actions') as HTMLDivElement
     if (!$actions.children.length) {
       this.actionKeys.forEach(key => {
         $actions.appendChild(makeButton(key))
       })
     }
 
-    const $numbers = this._ref.$layout.querySelector('.Calc-keyboard-numbers') as HTMLDivElement
+    const $numbers = this.$layout.querySelector('.Calc-keyboard-numbers') as HTMLDivElement
     if (!$numbers.children.length) {
       this.numberKeys.forEach(key => {
         $numbers.appendChild(makeButton(key))
       })
     }
 
-    const $operators = this._ref.$layout.querySelector('.Calc-keyboard-operators') as HTMLDivElement
+    const $operators = this.$layout.querySelector('.Calc-keyboard-operators') as HTMLDivElement
     if (!$operators.children.length) {
       this.operatorKeys.forEach(key => {
         $operators.appendChild(makeButton(key))
@@ -225,7 +209,7 @@ export class BlocksCalc extends Component {
 
   // 结果显示屏，根据内容自动缩放数字
   onScreenChange() {
-    const { $result, $input } = this._ref
+    const { $result, $input } = this
     if (!$result || !$input) return
 
     requestAnimationFrame(() => {
@@ -233,9 +217,9 @@ export class BlocksCalc extends Component {
       const inputWidth = $input.clientWidth
       if (inputWidth > wrapperWidth) {
         const scaleRatio = wrapperWidth / inputWidth
-        this._ref.$input.style.transform = `scale(${scaleRatio})`
+        this.$input.style.transform = `scale(${scaleRatio})`
       } else {
-        this._ref.$input.style.transform = ''
+        this.$input.style.transform = ''
       }
     })
 

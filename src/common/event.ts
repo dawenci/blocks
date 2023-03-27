@@ -1,4 +1,4 @@
-import { Component, ComponentEventMap } from '../components/Component'
+import { Component, ComponentEventMap } from '../components/component/Component.js'
 
 export function dispatchEvent<T = any>(element: Element, eventName: string, options: CustomEventInit = {}): boolean {
   options = Object.assign(
@@ -17,20 +17,20 @@ export function dispatchEvent<T = any>(element: Element, eventName: string, opti
   return element.dispatchEvent(event)
 }
 
-export function onEvent<M, K extends keyof M>(
-  element: Component & { disabled: boolean },
+export function onEvent<M, K extends keyof M, E extends Element = Element>(
+  element: E,
   type: K,
-  listener: (this: typeof element, ev: M[K]) => any,
+  listener: (this: E, ev: M[K]) => any,
   options?: boolean | AddEventListenerOptions
 ): () => void
-export function onEvent<K extends keyof ComponentEventMap>(
-  element: Component & { disabled: boolean },
+export function onEvent<K extends keyof ComponentEventMap, E extends Component = Component>(
+  element: E,
   type: K,
-  listener: (this: typeof element, ev: ComponentEventMap[K]) => any,
+  listener: (this: E, ev: ComponentEventMap[K]) => any,
   options?: boolean | AddEventListenerOptions
 ): () => void
-export function onEvent(
-  element: Component & { disabled: boolean },
+export function onEvent<E extends Element = Element>(
+  element: E,
   type: string,
   listener: EventListenerOrEventListenerObject,
   options?: boolean | AddEventListenerOptions
@@ -39,5 +39,34 @@ export function onEvent(element: any, type: any, listener: any, options?: any) {
   element.addEventListener(type, listener, options)
   return () => {
     element.removeEventListener(type, listener, options)
+  }
+}
+
+export function onceEvent<M, K extends keyof M, E extends Element = Element>(
+  element: E,
+  type: K,
+  listener: (this: E, ev: M[K]) => any,
+  options?: boolean | AddEventListenerOptions
+): () => void
+export function onceEvent<K extends keyof ComponentEventMap, E extends Component = Component>(
+  element: E,
+  type: K,
+  listener: (this: E, ev: ComponentEventMap[K]) => any,
+  options?: boolean | AddEventListenerOptions
+): () => void
+export function onceEvent<E extends Element = Element>(
+  element: E,
+  type: string,
+  listener: EventListenerOrEventListenerObject,
+  options?: boolean | AddEventListenerOptions
+): () => void
+export function onceEvent(element: any, type: any, listener: any, options?: any) {
+  function wrapped(this: any, e: any) {
+    element.removeEventListener(type, wrapped, options)
+    listener.call(this, e)
+  }
+  element.addEventListener(type, wrapped, options)
+  return () => {
+    element.removeEventListener(type, wrapped, options)
   }
 }

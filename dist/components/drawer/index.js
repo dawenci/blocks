@@ -34,17 +34,18 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../icon/index.js';
 import '../modal-mask/index.js';
-import { setStyles } from '../../common/style.js';
-import { onClickOutside } from '../../common/onClickOutside.js';
-import { onKey } from '../../common/onKey.js';
-import { capitalize } from '../../common/utils.js';
-import { contentTemplate } from './template.js';
-import { style } from './style.js';
-import { Control } from '../base-control/index.js';
-import { applyMixins } from '../../common/applyMixins.js';
-import { WithOpenTransition } from '../with-open-transition/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { capitalize } from '../../common/utils.js';
+import { contentTemplate as template } from './template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent, onceEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { onKeymap } from '../../common/onKeymap.js';
+import { setStyles } from '../../common/style.js';
+import { style } from './style.js';
+import { append, mountBefore, unmount } from '../../common/mount.js';
+import { BlocksPopup } from '../popup/index.js';
+import { SetupClickOutside } from '../setup-click-outside/index.js';
 export let BlocksDrawer = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-drawer',
@@ -54,267 +55,361 @@ export let BlocksDrawer = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
-    let _capturefocus_decorators;
-    let _capturefocus_initializers = [];
+    let _closeOnClickMask_decorators;
+    let _closeOnClickMask_initializers = [];
     let _closeOnClickOutside_decorators;
     let _closeOnClickOutside_initializers = [];
-    let _closeOnEscape_decorators;
-    let _closeOnEscape_initializers = [];
+    let _closeOnPressEscape_decorators;
+    let _closeOnPressEscape_initializers = [];
     let _mask_decorators;
     let _mask_initializers = [];
-    let _open_decorators;
-    let _open_initializers = [];
-    let _name_decorators;
-    let _name_initializers = [];
+    let _closeable_decorators;
+    let _closeable_initializers = [];
+    let _titleText_decorators;
+    let _titleText_initializers = [];
     let _size_decorators;
     let _size_initializers = [];
     let _placement_decorators;
     let _placement_initializers = [];
-    var BlocksDrawer = class extends Control {
+    let _$close_decorators;
+    let _$close_initializers = [];
+    let _$header_decorators;
+    let _$header_initializers = [];
+    let _$body_decorators;
+    let _$body_initializers = [];
+    let _$footer_decorators;
+    let _$footer_initializers = [];
+    let _$headerSlot_decorators;
+    let _$headerSlot_initializers = [];
+    let _$bodySlot_decorators;
+    let _$bodySlot_initializers = [];
+    let _$footerSlot_decorators;
+    let _$footerSlot_initializers = [];
+    var BlocksDrawer = class extends BlocksPopup {
         static {
-            _capturefocus_decorators = [attr('boolean')];
+            _closeOnClickMask_decorators = [attr('boolean')];
             _closeOnClickOutside_decorators = [attr('boolean')];
-            _closeOnEscape_decorators = [attr('boolean')];
+            _closeOnPressEscape_decorators = [attr('boolean')];
             _mask_decorators = [attr('boolean')];
-            _open_decorators = [attr('boolean')];
-            _name_decorators = [attr('string')];
+            _closeable_decorators = [attr('boolean')];
+            _titleText_decorators = [attr('string')];
             _size_decorators = [attr('string')];
             _placement_decorators = [attr('enum', { enumValues: ['right', 'left', 'bottom', 'top'] })];
-            __esDecorate(this, null, _capturefocus_decorators, { kind: "accessor", name: "capturefocus", static: false, private: false, access: { has: obj => "capturefocus" in obj, get: obj => obj.capturefocus, set: (obj, value) => { obj.capturefocus = value; } } }, _capturefocus_initializers, _instanceExtraInitializers);
+            _$close_decorators = [shadowRef('[part="close"]', false)];
+            _$header_decorators = [shadowRef('[part="header"]')];
+            _$body_decorators = [shadowRef('[part="body"]')];
+            _$footer_decorators = [shadowRef('[part="footer"]')];
+            _$headerSlot_decorators = [shadowRef('[part="header-slot"]')];
+            _$bodySlot_decorators = [shadowRef('[part="default-slot"]')];
+            _$footerSlot_decorators = [shadowRef('[part="footer-slot"]')];
+            __esDecorate(this, null, _closeOnClickMask_decorators, { kind: "accessor", name: "closeOnClickMask", static: false, private: false, access: { has: obj => "closeOnClickMask" in obj, get: obj => obj.closeOnClickMask, set: (obj, value) => { obj.closeOnClickMask = value; } } }, _closeOnClickMask_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeOnClickOutside_decorators, { kind: "accessor", name: "closeOnClickOutside", static: false, private: false, access: { has: obj => "closeOnClickOutside" in obj, get: obj => obj.closeOnClickOutside, set: (obj, value) => { obj.closeOnClickOutside = value; } } }, _closeOnClickOutside_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _closeOnEscape_decorators, { kind: "accessor", name: "closeOnEscape", static: false, private: false, access: { has: obj => "closeOnEscape" in obj, get: obj => obj.closeOnEscape, set: (obj, value) => { obj.closeOnEscape = value; } } }, _closeOnEscape_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _closeOnPressEscape_decorators, { kind: "accessor", name: "closeOnPressEscape", static: false, private: false, access: { has: obj => "closeOnPressEscape" in obj, get: obj => obj.closeOnPressEscape, set: (obj, value) => { obj.closeOnPressEscape = value; } } }, _closeOnPressEscape_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _mask_decorators, { kind: "accessor", name: "mask", static: false, private: false, access: { has: obj => "mask" in obj, get: obj => obj.mask, set: (obj, value) => { obj.mask = value; } } }, _mask_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _name_decorators, { kind: "accessor", name: "name", static: false, private: false, access: { has: obj => "name" in obj, get: obj => obj.name, set: (obj, value) => { obj.name = value; } } }, _name_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _closeable_decorators, { kind: "accessor", name: "closeable", static: false, private: false, access: { has: obj => "closeable" in obj, get: obj => obj.closeable, set: (obj, value) => { obj.closeable = value; } } }, _closeable_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _titleText_decorators, { kind: "accessor", name: "titleText", static: false, private: false, access: { has: obj => "titleText" in obj, get: obj => obj.titleText, set: (obj, value) => { obj.titleText = value; } } }, _titleText_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _placement_decorators, { kind: "accessor", name: "placement", static: false, private: false, access: { has: obj => "placement" in obj, get: obj => obj.placement, set: (obj, value) => { obj.placement = value; } } }, _placement_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$close_decorators, { kind: "accessor", name: "$close", static: false, private: false, access: { has: obj => "$close" in obj, get: obj => obj.$close, set: (obj, value) => { obj.$close = value; } } }, _$close_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$header_decorators, { kind: "accessor", name: "$header", static: false, private: false, access: { has: obj => "$header" in obj, get: obj => obj.$header, set: (obj, value) => { obj.$header = value; } } }, _$header_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$body_decorators, { kind: "accessor", name: "$body", static: false, private: false, access: { has: obj => "$body" in obj, get: obj => obj.$body, set: (obj, value) => { obj.$body = value; } } }, _$body_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$footer_decorators, { kind: "accessor", name: "$footer", static: false, private: false, access: { has: obj => "$footer" in obj, get: obj => obj.$footer, set: (obj, value) => { obj.$footer = value; } } }, _$footer_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$headerSlot_decorators, { kind: "accessor", name: "$headerSlot", static: false, private: false, access: { has: obj => "$headerSlot" in obj, get: obj => obj.$headerSlot, set: (obj, value) => { obj.$headerSlot = value; } } }, _$headerSlot_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$bodySlot_decorators, { kind: "accessor", name: "$bodySlot", static: false, private: false, access: { has: obj => "$bodySlot" in obj, get: obj => obj.$bodySlot, set: (obj, value) => { obj.$bodySlot = value; } } }, _$bodySlot_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$footerSlot_decorators, { kind: "accessor", name: "$footerSlot", static: false, private: false, access: { has: obj => "$footerSlot" in obj, get: obj => obj.$footerSlot, set: (obj, value) => { obj.$footerSlot = value; } } }, _$footerSlot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksDrawer = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        #capturefocus_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _capturefocus_initializers, void 0));
-        get capturefocus() { return this.#capturefocus_accessor_storage; }
-        set capturefocus(value) { this.#capturefocus_accessor_storage = value; }
+        #closeOnClickMask_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _closeOnClickMask_initializers, void 0));
+        get closeOnClickMask() { return this.#closeOnClickMask_accessor_storage; }
+        set closeOnClickMask(value) { this.#closeOnClickMask_accessor_storage = value; }
         #closeOnClickOutside_accessor_storage = __runInitializers(this, _closeOnClickOutside_initializers, void 0);
         get closeOnClickOutside() { return this.#closeOnClickOutside_accessor_storage; }
         set closeOnClickOutside(value) { this.#closeOnClickOutside_accessor_storage = value; }
-        #closeOnEscape_accessor_storage = __runInitializers(this, _closeOnEscape_initializers, void 0);
-        get closeOnEscape() { return this.#closeOnEscape_accessor_storage; }
-        set closeOnEscape(value) { this.#closeOnEscape_accessor_storage = value; }
+        #closeOnPressEscape_accessor_storage = __runInitializers(this, _closeOnPressEscape_initializers, void 0);
+        get closeOnPressEscape() { return this.#closeOnPressEscape_accessor_storage; }
+        set closeOnPressEscape(value) { this.#closeOnPressEscape_accessor_storage = value; }
         #mask_accessor_storage = __runInitializers(this, _mask_initializers, void 0);
         get mask() { return this.#mask_accessor_storage; }
         set mask(value) { this.#mask_accessor_storage = value; }
-        #open_accessor_storage = __runInitializers(this, _open_initializers, void 0);
-        get open() { return this.#open_accessor_storage; }
-        set open(value) { this.#open_accessor_storage = value; }
-        #name_accessor_storage = __runInitializers(this, _name_initializers, void 0);
-        get name() { return this.#name_accessor_storage; }
-        set name(value) { this.#name_accessor_storage = value; }
+        #closeable_accessor_storage = __runInitializers(this, _closeable_initializers, void 0);
+        get closeable() { return this.#closeable_accessor_storage; }
+        set closeable(value) { this.#closeable_accessor_storage = value; }
+        #titleText_accessor_storage = __runInitializers(this, _titleText_initializers, '');
+        get titleText() { return this.#titleText_accessor_storage; }
+        set titleText(value) { this.#titleText_accessor_storage = value; }
         #size_accessor_storage = __runInitializers(this, _size_initializers, '30%');
         get size() { return this.#size_accessor_storage; }
         set size(value) { this.#size_accessor_storage = value; }
         #placement_accessor_storage = __runInitializers(this, _placement_initializers, 'right');
         get placement() { return this.#placement_accessor_storage; }
         set placement(value) { this.#placement_accessor_storage = value; }
+        #$close_accessor_storage = __runInitializers(this, _$close_initializers, void 0);
+        get $close() { return this.#$close_accessor_storage; }
+        set $close(value) { this.#$close_accessor_storage = value; }
+        #$header_accessor_storage = __runInitializers(this, _$header_initializers, void 0);
+        get $header() { return this.#$header_accessor_storage; }
+        set $header(value) { this.#$header_accessor_storage = value; }
+        #$body_accessor_storage = __runInitializers(this, _$body_initializers, void 0);
+        get $body() { return this.#$body_accessor_storage; }
+        set $body(value) { this.#$body_accessor_storage = value; }
+        #$footer_accessor_storage = __runInitializers(this, _$footer_initializers, void 0);
+        get $footer() { return this.#$footer_accessor_storage; }
+        set $footer(value) { this.#$footer_accessor_storage = value; }
+        #$headerSlot_accessor_storage = __runInitializers(this, _$headerSlot_initializers, void 0);
+        get $headerSlot() { return this.#$headerSlot_accessor_storage; }
+        set $headerSlot(value) { this.#$headerSlot_accessor_storage = value; }
+        #$bodySlot_accessor_storage = __runInitializers(this, _$bodySlot_initializers, void 0);
+        get $bodySlot() { return this.#$bodySlot_accessor_storage; }
+        set $bodySlot(value) { this.#$bodySlot_accessor_storage = value; }
+        #$footerSlot_accessor_storage = __runInitializers(this, _$footerSlot_initializers, void 0);
+        get $footerSlot() { return this.#$footerSlot_accessor_storage; }
+        set $footerSlot(value) { this.#$footerSlot_accessor_storage = value; }
+        _clickOutside = SetupClickOutside.setup({
+            component: this,
+            target() {
+                return this.$mask ? [this, this.$mask] : [this];
+            },
+            update() {
+                this.open = false;
+            },
+        });
         constructor() {
             super();
-            this._appendContent(contentTemplate());
-            const shadowRoot = this.shadowRoot;
-            const $name = shadowRoot.getElementById('name-prop');
-            const $close = shadowRoot.getElementById('close');
-            Object.assign(this._ref, { $name, $close });
-            $close.onclick = () => (this.open = false);
-            if (this.capturefocus) {
-                this._captureFocus();
-            }
+            this.$layout.removeChild(this.$slot);
+            this.$layout.appendChild(template());
+            this.#setupPopup();
+            this.#setupMask();
+            this.#setupClose();
+            this.#setupHeader();
+            this.#setupFooter();
+            this.#setupPlacement();
+            this.#setupClickOutside();
+            this.#setupKeymap();
         }
-        render() {
-            const top = '0';
-            const right = '0';
-            const bottom = '0';
-            const left = '0';
-            switch (this.placement) {
-                case 'right': {
-                    setStyles(this, {
-                        top,
-                        right,
-                        bottom,
-                        left: 'auto',
-                        height: '100vh',
-                        width: this.size,
-                    });
-                    break;
+        #setupPopup() {
+            this.onConnected(() => {
+                this.autofocus = true;
+                if (this.parentElement !== document.body) {
+                    document.body.appendChild(this);
                 }
-                case 'left': {
-                    setStyles(this, {
-                        top,
-                        right: 'auto',
-                        bottom,
-                        left,
-                        height: '100vh',
-                        width: this.size,
-                    });
-                    break;
-                }
-                case 'bottom': {
-                    setStyles(this, {
-                        top: 'auto',
-                        right,
-                        bottom,
-                        left,
-                        width: '100vw',
-                        height: this.size,
-                    });
-                    break;
-                }
-                case 'top': {
-                    setStyles(this, {
-                        top,
-                        right,
-                        bottom: 'auto',
-                        left,
-                        width: '100vw',
-                        height: this.size,
-                    });
-                    break;
-                }
-            }
-            this._ref.$name.textContent = this.name;
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            if (this.parentElement !== document.body) {
-                document.body.appendChild(this);
-            }
-            this.render();
-            if (this.mask) {
-                const $mask = this._ensureMask();
-                this.parentElement?.insertBefore?.($mask, this);
-                $mask.open = this.open;
-            }
-            this._initClickOutside();
-            this._initKeydown();
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            if (this._ref.$mask && document.body.contains(this._ref.$mask)) {
-                this._ref.$mask.open = false;
-                this._ref.$mask.parentElement.removeChild(this._ref.$mask);
-            }
-            this._destroyClickOutside();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'open') {
+            });
+            this.onConnected(() => {
                 this.openTransitionName = `open${capitalize(this.placement)}`;
-                this._onOpenAttributeChange();
-                if (this.mask && this._ref.$mask) {
-                    this._ref.$mask.open = newValue;
+            });
+            this.onAttributeChangedDep('placement', () => {
+                this.openTransitionName = `open${capitalize(this.placement)}`;
+            });
+        }
+        #setupMask() {
+            const _ensureMask = () => {
+                if (!this.$mask) {
+                    this.$mask = document.createElement('bl-modal-mask');
+                    mountBefore(this.$mask, this);
+                    this.$mask.open = this.open;
+                    dispatchEvent(this, 'mask-mounted');
+                    const _refocus = () => {
+                        if (document.activeElement && !this.$layout.contains(document.activeElement)) {
+                            ;
+                            document.activeElement.blur();
+                        }
+                        this.focus();
+                        this.removeEventListener('blur', _refocus);
+                    };
+                    this.$mask.addEventListener('mousedown', () => {
+                        _refocus();
+                        this.addEventListener('blur', _refocus);
+                    });
+                    this.$mask.addEventListener('mouseup', () => {
+                        _refocus();
+                        if (this.closeOnClickMask) {
+                            this.open = false;
+                        }
+                    });
                 }
-            }
-            if (attrName === 'mask' && this.mask) {
-                if (this.mask && !this._ref.$mask) {
-                    const $mask = this._ensureMask();
-                    this.parentElement?.insertBefore?.($mask, this);
-                    $mask.open = this.open;
-                }
-                else {
-                    if (this._ref.$mask && document.body.contains(this._ref.$mask)) {
-                        const $mask = this._ref.$mask;
-                        $mask.open = false;
-                        $mask.parentElement.removeChild(this._ref.$mask);
+            };
+            const _destroyMask = () => {
+                if (!this.$mask)
+                    return;
+                if (document.body.contains(this.$mask)) {
+                    if (this.$mask.open) {
+                        const destroy = () => {
+                            unmount(this.$mask);
+                            this.$mask = null;
+                        };
+                        onceEvent(this.$mask, 'closed', destroy);
+                        this.$mask.open = false;
+                    }
+                    else {
+                        unmount(this.$mask);
+                        this.$mask = null;
                     }
                 }
-            }
-            if (attrName === 'close-on-click-outside') {
-                if (this.closeOnClickOutside) {
-                    this._initClickOutside;
+            };
+            this.onConnected(() => {
+                if (this.mask && this.open)
+                    _ensureMask();
+            });
+            this.onDisconnected(() => {
+                _destroyMask();
+            });
+            this.onAttributeChangedDeps(['mask', 'open'], () => {
+                if (!this.$mask && this.mask && this.open) {
+                    return _ensureMask();
                 }
-                else {
-                    this._destroyClickOutside();
+                if (this.$mask && !this.mask) {
+                    return _destroyMask();
                 }
-            }
-            if (attrName === 'close-on-escape') {
-                if (this.closeOnEscape) {
-                    this._initKeydown();
+                if (this.mask && this.$mask) {
+                    this.$mask.open = this.open;
+                    return;
                 }
-                else {
-                    this._destroyKeydown();
-                }
-            }
-            if (attrName === 'capturefocus') {
-                if (this.capturefocus) {
-                    this._captureFocus();
-                }
-                else {
-                    this._stopCaptureFocus();
-                }
-            }
+            });
         }
-        #clearKeydown;
-        _initKeydown() {
-            if (this.closeOnEscape && !this.#clearKeydown) {
-                this.#clearKeydown = onKey('escape', () => {
-                    if (this.open)
+        #setupClose() {
+            const update = () => {
+                if (this.closeable && !this.$close) {
+                    const $close = document.createElement('button');
+                    $close.setAttribute('part', 'close');
+                    $close.onclick = () => {
                         this.open = false;
-                });
-            }
-        }
-        _destroyKeydown() {
-            if (this.#clearKeydown) {
-                this.#clearKeydown();
-                this.#clearKeydown = undefined;
-            }
-        }
-        #clearClickOutside;
-        _initClickOutside() {
-            if (this.closeOnClickOutside && !this.#clearClickOutside) {
-                this.#clearClickOutside = onClickOutside(this, () => {
-                    if (this.open)
-                        this.open = false;
-                });
-            }
-        }
-        _destroyClickOutside() {
-            if (this.#clearClickOutside) {
-                this.#clearClickOutside();
-                this.#clearClickOutside = undefined;
-            }
-        }
-        _ensureMask() {
-            if (!this._ref.$mask) {
-                this._ref.$mask = document.createElement('bl-modal-mask');
-            }
-            this._ref.$mask.open = this.open;
-            return this._ref.$mask;
-        }
-        _captureFocus() {
-            const { $layout } = this._ref;
-            this._ref.$firstFocusable =
-                $layout.querySelector('#first') || $layout.insertBefore(document.createElement('button'), $layout.firstChild);
-            this._ref.$lastFocusable = $layout.querySelector('#last') || $layout.appendChild(document.createElement('button'));
-            this._ref.$firstFocusable.id = 'first';
-            this._ref.$lastFocusable.id = 'last';
-            this._ref.$firstFocusable.onkeydown = e => {
-                if (e.key === 'Tab' && e.shiftKey) {
-                    this._ref.$lastFocusable?.focus?.();
+                    };
+                    append($close, this.$layout);
+                    return;
+                }
+                if (!this.closeable && this.$close) {
+                    unmount(this.$close);
                 }
             };
-            this._ref.$lastFocusable.onkeydown = e => {
-                if (e.key === 'Tab' && !e.shiftKey) {
-                    this._ref.$firstFocusable?.focus?.();
+            this.onConnected(update);
+            this.onRender(update);
+            this.onAttributeChangedDep('closeable', update);
+        }
+        #setupHeader() {
+            const update = () => {
+                if (this.querySelectorHost('[slot="header"]')) {
+                    this.$layout.classList.remove('no-header');
+                }
+                else if (this.titleText) {
+                    this.$layout.classList.remove('no-header');
+                    const $title = this.querySelectorShadow('h1');
+                    $title.innerText = this.titleText;
+                }
+                else {
+                    this.$layout.classList.add('no-header');
                 }
             };
+            this.onConnected(() => {
+                this.$headerSlot.addEventListener('slotchange', update);
+            });
+            this.onDisconnected(() => {
+                this.$headerSlot.removeEventListener('slotchange', update);
+            });
+            this.onConnected(update);
+            this.onRender(update);
+            this.onAttributeChangedDep('title-text', update);
         }
-        _stopCaptureFocus() {
-            if (this._ref.$firstFocusable?.parentElement) {
-                this._ref.$layout.removeChild(this._ref.$firstFocusable);
-            }
-            if (this._ref.$lastFocusable?.parentElement) {
-                this._ref.$layout.removeChild(this._ref.$lastFocusable);
-            }
+        #setupFooter() {
+            const update = () => {
+                if (this.querySelector('[slot="footer"]')) {
+                    this.$layout.classList.remove('no-footer');
+                }
+                else {
+                    this.$layout.classList.add('no-footer');
+                }
+            };
+            this.onConnected(update);
+            this.onRender(update);
+            this.onConnected(() => {
+                this.$footerSlot.addEventListener('slotchange', update);
+            });
+            this.onDisconnected(() => {
+                this.$footerSlot.removeEventListener('slotchange', update);
+            });
+        }
+        #setupKeymap() {
+            let clear;
+            const _initKeydown = () => {
+                if (this.closeOnPressEscape && !clear) {
+                    clear = onKeymap(document, [
+                        {
+                            key: 'escape',
+                            handler: () => {
+                                if (this.open)
+                                    this.open = false;
+                            },
+                        },
+                    ]);
+                }
+            };
+            const _destroyKeydown = () => {
+                if (clear) {
+                    clear();
+                    clear = undefined;
+                }
+            };
+            this.onConnected(() => {
+                _initKeydown();
+            });
+            this.onDisconnected(() => {
+                _destroyKeydown();
+            });
+            this.onAttributeChangedDep('close-on-press-escape', () => {
+                if (this.closeOnPressEscape) {
+                    _initKeydown();
+                }
+                else {
+                    _destroyKeydown();
+                }
+            });
+        }
+        #setupPlacement() {
+            const update = () => {
+                const top = '0';
+                const right = '0';
+                const bottom = '0';
+                const left = '0';
+                switch (this.placement) {
+                    case 'right': {
+                        setStyles(this, { top, right, bottom, left: 'auto', height: '100vh', width: this.size });
+                        break;
+                    }
+                    case 'left': {
+                        setStyles(this, { top, right: 'auto', bottom, left, height: '100vh', width: this.size });
+                        break;
+                    }
+                    case 'bottom': {
+                        setStyles(this, { top: 'auto', right, bottom, left, width: '100vw', height: this.size });
+                        break;
+                    }
+                    case 'top': {
+                        setStyles(this, { top, right, bottom: 'auto', left, width: '100vw', height: this.size });
+                        break;
+                    }
+                }
+            };
+            this.onRender(update);
+            this.onConnected(update);
+            this.onAttributeChangedDeps(['placement', 'size'], update);
+        }
+        #setupClickOutside() {
+            this.onConnected(() => {
+                this.addEventListener('opened', () => {
+                    if (this.closeOnClickOutside)
+                        this._clickOutside.bind();
+                });
+                this.addEventListener('closed', () => {
+                    this._clickOutside.unbind();
+                });
+            });
+            this.onAttributeChangedDep('close-on-click-outside', () => {
+                if (this.closeOnClickOutside)
+                    this._clickOutside.bind();
+                else
+                    this._clickOutside.unbind();
+            });
         }
     };
     return BlocksDrawer = _classThis;
 })();
-applyMixins(BlocksDrawer, [WithOpenTransition]);

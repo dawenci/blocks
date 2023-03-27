@@ -1,6 +1,6 @@
-import '../icon/index.js';
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
 import type { EnumAttrs } from '../../decorators/attr.js';
+import '../icon/index.js';
+import { Component, ComponentEventListener, ComponentEventMap } from '../component/Component.js';
 export interface PaginationEventMap extends ComponentEventMap {
     'bl:pagination:current-change': CustomEvent<{
         current: number;
@@ -24,20 +24,18 @@ export interface BlocksPagination extends Component {
 }
 export declare class BlocksPagination extends Component {
     static get observedAttributes(): string[];
-    _itemPool: HTMLElement[];
     accessor disabled: boolean;
     accessor current: number;
     accessor pageSize: number;
     accessor total: number;
     accessor pageSizes: string | null;
     accessor size: EnumAttrs['size'];
+    _itemPool: HTMLElement[];
     constructor();
     get showQuickJumper(): void;
     get showSizeChanger(): void;
     get showTotal(): void;
     get itemCount(): number;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     render(): void;
     _renderPager(): void;
     _ensureItem(n: number): void;

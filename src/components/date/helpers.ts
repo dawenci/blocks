@@ -1,19 +1,18 @@
+import type {
+  WeekNumber,
+  DecadeModel,
+  YearModel,
+  MonthModel,
+  DayModel,
+  ItemModel,
+  MaybeLeafModel,
+  MaybeLeafDepth,
+} from './type.js'
+import { Depth } from './type.js'
 import { range } from '../../common/utils.js'
 
-export type WeekNumber = 1 | 2 | 3 | 4 | 5 | 6 | 0
-
-export enum Depth {
-  // 面板层级为月份，即可以选择 “日”
-  Month = 'month',
-  // 面板层级为年份，即可以选择 “月”
-  Year = 'year',
-  // 面板层级为年代，即可以选择“年”
-  Decade = 'decade',
-  // 面板层级为世纪，即可以选择“年代”
-  Century = 'century',
-}
-
 export const Depths = [Depth.Month, Depth.Year, Depth.Decade, Depth.Century] as const
+export const LeafDepths = [Depth.Month, Depth.Year, Depth.Decade] as const
 
 export const DepthValue = Object.freeze({
   [Depth.Century]: 0,
@@ -23,55 +22,9 @@ export const DepthValue = Object.freeze({
 })
 
 /**
- * 获取指定月份的第一天的日期对象
- */
-export function getFirstDate(year: number, month: number) {
-  return new Date(year, month, 1)
-}
-
-/**
- * 获取指定月份的最后一天日期对象
- */
-export function getLastDate(year: number, month: number) {
-  return new Date(year, month + 1, 0)
-}
-
-/**
- * 获取指定月份的下个月的第一天日期对象
- */
-export function getFirstDateOfNextMonth(year: number, month: number) {
-  return new Date(year, month + 1, 1)
-}
-
-/**
- * 获取指定月份的前一个月的最后一天日期对象
- */
-export function getLastDateOfPrevMonth(year: number, month: number) {
-  return getLastDate(year, month - 1)
-}
-
-/**
- * 从一个日期对象数组中，取出最接近今天的
- */
-export function getClosestDate(dates: Date[] = []): Date | null {
-  const now = Date.now()
-  let offset = Infinity
-  let result: Date | null = null
-  for (let i = 0; i < dates.length; i += 1) {
-    const current = dates[i]
-    const currentOffset = Math.abs(current.getTime() - now)
-    if (currentOffset < offset) {
-      result = current
-      offset = currentOffset
-    }
-  }
-  return result
-}
-
-/**
  * 规范最小的深度取值
  */
-export function normalizeMinDepth(min: Depth, depth: Depth) {
+export function normalizeMinDepth(min: Depth, depth: MaybeLeafDepth) {
   if (!min) return Depth.Century
   return DepthValue[depth] < DepthValue[min] ? depth : min
 }
@@ -79,7 +32,7 @@ export function normalizeMinDepth(min: Depth, depth: Depth) {
 /**
  * 规范面板深度取值
  */
-export function normalizeViewDepth(view: Depth, min: Depth, depth: Depth): Depth {
+export function normalizeActiveDepth(view: Depth, min: Depth, depth: MaybeLeafDepth): Depth {
   if (!view) return depth as Depth
   if (DepthValue[view] < DepthValue[min]) {
     view = min
@@ -90,25 +43,20 @@ export function normalizeViewDepth(view: Depth, min: Depth, depth: Depth): Depth
   return view as Depth
 }
 
-export type DateModel = {
-  label: string
-  century: number
-  decade: number
-  year: number
-  month?: number
-  date?: number
+export function maybeLeafModel(model: ItemModel): model is MaybeLeafModel {
+  return typeof model.year === 'number'
 }
-
-export function generateMonths(century: number, decade: number, year: number): DateModel[] {
-  const results = range(0, 11).map(month => ({
-    label: String(month + 1),
-    century,
-    decade,
-    year,
-    month,
-    date: undefined,
-  }))
-  return results
+export function isDecadeModel(model: ItemModel): model is DecadeModel {
+  return typeof model.decade === 'number'
+}
+export function isYearModel(model: ItemModel): model is YearModel {
+  return typeof model.year === 'number' && model.month == null
+}
+export function isMonthModel(model: ItemModel): model is MonthModel {
+  return typeof model.month === 'number' && model.date == null
+}
+export function isDayModel(model: ItemModel): model is DayModel {
+  return typeof model.date === 'number'
 }
 
 // 生成日期列表（按月动态生成）
@@ -118,7 +66,7 @@ export function generateDates(
   year: number,
   month: number,
   startWeekOn: number
-): DateModel[] {
+): DayModel[] {
   if (year == null || month == null) return []
 
   // 该月的第一天
@@ -179,8 +127,20 @@ export function generateDates(
   return results
 }
 
+export function generateMonths(century: number, decade: number, year: number): MonthModel[] {
+  const results = range(0, 11).map(month => ({
+    label: String(month + 1),
+    century,
+    decade,
+    year,
+    month,
+    date: undefined,
+  }))
+  return results
+}
+
 // 年份列表（10 年一组）
-export function generateYears(century: number, decade: number): DateModel[] {
+export function generateYears(century: number, decade: number): YearModel[] {
   const from = decade * 10
   const to = from + 9
   return range(from, to).map(year => ({
@@ -194,7 +154,7 @@ export function generateYears(century: number, decade: number): DateModel[] {
 }
 
 // 年代列表
-export function generateDecades(century: number): DateModel[] {
+export function generateDecades(century: number): DecadeModel[] {
   const decadeFrom = century * 10
   const decadeTo = decadeFrom + 9
   const list: any[] = []
@@ -268,11 +228,100 @@ export function generateWeekHeaders(startWeekOn: WeekNumber) {
 }
 
 // 当前选项是否是今天
-export function isToday(model: DateModel) {
+export function isToday(model: ItemModel) {
   const today = new Date()
   return model.year === today.getFullYear() && model.month === today.getMonth() && model.date === today.getDate()
 }
 
 export function isAllEqual(arr1: Array<Date>, arr2: Array<Date>) {
   return arr1.length === arr2.length && arr1.every((date, index) => date.getTime() === arr2[index].getTime())
+}
+
+export function modelToDate(model: ItemModel, viewDepth: Depth) {
+  switch (viewDepth) {
+    // 月视图，当前操作是选择天
+    case Depth.Month: {
+      return makeDate((model as DayModel).year, model.month, model.date)
+    }
+    // 年视图，当前操作是选择月
+    case Depth.Year: {
+      return makeDate((model as MonthModel).year, model.month, 1)
+    }
+    // 年代视图，当前操作是选择年
+    case Depth.Decade: {
+      return makeDate((model as YearModel).year, 0, 1)
+    }
+    default:
+      throw new Error('never')
+  }
+}
+
+export function dateToModel(dateObj: Date, depth: Depth): ItemModel {
+  const year = dateObj.getFullYear()
+  const month = dateObj.getMonth()
+  const date = dateObj.getDate()
+  const century = Math.floor(year / 100)
+  const decade = Math.floor(year / 10)
+  const label =
+    depth === Depth.Month
+      ? String(date)
+      : depth === Depth.Year
+      ? String(month + 1)
+      : depth === Depth.Decade
+      ? String(year)
+      : `${decade * 10} ~ ${decade * 10 + 9}`
+  return {
+    label,
+    century,
+    decade,
+    year,
+    month,
+    date,
+  }
+}
+
+/**
+ * 从一个日期对象数组中，取出最接近今天的
+ */
+export function getClosestDate(dates: Date[] = []): Date | null {
+  const now = Date.now()
+  let offset = Infinity
+  let result: Date | null = null
+  for (let i = 0; i < dates.length; i += 1) {
+    const current = dates[i]
+    const currentOffset = Math.abs(current.getTime() - now)
+    if (currentOffset < offset) {
+      result = current
+      offset = currentOffset
+    }
+  }
+  return result
+}
+
+/**
+ * 获取指定月份的第一天的日期对象
+ */
+function getFirstDate(year: number, month: number) {
+  return new Date(year, month, 1)
+}
+
+/**
+ * 获取指定月份的最后一天日期对象
+ */
+function getLastDate(year: number, month: number) {
+  return new Date(year, month + 1, 0)
+}
+
+/**
+ * 获取指定月份的下个月的第一天日期对象
+ */
+function getFirstDateOfNextMonth(year: number, month: number) {
+  return new Date(year, month + 1, 1)
+}
+
+/**
+ * 获取指定月份的前一个月的最后一天日期对象
+ */
+function getLastDateOfPrevMonth(year: number, month: number) {
+  return getLastDate(year, month - 1)
 }

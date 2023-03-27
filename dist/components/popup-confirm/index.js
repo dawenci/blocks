@@ -1,10 +1,3 @@
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
 var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
     function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
     var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
@@ -32,18 +25,27 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
 import '../popup/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { __color_warning } from '../../theme/var-light.js';
 import { attr } from '../../decorators/attr.js';
-import { style } from './style.js';
-import { template } from './template.js';
-import { popupTemplate } from './popup.template.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
 import { getRegisteredSvgIcon } from '../../icon/index.js';
-import { Component } from '../Component.js';
-import { __color_warning } from '../../theme/var-light.js';
+import { popupTemplate } from './popup.template.js';
+import { style } from './style.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
+import { PopupOrigin } from '../popup/index.js';
 const POPUP_ATTRS = ['open', 'origin'];
 const CONFIRM_ATTRS = ['message', 'icon'];
+const originArray = Object.values(PopupOrigin);
 export let BlocksPopupConfirm = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup-confirm',
@@ -57,68 +59,53 @@ export let BlocksPopupConfirm = (() => {
     let _icon_initializers = [];
     let _message_decorators;
     let _message_initializers = [];
+    let _open_decorators;
+    let _open_initializers = [];
+    let _origin_decorators;
+    let _origin_initializers = [];
     var BlocksPopupConfirm = class extends Component {
         static {
             _icon_decorators = [attr('string')];
             _message_decorators = [attr('string')];
+            _open_decorators = [attr('boolean')];
+            _origin_decorators = [attr('enum', { enumValues: originArray })];
             __esDecorate(this, null, _icon_decorators, { kind: "accessor", name: "icon", static: false, private: false, access: { has: obj => "icon" in obj, get: obj => obj.icon, set: (obj, value) => { obj.icon = value; } } }, _icon_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _message_decorators, { kind: "accessor", name: "message", static: false, private: false, access: { has: obj => "message" in obj, get: obj => obj.message, set: (obj, value) => { obj.message = value; } } }, _message_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _origin_decorators, { kind: "accessor", name: "origin", static: false, private: false, access: { has: obj => "origin" in obj, get: obj => obj.origin, set: (obj, value) => { obj.origin = value; } } }, _origin_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksPopupConfirm = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        $popup = (__runInitializers(this, _instanceExtraInitializers), void 0);
-        $message;
-        $confirm;
-        $cancel;
-        confirm;
-        cancel;
         static get observedAttributes() {
-            return POPUP_ATTRS.concat(CONFIRM_ATTRS);
+            return [...POPUP_ATTRS, ...CONFIRM_ATTRS];
         }
-        #icon_accessor_storage = __runInitializers(this, _icon_initializers, '');
+        #icon_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _icon_initializers, ''));
         get icon() { return this.#icon_accessor_storage; }
         set icon(value) { this.#icon_accessor_storage = value; }
         #message_accessor_storage = __runInitializers(this, _message_initializers, '');
         get message() { return this.#message_accessor_storage; }
         set message(value) { this.#message_accessor_storage = value; }
+        #open_accessor_storage = __runInitializers(this, _open_initializers, void 0);
+        get open() { return this.#open_accessor_storage; }
+        set open(value) { this.#open_accessor_storage = value; }
+        #origin_accessor_storage = __runInitializers(this, _origin_initializers, PopupOrigin.TopCenter);
+        get origin() { return this.#origin_accessor_storage; }
+        set origin(value) { this.#origin_accessor_storage = value; }
         constructor() {
             super();
             this.shadowRoot.appendChild(template());
-            this.$popup = popupTemplate();
-            this.$message = this.$popup.querySelector('.message');
-            this.$cancel = this.$popup.querySelector('.cancel');
-            this.$confirm = this.$popup.querySelector('.confirm');
-            this.$popup.anchor = this;
-            this.$popup.arrow = true;
-            this.$popup.origin = this.origin || 'top-center';
-            this.$popup.style.padding = '15px;';
-            this.onclick = () => {
-                this.open = true;
-            };
-            this.$cancel.addEventListener('click', () => {
-                this._cancel();
-            });
-            this.$confirm.addEventListener('click', () => {
-                this._confirm();
+            this.#setupPopup();
+            this.#setupActions();
+            this.#setupTrigger();
+            this.onAttributeChangedDep('message', () => {
+                this.render();
             });
         }
-        get origin() {
-            return this.$popup.origin;
-        }
-        set origin(value) {
-            this.$popup.origin = value;
-        }
-        get open() {
-            return this.$popup.open;
-        }
-        set open(value) {
-            this.$popup.open = value;
-        }
-        _confirm() {
+        confirm() {
             let maybePromise;
-            if (typeof this.confirm === 'function') {
-                maybePromise = this.confirm();
+            if (typeof this.onConfirm === 'function') {
+                maybePromise = this.onConfirm();
             }
             dispatchEvent(this, 'confirm');
             if (maybePromise instanceof Promise) {
@@ -137,20 +124,86 @@ export let BlocksPopupConfirm = (() => {
                 this.open = false;
             }
         }
-        _cancel() {
+        cancel() {
             let maybePromise;
-            if (typeof this.cancel === 'function') {
-                maybePromise = this.cancel();
+            if (typeof this.onCancel === 'function') {
+                maybePromise = this.onCancel();
             }
             dispatchEvent(this, 'cancel');
             if (maybePromise instanceof Promise) {
-                maybePromise.then(() => (this.open = false));
+                this.$confirm.disabled = true;
+                this.$cancel.loading = true;
+                maybePromise
+                    .then(() => {
+                    this.open = false;
+                })
+                    .finally(() => {
+                    this.$confirm.disabled = false;
+                    this.$cancel.loading = false;
+                });
             }
             else {
                 this.open = false;
             }
         }
-        renderIcon() {
+        #setupPopup() {
+            this.$popup = popupTemplate();
+            this.$message = this.$popup.querySelector('.message');
+            this.$cancel = this.$popup.querySelector('.cancel');
+            this.$confirm = this.$popup.querySelector('.confirm');
+            this.$popup.anchorElement = () => this;
+            this.$popup.arrow = 8;
+            this.$popup.origin = this.origin;
+            this.$popup.style.padding = '15px;';
+            this.onConnected(() => {
+                document.body.appendChild(this.$popup);
+                this.render();
+            });
+            this.onDisconnected(() => {
+                if (this.$popup.parentElement) {
+                    this.$popup.parentElement.removeChild(this.$popup);
+                }
+            });
+            this.onAttributeChangedDeps(POPUP_ATTRS, (attrName, _, newValue) => {
+                if (attrName === 'open') {
+                    this.$popup.open = this.open;
+                }
+                else {
+                    this.$popup.setAttribute(attrName, newValue);
+                }
+            });
+            this.$popup.addEventListener('opened', () => {
+                this.$cancel.focus();
+            });
+        }
+        #setupActions() {
+            const onConfirm = () => {
+                this.confirm();
+            };
+            const onCancel = () => {
+                this.cancel();
+            };
+            this.onConnected(() => {
+                this.$cancel.addEventListener('click', onCancel);
+                this.$confirm.addEventListener('click', onConfirm);
+            });
+            this.onDisconnected(() => {
+                this.$cancel.removeEventListener('click', onCancel);
+                this.$confirm.removeEventListener('click', onConfirm);
+            });
+        }
+        #setupTrigger() {
+            const onClick = () => {
+                this.open = true;
+            };
+            this.onConnected(() => {
+                this.addEventListener('click', onClick);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('click', onClick);
+            });
+        }
+        _renderIcon() {
             if (this.icon) {
                 const icon = getRegisteredSvgIcon(this.icon);
                 if (icon) {
@@ -164,31 +217,12 @@ export let BlocksPopupConfirm = (() => {
             }
         }
         render() {
+            super.render();
             this.$message.innerHTML = '';
-            this.renderIcon();
+            this._renderIcon();
             const $content = document.createElement('div');
             $content.textContent = this.message;
             this.$message.appendChild($content);
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            document.body.appendChild(this.$popup);
-            this.render();
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            if (this.$popup.parentElement) {
-                this.$popup.parentElement.removeChild(this.$popup);
-            }
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (POPUP_ATTRS.includes(attrName)) {
-                this.$popup.setAttribute(attrName, newValue);
-            }
-            if (attrName === 'message') {
-                this.render();
-            }
         }
     };
     return BlocksPopupConfirm = _classThis;

@@ -32,16 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
-import { boolSetter, enumSetter, intSetter } from '../../common/property.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
 import { style } from './style.js';
-const closeableSetter = boolSetter('closeable');
-const typeSetter = enumSetter('type', ['message', 'success', 'error', 'info', 'warning']);
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 export let BlocksMessage = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-message',
@@ -92,10 +89,22 @@ export let BlocksMessage = (() => {
                 $icon,
                 $content,
             };
-            $layout.onmouseenter = () => {
+            this.#setupAutoClose();
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
+        }
+        #setupAutoClose() {
+            this.onConnected(() => {
+                this._setAutoClose();
+            });
+            this.onAttributeChangedDep('duration', () => {
+                if (this.duration)
+                    this._setAutoClose();
+            });
+            this._ref.$layout.onmouseenter = () => {
                 this._clearAutoClose();
             };
-            $layout.onmouseleave = () => {
+            this._ref.$layout.onmouseleave = () => {
                 this._setAutoClose();
             };
         }
@@ -116,6 +125,7 @@ export let BlocksMessage = (() => {
             }
         }
         render() {
+            super.render();
             const iconName = this.type === 'warning' ? 'info' : this.type || '';
             const icon = getRegisteredSvgIcon(iconName);
             if (icon) {
@@ -145,18 +155,6 @@ export let BlocksMessage = (() => {
                 this.parentElement.removeChild(this);
             }
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-            this._setAutoClose();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
-            if (attrName === 'duration' && this.duration) {
-                this._setAutoClose();
-            }
-        }
         _autoCloseTimer;
         _clearAutoClose() {
             clearTimeout(this._autoCloseTimer);
@@ -172,51 +170,3 @@ export let BlocksMessage = (() => {
     };
     return BlocksMessage = _classThis;
 })();
-function cage() {
-    let cage = document.querySelector('.bl-message-cage');
-    if (!cage) {
-        cage = document.body.appendChild(document.createElement('div'));
-        cage.className = `bl-message-cage`;
-        const cssText = 'pointer-events:none;overflow:hidden;position:fixed;z-index:100;top:0;bottom:auto;left:0;right:0;display:flex;flex-flow:column nowrap;justify-content:center;align-items:center;padding:8px 0;';
-        cage.style.cssText = cssText;
-    }
-    return cage;
-}
-export function blMessage(options = {}) {
-    const el = document.createElement('bl-message');
-    typeSetter(el, options.type);
-    closeableSetter(el, options.closeable ?? false);
-    if (options.duration != null)
-        intSetter('duration')(el, options.duration);
-    const content = options.content;
-    el.innerHTML = content ?? '';
-    el.style.cssText = `transform:translate(0, -100%);opacity:0;`;
-    cage().appendChild(el);
-    el.offsetHeight;
-    el.style.cssText = `transform:translate(0, 0);opacity:1;`;
-    let closedCallback;
-    let closed = false;
-    const onClosed = () => {
-        closed = true;
-        if (closedCallback)
-            closedCallback();
-        el.removeEventListener('closed', onClosed);
-    };
-    el.addEventListener('closed', onClosed);
-    return {
-        el,
-        close() {
-            el.close();
-            return this;
-        },
-        onclose(callback) {
-            if (closed) {
-                callback();
-            }
-            else {
-                closedCallback = callback;
-            }
-            return this;
-        },
-    };
-}

@@ -32,13 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
-import { domRef } from '../../decorators/domRef.js';
-import { BlocksButton } from '../button/index.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
-import { style } from './style.js';
 import '../button/index.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { style } from './style.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 export let BlocksButtonGroup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-button-group',
@@ -52,7 +51,7 @@ export let BlocksButtonGroup = (() => {
     let _$slot_initializers = [];
     var BlocksButtonGroup = class extends Component {
         static {
-            _$slot_decorators = [domRef('slot')];
+            _$slot_decorators = [shadowRef('slot')];
             __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksButtonGroup = _classThis = _classDescriptor.value;
@@ -63,20 +62,19 @@ export let BlocksButtonGroup = (() => {
         set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            this.$slot.addEventListener('slotchange', this.render.bind(this));
+            this.appendShadowChild(template());
+            this.#setupChildren();
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        render() {
-            this.$slot.assignedElements().forEach($item => {
-                if ($item instanceof BlocksButton) {
-                    $item.setAttribute('group-context', '');
-                }
-            });
+        #setupChildren() {
+            const updateChildren = () => {
+                this.$slot.assignedElements().forEach($item => {
+                    if ($item.tagName === 'BL-BUTTON') {
+                        $item.setAttribute('group-context', '');
+                    }
+                });
+            };
+            this.$slot.addEventListener('slotchange', updateChildren);
+            this.onConnected(updateChildren);
         }
     };
     return BlocksButtonGroup = _classThis;

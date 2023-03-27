@@ -32,11 +32,11 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { dispatchEvent } from '../../common/event.js';
-import { Component } from '../Component.js';
-import { template } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent } from '../../common/event.js';
+import { template } from './template.js';
+import { Component } from '../component/Component.js';
 export let BlocksIntersection = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-intersection',
@@ -72,6 +72,16 @@ export let BlocksIntersection = (() => {
             super();
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template().content.cloneNode(true));
+            this.onConnected(() => {
+                this.render();
+                this._initObserver();
+            });
+            this.onDisconnected(() => {
+                this._removeObserver();
+            });
+            this.onAttributeChanged(() => {
+                this._initObserver();
+            });
         }
         _root;
         get root() {
@@ -142,19 +152,6 @@ export let BlocksIntersection = (() => {
             if (this._observer) {
                 this._observer.disconnect();
             }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-            this._initObserver();
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            this._removeObserver();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this._initObserver();
         }
     };
     return BlocksIntersection = _classThis;

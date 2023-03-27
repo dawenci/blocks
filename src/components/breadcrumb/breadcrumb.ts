@@ -1,15 +1,11 @@
-import { defineClass } from '../../decorators/defineClass.js'
+import type { BlocksBreadcrumbItem } from './item.js'
+import './item.js'
 import { attr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { style } from './breadcrumb.style.js'
-import { Component } from '../Component.js'
-import { BlocksBreadcrumbItem } from './item.js'
 import { template } from './breadcrumb.template.js'
-
-export interface BlocksBreadcrumb extends Component {
-  _ref: {
-    $slot: HTMLSlotElement
-  }
-}
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-breadcrumb',
@@ -18,49 +14,31 @@ export interface BlocksBreadcrumb extends Component {
 export class BlocksBreadcrumb extends Component {
   @attr('string') accessor separator = '/'
 
-  #clearup?: () => void
+  @shadowRef('slot') accessor $slot!: HTMLSlotElement
 
   constructor() {
     super()
-
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
-
-    this._ref = {
-      $slot: shadowRoot.querySelector('slot') as HTMLSlotElement,
-    }
+    this.appendShadowChild(template())
+    this.#setupSeparator()
   }
 
-  override render() {
-    this._ref.$slot.assignedElements().forEach($item => {
-      if (isItem($item)) {
-        $item._renderSeparator(this.separator)
-      }
+  #setupSeparator() {
+    const render = () => {
+      this.$slot.assignedElements().forEach($item => {
+        if (isItem($item)) {
+          $item._renderSeparator(this.separator)
+        }
+      })
+    }
+    this.onRender(render)
+    this.onConnected(render)
+    this.onAttributeChangedDep('separator', render)
+    this.onConnected(() => {
+      this.$slot.addEventListener('slotchange', render)
     })
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-
-    const onSlotChange = () => this.render()
-    this._ref.$slot.addEventListener('slotchange', onSlotChange)
-
-    this.#clearup = () => {
-      this._ref.$slot.removeEventListener('slotchange', onSlotChange)
-    }
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    if (this.#clearup) {
-      this.#clearup()
-    }
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
+    this.onDisconnected(() => {
+      this.$slot.removeEventListener('slotchange', render)
+    })
   }
 }
 

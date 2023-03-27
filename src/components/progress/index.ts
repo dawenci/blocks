@@ -1,9 +1,10 @@
+import type { NullableEnumAttr } from '../../decorators/attr.js'
+import { attr } from '../../decorators/attr.js'
 import { defineClass } from '../../decorators/defineClass.js'
-import { NullableEnumAttr, attr } from '../../decorators/attr.js'
-import { Component } from '../Component.js'
-import { template } from './template.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { style } from './style.js'
-import { domRef } from '../../decorators/domRef.js'
+import { template } from './template.js'
+import { Component } from '../component/Component.js'
 
 const status = ['success', 'error', 'warning']
 
@@ -25,17 +26,21 @@ export class BlocksProgress extends Component {
 
   @attr('boolean') accessor percentage!: boolean
 
-  @domRef('#progress') accessor $progress!: HTMLElement
+  @shadowRef('#progress') accessor $progress!: HTMLElement
 
-  @domRef('#value') accessor $value!: HTMLElement
+  @shadowRef('#value') accessor $value!: HTMLElement
 
   constructor() {
     super()
 
     this.shadowRoot!.appendChild(template())
+
+    this.onConnected(this.render)
+    this.onAttributeChanged(this.render)
   }
 
   override render() {
+    super.render()
     this.$progress.style.width = `${this.value}%`
     if (this.percentage) {
       this.$value.style.display = 'block'
@@ -43,15 +48,5 @@ export class BlocksProgress extends Component {
     } else {
       this.$value.style.display = 'none'
     }
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    this.render()
   }
 }

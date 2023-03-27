@@ -1,8 +1,8 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { Component } from '../Component.js'
-import { template } from './pane.template.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { style } from './pane.style.js'
+import { template } from './pane.template.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-splitter-pane',
@@ -39,9 +39,18 @@ export class BlocksSplitterPane extends Component {
   constructor() {
     super()
     this.shadowRoot!.appendChild(template())
-    this.addEventListener('mouseenter', () => {
+
+    const onMouseEnter = () => {
       this.getSplitter().setActiveHandle(this)
+    }
+    this.onConnected(() => {
+      this.addEventListener('mouseenter', onMouseEnter)
     })
+    this.onDisconnected(() => {
+      this.removeEventListener('mouseenter', onMouseEnter)
+    })
+
+    this.onConnected(this.render)
   }
 
   _size?: number | null
@@ -53,7 +62,7 @@ export class BlocksSplitterPane extends Component {
     this._size = value
   }
 
-  getSplitter() {
+  private getSplitter() {
     return this.closest('bl-splitter')!
   }
 
@@ -63,11 +72,6 @@ export class BlocksSplitterPane extends Component {
     // 宽度/高度 样式计算，外框宽度 - 拖动柄的宽度（如果显示拖动柄）
     this.style[sizeProp] = this.getSplitter().getPaneSize(this) + 'px'
     this.style[posProp] = this.getSplitter().getPanePosition(this) + 'px'
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
   }
 
   collapse() {

@@ -1,8 +1,14 @@
+import type { BlocksScrollable } from '../scrollable/index.js';
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
 import '../icon/index.js';
 import '../scrollable/index.js';
-import { BlocksScrollable } from '../scrollable/index.js';
 import { BinaryIndexedTree } from './BinaryIndexedTree.js';
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
+import { Component } from '../component/Component.js';
+declare const Direction: {
+    readonly Vertical: "vertical";
+    readonly Horizontal: "horizontal";
+};
+type DirectionUnion = typeof Direction.Vertical | typeof Direction.Horizontal;
 type ElementWithData = HTMLElement & {
     virtualKey: string;
     virtualViewIndex: number;
@@ -42,20 +48,24 @@ export declare class VirtualItem {
     constructor(options: ItemOptions);
 }
 export interface BlocksVList extends Component {
-    _ref: {
-        $viewport: BlocksScrollable;
-        $listSize: HTMLElement;
-        $list: HTMLElement;
-        $busy: HTMLElement;
-    };
+    $viewport: BlocksScrollable;
+    $listSize: HTMLElement;
+    $list: HTMLElement;
+    $busy: HTMLElement;
     beforeRender?(): void;
     afterRender?(): void;
     keyMethod?(data: object): string;
     filterMethod?(data: object[]): Promise<any[]>;
     sortMethod?(data: object[]): Promise<any[]>;
+    itemRender($item: HTMLElement, vitem: any): void;
 }
-export declare abstract class BlocksVList extends Component {
+export declare class BlocksVList extends Component {
     #private;
+    static get observedAttributes(): string[];
+    accessor direction: DirectionUnion;
+    accessor defaultItemSize: number;
+    accessor shadow: boolean;
+    accessor crossSize: number;
     sliceFrom?: number;
     sliceTo?: number;
     anchorIndex?: number;
@@ -72,25 +82,14 @@ export declare abstract class BlocksVList extends Component {
     initDomEvent(): void;
     get data(): object[];
     set data(value: object[]);
-    get direction(): string;
-    set direction(value: string);
-    get defaultItemSize(): number;
-    set defaultItemSize(value: number);
-    get shadow(): boolean;
-    set shadow(value: boolean);
     get viewportWidth(): number;
     get viewportHeight(): number;
     get viewportMainSize(): number;
     get viewportCrossSize(): number;
     get mainSize(): number;
-    get crossSize(): number;
-    set crossSize(value: number);
     get hasMainScrollbar(): boolean;
     get hasCrossScrollbar(): boolean;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    abstract itemRender($item: HTMLElement, vitem: any): void;
     itemSizeMethod($node: HTMLElement, options: any): number;
     hasKey(virtualKey: string): boolean;
     render(): void;
@@ -105,7 +104,9 @@ export declare abstract class BlocksVList extends Component {
     preRenderingCount(viewportSize: number): number;
     preRenderingThreshold(viewportSize: number): number;
     scrollToIndex(anchorIndex: number, anchorOffsetRatio?: number): void;
+    backScrollToIndex(anchorIndex: number, anchorOffsetRatio?: number): void;
     scrollToKey(key: string, anchorOffsetRatio: number): void;
+    backScrollToKey(key: string, anchorOffsetRatio: number): void;
     restoreAnchor(): void;
     getScrollMain(): number;
     getScrollCross(): number;
@@ -132,6 +133,5 @@ export declare abstract class BlocksVList extends Component {
     _clearTransition(): Promise<boolean>;
     addEventListener<K extends keyof VListEventMap>(type: K, listener: ComponentEventListener<VListEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof VListEventMap>(type: K, listener: ComponentEventListener<VListEventMap[K]>, options?: boolean | EventListenerOptions): void;
-    static get observedAttributes(): string[];
 }
 export {};

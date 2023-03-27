@@ -33,12 +33,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import '../tag/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr, attrs } from '../../decorators/attr.js';
-import { dispatchEvent } from '../../common/event.js';
-import { contentTemplate, moreTemplate, placeholderTemplate, searchTemplate, tagTemplate, valueTextTemplate, } from './template.js';
-import { style } from './style.js';
 import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js';
+import { attr, attrs } from '../../decorators/attr.js';
+import { contentTemplate, moreTemplate, placeholderTemplate, searchTemplate, tagTemplate, valueTextTemplate, } from './template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { style } from './style.js';
 import { ClearableControlBox } from '../base-clearable-control-box/index.js';
 export let BlocksSelectResult = (() => {
     let _classDecorators = [defineClass({
@@ -59,6 +60,14 @@ export let BlocksSelectResult = (() => {
     let _maxTagCount_initializers = [];
     let _placeholder_decorators;
     let _placeholder_initializers = [];
+    let _$content_decorators;
+    let _$content_initializers = [];
+    let _$search_decorators;
+    let _$search_initializers = [];
+    let _$valueText_decorators;
+    let _$valueText_initializers = [];
+    let _$placeholder_decorators;
+    let _$placeholder_initializers = [];
     var BlocksSelectResult = class extends ClearableControlBox {
         static {
             _size_decorators = [attrs.size];
@@ -66,26 +75,22 @@ export let BlocksSelectResult = (() => {
             _searchable_decorators = [attr('boolean')];
             _maxTagCount_decorators = [attr('int')];
             _placeholder_decorators = [attr('string')];
+            _$content_decorators = [shadowRef('[part="content"]')];
+            _$search_decorators = [shadowRef('[part="search"]', false)];
+            _$valueText_decorators = [shadowRef('[part="value-text"]', false)];
+            _$placeholder_decorators = [shadowRef('[part="placeholder"]', false)];
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _multiple_decorators, { kind: "accessor", name: "multiple", static: false, private: false, access: { has: obj => "multiple" in obj, get: obj => obj.multiple, set: (obj, value) => { obj.multiple = value; } } }, _multiple_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _searchable_decorators, { kind: "accessor", name: "searchable", static: false, private: false, access: { has: obj => "searchable" in obj, get: obj => obj.searchable, set: (obj, value) => { obj.searchable = value; } } }, _searchable_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _maxTagCount_decorators, { kind: "accessor", name: "maxTagCount", static: false, private: false, access: { has: obj => "maxTagCount" in obj, get: obj => obj.maxTagCount, set: (obj, value) => { obj.maxTagCount = value; } } }, _maxTagCount_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _placeholder_decorators, { kind: "accessor", name: "placeholder", static: false, private: false, access: { has: obj => "placeholder" in obj, get: obj => obj.placeholder, set: (obj, value) => { obj.placeholder = value; } } }, _placeholder_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$content_decorators, { kind: "accessor", name: "$content", static: false, private: false, access: { has: obj => "$content" in obj, get: obj => obj.$content, set: (obj, value) => { obj.$content = value; } } }, _$content_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$search_decorators, { kind: "accessor", name: "$search", static: false, private: false, access: { has: obj => "$search" in obj, get: obj => obj.$search, set: (obj, value) => { obj.$search = value; } } }, _$search_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$valueText_decorators, { kind: "accessor", name: "$valueText", static: false, private: false, access: { has: obj => "$valueText" in obj, get: obj => obj.$valueText, set: (obj, value) => { obj.$valueText = value; } } }, _$valueText_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$placeholder_decorators, { kind: "accessor", name: "$placeholder", static: false, private: false, access: { has: obj => "$placeholder" in obj, get: obj => obj.$placeholder, set: (obj, value) => { obj.$placeholder = value; } } }, _$placeholder_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksSelectResult = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get observedAttributes() {
-            return super.observedAttributes.concat([
-                'clearable',
-                'max-tag-count',
-                'multiple',
-                'placeholder',
-                'prefix-icon',
-                'searchable',
-                'size',
-                'suffix-icon',
-            ]);
         }
         #size_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _size_initializers, void 0));
         get size() { return this.#size_accessor_storage; }
@@ -102,29 +107,65 @@ export let BlocksSelectResult = (() => {
         #placeholder_accessor_storage = __runInitializers(this, _placeholder_initializers, void 0);
         get placeholder() { return this.#placeholder_accessor_storage; }
         set placeholder(value) { this.#placeholder_accessor_storage = value; }
+        #$content_accessor_storage = __runInitializers(this, _$content_initializers, void 0);
+        get $content() { return this.#$content_accessor_storage; }
+        set $content(value) { this.#$content_accessor_storage = value; }
+        #$search_accessor_storage = __runInitializers(this, _$search_initializers, void 0);
+        get $search() { return this.#$search_accessor_storage; }
+        set $search(value) { this.#$search_accessor_storage = value; }
+        #$valueText_accessor_storage = __runInitializers(this, _$valueText_initializers, void 0);
+        get $valueText() { return this.#$valueText_accessor_storage; }
+        set $valueText(value) { this.#$valueText_accessor_storage = value; }
+        #$placeholder_accessor_storage = __runInitializers(this, _$placeholder_initializers, void 0);
+        get $placeholder() { return this.#$placeholder_accessor_storage; }
+        set $placeholder(value) { this.#$placeholder_accessor_storage = value; }
         constructor() {
             super();
-            this._ref.$content = this._appendContent(contentTemplate());
-            this._ref.$layout.oninput = e => {
-                const searchString = e.target.value;
-                this.#notifySearch(searchString);
-            };
-            this.addEventListener('click-clear', () => {
-                this.#notifyClear();
+            this.appendContent(contentTemplate());
+            this._tabIndexFeature
+                .withTabIndex(0)
+                .withTarget(() => (this.searchable ? [this.$search] : [this.$layout]))
+                .withPostUpdate(() => {
+                if (this.searchable) {
+                    if (this.$layout.tabIndex !== -1) {
+                        this.$layout.tabIndex = -1;
+                    }
+                }
+                else {
+                    if (this.$search && this.$search.tabIndex !== -1) {
+                        this.$search.tabIndex = -1;
+                    }
+                }
             });
-            this._ref.$layout.onclose = e => {
-                const $tag = e.target;
-                const label = $tag.textContent ?? '';
-                const value = $tag.dataset.value;
-                this.deselect({ value, label });
-            };
+            this.onAttributeChangedDep('searchable', () => {
+                this._tabIndexFeature.update();
+            });
+            this.#setupMultiple();
+            this.#setupEmptyClass();
+            this.#setupPlaceholder();
+            this.#setupData();
+            this.#setupSize();
+            this.#setupSearch();
+            this.#setupDeselect();
+            this.#setupClear();
+            this.onConnected(this.render);
+        }
+        #tagSelectedMap = new WeakMap();
+        #data = [];
+        get data() {
+            return this.#data;
+        }
+        set data(selected) {
+            this.#data = selected;
+            this._reanderData();
+        }
+        get dataCount() {
+            return this.data.length;
         }
         #formatter;
+        #defaultFormatter = (item) => item?.label ?? '';
         get formatter() {
-            if (this.#formatter) {
-                return this.#formatter;
-            }
-            return (item) => item?.label ?? '';
+            return this.#formatter ?? this.#defaultFormatter;
         }
         set formatter(value) {
             if (typeof value === 'function') {
@@ -133,196 +174,201 @@ export let BlocksSelectResult = (() => {
             this.render();
         }
         get label() {
-            return this._ref.$content.textContent;
+            return this.data[0]?.label ?? '';
         }
-        _value = null;
+        get labels() {
+            return this.data.map(item => item.label);
+        }
         get value() {
-            return this._value;
+            return this.data[0]?.value ?? null;
         }
-        set value(value) {
-            this._value = value;
-            this._renderValue();
+        get values() {
+            return this.data.map(item => item.value);
+        }
+        acceptSelected(selected) {
+            if (this.multiple) {
+                this.data = selected.slice();
+            }
+            else {
+                this.data = selected.slice(0, 1);
+            }
+            dispatchEvent(this, 'select-result:accept', { detail: { value: this.data } });
+        }
+        #setupEmptyClass() {
+            this._emptyFeature.withPredicate(() => !this.dataCount);
+            const render = () => this._emptyFeature.update();
+            this.onRender(render);
+            this.onConnected(render);
+            this.onConnected(() => {
+                this.addEventListener('select-result:clear', render);
+                this.addEventListener('select-result:deselect', render);
+                this.addEventListener('select-result:accept', render);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('select-result:clear', render);
+                this.removeEventListener('select-result:deselect', render);
+                this.removeEventListener('select-result:accept', render);
+            });
+        }
+        #setupMultiple() {
+            const render = () => {
+                this.$layout.classList.toggle('single', !this.multiple);
+                this.$layout.classList.toggle('multiple', this.multiple);
+            };
+            this.onRender(render);
+            this.onConnected(render);
+            this.onAttributeChangedDep('multiple', render);
+        }
+        #setupPlaceholder() {
+            const render = () => {
+                if (this.placeholder) {
+                    if (!this.$placeholder) {
+                        const $placeholder = placeholderTemplate();
+                        mountAfter($placeholder, this.$content);
+                    }
+                    this.$placeholder.textContent = this.placeholder;
+                    this.$placeholder.style.left = this.$content.offsetLeft + 'px';
+                }
+                else {
+                    if (this.$placeholder) {
+                        unmount(this.$placeholder);
+                    }
+                }
+            };
+            this.onRender(render);
+            this.onConnected(render);
+            this.onAttributeChangedDeps(['placeholder', 'prefix-icon', 'loading'], render);
+        }
+        #setupClear() {
+            const notifyClear = () => {
+                if (this.disabled)
+                    return;
+                dispatchEvent(this, 'select-result:clear');
+            };
+            this.onConnected(() => {
+                this.addEventListener('click-clear', notifyClear);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('click-clear', notifyClear);
+            });
+        }
+        #setupDeselect() {
+            const notifyDeselect = (selected) => {
+                if (this.disabled)
+                    return;
+                dispatchEvent(this, 'select-result:deselect', { detail: { value: selected } });
+            };
+            const onDeselect = (e) => {
+                const $tag = e.target;
+                notifyDeselect(this.#tagSelectedMap.get($tag));
+            };
+            this.onConnected(() => {
+                this.$layout.addEventListener('close', onDeselect);
+            });
+            this.onDisconnected(() => {
+                this.$layout.removeEventListener('close', onDeselect);
+            });
+        }
+        #setupSearch() {
+            this.onRender(this._renderSearchable);
+            this.onAttributeChangedDep('searchable', this._renderSearchable);
+            this.addEventListener('select-result:search', e => {
+                this.$layout.classList.toggle('searching', !!e.detail.searchString.length);
+            });
+            this.$layout.oninput = e => {
+                const searchString = e.target.value;
+                this.#notifySearch(searchString);
+            };
+        }
+        _renderSearchable() {
+            if (this.searchable) {
+                if (!this.$search) {
+                    const $search = searchTemplate();
+                    if (this.$valueText) {
+                        mountBefore($search, this.$valueText);
+                    }
+                    else {
+                        append($search, this.$content);
+                    }
+                    this._tabIndexFeature.update();
+                }
+            }
+            else {
+                if (this.$search) {
+                    unmount(this.$search);
+                }
+            }
+        }
+        clearSearch() {
+            if (this.$search) {
+                this.$search.value = '';
+                this.#notifySearch('');
+            }
         }
         #notifySearch(searchString) {
             if (this.disabled)
                 return;
             dispatchEvent(this, 'select-result:search', { detail: { searchString } });
         }
-        #notifyClear() {
-            if (this.disabled)
-                return;
-            dispatchEvent(this, 'select-result:clear');
+        #setupData() {
+            this.onRender(this._reanderData);
+            this.onAttributeChangedDep('max-tag-count', this._reanderData);
         }
-        #notifyDeselect(selected) {
-            if (this.disabled)
-                return;
-            dispatchEvent(this, 'select-result:deselect', {
-                detail: { value: selected },
-            });
-        }
-        acceptSelected(value) {
-            if (this.multiple) {
-                const currentValues = this.getValues();
-                const isSame = currentValues.length === value.length &&
-                    currentValues.every((item, index) => item.value === value[index].value && item.label === value[index].label);
-                if (isSame) {
-                    return;
-                }
-                this.value = value.slice();
-            }
-            else {
-                if (value.length === 0) {
-                    this.value = null;
+        _reanderData() {
+            this.$layout.classList.toggle('has-result', !!this.dataCount);
+            if (!this.multiple) {
+                if (!this.$valueText) {
+                    const $valueText = valueTextTemplate();
+                    append($valueText, this.$content);
                 }
                 else {
-                    this.value = value[0];
+                    this.$valueText.textContent = '';
                 }
+                this.$content.querySelectorAll('bl-tag').forEach(unmount);
             }
-        }
-        select(selected) {
-            if (!this.multiple) {
-                this.acceptSelected([selected]);
-            }
-            else {
-                const values = this.getValues().filter(item => item.value !== selected.value);
-                values.push(selected);
-                this.acceptSelected(values);
-            }
-        }
-        deselect(selected) {
-            const values = this.getValues();
-            const newValues = values.filter(item => item.value !== selected.value);
-            this.acceptSelected(newValues);
-            this._renderValue();
-            this.#notifyDeselect(selected);
-        }
-        getValue() {
-            if (this.value == null) {
-                return null;
-            }
-            if (Array.isArray(this.value)) {
-                return this.value[0] ?? null;
-            }
-            return this.value;
-        }
-        getValues() {
-            if (this.value == null) {
-                return [];
-            }
-            if (Array.isArray(this.value)) {
-                return this.value;
-            }
-            return [this.value];
-        }
-        clearValue() {
-            this._value = null;
-            this._renderValue();
-        }
-        _isEmpty() {
-            return this.multiple ? !this._ref.$content.querySelectorAll('bl-tag').length : !this._ref.$content.textContent;
-        }
-        clearSearch() {
-            if (this._ref.$search) {
-                this._ref.$search.value = '';
-                this.#notifySearch('');
-            }
-        }
-        _renderClass() {
-            this._ref.$layout.classList.toggle('single', !this.multiple);
-            this._ref.$layout.classList.toggle('multiple', this.multiple);
-        }
-        _renderPlaceholder() {
-            if (this.placeholder) {
-                if (!this._ref.$placeholder) {
-                    this._ref.$placeholder = placeholderTemplate();
-                    mountAfter(this._ref.$placeholder, this._ref.$content);
-                }
-                this._ref.$placeholder.textContent = this.placeholder;
-                this._ref.$placeholder.style.left = this._ref.$content.offsetLeft + 'px';
-            }
-            else {
-                if (this._ref.$placeholder) {
-                    unmount(this._ref.$placeholder);
-                    this._ref.$placeholder = undefined;
-                }
-            }
-        }
-        _renderSearchable() {
-            this.internalTabIndex = this.searchable ? '-1' : '0';
-            if (this.searchable) {
-                if (!this._ref.$search) {
-                    const $search = searchTemplate();
-                    this._ref.$search = $search;
-                    if (this._ref.$plainTextValue) {
-                        mountBefore($search, this._ref.$plainTextValue);
-                    }
-                    else {
-                        append($search, this._ref.$content);
-                    }
-                }
-            }
-            else {
-                if (this._ref.$search) {
-                    unmount(this._ref.$search);
-                }
-            }
-        }
-        _renderValue() {
-            this._ref.$layout.classList.toggle('empty', !this.getValues().length);
-            if (!this.multiple) {
-                if (!this._ref.$plainTextValue) {
-                    this._ref.$plainTextValue = valueTextTemplate();
-                    append(this._ref.$plainTextValue, this._ref.$content);
-                }
-                else {
-                    this._ref.$plainTextValue.textContent = '';
-                }
-                this._ref.$content.querySelectorAll('bl-tag').forEach(unmount);
-            }
-            else if (this._ref.$plainTextValue) {
-                unmount(this._ref.$plainTextValue);
+            else if (this.$valueText) {
+                unmount(this.$valueText);
             }
             if (!this.multiple) {
-                const value = this.getValue();
-                this._ref.$plainTextValue.textContent = value ? this.formatter(value) : '';
+                const value = this.data[0];
+                this.$valueText.textContent = value ? this.formatter(value) : '';
                 return;
             }
-            const values = this.getValues();
+            const values = this.data;
             const tagCount = Math.min(values.length, this.maxTagCount);
             const hiddenCount = values.length - tagCount;
-            const $tags = this._ref.$content.getElementsByTagName('bl-tag');
+            const $tags = this.$content.getElementsByTagName('bl-tag');
             while ($tags.length > tagCount) {
                 unmount($tags[$tags.length - 1]);
             }
             while ($tags.length < tagCount) {
                 const $tag = tagTemplate();
-                if (this._ref.$search) {
-                    mountBefore($tag, this._ref.$search);
+                if (this.$search) {
+                    mountBefore($tag, this.$search);
                 }
                 else {
-                    append($tag, this._ref.$content);
+                    append($tag, this.$content);
                 }
             }
             for (let i = 0; i < tagCount; i += 1) {
                 const item = values[i];
                 const $tag = $tags[i];
                 const label = this.formatter(item);
-                const value = item.value;
                 $tag.size = this.size;
                 $tag.textContent = label;
-                $tag.dataset.value = value;
+                this.#tagSelectedMap.set($tag, item);
                 $tag.closeable = this.clearable;
             }
-            let $more = this._ref.$content.querySelector('.more');
+            let $more = this.$content.querySelector('.more');
             if (hiddenCount > 0) {
                 if (!$more) {
                     $more = moreTemplate();
                     $more.innerText = `+${hiddenCount}`;
-                    if (this._ref.$search) {
-                        mountBefore($more, this._ref.$search);
+                    if (this.$search) {
+                        mountBefore($more, this.$search);
                     }
                     else {
-                        append($more, this._ref.$content);
+                        append($more, this.$content);
                     }
                 }
                 else {
@@ -335,46 +381,8 @@ export let BlocksSelectResult = (() => {
                 }
             }
         }
-        render() {
-            super.render();
-            this._renderClass();
-            this._renderPlaceholder();
-            this._renderSearchable();
-            this._renderValue();
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            switch (attrName) {
-                case 'max-tag-count': {
-                    this._renderValue();
-                    break;
-                }
-                case 'multiple': {
-                    this._renderClass();
-                    break;
-                }
-                case 'placeholder': {
-                    this._renderPlaceholder();
-                    break;
-                }
-                case 'searchable': {
-                    this._renderSearchable();
-                    break;
-                }
-                case 'prefix-icon':
-                case 'loading': {
-                    this._renderPlaceholder();
-                    break;
-                }
-                case 'size': {
-                    this.render();
-                    break;
-                }
-            }
+        #setupSize() {
+            this.onAttributeChangedDep('size', this.render);
         }
     };
     return BlocksSelectResult = _classThis;

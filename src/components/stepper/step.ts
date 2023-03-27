@@ -1,12 +1,12 @@
 import type { NullableEnumAttr } from '../../decorators/attr.js'
 import type { BlocksSteps } from './steps.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { parseIcon } from '../../icon/index.js'
-import { Component } from '../Component.js'
-import { template } from './step.template.js'
 import { style } from './step.style.js'
-import { domRef } from '../../decorators/domRef.js'
+import { template } from './step.template.js'
+import { Component } from '../component/Component.js'
 
 const statusEnum = ['wait', 'process', 'success', 'error']
 
@@ -15,6 +15,9 @@ const statusEnum = ['wait', 'process', 'success', 'error']
   styles: [style],
 })
 export class BlocksStep extends Component {
+  @attr('enum', { enumValues: ['horizontal', 'vertical'] })
+  accessor direction!: NullableEnumAttr<['horizontal', 'vertical']>
+
   @attr('string') accessor stepTitle!: string
 
   @attr('string') accessor description!: string
@@ -24,13 +27,13 @@ export class BlocksStep extends Component {
   @attr('enum', { enumValues: statusEnum })
   accessor status!: NullableEnumAttr<typeof statusEnum>
 
-  @domRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('#layout') accessor $layout!: HTMLElement
 
-  @domRef('#icon') accessor $icon!: HTMLElement
+  @shadowRef('#icon') accessor $icon!: HTMLElement
 
-  @domRef('#title') accessor $title!: HTMLElement
+  @shadowRef('#title') accessor $title!: HTMLElement
 
-  @domRef('#description') accessor $description!: HTMLElement
+  @shadowRef('#description') accessor $description!: HTMLElement
 
   constructor() {
     super()
@@ -51,6 +54,18 @@ export class BlocksStep extends Component {
         }
       })
     })
+
+    this.onConnected(() => {
+      if (this.parentElement!.tagName !== 'BL-STEPPER') {
+        this.parentElement!.removeChild(this)
+        throw new Error('The parent element of `bl-step` should be `bl-stepper`.')
+      }
+    })
+
+    this.onConnected(this.render)
+    this.onAttributeChangedDep('icon', this._renderIcon)
+    this.onAttributeChangedDep('step-title', this._renderTitle)
+    this.onAttributeChangedDep('description', this._renderDescription)
   }
 
   get $stepper(): BlocksSteps {
@@ -58,32 +73,10 @@ export class BlocksStep extends Component {
   }
 
   override render() {
+    super.render()
     this._renderIcon()
     this._renderTitle()
     this._renderDescription()
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-    this.render()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    switch (attrName) {
-      case 'icon': {
-        this._renderIcon()
-        break
-      }
-      case 'step-title': {
-        this._renderTitle()
-        break
-      }
-      case 'description': {
-        this._renderDescription()
-        break
-      }
-    }
   }
 
   _renderContent($slotParent: HTMLElement, $default: HTMLElement | SVGElement | Text) {

@@ -4,19 +4,21 @@ export var EnvType;
     EnvType[EnvType["Root"] = 0] = "Root";
     EnvType[EnvType["For"] = 1] = "For";
 })(EnvType || (EnvType = {}));
-export class EnvRecord {
+class EnvRecord {
+    static uid = 0;
     type;
     rawName;
     name;
-    constructor(type, name) {
+    constructor(type, rawName) {
         this.type = type;
-        this.rawName = name;
-        this.name = ENV_PREFIX + name;
+        this.rawName = rawName;
+        this.name = `${ENV_PREFIX}${++EnvRecord.uid}`;
     }
     static root() {
         return new EnvRecord(0, 'root');
     }
-    static for(name) {
-        return new EnvRecord(1, name);
+    static for(rawName) {
+        return new EnvRecord(1, rawName);
     }
 }
+export { EnvRecord };

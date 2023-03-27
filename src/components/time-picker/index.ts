@@ -1,19 +1,19 @@
 import '../popup/index.js'
 import '../time/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { domRef } from '../../decorators/domRef.js'
-import { BlocksInput } from '../input/index.js'
-import { BlocksTime } from '../time/index.js'
+import { boolSetter } from '../../common/property.js'
+import { defineClass } from '../../decorators/defineClass.js'
+import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { padLeft } from '../../common/utils.js'
-import { boolSetter } from '../../common/property.js'
-import { dispatchEvent } from '../../common/event.js'
-import { Component } from '../Component.js'
 import { style } from './style.js'
 import { template } from './template.js'
 import { template as popupTemplate } from './popup.template.js'
+import { BlocksInput } from '../input/index.js'
 import { BlocksPopup } from '../popup/index.js'
+import { BlocksTime } from '../time/index.js'
+import { Component } from '../component/Component.js'
 
 // TODO, placeholder
 
@@ -39,7 +39,7 @@ export class BlocksTimePicker extends Component {
 
   @attr('intRange', { min: 0, max: 59 }) accessor second!: number | null
 
-  @domRef('#result') accessor $input!: BlocksInput
+  @shadowRef('#result') accessor $input!: BlocksInput
 
   #clearup?: () => void
 
@@ -72,7 +72,7 @@ export class BlocksTimePicker extends Component {
       $time,
     }
 
-    $popup.anchor = () => $input
+    $popup.anchorElement = () => $input
 
     const $confirm = $popup.querySelector('bl-button')!
 
@@ -104,7 +104,6 @@ export class BlocksTimePicker extends Component {
         minute: $time.minute,
         second: $time.second,
       }
-      this._initClickOutside()
     }
     $popup.addEventListener('opened', onOpened)
 
@@ -115,38 +114,66 @@ export class BlocksTimePicker extends Component {
         $time.second = this._prevValue.second
         this._prevValue = null
       }
-      this._destroyClickOutside()
     }
     $popup.addEventListener('closed', onClosed)
 
     const onConfirm = this._confirm.bind(this)
     $confirm!.onclick = onConfirm
+
+    this.onConnected(this.render)
+
+    this.#setupPopup()
+
+    this.onAttributeChangedDeps(BlocksInput.observedAttributes, (attrName, oldValue, newValue) => {
+      this.$input.setAttribute(attrName, newValue as string)
+    })
+
+    this.onAttributeChangedDeps(BlocksTime.observedAttributes, (attrName, oldValue, newValue) => {
+      this._ref.$time.setAttribute(attrName, newValue as string)
+    })
+
+    this.onAttributeChanged(this.render)
   }
 
-  override connectedCallback() {
-    super.connectedCallback()
-    document.body.appendChild(this._ref.$popup)
-    this.render()
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    document.body.removeChild(this._ref.$popup)
-    this._destroyClickOutside()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (BlocksInput.observedAttributes.includes(attrName)) {
-      this.$input.setAttribute(attrName, newValue)
+  #setupPopup() {
+    const _initClickOutside = () => {
+      if (!this.#clearup) {
+        this.#clearup = onClickOutside([this, this._ref.$popup], () => {
+          if (this._ref.$popup.open) this._ref.$popup.open = false
+        })
+      }
     }
-    if (BlocksTime.observedAttributes.includes(attrName as any)) {
-      this._ref.$time.setAttribute(attrName, newValue)
+
+    const _destroyClickOutside = () => {
+      if (this.#clearup) {
+        this.#clearup()
+        this.#clearup = undefined
+      }
     }
-    this.render()
+
+    const onOpened = () => {
+      _initClickOutside()
+    }
+    const onClosed = () => {
+      _destroyClickOutside()
+    }
+
+    this.onConnected(() => {
+      document.body.appendChild(this._ref.$popup)
+      this._ref.$popup.addEventListener('opened', onOpened)
+      this._ref.$popup.addEventListener('closed', onClosed)
+    })
+
+    this.onDisconnected(() => {
+      document.body.removeChild(this._ref.$popup)
+      _destroyClickOutside()
+      this._ref.$popup.removeEventListener('opened', onOpened)
+      this._ref.$popup.removeEventListener('closed', onClosed)
+    })
   }
 
   override render() {
+    super.render()
     const { $time } = this._ref
     if ([$time.hour, $time.minute, $time.second].some(v => Object.is(v, NaN) || v == null)) {
       this.$input.value = ''
@@ -169,20 +196,5 @@ export class BlocksTimePicker extends Component {
       },
     })
     $popup.open = false
-  }
-
-  _initClickOutside() {
-    if (!this.#clearup) {
-      this.#clearup = onClickOutside([this, this._ref.$popup], () => {
-        if (this._ref.$popup.open) this._ref.$popup.open = false
-      })
-    }
-  }
-
-  _destroyClickOutside() {
-    if (this.#clearup) {
-      this.#clearup()
-      this.#clearup = undefined
-    }
   }
 }

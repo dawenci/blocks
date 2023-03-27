@@ -1,25 +1,27 @@
+import type { EnumAttr } from '../../decorators/attr.js';
 import '../popup/index.js';
-import { Component } from '../Component.js';
-export declare class BlocksPopupConfirm extends Component {
-    private $popup;
-    private $message;
-    private $confirm;
-    private $cancel;
+import { BlocksPopup } from '../popup/index.js';
+import { BlocksButton } from '../button/index.js';
+import { Component } from '../component/Component.js';
+import { PopupOrigin } from '../popup/index.js';
+declare const originArray: PopupOrigin[];
+export interface BlocksPopupConfirm extends Component {
+    $popup: BlocksPopup;
+    $message: HTMLElement;
+    $confirm: BlocksButton;
+    $cancel: BlocksButton;
     confirm?: () => Promise<any>;
     cancel?: () => Promise<any>;
-    static get observedAttributes(): string[];
+}
+export declare class BlocksPopupConfirm extends Component {
+    #private;
+    static get observedAttributes(): ("message" | "origin" | "open" | "icon")[];
     accessor icon: string;
     accessor message: string;
+    accessor open: boolean;
+    accessor origin: EnumAttr<typeof originArray>;
     constructor();
-    get origin(): import("../popup/index.js").PopupOrigin;
-    set origin(value: import("../popup/index.js").PopupOrigin);
-    get open(): boolean;
-    set open(value: boolean);
-    _confirm(): void;
-    _cancel(): void;
-    renderIcon(): void;
+    _renderIcon(): void;
     render(): void;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
 }
+export {};

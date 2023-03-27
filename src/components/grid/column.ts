@@ -1,8 +1,8 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { template } from './column.template.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { style } from './column.style.js'
-import { Component } from '../Component.js'
+import { template } from './column.template.js'
+import { Component } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-col',

@@ -32,13 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
-import { attr } from '../../decorators/attr.js';
-import { forEach } from '../../common/utils.js';
-import { Component } from '../Component.js';
-import { style } from './menu-group.style.js';
-import { contentTemplate, itemTemplate } from './menu-group.template.js';
 import './menu-item.js';
+import { attr } from '../../decorators/attr.js';
+import { contentTemplate, itemTemplate } from './menu-group.template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { forEach } from '../../common/utils.js';
+import { style } from './menu-group.style.js';
+import { Component } from '../component/Component.js';
 export let BlocksNavMenuGroup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-nav-menu-group',
@@ -54,14 +55,22 @@ export let BlocksNavMenuGroup = (() => {
     let _horizontal_initializers = [];
     let _collapse_decorators;
     let _collapse_initializers = [];
+    let _$head_decorators;
+    let _$head_initializers = [];
+    let _$body_decorators;
+    let _$body_initializers = [];
     var BlocksNavMenuGroup = class extends Component {
         static {
             _titleText_decorators = [attr('string')];
             _horizontal_decorators = [attr('boolean')];
             _collapse_decorators = [attr('boolean')];
+            _$head_decorators = [shadowRef('#head')];
+            _$body_decorators = [shadowRef('#body')];
             __esDecorate(this, null, _titleText_decorators, { kind: "accessor", name: "titleText", static: false, private: false, access: { has: obj => "titleText" in obj, get: obj => obj.titleText, set: (obj, value) => { obj.titleText = value; } } }, _titleText_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _horizontal_decorators, { kind: "accessor", name: "horizontal", static: false, private: false, access: { has: obj => "horizontal" in obj, get: obj => obj.horizontal, set: (obj, value) => { obj.horizontal = value; } } }, _horizontal_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _collapse_decorators, { kind: "accessor", name: "collapse", static: false, private: false, access: { has: obj => "collapse" in obj, get: obj => obj.collapse, set: (obj, value) => { obj.collapse = value; } } }, _collapse_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$head_decorators, { kind: "accessor", name: "$head", static: false, private: false, access: { has: obj => "$head" in obj, get: obj => obj.$head, set: (obj, value) => { obj.$head = value; } } }, _$head_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$body_decorators, { kind: "accessor", name: "$body", static: false, private: false, access: { has: obj => "$body" in obj, get: obj => obj.$body, set: (obj, value) => { obj.$body = value; } } }, _$body_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             BlocksNavMenuGroup = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -75,15 +84,19 @@ export let BlocksNavMenuGroup = (() => {
         #collapse_accessor_storage = __runInitializers(this, _collapse_initializers, void 0);
         get collapse() { return this.#collapse_accessor_storage; }
         set collapse(value) { this.#collapse_accessor_storage = value; }
+        #$head_accessor_storage = __runInitializers(this, _$head_initializers, void 0);
+        get $head() { return this.#$head_accessor_storage; }
+        set $head(value) { this.#$head_accessor_storage = value; }
+        #$body_accessor_storage = __runInitializers(this, _$body_initializers, void 0);
+        get $body() { return this.#$body_accessor_storage; }
+        set $body(value) { this.#$body_accessor_storage = value; }
         _data;
-        $head;
-        $body;
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(contentTemplate());
-            this.$head = shadowRoot.getElementById('head');
-            this.$body = shadowRoot.getElementById('body');
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
         }
         #hostMenu;
         get $hostMenu() {
@@ -99,15 +112,8 @@ export let BlocksNavMenuGroup = (() => {
             this._data = value;
             this.render();
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
-        }
         render() {
+            super.render();
             const data = this.data;
             if (data.title) {
                 this.$head.textContent = data.title;

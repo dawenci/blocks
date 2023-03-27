@@ -1,21 +1,33 @@
 import '../select-result/index.js'
 import '../popup/index.js'
 import '../date/index.js'
-import '../result/index.js'
 import '../time/index.js'
 import '../button/index.js'
 import { BlocksPopup } from '../popup/index.js'
-import { makeTemplate } from '../../common/template.js'
+import { makeDomTemplate, makeTemplate } from '../../common/template.js'
+import { makeElement } from '../../common/makeElement.js'
+
+export const inputTemplate = makeDomTemplate(
+  makeElement({
+    tagName: 'bl-input',
+    props: {
+      id: 'result',
+      suffixIcon: 'date',
+    },
+    attrs: {
+      part: 'result',
+      readonly: '',
+    },
+  })
+)
 
 export const contentTemplate = makeTemplate(/*html*/ `
 <div id="content">
-  <input id="from-date" part="from-date" readonly />
-  <div id="separator">至</div>
-  <input id="to-date" part="to-date" readonly />
+  <input id="result" part="result" readonly />
 </div>`)
 
 export const popupTemplate = makeTemplate<BlocksPopup>(/*html*/ `
-<bl-popup append-to-body class="datetime-picker-popup" origin="top-start" arrow>
+<bl-popup append-to-body class="datetime-picker-popup" origin="top-start" arrow="8">
   <div id="panes" style="display:flex;flex-flow:row nowrap;">
     <div id="date-pane" style="flex:0 0 auto;">
       <bl-date class="date-picker-panel" mode="single"></bl-date>

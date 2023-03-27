@@ -1,12 +1,13 @@
-import { BlocksVList, VListEventMap } from '../vlist/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import type { BlocksTable } from './table.js'
+import type { ComponentEventListener } from '../component/Component.js'
+import type { RowColumn } from './RowColumn.js'
+import type { VListEventMap } from '../vlist/index.js'
 import { attr } from '../../decorators/attr.js'
-import { setStyles } from '../../common/style.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
+import { setStyles } from '../../common/style.js'
 import { template } from './body-template.js'
-import { BlocksTable } from './table.js'
-import { RowColumn } from './RowColumn.js'
-import { ComponentEventListener } from '../Component.js'
+import { BlocksVList } from '../vlist/index.js'
 
 export type CellElement = HTMLElement & { column: RowColumn; data: any }
 
@@ -19,10 +20,8 @@ export interface BlocksTableBodyEventMap extends VListEventMap {
 }
 
 export interface BlocksTableBody extends BlocksVList {
-  _ref: BlocksVList['_ref'] & {
-    $host: BlocksTable
-    $summary?: HTMLElement
-  }
+  $host: BlocksTable
+  $summary?: HTMLElement
 
   addEventListener<K extends keyof BlocksTableBodyEventMap>(
     type: K,
@@ -51,6 +50,8 @@ export class BlocksTableBody extends BlocksVList {
   fixedLeftColumns: RowColumn[] = []
   fixedRightColumns: RowColumn[] = []
 
+  @attr('boolean') accessor border!: boolean
+
   @attr('string') accessor sortField!: string | null
 
   @attr('string') accessor sortOrder!: string | null
@@ -65,22 +66,14 @@ export class BlocksTableBody extends BlocksVList {
     const { cssTemplate } = template()
     shadowRoot.appendChild(cssTemplate.cloneNode(true))
 
-    this._ref.$list.onclick = this._onClick.bind(this)
+    this.$list.onclick = this._onClick.bind(this)
 
     this.addEventListener('bl:scroll', () => {
       // 同步合计行的左右滚动
-      if (this._ref.$summary) {
-        this._ref.$summary.scrollLeft = this.getScrollCross()
+      if (this.$summary) {
+        this.$summary.scrollLeft = this.getScrollCross()
       }
     })
-  }
-
-  get $host() {
-    return this._ref.$host
-  }
-
-  set $host(table: BlocksTable) {
-    this._ref.$host = table
   }
 
   get shouldRenderSummary() {
@@ -178,11 +171,11 @@ export class BlocksTableBody extends BlocksVList {
 
   _renderSummaryRow() {
     if (this.shouldRenderSummary) {
-      if (!this._ref.$summary) return
-      this._ref.$viewport._ref.$layout.classList.toggle('has-summary', true)
+      if (!this.$summary) return
+      this.$viewport._ref.$layout.classList.toggle('has-summary', true)
 
       const data = this.$host.data
-      const $items = this._ref.$summary.firstElementChild as HTMLElement
+      const $items = this.$summary.firstElementChild as HTMLElement
 
       while ($items.children.length > this.flattenColumns.length) {
         $items.removeChild($items.lastElementChild!)
@@ -236,7 +229,7 @@ export class BlocksTableBody extends BlocksVList {
         })
       })
     } else {
-      this._ref.$viewport._ref.$layout.classList.toggle('has-summary', false)
+      this.$viewport._ref.$layout.classList.toggle('has-summary', false)
     }
   }
 
@@ -293,16 +286,16 @@ export class BlocksTableBody extends BlocksVList {
 
     requestAnimationFrame(() => {
       const { cssTemplate2 } = template()
-      if (!this._ref.$viewport.shadowRoot!.querySelector('style#tableBodyStyle')) {
-        this._ref.$viewport.shadowRoot!.insertBefore(cssTemplate2.cloneNode(true), this._ref.$viewport._ref.$layout)
+      if (!this.$viewport.shadowRoot!.querySelector('style#tableBodyStyle')) {
+        this.$viewport.shadowRoot!.insertBefore(cssTemplate2.cloneNode(true), this.$viewport._ref.$layout)
       }
 
-      if (!this._ref.$viewport._ref.$layout.querySelector('#summary')) {
+      if (!this.$viewport._ref.$layout.querySelector('#summary')) {
         const $summary = document.createElement('div')
         $summary.id = 'summary'
         $summary.appendChild(document.createElement('div')).className = 'row'
-        this._ref.$viewport._ref.$layout.appendChild($summary)
-        this._ref.$summary = $summary
+        this.$viewport._ref.$layout.appendChild($summary)
+        this.$summary = $summary
       }
     })
   }
@@ -311,8 +304,8 @@ export class BlocksTableBody extends BlocksVList {
     super.attributeChangedCallback(attrName, oldValue, newValue)
 
     if (attrName === 'cross-size') {
-      if (this._ref.$summary) {
-        const child = this._ref.$summary.firstElementChild as HTMLElement
+      if (this.$summary) {
+        const child = this.$summary.firstElementChild as HTMLElement
         child.style.width = this.crossSize + 'px'
       }
     } else if (attrName === 'sort-field' || attrName === 'sort-order') {

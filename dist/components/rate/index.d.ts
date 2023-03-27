@@ -1,20 +1,13 @@
-import { Component } from '../Component.js';
-export interface BlocksRate extends Component {
-    ref: {
-        $layout: HTMLElement;
-    };
-}
-export declare class BlocksRate extends Component {
-    static get observedAttributes(): string[];
-    _hoverValue?: number;
-    accessor clearable: boolean;
+import { Control } from '../base-control/index.js';
+export declare class BlocksRate extends Control {
+    #private;
+    static get disableEventTypes(): readonly string[];
+    accessor value: number;
     accessor half: boolean;
     accessor resultMode: boolean;
+    accessor $layout: HTMLElement;
     constructor();
-    get value(): any;
-    set value(value: any);
-    updateSelect(): void;
+    get hoverValue(): number | undefined;
+    set hoverValue(value: number | undefined);
     render(): void;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
 }

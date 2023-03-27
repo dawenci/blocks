@@ -32,16 +32,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { BlocksSplitterPane } from './pane.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
-import { Component } from '../Component.js';
-import { template as handleTemplate } from './handle.template.js';
-import { template } from './splitter.template.js';
 import { style } from './splitter.style.js';
+import { template } from './splitter.template.js';
+import { template as handleTemplate } from './handle.template.js';
+import { BlocksSplitterPane } from './pane.js';
+import { Component } from '../component/Component.js';
 export let BlocksSplitter = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-splitter',
@@ -82,12 +82,12 @@ export let BlocksSplitter = (() => {
             const $cover = shadowRoot.getElementById('cover');
             const $slot = $panes.querySelector('slot');
             this._ref = { $layout, $panes, $cover, $slot };
-            $slot.addEventListener('slotchange', () => {
-                this.panes = $slot.assignedElements().filter($item => $item instanceof BlocksSplitterPane);
-                this._renderDirection();
-                this.layout();
-            });
-            this._initResizeEvents();
+            this.#setupSlotEvent();
+            this.#setupResizeEvents();
+            this.#setupSizeObserve();
+            this.onConnected(this.render);
+            this.onAttributeChangedDep('direction', this._renderDirection);
+            this.onAttributeChangedDep('handle-size', this.layout);
         }
         _renderDirection() {
             this.panes.forEach($pane => {
@@ -98,27 +98,17 @@ export let BlocksSplitter = (() => {
         get size() {
             return this._ref.$panes[this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight'];
         }
-        _offSizeObserve;
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-            this._offSizeObserve = sizeObserve(this, this.layout.bind(this));
-        }
-        disconnectedCallback() {
-            super.disconnectedCallback();
-            if (this._offSizeObserve) {
-                this._offSizeObserve();
-                this._offSizeObserve = undefined;
-            }
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'direction') {
-                this._renderDirection();
-            }
-            if (attrName === 'handle-size') {
-                this.layout();
-            }
+        #setupSizeObserve() {
+            let clear;
+            this.onConnected(() => {
+                clear = sizeObserve(this, this.layout.bind(this));
+            });
+            this.onDisconnected(() => {
+                if (clear) {
+                    clear();
+                    clear = undefined;
+                }
+            });
         }
         renderHandles() {
             const { $layout, $cover } = this._ref;
@@ -259,7 +249,22 @@ export let BlocksSplitter = (() => {
         getHandleIndex($handle) {
             return Array.prototype.indexOf.call(this._ref.$layout.querySelectorAll('.handle'), $handle);
         }
-        _initResizeEvents() {
+        #setupSlotEvent() {
+            const onSlotChange = () => {
+                this.panes = this._ref.$slot
+                    .assignedElements()
+                    .filter($item => $item instanceof BlocksSplitterPane);
+                this._renderDirection();
+                this.layout();
+            };
+            this.onConnected(() => {
+                this._ref.$slot.addEventListener('slotchange', onSlotChange);
+            });
+            this.onDisconnected(() => {
+                this._ref.$slot.removeEventListener('slotchange', onSlotChange);
+            });
+        }
+        #setupResizeEvents() {
             let startSize = 0;
             let $handle = null;
             let $pane = null;

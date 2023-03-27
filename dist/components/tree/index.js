@@ -33,11 +33,11 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { BlocksVList, VirtualItem } from '../vlist/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
 import { boolSetter } from '../../common/property.js';
-import { isEmpty, merge, uniqBy, flatten } from '../../common/utils.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
+import { isEmpty, merge, uniqBy, flatten } from '../../common/utils.js';
 import { parseHighlight } from '../../common/highlight.js';
 import { style } from './style.js';
 export class VirtualNode extends VirtualItem {
@@ -124,7 +124,7 @@ export let BlocksTree = (() => {
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return super.observedAttributes.concat(['border', 'stripe']);
+            return [...super.observedAttributes, ...['border', 'stripe']];
         }
         #activeKey_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _activeKey_initializers, void 0));
         get activeKey() { return this.#activeKey_accessor_storage; }
@@ -169,15 +169,13 @@ export let BlocksTree = (() => {
         get search() { return this.#search_accessor_storage; }
         set search(value) { this.#search_accessor_storage = value; }
         labelMethod;
-        uniqCid;
         _checkedSet;
         #batchUpdateFold;
         #lastChecked;
         constructor() {
             super();
-            this.uniqCid = String(Math.random()).substr(2);
             this._checkedSet = new Set();
-            this._ref.$list.onclick = this.#onClick.bind(this);
+            this.$list.onclick = this.#onClick.bind(this);
             const onBound = () => {
                 this.removeEventListener('data-bound', onBound);
                 if (this.defaultFoldAll) {
@@ -188,6 +186,14 @@ export let BlocksTree = (() => {
                 }
             };
             this.addEventListener('data-bound', onBound);
+            this.onAttributeChangedDep('search', () => {
+                this.generateViewData();
+            });
+            this.onAttributeChangedDep('wrap', () => {
+                this._resetCalculated();
+                this.redraw();
+                this.restoreAnchor();
+            });
         }
         get checkedData() {
             const data = [...this._checkedSet].map(vitem => vitem.data);
@@ -236,21 +242,18 @@ export let BlocksTree = (() => {
             this.#toggleCheck(data.value, false);
         }
         clearSelected() {
+            if (!this.multiple) {
+                if (this.#lastChecked) {
+                    this.#updateCheck(this.#lastChecked, false);
+                    dispatchEvent(this, 'select-list:change', {
+                        detail: {
+                            value: [],
+                        },
+                    });
+                }
+                return;
+            }
             this.#batchToggleCheck(this.checked, false);
-        }
-        connectedCallback() {
-            super.connectedCallback();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'search') {
-                this.generateViewData();
-            }
-            else if (attrName === 'wrap') {
-                this._resetCalculated();
-                this.redraw();
-                this.restoreAnchor();
-            }
         }
         internalLabelMethod(data) {
             if (typeof this.labelMethod === 'function')
@@ -346,7 +349,7 @@ export let BlocksTree = (() => {
                     $input = $check.querySelector('input');
                     $label = $check.querySelector('label');
                 }
-                $input.id = `node-check-${vitem.virtualKey}-${this.uniqCid}`;
+                $input.id = `node-check-${vitem.virtualKey}-${this.cid}`;
                 $label.setAttribute('for', $input.id);
                 boolSetter('checked')($input, vitem.checked);
                 boolSetter('disabled')($input, this.disableCheckMethod?.(vitem.data) ?? false);
@@ -511,7 +514,16 @@ export let BlocksTree = (() => {
                     },
                 },
             });
-            dispatchEvent(this, 'select-list:change');
+            dispatchEvent(this, 'select-list:change', {
+                detail: {
+                    value: [
+                        {
+                            value: vitem.virtualKey,
+                            label: this.internalLabelMethod(vitem.data),
+                        },
+                    ],
+                },
+            });
         }
         #batchToggleCheckStrictly(vItems, value, options = {}) {
             const disabled = typeof options.disabled === 'boolean' ? options.disabled : false;
@@ -786,9 +798,6 @@ export let BlocksTree = (() => {
             };
             data.forEach(convert);
             return virtualData;
-        }
-        render() {
-            super.render();
         }
         level(node) {
             let level = 1;

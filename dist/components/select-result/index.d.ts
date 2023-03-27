@@ -1,52 +1,44 @@
+import type { EnumAttrs } from '../../decorators/attr.js';
+import type { ISelected, ISelectResultComponent, ISelectResultEventMap } from '../../common/connectSelectable.js';
 import '../tag/index.js';
-import { ComponentEventListener } from '../Component.js';
 import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js';
-import { ISelected, ISelectResultComponent, ISelectResultEventMap } from '../../common/connectSelectable.js';
-import { EnumAttrs } from '../../decorators/attr.js';
+import { ComponentEventListener } from '../component/Component.js';
 interface BlocksSelectResultEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
     search: CustomEvent<{
         value: string;
     }>;
+    'select-result:accept': CustomEvent<{
+        value: ISelected[];
+    }>;
 }
 export interface BlocksSelectResult extends ClearableControlBox, ISelectResultComponent {
-    _ref: ClearableControlBox['_ref'] & {
-        $content: HTMLElement;
-        $search?: HTMLInputElement;
-        $plainTextValue?: HTMLElement;
-        $placeholder?: HTMLElement;
-    };
     addEventListener<K extends keyof BlocksSelectResultEventMap>(type: K, listener: ComponentEventListener<BlocksSelectResultEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof BlocksSelectResultEventMap>(type: K, listener: ComponentEventListener<BlocksSelectResultEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksSelectResult extends ClearableControlBox {
+export declare class BlocksSelectResult extends ClearableControlBox implements ISelectResultComponent {
     #private;
-    static get observedAttributes(): string[];
     accessor size: EnumAttrs['size'];
     accessor multiple: boolean;
     accessor searchable: boolean;
     accessor maxTagCount: number;
     accessor placeholder: string | null;
+    accessor $content: HTMLElement;
+    accessor $search: HTMLInputElement | null;
+    accessor $valueText: HTMLElement | null;
+    accessor $placeholder: HTMLElement | null;
     constructor();
+    get data(): ISelected[];
+    set data(selected: ISelected[]);
+    get dataCount(): number;
     get formatter(): (item: ISelected) => string;
     set formatter(value: (item: ISelected) => string);
-    get label(): string | null;
-    _value?: ISelected | ISelected[] | null;
-    get value(): ISelected | ISelected[] | null | undefined;
-    set value(value: ISelected | ISelected[] | null | undefined);
-    acceptSelected(value: ISelected[]): void;
-    select(selected: ISelected): void;
-    deselect(selected: ISelected): void;
-    getValue(): ISelected | null;
-    getValues(): ISelected[];
-    clearValue(): void;
-    _isEmpty(): boolean;
-    clearSearch(): void;
-    _renderClass(): void;
-    _renderPlaceholder(): void;
+    get label(): string;
+    get labels(): string[];
+    get value(): any | null;
+    get values(): any[];
+    acceptSelected(selected: ISelected[]): void;
     _renderSearchable(): void;
-    _renderValue(): void;
-    render(): void;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
+    clearSearch(): void;
+    _reanderData(): void;
 }
 export {};

@@ -1,5 +1,7 @@
 import { makeTemplate } from '../../common/template.js';
-export const checkboxTemplate = makeTemplate(`
-<span id="checkbox"></span>`);
-export const labelTemplate = makeTemplate(`
-<label id="label"><slot></slot></label>`);
+export const template = makeTemplate(`
+<div part="layout" id="layout">
+  <span part="checkbox" id="checkbox"></span>
+  <label part="label" id="label"><slot part="slot"></slot></label>
+</div>
+`);

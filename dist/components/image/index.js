@@ -34,15 +34,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../loading/index.js';
 import '../icon/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { strGetter, strSetter } from '../../common/property.js';
-import { dispatchEvent } from '../../common/event.js';
-import { makeMessages } from '../../i18n/makeMessages.js';
-import { Component } from '../Component.js';
 import { contentTemplate, fallbackTemplate, placeholderTemplate } from './template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { makeMessages } from '../../i18n/makeMessages.js';
+import { strGetter, strSetter } from '../../common/property.js';
 import { style } from './style.js';
-import { domRef } from '../../decorators/domRef.js';
+import { Component } from '../component/Component.js';
 const getMessage = makeMessages('image', {
     placeholderText: '加载中',
     fallbackText: '加载失败',
@@ -82,8 +82,8 @@ export let BlocksImage = (() => {
             _fit_decorators = [attr('enum', {
                     enumValues: ['none', 'fill', 'contain', 'cover', 'scale-down'],
                 })];
-            _$layout_decorators = [domRef('#layout')];
-            _$img_decorators = [domRef('#img')];
+            _$layout_decorators = [shadowRef('#layout')];
+            _$img_decorators = [shadowRef('#img')];
             __esDecorate(this, null, _alt_decorators, { kind: "accessor", name: "alt", static: false, private: false, access: { has: obj => "alt" in obj, get: obj => obj.alt, set: (obj, value) => { obj.alt = value; } } }, _alt_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _fallback_decorators, { kind: "accessor", name: "fallback", static: false, private: false, access: { has: obj => "fallback" in obj, get: obj => obj.fallback, set: (obj, value) => { obj.fallback = value; } } }, _fallback_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _manual_decorators, { kind: "accessor", name: "manual", static: false, private: false, access: { has: obj => "manual" in obj, get: obj => obj.manual, set: (obj, value) => { obj.manual = value; } } }, _manual_initializers, _instanceExtraInitializers);
@@ -124,20 +124,43 @@ export let BlocksImage = (() => {
             super();
             this.shadowRoot.appendChild(contentTemplate());
             this._ref = {};
-            const { $img } = this;
+            this.#setupLoad();
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
+        }
+        #setupLoad() {
             this._status = 'init';
-            $img.addEventListener('load', () => {
+            const onLoad = () => {
                 if (this._status === 'loading') {
                     this._status = 'loaded';
                     this._renderSuccess();
                     dispatchEvent(this, 'loaded');
                 }
-            });
-            $img.addEventListener('error', () => {
+            };
+            const onError = () => {
                 if (this._status === 'loading') {
                     this._status = 'error';
                     this._renderFail();
                     dispatchEvent(this, 'error');
+                }
+            };
+            this.onConnected(() => {
+                this.$img.addEventListener('load', onLoad);
+                this.$img.addEventListener('error', onError);
+                if (!this.manual) {
+                    this.load();
+                }
+            });
+            this.onDisconnected(() => {
+                this.$img.removeEventListener('load', onLoad);
+                this.$img.removeEventListener('error', onError);
+            });
+            this.onAttributeChangedDep('src', () => {
+                if (!this.manual) {
+                    this.load();
+                }
+                else {
+                    this._reset();
                 }
             });
         }
@@ -196,6 +219,7 @@ export let BlocksImage = (() => {
             this._removeFallback();
         }
         render() {
+            super.render();
             if (this.$img.getAttribute('alt') !== this.alt) {
                 strSetter('alt')(this.$img, this.alt);
             }
@@ -216,27 +240,6 @@ export let BlocksImage = (() => {
             this.$img.src = this.src;
             this._renderLoading();
             dispatchEvent(this, 'loading');
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-            if (!this.manual) {
-                this.load();
-            }
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'src') {
-                if (!this.manual) {
-                    this.load();
-                }
-                else {
-                    this._reset();
-                }
-            }
-            else {
-                this.render();
-            }
         }
     };
     return BlocksImage = _classThis;

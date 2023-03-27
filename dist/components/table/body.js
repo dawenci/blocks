@@ -32,12 +32,12 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { BlocksVList } from '../vlist/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { setStyles } from '../../common/style.js';
+import { defineClass } from '../../decorators/defineClass.js';
 import { dispatchEvent } from '../../common/event.js';
+import { setStyles } from '../../common/style.js';
 import { template } from './body-template.js';
+import { BlocksVList } from '../vlist/index.js';
 export let BlocksTableBody = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-table-body',
@@ -46,6 +46,8 @@ export let BlocksTableBody = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
+    let _border_decorators;
+    let _border_initializers = [];
     let _sortField_decorators;
     let _sortField_initializers = [];
     let _sortOrder_decorators;
@@ -54,9 +56,11 @@ export let BlocksTableBody = (() => {
     let _summaryHeight_initializers = [];
     var BlocksTableBody = class extends BlocksVList {
         static {
+            _border_decorators = [attr('boolean')];
             _sortField_decorators = [attr('string')];
             _sortOrder_decorators = [attr('string')];
             _summaryHeight_decorators = [attr('int')];
+            __esDecorate(this, null, _border_decorators, { kind: "accessor", name: "border", static: false, private: false, access: { has: obj => "border" in obj, get: obj => obj.border, set: (obj, value) => { obj.border = value; } } }, _border_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _sortField_decorators, { kind: "accessor", name: "sortField", static: false, private: false, access: { has: obj => "sortField" in obj, get: obj => obj.sortField, set: (obj, value) => { obj.sortField = value; } } }, _sortField_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _sortOrder_decorators, { kind: "accessor", name: "sortOrder", static: false, private: false, access: { has: obj => "sortOrder" in obj, get: obj => obj.sortOrder, set: (obj, value) => { obj.sortOrder = value; } } }, _sortOrder_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _summaryHeight_decorators, { kind: "accessor", name: "summaryHeight", static: false, private: false, access: { has: obj => "summaryHeight" in obj, get: obj => obj.summaryHeight, set: (obj, value) => { obj.summaryHeight = value; } } }, _summaryHeight_initializers, _instanceExtraInitializers);
@@ -72,6 +76,9 @@ export let BlocksTableBody = (() => {
         flattenColumns = [];
         fixedLeftColumns = [];
         fixedRightColumns = [];
+        #border_accessor_storage = __runInitializers(this, _border_initializers, void 0);
+        get border() { return this.#border_accessor_storage; }
+        set border(value) { this.#border_accessor_storage = value; }
         #sortField_accessor_storage = __runInitializers(this, _sortField_initializers, void 0);
         get sortField() { return this.#sortField_accessor_storage; }
         set sortField(value) { this.#sortField_accessor_storage = value; }
@@ -86,18 +93,12 @@ export let BlocksTableBody = (() => {
             const shadowRoot = this.shadowRoot;
             const { cssTemplate } = template();
             shadowRoot.appendChild(cssTemplate.cloneNode(true));
-            this._ref.$list.onclick = this._onClick.bind(this);
+            this.$list.onclick = this._onClick.bind(this);
             this.addEventListener('bl:scroll', () => {
-                if (this._ref.$summary) {
-                    this._ref.$summary.scrollLeft = this.getScrollCross();
+                if (this.$summary) {
+                    this.$summary.scrollLeft = this.getScrollCross();
                 }
             });
-        }
-        get $host() {
-            return this._ref.$host;
-        }
-        set $host(table) {
-            this._ref.$host = table;
         }
         get shouldRenderSummary() {
             return this.flattenColumns.some(column => typeof column.summaryRender === 'function');
@@ -183,11 +184,11 @@ export let BlocksTableBody = (() => {
         }
         _renderSummaryRow() {
             if (this.shouldRenderSummary) {
-                if (!this._ref.$summary)
+                if (!this.$summary)
                     return;
-                this._ref.$viewport._ref.$layout.classList.toggle('has-summary', true);
+                this.$viewport._ref.$layout.classList.toggle('has-summary', true);
                 const data = this.$host.data;
-                const $items = this._ref.$summary.firstElementChild;
+                const $items = this.$summary.firstElementChild;
                 while ($items.children.length > this.flattenColumns.length) {
                     $items.removeChild($items.lastElementChild);
                 }
@@ -237,7 +238,7 @@ export let BlocksTableBody = (() => {
                 });
             }
             else {
-                this._ref.$viewport._ref.$layout.classList.toggle('has-summary', false);
+                this.$viewport._ref.$layout.classList.toggle('has-summary', false);
             }
         }
         getFixedOffsetLeft(column) {
@@ -290,23 +291,23 @@ export let BlocksTableBody = (() => {
             this.upgradeProperty(['columns', 'data']);
             requestAnimationFrame(() => {
                 const { cssTemplate2 } = template();
-                if (!this._ref.$viewport.shadowRoot.querySelector('style#tableBodyStyle')) {
-                    this._ref.$viewport.shadowRoot.insertBefore(cssTemplate2.cloneNode(true), this._ref.$viewport._ref.$layout);
+                if (!this.$viewport.shadowRoot.querySelector('style#tableBodyStyle')) {
+                    this.$viewport.shadowRoot.insertBefore(cssTemplate2.cloneNode(true), this.$viewport._ref.$layout);
                 }
-                if (!this._ref.$viewport._ref.$layout.querySelector('#summary')) {
+                if (!this.$viewport._ref.$layout.querySelector('#summary')) {
                     const $summary = document.createElement('div');
                     $summary.id = 'summary';
                     $summary.appendChild(document.createElement('div')).className = 'row';
-                    this._ref.$viewport._ref.$layout.appendChild($summary);
-                    this._ref.$summary = $summary;
+                    this.$viewport._ref.$layout.appendChild($summary);
+                    this.$summary = $summary;
                 }
             });
         }
         attributeChangedCallback(attrName, oldValue, newValue) {
             super.attributeChangedCallback(attrName, oldValue, newValue);
             if (attrName === 'cross-size') {
-                if (this._ref.$summary) {
-                    const child = this._ref.$summary.firstElementChild;
+                if (this.$summary) {
+                    const child = this.$summary.firstElementChild;
                     child.style.width = this.crossSize + 'px';
                 }
             }

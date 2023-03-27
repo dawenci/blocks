@@ -6,6 +6,7 @@ pointer-events: none;
 }
 :host([clearable]:hover) #layout:not(.empty) #clear {
 opacity: var(--icon-opacity);
+pointer-events: auto;
 }
 
 .with-clear {
@@ -22,6 +23,7 @@ border: 1px solid var(--fg);
 border-radius: 50%;
 background-color: transparent;
 opacity: 0;
+pointer-events: none;
 transform: rotate(45deg);
 transition: all var(--duration);
 }

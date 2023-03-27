@@ -12,7 +12,9 @@ import { BlocksColorPicker } from '../src/components/color-picker/index.js'
 import { BlocksCountdown } from '../src/components/countdown/index.js'
 import { BlocksDate } from '../src/components/date/index.js'
 import { BlocksDatePicker } from '../src/components/date-picker/index.js'
+import { BlocksDateRangePicker } from '../src/components/date-range-picker/index.js'
 import { BlocksDateTimePicker } from '../src/components/datetime-picker/index.js'
+import { BlocksDateTimeRangePicker } from '../src/components/datetime-range-picker/index.js'
 import { BlocksDialog } from '../src/components/dialog/index.js'
 import { BlocksDrawer } from '../src/components/drawer/index.js'
 import { BlocksDropdownList } from '../src/components/dropdown-list/index.js'
@@ -35,6 +37,7 @@ import { BlocksNavMenuItem } from '../src/components/nav-menu/index.js'
 import { BlocksOptGroup } from '../src/components/select/index.js'
 import { BlocksOption } from '../src/components/select/index.js'
 import { BlocksPagination } from '../src/components/pagination/index.js'
+import { BlocksPairResult } from '../src/components/pair-result/index.js'
 import { BlocksPalette } from '../src/components/palette/index.js'
 import { BlocksPopup } from '../src/components/popup/index.js'
 import { BlocksPopupConfirm } from '../src/components/popup-confirm/index.js'
@@ -48,7 +51,6 @@ import { BlocksSelect } from '../src/components/select/index.js'
 import { BlocksSelectResult } from '../src/components/select-result/index.js'
 import { BlocksSlider } from '../src/components/slider/index.js'
 import { BlocksRangeSlider } from '../src/components/range-slider/index.js'
-import { BlocksResult } from '../src/components/result/index.js'
 import { BlocksSplitter } from '../src/components/splitter/index.js'
 import { BlocksSplitterPane } from '../src/components/splitter/index.js'
 import { BlocksSteps } from '../src/components/stepper/index.js'
@@ -81,7 +83,9 @@ declare global {
     'bl-countdown': BlocksCountdown
     'bl-date': BlocksDate
     'bl-date-picker': BlocksDatePicker
+    'bl-date-range-picker': BlocksDateRangePicker
     'bl-datetime-picker': BlocksDateTimePicker
+    'bl-datetime-range-picker': BlocksDateTimeRangePicker
     'bl-dialog': BlocksDialog
     'bl-drawer': BlocksDrawer
     'bl-dropdown-list': BlocksDropdownList
@@ -105,6 +109,7 @@ declare global {
     'bl-optgroup': BlocksOptGroup
     'bl-option': BlocksOption
     'bl-pagination': BlocksPagination
+    'bl-pair-result': BlocksPairResult
     'bl-palette': BlocksPalette
     'bl-popup': BlocksPopup
     'bl-popup-confirm': BlocksPopupConfirm
@@ -118,7 +123,6 @@ declare global {
     'bl-select-result': BlocksSelectResult
     'bl-slider': BlocksSlider
     'bl-range-slider': BlocksRangeSlider
-    'bl-result': BlocksResult
     'bl-splitter': BlocksSplitter
     'bl-splitter-pane': BlocksSplitterPane
     'bl-steps': BlocksSteps

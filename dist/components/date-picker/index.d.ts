@@ -1,49 +1,46 @@
-import '../popup/index.js';
-import '../button/index.js';
-import { BlocksPopup } from '../popup/index.js';
-import { BlocksInput } from '../input/index.js';
+import type { BlocksButton } from '../button/index.js';
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
+import type { EnumAttr } from '../../decorators/attr.js';
 import { BlocksDate } from '../date/index.js';
-import { Component, ComponentEventListener, ComponentEventMap } from '../Component.js';
+import { BlocksSelectResult } from '../select-result/index.js';
+import { BlocksPopup } from '../popup/index.js';
+import { Control } from '../base-control/index.js';
 interface DatePickerEventMap extends ComponentEventMap {
-    opened: CustomEvent;
-    closed: CustomEvent;
     change: CustomEvent<{
         value: any;
     }>;
+    closed: CustomEvent;
+    opened: CustomEvent;
 }
-export interface BlocksDatePicker extends Component {
-    _ref: {
-        $popup: BlocksPopup;
-        $date: BlocksDate;
-        $input: BlocksInput;
-    };
+export interface BlocksDatePicker extends Control {
+    $popup: BlocksPopup;
+    $date: BlocksDate;
+    $confirmButton: BlocksButton;
     addEventListener<K extends keyof DatePickerEventMap>(type: K, listener: ComponentEventListener<DatePickerEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof DatePickerEventMap>(type: K, listener: ComponentEventListener<DatePickerEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksDatePicker extends Component {
+export declare class BlocksDatePicker extends Control {
     #private;
+    static get observedAttributes(): string[];
+    static get disableEventTypes(): readonly string[];
+    accessor format: string;
+    accessor open: boolean;
+    accessor mode: EnumAttr<['single', 'multiple']>;
+    accessor $result: BlocksSelectResult;
     constructor();
-    _confirm(): void;
-    render(): void;
-    get value(): Date | Date[] | null;
-    set value(value: Date | Date[] | null);
-    get disabledDate(): ((data: import("../date/helpers").DateModel, context: {
-        depth: import("../date/helpers").Depth;
-        viewDepth: import("../date/helpers").Depth;
+    get value(): Date | null;
+    set value(value: Date | null);
+    get values(): Date[];
+    set values(values: Date[]);
+    get disabledDate(): ((data: import("../date/type").ItemModel, context: {
+        depth: import("../date/type").Depth;
+        viewDepth: import("../date/type").Depth;
         component: BlocksDate;
     }) => boolean) | undefined;
-    set disabledDate(value: ((data: import("../date/helpers").DateModel, context: {
-        depth: import("../date/helpers").Depth;
-        viewDepth: import("../date/helpers").Depth;
+    set disabledDate(value: ((data: import("../date/type").ItemModel, context: {
+        depth: import("../date/type").Depth;
+        viewDepth: import("../date/type").Depth;
         component: BlocksDate;
     }) => boolean) | undefined);
-    getDateProp(prop: string): any;
-    setDateProp(prop: string, value: any): void;
-    getInputProp(prop: string): any;
-    setInputProp(prop: string, value: any): void;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    static get observedAttributes(): string[];
 }
 export {};

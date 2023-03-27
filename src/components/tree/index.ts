@@ -1,12 +1,13 @@
-import { BlocksVList, VirtualItem, VListEventMap } from '../vlist/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import type { ComponentEventListener } from '../component/Component.js'
+import type { ISelectableListComponent, ISelectListEventMap } from '../../common/connectSelectable.js'
+import type { VListEventMap } from '../vlist/index.js'
+import { BlocksVList, VirtualItem } from '../vlist/index.js'
 import { attr } from '../../decorators/attr.js'
 import { boolSetter } from '../../common/property.js'
-import { isEmpty, merge, uniqBy, flatten } from '../../common/utils.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
+import { isEmpty, merge, uniqBy, flatten } from '../../common/utils.js'
 import { parseHighlight } from '../../common/highlight.js'
-import { ComponentEventListener } from '../Component.js'
-import { ISelectableListComponent, ISelectListEventMap } from '../../common/connectSelectable.js'
 import { style } from './style.js'
 
 export type NodeData = {
@@ -74,7 +75,7 @@ export interface BLocksTree extends BlocksVList, ISelectableListComponent {
 })
 export class BlocksTree extends BlocksVList {
   static override get observedAttributes() {
-    return super.observedAttributes.concat(['border', 'stripe'])
+    return [...super.observedAttributes, ...['border', 'stripe']]
   }
 
   @attr('string') accessor activeKey!: string | null
@@ -109,7 +110,6 @@ export class BlocksTree extends BlocksVList {
   @attr('string') accessor search!: string | null
 
   labelMethod?: (data: any) => string
-  uniqCid: string
   _checkedSet: Set<VirtualNode>
 
   #batchUpdateFold?: boolean
@@ -118,10 +118,9 @@ export class BlocksTree extends BlocksVList {
   constructor() {
     super()
 
-    this.uniqCid = String(Math.random()).substr(2)
     this._checkedSet = new Set()
 
-    this._ref.$list.onclick = this.#onClick.bind(this)
+    this.$list.onclick = this.#onClick.bind(this)
 
     const onBound = () => {
       this.removeEventListener('data-bound', onBound)
@@ -134,6 +133,16 @@ export class BlocksTree extends BlocksVList {
       }
     }
     this.addEventListener('data-bound', onBound)
+
+    this.onAttributeChangedDep('search', () => {
+      this.generateViewData()
+    })
+
+    this.onAttributeChangedDep('wrap', () => {
+      this._resetCalculated()
+      this.redraw()
+      this.restoreAnchor()
+    })
   }
 
   get checkedData(): NodeData[] {
@@ -189,22 +198,18 @@ export class BlocksTree extends BlocksVList {
   }
 
   clearSelected() {
-    this.#batchToggleCheck(this.checked, false)
-  }
-
-  override connectedCallback() {
-    super.connectedCallback()
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'search') {
-      this.generateViewData()
-    } else if (attrName === 'wrap') {
-      this._resetCalculated()
-      this.redraw()
-      this.restoreAnchor()
+    if (!this.multiple) {
+      if (this.#lastChecked) {
+        this.#updateCheck(this.#lastChecked, false)
+        dispatchEvent(this, 'select-list:change', {
+          detail: {
+            value: [],
+          },
+        })
+      }
+      return
     }
+    this.#batchToggleCheck(this.checked, false)
   }
 
   // 从数据中提取 label 的方法
@@ -303,7 +308,7 @@ export class BlocksTree extends BlocksVList {
         $label = $check.querySelector('label')!
       }
 
-      $input.id = `node-check-${vitem.virtualKey}-${this.uniqCid}`
+      $input.id = `node-check-${vitem.virtualKey}-${this.cid}`
       $label.setAttribute('for', $input.id)
 
       boolSetter('checked')($input, vitem.checked)
@@ -500,7 +505,16 @@ export class BlocksTree extends BlocksVList {
         },
       },
     })
-    dispatchEvent(this, 'select-list:change')
+    dispatchEvent(this, 'select-list:change', {
+      detail: {
+        value: [
+          {
+            value: vitem.virtualKey,
+            label: this.internalLabelMethod(vitem.data),
+          },
+        ],
+      },
+    })
   }
 
   // 多选模式
@@ -865,10 +879,6 @@ export class BlocksTree extends BlocksVList {
 
     data.forEach(convert)
     return virtualData
-  }
-
-  override render() {
-    super.render()
   }
 
   // 获取结点的层级

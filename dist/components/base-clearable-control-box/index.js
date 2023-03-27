@@ -32,13 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { ControlBox } from '../base-control-box/index.js';
-import { dispatchEvent } from '../../common/event.js';
-import { unmount } from '../../common/mount.js';
-import { style } from './style.js';
 import { clearTemplate } from './template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef.js';
+import { style } from './style.js';
+import { unmount } from '../../common/mount.js';
+import { ControlBox } from '../base-control-box/index.js';
+import { SetupEmpty } from '../setup-empty/index.js';
 export let ClearableControlBox = (() => {
     let _classDecorators = [defineClass({
             styles: [style],
@@ -49,10 +51,14 @@ export let ClearableControlBox = (() => {
     let _instanceExtraInitializers = [];
     let _clearable_decorators;
     let _clearable_initializers = [];
+    let _$clear_decorators;
+    let _$clear_initializers = [];
     var ClearableControlBox = class extends ControlBox {
         static {
             _clearable_decorators = [attr('boolean')];
+            _$clear_decorators = [shadowRef('[part="clear"]', false)];
             __esDecorate(this, null, _clearable_decorators, { kind: "accessor", name: "clearable", static: false, private: false, access: { has: obj => "clearable" in obj, get: obj => obj.clearable, set: (obj, value) => { obj.clearable = value; } } }, _clearable_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$clear_decorators, { kind: "accessor", name: "$clear", static: false, private: false, access: { has: obj => "$clear" in obj, get: obj => obj.$clear, set: (obj, value) => { obj.$clear = value; } } }, _$clear_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
             ClearableControlBox = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
@@ -60,63 +66,80 @@ export let ClearableControlBox = (() => {
         #clearable_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _clearable_initializers, void 0));
         get clearable() { return this.#clearable_accessor_storage; }
         set clearable(value) { this.#clearable_accessor_storage = value; }
+        #$clear_accessor_storage = __runInitializers(this, _$clear_initializers, void 0);
+        get $clear() { return this.#$clear_accessor_storage; }
+        set $clear(value) { this.#$clear_accessor_storage = value; }
         constructor() {
             super();
-            this._ref.$layout.addEventListener('click', e => {
+            this.#setupClearableFeature();
+        }
+        _emptyFeature = SetupEmpty.setup({
+            component: this,
+            predicate() {
+                return true;
+            },
+            target() {
+                return this.$layout;
+            },
+            init() {
+                const render = () => {
+                    Promise.resolve().then(() => this._emptyFeature.update());
+                };
+                this.onConnected(() => {
+                    this.addEventListener('click-clear', render);
+                });
+                this.onDisconnected(() => {
+                    this.removeEventListener('click-clear', render);
+                });
+            },
+        });
+        #setupClearableFeature() {
+            const onClickClear = (e) => {
                 const target = e.target;
-                if (this._ref.$clear && this._ref.$clear.contains(target)) {
-                    dispatchEvent(this, 'click-clear');
-                    this._renderEmpty();
+                if (this.$clear && this.$clear.contains(target)) {
+                    dispatchEvent(this, e.type === 'mousedown' ? 'mousedown-clear' : 'click-clear');
                     return;
                 }
+            };
+            this.onRender(this._renderClearable);
+            this.onConnected(() => {
+                this._renderClearable();
+                this.$layout.addEventListener('mousedown', onClickClear);
+                this.$layout.addEventListener('click', onClickClear);
             });
+            this.onDisconnected(() => {
+                this.$layout.removeEventListener('click', onClickClear);
+            });
+            this.onAttributeChangedDep('clearable', this._renderClearable);
         }
-        _isEmpty() {
-            return true;
-        }
-        _appendContent($el) {
-            const $target = this._ref.$suffix ?? this._ref.$clear;
-            if ($target) {
-                this._ref.$layout.insertBefore($el, $target);
+        _renderClearable() {
+            this.$layout.classList.toggle('with-clear', this.clearable);
+            if (this.clearable) {
+                if (!this.$clear) {
+                    const $clearButton = clearTemplate();
+                    this.$layout.append($clearButton);
+                }
             }
             else {
-                this._ref.$layout.appendChild($el);
+                if (this.$clear) {
+                    unmount(this.$clear);
+                }
+            }
+        }
+        appendContent($el) {
+            const $last = this.$suffix ?? this.$clear;
+            if ($last) {
+                this.$layout.insertBefore($el, $last);
+            }
+            else {
+                this.$layout.appendChild($el);
             }
             return $el;
         }
         _renderSuffixIcon() {
             super._renderSuffixIcon();
-            if (this._ref.$clear) {
-                this._ref.$layout.appendChild(this._ref.$clear);
-            }
-        }
-        _renderEmpty() {
-            this._ref.$layout.classList.toggle('empty', this._isEmpty());
-        }
-        _renderClearable() {
-            this._ref.$layout.classList.toggle('with-clear', this.clearable);
-            if (this.clearable) {
-                if (!this._ref.$clear) {
-                    const $clearButton = (this._ref.$clear = clearTemplate());
-                    this._ref.$layout.append($clearButton);
-                }
-            }
-            else {
-                if (this._ref.$clear) {
-                    unmount(this._ref.$clear);
-                    this._ref.$clear = undefined;
-                }
-            }
-        }
-        render() {
-            super.render();
-            this._renderEmpty();
-            this._renderClearable();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (attrName === 'clearable') {
-                this._renderClearable();
+            if (this.$clear) {
+                this.$layout.appendChild(this.$clear);
             }
         }
     };

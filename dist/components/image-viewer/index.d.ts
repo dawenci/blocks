@@ -1,35 +1,37 @@
-import '../loading/index.js';
+import type { ComponentEventListener } from '../component/Component.js';
+import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js';
 import '../icon/index.js';
-import { Component, ComponentEventListener } from '../Component.js';
-import { WithOpenTransition, WithOpenTransitionEventMap } from '../with-open-transition/index.js';
+import '../loading/index.js';
+import { Control } from '../base-control/index.js';
+import { WithOpenTransition } from '../with-open-transition/index.js';
 type ImageTransformStates = Map<HTMLImageElement, {
     scale: number;
     rotate: number;
 }>;
 export type BlocksImageViewerEventMap = WithOpenTransitionEventMap;
-export interface BlocksImageViewer extends Component, WithOpenTransition {
-    _ref: {
-        $slot: HTMLSlotElement;
-        $mask: HTMLElement;
-        $layout: HTMLElement;
-        $toolbar: HTMLElement;
-        $thumbnails: HTMLElement;
-        $content: HTMLElement;
-        $active: HTMLImageElement;
-        $prev: HTMLButtonElement;
-        $next: HTMLButtonElement;
-        $closeButton: HTMLButtonElement;
-        $rotateLeftButton: HTMLButtonElement;
-        $rotateRightButton: HTMLButtonElement;
-        $zoomInButton: HTMLButtonElement;
-        $zoomOutButton: HTMLButtonElement;
-    };
+export interface BlocksImageViewer extends Control, WithOpenTransition {
     imgMap: ImageTransformStates;
     addEventListener<K extends keyof BlocksImageViewerEventMap>(type: K, listener: ComponentEventListener<BlocksImageViewerEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
     removeEventListener<K extends keyof BlocksImageViewerEventMap>(type: K, listener: ComponentEventListener<BlocksImageViewerEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksImageViewer extends Component {
-    static get observedAttributes(): string[];
+export declare class BlocksImageViewer extends Control {
+    #private;
+    accessor closeOnClickMask: boolean;
+    accessor closeOnPressEscape: boolean;
+    accessor $layout: HTMLElement;
+    accessor $slot: HTMLSlotElement;
+    accessor $mask: HTMLElement;
+    accessor $toolbar: HTMLElement;
+    accessor $thumbnails: HTMLElement;
+    accessor $content: HTMLElement;
+    accessor $active: HTMLImageElement;
+    accessor $prev: HTMLButtonElement;
+    accessor $next: HTMLButtonElement;
+    accessor $closeButton: HTMLButtonElement;
+    accessor $rotateLeftButton: HTMLButtonElement;
+    accessor $rotateRightButton: HTMLButtonElement;
+    accessor $zoomInButton: HTMLButtonElement;
+    accessor $zoomOutButton: HTMLButtonElement;
     constructor();
     _imgs?: HTMLImageElement[];
     get imgs(): HTMLImageElement[];
@@ -37,8 +39,6 @@ export declare class BlocksImageViewer extends Component {
     _activeImg?: HTMLImageElement;
     get activeImg(): HTMLImageElement;
     set activeImg(value: HTMLImageElement);
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     zoomIn(): void;
     zoomOut(): void;
     rotateRight(): void;

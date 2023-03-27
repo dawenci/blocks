@@ -1,34 +1,31 @@
-import { defineClass } from '../../decorators/defineClass.js'
 import { attr } from '../../decorators/attr.js'
-import { numGetter, numSetter } from '../../common/property.js'
-import { forEach, round } from '../../common/utils.js'
+import { defineClass } from '../../decorators/defineClass.js'
 import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef.js'
+import { numGetter, numSetter } from '../../common/property.js'
 import { onDragMove } from '../../common/onDragMove.js'
-import { Component } from '../Component.js'
-import { template } from './template.js'
-import { style } from './style.js'
+import { round } from '../../common/utils.js'
 import { setStyles } from '../../common/style.js'
+import { style } from './style.js'
+import { template } from './template.js'
+import { Control } from '../base-control/index.js'
 
 @defineClass({
   customElement: 'bl-slider',
   styles: [style],
 })
-export class BlocksSlider extends Component {
+export class BlocksSlider extends Control {
   static get role() {
     return 'slider'
   }
 
   static override get observedAttributes() {
-    return ['disabled', 'max', 'min', 'size', 'step', 'round', 'value', 'vertical']
+    return ['disabled', 'max', 'min', 'size', 'step', 'round', 'value', 'vertical'] as const
   }
 
-  ref: {
-    $layout: HTMLElement
-    $track: HTMLElement
-    $trackBg: HTMLElement
-    $point: HTMLButtonElement
+  static override get disableEventTypes() {
+    return ['click', 'keydown', 'touchstart']
   }
-  #dragging = false
 
   @attr('intRange', { min: 1, max: 10 }) accessor shadowSize = 2
 
@@ -38,28 +35,44 @@ export class BlocksSlider extends Component {
 
   @attr('number') accessor max = 100
 
-  @attr('boolean') accessor disabled!: boolean
+  // TODO: 拖拽的时候，按照 step 增长
+  @attr('number') accessor step = 1
 
   @attr('boolean') accessor vertical!: boolean
 
   @attr('int') accessor round = 2
 
+  @shadowRef('[part="layout"]') accessor $layout!: HTMLElement
+  @shadowRef('#track') accessor $track!: HTMLElement
+  @shadowRef('#track__bg') accessor $trackBg!: HTMLElement
+  @shadowRef('#point') accessor $point!: HTMLButtonElement
+
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
-    const $layout = shadowRoot.getElementById('layout')!
-    const $track = shadowRoot.getElementById('track')!
-    const $trackBg = shadowRoot.getElementById('track__bg')!
-    const $point = shadowRoot.getElementById('point') as HTMLButtonElement
+    this.appendShadowChild(template())
+    this._tabIndexFeature.withTabIndex(0).withTarget(() => {
+      return [this.$point]
+    })
 
-    this.ref = {
-      $layout,
-      $track,
-      $point,
-      $trackBg,
-    }
+    this.#setupDragEvents()
+
+    this.onConnected(this.render)
+    this.onAttributeChangedDep('size', this.render)
+    this.onAttributeChangedDep('value', () => {
+      this.#renderPoint()
+      dispatchEvent(this, 'change', { detail: { value: this.value } })
+    })
+
+    this.$point.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        this.value += this.step
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        this.value -= this.step
+      }
+    })
   }
 
   get value() {
@@ -73,7 +86,9 @@ export class BlocksSlider extends Component {
   }
 
   override render() {
-    const { $layout, $point, $trackBg } = this.ref
+    super.render()
+
+    const { $layout, $point, $trackBg } = this
     const layoutSize = this.size + this.shadowSize * 2
     const layoutPadding = this.shadowSize
     const trackSize = this.size / 4 >= 2 ? this.size / 4 : 2
@@ -108,111 +123,72 @@ export class BlocksSlider extends Component {
     }
 
     this.#renderPoint()
-    this._renderDisabled()
-  }
-
-  _renderDisabled() {
-    if (this.disabled) {
-      this.setAttribute('aria-disabled', 'true')
-    } else {
-      this.setAttribute('aria-disabled', 'false')
-    }
   }
 
   #renderPoint() {
     const pos = fromRatio(getRatio(this.value, this.min, this.max), this.#posMin(), this.#posMax())
-    this.ref.$point.style[this.vertical ? 'top' : 'left'] = `${pos}px`
+    this.$point.style[this.vertical ? 'top' : 'left'] = `${pos}px`
   }
 
-  #clearDragEvents?: () => void
-  override connectedCallback() {
-    super.connectedCallback()
-    this._renderDisabled()
-    this.#updateTabindex()
-
-    this.render()
-    this.#clearDragEvents = this.#initDragEvents()
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback()
-    if (this.#clearDragEvents) this.#clearDragEvents()
-    this.ref.$layout.onmousedown = null
-  }
-
-  override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
-    super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (attrName === 'disabled') {
-      this._renderDisabled()
-      this.#updateTabindex()
-    }
-
-    if (attrName === 'size') {
-      this.render()
-    }
-
-    if (attrName === 'value') {
-      if (!this.#dragging) {
-        this.#renderPoint()
-      } else {
-        this.#renderPoint()
-      }
-      dispatchEvent(this, 'change', { detail: { value: this.value } })
-    }
-
-    // this.render()
-  }
-
-  #initDragEvents() {
+  #dragging = false
+  #setupDragEvents() {
     this.#dragging = false
     let positionStart: number | undefined
 
-    return onDragMove(this.ref.$track, {
-      onStart: ({ start, $target, stop }) => {
-        if (this.disabled) {
-          stop()
-          return
-        }
+    let clear: () => void
 
-        // 点击轨道，则一次性移动滑块
-        if ($target === this.ref.$track) {
-          const rect = this.ref.$track.getBoundingClientRect()
-          if (this.vertical) {
-            positionStart = this.#trackSize() - (start.clientY - rect.y) - 7
-          } else {
-            positionStart = start.clientX - rect.x - 7
+    this.onConnected(() => {
+      clear = onDragMove(this.$track, {
+        onStart: ({ start, $target, stop }) => {
+          if (this.disabled) {
+            stop()
+            return
           }
 
-          this.value = fromRatio(getRatio(positionStart, this.#posMin(), this.#posMax()), this.min, this.max)
+          // 点击轨道，则一次性移动滑块
+          if ($target === this.$track) {
+            const rect = this.$track.getBoundingClientRect()
+            if (this.vertical) {
+              positionStart = this.#trackSize() - (start.clientY - rect.y) - 7
+            } else {
+              positionStart = start.clientX - rect.x - 7
+            }
 
+            this.value = fromRatio(getRatio(positionStart, this.#posMin(), this.#posMax()), this.min, this.max)
+
+            positionStart = undefined
+            this.#dragging = false
+            return stop()
+          }
+
+          // 点击的是滑块，记录移动初始信息
+          if ($target === this.$point) {
+            this.#dragging = true
+            positionStart = getPosition(this.$point, this.vertical)
+            return
+          }
+        },
+
+        onMove: ({ offset, preventDefault }) => {
+          preventDefault()
+          const moveOffset = this.vertical ? -offset.y : offset.x
+
+          const position = positionStart! + moveOffset
+          this.value = fromRatio(getRatio(position, this.#posMin(), this.#posMax()), this.min, this.max)
+        },
+
+        onEnd: ({ offset }) => {
+          const moveOffset = this.vertical ? -offset.y : offset.x
+          const position = positionStart! + moveOffset
+          this.value = fromRatio(getRatio(position, this.#posMin(), this.#posMax()), this.min, this.max)
           positionStart = undefined
           this.#dragging = false
-          return stop()
-        }
+        },
+      })
+    })
 
-        // 点击的是滑块，记录移动初始信息
-        if ($target === this.ref.$point) {
-          this.#dragging = true
-          positionStart = getPosition(this.ref.$point, this.vertical)
-          return
-        }
-      },
-
-      onMove: ({ offset, preventDefault }) => {
-        preventDefault()
-        const moveOffset = this.vertical ? -offset.y : offset.x
-
-        const position = positionStart! + moveOffset
-        this.value = fromRatio(getRatio(position, this.#posMin(), this.#posMax()), this.min, this.max)
-      },
-
-      onEnd: ({ offset }) => {
-        const moveOffset = this.vertical ? -offset.y : offset.x
-        const position = positionStart! + moveOffset
-        this.value = fromRatio(getRatio(position, this.#posMin(), this.#posMax()), this.min, this.max)
-        positionStart = undefined
-        this.#dragging = false
-      },
+    this.onDisconnected(() => {
+      clear()
     })
   }
 
@@ -221,7 +197,7 @@ export class BlocksSlider extends Component {
   }
 
   #trackSize() {
-    return parseFloat(getComputedStyle(this.ref.$track).getPropertyValue(this.vertical ? 'height' : 'width'))
+    return parseFloat(getComputedStyle(this.$track).getPropertyValue(this.vertical ? 'height' : 'width'))
   }
 
   #posMin() {
@@ -230,19 +206,6 @@ export class BlocksSlider extends Component {
 
   #posMax() {
     return this.#trackSize() - this.size
-  }
-
-  #updateTabindex() {
-    const $buttons = this.shadowRoot!.querySelectorAll('.point')
-    if (this.disabled) {
-      forEach($buttons, button => {
-        button.removeAttribute('tabindex')
-      })
-    } else {
-      forEach($buttons, button => {
-        button.setAttribute('tabindex', '0')
-      })
-    }
   }
 }
 

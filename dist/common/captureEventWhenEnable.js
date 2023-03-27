@@ -1,10 +1,14 @@
 export function captureEventWhenEnable(element, eventType, callback) {
-    element.addEventListener(eventType, (e) => {
+    const handler = (e) => {
         if (element.disabled) {
             e.preventDefault();
             e.stopImmediatePropagation();
             return;
         }
         callback(e);
-    }, true);
+    };
+    element.addEventListener(eventType, handler, true);
+    return () => {
+        element.removeEventListener(eventType, handler, true);
+    };
 }

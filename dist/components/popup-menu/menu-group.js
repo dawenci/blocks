@@ -32,12 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
 import { attr } from '../../decorators/attr.js';
-import { forEach } from '../../common/utils.js';
-import { Component } from '../Component.js';
 import { contentTemplate, itemTemplate } from './menu-group.template.js';
+import { defineClass } from '../../decorators/defineClass.js';
+import { forEach } from '../../common/utils.js';
 import { style } from './menu-group.style.js';
+import { Component } from '../component/Component.js';
 export let BlocksPopupMenuGroup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup-menu-group',
@@ -69,6 +69,8 @@ export let BlocksPopupMenuGroup = (() => {
             shadowRoot.appendChild(contentTemplate());
             this.$head = shadowRoot.getElementById('head');
             this.$body = shadowRoot.getElementById('body');
+            this.onConnected(this.render);
+            this.onAttributeChanged(this.render);
         }
         #hostMenu;
         get $hostMenu() {
@@ -84,15 +86,8 @@ export let BlocksPopupMenuGroup = (() => {
             this._data = value;
             this.render();
         }
-        connectedCallback() {
-            super.connectedCallback();
-            this.render();
-        }
-        attributeChangedCallback(attrName, oldValue, newValue) {
-            super.attributeChangedCallback(attrName, oldValue, newValue);
-            this.render();
-        }
         render() {
+            super.render();
             const data = this.data;
             if (data.title) {
                 this.$head.textContent = data.title;

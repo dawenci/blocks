@@ -1,17 +1,21 @@
-import { ISelected, ISelectResultComponent } from '../../common/connectSelectable.js';
-import { Component } from '../Component.js';
+import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
+import type { EnumAttr } from '../../decorators/attr.js';
+import { ISelected, ISelectListEventMap, ISelectResultComponent } from '../../common/connectSelectable.js';
 import { BlocksList } from '../list/index.js';
 import { BlocksPopup, PopupOrigin } from '../popup/index.js';
-import type { EnumAttr } from '../../decorators/attr.js';
-export interface BlocksDropdownList extends Component {
-    _ref: {
-        $slot: HTMLSlotElement;
-        $popup: BlocksPopup;
-        $list: BlocksList;
-    };
-    _hideTimer: number;
+import { Control } from '../base-control/index.js';
+interface BlocksDropdownListEventMap extends ComponentEventMap, ISelectListEventMap {
+    'click-item': CustomEvent<{
+        id: any;
+    }>;
 }
-export declare class BlocksDropdownList extends Component {
+export interface BlocksDropdownList extends Control, ISelectResultComponent {
+    $popup: BlocksPopup;
+    $list: BlocksList;
+    addEventListener<K extends keyof BlocksDropdownListEventMap>(type: K, listener: ComponentEventListener<BlocksDropdownListEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlocksDropdownListEventMap>(type: K, listener: ComponentEventListener<BlocksDropdownListEventMap[K]>, options?: boolean | EventListenerOptions): void;
+}
+export declare class BlocksDropdownList extends Control implements ISelectResultComponent {
     #private;
     static get observedAttributes(): string[];
     accessor triggerMode: EnumAttr<['hover', 'click']>;
@@ -22,11 +26,10 @@ export declare class BlocksDropdownList extends Component {
     accessor labelField: string | null;
     accessor checkable: boolean;
     accessor multiple: boolean;
+    accessor $slot: HTMLSlotElement;
     constructor();
     _findResultComponent(): ISelectResultComponent | undefined;
     acceptSelected(value: ISelected[]): void;
-    select(data: ISelected): void;
-    deselect(data: ISelected): void;
     get data(): object[];
     set data(value: object[]);
     get checked(): string[];
@@ -38,7 +41,5 @@ export declare class BlocksDropdownList extends Component {
     openPopup(): void;
     closePopup(): void;
     redrawList(): void;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
 }
+export {};

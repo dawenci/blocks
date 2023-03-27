@@ -1,5 +1,5 @@
-import { Component } from '../Component.js';
 import type { NullableEnumAttr } from '../../decorators/attr.js';
+import { Component } from '../component/Component.js';
 export interface BlocksMessage extends Component {
     _ref: {
         $layout: HTMLElement;
@@ -9,34 +9,15 @@ export interface BlocksMessage extends Component {
     };
 }
 export declare class BlocksMessage extends Component {
-    static get observedAttributes(): string[];
+    #private;
     accessor closeable: boolean;
     accessor duration: number;
-    accessor type: NullableEnumAttr<[
-        'message',
-        'success',
-        'error',
-        'info',
-        'warning'
-    ]>;
+    accessor type: NullableEnumAttr<['message', 'success', 'error', 'info', 'warning']>;
     constructor();
     close(): void;
     render(): void;
     destroy(): void;
-    connectedCallback(): void;
-    attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
-    _autoCloseTimer?: number;
+    _autoCloseTimer?: ReturnType<typeof setTimeout>;
     _clearAutoClose(): void;
     _setAutoClose(): void;
 }
-export interface MessageOptions {
-    type?: any;
-    closeable?: boolean;
-    duration?: number;
-    content?: string;
-}
-export declare function blMessage(options?: MessageOptions): {
-    el: BlocksMessage;
-    close(): any;
-    onclose(callback: () => void): any;
-};

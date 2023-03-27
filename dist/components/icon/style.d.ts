@@ -1,0 +1,1 @@
+export declare const style = "\n:host {\n  display: inline-block;\n  box-sizing: border-box;\n  overflow: hidden;\n  user-select: none;\n  cursor: default;\n  width: 32px;\n  height: 32px;\n}\n:host(:focus) {\n  outline: 0 none;\n}\n#layout {\n  width: 100%;\n  height: 100%;\n}\n#layout svg {\n  display: block;\n  width: 100%;\n  height: 100%;\n}\n";

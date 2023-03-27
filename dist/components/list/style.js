@@ -29,6 +29,11 @@ export const style = `
   font-size: var(--font-size);
 }
 
+#viewport:focus,
+#viewport:focus-visible {
+  outline: 0 none;
+}
+
 .item {
   position: relative;
   display: flex;
@@ -45,6 +50,7 @@ export const style = `
   --bg-base: var(--bg-stripe);
 }
 
+.item.focus,
 .item:focus {
   z-index: 2;
   color: var(--item-fg-hover);
