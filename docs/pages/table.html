@@ -18,677 +18,719 @@
       <h1>table</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/table/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/table/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>简单表格</h2>
-
-      <p>使用 columns 配置列，并传入 data 数据，即可渲染表格。</p>
-
-      <template data-codesource="html">
-        <bl-table id="default" style="height:200px;"></bl-table>
-
-        <script>
-          (() => {
-            const $widget = document.getElementById('default')
-            $widget.columns = [
-              {
-                label: 'column 0',
-                prop: 'c0',
-                align: 'center',
-              },
-              {
-                label: 'column 1',
-                prop: 'c1',
-                align: 'center',
-              },
-              {
-                label: 'column 2',
-                prop: 'c2',
-                align: 'center',
-              },
-              {
-                label: 'column 3',
-                prop: 'c3',
-                align: 'center',
-              },
-              {
-                label: 'column 4',
-                prop: 'c4',
-                align: 'center',
-              },
-
-              {
-                label: 'column 5',
-                prop: 'c5',
-                align: 'center',
-              }
-            ]
-
-            const data = []
-            for (let i = 0; i < 100; i += 1) {
-              data.push({
-                c0: 'c0-' + i,
-                c1: 'c1-' + i,
-                c2: 'c2-' + i,
-                c3: 'c3-' + i,
-                c4: 'c4-' + i,
-                c5: 'c5-' + i,
-              })
-            }
-
-            $widget.data = data
-          })()
-          
-        </script>
-      </template>
-    </section>
-
-
-    <section class="section">
-      <h2>边框</h2>
-
-      <p>使用 border 属性启用边框模式。table 将会渲染外边框，以及单元格之间的垂直分割线。</p>
-
-      <template data-codesource="html">
-        <bl-table border id="border" style="height:200px;"></bl-table>
-
-        <script>
-          (() => {
-            const $widget = document.getElementById('border')
-            $widget.columns = [
-            {
-                label: 'column 0',
-                prop: 'c0',
-                align: 'center',
-              },
-              {
-                label: 'column 1',
-                prop: 'c1',
-                align: 'center',
-              },
-              {
-                label: 'column 2',
-                prop: 'c2',
-                align: 'center',
-              },
-              {
-                label: 'column 3',
-                prop: 'c3',
-                align: 'center',
-              },
-              {
-                label: 'column 4',
-                prop: 'c4',
-                align: 'center',
-              },
-
-              {
-                label: 'column 5',
-                prop: 'c5',
-                align: 'center',
-              }
-            ]
-
-            const data = []
-            for (let i = 0; i < 100; i += 1) {
-              data.push({
-                c0: 'c0-' + i,
-                c1: 'c1-' + i,
-                c2: 'c2-' + i,
-                c3: 'c3-' + i,
-                c4: 'c4-' + i,
-                c5: 'c5-' + i,
-              })
-            }
-
-            $widget.data = data
-          })()
-          
-        </script>
-      </template>
-    </section>
-
-
-    <section class="section">
-      <h2>嵌套表头</h2>
-
-      <p>通过 children 递归设置嵌套表头。</p>
-
-      <template data-codesource="html">
-        <bl-table border id="nestedHeader" style="height:200px;"></bl-table>
-
-        <script>
-          (() => {
-            const $widget = document.getElementById('nestedHeader')
-            $widget.columns = [
-              {
-                label: 'column 0',
-                prop: 'c0',
-                align: 'center',
-                minWidth: 80,
-              },
-              {
-                label: 'column 1',
-                prop: 'c1',
-                align: 'center',
-                children: [
-                  {
-                    label: 'column 1-0',
-                    prop: 'c10',
-                    align: 'center',
-                    minWidth: 80,
-                  },
-                  {
-                    label: 'column 1-1',
-                    prop: 'c11',
-                    align: 'center',
-                    minWidth: 80,
-                  }
-                ],
-              },
-              {
-                label: 'column 2',
-                prop: 'c2',
-                align: 'center',
-                minWidth: 80,
-              },
-              {
-                label: 'column 3',
-                prop: 'c3',
-                align: 'center',
-                minWidth: 80,
-              },
-              {
-                label: 'column 4',
-                prop: 'c4',
-                align: 'center',
-                minWidth: 80,
-              },
-
-              {
-                label: 'column 5',
-                prop: 'c5',
-                align: 'center',
-                minWidth: 80,
-              }
-            ]
-
-            const data = []
-            for (let i = 0; i < 100; i += 1) {
-              data.push({
-                c0: 'c0-' + i,
-                c1: 'c1-' + i,
-                c10: 'c1-0-' + i,
-                c11: 'c1-1-' + i,
-                c2: 'c2-' + i,
-                c3: 'c3-' + i,
-                c4: 'c4-' + i,
-                c5: 'c5-' + i,
-              })
-            }
-
-            $widget.data = data
-          })()
-          
-        </script>
-      </template>
-    </section>
-
-
-    <section class="section">
-      <h2>固定列</h2>
-
-      <p>任意列启用了 fixedLeft 或 fixedRight 后，即会渲染为固定列。在嵌套的子列中设置固定列时，会上溯到根列，全部编程固定列。</p>
-
-      <template data-codesource="html">
-        <bl-table border id="fixedColumns" style="width:480px;height:200px;"></bl-table>
-
-        <script>
-          (() => {
-            const $widget = document.getElementById('fixedColumns')
-            $widget.columns = [
-              {
-                label: 'column 0',
-                prop: 'c0',
-                align: 'center',
-                minWidth: 80,
-                fixedLeft: true,
-              },
-              {
-                label: 'column 1',
-                prop: 'c1',
-                align: 'center',
-                children: [
-                  {
-                    label: 'column 1-0',
-                    prop: 'c10',
-                    align: 'center',
-                    minWidth: 80,
-                    fixedLeft: true,
-                  },
-                  {
-                    label: 'column 1-1',
-                    prop: 'c11',
-                    align: 'center',
-                    minWidth: 80,
-                  }
-                ],
-              },
-              {
-                label: 'column 2',
-                prop: 'c2',
-                align: 'center',
-                minWidth: 80,
-              },
-              {
-                label: 'column 3',
-                prop: 'c3',
-                align: 'center',
-                minWidth: 80,
-              },
-              {
-                label: 'column 4',
-                prop: 'c4',
-                align: 'center',
-                minWidth: 80,
-                fixedRight: true,
-              },
-
-              {
-                label: 'column 5',
-                prop: 'c5',
-                align: 'center',
-                minWidth: 80,
-                fixedRight: true,
-              }
-            ]
-
-            const data = []
-            for (let i = 0; i < 100; i += 1) {
-              data.push({
-                c0: 'c0-' + i,
-                c1: 'c1-' + i,
-                c10: 'c1-0-' + i,
-                c11: 'c1-1-' + i,
-                c2: 'c2-' + i,
-                c3: 'c3-' + i,
-                c4: 'c4-' + i,
-                c5: 'c5-' + i,
-              })
-            }
-
-            $widget.data = data
-          })()
-          
-        </script>
-      </template>
-    </section>
-
-
-    <section class="section">
-      <h2>合计行</h2>
-
-      <p>任一列的配置中，出现 summaryRender 函数，即自动启用合计行渲染。</p>
-
-      <template data-codesource="html">
-        <bl-table border id="summary" style="width:480px;height:200px;"></bl-table>
-
-        <script>
-          (() => {
-            const $widget = document.getElementById('summary')
-            const summaryRender = (column, index, data, $cell) => {
-              return data.reduce((acc, item) => acc + item[column.prop], 0)
-            }
-            $widget.columns = [
-              {
-                label: '序号',
-                prop: 'c0',
-                align: 'center',
-                minWidth: 80,
-                fixedLeft: true,
-                summaryRender() {
-                  return '合计'
+      <bl-card>
+        <h2 slot="header" class="section-title">简单表格</h2>
+        <p slot="header">使用 columns 配置列，并传入 data 数据，即可渲染表格。</p>
+  
+        <template data-codesource="html">
+          <bl-table id="default" style="height:200px;"></bl-table>
+  
+          <script>
+            (() => {
+              const $widget = document.getElementById('default')
+              $widget.columns = [
+                {
+                  label: 'column 0',
+                  prop: 'c0',
+                  align: 'center',
                 },
-              },
-              {
-                label: 'column 1',
-                prop: 'c1',
-                align: 'center',
-                children: [
-                  {
-                    label: 'column 1-0',
-                    prop: 'c10',
-                    align: 'center',
-                    minWidth: 80,
-                    summaryRender,
-                  },
-                  {
-                    label: 'column 1-1',
-                    prop: 'c11',
-                    align: 'center',
-                    minWidth: 80,
-                    summaryRender,
-                  }
-                ],
-              },
-              {
-                label: 'column 2',
-                prop: 'c2',
-                align: 'center',
-                minWidth: 80,
-                summaryRender,
-              },
-              {
-                label: 'column 3',
-                prop: 'c3',
-                align: 'center',
-                minWidth: 80,
-                summaryRender,
-              },
-              {
-                label: 'column 4',
-                prop: 'c4',
-                align: 'center',
-                minWidth: 80,
-                summaryRender,
-              },
-
-              {
-                label: 'column 5',
-                prop: 'c5',
-                align: 'center',
-                minWidth: 80,
-                summaryRender,
-              }
-            ]
-
-            const data = []
-            for (let i = 0; i < 20; i += 1) {
-              data.push({
-                c0: i + 1,
-                c1: 20,
-                c10: 30,
-                c11: 40,
-                c2: 50,
-                c3: 60,
-                c4: 70,
-                c5: 80,
-              })
-            }
-
-            $widget.data = data
-          })()
-          
-        </script>
-      </template>
-    </section>
-
-
-    <section class="section">
-      <h2>可调整列宽</h2>
-
-      <p>列配置中，启用 resizable，即表示允许拖拽调整列宽。</p>
-
-      <template data-codesource="html">
-        <bl-table border id="resize" style="width:480px;height:200px;"></bl-table>
-
-        <script>
-          (() => {
-            const $widget = document.getElementById('resize')
-            const summaryRender = (column, index, data, $cell) => {
-              return data.reduce((acc, item) => acc + item[column.prop], 0)
-            }
-            $widget.columns = [
-              {
-                label: '序号',
-                prop: 'c0',
-                align: 'center',
-                minWidth: 80,
-                maxWidth: 140,
-                fixedLeft: true,
-                resizable: true,
-                summaryRender() {
-                  return '合计'
+                {
+                  label: 'column 1',
+                  prop: 'c1',
+                  align: 'center',
                 },
-              },
-              {
-                label: 'column 1',
-                prop: 'c1',
-                align: 'center',
-                children: [
-                  {
-                    label: 'column 1-0',
-                    prop: 'c10',
-                    align: 'center',
-                    minWidth: 80,
-                    summaryRender,
-                    resizable: true,
-                  },
-                  {
-                    label: 'column 1-1',
-                    prop: 'c11',
-                    align: 'center',
-                    minWidth: 80,
-                    summaryRender,
-                    resizable: true,
-                  }
-                ],
-              },
-              {
-                label: 'column 2',
-                prop: 'c2',
-                align: 'center',
-                minWidth: 80,
-                summaryRender,
-                resizable: true,
-              },
-              {
-                label: 'column 3',
-                prop: 'c3',
-                align: 'center',
-                minWidth: 80,
-                summaryRender,
-                resizable: true,
-              },
-              {
-                label: 'column 4',
-                prop: 'c4',
-                align: 'center',
-                minWidth: 80,
-                summaryRender,
-                resizable: true,
-              },
-
-              {
-                label: 'column 5',
-                prop: 'c5',
-                align: 'center',
-                minWidth: 80,
-                summaryRender,
-                resizable: true,
+                {
+                  label: 'column 2',
+                  prop: 'c2',
+                  align: 'center',
+                },
+                {
+                  label: 'column 3',
+                  prop: 'c3',
+                  align: 'center',
+                },
+                {
+                  label: 'column 4',
+                  prop: 'c4',
+                  align: 'center',
+                },
+  
+                {
+                  label: 'column 5',
+                  prop: 'c5',
+                  align: 'center',
+                }
+              ]
+  
+              const data = []
+              for (let i = 0; i < 100; i += 1) {
+                data.push({
+                  c0: 'c0-' + i,
+                  c1: 'c1-' + i,
+                  c2: 'c2-' + i,
+                  c3: 'c3-' + i,
+                  c4: 'c4-' + i,
+                  c5: 'c5-' + i,
+                })
               }
-            ]
-
-            const data = []
-            for (let i = 0; i < 20; i += 1) {
-              data.push({
-                c0: i + 1,
-                c1: 20,
-                c10: 30,
-                c11: 40,
-                c2: 50,
-                c3: 60,
-                c4: 70,
-                c5: 80,
-              })
-            }
-
-            $widget.data = data
-          })()
-          
-        </script>
-      </template>
+  
+              $widget.data = data
+            })()
+            
+          </script>
+        </template>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>排序</h2>
-
-      <p>列配置中，配置 sortOrder，可以启用列排序功能。</p>
-
-      <template data-codesource="html">
-        <bl-table border id="sort" style="height:200px;"></bl-table>
-
-        <script>
-          (() => {
-            const $widget = document.getElementById('sort')
-            $widget.columns = [
+      <bl-card>
+        <h2 slot="header" class="section-title">边框</h2>
+        <p slot="header">使用 border 属性启用边框模式。table 将会渲染外边框，以及单元格之间的垂直分割线。</p>
+  
+        <template data-codesource="html">
+          <bl-table border id="border" style="height:200px;"></bl-table>
+  
+          <script>
+            (() => {
+              const $widget = document.getElementById('border')
+              $widget.columns = [
               {
-                label: '序号',
-                prop: 'c0',
-                align: 'center',
-                minWidth: 80,
-                maxWidth: 140,
-                sortOrder: 'none',
-                sortMethod: (a, b) => a.c0 - b.c0
-              },
-              {
-                label: 'column 1',
-                prop: 'c1',
-                align: 'center',
-                children: [
-                  {
-                    label: 'column 1-0',
-                    prop: 'c10',
-                    align: 'center',
-                    minWidth: 80,
-                    sortOrder: 'none',
-                  },
-                  {
-                    label: 'column 1-1',
-                    prop: 'c11',
-                    align: 'center',
-                    minWidth: 80,
-                    sortOrder: 'none',
-                  }
-                ],
-              },
-              {
-                label: 'column 2',
-                prop: 'c2',
-                align: 'center',
-                minWidth: 80,
-                sortOrder: 'none',
-              },
-              {
-                label: 'column 3',
-                prop: 'c3',
-                align: 'center',
-                minWidth: 80,
-              },
-              {
-                label: 'column 4',
-                prop: 'c4',
-                align: 'center',
-                minWidth: 80,
-              },
-
-              {
-                label: 'column 5',
-                prop: 'c5',
-                align: 'center',
-                minWidth: 80,
+                  label: 'column 0',
+                  prop: 'c0',
+                  align: 'center',
+                },
+                {
+                  label: 'column 1',
+                  prop: 'c1',
+                  align: 'center',
+                },
+                {
+                  label: 'column 2',
+                  prop: 'c2',
+                  align: 'center',
+                },
+                {
+                  label: 'column 3',
+                  prop: 'c3',
+                  align: 'center',
+                },
+                {
+                  label: 'column 4',
+                  prop: 'c4',
+                  align: 'center',
+                },
+  
+                {
+                  label: 'column 5',
+                  prop: 'c5',
+                  align: 'center',
+                }
+              ]
+  
+              const data = []
+              for (let i = 0; i < 100; i += 1) {
+                data.push({
+                  c0: 'c0-' + i,
+                  c1: 'c1-' + i,
+                  c2: 'c2-' + i,
+                  c3: 'c3-' + i,
+                  c4: 'c4-' + i,
+                  c5: 'c5-' + i,
+                })
               }
-            ]
+  
+              $widget.data = data
+            })()
+            
+          </script>
+        </template>
+      </bl-card>
+    </section>
 
-            const data = []
-            for (let i = 0; i < 20; i += 1) {
-              data.push({
-                c0: i + 1,
-                c1: 20 + i,
-                c10: 30 + i,
-                c11: 40 + i,
-                c2: 50 + i,
-                c3: 60 + i,
-                c4: 70 + i,
-                c5: 80 + i,
-              })
-            }
 
-            $widget.data = data
-          })()
-          
-        </script>
-      </template>
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">嵌套表头</h2>
+        <p slot="header">通过 children 递归设置嵌套表头。</p>
+  
+        <template data-codesource="html">
+          <bl-table border id="nestedHeader" style="height:200px;"></bl-table>
+  
+          <script>
+            (() => {
+              const $widget = document.getElementById('nestedHeader')
+              $widget.columns = [
+                {
+                  label: 'column 0',
+                  prop: 'c0',
+                  align: 'center',
+                  minWidth: 80,
+                },
+                {
+                  label: 'column 1',
+                  prop: 'c1',
+                  align: 'center',
+                  children: [
+                    {
+                      label: 'column 1-0',
+                      prop: 'c10',
+                      align: 'center',
+                      minWidth: 80,
+                    },
+                    {
+                      label: 'column 1-1',
+                      prop: 'c11',
+                      align: 'center',
+                      minWidth: 80,
+                    }
+                  ],
+                },
+                {
+                  label: 'column 2',
+                  prop: 'c2',
+                  align: 'center',
+                  minWidth: 80,
+                },
+                {
+                  label: 'column 3',
+                  prop: 'c3',
+                  align: 'center',
+                  minWidth: 80,
+                },
+                {
+                  label: 'column 4',
+                  prop: 'c4',
+                  align: 'center',
+                  minWidth: 80,
+                },
+  
+                {
+                  label: 'column 5',
+                  prop: 'c5',
+                  align: 'center',
+                  minWidth: 80,
+                }
+              ]
+  
+              const data = []
+              for (let i = 0; i < 100; i += 1) {
+                data.push({
+                  c0: 'c0-' + i,
+                  c1: 'c1-' + i,
+                  c10: 'c1-0-' + i,
+                  c11: 'c1-1-' + i,
+                  c2: 'c2-' + i,
+                  c3: 'c3-' + i,
+                  c4: 'c4-' + i,
+                  c5: 'c5-' + i,
+                })
+              }
+  
+              $widget.data = data
+            })()
+            
+          </script>
+        </template>
+      </bl-card>
+    </section>
+
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">固定列</h2>
+        <p slot="header">任意列启用了 fixedLeft 或 fixedRight 后，即会渲染为固定列。在嵌套的子列中设置固定列时，会上溯到根列，全部编程固定列。</p>
+  
+        <template data-codesource="html">
+          <bl-table border id="fixedColumns" style="width:480px;height:200px;"></bl-table>
+  
+          <script>
+            (() => {
+              const $widget = document.getElementById('fixedColumns')
+              $widget.columns = [
+                {
+                  label: 'column 0',
+                  prop: 'c0',
+                  align: 'center',
+                  minWidth: 80,
+                  fixedLeft: true,
+                },
+                {
+                  label: 'column 1',
+                  prop: 'c1',
+                  align: 'center',
+                  children: [
+                    {
+                      label: 'column 1-0',
+                      prop: 'c10',
+                      align: 'center',
+                      minWidth: 80,
+                      fixedLeft: true,
+                    },
+                    {
+                      label: 'column 1-1',
+                      prop: 'c11',
+                      align: 'center',
+                      minWidth: 80,
+                    }
+                  ],
+                },
+                {
+                  label: 'column 2',
+                  prop: 'c2',
+                  align: 'center',
+                  minWidth: 80,
+                },
+                {
+                  label: 'column 3',
+                  prop: 'c3',
+                  align: 'center',
+                  minWidth: 80,
+                },
+                {
+                  label: 'column 4',
+                  prop: 'c4',
+                  align: 'center',
+                  minWidth: 80,
+                  fixedRight: true,
+                },
+  
+                {
+                  label: 'column 5',
+                  prop: 'c5',
+                  align: 'center',
+                  minWidth: 80,
+                  fixedRight: true,
+                }
+              ]
+  
+              const data = []
+              for (let i = 0; i < 100; i += 1) {
+                data.push({
+                  c0: 'c0-' + i,
+                  c1: 'c1-' + i,
+                  c10: 'c1-0-' + i,
+                  c11: 'c1-1-' + i,
+                  c2: 'c2-' + i,
+                  c3: 'c3-' + i,
+                  c4: 'c4-' + i,
+                  c5: 'c5-' + i,
+                })
+              }
+  
+              $widget.data = data
+            })()
+            
+          </script>
+        </template>
+      </bl-card>
+    </section>
+
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">合计行</h2>
+        <p slot="header">任一列的配置中，出现 summaryRender 函数，即自动启用合计行渲染。</p>
+  
+        <template data-codesource="html">
+          <bl-table border id="summary" style="width:480px;height:200px;"></bl-table>
+  
+          <script>
+            (() => {
+              const $widget = document.getElementById('summary')
+              const summaryRender = (column, index, data, $cell) => {
+                return data.reduce((acc, item) => acc + item[column.prop], 0)
+              }
+              $widget.columns = [
+                {
+                  label: '序号',
+                  prop: 'c0',
+                  align: 'center',
+                  minWidth: 80,
+                  fixedLeft: true,
+                  summaryRender() {
+                    return '合计'
+                  },
+                },
+                {
+                  label: 'column 1',
+                  prop: 'c1',
+                  align: 'center',
+                  children: [
+                    {
+                      label: 'column 1-0',
+                      prop: 'c10',
+                      align: 'center',
+                      minWidth: 80,
+                      summaryRender,
+                    },
+                    {
+                      label: 'column 1-1',
+                      prop: 'c11',
+                      align: 'center',
+                      minWidth: 80,
+                      summaryRender,
+                    }
+                  ],
+                },
+                {
+                  label: 'column 2',
+                  prop: 'c2',
+                  align: 'center',
+                  minWidth: 80,
+                  summaryRender,
+                },
+                {
+                  label: 'column 3',
+                  prop: 'c3',
+                  align: 'center',
+                  minWidth: 80,
+                  summaryRender,
+                },
+                {
+                  label: 'column 4',
+                  prop: 'c4',
+                  align: 'center',
+                  minWidth: 80,
+                  summaryRender,
+                },
+  
+                {
+                  label: 'column 5',
+                  prop: 'c5',
+                  align: 'center',
+                  minWidth: 80,
+                  summaryRender,
+                }
+              ]
+  
+              const data = []
+              for (let i = 0; i < 20; i += 1) {
+                data.push({
+                  c0: i + 1,
+                  c1: 20,
+                  c10: 30,
+                  c11: 40,
+                  c2: 50,
+                  c3: 60,
+                  c4: 70,
+                  c5: 80,
+                })
+              }
+  
+              $widget.data = data
+            })()
+            
+          </script>
+        </template>
+      </bl-card>
+    </section>
+
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">可调整列宽</h2>
+        <p slot="header">列配置中，启用 resizable，即表示允许拖拽调整列宽。</p>
+  
+        <template data-codesource="html">
+          <bl-table border id="resize" style="width:480px;height:200px;"></bl-table>
+  
+          <script>
+            (() => {
+              const $widget = document.getElementById('resize')
+              const summaryRender = (column, index, data, $cell) => {
+                return data.reduce((acc, item) => acc + item[column.prop], 0)
+              }
+              $widget.columns = [
+                {
+                  label: '序号',
+                  prop: 'c0',
+                  align: 'center',
+                  minWidth: 80,
+                  maxWidth: 140,
+                  fixedLeft: true,
+                  resizable: true,
+                  summaryRender() {
+                    return '合计'
+                  },
+                },
+                {
+                  label: 'column 1',
+                  prop: 'c1',
+                  align: 'center',
+                  children: [
+                    {
+                      label: 'column 1-0',
+                      prop: 'c10',
+                      align: 'center',
+                      minWidth: 80,
+                      summaryRender,
+                      resizable: true,
+                    },
+                    {
+                      label: 'column 1-1',
+                      prop: 'c11',
+                      align: 'center',
+                      minWidth: 80,
+                      summaryRender,
+                      resizable: true,
+                    }
+                  ],
+                },
+                {
+                  label: 'column 2',
+                  prop: 'c2',
+                  align: 'center',
+                  minWidth: 80,
+                  summaryRender,
+                  resizable: true,
+                },
+                {
+                  label: 'column 3',
+                  prop: 'c3',
+                  align: 'center',
+                  minWidth: 80,
+                  summaryRender,
+                  resizable: true,
+                },
+                {
+                  label: 'column 4',
+                  prop: 'c4',
+                  align: 'center',
+                  minWidth: 80,
+                  summaryRender,
+                  resizable: true,
+                },
+  
+                {
+                  label: 'column 5',
+                  prop: 'c5',
+                  align: 'center',
+                  minWidth: 80,
+                  summaryRender,
+                  resizable: true,
+                }
+              ]
+  
+              const data = []
+              for (let i = 0; i < 20; i += 1) {
+                data.push({
+                  c0: i + 1,
+                  c1: 20,
+                  c10: 30,
+                  c11: 40,
+                  c2: 50,
+                  c3: 60,
+                  c4: 70,
+                  c5: 80,
+                })
+              }
+  
+              $widget.data = data
+            })()
+            
+          </script>
+        </template>
+      </bl-card>
+    </section>
+
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">排序</h2>
+        <p slot="header">列配置中，配置 sortOrder，可以启用列排序功能。</p>
+  
+        <template data-codesource="html">
+          <bl-table border id="sort" style="height:200px;"></bl-table>
+  
+          <script>
+            (() => {
+              const $widget = document.getElementById('sort')
+              $widget.columns = [
+                {
+                  label: '序号',
+                  prop: 'c0',
+                  align: 'center',
+                  minWidth: 80,
+                  maxWidth: 140,
+                  sortOrder: 'none',
+                  sortMethod: (a, b) => a.c0 - b.c0
+                },
+                {
+                  label: 'column 1',
+                  prop: 'c1',
+                  align: 'center',
+                  children: [
+                    {
+                      label: 'column 1-0',
+                      prop: 'c10',
+                      align: 'center',
+                      minWidth: 80,
+                      sortOrder: 'none',
+                    },
+                    {
+                      label: 'column 1-1',
+                      prop: 'c11',
+                      align: 'center',
+                      minWidth: 80,
+                      sortOrder: 'none',
+                    }
+                  ],
+                },
+                {
+                  label: 'column 2',
+                  prop: 'c2',
+                  align: 'center',
+                  minWidth: 80,
+                  sortOrder: 'none',
+                },
+                {
+                  label: 'column 3',
+                  prop: 'c3',
+                  align: 'center',
+                  minWidth: 80,
+                },
+                {
+                  label: 'column 4',
+                  prop: 'c4',
+                  align: 'center',
+                  minWidth: 80,
+                },
+  
+                {
+                  label: 'column 5',
+                  prop: 'c5',
+                  align: 'center',
+                  minWidth: 80,
+                }
+              ]
+  
+              const data = []
+              for (let i = 0; i < 20; i += 1) {
+                data.push({
+                  c0: i + 1,
+                  c1: 20 + i,
+                  c10: 30 + i,
+                  c11: 40 + i,
+                  c2: 50 + i,
+                  c3: 60 + i,
+                  c4: 70 + i,
+                  c5: 80 + i,
+                })
+              }
+  
+              $widget.data = data
+            })()
+            
+          </script>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>border</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否渲染边框和单元格垂直分割线</td>
-            <td></td>
-          </tr>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>border</td>
+              <td>border</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否渲染边框和单元格垂直分割线</td>
+            </tr>
+  
+            <tr>
+              <td>columns</td>
+              <td></td>
+              <td>
+                RowColumn[]
+                <hr>
+  <pre>
+  type RowColumn = {
+    headRender: (column: any) => Node
+    render: (data: any, column: any, $cell: any) => Node
+    summaryRender: any
+    sortMethod?: any
+    label: string
+    prop: string
+    align: string
+    columnWidth?: number
+    width: number
+    minWidth: number
+    maxWidth: number
+    fixedLeft: boolean
+    fixedRight: boolean
+    sortOrder?: 'none' | 'ascending' | 'descending'
+    resizable: boolean
+    children: RowColumn[]
+    parent?: RowColumn
+    cellClass?: string[]
+  }
+  </pre>
+              </td>
+              <td></td>
+              <td>表格列配置。</td>
+            </tr>
+  
+            <tr>
+              <td>-</td>
+              <td>data</td>
+              <td>Array</td>
+              <td>[]</td>
+              <td>表格行数据。默认渲染规则为，每一行对应一个 JavaScript 对象，每一列对应一个字段（通过 columns 配置渲染的字段名）。</td>
+            </tr>
+          </tbody>
+        </table>
 
-          <tr>
-            <td>columns</td>
-            <td>Array&lt;ColumnSetting&gt;</td>
-            <td></td>
-            <td>表格列配置。<br>
-              ColumnSetting 的可配置项如下：
-<pre>
-<div>label: 表头文字。</div>
-<div>prop：单元格内容对应的数据字段。</div>
-<div>align：水平对齐方式。</div>
-<div>width：列宽。</div>
-<div>minWidth：最小列宽。</div>
-<div>maxWidth：最大列宽。</div>
-<div>fixedLeft：是否左固定列。</div>
-<div>fixedRight：是否右固定列。</div>
-<div>resizable：是否可以调整尺寸。</div>
-<div>children：嵌套列定义。</div>
-<div>sortOrder：排序顺序，可选值为 'none', 'ascending', 'descending'。</div>
-<div>sortMethod：自定义排序方法。函数类型：(row1, row2) => number。</div>
-<div>headRender：表头自定义渲染函数。函数类型：(column) => string | number | Node。</div>
-<div>render：单元格内容自定义渲染函数。函数类型：(data, column, $cell) => string | number | Node。</div>
-<div>summaryRender：合计行单元格内容渲染方法。函数类型：(column, index, data, $cell) => string | number | Node。</div>
-</pre>
-            </td>
-            <td></td>
-          </tr>
-
-          <tr>
-            <td>data</td>
-            <td>Array</td>
-            <td></td>
-            <td>表格行数据。默认渲染规则为，每一行对应一个 JavaScript 对象，每一列对应一个字段（通过 columns 配置渲染的字段名）。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
+        <h3>Events</h3>
+  
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>column-resize</td>
+              <td>CustomEvent</td>
+              <td>列宽调整时触发</td>
+            </tr>
+            <tr>
+              <td>layout</td>
+              <td>CustomEvent</td>
+              <td>布局重新计算时触发</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

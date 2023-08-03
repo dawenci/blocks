@@ -1,10 +1,12 @@
 import '../../components/popup-menu/index.js';
 import { PopupOrigin } from '../../components/popup/index.js';
-export function blBindContextMenu(el, menuData) {
+export function blBindContextMenu(el, menuData, options) {
     const handler = (e) => {
+        if (options?.disabled && options.disabled())
+            return;
         e.preventDefault();
         const $menu = document.body.appendChild(document.createElement('bl-popup-menu'));
-        $menu.style.minWidth = '200px';
+        $menu.style.minWidth = options?.minWidth || '200px';
         $menu.offsetX = e.pageX;
         $menu.offsetY = e.pageY;
         $menu.autoflip = true;

@@ -32,12 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { style } from './column.style.js';
 import { template } from './column.template.js';
-import { Component } from '../component/Component.js';
-export let BlocksColumn = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlColumn = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-col',
             styles: [style],
@@ -54,7 +54,7 @@ export let BlocksColumn = (() => {
     let _span_initializers = [];
     let _offset_decorators;
     let _offset_initializers = [];
-    var BlocksColumn = class extends Component {
+    var BlColumn = class extends BlComponent {
         static {
             _pull_decorators = [attr('intRange', { min: 1, max: 23, observed: false })];
             _push_decorators = [attr('intRange', { min: 1, max: 23, observed: false })];
@@ -65,7 +65,7 @@ export let BlocksColumn = (() => {
             __esDecorate(this, null, _span_decorators, { kind: "accessor", name: "span", static: false, private: false, access: { has: obj => "span" in obj, get: obj => obj.span, set: (obj, value) => { obj.span = value; } } }, _span_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _offset_decorators, { kind: "accessor", name: "offset", static: false, private: false, access: { has: obj => "offset" in obj, get: obj => obj.offset, set: (obj, value) => { obj.offset = value; } } }, _offset_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksColumn = _classThis = _classDescriptor.value;
+            BlColumn = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #pull_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _pull_initializers, void 0));
@@ -82,8 +82,8 @@ export let BlocksColumn = (() => {
         set offset(value) { this.#offset_accessor_storage = value; }
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
+            this.appendShadowChild(template());
         }
     };
-    return BlocksColumn = _classThis;
+    return BlColumn = _classThis;
 })();

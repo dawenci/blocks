@@ -32,19 +32,20 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { dispatchEvent } from '../../common/event.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { enumGetter, enumSetter } from '../../common/property.js';
 import { forEach } from '../../common/utils.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Control } from '../base-control/index.js';
+import { BlControl } from '../base-control/index.js';
 const halfValueGetter = enumGetter('value', ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']);
 const halfValueSetter = enumSetter('value', ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']);
 const valueGetter = enumGetter('value', ['0', '1', '2', '3', '4', '5']);
 const valueSetter = enumSetter('value', ['0', '1', '2', '3', '4', '5']);
-export let BlocksRate = (() => {
+export let BlRate = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-rate',
             styles: [style],
@@ -61,10 +62,10 @@ export let BlocksRate = (() => {
     let _resultMode_initializers = [];
     let _$layout_decorators;
     let _$layout_initializers = [];
-    var BlocksRate = class extends Control {
+    var BlRate = class extends BlControl {
         static {
             _value_decorators = [attr('number', {
-                    get: self => {
+                    get(self) {
                         if (self.resultMode)
                             return +self.getAttribute('value');
                         const value = self.half ? halfValueGetter(self) : valueGetter(self);
@@ -72,7 +73,7 @@ export let BlocksRate = (() => {
                             return 0;
                         return +value;
                     },
-                    set: (self, value) => {
+                    set(self, value) {
                         if (self.resultMode) {
                             self.setAttribute('value', value);
                         }
@@ -92,11 +93,8 @@ export let BlocksRate = (() => {
             __esDecorate(this, null, _resultMode_decorators, { kind: "accessor", name: "resultMode", static: false, private: false, access: { has: obj => "resultMode" in obj, get: obj => obj.resultMode, set: (obj, value) => { obj.resultMode = value; } } }, _resultMode_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksRate = _classThis = _classDescriptor.value;
+            BlRate = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get disableEventTypes() {
-            return ['click', 'mouseover', 'mouseleave', 'keydown'];
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
@@ -112,12 +110,15 @@ export let BlocksRate = (() => {
         set $layout(value) { this.#$layout_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
+            this.appendShadowChild(template());
+            this._disabledFeature.withDisableEventTypes(['click', 'mousedown', 'focus', 'mouseover', 'mouseleave', 'keydown']);
             this._tabIndexFeature.withTarget(() => [this.$layout]).withTabIndex(0);
             this.#setupEvents();
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
+            this.hook.onAttributeChangedDep('value', () => {
+                dispatchEvent(this, 'change', { detail: { value: this.value } });
+            });
         }
         #hoverValue;
         get hoverValue() {
@@ -186,13 +187,13 @@ export let BlocksRate = (() => {
                     }
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$layout.addEventListener('keydown', onKeydown);
                 this.$layout.addEventListener('mouseover', onMouseOver);
                 this.$layout.addEventListener('click', onClick);
                 this.$layout.addEventListener('mouseleave', onMouseLeave);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$layout.removeEventListener('keydown', onKeydown);
                 this.$layout.removeEventListener('mouseover', onMouseOver);
                 this.$layout.removeEventListener('click', onClick);
@@ -237,5 +238,5 @@ export let BlocksRate = (() => {
             });
         }
     };
-    return BlocksRate = _classThis;
+    return BlRate = _classThis;
 })();

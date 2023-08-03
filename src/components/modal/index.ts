@@ -1,16 +1,16 @@
-import type { BlocksButton } from '../button/index.js'
+import type { BlButton } from '../button/index.js'
 import '../button/index.js'
 import '../dialog/index.js'
 import '../input/index.js'
 import { append, prepend, unmount } from '../../common/mount.js'
-import { attr } from '../../decorators/attr.js'
+import { attr } from '../../decorators/attr/index.js'
 import { cancelButtonTemplate, confirmButtonTemplate, contentTemplate } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { strGetter, strSetter } from '../../common/property.js'
 import { style } from './style.js'
-import { BlocksDialog } from '../dialog/index.js'
+import { BlDialog } from '../dialog/index.js'
 
-export interface BlocksModal extends BlocksDialog {
+export interface BlModal extends BlDialog {
   onConfirm?: (value: any) => any
   onCancel?: (value: any) => any
 }
@@ -19,7 +19,7 @@ export interface BlocksModal extends BlocksDialog {
   customElement: 'bl-modal',
   styles: [style],
 })
-export class BlocksModal extends BlocksDialog {
+export class BlModal extends BlDialog {
   #promise?: Promise<any>
   #resolve?: any
   #reject?: any
@@ -35,10 +35,10 @@ export class BlocksModal extends BlocksDialog {
   @attr('boolean') accessor rich!: boolean
   @attr('string') accessor content!: string | null
 
-  get $confirm(): BlocksButton | null {
+  get $confirm(): BlButton | null {
     return this.querySelectorHost('[part="confirm-button"]')
   }
-  get $cancel(): BlocksButton | null {
+  get $cancel(): BlButton | null {
     return this.querySelectorHost('[part="cancel-button"]')
   }
   get $content(): HTMLElement | null {
@@ -96,10 +96,9 @@ export class BlocksModal extends BlocksDialog {
       maybePromise = this.onCancel(cancelValue)
     }
 
-    if (maybePromise instanceof Promise){
-      if (this.$cancel) {
-        this.$cancel.loading = true
-      }
+    if (maybePromise instanceof Promise) {
+      if (this.$cancel) this.$cancel.loading = true
+      if (this.$confirm) this.$confirm.disabled = true
       maybePromise
         .then(() => {
           if (this.#reject) {
@@ -109,6 +108,7 @@ export class BlocksModal extends BlocksDialog {
         })
         .finally(() => {
           if (this.$cancel) this.$cancel.loading = false
+          if (this.$confirm) this.$confirm.disabled = false
         })
     } else {
       if (this.#reject) {
@@ -128,9 +128,8 @@ export class BlocksModal extends BlocksDialog {
     }
 
     if (maybePromise instanceof Promise) {
-      if (this.$confirm) {
-        this.$confirm.loading = true
-      }
+      if (this.$confirm) this.$confirm.loading = true
+      if (this.$cancel) this.$cancel.disabled = true
       maybePromise
         .then(() => {
           if (this.#resolve) {
@@ -140,6 +139,7 @@ export class BlocksModal extends BlocksDialog {
         })
         .finally(() => {
           if (this.$confirm) this.$confirm.loading = false
+          if (this.$cancel) this.$cancel.disabled = false
         })
     } else {
       if (this.#resolve) {
@@ -150,7 +150,7 @@ export class BlocksModal extends BlocksDialog {
   }
 
   #setupDialog() {
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.autofocus = true
       this.capturefocus = true
       this.mask = true
@@ -172,9 +172,9 @@ export class BlocksModal extends BlocksDialog {
         }
       }
     }
-    this.onRender(update)
-    this.onConnected(update)
-    this.onAttributeChangedDeps(['with-confirm', 'confirm-text'], update)
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDeps(['with-confirm', 'confirm-text'], update)
   }
 
   #setupCancel() {
@@ -192,9 +192,9 @@ export class BlocksModal extends BlocksDialog {
         }
       }
     }
-    this.onRender(update)
-    this.onConnected(update)
-    this.onAttributeChangedDeps(['with-cancel', 'cancel-text'], update)
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDeps(['with-cancel', 'cancel-text'], update)
   }
 
   #setupContent() {
@@ -221,9 +221,9 @@ export class BlocksModal extends BlocksDialog {
         }
       }
     }
-    this.onRender(update)
-    this.onConnected(update)
-    this.onAttributeChangedDeps(['content', 'rich'], update)
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDeps(['content', 'rich'], update)
   }
 
   #setupKeymap() {
@@ -236,16 +236,16 @@ export class BlocksModal extends BlocksDialog {
         }
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('keydown', onKeydown)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('keydown', onKeydown)
     })
   }
 
   #setupPromise() {
-    this.onAttributeChangedDep('open', () => {
+    this.hook.onAttributeChangedDep('open', () => {
       if (this.open) {
         this.#promise = new Promise((resolve, reject) => {
           this.#resolve = resolve

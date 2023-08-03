@@ -1,21 +1,26 @@
-import type { BlocksIcon } from '../icon/index.js'
-import type { BlocksNavMenu } from './menu.js'
+import type { BlIcon } from '../icon/index.js'
+import type { BlNavMenu } from './menu.js'
 import '../icon/index.js'
 import '../popup-menu/index.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { template } from './menu-item.template.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './menu-item.style.js'
-import { BlocksPopupMenu } from '../popup-menu/index.js'
-import { Component } from '../component/Component.js'
+import { template } from './menu-item.template.js'
+import { BlPopupMenu } from '../popup-menu/index.js'
+import { BlComponent } from '../component/Component.js'
 import { PopupOrigin } from '../popup/index.js'
 
 @defineClass({
   customElement: 'bl-nav-menu-item',
   styles: [style],
 })
-export class BlocksNavMenuItem extends Component {
+export class BlNavMenuItem extends BlComponent {
+  static override get role() {
+    return 'menuitem'
+  }
+
   @attr('boolean') accessor expand!: boolean
 
   @attr('boolean') accessor active!: boolean
@@ -24,10 +29,10 @@ export class BlocksNavMenuItem extends Component {
 
   @attr('boolean') accessor link!: boolean
 
-  private $layout: HTMLElement
-  private $label: HTMLElement
-  private $icon: BlocksIcon
-  private $arrow: HTMLElement
+  @shadowRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('#label') accessor $label!: HTMLElement
+  @shadowRef('#icon') accessor $icon!: BlIcon
+  @shadowRef('#arrow') accessor $arrow!: HTMLElement
 
   private _leaveTimer?: ReturnType<typeof setTimeout>
   private _enterTimer?: ReturnType<typeof setTimeout>
@@ -36,12 +41,7 @@ export class BlocksNavMenuItem extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
-    this.$layout = shadowRoot.getElementById('layout')!
-    this.$label = shadowRoot.getElementById('label')!
-    this.$icon = shadowRoot.getElementById('icon') as BlocksIcon
-    this.$arrow = shadowRoot.getElementById('arrow')!
+    this.appendShadowChild(template())
 
     const onClick = (e: MouseEvent) => {
       if (this.disabled) return
@@ -49,7 +49,7 @@ export class BlocksNavMenuItem extends Component {
         if (this.isInlineMode) {
           // 内联式子菜单
           this.expand = !this.expand
-        } else if (this.$submenu instanceof BlocksPopupMenu) {
+        } else if (this.$submenu instanceof BlPopupMenu) {
           // 弹出式子菜单
           // 点击立即显示子菜单
           if (!document.body.contains(this.$submenu!)) {
@@ -75,7 +75,7 @@ export class BlocksNavMenuItem extends Component {
       }
     }
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.render()
 
       this.$layout.addEventListener('click', onClick)
@@ -89,7 +89,7 @@ export class BlocksNavMenuItem extends Component {
           this.$submenu.clearEnterTimer()
           this.clearEnterTimer()
           this._enterTimer = setTimeout(() => {
-            ;(this.$submenu as BlocksPopupMenu).open = true
+            ;(this.$submenu as BlPopupMenu).open = true
           }, this.$hostMenu?.enterDelay ?? 0)
 
           clearTimeout(this._leaveTimer)
@@ -103,7 +103,7 @@ export class BlocksNavMenuItem extends Component {
           this.$submenu.clearLeaveTimer()
           this.clearLeaveTimer()
           this._leaveTimer = setTimeout(() => {
-            ;(this.$submenu as BlocksPopupMenu).open = false
+            ;(this.$submenu as BlPopupMenu).open = false
           }, this.$hostMenu?.leaveDelay ?? 0)
 
           clearTimeout(this._enterTimer)
@@ -113,7 +113,7 @@ export class BlocksNavMenuItem extends Component {
       }
     })
 
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$layout.removeEventListener('click', onClick)
       this.onmouseenter = null
       this.onmouseleave = null
@@ -122,7 +122,7 @@ export class BlocksNavMenuItem extends Component {
       }
     })
 
-    this.onAttributeChangedDep('expand', () => {
+    this.hook.onAttributeChangedDep('expand', () => {
       if (this.$submenu) {
         ;(this.$submenu as any).expand = this.expand
       }
@@ -130,7 +130,7 @@ export class BlocksNavMenuItem extends Component {
   }
 
   // 持有当前 item 的 menu
-  #hostMenu!: BlocksNavMenu
+  #hostMenu!: BlNavMenu
   get $hostMenu() {
     return this.#hostMenu
   }
@@ -138,7 +138,7 @@ export class BlocksNavMenuItem extends Component {
     this.#hostMenu = $menu
   }
 
-  #submenu?: BlocksNavMenu | BlocksPopupMenu
+  #submenu?: BlNavMenu | BlPopupMenu
   get $submenu() {
     return this.#submenu
   }
@@ -146,7 +146,7 @@ export class BlocksNavMenuItem extends Component {
     this.#submenu = $menu
   }
 
-  #parentMenu?: BlocksNavMenu
+  #parentMenu?: BlNavMenu
   get $parentMenu() {
     return this.#parentMenu
   }
@@ -208,18 +208,21 @@ export class BlocksNavMenuItem extends Component {
       this.innerHTML = ''
       this.classList.add('has-submenu')
       if (!this.isInlineMode) {
-        this.$submenu = document.createElement('bl-popup-menu') as BlocksPopupMenu
+        this.$submenu = document.createElement('bl-popup-menu') as BlPopupMenu
         this.$submenu.appendToBody = true
         this.$submenu.anchorElement = () => this
 
-        if ((this.$rootMenu as BlocksNavMenu).horizontal && this.$hostMenu!.level === 0) {
+        if ((this.$rootMenu as BlNavMenu).horizontal && this.$hostMenu!.level === 0) {
           this.$submenu.origin = PopupOrigin.TopStart
         } else {
           this.$submenu.origin = PopupOrigin.LeftStart
         }
       } else {
-        this.$submenu = document.createElement('bl-nav-menu') as BlocksNavMenu
+        this.$submenu = document.createElement('bl-nav-menu') as BlNavMenu
         this.$submenu.submenu = true
+        this.$submenu.collapse = this.$hostMenu.collapse
+        this.$submenu.inline = this.$hostMenu.inline
+        this.$submenu.horizontal = this.$hostMenu.horizontal
         this.appendChild(this.$submenu)
       }
 

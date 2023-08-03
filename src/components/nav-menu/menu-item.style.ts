@@ -18,7 +18,7 @@ export const style = /*css*/ `
 :host {
   display: block;
   position: relative;
-  font-family: var(--font-family, ${__font_family});
+  font-family: var(--bl-font-family, ${__font_family});
   font-size: 14px;
   box-sizing: border-box;
   user-select: none;
@@ -44,7 +44,7 @@ export const style = /*css*/ `
   height: 14px;
   margin-left: 5px;
   fill: var(--bl-fg-placeholder, ${__fg_placeholder});
-  transition: transform var(--transition-duration, ${__transition_duration});
+  transition: transform var(--bl-transition-duration, ${__transition_duration});
 }
 #icon {
   width: 16px;
@@ -103,26 +103,38 @@ bl-icon {
 :host([disabled][active]) #layout {
   box-shadow: inset -2px 0 0 var(--bl-fg-disabled, ${__fg_disabled}), 1px 0 0 var(--bl-fg-disabled, ${__fg_disabled});
 }
-:host-context([horizontal]):host([active]) #layout {
+/*:host-context([horizontal]):host([active]) #layout*/
+:host([host-context="horizontal"][active]) #layout {
   box-shadow: inset 0 -2px 0 var(--bl-color-primary-base, ${__color_primary}), 0 1px 0 var(--bl-color-primary-base, ${__color_primary});
 }
-:host-context([horizontal]):host([disabled][active]) #layout {
+/*:host-context([horizontal]):host([disabled][active]) #layout*/
+:host([host-context="horizontal"][disabled][active]) #layout {
   box-shadow: inset 0 -2px 0 var(--bl-fg-disabled, ${__fg_disabled}), 0 1px 0 var(--bl-fg-disabled, ${__fg_disabled});
 }
 
-:host-context([horizontal]) {
+/*:host-context([horizontal])*/
+:host([host-context="horizontal"]) {
   flex: 0 0 auto;
 }
-:host-context([horizontal]) #arrow,
-:host-context([inline]) #arrow {
+
+/*:host-context([horizontal]) #arrow,
+:host-context([inline]) #arrow*/
+:host([host-context="horizontal"]) #arrow,
+:host([host-context="inline"]) #arrow {
   transform: rotate(90deg);
 }
-:host-context([horizontal]):host(.submenu-open) #arrow,
-:host-context([inline]):host([expand]) #arrow {
+
+/*:host-context([horizontal]):host(.submenu-open) #arrow,
+:host-context([inline]):host([expand]) #arrow*/
+:host([host-context="horizontal"].submenu-open) #arrow,
+:host([host-context="inline"][expand]) #arrow {
   transform: rotate(-90deg);
 }
-:host-context([collapse]) #label,
-:host-context([collapse]) #arrow {
+
+/*:host-context([collapse]) #label,
+:host-context([collapse]) #arrow*/
+:host([host-context="collapse"]) #label,
+:host([host-context="collapse"]) #arrow {
   display: none;
 }
 

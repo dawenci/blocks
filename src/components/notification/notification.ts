@@ -1,12 +1,13 @@
-import type { NullableEnumAttr } from '../../decorators/attr.js'
 import { __color_success, __color_danger, __color_warning, __color_primary } from '../../theme/var-light.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { unmount } from '../../common/mount.js'
+import { BlComponent } from '../component/Component.js'
 
 export enum NotificationPlacement {
   TopRight = 'top-right',
@@ -30,7 +31,7 @@ export const notificationTypes = [
   NotificationType.Warning,
 ]
 
-export interface BlocksNotification extends Component {
+export interface BlNotification extends BlComponent {
   ref: {
     $layout: HTMLElement
     $icon: HTMLElement
@@ -43,48 +44,44 @@ export interface BlocksNotification extends Component {
   customElement: 'bl-notification',
   styles: [style],
 })
-export class BlocksNotification extends Component {
+export class BlNotification extends BlComponent {
   @attr('boolean') accessor closeable!: boolean
 
   @attr('number') accessor duration = 10
 
   @attr('enum', { enumValues: notificationTypes })
-  accessor type!: NullableEnumAttr<typeof notificationTypes>
+  accessor type!:  MaybeOneOf<typeof notificationTypes>
+
+  @shadowRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('#icon') accessor $icon!: HTMLElement
+  @shadowRef('#content') accessor $content!: HTMLElement
+  @shadowRef('#close', false) accessor $close!: HTMLElement
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
-    const $layout = shadowRoot.querySelector('#layout') as HTMLElement
-    const $icon = shadowRoot.querySelector('#icon') as HTMLElement
-    const $content = shadowRoot.querySelector('#content') as HTMLElement
 
-    this.ref = {
-      $layout,
-      $icon,
-      $content,
-    }
+    this.appendShadowChild(template())
 
     this.#setupAutoClose()
 
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
   }
 
   #setupAutoClose() {
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this._setAutoClose()
     })
 
-    this.onAttributeChangedDep('duration', () => {
+    this.hook.onAttributeChangedDep('duration', () => {
       if (this.duration) this._setAutoClose()
     })
 
-    this.ref.$layout.onmouseenter = () => {
+    this.$layout.onmouseenter = () => {
       this._clearAutoClose()
     }
 
-    this.ref.$layout.onmouseleave = () => {
+    this.$layout.onmouseleave = () => {
       this._setAutoClose()
     }
   }
@@ -119,23 +116,23 @@ export class BlocksNotification extends Component {
     const iconName = this.type === 'warning' ? 'info' : this.type ?? ''
     const $icon = getRegisteredSvgIcon(iconName, { fill })
     if ($icon) {
-      this.ref.$icon.innerHTML = ''
-      this.ref.$icon.appendChild($icon)
+      this.$icon.innerHTML = ''
+      this.$icon.appendChild($icon)
     }
 
     if (this.closeable) {
-      if (!this.ref.$close) {
-        this.ref.$close = this.ref.$layout.appendChild(document.createElement('button'))
-        this.ref.$close.id = 'close'
-        this.ref.$close.appendChild(getRegisteredSvgIcon('cross')!)
-        this.ref.$close.onclick = () => {
+      if (!this.$close) {
+        const $close = document.createElement('button')
+        $close.id = 'close'
+        $close.appendChild(getRegisteredSvgIcon('cross')!)
+        $close.onclick = () => {
           this.close()
         }
+        this.$layout.appendChild($close)
       }
     } else {
-      if (this.ref.$close) {
-        this.ref.$close.parentElement!.removeChild(this.ref.$close)
-        this.ref.$close = undefined
+      if (this.$close) {
+        unmount(this.$close)
       }
     }
   }

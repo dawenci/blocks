@@ -1,77 +1,86 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import type { BlComponentEventMap, BlComponentEventListener } from '../component/Component.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
+import { prop } from '../../decorators/prop/index.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
+
+export interface BlIntersectionEventMap extends BlComponentEventMap {
+  intersection: CustomEvent<{
+    entries: IntersectionObserverEntry[]
+    observer: IntersectionObserver
+  }>
+}
+
+export interface BlIntersection extends BlComponent {
+  addEventListener<K extends keyof BlIntersectionEventMap>(
+    type: K,
+    listener: BlComponentEventListener<BlIntersectionEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof BlIntersectionEventMap>(
+    type: K,
+    listener: BlComponentEventListener<BlIntersectionEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+}
 
 @defineClass({
   customElement: 'bl-intersection',
 })
-export class BlocksIntersection extends Component {
+export class BlIntersection extends BlComponent {
   static override get observedAttributes() {
     return ['root']
   }
 
   @attr('string') accessor rootMargin = '0px'
 
-  @attr('string') accessor threshold = '0'
+  @attr('string') accessor rootSelector!: string | null
+
+  @attr('number') accessor threshold = 0
+
+  #rootElement?: () => HTMLElement
+  /** 锚定元素访问器 */
+  @prop({
+    get(self) {
+      return self.#rootElement
+    },
+    set(self, value: (() => HTMLElement) | undefined) {
+      self.#rootElement = value
+      self.updatePositionAndDirection()
+    },
+  })
+  accessor rootElement!: (() => Element) | undefined
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
 
-    this.onConnected(() => {
+    this.appendShadowChild(template())
+
+    this.hook.onConnected(() => {
       this.render()
       this._initObserver()
     })
 
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this._removeObserver()
     })
 
-    this.onAttributeChanged(() => {
+    this.hook.onAttributeChanged(() => {
       this._initObserver()
     })
   }
 
-  _root?: any
-  get root() {
-    if (this._root) {
-      return this._root() ?? null
+  _getRootElement() {
+    if (this.rootElement) {
+      return this.rootElement() ?? null
     }
-    return this.getAttribute('root')
-  }
-
-  set root(value) {
-    if (typeof value === 'string' || value === null) {
-      this.setAttribute('root', value)
-      this._root = undefined
-      return
+    if (this.rootSelector) {
+      return document.querySelector(this.rootSelector)
     }
-    if (typeof value === 'function') {
-      this._root = value
-    } else if (value instanceof Node) {
-      this._root = () => value
-    }
-    this.removeAttribute('root')
-  }
-
-  get rootElement() {
-    let root = this.root
-    if (root instanceof Element) {
-      if (root.contains(this)) return root
-      root = null
-    }
-    if (typeof root === 'string') {
-      try {
-        root = document.querySelector(root)
-        if (!root.contains(this)) root = null
-      } catch (error) {
-        root = null
-      }
-    }
-    return root ?? undefined
+    return null
   }
 
   _flag?: any
@@ -83,6 +92,8 @@ export class BlocksIntersection extends Component {
         if (this._observer) {
           this._observer.disconnect()
         }
+
+        const root = this._getRootElement()
         this._observer = new IntersectionObserver(
           (entries, observer) => {
             dispatchEvent(this, 'intersection', {
@@ -93,7 +104,7 @@ export class BlocksIntersection extends Component {
             })
           },
           {
-            root: this.rootElement,
+            root,
             rootMargin: this.rootMargin,
             threshold: +this.threshold,
           }

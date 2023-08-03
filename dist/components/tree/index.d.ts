@@ -1,7 +1,7 @@
-import type { ComponentEventListener } from '../component/Component.js';
+import type { BlComponentEventListener } from '../component/Component.js';
 import type { ISelectableListComponent, ISelectListEventMap } from '../../common/connectSelectable.js';
 import type { VListEventMap } from '../vlist/index.js';
-import { BlocksVList, VirtualItem } from '../vlist/index.js';
+import { BlVList, VirtualItem } from '../vlist/index.js';
 export type NodeData = {
     [index: number]: any;
     [key: string]: any;
@@ -41,12 +41,13 @@ export interface VirtualNode extends VirtualItem {
 export declare class VirtualNode extends VirtualItem {
     constructor(options: any);
 }
-export interface BLocksTree extends BlocksVList, ISelectableListComponent {
-    addEventListener<K extends keyof TreeEventMap>(type: K, listener: ComponentEventListener<TreeEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof TreeEventMap>(type: K, listener: ComponentEventListener<TreeEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlTree extends BlVList, ISelectableListComponent {
+    addEventListener<K extends keyof TreeEventMap>(type: K, listener: BlComponentEventListener<TreeEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof TreeEventMap>(type: K, listener: BlComponentEventListener<TreeEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksTree extends BlocksVList {
+export declare class BlTree extends BlVList implements ISelectableListComponent {
     #private;
+    static get role(): string;
     static get observedAttributes(): string[];
     accessor activeKey: string | null;
     accessor activable: boolean;
@@ -74,7 +75,7 @@ export declare class BlocksTree extends BlocksVList {
     clearSelected(): void;
     internalLabelMethod(data: any): any;
     internalKeyMethod(data: any): any;
-    filterMethod(data: any[]): Promise<any[]>;
+    filterMethod(data: any[], callback: (data: any) => any): any;
     _renderItemClass($item: HTMLElement, vitem: VirtualNode): void;
     _renderItemArrow($item: HTMLElement, vitem: VirtualNode): void;
     _renderItemCheckable($item: HTMLElement, vitem: VirtualNode): void;
@@ -93,7 +94,10 @@ export declare class BlocksTree extends BlocksVList {
     toggle(virtualKey: string): void;
     foldAll(): void;
     expandAll(): void;
-    virtualMap(data: NodeData[]): Promise<VirtualNode[]>;
+    virtualMap(data: NodeData[], options: {
+        schedule: (task: () => void) => void;
+        complete: (virtualData: VirtualNode[]) => void;
+    }): void;
     level(node: VirtualNode): number;
     isTopLevel(node: VirtualNode): boolean;
     hasChild(node: VirtualNode): boolean;

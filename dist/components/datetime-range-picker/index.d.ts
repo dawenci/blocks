@@ -1,77 +1,50 @@
-import type { BlocksButton } from '../button/index.js';
-import type { BlocksPopup } from '../popup/index.js';
-import type { ISelectResultComponent } from '../../common/connectSelectable.js';
+import type { BlButton } from '../button/index.js';
+import type { BlComponentEventListener } from '../component/Component.js';
 import '../button/index.js';
+import '../datetime/index.js';
+import '../pair-result/index.js';
 import '../popup/index.js';
-import { BlocksDate } from '../date/index.js';
-import { BlocksTime } from '../time/index.js';
-import { ClearableControlBox } from '../base-clearable-control-box/index.js';
-export interface BlocksDateTimeRangePicker extends ClearableControlBox {
-    $popup: BlocksPopup;
-    $date: BlocksDate;
-    $time: BlocksTime;
-    $timeValue: HTMLElement;
-    $confirm: BlocksButton;
+import { BlControl, BlControlEventMap } from '../base-control/index.js';
+import { BlDateTime } from '../datetime/index.js';
+import { BlPopup } from '../popup/index.js';
+import { BlPairResult } from '../pair-result/index.js';
+import { SetupClickOutside } from '../setup-click-outside/index.js';
+export interface BlDateTimeRangePickerEventMap extends BlControlEventMap {
+    change: CustomEvent<{
+        value: [Date | null, Date | null];
+    }>;
+    closed: CustomEvent;
+    opened: CustomEvent;
 }
-export declare class BlocksDateTimeRangePicker extends ClearableControlBox {
+export interface BlDateTimeRangePicker extends BlControl {
+    $popup: BlPopup;
+    $datetime: BlDateTime;
+    $confirmButton: BlButton;
+    addEventListener<K extends keyof BlDateTimeRangePickerEventMap>(type: K, listener: BlComponentEventListener<BlDateTimeRangePickerEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlDateTimeRangePickerEventMap>(type: K, listener: BlComponentEventListener<BlDateTimeRangePickerEventMap[K]>, options?: boolean | EventListenerOptions): void;
+}
+export declare class BlDateTimeRangePicker extends BlControl {
     #private;
-    accessor placeholderFrom: string;
-    accessor placeholderTo: string;
-    accessor $content: HTMLElement;
-    accessor $fromDate: HTMLInputElement & ISelectResultComponent;
-    accessor $toDate: HTMLInputElement & ISelectResultComponent;
+    static get observedAttributes(): string[];
+    accessor open: boolean;
+    accessor placeholderFirst: string;
+    accessor placeholderSecond: string;
     accessor format: string;
+    accessor $result: BlPairResult;
     constructor();
+    get value(): [Date | null, Date | null];
+    set value(value: [Date | null, Date | null]);
     get disabledDate(): ((data: import("../date/type").ItemModel, context: {
         depth: import("../date/type").Depth;
         viewDepth: import("../date/type").Depth;
-        component: BlocksDate;
+        component: import("../date/index").BlDate;
     }) => boolean) | undefined;
     set disabledDate(value: ((data: import("../date/type").ItemModel, context: {
         depth: import("../date/type").Depth;
         viewDepth: import("../date/type").Depth;
-        component: BlocksDate;
+        component: import("../date/index").BlDate;
     }) => boolean) | undefined);
-    get disabledHour(): ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined;
-    set disabledHour(value: ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined);
-    get disabledMinute(): ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined;
-    set disabledMinute(value: ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined);
-    get disabledSecond(): ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined;
-    set disabledSecond(value: ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined);
-    get activeValue(): Date | null;
-    set activeValue(value: Date | null);
-    get value(): null | Date | [Date, Date];
-    set value(value: null | Date | [Date, Date]);
-    render(): void;
-    static get observedAttributes(): string[];
+    get disabledTime(): ((hour: number | null, minute: number | null, second: number | null) => [boolean, boolean, boolean]) | undefined;
+    set disabledTime(value: ((hour: number | null, minute: number | null, second: number | null) => [boolean, boolean, boolean]) | undefined);
+    _clickOutside: SetupClickOutside<this>;
 }

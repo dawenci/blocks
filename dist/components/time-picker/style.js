@@ -13,11 +13,11 @@ export const style = `
   outline: 0 none;
 }
 
-#result {
+[part="result"] {
   width: 100%;
 }
 
-:host([popup-open]) #result {
+:host([open]) [part="result"] {
   color: var(--bl-fg-placeholder, ${__fg_placeholder});
 }
 `;

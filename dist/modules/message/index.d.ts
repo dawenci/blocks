@@ -6,7 +6,7 @@ export interface MessageOptions {
     content?: string;
 }
 export declare function blMessage(options?: MessageOptions): {
-    el: import("../../components/message/index.js").BlocksMessage;
+    el: import("../../components/message/index.js").BlMessage;
     close(): any;
     onclose(callback: () => void): any;
 };

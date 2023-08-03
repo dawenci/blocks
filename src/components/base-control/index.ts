@@ -1,8 +1,11 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { Component } from '../component/Component.js'
+import type { BlComponentEventMap } from '../component/Component.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { BlComponent } from '../component/Component.js'
 import { SetupDisabled } from '../setup-disabled/index.js'
 import { SetupTabIndex } from '../setup-tab-index/index.js'
+
+export type BlControlEventMap = BlComponentEventMap
 
 /**
  * 控件基类
@@ -43,16 +46,9 @@ import { SetupTabIndex } from '../setup-tab-index/index.js'
     delegatesFocus: true,
   },
 })
-export class Control extends Component {
+export class BlControl extends BlComponent {
   static override get observedAttributes(): readonly string[] {
     return ['tabindex', ...super.observedAttributes]
-  }
-
-  /**
-   * 组件 disabled 时，禁用的事件
-   */
-  static get disableEventTypes(): readonly string[] {
-    return []
   }
 
   @attr('boolean') accessor disabled!: boolean
@@ -63,6 +59,8 @@ export class Control extends Component {
 
   _disabledFeature = SetupDisabled.setup({
     component: this,
+    // 组件 disabled 时，禁用的事件
+    disableEventTypes: ['click', 'mousedown', 'focus', 'touchstart', 'keydown'],
     predicate() {
       return this.disabled
     },

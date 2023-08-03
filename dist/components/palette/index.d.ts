@@ -1,5 +1,5 @@
-import { Component } from '../component/Component.js';
-export declare class BlocksPalette extends Component {
+import { BlComponent } from '../component/Component.js';
+export declare class BlPalette extends BlComponent {
     constructor();
     connectedCallback(): void;
 }

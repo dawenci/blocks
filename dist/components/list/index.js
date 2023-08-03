@@ -32,16 +32,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
+import { attr } from '../../decorators/attr/index.js';
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { parseHighlight } from '../../common/highlight.js';
 import { style } from './style.js';
-import { BlocksVList } from '../vlist/index.js';
+import { BlVList } from '../vlist/index.js';
 import { SetupDisabled } from '../setup-disabled/index.js';
 import { SetupTabIndex } from '../setup-tab-index/index.js';
-export let BlocksList = (() => {
+export let BlList = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-list',
             styles: [style],
@@ -72,7 +72,7 @@ export let BlocksList = (() => {
     let _multiple_initializers = [];
     let _search_decorators;
     let _search_initializers = [];
-    var BlocksList = class extends BlocksVList {
+    var BlList = class extends BlVList {
         static {
             _border_decorators = [attr('boolean', { observed: false })];
             _stripe_decorators = [attr('boolean', { observed: false })];
@@ -93,8 +93,11 @@ export let BlocksList = (() => {
             __esDecorate(this, null, _multiple_decorators, { kind: "accessor", name: "multiple", static: false, private: false, access: { has: obj => "multiple" in obj, get: obj => obj.multiple, set: (obj, value) => { obj.multiple = value; } } }, _multiple_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _search_decorators, { kind: "accessor", name: "search", static: false, private: false, access: { has: obj => "search" in obj, get: obj => obj.search, set: (obj, value) => { obj.search = value; } } }, _search_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksList = _classThis = _classDescriptor.value;
+            BlList = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'list';
         }
         #border_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _border_initializers, void 0));
         get border() { return this.#border_accessor_storage; }
@@ -147,9 +150,10 @@ export let BlocksList = (() => {
         constructor() {
             super();
             this.#setupEvents();
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.upgradeProperty(['checkedData', 'checked']);
             });
+            this.#setupAria();
         }
         #setupEvents() {
             const onListClick = (e) => {
@@ -185,10 +189,10 @@ export let BlocksList = (() => {
                     }
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$list.onclick = onListClick;
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$list.onclick = null;
             });
             const onKeydown = (e) => {
@@ -213,19 +217,19 @@ export let BlocksList = (() => {
                 }
             };
             let clearKeydown;
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 clearKeydown = captureEventWhenEnable(this, 'keydown', onKeydown);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 clearKeydown();
             });
             const clearFocus = () => {
                 this.focusById('');
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$viewport.addEventListener('blur', clearFocus);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$viewport.removeEventListener('blur', clearFocus);
             });
         }
@@ -233,28 +237,27 @@ export let BlocksList = (() => {
             return [...(this.#checkedSet ?? [])].map(vkey => this.getVirtualItemByKey(vkey).data);
         }
         set checkedData(data) {
-            this.#checkedSet = new Set(data.map(data => this.keyMethod(data)).filter(vkey => !!this.getVirtualItemByKey(vkey)));
-            this.render();
-            dispatchEvent(this, 'select-list:change', {
-                detail: {
-                    value: this.checkedData.map(data => ({
-                        label: this.internalLabelMethod(data),
-                        value: this.keyMethod(data),
-                    })),
-                },
-            });
+            this.checked = data.map(data => this.keyMethod(data));
         }
         get checked() {
             return this.checkedData.map(this.keyMethod.bind(this));
         }
         set checked(ids) {
-            this.#checkedSet = new Set(ids.filter(id => !!this.getVirtualItemByKey(id)));
+            const newIds = new Set(ids.filter(id => !!this.getVirtualItemByKey(id)));
+            check: if (this.#checkedSet.size === newIds.size) {
+                for (const i of newIds.values()) {
+                    if (!this.#checkedSet.has(i))
+                        break check;
+                }
+                return;
+            }
+            this.#checkedSet = newIds;
             this.render();
             dispatchEvent(this, 'select-list:change', {
                 detail: {
-                    value: this.checkedData.map(data => ({
-                        label: this.internalLabelMethod(data),
-                        value: this.keyMethod(data),
+                    value: this.checked.map(value => ({
+                        value,
+                        label: this.internalLabelMethod(this.getVirtualItemByKey(value)),
                     })),
                 },
             });
@@ -397,6 +400,7 @@ export let BlocksList = (() => {
             if (this.checkedData.length) {
                 this.checkedData = [];
             }
+            dispatchEvent(this, 'select-list:after-clear');
         }
         selectById(id) {
             const vitem = this.getVirtualItemByKey(id);
@@ -434,7 +438,10 @@ export let BlocksList = (() => {
                     break;
                 }
                 case 'search': {
-                    this.generateViewData();
+                    this.generateViewData({
+                        complete: () => {
+                        },
+                    });
                     break;
                 }
                 case 'multiple': {
@@ -452,7 +459,7 @@ export let BlocksList = (() => {
                     break;
                 }
                 default: {
-                    if (BlocksList.observedAttributes.includes(attrName)) {
+                    if (BlList.observedAttributes.includes(attrName)) {
                         this.render();
                     }
                 }
@@ -471,21 +478,19 @@ export let BlocksList = (() => {
             }
             return data[this.idField];
         }
-        async filterMethod(data) {
+        filterMethod(data, callback) {
             if (!this.search)
-                return data;
+                return callback(data);
             const len = data.length;
             const results = [];
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    for (let i = 0; i < len; i += 1) {
-                        const vItem = data[i];
-                        if (this.internalLabelMethod(vItem.data).includes(this.search)) {
-                            results.push(vItem);
-                        }
+            setTimeout(() => {
+                for (let i = 0; i < len; i += 1) {
+                    const vItem = data[i];
+                    if (this.internalLabelMethod(vItem.data).includes(this.search)) {
+                        results.push(vItem);
                     }
-                    resolve(results);
-                });
+                }
+                callback(results);
             });
         }
         parseHighlight(label, highlightText) {
@@ -545,6 +550,19 @@ export let BlocksList = (() => {
             this._renderItemChecked($item, vitem);
             this._renderItemFocus($item, vitem);
         }
+        #setupAria() {
+            const update = () => {
+                if (!this.checkable) {
+                    this.removeAttribute('aria-multiselectable');
+                }
+                else {
+                    this.setAttribute('aria-multiselectable', this.multiple ? 'true' : 'false');
+                }
+            };
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDeps(['checkable', 'multiple'], update);
+        }
     };
-    return BlocksList = _classThis;
+    return BlList = _classThis;
 })();

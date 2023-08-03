@@ -1,37 +1,42 @@
-import { attr } from '../../decorators/attr.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
 import { contentTemplate, itemTemplate } from './menu-group.template.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { forEach } from '../../common/utils.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './menu-group.style.js'
-import { BlocksNavMenu } from '../nav-menu/menu.js'
-import { BlocksPopupMenu } from './menu.js'
-import { BlocksPopupMenuItem } from './menu-item.js'
-import { Component } from '../component/Component.js'
+import { BlNavMenu } from '../nav-menu/menu.js'
+import { BlPopupMenu } from './menu.js'
+import { BlPopupMenuItem } from './menu-item.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-popup-menu-group',
   styles: [style],
 })
-export class BlocksPopupMenuGroup extends Component {
+export class BlPopupMenuGroup extends BlComponent {
+  static override get role() {
+    return 'group'
+  }
+
   @attr('string') accessor titleText = ''
 
-  _data!: MenuGroup
-  $head: HTMLElement
-  $body: HTMLElement
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
+
+  @shadowRef('#head') accessor $head!: HTMLElement
+  @shadowRef('#body') accessor $body!: HTMLElement
 
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(contentTemplate())
-    this.$head = shadowRoot.getElementById('head')!
-    this.$body = shadowRoot.getElementById('body')!
+    this.appendShadowChild(contentTemplate())
 
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
   }
 
-  #hostMenu!: BlocksPopupMenu | BlocksNavMenu
+  _data!: MenuGroup
+
+  #hostMenu!: BlPopupMenu | BlNavMenu
   get $hostMenu() {
     return this.#hostMenu
   }
@@ -67,6 +72,7 @@ export class BlocksPopupMenuGroup extends Component {
       }
       // item
       const $item = itemTemplate()
+      $item.size = this.size
       $item.$hostMenu = this.$hostMenu
       bodyFragment.appendChild($item)
       // data 赋值在后（会触发 render）
@@ -77,7 +83,7 @@ export class BlocksPopupMenuGroup extends Component {
   }
 
   clearActive() {
-    const children = this.$body.children as unknown as Array<BlocksPopupMenuItem | BlocksPopupMenuGroup>
+    const children = this.$body.children as unknown as Array<BlPopupMenuItem | BlPopupMenuGroup>
     forEach(children, child => {
       if (child.clearActive) child.clearActive()
     })

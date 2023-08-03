@@ -32,17 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
+import { attr } from '../../decorators/attr/index.js';
 import { connectSelectable, } from '../../common/connectSelectable.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
 import { treeTemplate, popupTemplate, styleTemplate } from './template.js';
-import { BlocksPopup, PopupOrigin } from '../popup/index.js';
-import { BlocksTree } from '../tree/index.js';
-import { Control } from '../base-control/index.js';
-export let BlocksDropdownTree = (() => {
+import { BlPopup, PopupOrigin } from '../popup/index.js';
+import { BlTree } from '../tree/index.js';
+import { BlControl } from '../base-control/index.js';
+export let BlDropdownTree = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-dropdown-tree',
         })];
@@ -68,7 +68,7 @@ export let BlocksDropdownTree = (() => {
     let _multiple_initializers = [];
     let _$slot_decorators;
     let _$slot_initializers = [];
-    var BlocksDropdownTree = class extends Control {
+    var BlDropdownTree = class extends BlControl {
         static {
             _triggerMode_decorators = [attr('enum', { enumValues: ['hover', 'click'] })];
             _open_decorators = [attr('boolean')];
@@ -89,11 +89,11 @@ export let BlocksDropdownTree = (() => {
             __esDecorate(this, null, _multiple_decorators, { kind: "accessor", name: "multiple", static: false, private: false, access: { has: obj => "multiple" in obj, get: obj => obj.multiple, set: (obj, value) => { obj.multiple = value; } } }, _multiple_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksDropdownTree = _classThis = _classDescriptor.value;
+            BlDropdownTree = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return [...BlocksPopup.observedAttributes, ...BlocksTree.observedAttributes];
+            return [...BlPopup.observedAttributes, ...BlTree.observedAttributes];
         }
         #triggerMode_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _triggerMode_initializers, 'click'));
         get triggerMode() { return this.#triggerMode_accessor_storage; }
@@ -128,43 +128,51 @@ export let BlocksDropdownTree = (() => {
             this.$popup = popupTemplate();
             this.$tree = treeTemplate();
             this.$popup.appendChildren([styleTemplate(), this.$tree]);
-            connectSelectable(this, this.$tree, {
-                afterHandleListChange: () => {
-                    if (!this.multiple) {
-                        this.open = false;
-                    }
-                },
-                afterHandleResultClear: () => {
-                    this.closePopup();
-                    if (document.activeElement) {
-                        ;
-                        document.activeElement.blur();
-                    }
-                },
-            });
+            this.#setupConnect();
             this.#setupPopup();
             this.#setupList();
-            this.onConnected(this.render);
+            this.hook.onConnected(this.render);
+        }
+        #setupConnect() {
+            this.$tree.afterResultAccepted = () => {
+                if (!this.multiple) {
+                    this.open = false;
+                }
+            };
+            this.afterListClear = () => {
+                this.closePopup();
+                if (document.activeElement) {
+                    ;
+                    document.activeElement.blur();
+                }
+            };
+            connectSelectable(this, this.$tree);
         }
         #setupPopup() {
-            this.onConnected(() => {
+            const defaultAnchorGetter = () => this.$slot.assignedElements()?.[0] ?? this;
+            const updatePopupSize = () => {
+                const anchorWidth = this.$popup.anchorElement?.()?.offsetWidth ?? 0;
+                this.$popup.style.width = Math.max(200, anchorWidth) + 'px';
+                this.$popup.style.height = 240 + this.$popup.arrow + 'px';
+            };
+            this.hook.onConnected(() => {
+                this.setAnchorGetter(defaultAnchorGetter);
                 if (!this.hasAttribute('origin')) {
                     this.origin = PopupOrigin.TopStart;
                 }
-                const defaultAnchorGetter = () => this.$slot.assignedElements()?.[0] ?? this;
-                this.setAnchorGetter(defaultAnchorGetter);
                 this.$popup.arrow = 8;
                 this.$popup.autoflip = true;
                 this.$popup.anchorElement = () => (this.getAnchorGetter() ?? defaultAnchorGetter)();
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 document.body.removeChild(this.$popup);
             });
-            this.onAttributeChangedDeps(BlocksPopup.observedAttributes, (name, _, newValue) => {
+            this.hook.onAttributeChangedDeps(BlPopup.observedAttributes, (name, _, newValue) => {
                 if (name === 'open') {
                     if (this.open && !document.body.contains(this.$popup)) {
                         document.body.appendChild(this.$popup);
                     }
+                    updatePopupSize();
                     this.$popup.open = this.open;
                 }
                 else {
@@ -187,11 +195,11 @@ export let BlocksDropdownTree = (() => {
             };
             const onOpened = () => initClickOutside();
             const onClosed = () => destroyClickOutside();
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$popup.addEventListener('opened', onOpened);
                 this.$popup.addEventListener('closed', onClosed);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$popup.removeEventListener('opened', onOpened);
                 this.$popup.removeEventListener('closed', onClosed);
             });
@@ -207,13 +215,13 @@ export let BlocksDropdownTree = (() => {
                     this.openPopup();
                 isClickClear = false;
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('mousedown-clear', onClearStart);
                 this.addEventListener('focus', onSlotFocus, true);
                 this.addEventListener('click', onSlotFocus, true);
                 this.addEventListener('click-clear', onClearEnd);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('mousedown-clear', onClearStart);
                 this.removeEventListener('focus', onSlotFocus, true);
                 this.removeEventListener('click', onSlotFocus, true);
@@ -221,8 +229,8 @@ export let BlocksDropdownTree = (() => {
             });
         }
         #setupList() {
-            this.onAttributeChanged((attrName, _, newValue) => {
-                if (BlocksTree.observedAttributes.includes(attrName)) {
+            this.hook.onAttributeChanged((attrName, _, newValue) => {
+                if (BlTree.observedAttributes.includes(attrName)) {
                     this.$tree.setAttribute(attrName, newValue);
                 }
             });
@@ -230,11 +238,11 @@ export let BlocksDropdownTree = (() => {
             const onClickItem = (event) => {
                 dispatchEvent(this, 'click-item', { detail: { id: event.detail.id } });
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$popup.addEventListener('opened', onOpened);
                 this.$tree.addEventListener('click-item', onClickItem);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$popup.removeEventListener('opened', onOpened);
                 this.$tree.removeEventListener('click-item', onClickItem);
             });
@@ -250,6 +258,7 @@ export let BlocksDropdownTree = (() => {
             if ($result && $result.acceptSelected) {
                 $result.acceptSelected(value);
             }
+            dispatchEvent(this, 'select-result:after-accept-selected');
         }
         get data() {
             return this.$tree.data;
@@ -286,5 +295,5 @@ export let BlocksDropdownTree = (() => {
             this.$tree.redraw();
         }
     };
-    return BlocksDropdownTree = _classThis;
+    return BlDropdownTree = _classThis;
 })();

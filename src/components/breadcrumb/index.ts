@@ -1,2 +1,2 @@
-export { BlocksBreadcrumb } from './breadcrumb.js'
-export { BlocksBreadcrumbItem } from './item.js'
+export { BlBreadcrumb } from './breadcrumb.js'
+export { BlBreadcrumbItem } from './item.js'

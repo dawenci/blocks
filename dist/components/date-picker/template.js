@@ -1,56 +1,12 @@
-import { makeElement } from '../../common/makeElement.js';
-import { makeDomTemplate } from '../../common/template.js';
-import { PopupOrigin } from '../popup/index.js';
-export const resultTemplate = makeDomTemplate(makeElement({
-    tagName: 'bl-select-result',
-    props: {
-        id: 'result',
-        suffixIcon: 'date',
-    },
-}));
-export const inputTemplate = makeDomTemplate(makeElement({
-    tagName: 'bl-input',
-    props: {
-        id: 'result',
-        suffixIcon: 'date',
-    },
-    attrs: {
-        readonly: '',
-    },
-}));
-export const popupTemplate = makeDomTemplate(makeElement({
-    tagName: 'bl-popup',
-    props: {
-        appendToBody: true,
-        className: 'date-picker-popup',
-        origin: PopupOrigin.TopStart,
-        arrow: 8,
-        autoflip: true,
-    },
-    children: [
-        {
-            tagName: 'bl-date',
-            props: { className: 'date-picker-panel' },
-        },
-        {
-            tagName: 'div',
-            props: { id: 'action' },
-            styles: {
-                display: 'none',
-                padding: '5px',
-                'text-align': 'center',
-            },
-            children: [
-                {
-                    tagName: 'bl-button',
-                    props: {
-                        type: 'primary',
-                        size: 'small',
-                        block: true,
-                        innerHTML: '确定',
-                    },
-                },
-            ],
-        },
-    ],
-}));
+import { makeTemplate } from '../../common/template.js';
+export const resultTemplate = makeTemplate(`
+<bl-select-result id="result" suffix-icon="date"></bl-select-result>
+`);
+export const popupTemplate = makeTemplate(`
+<bl-popup append-to-body class="date-picker-popup" origin="top-start" arrow="8" autoflip>
+  <bl-date class="date-picker-panel"></bl-date>
+  <div id="action" style="display:none;padding:5px;text-align:center;">
+    <bl-button type="primary" size="small" block>确定</bl-button>
+  </div>
+</bl-popup>
+`);

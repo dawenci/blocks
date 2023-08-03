@@ -56,31 +56,31 @@ export const compile = (format) => {
         return tokens.reduce((acc, token) => {
             switch (token.type) {
                 case 'year': {
-                    const y = String(date.getFullYear());
+                    const y = String(date.getUTCFullYear());
                     return acc + y;
                 }
                 case 'month': {
-                    const m = String(date.getMonth() + 1);
+                    const m = String(date.getUTCMonth() + 1);
                     return acc + (token.payload.length === 2 ? padLeft('0', 2, m) : m);
                 }
                 case 'day': {
-                    const d = String(date.getDate());
+                    const d = String(date.getUTCDate());
                     return acc + (token.payload.length === 2 ? padLeft('0', 2, d) : d);
                 }
                 case 'hour': {
-                    const h = String(date.getHours());
+                    const h = String(date.getUTCHours());
                     return acc + (token.payload.length === 2 ? padLeft('0', 2, h) : h);
                 }
                 case 'minute': {
-                    const m = String(date.getMinutes());
+                    const m = String(date.getUTCMinutes());
                     return acc + (token.payload.length === 2 ? padLeft('0', 2, m) : m);
                 }
                 case 'second': {
-                    const s = String(date.getSeconds());
+                    const s = String(date.getUTCSeconds());
                     return acc + (token.payload.length === 2 ? padLeft('0', 2, s) : s);
                 }
                 case 'millisecond': {
-                    const ms = String(date.getMilliseconds());
+                    const ms = String(date.getUTCMilliseconds());
                     return acc + padLeft('0', 3, ms);
                 }
                 default:

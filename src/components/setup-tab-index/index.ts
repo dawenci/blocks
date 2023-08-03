@@ -1,4 +1,4 @@
-import type { Component } from '../component/Component'
+import type { BlComponent } from '../component/Component'
 
 export type TabIndex = number | `${number}` | null
 
@@ -20,8 +20,8 @@ export interface InitOptions<T> {
 // 2. 如果子孙元素没有其他可聚焦的控件，而组件本身又需要可以 tab 聚焦，则可以在组件构造的时候，初始化当前值为字符串 `0` 或正数字符串。
 //
 // 3. 如果组件自身没有可聚焦的子孙元素，且需要禁用聚焦，则在 `constructor` 中将该属性设置为 `null` 即可。
-export class SetupTabIndex<T extends Component = Component> {
-  static setup<T extends Component = Component>(options: InitOptions<T>) {
+export class SetupTabIndex<T extends BlComponent = BlComponent> {
+  static setup<T extends BlComponent = BlComponent>(options: InitOptions<T>) {
     return new SetupTabIndex(options).setup()
   }
 
@@ -31,19 +31,29 @@ export class SetupTabIndex<T extends Component = Component> {
   #postUpdate: InitOptions<T>['postUpdate']
   #target: InitOptions<T>['target']
 
-  #internalTabIndex: TabIndex = null
+  #tabIndex: TabIndex = null
   get tabIndex() {
-    return this.#internalTabIndex
+    return this.#tabIndex
   }
   set tabIndex(value: TabIndex) {
-    if (this.#internalTabIndex === value) return
-    this.#internalTabIndex = value
+    if (this.#tabIndex === value) return
+    this.#tabIndex = value
+    this.update()
+  }
+
+  #disabledTabIndex: TabIndex = null
+  get disabledTabIndex() {
+    return this.#disabledTabIndex
+  }
+  set disabledTabIndex(value: TabIndex) {
+    if (this.#disabledTabIndex === value) return
+    this.#disabledTabIndex = value
     this.update()
   }
 
   constructor(options: InitOptions<T>) {
     this.#component = options.component
-    if (options.tabIndex != null) this.#internalTabIndex = options.tabIndex
+    if (options.tabIndex != null) this.#tabIndex = options.tabIndex
     this.#postUpdate = options.postUpdate
     this.#target = options.target
     this.#disabledPredicate = options.disabledPredicate
@@ -51,6 +61,11 @@ export class SetupTabIndex<T extends Component = Component> {
 
   withTabIndex(tabIndex: TabIndex) {
     this.tabIndex = tabIndex
+    return this
+  }
+
+  withDisabledTabIndex(tabIndex: TabIndex) {
+    this.disabledTabIndex = tabIndex
     return this
   }
 
@@ -72,16 +87,17 @@ export class SetupTabIndex<T extends Component = Component> {
   update() {
     const value =
       (this.#disabledPredicate && this.#disabledPredicate.call(this.#component)) || this.tabIndex == null
-        ? null
+        ? this.disabledTabIndex
         : this.tabIndex
     const $elements = this.#target.call(this.#component)
     for (let i = 0; i < $elements.length; ++i) {
       const $el = $elements[i] as Element
       if (!$el) continue
       if (value === null) {
-        $el.removeAttribute('tabindex')
+        if ($el.hasAttribute('tabindex')) $el.removeAttribute('tabindex')
       } else {
-        $el.setAttribute('tabindex', String(value))
+        const strValue = String(value)
+        if ($el.getAttribute('tabindex') !== strValue) $el.setAttribute('tabindex', strValue)
       }
       if (this.#postUpdate) {
         this.#postUpdate.call(this.#component)
@@ -96,10 +112,10 @@ export class SetupTabIndex<T extends Component = Component> {
     const update = () => {
       this.update()
     }
-    this.#component.onRender(update)
-    this.#component.onConnected(update)
-    this.#component.onAttributeChangedDep('disabled', update)
-    this.#component.onAttributeChangedDep('tabindex', (_, __, val) => {
+    this.#component.hook.onRender(update)
+    this.#component.hook.onConnected(update)
+    this.#component.hook.onAttributeChangedDep('disabled', update)
+    this.#component.hook.onAttributeChangedDep('tabindex', (_, __, val) => {
       this.tabIndex = val as TabIndex
       update()
     })

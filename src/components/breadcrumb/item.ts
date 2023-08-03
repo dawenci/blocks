@@ -1,16 +1,16 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { strSetter } from '../../common/property.js'
 import { style } from './item.style.js'
 import { template } from './item.template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-breadcrumb-item',
   styles: [style],
 })
-export class BlocksBreadcrumbItem extends Component {
+export class BlBreadcrumbItem extends BlComponent {
   @attr('string') accessor href = ''
 
   @shadowRef('#separator') accessor $separator!: HTMLDivElement
@@ -28,9 +28,9 @@ export class BlocksBreadcrumbItem extends Component {
     const render = () => {
       strSetter('href')(this.$link, this.href || null)
     }
-    this.onRender(render)
-    this.onConnected(render)
-    this.onAttributeChangedDep('href', render)
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
+    this.hook.onAttributeChangedDep('href', render)
   }
   _renderSeparator(separator: string) {
     if (this.parentElement?.lastElementChild === this) return

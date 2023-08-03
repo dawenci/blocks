@@ -7,26 +7,40 @@ export class SetupTabIndex {
     #disabledPredicate;
     #postUpdate;
     #target;
-    #internalTabIndex = null;
+    #tabIndex = null;
     get tabIndex() {
-        return this.#internalTabIndex;
+        return this.#tabIndex;
     }
     set tabIndex(value) {
-        if (this.#internalTabIndex === value)
+        if (this.#tabIndex === value)
             return;
-        this.#internalTabIndex = value;
+        this.#tabIndex = value;
+        this.update();
+    }
+    #disabledTabIndex = null;
+    get disabledTabIndex() {
+        return this.#disabledTabIndex;
+    }
+    set disabledTabIndex(value) {
+        if (this.#disabledTabIndex === value)
+            return;
+        this.#disabledTabIndex = value;
         this.update();
     }
     constructor(options) {
         this.#component = options.component;
         if (options.tabIndex != null)
-            this.#internalTabIndex = options.tabIndex;
+            this.#tabIndex = options.tabIndex;
         this.#postUpdate = options.postUpdate;
         this.#target = options.target;
         this.#disabledPredicate = options.disabledPredicate;
     }
     withTabIndex(tabIndex) {
         this.tabIndex = tabIndex;
+        return this;
+    }
+    withDisabledTabIndex(tabIndex) {
+        this.disabledTabIndex = tabIndex;
         return this;
     }
     withDisabledPredicate(getDisabled) {
@@ -43,7 +57,7 @@ export class SetupTabIndex {
     }
     update() {
         const value = (this.#disabledPredicate && this.#disabledPredicate.call(this.#component)) || this.tabIndex == null
-            ? null
+            ? this.disabledTabIndex
             : this.tabIndex;
         const $elements = this.#target.call(this.#component);
         for (let i = 0; i < $elements.length; ++i) {
@@ -51,10 +65,13 @@ export class SetupTabIndex {
             if (!$el)
                 continue;
             if (value === null) {
-                $el.removeAttribute('tabindex');
+                if ($el.hasAttribute('tabindex'))
+                    $el.removeAttribute('tabindex');
             }
             else {
-                $el.setAttribute('tabindex', String(value));
+                const strValue = String(value);
+                if ($el.getAttribute('tabindex') !== strValue)
+                    $el.setAttribute('tabindex', strValue);
             }
             if (this.#postUpdate) {
                 this.#postUpdate.call(this.#component);
@@ -68,10 +85,10 @@ export class SetupTabIndex {
         const update = () => {
             this.update();
         };
-        this.#component.onRender(update);
-        this.#component.onConnected(update);
-        this.#component.onAttributeChangedDep('disabled', update);
-        this.#component.onAttributeChangedDep('tabindex', (_, __, val) => {
+        this.#component.hook.onRender(update);
+        this.#component.hook.onConnected(update);
+        this.#component.hook.onAttributeChangedDep('disabled', update);
+        this.#component.hook.onAttributeChangedDep('tabindex', (_, __, val) => {
             this.tabIndex = val;
             update();
         });

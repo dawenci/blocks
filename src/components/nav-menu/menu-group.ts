@@ -1,23 +1,29 @@
-import type { BlocksNavMenu } from './menu.js'
+import type { BlNavMenu } from './menu.js'
 import './menu-item.js'
-import { attr } from '../../decorators/attr.js'
+import { attr } from '../../decorators/attr/index.js'
 import { contentTemplate, itemTemplate } from './menu-group.template.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { forEach } from '../../common/utils.js'
 import { style } from './menu-group.style.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-nav-menu-group',
   styles: [style],
 })
-export class BlocksNavMenuGroup extends Component {
+export class BlNavMenuGroup extends BlComponent {
+  static override get role() {
+    return 'group'
+  }
+
   @attr('string') accessor titleText = ''
 
   @attr('boolean') accessor horizontal!: boolean
 
   @attr('boolean') accessor collapse!: boolean
+
+  @attr('boolean') accessor inline!: boolean
 
   @shadowRef('#head') accessor $head!: HTMLElement
 
@@ -28,15 +34,14 @@ export class BlocksNavMenuGroup extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(contentTemplate())
+    this.appendShadowChild(contentTemplate())
 
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
   }
 
   // 持有当前 group 的 menu
-  #hostMenu!: BlocksNavMenu
+  #hostMenu!: BlNavMenu
   get $hostMenu() {
     return this.#hostMenu
   }
@@ -63,12 +68,19 @@ export class BlocksNavMenuGroup extends Component {
       this.$head.style.display = 'none'
     }
 
+    const hostContext = this.horizontal
+      ? 'horizontal'
+      : this.inline
+      ? 'inline'
+      : this.collapse
+      ? 'collapse'
+      : 'vertical'
     const bodyFragment = document.createDocumentFragment()
-    // const { itemTemplate } = template()
     ;(this.data.data ?? []).forEach((item: any) => {
       // 嵌套 group 不作支持
       if (!item.label && item.data) return
       const $item = itemTemplate()
+      $item.setAttribute('host-context', hostContext)
       $item.$hostMenu = this.$hostMenu
       bodyFragment.appendChild($item)
       // data 赋值在后（会触发 render）

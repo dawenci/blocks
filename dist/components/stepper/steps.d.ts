@@ -1,9 +1,8 @@
-import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js';
-import { Component } from '../component/Component.js';
-export declare class BlocksSteps extends Component {
+import { BlComponent } from '../component/Component.js';
+export declare class BlSteps extends BlComponent {
     #private;
-    accessor direction: NullableEnumAttr<['horizontal', 'vertical']>;
-    accessor size: EnumAttrs['size'];
+    accessor direction: MaybeOneOf<['horizontal', 'vertical']>;
+    accessor size: MaybeOneOf<['small', 'large']>;
     accessor $layout: HTMLElement;
     accessor $slot: HTMLSlotElement;
     constructor();

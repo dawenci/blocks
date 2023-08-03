@@ -4,7 +4,7 @@ export const style = /*css*/ `
 :host {
   display: block;
   margin: 10px 0;
-  font-family: var(--font-family, ${__font_family});
+  font-family: var(--bl-font-family, ${__font_family});
   font-size: 14px;
 }
 #head {

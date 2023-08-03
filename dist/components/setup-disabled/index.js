@@ -7,11 +7,19 @@ export class SetupDisabled {
     #predicate;
     #target;
     #postUpdate;
+    #disableEventTypes;
+    #handler = (e) => {
+        if (this.#predicate.call(this.#component)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    };
     constructor(options) {
         this.#component = options.component;
         this.#predicate = options.predicate;
         this.#postUpdate = options.postUpdate;
         this.#target = options.target;
+        this.#disableEventTypes = options.disableEventTypes ?? [];
     }
     withTarget(target) {
         this.#target = target;
@@ -25,27 +33,36 @@ export class SetupDisabled {
         this.#postUpdate = postUpdate;
         return this;
     }
+    withDisableEventTypes(types) {
+        this.#clearEvents();
+        this.#disableEventTypes = types;
+        this.#bindEvents();
+    }
     setup() {
         if (this.#setup)
             return this;
         this.#setup = true;
         const update = () => this.update();
-        this.#component.onRender(update);
-        this.#component.onConnected(update);
-        this.#component.onAttributeChangedDep('disabled', update);
-        const types = this.#component.constructor.disableEventTypes;
+        this.#component.hook.onRender(update);
+        this.#component.hook.onConnected(update);
+        this.#component.hook.onAttributeChangedDep('disabled', update);
+        this.#bindEvents();
+        return this;
+    }
+    #clearEvents() {
+        for (const type of this.#disableEventTypes) {
+            this.#component.removeEventListener(type, this.#handler, true);
+        }
+    }
+    #bindEvents() {
+        const types = this.#disableEventTypes.length
+            ? this.#disableEventTypes
+            : this.#component.constructor.disableEventTypes;
         if (types?.length) {
-            const handler = (e) => {
-                if (this.#predicate.call(this.#component)) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                }
-            };
             for (let i = 0; i < types.length; ++i) {
-                this.#component.addEventListener(types[i], handler, true);
+                this.#component.addEventListener(types[i], this.#handler, true);
             }
         }
-        return this;
     }
     update() {
         const $target = this.#target.call(this.#component);
@@ -54,6 +71,8 @@ export class SetupDisabled {
         const disabled = this.#predicate.call(this.#component);
         for (let i = 0; i < $target.length; ++i) {
             const $el = $target[i];
+            if (!$el)
+                continue;
             if ($el === this.#component) {
                 if (disabled) {
                     $el.setAttribute('aria-disabled', 'true');

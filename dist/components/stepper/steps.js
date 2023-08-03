@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr, attrs } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { attr, attrs } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './steps.style.js';
 import { template } from './steps.template.js';
-import { BlocksStep } from './step.js';
-import { Component } from '../component/Component.js';
-export let BlocksSteps = (() => {
+import { BlStep } from './step.js';
+import { BlComponent } from '../component/Component.js';
+export let BlSteps = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-stepper',
             styles: [style],
@@ -56,7 +56,7 @@ export let BlocksSteps = (() => {
     let _$layout_initializers = [];
     let _$slot_decorators;
     let _$slot_initializers = [];
-    var BlocksSteps = class extends Component {
+    var BlSteps = class extends BlComponent {
         static {
             _direction_decorators = [attr('enum', { enumValues: ['horizontal', 'vertical'] })];
             _size_decorators = [attrs.size];
@@ -67,7 +67,7 @@ export let BlocksSteps = (() => {
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksSteps = _classThis = _classDescriptor.value;
+            BlSteps = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #direction_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _direction_initializers, void 0));
@@ -84,30 +84,35 @@ export let BlocksSteps = (() => {
         set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
-            this.onConnected(this.render);
+            this.appendShadowChild(template());
             this.#setupSlot();
+            this.#setupAria();
+            this.hook.onConnected(this.render);
         }
         #setupSlot() {
-            const updateItemDirection = () => {
+            const update = () => {
                 this.$slot.assignedElements().forEach($step => {
-                    if ($step instanceof BlocksStep) {
+                    if ($step instanceof BlStep) {
                         $step.direction = this.direction;
+                        $step.size = this.size;
                     }
                 });
             };
-            this.onAttributeChangedDep('direction', updateItemDirection);
-            this.onConnected(() => {
-                updateItemDirection();
-                this.$slot.addEventListener('slotchange', updateItemDirection);
-            });
-            this.onDisconnected(() => {
-                this.$slot.removeEventListener('slotchange', updateItemDirection);
-            });
+            this.$slot.addEventListener('slotchange', update);
+            this.hook.onRender(update);
+            this.hook.onAttributeChangedDeps(['direction', 'size'], update);
         }
         stepIndex($step) {
             return this.$slot.assignedElements().findIndex($el => $el === $step);
         }
+        #setupAria() {
+            const update = () => {
+                this.setAttribute('aria-orientation', this.direction ?? 'horizontal');
+            };
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDep('direction', update);
+        }
     };
-    return BlocksSteps = _classThis;
+    return BlSteps = _classThis;
 })();

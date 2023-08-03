@@ -30,7 +30,7 @@ export const style = /*css*/ `
   --focus-shadow: var(--bl-focus-shadow, ${__focus_shadow});
   --focus-shadow-checked: var(--bl-color-primary-shadow, ${__color_primary_shadow});
 
-  --duration: var(--transition-duration, ${__transition_duration});
+  --duration: var(--bl-transition-duration, ${__transition_duration});
   --font-size: var(--bl-font-size-base, ${__font_size_base});
   --radio-size: 14px;
 }
@@ -136,10 +136,10 @@ export const style = /*css*/ `
 :host([disabled][checked]:active) #radio {
   border-color: transparent;
   background-color: var(--radio-color-disabled-checked);
-  cursor: not-allowed;
+  cursor: default;
 }
 
 :host([disabled]) * {
-  cursor: not-allowed;
+  cursor: default;
 }
 `

@@ -88,9 +88,7 @@ article h4 {
 }
 
 .section {
-  border-top: 1px dashed #ddd;
   margin: 40px 0;
-  padding: 40px 0;
   background: #fff;
 }
 
@@ -210,7 +208,7 @@ table {
 }
 th, td {
   overflow: hidden;
-  padding: 10px;
+  padding: 9px;
   border: 1px solid #d9d9d9;
   word-break: break-word;
 }
@@ -218,11 +216,39 @@ td {
   overflow: auto;
 }
 th {
-  text-align: left;
   background-color: #f0f0f0;
 }
-table.api-props th:last-child,
-table.api-props td:last-child {
-  width: 50px;
-  text-align: center;
+
+table.api-props, table.api-fns, table.api-events, table.api-slots, table.api-css {
+  font-size: 12px;
+}
+table.api-props th:nth-child(1), table.api-props td:nth-child(1) {
+  width: 120px;
+  text-align: left;
+}
+table.api-props th:nth-child(2), table.api-props td:nth-child(2) {
+  width: 120px;
+  text-align: left;
+}
+table.api-props th:nth-child(3), table.api-props td:nth-child(3) {
+  min-width: 120px;
+  text-align: left;
+}
+table.api-props th:nth-child(4), table.api-props td:nth-child(4) {
+  min-width: 120px;
+  text-align: left;
+}
+table.api-props th:nth-child(5), table.api-props td:nth-child(5) {
+  min-width: 240px;
+  text-align: left;
+}
+
+table hr {
+  border-top: none;
+  border-bottom: 1px dashed var(--bl-border-color-secondary);
+} 
+
+
+bl-card + bl-card {
+  margin-top: 30px;
 }

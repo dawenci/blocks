@@ -11,6 +11,10 @@ export const style = /*css*/ `
   height: var(--height);
 }
 
+::placeholder {
+  color: var(--bl-fg-placeholder);
+}
+
 #content {
   flex: 1 1 100%;
   width: 100%;
@@ -22,6 +26,10 @@ export const style = /*css*/ `
   background: transparent;
   color: inherit;
 }
+:host([disabled]) #content {
+  cursor: default;
+}
+
 .with-prefix #content,
 .with-loading #content {
   padding-left: calc(var(--padding) - 2px);

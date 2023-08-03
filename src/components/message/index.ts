@@ -1,27 +1,19 @@
-import type { NullableEnumAttr } from '../../decorators/attr.js'
-import { attr } from '../../decorators/attr.js'
-
-import { defineClass } from '../../decorators/defineClass.js'
+import '../close-button/index.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
-
-export interface BlocksMessage extends Component {
-  _ref: {
-    $layout: HTMLElement
-    $icon: HTMLElement
-    $content: HTMLElement
-    $close?: HTMLButtonElement
-  }
-}
+import { BlComponent } from '../component/Component.js'
+import { unmount } from '../../common/mount.js'
 
 @defineClass({
   customElement: 'bl-message',
   styles: [style],
 })
-export class BlocksMessage extends Component {
+export class BlMessage extends BlComponent {
   @attr('boolean') accessor closeable!: boolean
 
   @attr('number') accessor duration = 10
@@ -29,42 +21,59 @@ export class BlocksMessage extends Component {
   @attr('enum', {
     enumValues: ['message', 'success', 'error', 'info', 'warning'],
   })
-  accessor type!: NullableEnumAttr<['message', 'success', 'error', 'info', 'warning']>
+  accessor type!:  MaybeOneOf<['message', 'success', 'error', 'info', 'warning']>
+
+  @shadowRef('[part="layout"]') accessor $layout!: HTMLElement
+  @shadowRef('[part="icon"]') accessor $icon!: HTMLElement
+  @shadowRef('[part="content"]') accessor $content!: HTMLElement
+  @shadowRef('[part="close"]', false) accessor $close!: HTMLButtonElement
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
-    const $layout = shadowRoot.querySelector('#layout') as HTMLElement
-    const $icon = shadowRoot.querySelector('#icon') as HTMLElement
-    const $content = shadowRoot.querySelector('#content') as HTMLElement
 
-    this._ref = {
-      $layout,
-      $icon,
-      $content,
-    }
+    this.appendShadowChild(template())
 
+    this.#setupClose()
     this.#setupAutoClose()
 
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
+  }
+
+  #setupClose() {
+    const update = () => {
+      if (this.closeable) {
+        if (!this.$close) {
+          const $close = this.$layout.appendChild(document.createElement('bl-close-button'))
+          $close.setAttribute('part', 'close')
+          $close.onclick = () => {
+            this.close()
+          }
+        }
+      } else {
+        if (this.$close) {
+          unmount(this.$close)
+        }
+      }
+    }
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
   }
 
   #setupAutoClose() {
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this._setAutoClose()
     })
 
-    this.onAttributeChangedDep('duration', () => {
+    this.hook.onAttributeChangedDep('duration', () => {
       if (this.duration) this._setAutoClose()
     })
 
-    this._ref.$layout.onmouseenter = () => {
+    this.$layout.onmouseenter = () => {
       this._clearAutoClose()
     }
 
-    this._ref.$layout.onmouseleave = () => {
+    this.$layout.onmouseleave = () => {
       this._setAutoClose()
     }
   }
@@ -89,24 +98,8 @@ export class BlocksMessage extends Component {
     const iconName = this.type === 'warning' ? 'info' : this.type || ''
     const icon = getRegisteredSvgIcon(iconName)
     if (icon) {
-      this._ref.$icon.innerHTML = ''
-      this._ref.$icon.appendChild(icon)
-    }
-
-    if (this.closeable) {
-      if (!this._ref.$close) {
-        this._ref.$close = this._ref.$layout.appendChild(document.createElement('button'))
-        this._ref.$close.id = 'close'
-        this._ref.$close.appendChild(getRegisteredSvgIcon('cross')!)
-        this._ref.$close.onclick = () => {
-          this.close()
-        }
-      }
-    } else {
-      if (this._ref.$close) {
-        this._ref.$close.parentElement!.removeChild(this._ref.$close)
-        this._ref.$close = undefined
-      }
+      this.$icon.innerHTML = ''
+      this.$icon.appendChild(icon)
     }
   }
 

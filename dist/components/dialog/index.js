@@ -32,19 +32,20 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import '../close-button/index.js';
 import '../modal-mask/index.js';
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { template } from './template.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { dispatchEvent, onceEvent } from '../../common/event.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { onKeymap } from '../../common/onKeymap.js';
 import { style } from './style.js';
 import { mountBefore, unmount, append } from '../../common/mount.js';
-import { BlocksPopup } from '../popup/index.js';
+import { BlPopup } from '../popup/index.js';
 import { SetupClickOutside } from '../setup-click-outside/index.js';
-let BlocksDialog = (() => {
+let BlDialog = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-dialog',
             styles: [style],
@@ -81,7 +82,7 @@ let BlocksDialog = (() => {
     let _$bodySlot_initializers = [];
     let _$footerSlot_decorators;
     let _$footerSlot_initializers = [];
-    var BlocksDialog = class extends BlocksPopup {
+    var BlDialog = class extends BlPopup {
         static {
             _mask_decorators = [attr('boolean')];
             _closeable_decorators = [attr('boolean')];
@@ -112,7 +113,7 @@ let BlocksDialog = (() => {
             __esDecorate(this, null, _$bodySlot_decorators, { kind: "accessor", name: "$bodySlot", static: false, private: false, access: { has: obj => "$bodySlot" in obj, get: obj => obj.$bodySlot, set: (obj, value) => { obj.$bodySlot = value; } } }, _$bodySlot_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$footerSlot_decorators, { kind: "accessor", name: "$footerSlot", static: false, private: false, access: { has: obj => "$footerSlot" in obj, get: obj => obj.$footerSlot, set: (obj, value) => { obj.$footerSlot = value; } } }, _$footerSlot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksDialog = _classThis = _classDescriptor.value;
+            BlDialog = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get role() {
@@ -170,8 +171,8 @@ let BlocksDialog = (() => {
             this.#setupFooter();
             this.#setupClose();
             this.#setupDragEvent();
-            this.#setupClickOutside();
             this.#setupKeymap();
+            this.#setupAria();
         }
         _clickOutside = SetupClickOutside.setup({
             component: this,
@@ -181,9 +182,20 @@ let BlocksDialog = (() => {
             update() {
                 this.open = false;
             },
+            init() {
+                const update = () => {
+                    if (this.open && this.closeOnClickOutside) {
+                        this._clickOutside.bind();
+                    }
+                    else {
+                        this._clickOutside.unbind();
+                    }
+                };
+                this.hook.onAttributeChangedDeps(['open', 'close-on-click-outside'], update);
+            },
         });
         #setupPopup() {
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.autofocus = true;
                 if (this.parentElement !== document.body) {
                     document.body.appendChild(this);
@@ -193,10 +205,10 @@ let BlocksDialog = (() => {
                 if (this.unmountOnClosed)
                     unmount(this);
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('closed', unmountDialog);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('closed', unmountDialog);
             });
         }
@@ -245,14 +257,14 @@ let BlocksDialog = (() => {
                     }
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 if (this.mask && this.open)
                     _ensureMask();
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 _destroyMask();
             });
-            this.onAttributeChangedDeps(['mask', 'open'], () => {
+            this.hook.onAttributeChangedDeps(['mask', 'open'], () => {
                 if (!this.$mask && this.mask && this.open) {
                     return _ensureMask();
                 }
@@ -268,7 +280,7 @@ let BlocksDialog = (() => {
         #setupClose() {
             const update = () => {
                 if (this.closeable && !this.$close) {
-                    const $close = document.createElement('button');
+                    const $close = document.createElement('bl-close-button');
                     $close.setAttribute('part', 'close');
                     $close.onclick = () => {
                         this.open = false;
@@ -285,9 +297,9 @@ let BlocksDialog = (() => {
                     unmount(this.$close);
                 }
             };
-            this.onConnected(update);
-            this.onRender(update);
-            this.onAttributeChangedDep('closeable', update);
+            this.hook.onConnected(update);
+            this.hook.onRender(update);
+            this.hook.onAttributeChangedDep('closeable', update);
         }
         #setupHeader() {
             const update = () => {
@@ -303,15 +315,15 @@ let BlocksDialog = (() => {
                     this.$layout.classList.add('no-header');
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$headerSlot.addEventListener('slotchange', update);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$headerSlot.removeEventListener('slotchange', update);
             });
-            this.onConnected(update);
-            this.onRender(update);
-            this.onAttributeChangedDep('title-text', update);
+            this.hook.onConnected(update);
+            this.hook.onRender(update);
+            this.hook.onAttributeChangedDep('title-text', update);
         }
         #setupFooter() {
             const update = () => {
@@ -322,12 +334,12 @@ let BlocksDialog = (() => {
                     this.$layout.classList.add('no-footer');
                 }
             };
-            this.onConnected(update);
-            this.onRender(update);
-            this.onConnected(() => {
+            this.hook.onConnected(update);
+            this.hook.onRender(update);
+            this.hook.onConnected(() => {
                 this.$footerSlot.addEventListener('slotchange', update);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$footerSlot.removeEventListener('slotchange', update);
             });
         }
@@ -385,13 +397,13 @@ let BlocksDialog = (() => {
                     clear = undefined;
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 _initKeydown();
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 _destroyKeydown();
             });
-            this.onAttributeChangedDep('close-on-press-escape', () => {
+            this.hook.onAttributeChangedDep('close-on-press-escape', () => {
                 if (this.closeOnPressEscape) {
                     _initKeydown();
                 }
@@ -400,24 +412,15 @@ let BlocksDialog = (() => {
                 }
             });
         }
-        #setupClickOutside() {
-            this.onConnected(() => {
-                this.addEventListener('opened', () => {
-                    if (this.closeOnClickOutside)
-                        this._clickOutside.bind();
-                });
-                this.addEventListener('closed', () => {
-                    this._clickOutside.unbind();
-                });
-            });
-            this.onAttributeChangedDep('close-on-click-outside', () => {
-                if (this.closeOnClickOutside)
-                    this._clickOutside.bind();
-                else
-                    this._clickOutside.unbind();
-            });
+        #setupAria() {
+            const update = () => {
+                this.setAttribute('aria-modal', this.mask ? 'true' : 'false');
+            };
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDep('mask', update);
         }
     };
-    return BlocksDialog = _classThis;
+    return BlDialog = _classThis;
 })();
-export { BlocksDialog };
+export { BlDialog };

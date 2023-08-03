@@ -32,12 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { Component } from '../component/Component.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { BlComponent } from '../component/Component.js';
 import { SetupDisabled } from '../setup-disabled/index.js';
 import { SetupTabIndex } from '../setup-tab-index/index.js';
-export let Control = (() => {
+export let BlControl = (() => {
     let _classDecorators = [defineClass({
             attachShadow: {
                 mode: 'open',
@@ -50,19 +50,16 @@ export let Control = (() => {
     let _instanceExtraInitializers = [];
     let _disabled_decorators;
     let _disabled_initializers = [];
-    var Control = class extends Component {
+    var BlControl = class extends BlComponent {
         static {
             _disabled_decorators = [attr('boolean')];
             __esDecorate(this, null, _disabled_decorators, { kind: "accessor", name: "disabled", static: false, private: false, access: { has: obj => "disabled" in obj, get: obj => obj.disabled, set: (obj, value) => { obj.disabled = value; } } }, _disabled_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            Control = _classThis = _classDescriptor.value;
+            BlControl = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
             return ['tabindex', ...super.observedAttributes];
-        }
-        static get disableEventTypes() {
-            return [];
         }
         #disabled_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _disabled_initializers, void 0));
         get disabled() { return this.#disabled_accessor_storage; }
@@ -72,6 +69,7 @@ export let Control = (() => {
         }
         _disabledFeature = SetupDisabled.setup({
             component: this,
+            disableEventTypes: ['click', 'mousedown', 'focus', 'touchstart', 'keydown'],
             predicate() {
                 return this.disabled;
             },
@@ -92,5 +90,5 @@ export let Control = (() => {
             },
         });
     };
-    return Control = _classThis;
+    return BlControl = _classThis;
 })();

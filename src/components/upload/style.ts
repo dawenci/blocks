@@ -48,7 +48,7 @@ export const style = /*css*/ `
   color: var(--bl-fg-secondary, ${__fg_secondary});
   user-select: none;
   cursor: pointer;
-  transition: all var(--transition-duration, ${__transition_duration});
+  transition: all var(--bl-transition-duration, ${__transition_duration});
 }
 :host(:not([disabled])) #dropZone:hover {
   border-color: var(--bl-color-primary-base, ${__color_primary});

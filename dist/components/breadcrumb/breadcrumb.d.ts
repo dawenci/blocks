@@ -1,6 +1,6 @@
 import './item.js';
-import { Component } from '../component/Component.js';
-export declare class BlocksBreadcrumb extends Component {
+import { BlComponent } from '../component/Component.js';
+export declare class BlBreadcrumb extends BlComponent {
     #private;
     accessor separator: string;
     accessor $slot: HTMLSlotElement;

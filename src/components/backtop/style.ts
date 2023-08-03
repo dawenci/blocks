@@ -1,13 +1,20 @@
-import { __border_color_base, __color_primary, __color_primary_light } from '../../theme/var-light.js'
+import {
+  __border_color_base,
+  __color_primary,
+  __color_primary_light,
+  __z_index_popup_base,
+} from '../../theme/var-light.js'
 
 export const style = /*css*/ `
 :host {
   --bg: var(--bl-color-primary-base, ${__color_primary});
   --bg-hover: var(--bl-color-primary-hover, ${__color_primary_light});
+  --z-index: var(--bl-z-index-popup-base, ${__z_index_popup_base});
 }
 :host {
   box-sizing: border-box;
   position: fixed;
+  z-index: var(--z-index);
   bottom: 50px;
   right: 20px;
   display: inline-block;

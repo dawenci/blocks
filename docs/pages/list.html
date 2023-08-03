@@ -18,22 +18,23 @@
       <h1>list</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
     <script type="module" src="../../dist/components/input/index.js"></script>
 
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/list/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/list/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认列表</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认列表</h2>
         <div data-codesource="html">
           <bl-list id="default" style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
           <script>
@@ -45,14 +46,13 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>border</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">border</h2>
         <div data-codesource="html">
           <bl-list
             border
@@ -67,14 +67,13 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>斑马纹</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">斑马纹</h2>
         <div data-codesource="html">
           <bl-list
             stripe
@@ -89,104 +88,110 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>可选择</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">可选择</h2>
+        <h3>单选</h3>
 
-      <h3>单选</h3>
-      <div class="case">
-        <div data-codesource="html">
-          <bl-list
-            checkable
-            id="single"
-            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
-          <script>
-            (() => {
-              const data = []
-              let i = -1
-              while (i++ < 100) data.push({ label: `label ${i}`, id: `id${i}` })
-              document.getElementById('single').data = data
-            })()
-          </script>
+        <div class="case">
+          <div data-codesource="html">
+            <bl-list
+              checkable
+              id="single"
+              style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+            <script>
+              (() => {
+                const data = []
+                let i = -1
+                while (i++ < 100) data.push({ label: `label ${i}`, id: `id${i}` })
+                document.getElementById('single').data = data
+              })()
+            </script>
+          </div>
         </div>
-      </div>
 
-      <h3>多选</h3>
-      <div class="case">
-        <div data-codesource="html">
-          <bl-list
-            checkable
-            multiple
-            id="multiple"
-            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
-          <script>
-            (() => {
-              const data = []
-              let i = -1
-              while (i++ < 100) data.push({ label: `label ${i}`, id: `id${i}` })
-              document.getElementById('multiple').data = data
-            })()
-          </script>
+        <h3>多选</h3>
+
+        <div class="case">
+          <div data-codesource="html">
+            <bl-list
+              checkable
+              multiple
+              id="multiple"
+              style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+            <script>
+              (() => {
+                const data = []
+                let i = -1
+                while (i++ < 100) data.push({ label: `label ${i}`, id: `id${i}` })
+                document.getElementById('multiple').data = data
+              })()
+            </script>
+          </div>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>禁用</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">禁用</h2>
 
-      <h3>组件禁用</h3>
-      <div class="case">
-        <div data-codesource="html">
-          <bl-list
-            border
-            disabled
-            checkable
-            multiple
-            id="disabled"
-            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
-          <script>
-            (() => {
-              const data = []
-              let i = -1
-              while (i++ < 100) data.push({ label: `label ${i}`, id: `id${i}` })
-              document.getElementById('disabled').data = data
-            })()
-          </script>
-        </div>
-      </div>
+        <h3>组件禁用</h3>
 
-      <h3>项禁用</h3>
-      <div class="case">
-        <div data-codesource="html">
-          <bl-list
-            border
-            checkable
-            multiple
-            id="item-disabled"
-            style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
-          <script>
-            (() => {
-              const data = []
-              let i = -1
-              while (i++ < 100) data.push({ label: `label ${i}`, id: `id${i}` })
-              data[1].disabled = true
-              data[3].disabled = true
-              data[5].disabled = true
-              document.getElementById('item-disabled').data = data
-            })()
-          </script>
+        <div class="case">
+          <div data-codesource="html">
+            <bl-list
+              border
+              disabled
+              checkable
+              multiple
+              id="disabled"
+              style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+            <script>
+              (() => {
+                const data = []
+                let i = -1
+                while (i++ < 100) data.push({ label: `label ${i}`, id: `id${i}` })
+                document.getElementById('disabled').data = data
+              })()
+            </script>
+          </div>
         </div>
-      </div>
+      
+        <h3>项禁用</h3>
+        
+        <div class="case">
+          <div data-codesource="html">
+            <bl-list
+              border
+              checkable
+              multiple
+              id="item-disabled"
+              style="width:200px;height:400px;border:1px solid #e8e8e8;"></bl-list>
+            <script>
+              (() => {
+                const data = []
+                let i = -1
+                while (i++ < 100) data.push({ label: `label ${i}`, id: `id${i}` })
+                data[1].disabled = true
+                data[3].disabled = true
+                data[5].disabled = true
+                document.getElementById('item-disabled').data = data
+              })()
+            </script>
+          </div>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>内容搜索</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">内容搜索</h2>
         <div data-codesource="html">
           <bl-input id="input" style="margin-bottom:10px;width:100%;"></bl-input>
           <bl-list
@@ -207,148 +212,188 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
     
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
 
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>border</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否启用项描边。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>data</td>
-            <td>Object[]</td>
-            <td></td>
-            <td>列表数据（对象列表），该属性是 prop，非 attr。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>disabled</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否禁用。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>disabled-label</td>
-            <td>string</td>
-            <td>'disabled'</td>
-            <td>项禁用的依据字段名称。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>id-field</td>
-            <td>string</td>
-            <td>'id'</td>
-            <td>数据的唯一 key 字段名称。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>label-field</td>
-            <td>string</td>
-            <td>'label'</td>
-            <td>数据的 label 字段名称。</td>
-            <td></td>
-          </tr>          
-          <tr>
-            <td>multiple</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否多选模式</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>checked</td>
-            <td></td>
-            <td></td>
-            <td>选中的 id 或 id 数组（多选模式）。该属性是 prop，非 attr。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>search</td>
-            <td>string</td>
-            <td></td>
-            <td>搜索条目的关键词。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>stripe</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否启用斑马纹。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <h3>Attrs / Props</h3>
 
-      <h3>Methods</h3>
-      <table class="api-fns">
-        <thead>
-          <tr>
-            <th>函数名称</th>
-            <th>类型</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>idMethod</td>
-            <td>(data) => string</td>
-            <td>结点的唯一 key 生成方法，优先级高于 id-field 属性。</td>
-          </tr>
-          <tr>
-            <td>labelMethod</td>
-            <td>(data) => string</td>
-            <td>结点内容的显示方法。优先级高于 label-field 属性。</td>
-          </tr>          
-        </tbody>
-      </table>
-
-
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>select-list:select</td>
-            <td>CustomEvent<{ value: ISelected }></td>
-            <td>选择单个条目。</td>
-          </tr>
-          <tr>
-            <td>select-list:deselect</td>
-            <td>CustomEvent<{ value: ISelected }></td>
-            <td>取消单个条目的选择。</td>
-          </tr>
-          <tr>
-            <td>select-list:change</td>
-            <td>CustomEvent<{ value: ISelected[] }></td>
-            <td>选择结果变化。</td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>border</td>
+              <td>border</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否启用项描边。</td>
+            </tr>
+            <tr>
+              <td>checkable</td>
+              <td>checkable</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否可以选择</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>checked</td>
+              <td>string[]</td>
+              <td>[]</td>
+              <td>选中的 id 数组。</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>checkedData</td>
+              <td>object[]</td>
+              <td>[]</td>
+              <td>选中的条目数组。</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>data</td>
+              <td>Object[]</td>
+              <td></td>
+              <td>列表数据（对象列表），该属性是 prop，非 attr。</td>
+            </tr>
+            <tr>
+              <td>disabled</td>
+              <td>disabled</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否禁用。</td>
+            </tr>
+            <tr>
+              <td>disabled-label</td>
+              <td>disabledLabel</td>
+              <td>string</td>
+              <td>'disabled'</td>
+              <td>项禁用的依据字段名称。</td>
+            </tr>
+            <tr>
+              <td>id-field</td>
+              <td>idField</td>
+              <td>string</td>
+              <td>'id'</td>
+              <td>数据的唯一 key 字段名称。</td>
+            </tr>
+            <tr>
+              <td>label-field</td>
+              <td>labelField</td>
+              <td>string</td>
+              <td>'label'</td>
+              <td>数据的 label 字段名称。</td>
+            </tr>
+            <tr>
+              <td>multiple</td>
+              <td>multiple</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否多选模式</td>
+            </tr>
+            <tr>
+              <td>search</td>
+              <td>search</td>
+              <td>string</td>
+              <td>无</td>
+              <td>搜索条目的关键词。</td>
+            </tr>
+            <tr>
+              <td>stripe</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否启用斑马纹。</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Methods</h3>
+  
+        <table class="api-fns">
+          <thead>
+            <tr>
+              <th>函数名称</th>
+              <th>类型</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>idMethod</td>
+              <td>(data) => string</td>
+              <td>结点的唯一 key 生成方法，优先级高于 id-field 属性。</td>
+            </tr>
+            <tr>
+              <td>labelMethod</td>
+              <td>(data) => string</td>
+              <td>结点内容的显示方法。优先级高于 label-field 属性。</td>
+            </tr> 
+            <tr>
+              <td>selectById</td>
+              <td>(id: string) => void</td>
+              <td>通过 id 选择条目。</td>
+            </tr>          
+            <tr>
+              <td>deselectById</td>
+              <td>(id: string) => void</td>
+              <td>通过 id 取消选择条目。</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Events</h3>
+        
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>select-list:select</td>
+              <td>
+                CustomEvent&lt;{ value: ISelected }&gt;
+                <hr>
+                type ISelected<T> = { value: T; label: string }
+              </td>
+              <td>选择单个条目。</td>
+            </tr>
+            <tr>
+              <td>select-list:deselect</td>
+              <td>
+                CustomEvent&lt;{ value: ISelected }&gt;
+                <hr>
+                type ISelected<T> = { value: T; label: string }
+              </td>
+              <td>取消单个条目的选择。</td>
+            </tr>
+            <tr>
+              <td>select-list:change</td>
+              <td>
+                CustomEvent&lt;{ value: ISelected[] }&gt;
+                <hr>
+                type ISelected<T> = { value: T; label: string }
+              </td>
+              <td>选择结果变化。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

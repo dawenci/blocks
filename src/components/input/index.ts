@@ -1,13 +1,12 @@
-import type { EnumAttrs } from '../../decorators/attr.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { disabledSetter } from '../../common/propertyAccessor.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
-import { ComponentEventListener } from '../component/Component.js'
+import { BlClearableControlBox, BlClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
+import { BlComponentEventListener } from '../component/Component.js'
 import { ISelected, ISelectResultEventMap, ISelectResultComponent } from '../../common/connectSelectable.js'
 
 const INPUT_ATTRS = [
@@ -25,20 +24,20 @@ const INPUT_ATTRS = [
   'autocomplete',
 ] as const
 
-interface BlocksInputEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
+export interface BlInputEventMap extends BlClearableControlBoxEventMap, ISelectResultEventMap {
   change: CustomEvent<{ value: string }>
 }
 
-export interface BlocksInput extends ClearableControlBox, ISelectResultComponent {
-  addEventListener<K extends keyof BlocksInputEventMap>(
+export interface BlInput extends BlClearableControlBox, ISelectResultComponent {
+  addEventListener<K extends keyof BlInputEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksInputEventMap[K]>,
+    listener: BlComponentEventListener<BlInputEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof BlocksInputEventMap>(
+  removeEventListener<K extends keyof BlInputEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksInputEventMap[K]>,
+    listener: BlComponentEventListener<BlInputEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -47,13 +46,9 @@ export interface BlocksInput extends ClearableControlBox, ISelectResultComponent
   customElement: 'bl-input',
   styles: [style],
 })
-export class BlocksInput extends ClearableControlBox implements ISelectResultComponent {
-  static get role() {
+export class BlInput extends BlClearableControlBox implements ISelectResultComponent {
+  static override get role() {
     return 'input'
-  }
-
-  static override get disableEventTypes() {
-    return ['click', 'keydown', 'touchstart']
   }
 
   @attr('string') accessor value!: string | null
@@ -80,18 +75,25 @@ export class BlocksInput extends ClearableControlBox implements ISelectResultCom
 
   @attr('boolean') override accessor autofocus!: boolean
 
-  @attrs.size accessor size!: EnumAttrs['size']
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
 
   /* file/email */
   @attr('boolean') accessor multiple!: boolean
 
-  @shadowRef('[part="input"]') accessor $input!: HTMLInputElement
+  @shadowRef('[part="content"]') accessor $input!: HTMLInputElement
 
   constructor() {
     super()
 
     this.appendContent(template())
-    this._tabIndexFeature.withTabIndex(0).withTarget(() => [this.$input])
+    this._tabIndexFeature
+      .withTabIndex(0)
+      .withTarget(() => [this.$input])
+      .withPostUpdate(() => {
+        if (this.$layout.hasAttribute('tabindex')) {
+          this.$layout.removeAttribute('tabindex')
+        }
+      })
 
     this.#setupDisableFeature()
     this.#setupValueModify()
@@ -130,16 +132,16 @@ export class BlocksInput extends ClearableControlBox implements ISelectResultCom
       this.value = ''
       this.#notifyClear()
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$input.oninput = this.$input.onchange = onChange
       this.addEventListener('click-clear', onClear)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$input.oninput = this.$input.onchange = null
       this.removeEventListener('click-clear', onClear)
     })
 
-    this.onAttributeChangedDeps(INPUT_ATTRS, (name, _: any, val: any): void => {
+    this.hook.onAttributeChangedDeps(INPUT_ATTRS, (name, _: any, val: any): void => {
       if (name === 'value') {
         if (this.$input.value !== val) {
           this.$input.value = val
@@ -150,7 +152,7 @@ export class BlocksInput extends ClearableControlBox implements ISelectResultCom
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     })
 
-    this.onAttributeChangedDep('value', () => {
+    this.hook.onAttributeChangedDep('value', () => {
       this._emptyFeature.update()
     })
   }
@@ -159,6 +161,7 @@ export class BlocksInput extends ClearableControlBox implements ISelectResultCom
   acceptSelected(value: ISelected[]) {
     const label = value.map(item => item.label).join(', ')
     this.value = label
+    dispatchEvent(this, 'select-result:after-accept-selected')
   }
 
   clearSearch() {

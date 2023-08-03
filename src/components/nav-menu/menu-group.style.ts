@@ -3,7 +3,7 @@ import { __border_color_hover, __fg_secondary, __font_family } from '../../theme
 export const style = /*css*/ `
 :host {
   display: block;
-  font-family: var(--font-family, ${__font_family});
+  font-family: var(--bl-font-family, ${__font_family});
   font-size: 14px;
 }
 #head {

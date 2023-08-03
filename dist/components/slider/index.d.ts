@@ -1,9 +1,8 @@
-import { Control } from '../base-control/index.js';
-export declare class BlocksSlider extends Control {
+import { BlControl } from '../base-control/index.js';
+export declare class BlSlider extends BlControl {
     #private;
     static get role(): string;
     static get observedAttributes(): readonly ["disabled", "max", "min", "size", "step", "round", "value", "vertical"];
-    static get disableEventTypes(): string[];
     accessor shadowSize: number;
     accessor size: number;
     accessor min: number;

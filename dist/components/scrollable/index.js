@@ -32,17 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { setStyles } from '../../common/style.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
-export let BlocksScrollable = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlScrollable = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-scrollable',
             styles: [style],
@@ -65,7 +65,7 @@ export let BlocksScrollable = (() => {
     let _$horizontalThumb_initializers = [];
     let _$verticalThumb_decorators;
     let _$verticalThumb_initializers = [];
-    var BlocksScrollable = class extends Component {
+    var BlScrollable = class extends BlComponent {
         static {
             _shadow_decorators = [attr('boolean')];
             _$layout_decorators = [shadowRef('[part="layout"]')];
@@ -82,7 +82,7 @@ export let BlocksScrollable = (() => {
             __esDecorate(this, null, _$horizontalThumb_decorators, { kind: "accessor", name: "$horizontalThumb", static: false, private: false, access: { has: obj => "$horizontalThumb" in obj, get: obj => obj.$horizontalThumb, set: (obj, value) => { obj.$horizontalThumb = value; } } }, _$horizontalThumb_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$verticalThumb_decorators, { kind: "accessor", name: "$verticalThumb", static: false, private: false, access: { has: obj => "$verticalThumb" in obj, get: obj => obj.$verticalThumb, set: (obj, value) => { obj.$verticalThumb = value; } } }, _$verticalThumb_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksScrollable = _classThis = _classDescriptor.value;
+            BlScrollable = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #shadow_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _shadow_initializers, void 0));
@@ -113,37 +113,22 @@ export let BlocksScrollable = (() => {
         set $verticalThumb(value) { this.#$verticalThumb_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
-            const $layout = shadowRoot.getElementById('layout');
-            const $viewport = shadowRoot.getElementById('viewport');
-            const $horizontal = shadowRoot.getElementById('horizontal');
-            const $horizontalThumb = $horizontal.firstElementChild;
-            const $vertical = shadowRoot.getElementById('vertical');
-            const $verticalThumb = $vertical.firstElementChild;
-            this._ref = {
-                $layout,
-                $viewport,
-                $horizontal,
-                $horizontalThumb,
-                $vertical,
-                $verticalThumb,
-            };
-            $layout.onmouseenter = () => {
+            this.appendShadowChild(template());
+            this.$layout.onmouseenter = () => {
                 this._updateScrollbar();
             };
-            sizeObserve($layout, size => {
+            sizeObserve(this.$layout, size => {
                 this._updateScrollbar();
                 dispatchEvent(this, 'bl:resize', { detail: size });
             });
             this._initMoveEvents();
-            $viewport.onscroll = () => {
+            this.$viewport.onscroll = () => {
                 if (!this.#draggingFlag) {
                     this._updateScrollbar();
                 }
                 dispatchEvent(this, 'bl:scroll');
             };
-            this.onConnected(this.render);
+            this.hook.onConnected(this.render);
         }
         get canScrollLeft() {
             return this.#canScrollLeft;
@@ -391,5 +376,5 @@ export let BlocksScrollable = (() => {
             });
         }
     };
-    return BlocksScrollable = _classThis;
+    return BlScrollable = _classThis;
 })();

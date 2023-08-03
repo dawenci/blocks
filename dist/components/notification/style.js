@@ -8,7 +8,7 @@ export const style = `
   box-shadow: 0 0 5px -2px rgb(0,0,0,0.16),
     0 0 16px 0 rgb(0,0,0,0.08),
     0 0 28px 8px rgb(0,0,0,0.05);
-  transition: all var(--transition-duration, ${__transition_duration}) ease-out;
+  transition: all var(--bl-transition-duration, ${__transition_duration}) ease-out;
   pointer-events: auto;
 }
 #layout {

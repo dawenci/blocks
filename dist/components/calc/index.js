@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { forEach } from '../../common/utils.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
+import { BlControl } from '../base-control/index.js';
 var State;
 (function (State) {
     State["Init"] = "Init";
@@ -50,7 +50,7 @@ var State;
     State["OperandRightEnd"] = "OperandRightEnd";
     State["Result"] = "Result";
 })(State || (State = {}));
-export let BlocksCalc = (() => {
+export let BlCalc = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-calc',
             styles: [style],
@@ -67,7 +67,7 @@ export let BlocksCalc = (() => {
     let _$result_initializers = [];
     let _$input_decorators;
     let _$input_initializers = [];
-    var BlocksCalc = class extends Component {
+    var BlCalc = class extends BlControl {
         static {
             _screen_decorators = [attr('string')];
             _$layout_decorators = [shadowRef('#layout')];
@@ -78,7 +78,7 @@ export let BlocksCalc = (() => {
             __esDecorate(this, null, _$result_decorators, { kind: "accessor", name: "$result", static: false, private: false, access: { has: obj => "$result" in obj, get: obj => obj.$result, set: (obj, value) => { obj.$result = value; } } }, _$result_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$input_decorators, { kind: "accessor", name: "$input", static: false, private: false, access: { has: obj => "$input" in obj, get: obj => obj.$input, set: (obj, value) => { obj.$input = value; } } }, _$input_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksCalc = _classThis = _classDescriptor.value;
+            BlCalc = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #screen_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _screen_initializers, '0'));
@@ -106,16 +106,17 @@ export let BlocksCalc = (() => {
         makeFn = (op) => op === '+' ? this.makeAdd : op === '-' ? this.makeSub : op === '*' ? this.makeMul : this.makeDiv;
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
-            this.onConnected(() => {
+            this.appendShadowChild(template());
+            this._tabIndexFeature.withTarget(() => [this.$layout]).withTabIndex(0);
+            this.hook.onConnected(() => {
                 this.render();
                 this.$layout.onkeypress = this.onKeyPress.bind(this);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$layout.onkeypress = null;
             });
-            this.onAttributeChanged(this.render);
-            this.onAttributeChangedDep('screen', this.onScreenChange);
+            this.hook.onAttributeChanged(this.render);
+            this.hook.onAttributeChangedDep('screen', this.onScreenChange);
         }
         get memoryKeys() {
             return [
@@ -567,5 +568,5 @@ export let BlocksCalc = (() => {
             }
         }
     };
-    return BlocksCalc = _classThis;
+    return BlCalc = _classThis;
 })();

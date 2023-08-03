@@ -34,8 +34,8 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../button/index.js';
 import '../progress/index.js';
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { dispatchEvent } from '../../common/event.js';
 import { itemTemplate } from './item.template.js';
@@ -43,7 +43,7 @@ import { strSetter } from '../../common/property.js';
 import { style } from './style.js';
 import { template } from './template.js';
 import { uploadRequest } from './uploadRequest.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 const DEFAULT_ICON_MAP = Object.freeze({
     'file-image': /^image\//,
     'file-pdf': /\/pdf$/,
@@ -83,7 +83,7 @@ var State;
     State[State["Error"] = 3] = "Error";
     State[State["Abort"] = 4] = "Abort";
 })(State || (State = {}));
-export let BlocksUpload = (() => {
+export let BlUpload = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-upload',
             styles: [style],
@@ -108,7 +108,7 @@ export let BlocksUpload = (() => {
     let _withCredentials_initializers = [];
     let _name_decorators;
     let _name_initializers = [];
-    var BlocksUpload = class extends Component {
+    var BlUpload = class extends BlComponent {
         static {
             _accept_decorators = [attr('string')];
             _action_decorators = [attr('string')];
@@ -127,7 +127,7 @@ export let BlocksUpload = (() => {
             __esDecorate(this, null, _withCredentials_decorators, { kind: "accessor", name: "withCredentials", static: false, private: false, access: { has: obj => "withCredentials" in obj, get: obj => obj.withCredentials, set: (obj, value) => { obj.withCredentials = value; } } }, _withCredentials_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _name_decorators, { kind: "accessor", name: "name", static: false, private: false, access: { has: obj => "name" in obj, get: obj => obj.name, set: (obj, value) => { obj.name = value; } } }, _name_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksUpload = _classThis = _classDescriptor.value;
+            BlUpload = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #accept_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _accept_initializers, void 0));
@@ -417,5 +417,5 @@ export let BlocksUpload = (() => {
             }
         }
     };
-    return BlocksUpload = _classThis;
+    return BlUpload = _classThis;
 })();

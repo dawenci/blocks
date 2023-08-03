@@ -32,20 +32,20 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { updateBg } from './bg.js';
-import { prop } from '../../decorators/prop.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { prop } from '../../decorators/prop/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 import { PopupOrigin } from './origin.js';
 import { SetupFocusCapture } from '../setup-focus-capture/index.js';
 import { WithOpenTransition } from '../with-open-transition/index.js';
 const originArray = Object.values(PopupOrigin);
-export let BlocksPopup = (() => {
+export let BlPopup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup',
             attachShadow: {
@@ -101,7 +101,7 @@ export let BlocksPopup = (() => {
     let _$bg_initializers = [];
     let _$shadow_decorators;
     let _$shadow_initializers = [];
-    var BlocksPopup = class extends Component {
+    var BlPopup = class extends BlComponent {
         static {
             _origin_decorators = [attr('enum', { enumValues: originArray })];
             _inset_decorators = [attr('boolean')];
@@ -123,7 +123,7 @@ export let BlocksPopup = (() => {
                     get(self) {
                         return self.#anchorElement;
                     },
-                    set: (self, value) => {
+                    set(self, value) {
                         self.#anchorElement = value;
                         self.updatePositionAndDirection();
                     },
@@ -154,11 +154,8 @@ export let BlocksPopup = (() => {
             __esDecorate(this, null, _$bg_decorators, { kind: "accessor", name: "$bg", static: false, private: false, access: { has: obj => "$bg" in obj, get: obj => obj.$bg, set: (obj, value) => { obj.$bg = value; } } }, _$bg_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$shadow_decorators, { kind: "accessor", name: "$shadow", static: false, private: false, access: { has: obj => "$shadow" in obj, get: obj => obj.$shadow, set: (obj, value) => { obj.$shadow = value; } } }, _$shadow_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksPopup = _classThis = _classDescriptor.value;
+            BlPopup = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get role() {
-            return 'popup';
         }
         #origin_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _origin_initializers, PopupOrigin.Center));
         get origin() { return this.#origin_accessor_storage; }
@@ -231,6 +228,7 @@ export let BlocksPopup = (() => {
             this.#setupAppendBody();
             this.#setupAnchorAdsorption();
             this.#setupArrow();
+            this.#setupAria();
         }
         #isVerticalFlipped = false;
         #isHorizontalFlipped = false;
@@ -382,13 +380,13 @@ export let BlocksPopup = (() => {
                     clear();
                 clear = undefined;
             };
-            this.onRender(update);
-            this.onConnected(update);
-            this.onAttributeChangedDep('arrow', update);
-            this.onConnected(() => {
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDep('arrow', update);
+            this.hook.onConnected(() => {
                 clear = sizeObserve(this.$layout, update);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 cleanup();
             });
         }
@@ -427,12 +425,12 @@ export let BlocksPopup = (() => {
             });
         }
         #setupAppendBody() {
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 if (this.appendToBody && this.parentElement !== document.body) {
                     document.body.appendChild(this);
                 }
             });
-            this.onAttributeChangedDep('append-to-body', () => {
+            this.hook.onAttributeChangedDep('append-to-body', () => {
                 if (this.appendToBody && this.parentElement !== document.body && document.documentElement.contains(this)) {
                     document.body.appendChild(this);
                 }
@@ -458,15 +456,15 @@ export let BlocksPopup = (() => {
                 window.removeEventListener('resize', refreshPos);
                 refreshPos = null;
             };
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 _destroyAnchorEvent();
             });
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 if (this.open) {
                     _initAnchorEvent();
                 }
             });
-            this.onAttributeChangedDep('open', () => {
+            this.hook.onAttributeChangedDep('open', () => {
                 if (this.open) {
                     _initAnchorEvent();
                 }
@@ -474,20 +472,19 @@ export let BlocksPopup = (() => {
                     _destroyAnchorEvent();
                 }
             });
-            this.onRender(this.updatePositionAndDirection);
-            this.onConnected(this.updatePositionAndDirection);
-            this.onAttributeChangedDeps([
-                'open',
-                'anchor',
-                'offset-x',
-                'offset-y',
+            this.hook.onRender(this.updatePositionAndDirection);
+            this.hook.onConnected(this.updatePositionAndDirection);
+            this.hook.onAttributeChangedDeps([
+                'arrow',
                 'anchor-x',
                 'anchor-y',
                 'anchor-width',
                 'anchor-height',
                 'anchor-selector',
+                'offset-x',
+                'offset-y',
+                'open',
                 'origin',
-                'arrow',
             ], this.updatePositionAndDirection);
         }
         #setupFocus() {
@@ -497,8 +494,8 @@ export let BlocksPopup = (() => {
                         this.setAttribute('tabindex', '-1');
                 }
             };
-            this.onConnected(initTabIndex);
-            this.onAttributeChangedDeps(['focusable', 'autofocus'], initTabIndex);
+            this.hook.onConnected(initTabIndex);
+            this.hook.onAttributeChangedDeps(['focusable', 'autofocus'], initTabIndex);
             let $prevFocus;
             const _focus = () => {
                 if (this.restorefocus && !$prevFocus) {
@@ -530,11 +527,11 @@ export let BlocksPopup = (() => {
             const onClosed = () => {
                 _blur();
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('opened', onOpened);
                 this.addEventListener('closed', onClosed);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('opened', onOpened);
                 this.removeEventListener('closed', onClosed);
             });
@@ -544,11 +541,11 @@ export let BlocksPopup = (() => {
             predicate: () => this.open,
             container: () => this.$layout,
             init: () => {
-                this.onConnected(() => {
+                this.hook.onConnected(() => {
                     if (this.capturefocus)
                         this._focusCapture.start();
                 });
-                this.onAttributeChangedDep('capturefocus', () => {
+                this.hook.onAttributeChangedDep('capturefocus', () => {
                     if (this.capturefocus) {
                         this._focusCapture.start();
                     }
@@ -596,8 +593,16 @@ export let BlocksPopup = (() => {
         #isVertical() {
             return this.origin.startsWith('top') || this.origin.startsWith('bottom');
         }
+        #setupAria() {
+            const update = () => {
+                this.setAttribute('aria-orientation', this.#isVertical() ? 'vertical' : 'horizontal');
+            };
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDep('origin', update);
+        }
     };
-    return BlocksPopup = _classThis;
+    return BlPopup = _classThis;
 })();
 function flipY(y) {
     return y === 'top' ? 'bottom' : y === 'bottom' ? 'top' : 'center';

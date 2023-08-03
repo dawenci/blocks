@@ -1,15 +1,19 @@
 import '../button/index.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-button-group',
   styles: [style],
 })
-export class BlocksButtonGroup extends Component {
+export class BlButtonGroup extends BlComponent {
+  static override get role() {
+    return 'group'
+  }
+
   @shadowRef('slot') accessor $slot!: HTMLSlotElement
 
   constructor() {
@@ -29,6 +33,6 @@ export class BlocksButtonGroup extends Component {
       })
     }
     this.$slot.addEventListener('slotchange', updateChildren)
-    this.onConnected(updateChildren)
+    this.hook.onConnected(updateChildren)
   }
 }

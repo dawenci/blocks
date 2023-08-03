@@ -18,204 +18,214 @@
       <h1>splitter</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/splitter/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/splitter/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认使用</h2>
-
-      <template data-codesource="html">
-        <style>
-          bl-splitter-pane { overflow: hidden; }
-          bl-splitter-pane:nth-child(even) { background: #f0f0f0; }
-        </style>
-        <bl-splitter style="height: 200px;">
-          <bl-splitter-pane>Pane A</bl-splitter-pane>
-          <bl-splitter-pane>Pane B</bl-splitter-pane>
-          <bl-splitter-pane>Pane C</bl-splitter-pane>
-        </bl-splitter>
-      </template>
-    </section>
-
-
-    <section class="section">
-      <h2>垂直方向</h2>
-
-      <template data-codesource="html">
-        <bl-splitter direction="vertical" style="height:300px;">
-          <bl-splitter-pane>Pane A</bl-splitter-pane>
-          <bl-splitter-pane>Pane B</bl-splitter-pane>
-          <bl-splitter-pane>Pane C</bl-splitter-pane>
-        </bl-splitter>
-      </template>
+      <bl-card>
+        <h2 slot="header" class="section-title">默认使用</h2>
+        <template data-codesource="html">
+          <style>
+            bl-splitter-pane { overflow: hidden; }
+            bl-splitter-pane:nth-child(even) { background: #f0f0f0; }
+          </style>
+          <bl-splitter style="height: 200px;">
+            <bl-splitter-pane>Pane A</bl-splitter-pane>
+            <bl-splitter-pane>Pane B</bl-splitter-pane>
+            <bl-splitter-pane>Pane C</bl-splitter-pane>
+          </bl-splitter>
+        </template>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>拖拽柄尺寸</h2>
-
-      <template data-codesource="html">
-        <bl-splitter handle-size="12" style="height:200px;">
-          <bl-splitter-pane>Pane A</bl-splitter-pane>
-          <bl-splitter-pane>Pane B</bl-splitter-pane>
-          <bl-splitter-pane>Pane C</bl-splitter-pane>
-        </bl-splitter>
-      </template>
+      <bl-card>
+        <h2 slot="header" class="section-title">垂直方向</h2>
+        <template data-codesource="html">
+          <bl-splitter direction="vertical" style="height:300px;">
+            <bl-splitter-pane>Pane A</bl-splitter-pane>
+            <bl-splitter-pane>Pane B</bl-splitter-pane>
+            <bl-splitter-pane>Pane C</bl-splitter-pane>
+          </bl-splitter>
+        </template>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>最大最小尺寸限制</h2>
-
-      <p>使用 max, min 属性，限制 pane 的尺寸调整幅度。</p>
-
-      <template data-codesource="html">
-        <bl-splitter style="height:200px;">
-          <bl-splitter-pane>Pane A</bl-splitter-pane>
-          <bl-splitter-pane min="100" max="120">min=100, max=120</bl-splitter-pane>
-          <bl-splitter-pane>Pane C</bl-splitter-pane>
-        </bl-splitter>
-      </template>
+      <bl-card>
+        <h2 slot="header" class="section-title">拖拽柄尺寸</h2>
+        <template data-codesource="html">
+          <bl-splitter handle-size="12" style="height:200px;">
+            <bl-splitter-pane>Pane A</bl-splitter-pane>
+            <bl-splitter-pane>Pane B</bl-splitter-pane>
+            <bl-splitter-pane>Pane C</bl-splitter-pane>
+          </bl-splitter>
+        </template>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>不自动分配</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">最大最小尺寸限制</h2>
+        <p slot="header">使用 max, min 属性，限制 pane 的尺寸调整幅度。</p>
+  
+        <template data-codesource="html">
+          <bl-splitter style="height:200px;">
+            <bl-splitter-pane>Pane A</bl-splitter-pane>
+            <bl-splitter-pane min="100" max="120">min=100, max=120</bl-splitter-pane>
+            <bl-splitter-pane>Pane C</bl-splitter-pane>
+          </bl-splitter>
+        </template>
+      </bl-card>
+    </section>
 
-      <p>通过设置 grow、shrink 为 0，以阻止 pane 随着容器尺寸变化自动调整尺寸。</p>
 
-      <template data-codesource="html">
-        <bl-splitter style="height:200px;">
-          <bl-splitter-pane basis="100" grow="0" shrink="0">不自动调整</bl-splitter-pane>
-          <bl-splitter-pane>Pane B</bl-splitter-pane>
-          <bl-splitter-pane>Pane C</bl-splitter-pane>
-        </bl-splitter>
-      </template>
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">不自动分配</h2>
+        <p slot="header">通过设置 grow、shrink 为 0，以阻止 pane 随着容器尺寸变化自动调整尺寸。</p>
+  
+        <template data-codesource="html">
+          <bl-splitter style="height:200px;">
+            <bl-splitter-pane basis="100" grow="0" shrink="0">不自动调整</bl-splitter-pane>
+            <bl-splitter-pane>Pane B</bl-splitter-pane>
+            <bl-splitter-pane>Pane C</bl-splitter-pane>
+          </bl-splitter>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>(bl-splitter) Attrs / Props</h3>
+  
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>direction</td>
+              <td>direction</td>
+              <td>'horizontal' | 'vertical'</td>
+              <td>'horizontal'</td>
+              <td>面板排列方向，默认水平排列。</td>
+            </tr>
+            <tr>
+              <td>handle-size</td>
+              <td>handleSize</td>
+              <td>number</td>
+              <td>6</td>
+              <td>拖拽柄的尺寸。</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <h3>(bl-splitter) Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>direction</td>
-            <td>'horizontal' | 'vertical'</td>
-            <td>'horizontal'</td>
-            <td>面板排列方向，默认水平排列。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>handle-size</td>
-            <td>number</td>
-            <td>6</td>
-            <td>拖拽柄的尺寸。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <h3>(bl-splitter-pane) Attrs / Props</h3>
+  
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>basis</td>
+              <td>basis</td>
+              <td>number</td>
+              <td>0</td>
+              <td>Pane 的基准尺寸。</td>
+            </tr>
+            <tr>
+              <td>grow</td>
+              <td>grow</td>
+              <td>number</td>
+              <td>1</td>
+              <td>Pane 自动拉伸尺寸的比例因子。</td>
+            </tr>
+            <tr>
+              <td>max</td>
+              <td>max</td>
+              <td>number</td>
+              <td>Infinity</td>
+              <td>Pane 的最大尺寸限制。</td>
+            </tr>
+            <tr>
+              <td>min</td>
+              <td>min</td>
+              <td>number</td>
+              <td>0</td>
+              <td>Pane 的最小尺寸限制。</td>
+            </tr>
+            <tr>
+              <td>shrink</td>
+              <td>shrink</td>
+              <td>number</td>
+              <td>1</td>
+              <td>Pane 自动收缩尺寸的比例因子。</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <h3>(bl-splitter-pane) Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>basis</td>
-            <td>number</td>
-            <td></td>
-            <td>Pane 的基准尺寸。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>grow</td>
-            <td>number</td>
-            <td>1</td>
-            <td>Pane 自动拉伸尺寸的比例因子。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>max</td>
-            <td>number</td>
-            <td>Infinity</td>
-            <td>Pane 的最大尺寸限制。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>min</td>
-            <td>number</td>
-            <td>0</td>
-            <td>Pane 的最小尺寸限制。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>shrink</td>
-            <td>number</td>
-            <td>1</td>
-            <td>Pane 自动收缩尺寸的比例因子。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
-
-      <h3>(bl-splitter) Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>pane-resized</td>
-            <td>{ detail: { offset, $pane, $prevPane } }</td>
-            <td>Pane 尺寸调整时触发。</td>
-          </tr>
-          <tr>
-            <td>pane-close</td>
-            <td>{ detail: { $pane } }</td>
-            <td>Pane 完全折叠时触发。</td>
-          </tr>
-          <tr>
-            <td>pane-open</td>
-            <td>{ detail: { $pane } }</td>
-            <td>Pane 从折叠状态展开时触发。</td>
-          </tr>
-          <tr>
-            <td>layout</td>
-            <td></td>
-            <td>重新计算布局时触发。</td>
-          </tr>
-        </tbody>
-      </table>
-
+        <h3>(bl-splitter) Events</h3>
+  
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>pane-resized</td>
+              <td>CustomEvent&lt;{ offset: number; $pane: BlSplitterPane; $prevPane: BlSplitterPane; }&gt;</td>
+              <td>Pane 尺寸调整时触发。</td>
+            </tr>
+            <tr>
+              <td>pane-close</td>
+              <td>CustomEvent&lt;{ $pane }&gt;</td>
+              <td>Pane 完全折叠时触发。</td>
+            </tr>
+            <tr>
+              <td>pane-open</td>
+              <td>CustomEvent&lt;{ $pane }&gt;</td>
+              <td>Pane 从折叠状态展开时触发。</td>
+            </tr>
+            <tr>
+              <td>layout</td>
+              <td>CustomEvent</td>
+              <td>重新计算布局时触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

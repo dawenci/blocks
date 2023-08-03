@@ -32,13 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { getRegisteredSvgIcon } from '../../icon/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
-export let BlocksLoading = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlLoading = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-loading',
             styles: [style],
@@ -49,12 +49,12 @@ export let BlocksLoading = (() => {
     let _instanceExtraInitializers = [];
     let _$layout_decorators;
     let _$layout_initializers = [];
-    var BlocksLoading = class extends Component {
+    var BlLoading = class extends BlComponent {
         static {
             _$layout_decorators = [shadowRef('#layout')];
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksLoading = _classThis = _classDescriptor.value;
+            BlLoading = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #$layout_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _$layout_initializers, void 0));
@@ -63,8 +63,8 @@ export let BlocksLoading = (() => {
         $icon;
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
-            this.onConnected(this.render);
+            this.appendShadowChild(template());
+            this.hook.onConnected(this.render);
         }
         render() {
             super.render();
@@ -74,5 +74,5 @@ export let BlocksLoading = (() => {
             }
         }
     };
-    return BlocksLoading = _classThis;
+    return BlLoading = _classThis;
 })();

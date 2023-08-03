@@ -32,15 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { padLeft } from '../../common/utils.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
-export let BlocksCountdown = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlCountdown = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-countdown',
             styles: [style],
@@ -55,7 +55,7 @@ export let BlocksCountdown = (() => {
     let _format_initializers = [];
     let _$layout_decorators;
     let _$layout_initializers = [];
-    var BlocksCountdown = class extends Component {
+    var BlCountdown = class extends BlComponent {
         static {
             _value_decorators = [attr('number', { defaults: () => Date.now() })];
             _format_decorators = [attr('string')];
@@ -64,7 +64,7 @@ export let BlocksCountdown = (() => {
             __esDecorate(this, null, _format_decorators, { kind: "accessor", name: "format", static: false, private: false, access: { has: obj => "format" in obj, get: obj => obj.format, set: (obj, value) => { obj.format = value; } } }, _format_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksCountdown = _classThis = _classDescriptor.value;
+            BlCountdown = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
@@ -79,13 +79,13 @@ export let BlocksCountdown = (() => {
         constructor() {
             super();
             this.appendShadowChild(template());
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.run();
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.stop();
             });
-            this.onAttributeChanged(name => {
+            this.hook.onAttributeChanged(name => {
                 if (name === 'value') {
                     this.run();
                 }
@@ -188,7 +188,7 @@ export let BlocksCountdown = (() => {
             }
         }
     };
-    return BlocksCountdown = _classThis;
+    return BlCountdown = _classThis;
 })();
 function patchDom(dom, tokens, vars) {
     if (dom.textContent === tokens.map(token => token.payload).join(''))

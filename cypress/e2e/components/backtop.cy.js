@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-context('BlocksBackTop', () => {
+context('BlBackTop', () => {
   beforeEach(() => {
     cy.visit('http://localhost:8080/tests/components/backtop.html')
   })

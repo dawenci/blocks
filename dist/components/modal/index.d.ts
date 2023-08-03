@@ -1,13 +1,13 @@
-import type { BlocksButton } from '../button/index.js';
+import type { BlButton } from '../button/index.js';
 import '../button/index.js';
 import '../dialog/index.js';
 import '../input/index.js';
-import { BlocksDialog } from '../dialog/index.js';
-export interface BlocksModal extends BlocksDialog {
+import { BlDialog } from '../dialog/index.js';
+export interface BlModal extends BlDialog {
     onConfirm?: (value: any) => any;
     onCancel?: (value: any) => any;
 }
-export declare class BlocksModal extends BlocksDialog {
+export declare class BlModal extends BlDialog {
     #private;
     static get observedAttributes(): string[];
     accessor withConfirm: boolean;
@@ -16,8 +16,8 @@ export declare class BlocksModal extends BlocksDialog {
     accessor cancelText: string | null;
     accessor rich: boolean;
     accessor content: string | null;
-    get $confirmButton(): BlocksButton | null;
-    get $cancelButton(): BlocksButton | null;
+    get $confirm(): BlButton | null;
+    get $cancel(): BlButton | null;
     get $content(): HTMLElement | null;
     constructor();
     get resolveValue(): any;

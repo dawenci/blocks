@@ -32,15 +32,17 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { cellTemplate, summaryTemplate } from './body.template.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { setStyles } from '../../common/style.js';
-import { template } from './body-template.js';
-import { BlocksVList } from '../vlist/index.js';
-export let BlocksTableBody = (() => {
+import { style, summaryStyle } from './body.style.js';
+import { BlVList } from '../vlist/index.js';
+export let BlTableBody = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-table-body',
+            styles: [style],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -54,7 +56,7 @@ export let BlocksTableBody = (() => {
     let _sortOrder_initializers = [];
     let _summaryHeight_decorators;
     let _summaryHeight_initializers = [];
-    var BlocksTableBody = class extends BlocksVList {
+    var BlTableBody = class extends BlVList {
         static {
             _border_decorators = [attr('boolean')];
             _sortField_decorators = [attr('string')];
@@ -65,11 +67,14 @@ export let BlocksTableBody = (() => {
             __esDecorate(this, null, _sortOrder_decorators, { kind: "accessor", name: "sortOrder", static: false, private: false, access: { has: obj => "sortOrder" in obj, get: obj => obj.sortOrder, set: (obj, value) => { obj.sortOrder = value; } } }, _sortOrder_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _summaryHeight_decorators, { kind: "accessor", name: "summaryHeight", static: false, private: false, access: { has: obj => "summaryHeight" in obj, get: obj => obj.summaryHeight, set: (obj, value) => { obj.summaryHeight = value; } } }, _summaryHeight_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksTableBody = _classThis = _classDescriptor.value;
+            BlTableBody = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
+        static get role() {
+            return 'rowgroup';
+        }
         static get observedAttributes() {
-            return BlocksVList.observedAttributes.concat(['sort-field', 'sort-order', 'summary-height']);
+            return BlVList.observedAttributes.concat(['sort-field', 'sort-order', 'summary-height']);
         }
         #sortFlag = (__runInitializers(this, _instanceExtraInitializers), void 0);
         columns = [];
@@ -90,9 +95,6 @@ export let BlocksTableBody = (() => {
         set summaryHeight(value) { this.#summaryHeight_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            const { cssTemplate } = template();
-            shadowRoot.appendChild(cssTemplate.cloneNode(true));
             this.$list.onclick = this._onClick.bind(this);
             this.addEventListener('bl:scroll', () => {
                 if (this.$summary) {
@@ -103,10 +105,11 @@ export let BlocksTableBody = (() => {
         get shouldRenderSummary() {
             return this.flattenColumns.some(column => typeof column.summaryRender === 'function');
         }
-        async sortMethod(data) {
+        sortMethod(data, callback) {
             const column = this.flattenColumns.find(column => column.prop == this.sortField);
-            if (!column || column.sortOrder === 'none')
-                return data;
+            if (!column || column.sortOrder === 'none') {
+                return callback(data);
+            }
             const $cell = document.createElement('div');
             data.sort((a, b) => {
                 if (column.sortMethod) {
@@ -119,7 +122,7 @@ export let BlocksTableBody = (() => {
                 const vb = labelB instanceof Node ? labelB.textContent : labelB;
                 return va.localeCompare(vb) * (column.sortOrder === 'ascending' ? 1 : -1);
             });
-            return data;
+            callback(data);
         }
         beforeRender() {
             this.flattenColumns = this.$host.getLeafColumnsWith();
@@ -137,9 +140,8 @@ export let BlocksTableBody = (() => {
             while ($item.children.length > this.flattenColumns.length) {
                 $item.removeChild($item.lastElementChild);
             }
-            const { cellTemplate } = template();
             while ($item.children.length < this.flattenColumns.length) {
-                $item.appendChild(cellTemplate.cloneNode(true));
+                $item.appendChild(cellTemplate());
             }
             this.flattenColumns.forEach((column, index) => {
                 const $cell = $item.children[index];
@@ -186,15 +188,14 @@ export let BlocksTableBody = (() => {
             if (this.shouldRenderSummary) {
                 if (!this.$summary)
                     return;
-                this.$viewport._ref.$layout.classList.toggle('has-summary', true);
+                this.$viewport.$layout.classList.toggle('has-summary', true);
                 const data = this.$host.data;
                 const $items = this.$summary.firstElementChild;
                 while ($items.children.length > this.flattenColumns.length) {
                     $items.removeChild($items.lastElementChild);
                 }
-                const { cellTemplate } = template();
                 while ($items.children.length < this.flattenColumns.length) {
-                    $items.appendChild(cellTemplate.cloneNode(true));
+                    $items.appendChild(cellTemplate());
                 }
                 this.flattenColumns.forEach((column, index) => {
                     const $cell = $items.children[index];
@@ -238,7 +239,7 @@ export let BlocksTableBody = (() => {
                 });
             }
             else {
-                this.$viewport._ref.$layout.classList.toggle('has-summary', false);
+                this.$viewport.$layout.classList.toggle('has-summary', false);
             }
         }
         getFixedOffsetLeft(column) {
@@ -290,16 +291,13 @@ export let BlocksTableBody = (() => {
             super.connectedCallback();
             this.upgradeProperty(['columns', 'data']);
             requestAnimationFrame(() => {
-                const { cssTemplate2 } = template();
                 if (!this.$viewport.shadowRoot.querySelector('style#tableBodyStyle')) {
-                    this.$viewport.shadowRoot.insertBefore(cssTemplate2.cloneNode(true), this.$viewport._ref.$layout);
+                    const $style = this.$viewport.insertStyle(summaryStyle);
+                    $style.id = 'tableBodyStyle';
                 }
-                if (!this.$viewport._ref.$layout.querySelector('#summary')) {
-                    const $summary = document.createElement('div');
-                    $summary.id = 'summary';
-                    $summary.appendChild(document.createElement('div')).className = 'row';
-                    this.$viewport._ref.$layout.appendChild($summary);
-                    this.$summary = $summary;
+                if (!this.$viewport.$layout.querySelector('#summary')) {
+                    this.$summary = summaryTemplate();
+                    this.$viewport.$layout.appendChild(this.$summary);
                 }
             });
         }
@@ -318,11 +316,14 @@ export let BlocksTableBody = (() => {
         doSort() {
             if (!this.#sortFlag) {
                 this.#sortFlag = Promise.resolve().then(() => {
-                    this.generateViewData();
+                    this.generateViewData({
+                        complete: () => {
+                        },
+                    });
                     this.#sortFlag = undefined;
                 });
             }
         }
     };
-    return BlocksTableBody = _classThis;
+    return BlTableBody = _classThis;
 })();

@@ -29,6 +29,7 @@ export const style = /*css*/ `
   cursor: default;
   font-size: 12px;
   background-color: #fff;
+  padding: 5px;
 }
 :host(:focus) {
   outline: 0 none;
@@ -40,16 +41,16 @@ export const style = /*css*/ `
 #layout {
   box-sizing: border-box;
   position: relative;
-  width: calc(var(--bl-height-base, ${__height_base}) * 7 + 10px);
-  height: calc(var(--bl-height-base, ${__height_base}) * 8 + 10px);
+  width: calc(var(--bl-height-base, ${__height_base}) * 7);
+  height: calc(var(--bl-height-base, ${__height_base}) * 8);
 }
 :host([size="small"]) #layout {
-  width: calc(var(--bl-height-small, ${__height_small}) * 7 + 10px);
-  height: calc(var(--bl-height-small, ${__height_small}) * 8 + 10px);
+  width: calc(var(--bl-height-small, ${__height_small}) * 7);
+  height: calc(var(--bl-height-small, ${__height_small}) * 8);
 }
 :host([size="large"]) #layout {
-  width: calc(var(--bl-height-large, ${__height_large}) * 7 + 16px);
-  height: calc(var(--bl-height-large, ${__height_large}) * 8 + 16px);
+  width: calc(var(--bl-height-large, ${__height_large}) * 7);
+  height: calc(var(--bl-height-large, ${__height_large}) * 8);
 }
 
 #header {
@@ -85,7 +86,7 @@ export const style = /*css*/ `
   background-color: transparent;
   text-align: center;
   outline: 0;
-  transition: var(--transition-duration, ${__transition_duration}) all;
+  transition: var(--bl-transition-duration, ${__transition_duration}) all;
 }
 :host([size="small"]) .header-button {
   flex: 0 0 var(--bl-height-small, ${__height_small});
@@ -199,13 +200,13 @@ export const style = /*css*/ `
   box-sizing: border-box;
   position: relative;
   width: 100%;
-  height: calc(var(--bl-height-base, ${__height_base}) * 7 + 10px);
+  height: calc(var(--bl-height-base, ${__height_base}) * 7);
 }
 :host([size="small"]) #body {
-  height: calc(var(--bl-height-small, ${__height_small}) * 7 + 10px);
+  height: calc(var(--bl-height-small, ${__height_small}) * 7);
 }
 :host([size="large"]) #body {
-  height: calc(var(--bl-height-large, ${__height_large}) * 7 + 16px);
+  height: calc(var(--bl-height-large, ${__height_large}) * 7);
 }
 
 .week-header {
@@ -213,21 +214,21 @@ export const style = /*css*/ `
   position: relative;
   display: flex;
   flex-flow: row nowrap;
-  height: var(--bl-height-base, ${__height_base});
-  padding: 0 5px;
+  height: calc(var(--bl-height-base, ${__height_base}) - 5px);
   box-shadow: inset 0 -1px 1px #f0f0f0;
-  line-height: calc(var(--bl-height-base, ${__height_base}) - 1px);
+  line-height: calc(var(--bl-height-base, ${__height_base}) - 6px);
   font-size: inherit;
   text-align: center;
-  transition: var(--transition-duration, ${__transition_duration}) all;
+  transition: var(--bl-transition-duration, ${__transition_duration}) all;
+  color: var(--bl-fg-secondary, ${__fg_secondary});
 }
 :host([size="small"]) .week-header {
-  height: var(--bl-height-small, ${__height_small});
-  line-height: calc(var(--bl-height-small, ${__height_small}) - 1px);
+  height: calc(var(--bl-height-small, ${__height_small}) - 5px);
+  line-height: calc(var(--bl-height-small, ${__height_small}) - 6px);
 }
 :host([size="large"]) .week-header {
-  height: var(--bl-height-large, ${__height_large});
-  line-height: calc(var(--bl-height-large, ${__height_large}) - 1px);
+  height: calc(var(--bl-height-large, ${__height_large}) - 5px);
+  line-height: calc(var(--bl-height-large, ${__height_large}) - 6px);
 }
 
 .week-header span {
@@ -249,40 +250,40 @@ export const style = /*css*/ `
   display: flex;
   flex-flow: row wrap;
   width: 100%;
-  padding: 5px;
-  transition: var(--transition-duration, ${__transition_duration}) all;
+  transition: var(--bl-transition-duration, ${__transition_duration}) all;
 }
 :host([size="small"]) .button-list {
-  padding: 5px;
+  /*padding: 5px;*/
 }
 :host([size="large"]) .button-list {
-  padding: 8px;
+  /*padding: 8px;*/
 }
 
 .body-month .button-list {
-  height: calc(var(--bl-height-base, ${__height_base}) * 6 + 10px);
+  height: calc(var(--bl-height-base, ${__height_base}) * 6);
+  margin-top: 5px;
 }
 :host([size="small"]) .body-month .button-list {
-  height: calc(var(--bl-height-small, ${__height_small}) * 6 + 10px);
+  height: calc(var(--bl-height-small, ${__height_small}) * 6);
 }
 :host([size="large"]) .body-month .button-list {
-  height: calc(var(--bl-height-large, ${__height_large}) * 6 + 16px);
+  height: calc(var(--bl-height-large, ${__height_large}) * 6);
 }
 
 .body-year .button-list,
 .body-decade .button-list,
 .body-century .button-list {
-  height: calc(var(--bl-height-base, ${__height_base}) * 7 + 10px);
+  height: calc(var(--bl-height-base, ${__height_base}) * 7);
 }
 :host([size="small"]) .body-year .button-list,
 :host([size="small"]) .body-decade .button-list,
 :host([size="small"]) .body-century .button-list {
-  height: calc(var(--bl-height-small, ${__height_small}) * 7 + 10px);
+  height: calc(var(--bl-height-small, ${__height_small}) * 7);
 }
 :host([size="large"]) .body-year .button-list,
 :host([size="large"]) .body-decade .button-list,
 :host([size="large"]) .body-century .button-list {
-  height: calc(var(--bl-height-large, ${__height_large}) * 7 + 16px);
+  height: calc(var(--bl-height-large, ${__height_large}) * 7);
 }
 
 .button-item {
@@ -293,7 +294,7 @@ export const style = /*css*/ `
   border: 0;
   background: none;
   font-size: inherit;
-  transition: height var(--transition-duration, ${__transition_duration});
+  transition: height var(--bl-transition-duration, ${__transition_duration});
 }
 .button-item:focus {
   outline: 0 none;
@@ -321,8 +322,8 @@ export const style = /*css*/ `
   justify-content: center;
   width: 100%;
   height: 100%;
-  transition: color var(--transition-duration, ${__transition_duration}),
-    background var(--transition-duration, ${__transition_duration});
+  transition: color var(--bl-transition-duration, ${__transition_duration}),
+    background var(--bl-transition-duration, ${__transition_duration});
 }
 .button-item:focus span {
   background-color: #f0f0f0;

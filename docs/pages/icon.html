@@ -19,41 +19,39 @@
     </header>
 
     <script type="module" src="../../dist/components/grid/index.js"></script>
+    <script type="module" src="../../dist/components/card/index.js"></script>
 
     <section class="section">
-      <h2>依赖引入</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
 
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/icon/index.js"></script>
-      </div>
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/icon/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认</h2>
         <template data-codesource="html">
           <bl-icon value="date"></bl-icon>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>填充颜色</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">填充颜色</h2>
         <template data-codesource="html">
           <bl-icon value="date" fill="rgba(24,144,255,1)"></bl-icon>
         </template>
-      </div>
+      </bl-card>
     </section>
 
   
     <section class="section">
-      <h2>预定义图标</h2>
-
       <style>
         bl-col > div {
           border: 1px solid #e8e8e8;
@@ -66,70 +64,75 @@
           max-width: 100%;
         }
       </style>
-      <template data-codesource="html">
-        <bl-row>
-          <bl-col span="4"><div><bl-icon value="check" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="cross" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="date" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="down" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="error" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="file-excel" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-        </bl-row>
-        <bl-row>
-          <bl-col span="4"><div><bl-icon value="file-image" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="file-other" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="file-pdf" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="file-ppt" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="file-word" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="info" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-        </bl-row>
-        <bl-row>
-          <bl-col span="4"><div><bl-icon value="loading" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="left" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="more" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="right" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="star" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="time" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-        </bl-row>
-        <bl-row>
-          <bl-col span="4"><div><bl-icon value="success" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-          <bl-col span="4"><div><bl-icon value="up" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
-        </bl-row>
-        
-      </template>
+      <bl-card>
+        <h2 slot="header" class="section-title">预定义图标</h2>
+        <template data-codesource="html">
+          <bl-row>
+            <bl-col span="4"><div><bl-icon value="check" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="cross" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="date" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="down" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="error" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="file-excel" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+          </bl-row>
+          <bl-row>
+            <bl-col span="4"><div><bl-icon value="file-image" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="file-other" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="file-pdf" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="file-ppt" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="file-word" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="info" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+          </bl-row>
+          <bl-row>
+            <bl-col span="4"><div><bl-icon value="loading" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="left" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="more" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="right" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="star" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="time" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+          </bl-row>
+          <bl-row>
+            <bl-col span="4"><div><bl-icon value="success" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+            <bl-col span="4"><div><bl-icon value="up" fill="rgba(24,144,255,1)"></bl-icon></div></bl-col>
+          </bl-row>
+          
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
 
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>fill</td>
-            <td>string</td>
-            <td></td>
-            <td>图标填充颜色</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>value</td>
-            <td>string</td>
-            <td></td>
-            <td>图标名称，可以设置为已注册的 SVG 图标，参考图标说明（TODO）。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>fill</td>
+              <td>fill</td>
+              <td>string</td>
+              <td>无</td>
+              <td>图标填充颜色</td>
+            </tr>
+            <tr>
+              <td>value</td>
+              <td>value</td>
+              <td>string</td>
+              <td>无</td>
+              <td>图标名称，可以设置为已注册的 SVG 图标，参考图标说明（TODO）。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

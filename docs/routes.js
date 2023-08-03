@@ -27,6 +27,7 @@ export default [
   },
   { category: 'COMPONENTS', title: 'countdown', url: 'pages/countdown.html' },
   { category: 'COMPONENTS', title: 'date', url: 'pages/date.html' },
+  { category: 'COMPONENTS', title: 'datetime', url: 'pages/datetime.html' },
   {
     category: 'COMPONENTS',
     title: 'date-picker',

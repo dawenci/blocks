@@ -20,20 +20,22 @@
       <h1>drawer</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/drawer/index.js"></script>
-      </div>
+      <h2 slot="header" class="section-title">依赖引入</h2>
+      <bl-card>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/drawer/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认</h2>
         <bl-button onclick="document.getElementById('default').open = !document.getElementById('default').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -41,14 +43,13 @@
             <div>这里是抽屉的内容。</div>
           </bl-drawer>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>遮罩</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">遮罩</h2>
         <bl-button onclick="document.getElementById('mask').open = true">打开</bl-button>
 
         <template data-codesource="html">
@@ -58,14 +59,13 @@
             </div>
           </bl-drawer>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>点击遮罩关闭</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">点击遮罩关闭</h2>
         <bl-button onclick="document.getElementById('mask-close').open = true">打开</bl-button>
 
         <template data-codesource="html">
@@ -75,14 +75,13 @@
             </div>
           </bl-drawer>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>点击外部关闭</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">点击外部关闭</h2>
         <bl-button onclick="document.getElementById('clickOutside').open = !document.getElementById('clickOutside').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -92,14 +91,13 @@
             </div>
           </bl-drawer>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>Esc 关闭</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">Esc 关闭</h2>
         <bl-button onclick="document.getElementById('escape').open = !document.getElementById('escape').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -107,17 +105,17 @@
             <div>这里是抽屉的内容。</div>
           </bl-drawer>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>出现位置</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">出现位置</h2>
         <bl-button onclick="document.getElementById('left').open = !document.getElementById('left').open">left</bl-button>
         <bl-button onclick="document.getElementById('top').open = !document.getElementById('top').open">top</bl-button>
         <bl-button onclick="document.getElementById('bottom').open = !document.getElementById('bottom').open">bottom</bl-button>
+
         <template data-codesource="html">
           <bl-drawer id="left" placement="left" title-text="left" closeable close-on-press-escape>
             <div>这里是抽屉的内容。</div>
@@ -131,14 +129,13 @@
             <div>这里是抽屉的内容。</div>
           </bl-drawer>
         </template>
-      </div>
+      </bl-card>
     </section>
     
 
     <section class="section">
-      <h2>header slot</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">header slot</h2>
         <bl-button onclick="document.getElementById('slot-name').open = !document.getElementById('slot-name').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -147,14 +144,13 @@
             <div>这里是抽屉的内容。</div>
           </bl-drawer>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>footer slot</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">footer slot</h2>
         <bl-button onclick="document.getElementById('slot-footer').open = !document.getElementById('slot-footer').open">打开 / 关闭</bl-button>
         
         <template data-codesource="html">
@@ -168,13 +164,12 @@
             </div>
           </bl-drawer>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>限制焦点</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">限制焦点</h2>
         <bl-button onclick="document.getElementById('capturefocus').open = !document.getElementById('capturefocus').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -191,129 +186,141 @@
               <input type="text" value="footer" style="width:100%">
             </div>
           </bl-drawer>
-        </div>
+        </bl-card>
       </template>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
 
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>capturefocus</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否捕获焦点。如果是，tab 键不会将焦点移出 Drawer。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>close-on-click-outside</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否在点击外面的时候，自动关闭 Drawer。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>close-on-press-escape</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否在按下 Esc 时，自动关闭 Drawer。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>dark</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否使用 dark 主题。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>mask</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否显示遮罩。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>open</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>抽屉的打开状态。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>placement</td>
-            <td>'top' | 'right' | 'bottom' | 'left'</td>
-            <td>'right'</td>
-            <td>Drawer 的出现位置。默认从右往左拉出。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>size</td>
-            <td>string</td>
-            <td>30%</td>
-            <td>Drawer 的尺寸，用作 width/height 的 style 值。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <h3>Attrs / Props</h3>
 
-      <h3>Slots</h3>
-      <table class="api-slots">
-        <thead>
-          <tr>
-            <th>slot 名称</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>name</td>
-          </tr>
-          <tr>
-            <td>footer</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>default</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>capturefocus</td>
+              <td>capturefocus</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否捕获焦点。如果是，tab 键不会将焦点移出 Drawer。</td>
+            </tr>
+            <tr>
+              <td>close-on-click-mask</td>
+              <td>closeOnClickMask</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>点击遮罩时关闭。</td>
+            </tr>
+            <tr>
+              <td>close-on-click-outside</td>
+              <td>closeOnClickOutside</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>点击 Drawer 外部时关闭。</td>
+            </tr>
+            <tr>
+              <td>close-on-press-escape</td>
+              <td>closeOnPressEscape</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>按下 Esc 时关闭。</td>
+            </tr>
+            <tr>
+              <td>mask</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否显示遮罩。</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>open</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>抽屉的打开状态。</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>title-text</td>
+              <td>titleText</td>
+              <td>string</td>
+              <td>无</td>
+              <td>抽屉的标题。</td>
+            </tr>
+            <tr>
+              <td>placement</td>
+              <td>placement</td>
+              <td>'top' | 'right' | 'bottom' | 'left'</td>
+              <td>'right'</td>
+              <td>Drawer 的出现位置。默认从右往左拉出。</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>size</td>
+              <td>string</td>
+              <td>30%</td>
+              <td>Drawer 的尺寸，用作 width/height 的 style 值。</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>closed</td>
-            <td></td>
-            <td>Drawer 关闭时（过渡动画结束）触发。</td>
-          </tr>
-          <tr>
-            <td>opened</td>
-            <td></td>
-            <td>Drawer 打开时（过渡动画结束）触发。</td>
-          </tr>
-        </tbody>
-      </table>
+        <h3>Slots</h3>
+
+        <table class="api-slots">
+          <thead>
+            <tr>
+              <th>slot 名称</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>name</td>
+            </tr>
+            <tr>
+              <td>footer</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>default</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Events</h3>
+
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>closed</td>
+              <td></td>
+              <td>Drawer 关闭时（过渡动画结束）触发。</td>
+            </tr>
+            <tr>
+              <td>opened</td>
+              <td></td>
+              <td>Drawer 打开时（过渡动画结束）触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

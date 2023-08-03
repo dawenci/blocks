@@ -18,64 +18,72 @@
       <h1>backtop</h1>
     </header>
 
-    <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
+    <script type="module" src="../../dist/components/card/index.js"></script>
+    
+    <bl-card class="section">
+      <h2 slot="header" class="section-title">依赖引入</h2>
+      <p slot="header">根据自己项目调整 src 的路径</p>
 
       <div data-codesource="html" data-title="依赖引入" on>
         <script type="module" src="../../dist/components/backtop/index.js"></script>
       </div>
+    </bl-card>
+
+    <section class="section">
+      
+      <bl-card>
+        <h2 slot="header" class="section-title">效果演示</h2>
+
+        <template data-codesource="html">
+          <div id="target" style="height:400px;overflow:auto;border:1px solid #ccc;">
+            <div style="height:600vh;padding:160px 30px;font-size:32px;text-align:center;">往下滚动几百像素，然后注意右下角按钮出现</div>
+          </div>
+  
+          <bl-backtop duration=".1" target="#target"></bl-backtop>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h3>效果演示</h3>
-      <template data-codesource="html">
-        <div id="target" style="height:400px;overflow:auto;border:1px solid #ccc;">
-          <div style="height:600vh;padding:160px 30px;font-size:32px;text-align:center;">往下滚动几百像素，然后注意右下角按钮出现</div>
-        </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
 
-        <bl-backtop duration=".1" target="#target"></bl-backtop>
-      </template>
-    </section>
-
-    <section class="section">
-      <h2>API</h2>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>duration</td>
-            <td>number</td>
-            <td>0</td>
-            <td>滚动到顶部的动画持续时间，单位为秒</td>
-            <td>N</td>
-          </tr>
-          <tr>
-            <td>target</td>
-            <td>string | Node | (() => string | Node</td>
-            <td>无</td>
-            <td>滚动容器元素，或滚动容器元素 CSS 选择器，或返回这两者的函数</td>
-            <td>Y</td>
-          </tr>
-          <tr>
-            <td>threshold</td>
-            <td>number</td>
-            <td>400</td>
-            <td>出现返回按钮的滚动距离，单位为像素</td>
-            <td>N</td>
-          </tr>
-        </tbody>
-      </table>
-
+        <h3>Attrs / Props</h3>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>duration</td>
+              <td>duration</td>
+              <td>number</td>
+              <td>0</td>
+              <td>滚动到顶部的动画持续时间，单位为秒</td>
+            </tr>
+            <tr>
+              <td>target</td>
+              <td>target</td>
+              <td>string | Node | (() => string | Node</td>
+              <td>无</td>
+              <td>滚动容器元素，或滚动容器元素 CSS 选择器，或返回这两者的函数</td>
+            </tr>
+            <tr>
+              <td>threshold</td>
+              <td>threshold</td>
+              <td>number</td>
+              <td>400</td>
+              <td>出现返回按钮的滚动距离，单位为像素</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

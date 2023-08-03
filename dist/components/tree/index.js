@@ -32,10 +32,11 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { BlocksVList, VirtualItem } from '../vlist/index.js';
-import { attr } from '../../decorators/attr.js';
+import { BlVList, VirtualItem } from '../vlist/index.js';
+import { attr } from '../../decorators/attr/index.js';
 import { boolSetter } from '../../common/property.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { chunkIterate } from '../../common/chunkIterate.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { isEmpty, merge, uniqBy, flatten } from '../../common/utils.js';
 import { parseHighlight } from '../../common/highlight.js';
@@ -52,7 +53,7 @@ export class VirtualNode extends VirtualItem {
         this._retain = false;
     }
 }
-export let BlocksTree = (() => {
+export let BlTree = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-tree',
             styles: [style],
@@ -89,7 +90,7 @@ export let BlocksTree = (() => {
     let _labelField_initializers = [];
     let _search_decorators;
     let _search_initializers = [];
-    var BlocksTree = class extends BlocksVList {
+    var BlTree = class extends BlVList {
         static {
             _activeKey_decorators = [attr('string')];
             _activable_decorators = [attr('boolean')];
@@ -120,8 +121,11 @@ export let BlocksTree = (() => {
             __esDecorate(this, null, _labelField_decorators, { kind: "accessor", name: "labelField", static: false, private: false, access: { has: obj => "labelField" in obj, get: obj => obj.labelField, set: (obj, value) => { obj.labelField = value; } } }, _labelField_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _search_decorators, { kind: "accessor", name: "search", static: false, private: false, access: { has: obj => "search" in obj, get: obj => obj.search, set: (obj, value) => { obj.search = value; } } }, _search_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksTree = _classThis = _classDescriptor.value;
+            BlTree = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'tree';
         }
         static get observedAttributes() {
             return [...super.observedAttributes, ...['border', 'stripe']];
@@ -186,14 +190,18 @@ export let BlocksTree = (() => {
                 }
             };
             this.addEventListener('data-bound', onBound);
-            this.onAttributeChangedDep('search', () => {
-                this.generateViewData();
+            this.hook.onAttributeChangedDep('search', () => {
+                this.generateViewData({
+                    complete: () => {
+                    },
+                });
             });
-            this.onAttributeChangedDep('wrap', () => {
+            this.hook.onAttributeChangedDep('wrap', () => {
                 this._resetCalculated();
                 this.redraw();
                 this.restoreAnchor();
             });
+            this.#setupAria();
         }
         get checkedData() {
             const data = [...this._checkedSet].map(vitem => vitem.data);
@@ -251,9 +259,11 @@ export let BlocksTree = (() => {
                         },
                     });
                 }
+                dispatchEvent(this, 'select-list:after-clear');
                 return;
             }
             this.#batchToggleCheck(this.checked, false);
+            dispatchEvent(this, 'select-list:after-clear');
         }
         internalLabelMethod(data) {
             if (typeof this.labelMethod === 'function')
@@ -269,9 +279,9 @@ export let BlocksTree = (() => {
                 return data[this.idField];
             return data.id;
         }
-        filterMethod(data) {
+        filterMethod(data, callback) {
             if (!this.search)
-                return Promise.resolve(data);
+                return callback(data);
             const len = data.length;
             const results = [];
             for (let i = 0; i < len; i += 1) {
@@ -285,17 +295,15 @@ export let BlocksTree = (() => {
                     }
                 }
             }
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    for (let i = 0; i < len; i += 1) {
-                        const vItem = data[i];
-                        if (vItem._retain) {
-                            results.push(vItem);
-                            vItem._retain = undefined;
-                        }
+            setTimeout(() => {
+                for (let i = 0; i < len; i += 1) {
+                    const vItem = data[i];
+                    if (vItem._retain) {
+                        results.push(vItem);
+                        vItem._retain = undefined;
                     }
-                    resolve(results);
-                });
+                }
+                callback(results);
             });
         }
         _renderItemClass($item, vitem) {
@@ -770,10 +778,42 @@ export let BlocksTree = (() => {
             }
             return this.virtualData.filter(node => !node.parent);
         }
-        async virtualMap(data) {
+        virtualMap(data, options) {
+            const dataMap = new Map();
+            let nextPop = false;
+            let nextParent = undefined;
+            const parentStack = [];
+            const stack = data.length ? [{ list: data, index: 0 }] : [];
+            const iterator = {
+                next: () => {
+                    if (nextPop) {
+                        nextPop = false;
+                        parentStack.pop();
+                    }
+                    if (nextParent) {
+                        parentStack.push(nextParent);
+                        nextParent = undefined;
+                    }
+                    const top = stack[stack.length - 1];
+                    if (!top) {
+                        return { value: undefined, done: true };
+                    }
+                    const item = top.list[top.index++];
+                    const isLast = top.index === top.list.length;
+                    if (isLast) {
+                        nextPop = true;
+                        stack.pop();
+                    }
+                    const hasChildren = !!item.children?.length;
+                    if (hasChildren) {
+                        nextParent = item;
+                        stack.push({ list: item.children, index: 0 });
+                    }
+                    return { value: item, done: false };
+                },
+            };
             const virtualData = [];
-            let index = 0;
-            const convert = (data) => {
+            const convert = (data, index) => {
                 const virtualKey = this.internalKeyMethod(data) ?? index;
                 const vnode = new VirtualNode({
                     virtualKey,
@@ -783,21 +823,26 @@ export let BlocksTree = (() => {
                     expanded: true,
                     children: [],
                 });
-                virtualData.push(vnode);
-                index += 1;
-                const len = data.children?.length;
-                if (len) {
-                    for (let i = 0; i < len; i += 1) {
-                        const childNode = convert(data.children[i]);
-                        childNode.parent = vnode;
-                        childNode.parentKey = vnode.virtualKey;
-                        vnode.children.push(childNode);
+                dataMap.set(data, vnode);
+                const parent = parentStack[parentStack.length - 1] ? dataMap.get(parentStack[parentStack.length - 1]) : undefined;
+                if (parent !== vnode) {
+                    vnode.parent = parent;
+                    vnode.parentKey = parent?.parentKey ?? '';
+                    if (parent) {
+                        parent.children.push(vnode);
                     }
                 }
+                virtualData.push(vnode);
                 return vnode;
             };
-            data.forEach(convert);
-            return virtualData;
+            chunkIterate(data, convert, {
+                iterator,
+                chunkSize: 10000,
+                schedule: options.schedule,
+                complete: () => {
+                    options.complete(virtualData);
+                },
+            });
         }
         level(node) {
             let level = 1;
@@ -893,6 +938,19 @@ export let BlocksTree = (() => {
                 paddingLeft: `${indent}px`,
             };
         }
+        #setupAria() {
+            const update = () => {
+                if (!this.checkable) {
+                    this.removeAttribute('aria-multiselectable');
+                }
+                else {
+                    this.setAttribute('aria-multiselectable', this.multiple ? 'true' : 'false');
+                }
+            };
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDeps(['checkable', 'multiple'], update);
+        }
     };
-    return BlocksTree = _classThis;
+    return BlTree = _classThis;
 })();

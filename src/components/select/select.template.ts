@@ -1,15 +1,17 @@
-import '../popup/index.js'
-import '../list/index.js'
 import { makeTemplate } from '../../common/template.js'
-import { BlocksPopup } from '../popup/index.js'
-import { BlocksSelectResult } from '../select-result/index.js'
 
-export const resultTemplate = makeTemplate<BlocksSelectResult>(/*html*/ `<bl-select-result></bl-select-result>`)
+export const resultTemplate = makeTemplate<'bl-select-result'>(
+  /*html*/ `<bl-select-result part="result" suffix-icon="down"></bl-select-result>`
+)
 
 export const slotTemplate = makeTemplate<HTMLSlotElement>(/*html*/ `<slot part="slot" style="display:none;"></slot>`)
 
-export const popupTemplate = makeTemplate<BlocksPopup>(/*html*/ `
+export const popupTemplate = makeTemplate<'bl-popup'>(/*html*/ `
 <bl-popup append-to-body origin="top-start" arrow>
   <bl-list class="option-list" checkable id-field="value" label-field="label"></bl-list>
 </bl-popup>
+`)
+
+export const confirmTemplate = makeTemplate<'bl-button'>(/*html*/ `
+<bl-button type="primary" size="small" block style="margin:8px">确定</bl-button>
 `)

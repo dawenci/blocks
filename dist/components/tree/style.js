@@ -3,8 +3,8 @@ export const style = `
 :host {
   --height: 28px;
 
-  font-family: var(--font-family, ${__font_family});
-  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});  
+  font-family: var(--bl-font-family, ${__font_family});
+  transition: color var(--bl-transition-duration, ${__transition_duration}), border-color var(--bl-transition-duration, ${__transition_duration});  
   font-size: 14px;
   color: var(--bl-fg-base, ${__fg_base});
 }
@@ -90,7 +90,7 @@ export const style = `
   border: 4px dashed transparent;
   border-right: 0 none;
   border-left: 5px solid transparent;
-  transition: all var(--transition-duration, ${__transition_duration});
+  transition: all var(--bl-transition-duration, ${__transition_duration});
 }
 .node-toggle.folded:before {
   border-left-color: #c0c4cc;
@@ -173,7 +173,7 @@ export const style = `
   bottom: 0;
   left: 0;
   margin: auto;
-  transition: transform var(--transition-duration, ${__transition_duration}) ease-in;
+  transition: transform var(--bl-transition-duration, ${__transition_duration}) ease-in;
   background-color: transparent;
 }
 .node-check-input[type="checkbox"] + .node-check-label:after {
@@ -187,7 +187,7 @@ export const style = `
   position: absolute;
   top: 1px;
   width: 3px;
-  transition: transform var(--transition-duration, ${__transition_duration}) ease-in;
+  transition: transform var(--bl-transition-duration, ${__transition_duration}) ease-in;
   transform-origin: center;
   transform: rotate(45deg) scaleY(1);
 }
@@ -222,7 +222,7 @@ export const style = `
 .node-check-input[disabled] + .node-check-label:hover {
   border-color: var(--bl-border-color-base, ${__border_color_base});
   background-color: var(--bl-bg-base, ${__bg_base});
-  cursor: not-allowed;
+  cursor: default;
 }
 .node-check-input[disabled][checked][type="checkbox"] + .node-check-label:after {
   border-color: var(--bl-border-color-base, ${__border_color_base});

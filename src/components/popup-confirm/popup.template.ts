@@ -1,8 +1,8 @@
 import { makeTemplate } from '../../common/template.js'
-import { BlocksPopup } from '../popup/index.js'
+import { BlPopup } from '../popup/index.js'
 
-export const popupTemplate = makeTemplate<BlocksPopup>(/*html*/ `
-<bl-popup>
+export const popupTemplate = makeTemplate<BlPopup>(/*html*/ `
+<bl-popup autoflip arrow="8" origin="top-center">
   <div class="layout" style="padding:15px;">
     <div class="message" style="position:relative;box-sizing:border-box;margin-bottom:15px;font-size:12px;line-height:18px;"></div>
     <div class="actions" style="box-sizing:border-box;text-align:center;">

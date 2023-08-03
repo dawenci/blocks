@@ -32,16 +32,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr, attrs } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { attr, attrs } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { ControlBox } from '../base-control-box/index.js';
+import { BlControlBox } from '../base-control-box/index.js';
 import { SetupControlEvent } from '../setup-control-event/index.js';
 import { SetupEmpty } from '../setup-empty/index.js';
 const types = ['primary', 'danger', 'warning', 'success', 'link'];
-export let BlocksButton = (() => {
+export let BlButton = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-button',
             styles: [style],
@@ -62,7 +62,7 @@ export let BlocksButton = (() => {
     let _$content_initializers = [];
     let _$slot_decorators;
     let _$slot_initializers = [];
-    var BlocksButton = class extends ControlBox {
+    var BlButton = class extends BlControlBox {
         static {
             _block_decorators = [attr('boolean')];
             _outline_decorators = [attr('boolean')];
@@ -77,14 +77,11 @@ export let BlocksButton = (() => {
             __esDecorate(this, null, _$content_decorators, { kind: "accessor", name: "$content", static: false, private: false, access: { has: obj => "$content" in obj, get: obj => obj.$content, set: (obj, value) => { obj.$content = value; } } }, _$content_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksButton = _classThis = _classDescriptor.value;
+            BlButton = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get role() {
             return 'button';
-        }
-        static get disableEventTypes() {
-            return ['click', 'keydown', 'touchstart'];
         }
         #block_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _block_initializers, void 0));
         get block() { return this.#block_accessor_storage; }
@@ -108,6 +105,7 @@ export let BlocksButton = (() => {
             super();
             this.appendContent(template());
             this._tabIndexFeature.withTabIndex(0);
+            this._disabledFeature.withPredicate(() => this.disabled || this.loading);
             this.#setupContent();
         }
         _controlFeature = SetupControlEvent.setup({ component: this });
@@ -128,12 +126,12 @@ export let BlocksButton = (() => {
                 updateAria();
                 updateClass();
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 _observer = new MutationObserver(update);
                 _observer.observe(this, { childList: true });
                 update();
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 if (_observer) {
                     _observer.disconnect();
                     _observer = undefined;
@@ -141,5 +139,5 @@ export let BlocksButton = (() => {
             });
         }
     };
-    return BlocksButton = _classThis;
+    return BlButton = _classThis;
 })();

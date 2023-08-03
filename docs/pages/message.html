@@ -19,131 +19,150 @@
     </header>
 
     <script type="module" src="../../dist/components/button/index.js"></script>
+    <script type="module" src="../../dist/components/card/index.js"></script>
 
     <section class="section">
-      <h2>默认</h2>
-
-      <div data-codesource="html">
-        <bl-button id="default">消息</bl-button>
-
-        <script type="module">
-          import { blMessage } from '../../dist/modules/message/index.js'
-          document.getElementById('default').onclick = () => {
-            blMessage({ content: '这里是消息内容' })
-          }
-        </script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">默认</h2>
+        <div data-codesource="html">
+          <bl-button id="default">消息</bl-button>
+  
+          <script type="module">
+            import { blMessage } from '../../dist/modules/message/index.js'
+            document.getElementById('default').onclick = () => {
+              blMessage({ content: '这里是消息内容' })
+            }
+          </script>
+        </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
       <script type="module" src="../../dist/components/button/index.js"></script>
-      <h2>类别</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">类别</h2>
+        <div slot="header">
+          <p>使用 'type' 配置通知类型，支持 'success'、'error'、'warning'、'info'</p>
+        </div>
 
-      <p>使用 'type' 配置通知类型，支持 'success'、'error'、'warning'、'info'</p>
-
-      <div data-codesource="html">
-        <bl-button id="success">成功</bl-button>
-        <bl-button id="error">错误</bl-button>
-        <bl-button id="info">信息</bl-button>
-        <bl-button id="warning">警告</bl-button>
-        <script type="module">
-          import { blMessage } from '../../dist/modules/message/index.js'
-          ;['success', 'error', 'info', 'warning'].forEach(type => {
-            document.getElementById(type).onclick =
-              () => blMessage({ type, content: '这里是消息内容' })
-          })
-        </script>
-      </div>
+        <div data-codesource="html">
+          <bl-button id="success">成功</bl-button>
+          <bl-button id="error">错误</bl-button>
+          <bl-button id="info">信息</bl-button>
+          <bl-button id="warning">警告</bl-button>
+          <script type="module">
+            import { blMessage } from '../../dist/modules/message/index.js'
+            ;['success', 'error', 'info', 'warning'].forEach(type => {
+              document.getElementById(type).onclick =
+                () => blMessage({ type, closeable: true, content: '这里是消息内容' })
+            })
+          </script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
       <script type="module" src="../../dist/components/button/index.js"></script>
-      <h2>可手动关闭</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">可手动关闭</h2>
+        <div slot="header">
+          <p>使用 'closeable' 可以配置手动关闭功能。</p>
+        </div>
 
-      <p>使用 'closeable' 可以配置手动关闭功能。</p>
-
-      <div data-codesource="html">
-        <bl-button id="closeable">成功</bl-button>
-        <script type="module">
-          import { blMessage } from '../../dist/modules/message/index.js'
-          document.getElementById('closeable').onclick = () => {
-            blMessage({ closeable: true, content: '这里是消息内容' })
-          }
-        </script>
-      </div>
+        <div data-codesource="html">
+          <bl-button id="closeable">成功</bl-button>
+          <script type="module">
+            import { blMessage } from '../../dist/modules/message/index.js'
+            document.getElementById('closeable').onclick = () => {
+              blMessage({ closeable: true, content: '这里是消息内容' })
+            }
+          </script>
+        </div>
+      </bl-card>
     </section>
     
     <section class="section">
-      <h2>自动关闭时间</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">自动关闭时间</h2>
+        <div slot="header">
+          <p>使用 'duration' 配置自动关闭的时间，单位为秒。默认值为 '10'，如果配置为小于等于 '0' 的值，则表示永远不自动关闭。</p>
+        </div>
 
-      <p>使用 'duration' 配置自动关闭的时间，单位为秒。默认值为 '10'，如果配置为小于等于 '0' 的值，则表示永远不自动关闭。</p>
+        <div data-codesource="html">
+          <bl-button id="duration3">3s 后关闭</bl-button>
+          <bl-button id="duration0">永远不自动关闭</bl-button>
+  
+          <script type="module">
+            import { blMessage } from '../../dist/modules/message/index.js'
+            document.getElementById('duration3').onclick = () => {
+              blMessage({ duration: 3, content: '这里是消息内容' })
+            }
+            document.getElementById('duration0').onclick = () => {
+              blMessage({ duration: 0, content: '这里是消息内容', closeable: true })
+            }
+          </script>
+        </div>
+      </bl-card>
 
-      <div data-codesource="html">
-        <bl-button id="duration3">3s 后关闭</bl-button>
-        <bl-button id="duration0">永远不自动关闭</bl-button>
-
-        <script type="module">
-          import { blMessage } from '../../dist/modules/message/index.js'
-          document.getElementById('duration3').onclick = () => {
-            blMessage({ duration: 3, content: '这里是消息内容' })
-          }
-          document.getElementById('duration0').onclick = () => {
-            blMessage({ duration: 0, content: '这里是消息内容', closeable: true })
-          }
-        </script>
-      </div>
     </section>
 
     <section class="section">
-      <h2>监听关闭事件</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">监听关闭事件</h2>
+        <p slot="header">blMessage 的返回值提供 onclose 方法，可以在关闭动画结束后调用传入的回调函数。</p>
 
-      <p>blMessage 的返回值提供 onclose 方法，可以在关闭动画结束后调用传入的回调函数。</p>
-
-      <div data-codesource="html">
-        <bl-button id="onclose">onclose消息</bl-button>
-
-        <script type="module">
-          import { blMessage } from '../../dist/modules/message/index.js'
-          document.getElementById('onclose').onclick = () => {
-            blMessage({ content: '这里是消息内容', closeable: true, duration: 3 })
-              .onclose(() => {
-                blMessage({ content: '上个通知关闭了' })
-              })
-          }
-        </script>
-      </div>
+        <div data-codesource="html">
+          <bl-button id="onclose">onclose消息</bl-button>
+  
+          <script type="module">
+            import { blMessage } from '../../dist/modules/message/index.js'
+            document.getElementById('onclose').onclick = () => {
+              blMessage({ content: '这里是消息内容', closeable: true, duration: 3 })
+                .onclose(() => {
+                  blMessage({ content: '上个通知关闭了' })
+                })
+            }
+          </script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Methods</h3>
 
-      <h3>Methods</h3>
-      <table class="api-fns">
-        <thead>
-          <tr>
-            <th>函数名称</th>
-            <th>类型</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>blMessage</td>
-            <td>
+        <table class="api-fns">
+          <thead>
+            <tr>
+              <th>函数名称</th>
+              <th>类型</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>blMessage</td>
+              <td>
 <pre>
 (options: {
-  type: 'message' | 'success' | 'error' | 'info' | 'warning',
-  dark: boolean,
-  closeable: boolean,
-  content: string
-}) => &lt;void&gt;
+  type?: 'message' | 'success' | 'error' | 'info' | 'warning',
+  dark?: boolean,
+  closeable?: boolean,
+  content?: string
+}) => {
+  el: BlMessage
+  close: () => void
+  onclose: (callback: () => void) => void
+};
 </pre>
-            </td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

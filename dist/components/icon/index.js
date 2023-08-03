@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
-export let BlocksIcon = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlIcon = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-icon',
             styles: [style],
@@ -54,7 +54,7 @@ export let BlocksIcon = (() => {
     let _fill_initializers = [];
     let _$layout_decorators;
     let _$layout_initializers = [];
-    var BlocksIcon = class extends Component {
+    var BlIcon = class extends BlComponent {
         static {
             _value_decorators = [attr('string')];
             _fill_decorators = [attr('string')];
@@ -63,7 +63,7 @@ export let BlocksIcon = (() => {
             __esDecorate(this, null, _fill_decorators, { kind: "accessor", name: "fill", static: false, private: false, access: { has: obj => "fill" in obj, get: obj => obj.fill, set: (obj, value) => { obj.fill = value; } } }, _fill_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksIcon = _classThis = _classDescriptor.value;
+            BlIcon = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
@@ -77,9 +77,9 @@ export let BlocksIcon = (() => {
         set $layout(value) { this.#$layout_accessor_storage = value; }
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
+            this.appendShadowChild(template());
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
         }
         render() {
             super.render();
@@ -97,5 +97,5 @@ export let BlocksIcon = (() => {
             }
         }
     };
-    return BlocksIcon = _classThis;
+    return BlIcon = _classThis;
 })();

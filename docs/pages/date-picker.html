@@ -18,89 +18,168 @@
       <h1>date-picker</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
 
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/date-picker/index.js"></script>
-      </div>
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/date-picker/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>日期选择</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">日期选择</h2>
         <template data-codesource="html">
           <bl-date-picker clearable></bl-date-picker>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>多选选择</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">多选选择</h2>
+        <p slot="header">使用 `bl-dates-picker` 变体元素。</p>
 
-      <div class="case">
         <template data-codesource="html">
-          <bl-date-picker mode="multiple" clearable max="3"></bl-date-picker>
+          <bl-dates-picker mode="multiple" clearable max="3"></bl-dates-picker>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">disabled</h2>
+        <template data-codesource="html">
+          <bl-date-picker disabled></bl-date-picker>
+        </template>
+      </bl-card>
+    </section>
 
-      <h3>Attrs / Props</h3>
-      <p>支持传入 date 组件的属性控制日期面板。</p>
-      <table>
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>clearable</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否可以清除值（显示清除按钮）。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">尺寸</h2>
+        <template data-codesource="html">
+          <bl-date-picker size="small"></bl-date-picker>
+          <bl-date-picker></bl-date-picker>
+          <bl-date-picker size="large"></bl-date-picker>
+        </template>
+      </bl-card>
+    </section>
 
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>closed</td>
-            <td></td>
-            <td>日期面板关闭时触发。</td>
-          </tr>
-          <tr>
-            <td>input</td>
-            <td>{ detail: { value } }</td>
-            <td>value 值变化时触发。</td>
-          </tr>
-          <tr>
-            <td>opened</td>
-            <td></td>
-            <td>日期面板打开时触发。</td>
-          </tr>
-        </tbody>
-      </table>
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">事件</h2>
+        <template data-codesource="html">
+          <script type="module" src="../../dist/components/input/index.js"></script>
+          <bl-date-picker id="picker" clearable></bl-date-picker>
+          <bl-input id="result" readonly placeholder="结果："></bl-input>
+        </template>
+
+        <template data-codesource="script">
+          <script>
+            document.querySelector('#picker').addEventListener('change', e => {
+              const date = e.detail.value
+              document.querySelector('#result').value = date ? `结果：${date.getUTCFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}` : ''
+            })
+          </script>
+        </template>
+      </bl-card>
+    </section>
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+
+        <p>支持传入 date 组件的属性控制日期面板。</p>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>clearable</td>
+              <td>clearable</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否可以清除值（显示清除按钮）。</td>
+            </tr>
+            <tr>
+              <td>open</td>
+              <td>open</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>日期选择面板是否弹出展示。</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>size</td>
+              <td>'small' | 'large'</td>
+              <td>无</td>
+              <td>尺寸</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>value</td>
+              <td>
+                单选: Date | null
+                <hr>
+                多选: Date[]
+              </td>
+              <td>
+                单选: null
+                <hr>
+                多选: []
+              </td>
+              <td>选中的日期值</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Events</h3>
+
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>change</td>
+              <td>
+                单选: CustomEvent&lt;{ value: Date | null }&gt;
+                <hr>
+                多选: CustomEvent&lt;{ value: Date[] }&gt;
+              </td>
+              <td>日期变化时触发。</td>
+            </tr>
+            <tr>
+              <td>closed</td>
+              <td>CustomEvent</td>
+              <td>日期面板关闭时触发。</td>
+            </tr>
+            <tr>
+              <td>opened</td>
+              <td>CustomEvent</td>
+              <td>日期面板打开时触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
 
   </article>

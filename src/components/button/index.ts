@@ -1,27 +1,26 @@
-import type { ComponentEventListener } from '../component/Component.js'
-import type { ControlBoxEventMap } from '../base-control-box/index.js'
-import type { EnumAttr, EnumAttrs } from '../../decorators/attr.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import type { BlComponentEventListener } from '../component/Component.js'
+import type { BlControlBoxEventMap } from '../base-control-box/index.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { ControlBox } from '../base-control-box/index.js'
+import { BlControlBox } from '../base-control-box/index.js'
 import { SetupControlEvent } from '../setup-control-event/index.js'
 import { SetupEmpty } from '../setup-empty/index.js'
 
 const types = ['primary', 'danger', 'warning', 'success', 'link'] as const
 
-export interface BlocksButton extends ControlBox {
-  addEventListener<K extends keyof ControlBoxEventMap>(
+export interface BlButton extends BlControlBox {
+  addEventListener<K extends keyof BlControlBoxEventMap>(
     type: K,
-    listener: ComponentEventListener<ControlBoxEventMap[K]>,
+    listener: BlComponentEventListener<BlControlBoxEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof ControlBoxEventMap>(
+  removeEventListener<K extends keyof BlControlBoxEventMap>(
     type: K,
-    listener: ComponentEventListener<ControlBoxEventMap[K]>,
+    listener: BlComponentEventListener<BlControlBoxEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -30,22 +29,18 @@ export interface BlocksButton extends ControlBox {
   customElement: 'bl-button',
   styles: [style],
 })
-export class BlocksButton extends ControlBox {
-  static get role() {
+export class BlButton extends BlControlBox {
+  static override get role() {
     return 'button'
-  }
-
-  static override get disableEventTypes() {
-    return ['click', 'keydown', 'touchstart']
   }
 
   @attr('boolean') accessor block!: boolean
 
   @attr('boolean') accessor outline!: boolean
 
-  @attr('enum', { enumValues: types }) accessor type!: EnumAttr<typeof types> | null
+  @attr('enum', { enumValues: types }) accessor type!: OneOf<typeof types> | null
 
-  @attrs.size accessor size!: EnumAttrs['size'] | null
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']> | null
 
   @shadowRef('[part="content"]') accessor $content!: HTMLSpanElement
 
@@ -56,6 +51,7 @@ export class BlocksButton extends ControlBox {
 
     this.appendContent(template())
     this._tabIndexFeature.withTabIndex(0)
+    this._disabledFeature.withPredicate(() => this.disabled || this.loading)
 
     this.#setupContent()
   }
@@ -80,12 +76,12 @@ export class BlocksButton extends ControlBox {
       updateAria()
       updateClass()
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       _observer = new MutationObserver(update)
       _observer.observe(this, { childList: true })
       update()
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       if (_observer) {
         _observer.disconnect()
         _observer = undefined

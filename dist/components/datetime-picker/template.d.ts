@@ -1,10 +1,2 @@
-import '../select-result/index.js';
-import '../popup/index.js';
-import '../date/index.js';
-import '../result/index.js';
-import '../time/index.js';
-import '../button/index.js';
-import { BlocksPopup } from '../popup/index.js';
-export declare const inputTemplate: () => import("../input/index").BlocksInput;
-export declare const contentTemplate: () => HTMLElement;
-export declare const popupTemplate: () => BlocksPopup;
+export declare const inputTemplate: () => import("../select-result/index").BlSelectResult;
+export declare const popupTemplate: () => import("../popup/popup").BlPopup;

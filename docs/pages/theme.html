@@ -19,24 +19,27 @@
     </header>
 
     <script type="module" src="../../dist/components/button/index.js"></script>
+    <script type="module" src="../../dist/components/card/index.js"></script>
 
     <section class="section">
-      <p>
-      可以使用 css 变量定制主题，支持的变量名称，可以查看 `/src/theme/var.css`，文件里面有所有的全局 css 变量名称以及默认值。
-      </p>
-      <p>
-      直接引入默认的 `/src/theme/var.css` 文件的话，在祖先元素或组件上设置 `blocks-theme="dark"` attribute 可以开启 dark 模式。
-      </p>
-      <p>
-      另外，部分组件也有组件级别的 css 变量，可以通过具体组件的 API 文档查看变量详情。
-      </p>
+      <bl-card>
+        <p>
+        可以使用 css 变量定制主题，支持的变量名称，可以查看 `/src/theme/var.css`，文件里面有所有的全局 css 变量名称以及默认值。
+        </p>
+        <p>
+        直接引入默认的 `/src/theme/var.css` 文件的话，在祖先元素或组件上设置 `blocks-theme="dark"` attribute 可以开启 dark 模式。
+        </p>
+        <p>
+        另外，部分组件也有组件级别的 css 变量，可以通过具体组件的 API 文档查看变量详情。
+        </p>
+      </bl-card>
     </section>
     
     <section class="section">
-      <h2>全局设置</h2>
-      <p>引入 css 文件或者 style 标签，覆盖 css 变量。例如：</p>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">全局设置</h2>
+        <p slot="header">引入 css 文件或者 style 标签，覆盖 css 变量。例如：</p>
+  
         <template data-codesource="html" on>
           <bl-button type="primary">全局定制效果</bl-button>
           <style>
@@ -47,16 +50,17 @@
             }
           </style>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>组件级别局部设置</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">组件级别局部设置</h2>
+        <div slot="header">
+          <h3>修改 style</h3>
+          <p>直接设置组件的 style，覆盖对应的变量即可。例如：</p>
+        </div>
 
-      <h3>修改 style</h3>
-      <p>直接设置组件的 style，覆盖对应的变量即可。例如：</p>
-
-      <div class="case">
         <template data-codesource="html" on>
           <style>
             #custom {
@@ -65,17 +69,16 @@
               --bl-color-primary-active: #F22;
             }
           </style>
-
+  
           <bl-button
             id="custom"
             type="primary">
             style 定制效果
           </bl-button>
         </template>
-      </div>
 
-      <h3>修改内联 style</h3>
-      <div class="case">
+        <h3>修改内联 style</h3>
+
         <template data-codesource="html" on>
           <bl-button
             type="primary"
@@ -83,13 +86,10 @@
             内联 style 定制效果
           </bl-button>
         </template>
-      </div>
+      
+        <h3>使用 JavaScript</h3>
+        <p>使用 JavaScript 直接调用 style 对象上的 setProperty，也可以设置变量值。例如：</p>
 
-      <h3>使用 JavaScript</h3>
-
-      <p>使用 JavaScript 直接调用 style 对象上的 setProperty，也可以设置变量值。例如：</p>
-
-      <div class="case">
         <template data-codesource="html" on>
           <bl-button id="setProperty" type="primary">setProperty</bl-button>
           <script>
@@ -99,11 +99,8 @@
             button.style.setProperty('--bl-color-primary-active', '#F22')
           </script>
         </template>
-      </div>
+      </bl-card>
     </section>
-
-
-
   </article>
 </body>
 </html>

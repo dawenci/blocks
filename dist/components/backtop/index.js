@@ -32,16 +32,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { fromAttr } from '../component/reactive.js';
 import { scrollTo } from '../../common/scrollTo.js';
 import { style } from './style.js';
 import { strSetter } from '../../common/property.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 import { computed, reactive, subscribe, unsubscribe } from '../../common/reactive.js';
-export let BlocksBackTop = (() => {
+export let BlBackTop = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-backtop',
             styles: [style],
@@ -54,15 +54,18 @@ export let BlocksBackTop = (() => {
     let _duration_initializers = [];
     let _threshold_decorators;
     let _threshold_initializers = [];
-    var BlocksBackTop = class extends Component {
+    var BlBackTop = class extends BlComponent {
         static {
             _duration_decorators = [attr('number')];
             _threshold_decorators = [attr('number')];
             __esDecorate(this, null, _duration_decorators, { kind: "accessor", name: "duration", static: false, private: false, access: { has: obj => "duration" in obj, get: obj => obj.duration, set: (obj, value) => { obj.duration = value; } } }, _duration_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _threshold_decorators, { kind: "accessor", name: "threshold", static: false, private: false, access: { has: obj => "threshold" in obj, get: obj => obj.threshold, set: (obj, value) => { obj.threshold = value; } } }, _threshold_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksBackTop = _classThis = _classDescriptor.value;
+            BlBackTop = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'button';
         }
         #duration_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _duration_initializers, 0));
         get duration() { return this.#duration_accessor_storage; }
@@ -127,16 +130,16 @@ export let BlocksBackTop = (() => {
                     done: render,
                 });
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('click', onClick);
                 subscribe(this.visible, render);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('click', onClick);
                 unsubscribe(this.visible, render);
             });
-            this.onRender(render);
-            this.onConnected(render);
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
         }
         #setupTarget() {
             const scrollEventOptions = {
@@ -148,13 +151,13 @@ export let BlocksBackTop = (() => {
                     this.#scrolled.content = this.targetElement.scrollTop;
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 document.addEventListener('scroll', onTargetScroll, scrollEventOptions);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 document.removeEventListener('scroll', onTargetScroll, scrollEventOptions);
             });
         }
     };
-    return BlocksBackTop = _classThis;
+    return BlBackTop = _classThis;
 })();

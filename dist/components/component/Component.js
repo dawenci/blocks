@@ -33,30 +33,38 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { append, mountAfter, mountBefore, prepend, unmount } from '../../common/mount.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { dispatchEvent } from '../../common/event.js';
 import { uniqId } from '../../common/uniqId.js';
 import { upgradeProperty } from '../../common/upgradeProperty.js';
-import * as hook from './hook-internal.js';
+import { Hook } from '../../common/Hook/index.js';
 let cidSeed = uniqId();
-export let Component = (() => {
+export let BlComponent = (() => {
     let _classDecorators = [defineClass({
             attachShadow: true,
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
-    var Component = class extends HTMLElement {
+    var BlComponent = class extends HTMLElement {
         static {
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            Component = _classThis = _classDescriptor.value;
+            BlComponent = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'widget';
         }
         static get observedAttributes() {
             return [];
         }
+        blSilent = false;
+        #hook = new Hook();
+        get hook() {
+            return this.#hook;
+        }
         constructor() {
             super();
-            hook.setCurrentHook(this.#hook);
             const ctor = this.constructor;
             if (ctor._shadowRootInit) {
                 this.attachShadow(ctor._shadowRootInit);
@@ -73,47 +81,32 @@ export let Component = (() => {
         get cid() {
             return this.#cid;
         }
-        #hook = new hook.Hook();
-        onConnected(callback) {
-            hook.onConnected(this.#hook, callback);
+        _features = new Map();
+        addFeature(key, feature) {
+            if (!this._features.has(key)) {
+                this._features.set(key, feature);
+                this.hook.merge(feature.hook);
+            }
         }
-        onDisconnected(callback) {
-            hook.onDisconnected(this.#hook, callback);
-        }
-        onAdopted(callback) {
-            hook.onAdopted(this.#hook, callback);
-        }
-        onAttributeChanged(callback) {
-            hook.onAttributeChanged(this.#hook, callback);
-        }
-        onAttributeChangedDep(dep, callback) {
-            hook.onAttributeChangedDep(this.#hook, callback, dep);
-        }
-        onAttributeChangedDeps(deps, callback) {
-            hook.onAttributeChangedDeps(this.#hook, callback, deps);
-        }
-        onRender(callback) {
-            hook.onRender(this.#hook, callback);
-        }
-        clearHooks() {
-            hook.clearHooks(this.#hook);
+        getFeature(key) {
+            return this._features.get(key);
         }
         connectedCallback() {
             this.initRole();
             this.upgradeProperty();
-            this.#hook.call(this, 0);
+            this.hook.callConnected(this);
         }
         disconnectedCallback() {
-            this.#hook.call(this, 1);
+            this.hook.callDisconnected(this);
         }
         adoptedCallback() {
-            this.#hook.call(this, 2);
+            this.hook.callAdopted(this);
         }
         attributeChangedCallback(name, oldValue, newValue) {
-            this.#hook.call(this, 3, name, oldValue, newValue);
+            this.hook.callAttributeChanged(this, name, oldValue, newValue);
         }
         render() {
-            this.#hook.call(this, 4);
+            this.hook.callRender(this);
         }
         prependTo($parent) {
             prepend(this, $parent);
@@ -156,16 +149,23 @@ export let Component = (() => {
                     $style = document.createElement('style');
                     $style.textContent = textContent;
                 }
-                const _$last = $style.nodeType === 11 ? $style.children[$style.children.length - 1] : $style;
+                else {
+                    $style = $style.cloneNode(true);
+                }
+                const _$last = $style.nodeType === 11
+                    ? $style.children[$style.children.length - 1]
+                    : $style;
                 if ($lastStyle) {
-                    mountAfter($style.cloneNode(true), $lastStyle);
+                    mountAfter($style, $lastStyle);
                 }
                 else {
-                    prepend($style.cloneNode(true), this.shadowRoot);
+                    prepend($style, this.shadowRoot);
                 }
                 ;
                 this._$lastStyle = _$last;
+                return _$last;
             }
+            return null;
         }
         upgradeProperty(props) {
             if (!props) {
@@ -199,8 +199,44 @@ export let Component = (() => {
             }
             return [];
         }
+        proxyEvent($el, type, options) {
+            const handler = (event) => {
+                if (event.detail != null) {
+                    dispatchEvent(this, type, { detail: event.detail });
+                }
+                else {
+                    dispatchEvent(this, type);
+                }
+            };
+            $el.addEventListener(type, handler, options);
+            return () => {
+                $el.removeEventListener(type, handler, options);
+            };
+        }
+        #microtasks = new Map();
+        registerMicrotask(key, callback) {
+            if (!this.#microtasks.has(key)) {
+                queueMicrotask(() => {
+                    this.#microtasks.get(key).call(this);
+                    this.#microtasks.delete(key);
+                });
+            }
+            this.#microtasks.set(key, callback);
+        }
+        withBlSilent(fn) {
+            const before = this.blSilent;
+            this.blSilent = true;
+            fn();
+            this.blSilent = before;
+        }
+        dispatchEvent(event) {
+            if (this.blSilent) {
+                return event.cancelable === false || event.defaultPrevented === false;
+            }
+            return super.dispatchEvent(event);
+        }
     };
-    return Component = _classThis;
+    return BlComponent = _classThis;
 })();
 function getLastItem(arrayLike) {
     return arrayLike[arrayLike.length - 1];

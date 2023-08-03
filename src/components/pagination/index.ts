@@ -1,38 +1,25 @@
-import type { EnumAttrs } from '../../decorators/attr.js'
 import '../icon/index.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { forEach } from '../../common/utils.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
-import { template } from './template.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import { template, itemTemplate } from './template.js'
+import { BlComponent, BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
 
-export interface PaginationEventMap extends ComponentEventMap {
-  'bl:pagination:current-change': CustomEvent<{ current: number }>
-  'bl:pagination:page-size-change': CustomEvent<{ pageSize: number }>
-}
+export type PaginationEventMap = BlComponentEventMap
 
-export interface BlocksPagination extends Component {
-  _ref: {
-    $pager: HTMLElement
-    $items: HTMLElement
-    $prev: HTMLButtonElement
-    $next: HTMLButtonElement
-    $jump: HTMLElement
-    $sizes: HTMLElement
-    $total: HTMLElement
-  }
-
+export interface BlPagination extends BlComponent {
   addEventListener<K extends keyof PaginationEventMap>(
     type: K,
-    listener: ComponentEventListener<PaginationEventMap[K]>,
+    listener: BlComponentEventListener<PaginationEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
   removeEventListener<K extends keyof PaginationEventMap>(
     type: K,
-    listener: ComponentEventListener<PaginationEventMap[K]>,
+    listener: BlComponentEventListener<PaginationEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -41,7 +28,7 @@ export interface BlocksPagination extends Component {
   customElement: 'bl-pagination',
   styles: [style],
 })
-export class BlocksPagination extends Component {
+export class BlPagination extends BlComponent {
   static override get observedAttributes() {
     return ['order']
   }
@@ -54,42 +41,27 @@ export class BlocksPagination extends Component {
 
   @attr('int') accessor total = 0
 
-  @attr('string') accessor pageSizes!: string | null
+  @attr('string') accessor pageSizes!: string
 
-  @attrs.size accessor size!: EnumAttrs['size']
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
 
-  _itemPool: HTMLElement[] = []
+  @shadowRef('#pager') accessor $pager!: HTMLElement
+  @shadowRef('#items') accessor $items!: HTMLElement
+  @shadowRef('#prev') accessor $prev!: HTMLButtonElement
+  @shadowRef('#next') accessor $next!: HTMLButtonElement
+  @shadowRef('#jump') accessor $jump!: HTMLElement
+  @shadowRef('#sizes') accessor $sizes!: HTMLElement
+  @shadowRef('#total') accessor $total!: HTMLElement
 
   constructor() {
     super()
 
-    const { comTemplate } = template()
+    this.appendShadowChild(template())
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(comTemplate.content.cloneNode(true))
-
-    const $pager = shadowRoot.getElementById('pager') as HTMLElement
-    const $items = shadowRoot.getElementById('items') as HTMLElement
-    const $prev = shadowRoot.getElementById('prev') as HTMLButtonElement
-    const $next = shadowRoot.getElementById('next') as HTMLButtonElement
-    const $jump = shadowRoot.getElementById('jump') as HTMLElement
-    const $sizes = shadowRoot.getElementById('sizes') as HTMLElement
-    const $total = shadowRoot.getElementById('total') as HTMLElement
-
-    this._ref = {
-      $pager,
-      $items,
-      $prev,
-      $next,
-      $jump,
-      $sizes,
-      $total,
-    }
-
-    this.onConnected(() => {
-      $prev.onclick = () => this._prev()
-      $next.onclick = () => this._next()
-      $items.onclick = e => {
+    this.hook.onConnected(() => {
+      this.$prev.onclick = () => this._prev()
+      this.$next.onclick = () => this._next()
+      this.$items.onclick = e => {
         if (this.disabled) return
         let $button = e.target as HTMLElement
         if ($button.tagName === 'BL-ICON') {
@@ -104,25 +76,27 @@ export class BlocksPagination extends Component {
         this.current = +$button.textContent!
       }
     })
-    this.onDisconnected(() => {
-      $prev.onclick = $next.onclick = $items.onclick = null
+    this.hook.onDisconnected(() => {
+      this.$prev.onclick = this.$next.onclick = this.$items.onclick = null
     })
 
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
 
-    this.onAttributeChangedDep('current', () => {
+    this.hook.onAttributeChangedDep('current', () => {
       dispatchEvent(this, 'bl:pagination:current-change', {
         detail: { current: this.current },
       })
     })
 
-    this.onAttributeChangedDep('page-size', () => {
+    this.hook.onAttributeChangedDep('page-size', () => {
       dispatchEvent(this, 'bl:pagination:page-size-change', {
         detail: { pageSize: this.pageSize },
       })
     })
   }
+
+  _itemPool: HTMLElement[] = []
 
   get showQuickJumper() {
     return
@@ -143,8 +117,8 @@ export class BlocksPagination extends Component {
   override render() {
     super.render()
     this._renderPager()
-    this._ref.$prev.disabled = this.current === 1
-    this._ref.$next.disabled = this.current === this.itemCount
+    this.$prev.disabled = this.current === 1
+    this.$next.disabled = this.current === this.itemCount
   }
 
   _renderPager() {
@@ -152,7 +126,7 @@ export class BlocksPagination extends Component {
     const showQuickNext = this.itemCount - this.current > 3
     const count = this.itemCount < 8 ? this.itemCount : showQuickPrev && showQuickNext ? 9 : 8
     this._ensureItem(count)
-    const children = this._ref.$items.children as unknown as HTMLElement[]
+    const children = this.$items.children as unknown as HTMLElement[]
 
     forEach(children, $item => {
       if ($item.classList.contains('current')) {
@@ -228,12 +202,11 @@ export class BlocksPagination extends Component {
   }
 
   _ensureItem(n: number) {
-    const { itemTemplate } = template()
-    while (this._ref.$items.children.length < n) {
-      this._ref.$items.appendChild(this._itemPool.pop() ?? itemTemplate.cloneNode(true))
+    while (this.$items.children.length < n) {
+      this.$items.appendChild(this._itemPool.pop() ?? itemTemplate())
     }
-    while (this._ref.$items.children.length > n) {
-      this._itemPool.push(this._ref.$items.removeChild(this._ref.$items.lastElementChild!) as HTMLElement)
+    while (this.$items.children.length > n) {
+      this._itemPool.push(this.$items.removeChild(this.$items.lastElementChild!) as HTMLElement)
     }
     if (this._itemPool.length > 7) this._itemPool.length = 7
   }

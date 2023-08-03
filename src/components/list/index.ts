@@ -1,31 +1,31 @@
-import type { ComponentEventListener } from '../component/Component.js'
+import type { BlComponentEventListener } from '../component/Component.js'
 import type { ISelected, ISelectListEventMap, ISelectableListComponent } from '../../common/connectSelectable.js'
 import type { VirtualItem, VListEventMap } from '../vlist/index.js'
-import { attr } from '../../decorators/attr.js'
+import { attr } from '../../decorators/attr/index.js'
 import { captureEventWhenEnable } from '../../common/captureEventWhenEnable.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { parseHighlight } from '../../common/highlight.js'
 import { style } from './style.js'
-import { BlocksVList } from '../vlist/index.js'
+import { BlVList } from '../vlist/index.js'
 import { SetupDisabled } from '../setup-disabled/index.js'
 import { SetupTabIndex } from '../setup-tab-index/index.js'
 
-interface BlocksListEventMap extends VListEventMap, ISelectListEventMap {}
+interface BlListEventMap extends VListEventMap, ISelectListEventMap {}
 
-export interface BlocksList extends BlocksVList, ISelectableListComponent {
+export interface BlList extends BlVList, ISelectableListComponent {
   idMethod?: (data: any) => string
   labelMethod?: (data: any) => string
 
-  addEventListener<K extends keyof BlocksListEventMap>(
+  addEventListener<K extends keyof BlListEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksListEventMap[K]>,
+    listener: BlComponentEventListener<BlListEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof BlocksListEventMap>(
+  removeEventListener<K extends keyof BlListEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksListEventMap[K]>,
+    listener: BlComponentEventListener<BlListEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -38,7 +38,11 @@ export interface BlocksList extends BlocksVList, ISelectableListComponent {
     delegatesFocus: true,
   },
 })
-export class BlocksList extends BlocksVList {
+export class BlList extends BlVList implements ISelectableListComponent {
+  static override get role() {
+    return 'list'
+  }
+
   @attr('boolean', { observed: false }) accessor border!: boolean
 
   @attr('boolean', { observed: false }) accessor stripe!: boolean
@@ -87,9 +91,11 @@ export class BlocksList extends BlocksVList {
 
     this.#setupEvents()
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.upgradeProperty(['checkedData', 'checked'])
     })
+
+    this.#setupAria()
   }
 
   #setupEvents() {
@@ -125,10 +131,10 @@ export class BlocksList extends BlocksVList {
         }
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$list.onclick = onListClick
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$list.onclick = null
     })
 
@@ -153,20 +159,20 @@ export class BlocksList extends BlocksVList {
       }
     }
     let clearKeydown: () => void
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       clearKeydown = captureEventWhenEnable(this, 'keydown', onKeydown)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       clearKeydown()
     })
 
     const clearFocus = () => {
       this.focusById('')
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$viewport.addEventListener('blur', clearFocus)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$viewport.removeEventListener('blur', clearFocus)
     })
   }
@@ -177,17 +183,7 @@ export class BlocksList extends BlocksVList {
 
   // 注意：databound 之前设置无效
   set checkedData(data) {
-    this.#checkedSet = new Set(data.map(data => this.keyMethod(data)).filter(vkey => !!this.getVirtualItemByKey(vkey)))
-
-    this.render()
-    dispatchEvent(this, 'select-list:change', {
-      detail: {
-        value: this.checkedData.map(data => ({
-          label: this.internalLabelMethod(data),
-          value: this.keyMethod(data),
-        })),
-      },
-    })
+    this.checked = data.map(data => this.keyMethod(data))
   }
 
   get checked() {
@@ -196,13 +192,24 @@ export class BlocksList extends BlocksVList {
 
   // 注意：databound 之前设置无效
   set checked(ids: string[]) {
-    this.#checkedSet = new Set(ids.filter(id => !!this.getVirtualItemByKey(id)))
+    const newIds = new Set(ids.filter(id => !!this.getVirtualItemByKey(id)))
+
+    check: if (this.#checkedSet.size === newIds.size) {
+      for (const i of newIds.values()) {
+        if (!this.#checkedSet.has(i)) break check
+      }
+      return
+    }
+
+    this.#checkedSet = newIds
+
     this.render()
+
     dispatchEvent(this, 'select-list:change', {
       detail: {
-        value: this.checkedData.map(data => ({
-          label: this.internalLabelMethod(data),
-          value: this.keyMethod(data),
+        value: this.checked.map(value => ({
+          value,
+          label: this.internalLabelMethod(this.getVirtualItemByKey(value)),
         })),
       },
     })
@@ -347,6 +354,7 @@ export class BlocksList extends BlocksVList {
     if (this.checkedData.length) {
       this.checkedData = []
     }
+    dispatchEvent(this, 'select-list:after-clear')
   }
 
   selectById(id: string) {
@@ -385,7 +393,11 @@ export class BlocksList extends BlocksVList {
         break
       }
       case 'search': {
-        this.generateViewData()
+        this.generateViewData({
+          complete: () => {
+            /*noop*/
+          },
+        })
         break
       }
       // 从多选改成单选，保留最后一个选择的值
@@ -404,7 +416,7 @@ export class BlocksList extends BlocksVList {
         break
       }
       default: {
-        if (BlocksList.observedAttributes.includes(attrName)) {
+        if (BlList.observedAttributes.includes(attrName)) {
           this.render()
         }
       }
@@ -426,21 +438,19 @@ export class BlocksList extends BlocksVList {
     return data[this.idField]
   }
 
-  override async filterMethod(data: any) {
-    if (!this.search) return data
+  override filterMethod(data: any, callback: (data: any) => any) {
+    if (!this.search) return callback(data)
     const len = data.length
     const results: any[] = []
     // 第二遍，提取数据，并移除标识
-    return new Promise(resolve => {
-      setTimeout(() => {
-        for (let i = 0; i < len; i += 1) {
-          const vItem = data[i]
-          if (this.internalLabelMethod(vItem.data).includes(this.search)) {
-            results.push(vItem)
-          }
+    setTimeout(() => {
+      for (let i = 0; i < len; i += 1) {
+        const vItem = data[i]
+        if (this.internalLabelMethod(vItem.data).includes(this.search)) {
+          results.push(vItem)
         }
-        resolve(results)
-      })
+      }
+      callback(results)
     })
   }
 
@@ -498,5 +508,18 @@ export class BlocksList extends BlocksVList {
     this._renderItemDisabled($item, vitem)
     this._renderItemChecked($item, vitem)
     this._renderItemFocus($item, vitem)
+  }
+
+  #setupAria() {
+    const update = () => {
+      if (!this.checkable) {
+        this.removeAttribute('aria-multiselectable')
+      } else {
+        this.setAttribute('aria-multiselectable', this.multiple ? 'true' : 'false')
+      }
+    }
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDeps(['checkable', 'multiple'], update)
   }
 }

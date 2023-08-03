@@ -1,39 +1,34 @@
-import type { EnumAttr } from '../../decorators/attr.js';
-import { BlocksSplitterPane } from './pane.js';
-import { Component } from '../component/Component.js';
-export interface BlocksSplitter extends Component {
-    _ref: {
-        $layout: HTMLElement;
-        $panes: HTMLElement;
-        $cover: HTMLElement;
-        $slot: HTMLSlotElement;
-    };
-}
-export declare class BlocksSplitter extends Component {
+import { BlSplitterPane } from './pane.js';
+import { BlComponent } from '../component/Component.js';
+export declare class BlSplitter extends BlComponent {
     #private;
-    accessor direction: EnumAttr<['horizontal', 'vertical']>;
+    accessor direction: OneOf<['horizontal', 'vertical']>;
     accessor handleSize: number;
-    panes: BlocksSplitterPane[];
+    panes: BlSplitterPane[];
     handles: HTMLElement[];
+    accessor $layout: HTMLElement;
+    accessor $panes: HTMLElement;
+    accessor $cover: HTMLElement;
+    accessor $slot: HTMLSlotElement;
     constructor();
     _renderDirection(): void;
     get size(): number;
     renderHandles(): void;
-    getPaneSize($pane: BlocksSplitterPane): number;
-    isSizeFrozen($pane: BlocksSplitterPane): boolean;
-    getPanePosition($pane: BlocksSplitterPane): number;
+    getPaneSize($pane: BlSplitterPane): number;
+    isSizeFrozen($pane: BlSplitterPane): boolean;
+    getPanePosition($pane: BlSplitterPane): number;
     getHandlerSize(): number;
-    getPaneIndex($pane: BlocksSplitterPane): number;
-    resizePane($pane: BlocksSplitterPane, newSize: number): void;
-    collapsePane($pane: BlocksSplitterPane): void;
-    expandPane($pane: BlocksSplitterPane): void;
+    getPaneIndex($pane: BlSplitterPane): number;
+    resizePane($pane: BlSplitterPane, newSize: number): void;
+    collapsePane($pane: BlSplitterPane): void;
+    expandPane($pane: BlSplitterPane): void;
     layout(): void;
-    setActiveHandle($pane: BlocksSplitterPane): void;
+    setActiveHandle($pane: BlSplitterPane): void;
     clearActiveHandle(): void;
     getHandleIndex($handle: HTMLElement): number;
-    _getGrowSize($pane: BlocksSplitterPane): number;
-    _getShrinkSize($pane: BlocksSplitterPane): number;
-    _growPanes(rest: number, panes: BlocksSplitterPane[]): void;
-    _shrinkPanes(rest: number, panes: BlocksSplitterPane[]): void;
+    _getGrowSize($pane: BlSplitterPane): number;
+    _getShrinkSize($pane: BlSplitterPane): number;
+    _growPanes(rest: number, panes: BlSplitterPane[]): void;
+    _shrinkPanes(rest: number, panes: BlSplitterPane[]): void;
     toggleCover(visible: boolean): void;
 }

@@ -28,11 +28,10 @@ export const style = `
 #layout:after {
   position: absolute;
   top: var(--bl-height-base, ${__height_base});
-  left: 0;
-  right: 0;
+  left: 5px;
+  right: 5px;
   display: block;
   content: '';
-  width: 100%;
   height: 1px;
   background-color: rgba(0,0,0,.05);
 }

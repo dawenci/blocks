@@ -33,23 +33,24 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import '../pair-result/index.js';
-import { attr } from '../../decorators/attr.js';
+import { attr } from '../../decorators/attr/index.js';
 import { compile } from '../../common/dateFormat.js';
-import { computed } from '../../common/reactive.js';
-import { connectPairSelectable } from '../../common/connectSelectable.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { computed, reactive, subscribe } from '../../common/reactive.js';
+import { connectPairSelectable, connectSelectable, makeIPairSelectableProxy } from '../../common/connectSelectable.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { fromAttr } from '../component/reactive.js';
 import { makeDate, makeDateFrom } from '../../common/date.js';
-import { onClickOutside } from '../../common/onClickOutside.js';
 import { popupTemplate, resultTemplate } from './template.js';
 import { style } from './style.js';
-import { BlocksDate } from '../date/index.js';
-import { BlocksPairResult } from '../pair-result/index.js';
-import { BlocksPopup, PopupOrigin } from '../popup/index.js';
-import { Control } from '../base-control/index.js';
-export let BlocksDateRangePicker = (() => {
+import { unmount } from '../../common/mount.js';
+import { BlDate, dateEquals } from '../date/index.js';
+import { BlPairResult } from '../pair-result/index.js';
+import { BlPopup, PopupOrigin } from '../popup/index.js';
+import { BlControl } from '../base-control/index.js';
+import { SetupClickOutside } from '../setup-click-outside/index.js';
+export let BlDateRangePicker = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-date-range-picker',
             styles: [style],
@@ -58,44 +59,41 @@ export let BlocksDateRangePicker = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
-    let _placeholderFrom_decorators;
-    let _placeholderFrom_initializers = [];
-    let _placeholderTo_decorators;
-    let _placeholderTo_initializers = [];
+    let _placeholderFirst_decorators;
+    let _placeholderFirst_initializers = [];
+    let _placeholderSecond_decorators;
+    let _placeholderSecond_initializers = [];
     let _format_decorators;
     let _format_initializers = [];
     let _open_decorators;
     let _open_initializers = [];
     let _$result_decorators;
     let _$result_initializers = [];
-    var BlocksDateRangePicker = class extends Control {
+    var BlDateRangePicker = class extends BlControl {
         static {
-            _placeholderFrom_decorators = [attr('string')];
-            _placeholderTo_decorators = [attr('string')];
+            _placeholderFirst_decorators = [attr('string')];
+            _placeholderSecond_decorators = [attr('string')];
             _format_decorators = [attr('string', { defaults: 'YYYY-MM-DD' })];
             _open_decorators = [attr('boolean')];
             _$result_decorators = [shadowRef('bl-pair-result')];
-            __esDecorate(this, null, _placeholderFrom_decorators, { kind: "accessor", name: "placeholderFrom", static: false, private: false, access: { has: obj => "placeholderFrom" in obj, get: obj => obj.placeholderFrom, set: (obj, value) => { obj.placeholderFrom = value; } } }, _placeholderFrom_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _placeholderTo_decorators, { kind: "accessor", name: "placeholderTo", static: false, private: false, access: { has: obj => "placeholderTo" in obj, get: obj => obj.placeholderTo, set: (obj, value) => { obj.placeholderTo = value; } } }, _placeholderTo_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _placeholderFirst_decorators, { kind: "accessor", name: "placeholderFirst", static: false, private: false, access: { has: obj => "placeholderFirst" in obj, get: obj => obj.placeholderFirst, set: (obj, value) => { obj.placeholderFirst = value; } } }, _placeholderFirst_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _placeholderSecond_decorators, { kind: "accessor", name: "placeholderSecond", static: false, private: false, access: { has: obj => "placeholderSecond" in obj, get: obj => obj.placeholderSecond, set: (obj, value) => { obj.placeholderSecond = value; } } }, _placeholderSecond_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _format_decorators, { kind: "accessor", name: "format", static: false, private: false, access: { has: obj => "format" in obj, get: obj => obj.format, set: (obj, value) => { obj.format = value; } } }, _format_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$result_decorators, { kind: "accessor", name: "$result", static: false, private: false, access: { has: obj => "$result" in obj, get: obj => obj.$result, set: (obj, value) => { obj.$result = value; } } }, _$result_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksDateRangePicker = _classThis = _classDescriptor.value;
+            BlDateRangePicker = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return [...BlocksPopup.observedAttributes, ...BlocksDate.observedAttributes, ...BlocksPairResult.observedAttributes];
+            return [...BlPopup.observedAttributes, ...BlDate.observedAttributes, ...BlPairResult.observedAttributes];
         }
-        static get disableEventTypes() {
-            return ['focus', 'click', 'touchstart', 'keydown'];
-        }
-        #placeholderFrom_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _placeholderFrom_initializers, '开始日期'));
-        get placeholderFrom() { return this.#placeholderFrom_accessor_storage; }
-        set placeholderFrom(value) { this.#placeholderFrom_accessor_storage = value; }
-        #placeholderTo_accessor_storage = __runInitializers(this, _placeholderTo_initializers, '结束日期');
-        get placeholderTo() { return this.#placeholderTo_accessor_storage; }
-        set placeholderTo(value) { this.#placeholderTo_accessor_storage = value; }
+        #placeholderFirst_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _placeholderFirst_initializers, '开始日期'));
+        get placeholderFirst() { return this.#placeholderFirst_accessor_storage; }
+        set placeholderFirst(value) { this.#placeholderFirst_accessor_storage = value; }
+        #placeholderSecond_accessor_storage = __runInitializers(this, _placeholderSecond_initializers, '结束日期');
+        get placeholderSecond() { return this.#placeholderSecond_accessor_storage; }
+        set placeholderSecond(value) { this.#placeholderSecond_accessor_storage = value; }
         #format_accessor_storage = __runInitializers(this, _format_initializers, void 0);
         get format() { return this.#format_accessor_storage; }
         set format(value) { this.#format_accessor_storage = value; }
@@ -106,25 +104,26 @@ export let BlocksDateRangePicker = (() => {
         get $result() { return this.#$result_accessor_storage; }
         set $result(value) { this.#$result_accessor_storage = value; }
         #formatter = computed(format => compile(format), [fromAttr(this, 'format')]);
-        #valueFrom = null;
-        #valueTo = null;
-        #prevValueFrom = null;
-        #prevValueTo = null;
+        #firstModel = reactive(null, dateEquals);
+        #secondModel = reactive(null, dateEquals);
         constructor() {
             super();
             this.appendShadowChild(resultTemplate());
             this._disabledFeature.withTarget(() => [this, this.$result]);
-            this._tabIndexFeature.withTabIndex(-1);
+            this._tabIndexFeature.withTarget(() => [this.$result]).withTabIndex(0);
             this.#setupPopup();
             this.#setupResult();
             this.#setupDateProxy();
+            this.#setupAria();
         }
-        #prevValue;
         get value() {
-            return this.$date.selected[0];
+            return [this.#firstModel.content, this.#secondModel.content];
         }
         set value(value) {
-            this.$date.selected = value === null ? [] : [value];
+            const first = value?.[0] ?? null;
+            const second = value?.[0] ?? null;
+            this.#firstModel.content = first;
+            this.#secondModel.content = second;
         }
         #disabledDate;
         get disabledDate() {
@@ -133,217 +132,212 @@ export let BlocksDateRangePicker = (() => {
         set disabledDate(value) {
             this.#disabledDate = value;
         }
-        #dateProxy = document.createElement('div');
-        #clearConnectResult;
-        connectResult() {
-            this.disconnectResult();
-            this.#clearConnectResult = connectPairSelectable(this.$result, this.#dateProxy);
+        _clickOutside = SetupClickOutside.setup({
+            component: this,
+            target() {
+                return [this, this.$popup];
+            },
+            update() {
+                if (this.$result.active !== null) {
+                    this.$result.active = null;
+                }
+            },
+            init() {
+                this.hook.onAttributeChangedDep('open', () => {
+                    if (this.open) {
+                        this._clickOutside.bind();
+                    }
+                    else {
+                        this._clickOutside.unbind();
+                    }
+                });
+            },
+        });
+        #isFirstActive() {
+            return this.$result.active === 'first';
         }
-        disconnectResult() {
-            if (this.#clearConnectResult) {
-                this.#clearConnectResult();
-                this.#clearConnectResult = undefined;
-            }
+        #isSecondActive() {
+            return this.$result.active === 'second';
         }
         #setupDateProxy() {
-            const proxyDateChange = (e) => {
-                const selected = e.detail.value[0] ?? null;
-                let value;
-                if (selected) {
-                    value = [
-                        this.$result.active === 'first' ? selected : this.$result.firstSelected,
-                        this.$result.active === 'second' ? selected : this.$result.secondSelected,
-                    ];
+            const $proxy = makeIPairSelectableProxy();
+            connectSelectable($proxy, this.$date);
+            connectPairSelectable(this.$result, $proxy);
+            $proxy.acceptSelected = selected => {
+                if (this.#isFirstActive()) {
+                    const firstDate = selected[0]?.value;
+                    const secondDate = this.#secondModel.content;
+                    if (firstDate && secondDate && firstDate.getTime() > secondDate.getTime()) {
+                        firstDate.setTime(secondDate.getTime());
+                    }
+                    this.#firstModel.content = firstDate;
                 }
-                else {
-                    value = [null, null];
+                else if (this.#isSecondActive()) {
+                    const firstDate = this.#firstModel.content;
+                    const secondDate = selected[0]?.value;
+                    if (firstDate && secondDate && firstDate.getTime() > secondDate.getTime()) {
+                        secondDate.setTime(firstDate.getTime());
+                    }
+                    this.#secondModel.content = selected[0]?.value;
                 }
-                dispatchEvent(this.#dateProxy, 'pair-select-list:change', { detail: { value } });
             };
-            this.$date.addEventListener('select-list:change', proxyDateChange);
-            this.#dateProxy.clearSelected = () => {
-                this.$date.clearSelected();
+            $proxy.clearSelected = () => {
+                this.#firstModel.content = this.#secondModel.content = null;
+                this.open = false;
+                this.blur();
             };
+            subscribe(this.#firstModel, model => {
+                if (this.#isFirstActive()) {
+                    this.$date.selected = model ? [model] : [];
+                    if (model)
+                        this.$date.showValue(model);
+                }
+                const first = model == null ? null : { value: model, label: this.#formatter.content(model) };
+                const second = this.#secondModel.content == null
+                    ? null
+                    : { value: this.#secondModel.content, label: this.#formatter.content(this.#secondModel.content) };
+                const selected = [first, second];
+                dispatchEvent($proxy, 'pair-select-list:change', { detail: { value: selected } });
+                dispatchEvent(this, 'change', { detail: { value: this.value } });
+            });
+            subscribe(this.#secondModel, model => {
+                if (this.#isSecondActive()) {
+                    this.$date.selected = model ? [model] : [];
+                    if (model)
+                        this.$date.showValue(model);
+                }
+                const first = this.#firstModel.content == null
+                    ? null
+                    : { value: this.#firstModel.content, label: this.#formatter.content(this.#firstModel.content) };
+                const second = model == null ? null : { value: model, label: this.#formatter.content(model) };
+                const selected = [first, second];
+                dispatchEvent($proxy, 'pair-select-list:change', { detail: { value: selected } });
+                dispatchEvent(this, 'change', { detail: { value: this.value } });
+            });
         }
         #setupResult() {
             {
-                const discard = () => {
-                    if (!this.#valueFrom || !this.#valueTo) {
-                        this.#valueFrom = this.#prevValueFrom;
-                        this.#valueTo = this.#prevValueTo;
-                        this.#renderResult();
-                        this.$result.firstSelected = this.$result.secondSelected = null;
-                        this.$result.active = null;
-                    }
-                };
-                this.onConnected(() => {
-                    this.$popup.addEventListener('closed', discard);
-                });
-                this.onDisconnected(() => {
-                    this.$popup.removeEventListener('closed', discard);
-                });
-            }
-            {
-                this.onAttributeChanged((name, _, newValue) => {
+                this.hook.onAttributeChanged((name, _, newValue) => {
                     if (name === 'palceholder-from') {
-                        this.$result.placeholderFirst = this.placeholderFrom;
+                        this.$result.placeholderFirst = this.placeholderFirst;
                     }
-                    else if (name === 'placeholder-to') {
-                        this.$result.placeholderSecond = this.placeholderTo;
+                    else if (name === 'placeholder-second') {
+                        this.$result.placeholderSecond = this.placeholderSecond;
                     }
-                    else if (BlocksPairResult.observedAttributes.includes(name)) {
+                    else if (BlPairResult.observedAttributes.includes(name)) {
                         this.$result.setAttribute(name, newValue);
                     }
                 });
+                this.hook.onConnected(() => {
+                    this.$result.placeholderFirst = this.placeholderFirst;
+                    this.$result.placeholderSecond = this.placeholderSecond;
+                });
             }
-            const onActive = () => {
+            const onActiveChange = () => {
                 if (this.$result.active === 'first') {
-                    this.disconnectResult();
-                    this.$popup.origin = PopupOrigin.TopStart;
-                    this.$date.selected = this.#valueFrom === null ? [] : [this.#valueFrom];
-                    if (this.#valueFrom) {
-                        this.$date.showValue(this.#valueFrom);
-                    }
-                    this.$date.render();
-                    this.connectResult();
-                    this.open = true;
+                    this.$result.withBlSilent(() => {
+                        this.$date.withBlSilent(() => {
+                            this.$popup.origin = PopupOrigin.TopStart;
+                            this.$date.selected = this.#firstModel.content ? [this.#firstModel.content] : [];
+                            this.$date.render();
+                            this.open = true;
+                        });
+                    });
                 }
                 else if (this.$result.active === 'second') {
-                    this.disconnectResult();
-                    this.$popup.origin = PopupOrigin.TopEnd;
-                    this.$date.selected = this.#valueTo === null ? [] : [this.#valueTo];
-                    if (this.#valueTo) {
-                        this.$date.showValue(this.#valueTo);
-                    }
-                    this.$date.render();
-                    this.connectResult();
-                    this.open = true;
+                    this.$result.withBlSilent(() => {
+                        this.$date.withBlSilent(() => {
+                            this.$popup.origin = PopupOrigin.TopEnd;
+                            this.$date.selected = this.#secondModel.content ? [this.#secondModel.content] : [];
+                            this.$date.render();
+                            this.open = true;
+                        });
+                    });
                 }
                 else {
-                    this.open = false;
+                    this.$date.withBlSilent(() => {
+                        if (!this.#firstModel.content || !this.#secondModel.content) {
+                            this.#firstModel.content = this.#secondModel.content = null;
+                        }
+                        this.$date.render();
+                        this.open = false;
+                    });
                 }
             };
-            this.onConnected(() => {
-                this.$result.addEventListener('active', onActive);
+            this.hook.onConnected(() => {
+                this.$result.addEventListener('active', onActiveChange);
             });
-            this.onDisconnected(() => {
-                this.$result.removeEventListener('active', onActive);
+            this.hook.onDisconnected(() => {
+                this.$result.removeEventListener('active', onActiveChange);
             });
-            this.onDisconnected(this.disconnectResult);
             {
                 const onOpened = () => {
                     if (this.$result.active === null) {
                         this.$result.active = 'first';
                     }
                 };
-                this.onConnected(() => {
+                const onClosed = () => {
+                    if (this.$result.active !== null) {
+                        this.$result.active = null;
+                    }
+                };
+                this.hook.onConnected(() => {
                     this.$popup.addEventListener('opened', onOpened);
+                    this.$popup.addEventListener('closed', onClosed);
                 });
-                this.onDisconnected(() => {
+                this.hook.onDisconnected(() => {
                     this.$popup.removeEventListener('opened', onOpened);
+                    this.$popup.removeEventListener('closed', onClosed);
                 });
             }
-            const onFirstChange = (e) => {
-                this.#valueFrom = e.detail.value?.value ?? null;
-            };
-            const onSecondChange = (e) => {
-                this.#valueTo = e.detail.value?.value ?? null;
-            };
-            const onCommit = () => {
-                this.open = false;
-            };
-            this.onConnected(() => {
-                this.$result.addEventListener('change-first', onFirstChange);
-                this.$result.addEventListener('change-second', onSecondChange);
-                this.$result.addEventListener('change', onCommit);
-            });
-            this.onDisconnected(() => {
-                this.$result.removeEventListener('change-first', onFirstChange);
-                this.$result.removeEventListener('change-second', onSecondChange);
-                this.$result.removeEventListener('change', onCommit);
-            });
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
-        }
-        #renderResult() {
-            this.$result.render();
-        }
-        #isFromActive() {
-            return this.$result.active === 'first';
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
         }
         #setupPopup() {
             this.$popup = popupTemplate();
             this.$date = this.$popup.querySelector('bl-date');
             this.$popup.anchorElement = () => this.$result;
-            this.onDisconnected(() => {
-                if (document.body.contains(this.$popup)) {
-                    document.body.removeChild(this.$popup);
-                }
+            this.hook.onDisconnected(() => {
+                unmount(this.$popup);
             });
             {
-                let clear;
-                const eventStart = () => {
-                    if (!clear) {
-                        clear = onClickOutside([this, this.$popup], () => {
-                            if (this.open) {
-                                this.$date.clearUncompleteRange();
-                                this.open = false;
-                            }
-                        });
-                    }
-                };
-                const eventStop = () => {
-                    if (clear) {
-                        clear();
-                        clear = undefined;
-                    }
-                };
-                this.onConnected(() => {
-                    this.$popup.addEventListener('opened', eventStart);
-                    this.$popup.addEventListener('closed', eventStop);
-                });
-                this.onDisconnected(() => {
-                    this.$popup.removeEventListener('opened', eventStart);
-                    this.$popup.removeEventListener('closed', eventStop);
-                });
-                this.onDisconnected(eventStop);
+                this.proxyEvent(this.$popup, 'opened');
+                this.proxyEvent(this.$popup, 'closed');
             }
-            {
-                this.$popup.addEventListener('opened', () => {
-                    dispatchEvent(this, 'opened');
-                });
-                this.$popup.addEventListener('closed', () => {
-                    dispatchEvent(this, 'closed');
-                });
-            }
-            this.onAttributeChanged((attrName, _, newValue) => {
-                if (BlocksPopup.observedAttributes.includes(attrName)) {
-                    if (attrName === 'open') {
+            this.hook.onAttributeChanged((name, _, newValue) => {
+                if (BlPopup.observedAttributes.includes(name)) {
+                    if (name === 'open') {
                         if (this.open && !document.body.contains(this.$popup)) {
                             document.body.appendChild(this.$popup);
                         }
                         this.$popup.open = this.open;
                     }
                     else {
-                        this.$popup.setAttribute(attrName, newValue);
+                        this.$popup.setAttribute(name, newValue);
                     }
                 }
-            });
-            this.$popup.addEventListener('opened', () => {
-                this.#prevValueFrom = this.#valueFrom ?? null;
-                this.#prevValueTo = this.#valueTo ?? null;
             });
             this.#setupDate();
         }
         #setupDate() {
+            this.hook.onAttributeChanged((name, _, newValue) => {
+                if (BlDate.observedAttributes.includes(name)) {
+                    if (name !== 'mode') {
+                        this.$date.setAttribute(name, newValue);
+                    }
+                }
+            });
+            this.#setupDisabledDate();
+        }
+        #setupDisabledDate() {
             this.$date.disabledDate = (data, ctx) => {
                 if (this.disabledDate) {
                     return this.disabledDate(data, ctx);
                 }
-                if (this.#isFromActive()) {
-                    if (!this.#valueTo)
+                if (this.#isFirstActive()) {
+                    if (!this.$result.secondSelected)
                         return false;
-                    const to = makeDateFrom('day', this.#valueTo);
+                    const to = makeDateFrom('day', this.$result.secondSelected.value);
                     const from = makeDate({
                         year: data.year,
                         monthIndex: data.month,
@@ -351,10 +345,10 @@ export let BlocksDateRangePicker = (() => {
                     });
                     return from.getTime() > to.getTime();
                 }
-                else {
-                    if (!this.#valueFrom)
+                else if (this.#isSecondActive()) {
+                    if (!this.$result.firstSelected)
                         return false;
-                    const from = makeDateFrom('day', this.#valueFrom);
+                    const from = makeDateFrom('day', this.$result.firstSelected.value);
                     const to = makeDate({
                         year: data.year,
                         monthIndex: data.month,
@@ -362,15 +356,16 @@ export let BlocksDateRangePicker = (() => {
                     });
                     return to.getTime() < from.getTime();
                 }
-            };
-            this.onAttributeChanged((attrName, _, newValue) => {
-                if (BlocksDate.observedAttributes.includes(attrName)) {
-                    if (attrName !== 'mode') {
-                        this.$date.setAttribute(attrName, newValue);
-                    }
+                else {
+                    return false;
                 }
+            };
+        }
+        #setupAria() {
+            this.hook.onConnected(() => {
+                this.setAttribute('aria-haspopup', 'true');
             });
         }
     };
-    return BlocksDateRangePicker = _classThis;
+    return BlDateRangePicker = _classThis;
 })();

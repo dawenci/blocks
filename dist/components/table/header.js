@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { setStyles } from '../../common/style.js';
 import { style } from './header.style.js';
 import { template } from './header-template.js';
-import { Component } from '../component/Component.js';
-export let BlocksTableHeader = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlTableHeader = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-table-header',
             styles: [style],
@@ -50,13 +50,16 @@ export let BlocksTableHeader = (() => {
     let _instanceExtraInitializers = [];
     let _border_decorators;
     let _border_initializers = [];
-    var BlocksTableHeader = class extends Component {
+    var BlTableHeader = class extends BlComponent {
         static {
             _border_decorators = [attr('boolean')];
             __esDecorate(this, null, _border_decorators, { kind: "accessor", name: "border", static: false, private: false, access: { has: obj => "border" in obj, get: obj => obj.border, set: (obj, value) => { obj.border = value; } } }, _border_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksTableHeader = _classThis = _classDescriptor.value;
+            BlTableHeader = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'rowgroup';
         }
         #border_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _border_initializers, void 0));
         get border() { return this.#border_accessor_storage; }
@@ -261,5 +264,5 @@ export let BlocksTableHeader = (() => {
             this.upgradeProperty(['area', 'columns']);
         }
     };
-    return BlocksTableHeader = _classThis;
+    return BlTableHeader = _classThis;
 })();

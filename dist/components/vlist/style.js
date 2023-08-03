@@ -72,7 +72,7 @@ export const style = `
   overflow: hidden;
   transition-delay: 0, 0;
   transition-property: opacity, height;
-  transition-duration: var(--transition-duration, ${__transition_duration}), var(--transition-duration, ${__transition_duration});
+  transition-duration: var(--bl-transition-duration, ${__transition_duration}), var(--bl-transition-duration, ${__transition_duration});
   transition-timing-function: cubic-bezier(.645, .045, .355, 1), cubic-bezier(.645, .045, .355, 1);
   pointer-events: none;
 }

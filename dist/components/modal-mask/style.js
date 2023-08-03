@@ -1,6 +1,9 @@
 export const style = `
+/*<component>modal-mask*/
 :host {
-  display: none;
+  --bg: rgba(0,0,0,.5);
+}
+:host {
   box-sizing: border-box;
   position: fixed;
   overflow: hidden;
@@ -8,9 +11,6 @@ export const style = `
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: rgba(0,0,0,.3);
-}
-:host([open]) {
-  display: block;
+  background-color: var(--bg);
 }
 `;

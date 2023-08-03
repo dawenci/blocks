@@ -7,10 +7,12 @@ export class SetupClickOutside {
     #component;
     #update;
     #target;
+    #init;
     constructor(options) {
         this.#component = options.component;
         this.#update = options.update;
         this.#target = options.target;
+        this.#init = options.init;
     }
     withTarget(target) {
         this.#target = target;
@@ -24,9 +26,11 @@ export class SetupClickOutside {
         if (this.#setup)
             return this;
         this.#setup = true;
-        this.#component.onDisconnected(() => {
+        this.#component.hook.onDisconnected(() => {
             this.unbind();
         });
+        if (this.#init)
+            this.#init.call(this.#component);
         return this;
     }
     #cleanup;

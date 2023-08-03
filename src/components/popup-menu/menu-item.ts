@@ -1,44 +1,46 @@
 import '../../components/icon/index.js'
 import '../../components/popup/index.js'
-import { attr } from '../../decorators/attr.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
 import { contentTemplate, menuTemplate } from './menu-item.template.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './menu-item.style.js'
-import { BlocksIcon } from '../../components/icon/index.js'
-import { BlocksNavMenu } from '../nav-menu/menu.js'
-import { BlocksPopupMenu } from './menu.js'
-import { Component } from '../component/Component.js'
+import { BlIcon } from '../../components/icon/index.js'
+import { BlNavMenu } from '../nav-menu/menu.js'
+import { BlPopupMenu } from './menu.js'
+import { BlComponent } from '../component/Component.js'
 import { PopupOrigin } from '../../components/popup/index.js'
 
 @defineClass({
   customElement: 'bl-popup-menu-item',
   styles: [style],
 })
-export class BlocksPopupMenuItem extends Component {
+export class BlPopupMenuItem extends BlComponent {
+  static override get role() {
+    return 'menuitem'
+  }
+
   @attr('boolean') accessor disabled!: boolean
 
   @attr('boolean') accessor link!: boolean
 
   @attr('boolean') accessor active!: boolean
 
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
+
+  @shadowRef('#layout') accessor $layout!: HTMLElement
+  @shadowRef('#label') accessor $label!: HTMLElement
+  @shadowRef('#icon') accessor $icon!: BlIcon
+  @shadowRef('#arrow') accessor $arrow!: HTMLElement
+
   _enterTimer?: ReturnType<typeof setTimeout>
   _leaveTimer?: ReturnType<typeof setTimeout>
-
-  $layout: HTMLElement
-  $label: HTMLElement
-  $icon: HTMLElement
-  $arrow: HTMLElement
 
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(contentTemplate())
-    this.$layout = shadowRoot.getElementById('layout')!
-    this.$label = shadowRoot.getElementById('label')!
-    this.$icon = shadowRoot.getElementById('icon')!
-    this.$arrow = shadowRoot.getElementById('arrow')!
+    this.appendShadowChild(contentTemplate())
 
     const onClick = (e: MouseEvent) => {
       if (this.disabled) return
@@ -101,26 +103,26 @@ export class BlocksPopupMenuItem extends Component {
         clearTimeout((this.$submenu as any)._enterTimer)
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('click', onClick)
       this.addEventListener('mouseenter', onMouseEnter)
       this.addEventListener('mouseleave', onMouseLeave)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('click', onClick)
       this.removeEventListener('mouseenter', onMouseEnter)
       this.removeEventListener('mouseleave', onMouseLeave)
     })
 
-    this.onConnected(this.render)
-    this.onDisconnected(() => {
+    this.hook.onConnected(this.render)
+    this.hook.onDisconnected(() => {
       if (this.$submenu && document.body.contains(this.$submenu)) {
         this.$submenu.parentElement!.removeChild(this.$submenu)
       }
     })
   }
 
-  #submenu?: BlocksPopupMenu
+  #submenu?: BlPopupMenu
   get $submenu() {
     return this.#submenu
   }
@@ -128,7 +130,7 @@ export class BlocksPopupMenuItem extends Component {
     this.#submenu = $menu
   }
 
-  #hostMenu?: BlocksNavMenu | BlocksPopupMenu
+  #hostMenu?: BlNavMenu | BlPopupMenu
   get $hostMenu() {
     return this.#hostMenu
   }
@@ -166,10 +168,10 @@ export class BlocksPopupMenuItem extends Component {
     this.disabled = !!data.disabled
 
     if (data.icon) {
-      ;(this.$icon as BlocksIcon).value = data.icon
+      ;(this.$icon as BlIcon).value = data.icon
       this.$icon.style.display = 'block'
     } else {
-      ;(this.$icon as BlocksIcon).value = ''
+      ;(this.$icon as BlIcon).value = ''
       this.$icon.style.display = 'none'
     }
 

@@ -18,43 +18,43 @@
       <h1>time</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/time/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/time/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认使用</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认使用</h2>
         <template data-codesource="html">
           <bl-time></bl-time>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>尺寸</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">尺寸</h2>
         <template data-codesource="html">
           <bl-time size="small" style="border:1px solid #e8e8e8;margin:5px;"></bl-time>
           <bl-time style="border:1px solid #e8e8e8;margin:5px;"></bl-time>
           <bl-time size="large" style="border:1px solid #e8e8e8;margin:5px;"></bl-time>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>禁用</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">禁用</h2>
         <template data-codesource="html">
           <bl-time id="disabled" style="border:1px solid #e8e8e8;margin:5px;"></bl-time>
         </template>
@@ -62,78 +62,103 @@
         <template data-codesource="script">
           <script>
             const $time = document.getElementById('disabled')
-            $time.disabledHour = (n) => n % 2
-            $time.disabledMinute = (n) => n % 2
-            $time.disabledSecond = (n) => n % 2
+            $time.disabledTime = (h, m, s) => {
+              return [!(h % 2), !(m % 2), !(s % 2)]
+            }
           </script>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+  
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>-</td>
+              <td>disabledTime</td>
+              <td>
+  <pre>
+  (
+    hour: number | null,
+    minute: number | null,
+    second: number | null
+  ) => [boolean, boolean, boolean]
+  </pre>
+              </td>
+              <td>无</td>
+              <td>检查指定时分秒是否 disabled</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>hour</td>
+              <td>number(0 - 23)</td>
+              <td></td>
+              <td>时</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>minute</td>
+              <td>number(0 - 59)</td>
+              <td></td>
+              <td>分</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>second</td>
+              <td>number(0 - 59)</td>
+              <td></td>
+              <td>秒</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>'small' | 'large'</td>
+              <td></td>
+              <td>prop & attr, 尺寸。不设置为中等尺寸。</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>value</td>
+              <td>{ hour: number; minute: number; second: number } | null</td>
+              <td>null</td>
+              <td>model 值</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>hour</td>
-            <td>0 - 23</td>
-            <td></td>
-            <td>时。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>minute</td>
-            <td>0 - 59</td>
-            <td></td>
-            <td>分。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>second</td>
-            <td>0 - 59</td>
-            <td></td>
-            <td>秒。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>size</td>
-            <td>'small' | 'large'</td>
-            <td></td>
-            <td>尺寸。不设置为中等尺寸。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>change</td>
-            <td>{ detail: { hour, minute, second } }</td>
-            <td>时间变化时触发。</td>
-          </tr>
-        </tbody>
-      </table>
+        <h3>Events</h3>
+  
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>change</td>
+              <td>CustomEvent&lt;{ hour: number; minute: number; second: number }&gt;</td>
+              <td>选中的时间变化时触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

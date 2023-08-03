@@ -32,15 +32,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr, attrs } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr, attrs } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Control } from '../base-control/index.js';
+import { BlControl } from '../base-control/index.js';
 import { SetupControlEvent } from '../setup-control-event/index.js';
-export let BlocksSwitch = (() => {
+export let BlSwitch = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-switch',
             styles: [style],
@@ -55,7 +55,7 @@ export let BlocksSwitch = (() => {
     let _size_initializers = [];
     let _$layout_decorators;
     let _$layout_initializers = [];
-    var BlocksSwitch = class extends Control {
+    var BlSwitch = class extends BlControl {
         static {
             _checked_decorators = [attr('boolean')];
             _size_decorators = [attrs.size];
@@ -64,14 +64,11 @@ export let BlocksSwitch = (() => {
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksSwitch = _classThis = _classDescriptor.value;
+            BlSwitch = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get role() {
             return 'switch';
-        }
-        static get disableEventTypes() {
-            return ['click', 'keydown'];
         }
         #checked_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _checked_initializers, void 0));
         get checked() { return this.#checked_accessor_storage; }
@@ -87,7 +84,7 @@ export let BlocksSwitch = (() => {
             this.appendShadowChild(template());
             this._tabIndexFeature.withTabIndex(0);
             this.#setupEvents();
-            this.onAttributeChangedDep('checked', () => {
+            this.hook.onAttributeChangedDep('checked', () => {
                 dispatchEvent(this, 'change', { detail: { value: this.checked } });
             });
         }
@@ -96,13 +93,13 @@ export let BlocksSwitch = (() => {
             const onClick = () => {
                 this.checked = !this.checked;
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('click', onClick);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('click', onClick);
             });
         }
     };
-    return BlocksSwitch = _classThis;
+    return BlSwitch = _classThis;
 })();

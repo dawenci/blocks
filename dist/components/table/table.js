@@ -35,16 +35,18 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 import './body.js';
 import './header.js';
 import '../scrollable/index.js';
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { make } from './RowColumn.js';
 import { onDragMove } from '../../common/onDragMove.js';
+import { prop } from '../../decorators/prop/index.js';
 import { setStyles } from '../../common/style.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
 import { style } from './table.style.js';
-import { Component } from '../component/Component.js';
-export let BlocksTable = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlTable = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-table',
             styles: [style],
@@ -55,13 +57,54 @@ export let BlocksTable = (() => {
     let _instanceExtraInitializers = [];
     let _border_decorators;
     let _border_initializers = [];
-    var BlocksTable = class extends Component {
+    let _columns_decorators;
+    let _columns_initializers = [];
+    let _data_decorators;
+    let _data_initializers = [];
+    let _$mainHeader_decorators;
+    let _$mainHeader_initializers = [];
+    let _$mainBody_decorators;
+    let _$mainBody_initializers = [];
+    let _$resizeHandle_decorators;
+    let _$resizeHandle_initializers = [];
+    var BlTable = class extends BlComponent {
         static {
             _border_decorators = [attr('boolean')];
+            _columns_decorators = [prop({
+                    get(self) {
+                        return self._columns ?? [];
+                    },
+                    set(self, value) {
+                        self._columns = (value ?? []).map((options) => make(options));
+                        self.$mainHeader.columns = value;
+                        self.$mainBody.columns = value;
+                        self.render();
+                    },
+                })];
+            _data_decorators = [prop({
+                    get(self) {
+                        return self._data ?? [];
+                    },
+                    set(self, value) {
+                        self._data = value;
+                        self.$mainBody.data = value;
+                    },
+                })];
+            _$mainHeader_decorators = [shadowRef('bl-table-header')];
+            _$mainBody_decorators = [shadowRef('bl-table-body')];
+            _$resizeHandle_decorators = [shadowRef('#resize-handle')];
             __esDecorate(this, null, _border_decorators, { kind: "accessor", name: "border", static: false, private: false, access: { has: obj => "border" in obj, get: obj => obj.border, set: (obj, value) => { obj.border = value; } } }, _border_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _columns_decorators, { kind: "accessor", name: "columns", static: false, private: false, access: { has: obj => "columns" in obj, get: obj => obj.columns, set: (obj, value) => { obj.columns = value; } } }, _columns_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _data_decorators, { kind: "accessor", name: "data", static: false, private: false, access: { has: obj => "data" in obj, get: obj => obj.data, set: (obj, value) => { obj.data = value; } } }, _data_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$mainHeader_decorators, { kind: "accessor", name: "$mainHeader", static: false, private: false, access: { has: obj => "$mainHeader" in obj, get: obj => obj.$mainHeader, set: (obj, value) => { obj.$mainHeader = value; } } }, _$mainHeader_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$mainBody_decorators, { kind: "accessor", name: "$mainBody", static: false, private: false, access: { has: obj => "$mainBody" in obj, get: obj => obj.$mainBody, set: (obj, value) => { obj.$mainBody = value; } } }, _$mainBody_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$resizeHandle_decorators, { kind: "accessor", name: "$resizeHandle", static: false, private: false, access: { has: obj => "$resizeHandle" in obj, get: obj => obj.$resizeHandle, set: (obj, value) => { obj.$resizeHandle = value; } } }, _$resizeHandle_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksTable = _classThis = _classDescriptor.value;
+            BlTable = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'table';
         }
         _data = (__runInitializers(this, _instanceExtraInitializers), void 0);
         _columns = [];
@@ -71,137 +114,203 @@ export let BlocksTable = (() => {
         #border_accessor_storage = __runInitializers(this, _border_initializers, void 0);
         get border() { return this.#border_accessor_storage; }
         set border(value) { this.#border_accessor_storage = value; }
+        #columns_accessor_storage = __runInitializers(this, _columns_initializers, void 0);
+        get columns() { return this.#columns_accessor_storage; }
+        set columns(value) { this.#columns_accessor_storage = value; }
+        #data_accessor_storage = __runInitializers(this, _data_initializers, void 0);
+        get data() { return this.#data_accessor_storage; }
+        set data(value) { this.#data_accessor_storage = value; }
+        #$mainHeader_accessor_storage = __runInitializers(this, _$mainHeader_initializers, void 0);
+        get $mainHeader() { return this.#$mainHeader_accessor_storage; }
+        set $mainHeader(value) { this.#$mainHeader_accessor_storage = value; }
+        #$mainBody_accessor_storage = __runInitializers(this, _$mainBody_initializers, void 0);
+        get $mainBody() { return this.#$mainBody_accessor_storage; }
+        set $mainBody(value) { this.#$mainBody_accessor_storage = value; }
+        #$resizeHandle_accessor_storage = __runInitializers(this, _$resizeHandle_initializers, void 0);
+        get $resizeHandle() { return this.#$resizeHandle_accessor_storage; }
+        set $resizeHandle(value) { this.#$resizeHandle_accessor_storage = value; }
         constructor() {
             super();
-            const $mainHeader = document.createElement('bl-table-header');
-            $mainHeader.$host = this;
-            this.appendShadowChild($mainHeader);
-            const $mainBody = document.createElement('bl-table-body');
-            $mainBody.$host = this;
-            this.appendShadowChild($mainBody);
-            const $resizeHandle = document.createElement('div');
-            $resizeHandle.id = 'resize-handle';
-            this.appendShadowChild($resizeHandle);
-            $mainBody.addEventListener('bl:scroll', () => {
-                $mainHeader.viewportScrollLeft = $mainBody.getScrollCross();
-            });
-            $mainBody.addEventListener('bl:change:can-scroll-left', () => {
-                this._updateFiexedColumnShadow();
-            });
-            $mainBody.addEventListener('bl:change:can-scroll-right', () => {
-                this._updateFiexedColumnShadow();
-            });
-            $mainHeader.addEventListener('enter-cell', e => {
-                const { $cell, column } = e.detail;
-                if (column.resizable && !column.children?.length && !this.classList.contains('resizing')) {
-                    $resizeHandle.$cell = $cell;
-                    $resizeHandle.column = column;
-                    setStyles($resizeHandle, {
-                        height: $cell.offsetHeight + 'px',
-                        left: $cell.offsetLeft + $cell.clientWidth - $mainHeader.viewportScrollLeft - 3 + 'px',
-                        top: $cell.offsetTop + 'px',
-                    });
-                }
-            });
-            $mainHeader.addEventListener('sort', (e) => {
-                const column = e.detail.column;
-                $mainBody.sortField = column.prop;
-                $mainBody.sortOrder = column.sortOrder;
-            });
-            this.$mainHeader = $mainHeader;
-            this.$mainBody = $mainBody;
-            this.$resizeHandle = $resizeHandle;
-            this._initResizeEvent();
-            this.#setupBorder();
-        }
-        get data() {
-            return this._data ?? [];
-        }
-        set data(value) {
-            this._data = value;
-            this.$mainBody.data = value;
-        }
-        get columns() {
-            return this._columns ?? [];
-        }
-        set columns(value) {
-            this._columns = (value ?? []).map((options) => make(options));
-            this.$mainHeader.columns = value;
-            this.$mainBody.columns = value;
-            this._updateFiexedColumnShadow();
+            this.#setupHeader();
+            this.#setupBody();
+            this.#setupResize();
+            this.#setupFixedColumnShadow();
         }
         activeRow = null;
         resizeHandlerLeft = -5;
         resizeHandlerRight = -5;
         resizehandler = null;
         resizeStartOffset = 0;
-        _updateFiexedColumnShadow() {
-            const { $mainBody } = this;
-            const leftSize = $mainBody.getFixedLeftShadowPosition();
-            const rightSize = $mainBody.getFixedRightShadowPosition();
-            if (leftSize && $mainBody.$viewport.canScrollLeft) {
-                if (!this.$fixedLeftShadow) {
-                    this.$fixedLeftShadow = document.createElement('div');
-                    this.$fixedLeftShadow.id = 'fixed-left-shadow';
-                }
-                if (!this.$fixedLeftShadow.parentNode) {
-                    this.shadowRoot.appendChild(this.$fixedLeftShadow);
-                }
-                this.$fixedLeftShadow.style.left = leftSize - 1 + 'px';
-            }
-            else {
-                if (this.$fixedLeftShadow) {
-                    if (this.$fixedLeftShadow.parentNode) {
-                        this.shadowRoot.removeChild(this.$fixedLeftShadow);
-                    }
-                }
-            }
-            if (rightSize && $mainBody.$viewport.canScrollRight) {
-                if (!this.$fixedRightShadow) {
-                    this.$fixedRightShadow = document.createElement('div');
-                    this.$fixedRightShadow.id = 'fixed-right-shadow';
-                }
-                if (!this.$fixedRightShadow.parentNode) {
-                    this.shadowRoot.appendChild(this.$fixedRightShadow);
-                }
-                this.$fixedRightShadow.style.right = rightSize + 'px';
-            }
-            else {
-                if (this.$fixedRightShadow) {
-                    if (this.$fixedRightShadow.parentNode) {
-                        this.shadowRoot.removeChild(this.$fixedRightShadow);
-                    }
-                }
-            }
-            this.style.minWidth = leftSize + rightSize + 80 + 'px';
-        }
-        render() {
-            super.render();
-            this.$mainHeader.render();
-            this.$mainBody.render();
-        }
-        _clearResizeHandler;
-        connectedCallback() {
-            super.connectedCallback();
-            this.upgradeProperty(['columns', 'data']);
-            this._clearResizeHandler = sizeObserve(this, () => {
-                this.layout(this.getCanvasWidth());
-                this.render();
-                this._updateFiexedColumnShadow();
+        #setupHeader() {
+            const $mainHeader = document.createElement('bl-table-header');
+            $mainHeader.$host = this;
+            this.appendShadowChild($mainHeader);
+            this.$mainHeader.addEventListener('sort', (e) => {
+                const column = e.detail.column;
+                this.$mainBody.sortField = column.prop;
+                this.$mainBody.sortOrder = column.sortOrder;
             });
-        }
-        disconnectedCallback() {
-            if (this._clearResizeHandler) {
-                this._clearResizeHandler();
-            }
-        }
-        #setupBorder() {
-            const update = () => {
+            const updateHeader = () => this.$mainHeader.render();
+            this.hook.onRender(updateHeader);
+            const updateBorder = () => {
                 this.$mainHeader.border = this.border;
+            };
+            this.hook.onRender(updateBorder);
+            this.hook.onAttributeChangedDep('border', updateBorder);
+            this.hook.onConnected(updateBorder);
+        }
+        #setupBody() {
+            const $mainBody = document.createElement('bl-table-body');
+            $mainBody.$host = this;
+            this.appendShadowChild($mainBody);
+            this.$mainBody.addEventListener('bl:scroll', () => {
+                this.$mainHeader.viewportScrollLeft = $mainBody.getScrollCross();
+            });
+            this.hook.onRender(() => {
+                this.$mainBody.render();
+            });
+            const updateBorder = () => {
                 this.$mainBody.border = this.border;
             };
-            this.onAttributeChangedDep('border', update);
-            update();
+            this.hook.onRender(updateBorder);
+            this.hook.onAttributeChangedDep('border', updateBorder);
+            this.hook.onConnected(updateBorder);
+        }
+        #setupResize() {
+            const $resizeHandle = document.createElement('div');
+            $resizeHandle.id = 'resize-handle';
+            this.appendShadowChild($resizeHandle);
+            this.$mainHeader.addEventListener('enter-cell', e => {
+                const { $cell, column } = e.detail;
+                if (column.resizable && !column.children?.length && !this.classList.contains('resizing')) {
+                    this.$resizeHandle.$cell = $cell;
+                    this.$resizeHandle.column = column;
+                    setStyles(this.$resizeHandle, {
+                        height: $cell.offsetHeight + 'px',
+                        left: $cell.offsetLeft + $cell.clientWidth - this.$mainHeader.viewportScrollLeft - 3 + 'px',
+                        top: $cell.offsetTop + 'px',
+                    });
+                }
+            });
+            const initEvent = () => {
+                let startX;
+                let column;
+                let $cell;
+                const update = (offset) => {
+                    let newX = startX + offset.x;
+                    if (offset.x < 0) {
+                        if (column.width + offset.x < column.minWidth) {
+                            newX = startX - (column.width - column.minWidth);
+                        }
+                    }
+                    else {
+                        if (column.width + offset.x > column.maxWidth) {
+                            newX = startX - (column.width - column.maxWidth);
+                        }
+                    }
+                    return newX;
+                };
+                return onDragMove(this.$resizeHandle, {
+                    onStart: () => {
+                        this.classList.add('resizing');
+                        startX = parseInt(this.$resizeHandle.style.left, 10);
+                        column = this.$resizeHandle.column;
+                        $cell = this.$resizeHandle.$cell;
+                    },
+                    onMove: ({ offset }) => {
+                        const newX = update(offset);
+                        this.$resizeHandle.style.left = newX + 'px';
+                    },
+                    onEnd: ({ offset }) => {
+                        this.classList.remove('resizing');
+                        const newX = update(offset);
+                        const offsetX = newX - startX;
+                        if (offsetX !== 0) {
+                            column.width += offsetX;
+                            this.$mainHeader.render();
+                            this.$mainBody._resetCalculated();
+                            this.$mainBody.redraw();
+                            dispatchEvent(this, 'column-resize');
+                        }
+                    },
+                    onCancel: () => {
+                        this.classList.remove('resizing');
+                    },
+                });
+            };
+            let clear;
+            this.hook.onConnected(() => {
+                clear = initEvent();
+            });
+            this.hook.onDisconnected(() => {
+                if (clear) {
+                    clear();
+                }
+            });
+        }
+        #setupFixedColumnShadow() {
+            const update = () => {
+                const { $mainBody } = this;
+                const leftSize = $mainBody.getFixedLeftShadowPosition();
+                const rightSize = $mainBody.getFixedRightShadowPosition();
+                if (leftSize && $mainBody.$viewport.canScrollLeft) {
+                    if (!this.$fixedLeftShadow) {
+                        this.$fixedLeftShadow = document.createElement('div');
+                        this.$fixedLeftShadow.id = 'fixed-left-shadow';
+                    }
+                    if (!this.$fixedLeftShadow.parentNode) {
+                        this.shadowRoot.appendChild(this.$fixedLeftShadow);
+                    }
+                    this.$fixedLeftShadow.style.left = leftSize - 1 + 'px';
+                }
+                else {
+                    if (this.$fixedLeftShadow) {
+                        if (this.$fixedLeftShadow.parentNode) {
+                            this.shadowRoot.removeChild(this.$fixedLeftShadow);
+                        }
+                    }
+                }
+                if (rightSize && $mainBody.$viewport.canScrollRight) {
+                    if (!this.$fixedRightShadow) {
+                        this.$fixedRightShadow = document.createElement('div');
+                        this.$fixedRightShadow.id = 'fixed-right-shadow';
+                    }
+                    if (!this.$fixedRightShadow.parentNode) {
+                        this.shadowRoot.appendChild(this.$fixedRightShadow);
+                    }
+                    this.$fixedRightShadow.style.right = rightSize + 'px';
+                }
+                else {
+                    if (this.$fixedRightShadow) {
+                        if (this.$fixedRightShadow.parentNode) {
+                            this.shadowRoot.removeChild(this.$fixedRightShadow);
+                        }
+                    }
+                }
+                this.style.minWidth = leftSize + rightSize + 80 + 'px';
+            };
+            this.$mainBody.addEventListener('bl:change:can-scroll-left', () => {
+                update();
+            });
+            this.$mainBody.addEventListener('bl:change:can-scroll-right', () => {
+                update();
+            });
+            this.addEventListener('column-resize', () => {
+                update();
+            });
+            let stopObserve;
+            this.hook.onConnected(() => {
+                stopObserve = sizeObserve(this, () => {
+                    this.layout(this.getCanvasWidth());
+                    this.render();
+                    update();
+                });
+            });
+            this.hook.onDisconnected(() => {
+                if (stopObserve) {
+                    stopObserve();
+                }
+            });
         }
         getLeafColumnsWith(pred) {
             const columns = [];
@@ -346,51 +455,6 @@ export let BlocksTable = (() => {
             };
             loop(rest, columns);
         }
-        _initResizeEvent() {
-            let startX;
-            let column;
-            let $cell;
-            const update = (offset) => {
-                let newX = startX + offset.x;
-                if (offset.x < 0) {
-                    if (column.width + offset.x < column.minWidth) {
-                        newX = startX - (column.width - column.minWidth);
-                    }
-                }
-                else {
-                    if (column.width + offset.x > column.maxWidth) {
-                        newX = startX - (column.width - column.maxWidth);
-                    }
-                }
-                return newX;
-            };
-            onDragMove(this.$resizeHandle, {
-                onStart: () => {
-                    this.classList.add('resizing');
-                    startX = parseInt(this.$resizeHandle.style.left, 10);
-                    column = this.$resizeHandle.column;
-                    $cell = this.$resizeHandle.$cell;
-                },
-                onMove: ({ offset }) => {
-                    const newX = update(offset);
-                    this.$resizeHandle.style.left = newX + 'px';
-                },
-                onEnd: ({ offset }) => {
-                    this.classList.remove('resizing');
-                    const newX = update(offset);
-                    const offsetX = newX - startX;
-                    if (offsetX !== 0) {
-                        column.width += offsetX;
-                        this.$mainHeader.render();
-                        this.$mainBody._resetCalculated();
-                        this.$mainBody.redraw();
-                    }
-                },
-                onCancel: () => {
-                    this.classList.remove('resizing');
-                },
-            });
-        }
     };
-    return BlocksTable = _classThis;
+    return BlTable = _classThis;
 })();

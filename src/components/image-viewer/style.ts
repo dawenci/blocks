@@ -3,6 +3,9 @@ import { __transition_duration } from '../../theme/var-light.js'
 export const style = /*css*/ `
 /* <component>image-viewer */
 :host {
+  --mask-bg: rgba(0,0,0,.75);
+}
+:host {
   box-sizing: border-box;
   overflow: hidden;
   position: fixed;
@@ -40,13 +43,13 @@ export const style = /*css*/ `
   right: 0;
   bottom: 0;
   left: 0;
-  background: rgba(0,0,0,.5);
+  background: var(--mask-bg);
 }
 #active {
   margin: 0;
   max-width: 100%;
   max-height: 100%;
-  transition: transform var(--transition-duration, ${__transition_duration});
+  transition: transform var(--bl-transition-duration, ${__transition_duration});
 }
 
 .button {

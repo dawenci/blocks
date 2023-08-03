@@ -3,7 +3,7 @@ export const style = `
 :host {
   display: block;
   position: relative;
-  font-family: var(--font-family, ${__font_family});
+  font-family: var(--bl-font-family, ${__font_family});
   font-size: 14px;
   box-sizing: border-box;
   color: var(--bl-fg-base, ${__fg_base});
@@ -79,10 +79,10 @@ bl-icon {
 :host {
   height: var(--bl-height-base, ${__height_base});
 }
-:host-context(bl-popup-menu[size="small"]) {
+:host([size="small"]) {
   height: var(--bl-height-small, ${__height_small});
 }
-:host-context(bl-popup-menu[size="large"]) {
+:host([size="large"]) {
   height: var(--bl-height-large, ${__height_large});
 }
 #layout {

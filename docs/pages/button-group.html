@@ -18,68 +18,74 @@
       <h1>button-group</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/button-group/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/button-group/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <template data-codesource="html">
-        <div style="margin-bottom:15px;">
-          <bl-button-group>
-            <bl-button size="small">First</bl-button>
-            <bl-button size="small">Second</bl-button>
-            <bl-button size="small">Third</bl-button>
-          </bl-button-group>
-        </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">使用</h2>
 
-        <div style="margin-bottom:15px;">
-          <bl-button-group>
-            <bl-button>First</bl-button>
-            <bl-button>Second</bl-button>
-            <bl-button>Third</bl-button>
-          </bl-button-group>
-        </div>
-
-        <div style="margin-bottom:15px;">
-          <bl-button-group>
-            <bl-button size="large">First</bl-button>
-            <bl-button size="large">Second</bl-button>
-            <bl-button size="large">Third</bl-button>
-          </bl-button-group>
-        </div>
-
-        <div style="margin-bottom:15px;">
-          <bl-button-group>
-            <bl-button prefix-icon="date" size="large">First</bl-button>
-            <bl-button suffix-icon="date" size="large">Second</bl-button>
-            <bl-button size="large">Third</bl-button>
-          </bl-button-group>
-        </div>
-
-        <div style="margin-bottom:15px;">
-          <bl-button-group>
-            <bl-button type="primary" prefix-icon="date" size="large">First</bl-button>
-            <bl-button type="primary" suffix-icon="date" size="large">Second</bl-button>
-            <bl-button type="primary" size="large">Third</bl-button>
-          </bl-button-group>
-        </div>
-
-        <div style="margin-bottom:15px;">
-          <bl-button-group>
-            <bl-button type="primary" outline prefix-icon="date" size="large">First</bl-button>
-            <bl-button type="primary" outline suffix-icon="date" size="large">Second</bl-button>
-            <bl-button type="primary" outline size="large">Third</bl-button>
-          </bl-button-group>
-        </div>
-      </template>
+        <template data-codesource="html">
+          <div style="margin-bottom:15px;">
+            <bl-button-group>
+              <bl-button size="small">First</bl-button>
+              <bl-button size="small">Second</bl-button>
+              <bl-button size="small">Third</bl-button>
+            </bl-button-group>
+          </div>
+  
+          <div style="margin-bottom:15px;">
+            <bl-button-group>
+              <bl-button>First</bl-button>
+              <bl-button>Second</bl-button>
+              <bl-button>Third</bl-button>
+            </bl-button-group>
+          </div>
+  
+          <div style="margin-bottom:15px;">
+            <bl-button-group>
+              <bl-button size="large">First</bl-button>
+              <bl-button size="large">Second</bl-button>
+              <bl-button size="large">Third</bl-button>
+            </bl-button-group>
+          </div>
+  
+          <div style="margin-bottom:15px;">
+            <bl-button-group>
+              <bl-button prefix-icon="date" size="large">First</bl-button>
+              <bl-button suffix-icon="date" size="large">Second</bl-button>
+              <bl-button size="large">Third</bl-button>
+            </bl-button-group>
+          </div>
+  
+          <div style="margin-bottom:15px;">
+            <bl-button-group>
+              <bl-button type="primary" prefix-icon="date" size="large">First</bl-button>
+              <bl-button type="primary" suffix-icon="date" size="large">Second</bl-button>
+              <bl-button type="primary" size="large">Third</bl-button>
+            </bl-button-group>
+          </div>
+  
+          <div style="margin-bottom:15px;">
+            <bl-button-group>
+              <bl-button type="primary" outline prefix-icon="date" size="large">First</bl-button>
+              <bl-button type="primary" outline suffix-icon="date" size="large">Second</bl-button>
+              <bl-button type="primary" outline size="large">Third</bl-button>
+            </bl-button-group>
+          </div>
+        </template>
+      </bl-card>
     </section>
-    
   </article>
 </body>
 </html>

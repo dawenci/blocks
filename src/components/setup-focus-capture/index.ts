@@ -1,4 +1,4 @@
-import type { Component } from '../component/Component.js'
+import type { BlComponent } from '../component/Component.js'
 import { append, prepend, unmount } from '../../common/mount.js'
 
 export interface InitOptions<T> {
@@ -10,8 +10,8 @@ export interface InitOptions<T> {
 }
 
 // 强制捕获焦点，避免 Tab 键导致焦点跑出去 popup 外面
-export class SetupFocusCapture<T extends Component = Component> {
-  static setup<T extends Component = Component>(options: InitOptions<T>) {
+export class SetupFocusCapture<T extends BlComponent = BlComponent> {
+  static setup<T extends BlComponent = BlComponent>(options: InitOptions<T>) {
     return new SetupFocusCapture(options).setup()
   }
 

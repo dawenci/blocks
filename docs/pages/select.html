@@ -18,201 +18,237 @@
       <h1>select</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/select/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/select/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认</h2>
-
-      <template data-codesource="html">
-        <bl-select placeholder="请选择">
-          <bl-option value="A">选项A</bl-option>
-          <bl-option value="B" selected>选项B</bl-option>
-          <bl-option value="C">选项C</bl-option>
-          <bl-option value="D">选项D</bl-option>
-        </bl-select>
-      </template>
-    </section>
-
-    <section class="section">
-      <h2>可清除</h2>
-
-      <template data-codesource="html">
-        <bl-select clearable placeholder="请选择">
-          <bl-option value="A">选项A</bl-option>
-          <bl-option value="B">选项B</bl-option>
-          <bl-option value="C">选项C</bl-option>
-          <bl-option value="D">选项D</bl-option>
-        </bl-select>
-      </template>
-    </section>
-
-    <section class="section">
-      <h2>选项分组</h2>
-
-      <template data-codesource="html">
-        <bl-select>
-          <bl-optgroup label="Group A">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认</h2>
+        <template data-codesource="html">
+          <bl-select placeholder="请选择">
             <bl-option value="A">选项A</bl-option>
-            <bl-option value="B">选项B</bl-option>
-          </bl-optgroup>
-
-          <bl-optgroup label="Group B">
+            <bl-option value="B" selected>选项B</bl-option>
             <bl-option value="C">选项C</bl-option>
             <bl-option value="D">选项D</bl-option>
-          </bl-optgroup>
-        </bl-select>
-      </template>
+          </bl-select>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>多选</h2>
-
-      <template data-codesource="html">
-        <bl-select
-          multiple
-          clearable
-          tag-clearable>
-          <bl-optgroup label="Group A">
+      <bl-card>
+        <h2 slot="header" class="section-title">可清除</h2>
+        <template data-codesource="html">
+          <bl-select clearable placeholder="请选择">
             <bl-option value="A">选项A</bl-option>
             <bl-option value="B">选项B</bl-option>
-          </bl-optgroup>
-
-          <bl-optgroup label="Group B">
-            <bl-option value="C" disabled>选项C</bl-option>
-            <bl-option value="D">选项D</bl-option>
-            <bl-option value="E">选项E</bl-option>
-            <bl-option value="F">选项F</bl-option>
-            <bl-option value="G">选项G</bl-option>
-          </bl-optgroup>
-        </bl-select>
-
-        <bl-select
-          multiple
-          max-tag-count="1"
-          clearable
-          tag-clearable>
-          <bl-optgroup label="Group A">
-            <bl-option value="A">选项A</bl-option>
-            <bl-option value="B">选项B</bl-option>
-          </bl-optgroup>
-
-          <bl-optgroup label="Group B">
-            <bl-option value="C" disabled>选项C</bl-option>
-            <bl-option value="D">选项D</bl-option>
-            <bl-option value="E">选项E</bl-option>
-            <bl-option value="F">选项F</bl-option>
-            <bl-option value="G">选项G</bl-option>
-          </bl-optgroup>
-        </bl-select>
-      </template>
-    </section>
-
-    <section class="section">
-      <h2>不可用状态</h2>
-
-      <p>每个 option 可以单独设置 disabled, 也可以整个 group 设置 disabled</p>
-      <template data-codesource="html">
-        <bl-select>
-          <bl-optgroup label="group disabled" disabled>
-            <bl-option value="A">选项A</bl-option>
-            <bl-option value="B">选项B</bl-option>
-          </bl-optgroup>
-
-          <bl-option value="C" disabled>选项C</bl-option>
-          <bl-option value="D">选项D</bl-option>
-        </bl-select>
-      </template>
-    </section>
-
-    <section class="section">
-      <h2>可筛选</h2>
-
-      <template data-codesource="html">
-        <bl-select searchable clearable placeholder="请选择">
-          <bl-option value="A">选项A</bl-option>
-          <bl-option value="B">选项B</bl-option>
-          <bl-option value="C">选项C</bl-option>
-          <bl-option value="D">选项D</bl-option>
-        </bl-select>
-
-        <bl-select
-          multiple
-          multiple-mode="tag"
-          clearable
-          searchable
-          placeholder="请选择">
-          <bl-optgroup label="Group A">
-            <bl-option value="A">选项A</bl-option>
-            <bl-option value="B">选项B</bl-option>
-          </bl-optgroup>
-          <bl-optgroup label="Group B">
             <bl-option value="C">选项C</bl-option>
             <bl-option value="D">选项D</bl-option>
-          </bl-optgroup>
-        </bl-select>
-      </template>
+          </bl-select>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">选项分组</h2>
+        <template data-codesource="html">
+          <bl-select>
+            <bl-optgroup label="Group A">
+              <bl-option value="A">选项A</bl-option>
+              <bl-option value="B">选项B</bl-option>
+            </bl-optgroup>
+  
+            <bl-optgroup label="Group B">
+              <bl-option value="C">选项C</bl-option>
+              <bl-option value="D">选项D</bl-option>
+            </bl-optgroup>
+          </bl-select>
+        </template>
+      </bl-card>
+    </section>
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">多选</h2>
+        <template data-codesource="html">
+          <bl-select
+            multiple
+            clearable
+            tag-clearable>
+            <bl-optgroup label="Group A">
+              <bl-option value="A">选项A</bl-option>
+              <bl-option value="B">选项B</bl-option>
+            </bl-optgroup>
+  
+            <bl-optgroup label="Group B">
+              <bl-option value="C" disabled>选项C</bl-option>
+              <bl-option value="D">选项D</bl-option>
+              <bl-option value="E">选项E</bl-option>
+              <bl-option value="F">选项F</bl-option>
+              <bl-option value="G">选项G</bl-option>
+            </bl-optgroup>
+          </bl-select>
+  
+          <bl-select
+            multiple
+            max-tag-count="1"
+            clearable
+            tag-clearable>
+            <bl-optgroup label="Group A">
+              <bl-option value="A">选项A</bl-option>
+              <bl-option value="B">选项B</bl-option>
+            </bl-optgroup>
+  
+            <bl-optgroup label="Group B">
+              <bl-option value="C" disabled>选项C</bl-option>
+              <bl-option value="D">选项D</bl-option>
+              <bl-option value="E">选项E</bl-option>
+              <bl-option value="F">选项F</bl-option>
+              <bl-option value="G">选项G</bl-option>
+            </bl-optgroup>
+          </bl-select>
+        </template>
+      </bl-card>
+    </section>
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">不可用状态</h2>
+        <div slot="header">
+          <p>select 本身可以设置组件级别 disabled。</p>
+          <p>每个 option 可以单独设置 disabled, 也可以整个 group 设置 disabled</p>
+        </div>
+  
+        <template data-codesource="html">
+          <bl-select>
+            <bl-optgroup label="group disabled" disabled>
+              <bl-option value="A">选项A</bl-option>
+              <bl-option value="B">选项B</bl-option>
+            </bl-optgroup>
+  
+            <bl-option value="C" disabled>选项C</bl-option>
+            <bl-option value="D">选项D</bl-option>
+          </bl-select>
+  
+          <bl-select disabled placeholder="组件级不可用">
+            <bl-optgroup label="group" disabled>
+              <bl-option value="A">选项A</bl-option>
+              <bl-option value="B">选项B</bl-option>
+            </bl-optgroup>
+            <bl-option value="C">选项C</bl-option>
+            <bl-option value="D">选项D</bl-option>
+          </bl-select>
+        </template>
+      </bl-card>
+    </section>
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">可筛选</h2>
+        <template data-codesource="html">
+          <bl-select searchable clearable placeholder="请选择">
+            <bl-option value="A">选项A</bl-option>
+            <bl-option value="B">选项B</bl-option>
+            <bl-option value="C">选项C</bl-option>
+            <bl-option value="D">选项D</bl-option>
+          </bl-select>
+  
+          <bl-select
+            multiple
+            max-tag-count="1"
+            clearable
+            searchable
+            placeholder="请选择">
+            <bl-optgroup label="Group A">
+              <bl-option value="A">选项A</bl-option>
+              <bl-option value="B">选项B</bl-option>
+            </bl-optgroup>
+            <bl-optgroup label="Group B">
+              <bl-option value="C">选项C</bl-option>
+              <bl-option value="D">选项D</bl-option>
+            </bl-optgroup>
+          </bl-select>
+        </template>
+      </bl-card>
+    </section>
+
+    <section class="section">
+      <!--
+popup:['arrow', 'offsetX', 'offsetY', 'open', 'origin'] 
+result:['maxTagCount', 'multiple', 'placeholder', 'searchable', 'size'] 
+-->
       
-      <h3>Attrs / Props</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>clearable</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>结果是否可以清空。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>multiple</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否多选。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>multiple-mode</td>
-            <td>'plain' | 'tag'</td>
-            <td>'plain'</td>
-            <td>多选结果显示模式，可选 plain 或 tag。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>searchable</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否可以搜索。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>tag-clearable</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>多选结果 tag 是否可以关闭。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+  
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>clearable</td>
+              <td>clearable</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>结果是否可以清空以及多选模式 tag 是否可以单个清除。</td>
+            </tr>
+            <tr>
+              <td>max-tag-count</td>
+              <td>maxTagCount</td>
+              <td>number</td>
+              <td>Infinity</td>
+              <td>多选结果显示多少个结果 tag，超过时将会在末尾以数字的形式表示。</td>
+            </tr>
+            <tr>
+              <td>multiple</td>
+              <td>multiple</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否多选。</td>
+            </tr>
+            <tr>
+              <td>placeholder</td>
+              <td>placeholder</td>
+              <td>string</td>
+              <td>false</td>
+              <td>占位符。</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>size</td>
+              <td>'small' | 'large'</td>
+              <td>无</td>
+              <td>尺寸。</td>
+            </tr>
+            <tr>
+              <td>searchable</td>
+              <td>searchable</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否可以搜索。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

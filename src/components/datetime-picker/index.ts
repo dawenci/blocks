@@ -1,227 +1,198 @@
-import type { BlocksButton } from '../button/index.js'
-import type { ISelectResultComponent, ISelectableListComponent } from '../../common/connectSelectable.js'
+import type { BlButton } from '../button/index.js'
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
+import { ISelectableListComponent, makeISelectableProxy } from '../../common/connectSelectable.js'
 import '../button/index.js'
+import '../datetime/index.js'
 import '../popup/index.js'
-import { attr } from '../../decorators/attr.js'
-import { compile } from '../../common/dateFormat.js'
-import { computed } from '../../common/reactive.js'
+import '../select-result/index.js'
+import { attr } from '../../decorators/attr/index.js'
 import { connectSelectable } from '../../common/connectSelectable.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
-import { fromAttr } from '../component/reactive.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { inputTemplate, popupTemplate } from './template.js'
-import { onClickOutside } from '../../common/onClickOutside.js'
-import { padLeft } from '../../common/utils.js'
+import { reactive, subscribe } from '../../common/reactive.js'
 import { style } from './style.js'
-import { BlocksDate } from '../date/index.js'
-import { BlocksInput } from '../input/index.js'
-import { BlocksPopup } from '../popup/index.js'
-import { BlocksTime } from '../time/index.js'
-import { Control } from '../base-control/index.js'
+import { BlPopup } from '../popup/index.js'
+import { BlSelectResult } from '../select-result/index.js'
+import { BlControl } from '../base-control/index.js'
+import { BlDateTime, dateTimeEquals } from '../datetime/index.js'
+import {
+  PROXY_POPUP_ACCESSORS,
+  PROXY_POPUP_ACCESSORS_KEBAB,
+  PROXY_RESULT_ACCESSORS,
+  PROXY_RESULT_ACCESSORS_KEBAB,
+} from '../../common/constants.js'
+import { SetupClickOutside } from '../setup-click-outside/index.js'
 
-export interface BlocksDateTimePicker extends Control {
-  $popup: BlocksPopup
-  $date: BlocksDate
-  $time: BlocksTime
-  $timeValue: HTMLElement
-  $confirmButton: BlocksButton
+interface BlDateTimePickerEventMap extends BlComponentEventMap {
+  change: CustomEvent<{ value: Date[] }>
+  closed: CustomEvent
+  opened: CustomEvent
+}
+
+export interface BlDateTimePicker
+  extends BlControl,
+    Pick<BlPopup, OneOf<typeof PROXY_POPUP_ACCESSORS>>,
+    Pick<BlSelectResult, OneOf<typeof PROXY_RESULT_ACCESSORS>> {
+  $popup: BlPopup
+  $datetime: BlDateTime
+  $confirmButton: BlButton
+
+  addEventListener<K extends keyof BlDateTimePickerEventMap>(
+    type: K,
+    listener: BlComponentEventListener<BlDateTimePickerEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof BlDateTimePickerEventMap>(
+    type: K,
+    listener: BlComponentEventListener<BlDateTimePickerEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
 }
 
 @defineClass({
   customElement: 'bl-datetime-picker',
   styles: [style],
+  proxyAccessors: [
+    { klass: BlPopup, names: PROXY_POPUP_ACCESSORS },
+    { klass: BlSelectResult, names: PROXY_RESULT_ACCESSORS },
+  ],
 })
-export class BlocksDateTimePicker extends Control implements ISelectableListComponent {
+export class BlDateTimePicker extends BlControl {
   static override get observedAttributes() {
-    return [
-      ...BlocksPopup.observedAttributes,
-      ...BlocksDate.observedAttributes,
-      ...BlocksInput.observedAttributes,
-      ...BlocksTime.observedAttributes,
-    ]
-  }
-
-  static override get disableEventTypes(): readonly string[] {
-    return ['click', 'touchstart', 'keydown']
+    return [...PROXY_POPUP_ACCESSORS_KEBAB, ...PROXY_RESULT_ACCESSORS_KEBAB, ...BlDateTime.observedAttributes]
   }
 
   @attr('string', { defaults: 'YYYY-MM-DD HH:mm:ss' }) accessor format!: string
 
   @attr('boolean') accessor open!: boolean
 
-  @attr('string') accessor placeholder = '选择日期时间'
+  @attr('string') accessor placeholder = '请选择日期时间'
 
   @shadowRef('#content') accessor $content!: HTMLElement
-  @shadowRef('[part="result"]') accessor $result!: HTMLInputElement & ISelectResultComponent
-  @shadowRef('[part="result"]') accessor $input!: BlocksInput
+  @shadowRef('[part="result"]') accessor $result!: BlSelectResult
 
-  // model
-  #value: Date | null = null
-
-  #formatter = computed(format => compile(format), [fromAttr(this, 'format')])
+  #model = reactive<Date | null>(null, dateTimeEquals)
 
   constructor() {
     super()
 
     this.appendShadowChild(inputTemplate())
-    this._tabIndexFeature.withTabIndex(0)
+
+    this._disabledFeature.withTarget(() => [this, this.$result])
+    this._tabIndexFeature.withTarget(() => [this.$result]).withTabIndex(0)
 
     this.#setupPopup()
     this.#setupResult()
-
-    connectSelectable(this.$input, this)
+    this.#setupConnect()
+    this.#setupAria()
   }
 
-  #disabledDate: BlocksDate['disabledDate']
   get disabledDate() {
-    return this.#disabledDate
+    return this.$datetime.disabledDate
   }
   set disabledDate(value) {
-    this.#disabledDate = value
+    this.$datetime.disabledDate = value
   }
 
-  #disabledHour: BlocksTime['disabledHour']
-  get disabledHour() {
-    return this.#disabledHour
+  get disabledTime() {
+    return this.$datetime.disabledTime
   }
-  set disabledHour(value) {
-    this.#disabledHour = value
-  }
-
-  #disabledMinute: BlocksTime['disabledMinute']
-  get disabledMinute() {
-    return this.#disabledMinute
-  }
-  set disabledMinute(value) {
-    this.#disabledMinute = value
-  }
-
-  #disabledSecond: BlocksTime['disabledSecond']
-  get disabledSecond() {
-    return this.#disabledSecond
-  }
-  set disabledSecond(value) {
-    this.#disabledSecond = value
+  set disabledTime(value) {
+    this.$datetime.disabledTime = value
   }
 
   get value(): null | Date {
-    return this.#value
+    return this.#model.content
   }
 
   set value(value: null | Date) {
-    this.#value = value as null | Date
-    if (this.open) {
-      this.$date.selected = value === null ? [] : [value]
-      this.#updateTimePanel(value)
-      this.#renderResult()
-    }
-    dispatchEvent(this, 'change', {
-      detail: { value },
-    })
+    this.#model.content = value
   }
 
-  // 实现 ISelectableListComponent 的事件
-  #notifyDateChange(value: Date | null) {
-    if (value === null) {
-      dispatchEvent(this, 'select-list:change', { detail: { value: [] } })
-    } else {
-      const selected = [
-        {
-          label: this.#formatter.content(value),
-          value,
-        },
-      ]
-      dispatchEvent(this, 'select-list:change', { detail: { value: selected } })
-    }
-    dispatchEvent(this, 'change', {
-      detail: { value: this.#value },
-    })
-  }
-
-  // ISelectableListComponent
-  clearSelected(): void {
-    console.log('clear selected')
-    this.#value = null
-    this.$date.selected = []
-    this.#updateTimePanel(null)
-    this.#renderResult()
-  }
+  _clickOutside: SetupClickOutside<this> = SetupClickOutside.setup({
+    component: this,
+    target() {
+      return [this, this.$popup]
+    },
+    update() {
+      if (this.open) {
+        this.open = false
+      }
+    },
+    init() {
+      this.hook.onAttributeChangedDep('open', () => {
+        if (this.open) {
+          this._clickOutside.bind()
+        } else {
+          this._clickOutside.unbind()
+        }
+      })
+    },
+  })
 
   #setupPopup() {
-    this.$popup = popupTemplate() as BlocksPopup & ISelectableListComponent
-    this.$date = this.$popup.querySelector('bl-date')!
-    this.$time = this.$popup.querySelector('bl-time')!
-    this.$timeValue = this.$popup.querySelector('#time-value') as HTMLElement
+    this.$popup = popupTemplate() as BlPopup & ISelectableListComponent
+    this.$datetime = this.$popup.querySelector('bl-datetime')!
     this.$confirmButton = this.$popup.querySelector('bl-button')!
-    this.$popup.anchorElement = () => this
+    this.$popup.anchorElement = () => this.$result
 
-    this.$input.onfocus = this.$input.onclick = () => {
-      this.open = true
+    // 标记该次 focus 是点击了 clear 按钮触发的
+    // 点击 clear 按钮，无需弹出弹窗
+    let isClickClear = false
+    const onClearStart = () => {
+      isClickClear = true
     }
-
-    // 点击 popup 外边，隐藏 popup
-    {
-      let clear: (() => void) | undefined
-      const eventStart = () => {
-        if (!clear) {
-          clear = onClickOutside([this, this.$popup], () => {
-            if (this.open) {
-              this.$date.clearUncompleteRange()
-              this.open = false
-            }
-          })
-        }
+    const onFocus = () => {
+      if (!isClickClear) {
+        this.open = true
       }
-      const eventStop = () => {
-        if (clear) {
-          clear()
-          clear = undefined
-        }
-      }
-      this.onConnected(() => {
-        this.$popup.addEventListener('opened', eventStart)
-        this.$popup.addEventListener('closed', eventStop)
-      })
-      this.onDisconnected(() => {
-        this.$popup.removeEventListener('opened', eventStart)
-        this.$popup.removeEventListener('closed', eventStop)
-      })
-      this.onDisconnected(eventStop)
+      isClickClear = false
     }
+    const onClearEnd = () => {
+      isClickClear = false
+    }
+    this.$result.afterListClear = () => {
+      this.open = false
+      this.blur()
+    }
+    this.hook.onConnected(() => {
+      // 触发顺序：mousedown-clear -> focus -> click-clear
+      this.addEventListener('mousedown-clear', onClearStart)
+      this.addEventListener('focus', onFocus)
+      this.addEventListener('click-clear', onClearEnd)
+    })
+    this.hook.onDisconnected(() => {
+      this.removeEventListener('mousedown-clear', onClearStart)
+      this.removeEventListener('focus', onFocus)
+      this.removeEventListener('click-clear', onClearEnd)
+    })
 
     // 代理 popup 事件
     {
-      const onOpened = () => {
-        dispatchEvent(this, 'opened')
-      }
-      const onClosed = () => {
-        dispatchEvent(this, 'closed')
-      }
-      this.onConnected(() => {
-        this.$popup.addEventListener('opened', onOpened)
-        this.$popup.addEventListener('closed', onClosed)
-      })
-      this.onDisconnected(() => {
-        this.$popup.removeEventListener('opened', onOpened)
-        this.$popup.removeEventListener('closed', onClosed)
-      })
+      this.proxyEvent(this.$popup, 'opened')
+      this.proxyEvent(this.$popup, 'closed')
     }
 
-    this.onConnected(() => {
-      document.body.appendChild(this.$popup)
-    })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       document.body.removeChild(this.$popup)
     })
-
-    this.onAttributeChanged((attrName, _, newValue) => {
-      if (BlocksPopup.observedAttributes.includes(attrName as any)) {
-        if (attrName === 'open') {
-          this.$popup.open = this.open
-        } else {
-          this.$popup.setAttribute(attrName, newValue as string)
+    this.hook.onAttributeChangedDeps(PROXY_POPUP_ACCESSORS_KEBAB, (name, _, newValue) => {
+      if (name === 'open') {
+        // 首次打开的时候，挂载 $popup 的 DOM
+        if (this.open && !document.body.contains(this.$popup)) {
+          document.body.appendChild(this.$popup)
         }
+        this.$popup.open = this.open
+
+        // 打开 popup 前，如果 date 有值则切换视图到最后一个值所在日期面板
+        if (!this.open) {
+          this.$datetime.showValue(this.$datetime.selected ?? new Date())
+        }
+      } else {
+        this.$popup.setAttribute(name, newValue as string)
       }
     })
 
@@ -229,167 +200,85 @@ export class BlocksDateTimePicker extends Control implements ISelectableListComp
   }
 
   #setupDateTime() {
-    // 弹出面板时，将 model 值设置到 date、time 面板上
-    this.$popup.addEventListener('opened', () => {
-      this.$date.selected = this.#value === null ? [] : [this.#value]
-      this.#updateTimePanel(this.#value)
-      // update layout
-      this.$time.style.height = this.$date.$content.offsetHeight + 'px'
-      this.$timeValue.style.height = this.$date.offsetHeight - this.$date.$content.offsetHeight - 1 + 'px'
-    })
-
     // 点击确定按钮，提交值
     this.$confirmButton.onclick = () => {
       this.open = false
     }
 
-    // 从 date、time 面板中提取时间
-    const joinDateTime = (defaultDate: Date | null = null) => {
-      let date = (this.$date.selected[0] ?? defaultDate) as Date | null
-      if (date == null) return null
-      date = copyDate(date)
-      date.setHours(this.$time.hour ?? 0)
-      date.setMinutes(this.$time.minute ?? 0)
-      date.setSeconds(this.$time.second ?? 0)
-      return date
-    }
-
-    this.$date.addEventListener('select-list:change', () => {
-      const date = joinDateTime()
-      this.#value = date
-      this.#updateTimePanel(date)
-      this.#renderResult()
-      this.#notifyDateChange(date)
+    this.$datetime.addEventListener('change', () => {
+      this.#model.content = this.$datetime.selected
     })
 
-    this.$time.addEventListener('change', () => {
-      const date = joinDateTime(this.$time.hour || this.$time.minute || this.$time.second ? today() : null)
-      this.#value = date
-      this.$date.selected = date === null ? [] : [date]
-      this.#renderResult()
-      this.#notifyDateChange(date)
-    })
-
-    // 将对 time 面板的操作结果，实时刷新到 time 面板顶部
-    const renderTimePanelTitle = () => {
-      if (this.$time.hour == null) {
-        this.$timeValue.textContent = ''
-      } else {
-        const h = padLeft('0', 2, String(this.$time.hour ?? 0))
-        const m = padLeft('0', 2, String(this.$time.minute ?? 0))
-        const s = padLeft('0', 2, String(this.$time.second ?? 0))
-        this.$timeValue.textContent = `${h}:${m}:${s}`
-      }
-    }
-    this.$time.addEventListener('change', renderTimePanelTitle)
-    this.$date.addEventListener('change', renderTimePanelTitle)
-    this.onRender(renderTimePanelTitle)
-
-    this.onConnected(() => {
-      this.#setDisabledMethods()
-    })
-    this.onAttributeChanged((attrName, _, newValue) => {
-      if (BlocksDate.observedAttributes.includes(attrName as any)) {
-        this.$date.setAttribute(attrName, newValue as string)
-      }
-    })
-    this.onAttributeChanged((attrName, _, newValue) => {
-      if (BlocksTime.observedAttributes.includes(attrName as any)) {
-        this.$time.setAttribute(attrName, newValue as string)
+    this.hook.onAttributeChanged((attrName, _, newValue) => {
+      if (BlDateTime.observedAttributes.includes(attrName as any)) {
+        this.$datetime.setAttribute(attrName, newValue as string)
       }
     })
   }
 
   #setupResult() {
-    this.onConnected(() => {
-      if (this.$input.placeholder == null) {
-        this.$input.placeholder = '请选择日期'
+    this.hook.onConnected(() => {
+      if (this.$result.placeholder == null) {
+        this.$result.placeholder = '请选择日期时间'
       }
-      if (!this.$input.suffixIcon) {
-        this.$input.suffixIcon = 'time'
-      }
-    })
-
-    this.onAttributeChanged((attrName, _, newValue) => {
-      if (BlocksInput.observedAttributes.includes(attrName)) {
-        if (attrName === 'value') {
-          this.$input.value = newValue
-        } else {
-          this.$input.setAttribute(attrName, newValue as string)
-        }
+      if (!this.$result.suffixIcon) {
+        this.$result.suffixIcon = 'time'
       }
     })
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
-  }
 
-  // 更新 time 面板
-  #updateTimePanel(date: Date | null) {
-    const { $time } = this
-    if (!date) {
-      $time.hour = $time.minute = $time.second = null
-      return
+    this.hook.onAttributeChangedDeps(PROXY_RESULT_ACCESSORS_KEBAB, (name, _, newValue) => {
+      this.$result.setAttribute(name, newValue as string)
+    })
+
+    const renderPlaceholder = () => {
+      this.$result.placeholder = this.placeholder ?? '请选择日期时间'
     }
-    $time.hour = date.getHours()
-    $time.minute = date.getMinutes()
-    $time.second = date.getSeconds()
+    this.hook.onRender(renderPlaceholder)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
   }
 
-  // popup append 后设置才有效
-  #setDisabledMethods() {
-    this.$date.disabledDate = (data, ctx) => {
-      if (this.disabledDate && this.disabledDate(data, ctx)) {
-        return true
+  #setupConnect() {
+    const $proxy = makeISelectableProxy<Date>()
+
+    // 代理结果、选项之间的连接
+    connectSelectable(this.$result, $proxy)
+    connectSelectable($proxy, this.$datetime)
+
+    // 处理 $date 面板发送过来的选中值
+    $proxy.acceptSelected = selected => {
+      this.#model.content = selected[0]?.value ?? null
+    }
+    // 处理 $result 发送过来的取消选中项
+    $proxy.deselect = selected => {
+      if (dateTimeEquals(this.#model.content, selected?.value)) {
+        this.#model.content = null
       }
-      return false
+    }
+    // 处理 $result 发送过来的清空请求
+    $proxy.clearSelected = () => {
+      this.#model.content = null
+      // afterListClear
+      this.open = false
+      this.blur()
     }
 
-    this.$time.disabledHour = (data, ctx) => {
-      if (this.disabledHour && this.disabledHour(data, ctx)) {
-        return true
-      }
-      return false
-    }
-    this.$time.disabledMinute = (data, ctx) => {
-      if (this.disabledMinute && this.disabledMinute(data, ctx)) {
-        return true
-      }
-      return false
-    }
-    this.$time.disabledSecond = (data, ctx) => {
-      if (this.disabledSecond && this.disabledSecond(data, ctx)) {
-        return true
-      }
-      return false
-    }
+    // model 更新时，分别同步到 $result / $date，刷新 $date 面板，触发 change
+    subscribe(this.#model, value => {
+      const selected = value == null ? [] : [{ value, label: this.$datetime.formatter.content(value) }]
+
+      this.$result.acceptSelected(selected)
+      this.$datetime.selected = value
+
+      if (value) this.$datetime.showValue(value)
+
+      dispatchEvent(this, 'change', { detail: { value } })
+    })
   }
 
-  #renderResult() {
-    this.$input.value = this.#value ? this.#formatter.content(this.#value) : ''
+  #setupAria() {
+    this.hook.onConnected(() => {
+      this.setAttribute('aria-haspopup', 'true')
+    })
   }
-
-  #renderPlaceholder() {
-    this.$input.placeholder = this.placeholder ?? '选择日期时间'
-  }
-
-  override render() {
-    super.render()
-    this.#renderResult()
-    this.#renderPlaceholder()
-  }
-}
-
-function copyDate(date: Date) {
-  const copy = new Date()
-  copy.setTime(date.getTime())
-  return copy
-}
-
-function today() {
-  const date = new Date()
-  date.setHours(0)
-  date.setMinutes(0)
-  date.setSeconds(0)
-  date.setMilliseconds(0)
-  return date
 }

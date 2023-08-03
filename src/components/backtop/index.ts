@@ -1,18 +1,22 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { fromAttr } from '../component/reactive.js'
 import { scrollTo } from '../../common/scrollTo.js'
 import { style } from './style.js'
 import { strSetter } from '../../common/property.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 import { computed, reactive, subscribe, unsubscribe } from '../../common/reactive.js'
 
 @defineClass({
   customElement: 'bl-backtop',
   styles: [style],
 })
-export class BlocksBackTop extends Component {
+export class BlBackTop extends BlComponent {
+  static override get role() {
+    return 'button'
+  }
+
   @attr('number') accessor duration = 0
 
   @attr('number') accessor threshold = 400
@@ -79,16 +83,16 @@ export class BlocksBackTop extends Component {
         done: render,
       })
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('click', onClick)
       subscribe(this.visible, render)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('click', onClick)
       unsubscribe(this.visible, render)
     })
-    this.onRender(render)
-    this.onConnected(render)
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
   }
 
   #setupTarget() {
@@ -101,10 +105,10 @@ export class BlocksBackTop extends Component {
         this.#scrolled.content = (this.targetElement as any).scrollTop
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       document.addEventListener('scroll', onTargetScroll, scrollEventOptions)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       document.removeEventListener('scroll', onTargetScroll, scrollEventOptions)
     })
   }

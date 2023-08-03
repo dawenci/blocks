@@ -34,19 +34,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../popup/index.js';
 import { __color_warning } from '../../theme/var-light.js';
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { getRegisteredSvgIcon } from '../../icon/index.js';
-import { popupTemplate } from './popup.template.js';
+import { popupTemplate, template } from './template.js';
 import { style } from './style.js';
-import { template } from './template.js';
-import { Component } from '../component/Component.js';
-import { PopupOrigin } from '../popup/index.js';
-const POPUP_ATTRS = ['open', 'origin'];
+import { unmount } from '../../common/mount.js';
+import { BlPopup } from '../popup/index.js';
+import { BlComponent } from '../component/Component.js';
 const CONFIRM_ATTRS = ['message', 'icon'];
-const originArray = Object.values(PopupOrigin);
-export let BlocksPopupConfirm = (() => {
+export let BlPopupConfirm = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup-confirm',
             styles: [style],
@@ -61,24 +59,20 @@ export let BlocksPopupConfirm = (() => {
     let _message_initializers = [];
     let _open_decorators;
     let _open_initializers = [];
-    let _origin_decorators;
-    let _origin_initializers = [];
-    var BlocksPopupConfirm = class extends Component {
+    var BlPopupConfirm = class extends BlComponent {
         static {
             _icon_decorators = [attr('string')];
             _message_decorators = [attr('string')];
             _open_decorators = [attr('boolean')];
-            _origin_decorators = [attr('enum', { enumValues: originArray })];
             __esDecorate(this, null, _icon_decorators, { kind: "accessor", name: "icon", static: false, private: false, access: { has: obj => "icon" in obj, get: obj => obj.icon, set: (obj, value) => { obj.icon = value; } } }, _icon_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _message_decorators, { kind: "accessor", name: "message", static: false, private: false, access: { has: obj => "message" in obj, get: obj => obj.message, set: (obj, value) => { obj.message = value; } } }, _message_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _origin_decorators, { kind: "accessor", name: "origin", static: false, private: false, access: { has: obj => "origin" in obj, get: obj => obj.origin, set: (obj, value) => { obj.origin = value; } } }, _origin_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksPopupConfirm = _classThis = _classDescriptor.value;
+            BlPopupConfirm = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return [...POPUP_ATTRS, ...CONFIRM_ATTRS];
+            return [...BlPopup.observedAttributes, ...CONFIRM_ATTRS];
         }
         #icon_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _icon_initializers, ''));
         get icon() { return this.#icon_accessor_storage; }
@@ -89,16 +83,16 @@ export let BlocksPopupConfirm = (() => {
         #open_accessor_storage = __runInitializers(this, _open_initializers, void 0);
         get open() { return this.#open_accessor_storage; }
         set open(value) { this.#open_accessor_storage = value; }
-        #origin_accessor_storage = __runInitializers(this, _origin_initializers, PopupOrigin.TopCenter);
-        get origin() { return this.#origin_accessor_storage; }
-        set origin(value) { this.#origin_accessor_storage = value; }
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
+            this.appendShadowChild(template());
             this.#setupPopup();
             this.#setupActions();
             this.#setupTrigger();
-            this.onAttributeChangedDep('message', () => {
+            this.hook.onAttributeChangedDep('message', () => {
+                this.render();
+            });
+            this.hook.onConnected(() => {
                 this.render();
             });
         }
@@ -111,7 +105,7 @@ export let BlocksPopupConfirm = (() => {
             if (maybePromise instanceof Promise) {
                 this.$confirm.loading = true;
                 this.$cancel.disabled = true;
-                maybePromise
+                return maybePromise
                     .then(() => {
                     this.open = false;
                 })
@@ -122,6 +116,7 @@ export let BlocksPopupConfirm = (() => {
             }
             else {
                 this.open = false;
+                return Promise.resolve();
             }
         }
         cancel() {
@@ -133,7 +128,7 @@ export let BlocksPopupConfirm = (() => {
             if (maybePromise instanceof Promise) {
                 this.$confirm.disabled = true;
                 this.$cancel.loading = true;
-                maybePromise
+                return maybePromise
                     .then(() => {
                     this.open = false;
                 })
@@ -144,32 +139,27 @@ export let BlocksPopupConfirm = (() => {
             }
             else {
                 this.open = false;
+                return Promise.resolve();
             }
         }
         #setupPopup() {
             this.$popup = popupTemplate();
+            this.$popup.anchorElement = () => this;
             this.$message = this.$popup.querySelector('.message');
             this.$cancel = this.$popup.querySelector('.cancel');
             this.$confirm = this.$popup.querySelector('.confirm');
-            this.$popup.anchorElement = () => this;
-            this.$popup.arrow = 8;
-            this.$popup.origin = this.origin;
-            this.$popup.style.padding = '15px;';
-            this.onConnected(() => {
-                document.body.appendChild(this.$popup);
-                this.render();
+            this.hook.onDisconnected(() => {
+                unmount(this.$popup);
             });
-            this.onDisconnected(() => {
-                if (this.$popup.parentElement) {
-                    this.$popup.parentElement.removeChild(this.$popup);
-                }
-            });
-            this.onAttributeChangedDeps(POPUP_ATTRS, (attrName, _, newValue) => {
-                if (attrName === 'open') {
+            this.hook.onAttributeChangedDeps(BlPopup.observedAttributes, (name, _, newValue) => {
+                if (name === 'open') {
+                    if (this.open && !document.body.contains(this.$popup)) {
+                        document.body.appendChild(this.$popup);
+                    }
                     this.$popup.open = this.open;
                 }
                 else {
-                    this.$popup.setAttribute(attrName, newValue);
+                    this.$popup.setAttribute(name, newValue);
                 }
             });
             this.$popup.addEventListener('opened', () => {
@@ -183,11 +173,11 @@ export let BlocksPopupConfirm = (() => {
             const onCancel = () => {
                 this.cancel();
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$cancel.addEventListener('click', onCancel);
                 this.$confirm.addEventListener('click', onConfirm);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$cancel.removeEventListener('click', onCancel);
                 this.$confirm.removeEventListener('click', onConfirm);
             });
@@ -196,10 +186,10 @@ export let BlocksPopupConfirm = (() => {
             const onClick = () => {
                 this.open = true;
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('click', onClick);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('click', onClick);
             });
         }
@@ -225,5 +215,5 @@ export let BlocksPopupConfirm = (() => {
             this.$message.appendChild($content);
         }
     };
-    return BlocksPopupConfirm = _classThis;
+    return BlPopupConfirm = _classThis;
 })();

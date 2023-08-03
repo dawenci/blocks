@@ -1,18 +1,18 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { Component } from '../component/Component.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-optgroup',
 })
-export class BlocksOptGroup extends Component {
+export class BlOptGroup extends BlComponent {
   @attr('string') accessor label!: string
 
   @attr('boolean') accessor disabled!: boolean
 
   constructor() {
     super()
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
   }
 }

@@ -1,4 +1,4 @@
-import type { Component } from '../component/Component';
+import type { BlComponent } from '../component/Component';
 export type TabIndex = number | `${number}` | null;
 export interface InitOptions<T> {
     component: T;
@@ -7,13 +7,16 @@ export interface InitOptions<T> {
     disabledPredicate?: (this: T) => boolean;
     postUpdate?: (this: T) => void;
 }
-export declare class SetupTabIndex<T extends Component = Component> {
+export declare class SetupTabIndex<T extends BlComponent = BlComponent> {
     #private;
-    static setup<T extends Component = Component>(options: InitOptions<T>): SetupTabIndex<T>;
+    static setup<T extends BlComponent = BlComponent>(options: InitOptions<T>): SetupTabIndex<T>;
     get tabIndex(): TabIndex;
     set tabIndex(value: TabIndex);
+    get disabledTabIndex(): TabIndex;
+    set disabledTabIndex(value: TabIndex);
     constructor(options: InitOptions<T>);
     withTabIndex(tabIndex: TabIndex): this;
+    withDisabledTabIndex(tabIndex: TabIndex): this;
     withDisabledPredicate(getDisabled: InitOptions<T>['disabledPredicate']): this;
     withPostUpdate(postUpdate: InitOptions<T>['postUpdate']): this;
     withTarget(target: InitOptions<T>['target']): this;

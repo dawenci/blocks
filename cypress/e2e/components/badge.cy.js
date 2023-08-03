@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-context('BlocksBadge', () => {
+context('BlBadge', () => {
   beforeEach(() => {
     cy.visit('http://localhost:8080/tests/components/badge.html')
   })

@@ -18,87 +18,100 @@
       <h1>progress</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/progress/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/progress/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认</h2>
-
-      <template data-codesource="html">
-        <bl-progress value="50"></bl-progress>
-      </template>
+      <bl-card>
+        <h2 slot="header" class="section-title">默认</h2>
+        <template data-codesource="html">
+          <bl-progress value="50"></bl-progress>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>显示百分比</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">显示百分比</h2>
+        <p slot="header">使用 percentage 属性启用百分比显示</p>
 
-      <p>使用 percentage 属性启用百分比显示</p>
-
-      <template data-codesource="html">
-        <bl-progress percentage value="50"></bl-progress>
-      </template>
+        <template data-codesource="html">
+          <bl-progress percentage value="50"></bl-progress>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>状态</h2>
-
-      <p>可设置 'status' 属性切换状态，可选状态有 'success', 'error', 'warning'</p>
-
-      <template data-codesource="html">
-        <bl-progress status="success" percentage value="50" style="margin-bottom:15px;"></bl-progress>
-        <bl-progress status="error" percentage value="50" style="margin-bottom:15px;"></bl-progress>
-        <bl-progress status="warning" percentage value="50" style="margin-bottom:15px;"></bl-progress>
-      </template>
+      <bl-card>
+        <h2 slot="header" class="section-title">状态</h2>
+        <p slot="header">可设置 'status' 属性切换状态，可选状态有 'success', 'error', 'warning'</p>
+  
+        <template data-codesource="html">
+          <bl-progress status="success" percentage value="50" style="margin-bottom:15px;"></bl-progress>
+          <bl-progress status="error" percentage value="50" style="margin-bottom:15px;"></bl-progress>
+          <bl-progress status="warning" percentage value="50" style="margin-bottom:15px;"></bl-progress>
+        </template>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>API</h2>
-      
-      <h3>Attrs / Props</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>percentage</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否显示百分比。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>status</td>
-            <td>'success' | 'error' | 'warning'</td>
-            <td></td>
-            <td>进度条状态。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>value</td>
-            <td>number</td>
-            <td>0</td>
-            <td>当前百分比。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+        
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>percentage</td>
+              <td>percentage</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否显示百分比。</td>
+            </tr>
+            <tr>
+              <td>status</td>
+              <td>status</td>
+              <td>
+  <pre>
+  | 'success'
+  | 'error'
+  | 'warning'
+  </pre>
+              </td>
+              <td>无</td>
+              <td>进度条状态。</td>
+            </tr>
+            <tr>
+              <td>value</td>
+              <td>value</td>
+              <td>number</td>
+              <td>0</td>
+              <td>当前百分比。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
-
   </article>
 </body>
 </html>

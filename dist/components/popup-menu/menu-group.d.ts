@@ -1,15 +1,17 @@
-import { BlocksNavMenu } from '../nav-menu/menu.js';
-import { BlocksPopupMenu } from './menu.js';
-import { Component } from '../component/Component.js';
-export declare class BlocksPopupMenuGroup extends Component {
+import { BlNavMenu } from '../nav-menu/menu.js';
+import { BlPopupMenu } from './menu.js';
+import { BlComponent } from '../component/Component.js';
+export declare class BlPopupMenuGroup extends BlComponent {
     #private;
+    static get role(): string;
     accessor titleText: string;
-    _data: MenuGroup;
-    $head: HTMLElement;
-    $body: HTMLElement;
+    accessor size: MaybeOneOf<['small', 'large']>;
+    accessor $head: HTMLElement;
+    accessor $body: HTMLElement;
     constructor();
-    get $hostMenu(): BlocksNavMenu | BlocksPopupMenu;
-    set $hostMenu($menu: BlocksNavMenu | BlocksPopupMenu);
+    _data: MenuGroup;
+    get $hostMenu(): BlNavMenu | BlPopupMenu;
+    set $hostMenu($menu: BlNavMenu | BlPopupMenu);
     get data(): MenuGroup;
     set data(value: MenuGroup);
     render(): void;

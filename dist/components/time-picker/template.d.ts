@@ -1,1 +1,1 @@
-export declare const template: () => HTMLElement;
+export declare const template: () => import("../select-result/index").BlSelectResult;

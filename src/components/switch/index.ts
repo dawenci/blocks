@@ -1,28 +1,27 @@
-import type { EnumAttrs } from '../../decorators/attr.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
-import { Control } from '../base-control/index.js'
+import { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
+import { BlControl } from '../base-control/index.js'
 import { SetupControlEvent } from '../setup-control-event/index.js'
 
-export interface SwitchEventMap extends ComponentEventMap {
+export interface SwitchEventMap extends BlComponentEventMap {
   change: CustomEvent<{ checked: boolean }>
 }
 
-export interface BlocksSwitch extends Control {
+export interface BlSwitch extends BlControl {
   addEventListener<K extends keyof SwitchEventMap>(
     type: K,
-    listener: ComponentEventListener<SwitchEventMap[K]>,
+    listener: BlComponentEventListener<SwitchEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
   removeEventListener<K extends keyof SwitchEventMap>(
     type: K,
-    listener: ComponentEventListener<SwitchEventMap[K]>,
+    listener: BlComponentEventListener<SwitchEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -31,18 +30,14 @@ export interface BlocksSwitch extends Control {
   customElement: 'bl-switch',
   styles: [style],
 })
-export class BlocksSwitch extends Control {
-  static get role() {
+export class BlSwitch extends BlControl {
+  static override get role() {
     return 'switch'
-  }
-
-  static override get disableEventTypes(): readonly string[] {
-    return ['click', 'keydown']
   }
 
   @attr('boolean') accessor checked!: boolean
 
-  @attrs.size accessor size!: EnumAttrs['size']
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
 
   @shadowRef('[part="layout"]') accessor $layout!: HTMLElement
 
@@ -54,7 +49,7 @@ export class BlocksSwitch extends Control {
 
     this.#setupEvents()
 
-    this.onAttributeChangedDep('checked', () => {
+    this.hook.onAttributeChangedDep('checked', () => {
       dispatchEvent(this, 'change', { detail: { value: this.checked } })
     })
   }
@@ -65,10 +60,10 @@ export class BlocksSwitch extends Control {
     const onClick = () => {
       this.checked = !this.checked
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('click', onClick)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('click', onClick)
     })
   }

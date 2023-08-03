@@ -18,106 +18,175 @@
       <h1>color-picker</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+    <script type="module" src="../../dist/components/input/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-      <script type="module" src="../../dist/components/input/index.js"></script>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
 
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/color-picker/index.js"></script>
-      </div>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/color-picker/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
-    <section class="section">
-      <h2>默认使用</h2>
+    <section class="section">      
+      <bl-card>
+        <h2 slot="header" class="section-title">默认使用</h2>
 
-      <div class="case">
         <template data-codesource="html">
-          <bl-color-picker id="color"></bl-color-picker>
+          <bl-color-picker></bl-color-picker>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>禁用</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">可清除</h2>
 
-      <div class="case">
         <template data-codesource="html">
-          <bl-color-picker disabled id="color"></bl-color-picker>
+          <bl-color-picker clearable></bl-color-picker>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">禁用</h2>
 
-      <h3>Attrs / Props</h3>
+        <template data-codesource="html">
+          <bl-color-picker disabled></bl-color-picker>
+        </template>
+      </bl-card>
+    </section>
 
-      <p>支持 color 组件的以下 getter/setter：</p>
-      <ul>
-        <li>hex</li>
-        <li>hsl</li>
-        <li>hsla</li>
-        <li>hsv</li>
-        <li>hsva</li>
-        <li>rgb</li>
-        <li>rgba</li>
-        <li>value</li>
-      </ul>
-      <p>更多信息查看 color 组件文档。</p>
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
 
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>disabled</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否禁用。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <h3>Attrs / Props</h3>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>disabled</td>
+              <td>disabled</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否禁用。</td>
+            </tr>
+  
+            <tr>
+              <td></td>
+              <td>hex</td>
+              <td></td>
+              <td></td>
+              <td>见 color 组件文档</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>hsl</td>
+              <td></td>
+              <td></td>
+              <td>见 color 组件文档</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>hsla</td>
+              <td></td>
+              <td></td>
+              <td>见 color 组件文档</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>hsv</td>
+              <td></td>
+              <td></td>
+              <td>见 color 组件文档</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>hsva</td>
+              <td></td>
+              <td></td>
+              <td>见 color 组件文档</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>rgb</td>
+              <td></td>
+              <td></td>
+              <td>见 color 组件文档</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>rgba</td>
+              <td></td>
+              <td></td>
+              <td>见 color 组件文档</td>
+            </tr>
+            <tr>
+              <td>value</td>
+              <td>value</td>
+              <td></td>
+              <td></td>
+              <td>见 color 组件文档</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <h3>Methods</h3>
-      <p>支持 color 组件以下方法：</p>
-      <ul>
-        <li>format</li>
-      </ul>
-      <p>更多信息查看 color 组件文档。</p>
+        <h3>Methods</h3>
+        <table class="api-fns">
+          <thead>
+            <tr>
+              <th>函数名称</th>
+              <th>类型</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>format</td>
+              <td></td>
+              <td>见 color 组件文档</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>bl:color-picker:change</td>
-            <td></td>
-            <td>颜色变化时触发。</td>
-          </tr>
-          <tr>
-            <td>change</td>
-            <td></td>
-            <td>颜色变化时触发。</td>
-          </tr>
-        </tbody>
-      </table>
-
+        <h3>Events</h3>
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>bl:color-picker:change</td>
+              <td></td>
+              <td>颜色变化时触发。</td>
+            </tr>
+            <tr>
+              <td>change</td>
+              <td></td>
+              <td>颜色变化时触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

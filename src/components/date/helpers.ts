@@ -74,7 +74,7 @@ export function generateDates(
   // 该月的最后一天
   const lastDate = getLastDate(year, month)
   // 该月的所有日
-  const results = range(1, lastDate.getDate()).map(date => ({
+  const results = range(1, lastDate.getUTCDate()).map(date => ({
     label: String(date),
     century,
     decade,
@@ -88,9 +88,9 @@ export function generateDates(
   if (firstDateIndex !== startWeekOn) {
     // 上个月最后一天
     const prevLastDate = getLastDateOfPrevMonth(year, month)
-    const prevYear = prevLastDate.getFullYear()
-    const prevMonth = prevLastDate.getMonth()
-    let date = prevLastDate.getDate()
+    const prevYear = prevLastDate.getUTCFullYear()
+    const prevMonth = prevLastDate.getUTCMonth()
+    let date = prevLastDate.getUTCDate()
     // 需要补的天数
     let n = (7 + firstDateIndex - startWeekOn) % 7
     while (n--) {
@@ -109,9 +109,9 @@ export function generateDates(
   // 2. 末尾用下个月的日期填满，总共是 6 * 7 = 42 天
   // 下个月第一天
   const nextFirstDate = getFirstDateOfNextMonth(year, month)
-  const nextYear = nextFirstDate.getFullYear()
-  const nextMonth = nextFirstDate.getMonth()
-  let date = nextFirstDate.getDate()
+  const nextYear = nextFirstDate.getUTCFullYear()
+  const nextMonth = nextFirstDate.getUTCMonth()
+  let date = nextFirstDate.getUTCDate()
   while (results.length < 42) {
     results.push({
       label: String(date),
@@ -230,7 +230,9 @@ export function generateWeekHeaders(startWeekOn: WeekNumber) {
 // 当前选项是否是今天
 export function isToday(model: ItemModel) {
   const today = new Date()
-  return model.year === today.getFullYear() && model.month === today.getMonth() && model.date === today.getDate()
+  return (
+    model.year === today.getUTCFullYear() && model.month === today.getUTCMonth() && model.date === today.getUTCDate()
+  )
 }
 
 export function isAllEqual(arr1: Array<Date>, arr2: Array<Date>) {
@@ -257,9 +259,9 @@ export function modelToDate(model: ItemModel, viewDepth: Depth) {
 }
 
 export function dateToModel(dateObj: Date, depth: Depth): ItemModel {
-  const year = dateObj.getFullYear()
-  const month = dateObj.getMonth()
-  const date = dateObj.getDate()
+  const year = dateObj.getUTCFullYear()
+  const month = dateObj.getUTCMonth()
+  const date = dateObj.getUTCDate()
   const century = Math.floor(year / 100)
   const decade = Math.floor(year / 10)
   const label =
@@ -302,21 +304,21 @@ export function getClosestDate(dates: Date[] = []): Date | null {
  * 获取指定月份的第一天的日期对象
  */
 function getFirstDate(year: number, month: number) {
-  return new Date(year, month, 1)
+  return new Date(Date.UTC(year, month, 1, 0, 0, 0))
 }
 
 /**
  * 获取指定月份的最后一天日期对象
  */
 function getLastDate(year: number, month: number) {
-  return new Date(year, month + 1, 0)
+  return new Date(Date.UTC(year, month + 1, 0, 0, 0, 0))
 }
 
 /**
  * 获取指定月份的下个月的第一天日期对象
  */
 function getFirstDateOfNextMonth(year: number, month: number) {
-  return new Date(year, month + 1, 1)
+  return new Date(Date.UTC(year, month + 1, 1, 0, 0, 0))
 }
 
 /**

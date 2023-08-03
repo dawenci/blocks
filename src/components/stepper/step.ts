@@ -1,12 +1,11 @@
-import type { NullableEnumAttr } from '../../decorators/attr.js'
-import type { BlocksSteps } from './steps.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import type { BlSteps } from './steps.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { parseIcon } from '../../icon/index.js'
 import { style } from './step.style.js'
 import { template } from './step.template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 const statusEnum = ['wait', 'process', 'success', 'error']
 
@@ -14,9 +13,9 @@ const statusEnum = ['wait', 'process', 'success', 'error']
   customElement: 'bl-step',
   styles: [style],
 })
-export class BlocksStep extends Component {
+export class BlStep extends BlComponent {
   @attr('enum', { enumValues: ['horizontal', 'vertical'] })
-  accessor direction!: NullableEnumAttr<['horizontal', 'vertical']>
+  accessor direction!:  MaybeOneOf<['horizontal', 'vertical']>
 
   @attr('string') accessor stepTitle!: string
 
@@ -24,8 +23,10 @@ export class BlocksStep extends Component {
 
   @attr('string') accessor icon!: string
 
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
+
   @attr('enum', { enumValues: statusEnum })
-  accessor status!: NullableEnumAttr<typeof statusEnum>
+  accessor status!:  MaybeOneOf<typeof statusEnum>
 
   @shadowRef('#layout') accessor $layout!: HTMLElement
 
@@ -37,10 +38,9 @@ export class BlocksStep extends Component {
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
 
-    const slots = shadowRoot.querySelectorAll('slot') as ArrayLike<HTMLSlotElement>
+    this.appendShadowChild(template())
+    const slots = this.querySelectorAllShadow('slot') as ArrayLike<HTMLSlotElement>
     Array.prototype.forEach.call(slots, $slot => {
       const $parent = $slot.parentElement
       $slot.addEventListener('slotchange', () => {
@@ -55,21 +55,21 @@ export class BlocksStep extends Component {
       })
     })
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       if (this.parentElement!.tagName !== 'BL-STEPPER') {
         this.parentElement!.removeChild(this)
         throw new Error('The parent element of `bl-step` should be `bl-stepper`.')
       }
     })
 
-    this.onConnected(this.render)
-    this.onAttributeChangedDep('icon', this._renderIcon)
-    this.onAttributeChangedDep('step-title', this._renderTitle)
-    this.onAttributeChangedDep('description', this._renderDescription)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChangedDep('icon', this._renderIcon)
+    this.hook.onAttributeChangedDep('step-title', this._renderTitle)
+    this.hook.onAttributeChangedDep('description', this._renderDescription)
   }
 
-  get $stepper(): BlocksSteps {
-    return this.closest('bl-stepper')! as BlocksSteps
+  get $stepper(): BlSteps {
+    return this.closest('bl-stepper')! as BlSteps
   }
 
   override render() {

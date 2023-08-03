@@ -1,7 +1,9 @@
 import { makeElement } from '../../common/makeElement.js';
-import { makeDomTemplate } from '../../common/template.js';
+import { makeDomTemplate, makeTemplate } from '../../common/template.js';
 import { PopupOrigin } from '../popup/index.js';
-export const resultTemplate = makeDomTemplate(document.createElement('bl-pair-result'));
+export const resultTemplate = makeTemplate(`
+<bl-pair-result auto-switch auto-commit></bl-pair-result>
+`);
 export const popupTemplate = makeDomTemplate(makeElement({
     tagName: 'bl-popup',
     props: {

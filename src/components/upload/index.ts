@@ -1,7 +1,7 @@
 import '../button/index.js'
 import '../progress/index.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { dispatchEvent } from '../../common/event.js'
 import { itemTemplate } from './item.template.js'
@@ -9,7 +9,7 @@ import { strSetter } from '../../common/property.js'
 import { style } from './style.js'
 import { template } from './template.js'
 import { uploadRequest } from './uploadRequest.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 const DEFAULT_ICON_MAP = Object.freeze({
   'file-image': /^image\//,
@@ -58,7 +58,7 @@ enum State {
   Abort = 4,
 }
 
-export interface BlocksUpload extends Component {
+export interface BlUpload extends BlComponent {
   ref: {
     $layout: HTMLElement
     $list: HTMLElement
@@ -72,7 +72,7 @@ export interface BlocksUpload extends Component {
   customElement: 'bl-upload',
   styles: [style],
 })
-export class BlocksUpload extends Component {
+export class BlUpload extends BlComponent {
   @attr('string') accessor accept!: string | null
 
   @attr('string') accessor action = ''

@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr, attrs } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { attr, attrs } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 import { SetupEmpty } from '../setup-empty/index.js';
-export let BlocksCard = (() => {
+export let BlCard = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-card',
             styles: [style],
@@ -70,7 +70,7 @@ export let BlocksCard = (() => {
     let _$bodySlot_initializers = [];
     let _$footerSlot_decorators;
     let _$footerSlot_initializers = [];
-    var BlocksCard = class extends Component {
+    var BlCard = class extends BlComponent {
         static {
             _shadow_decorators = [attr('enum', { enumValues: ['hover', 'always'] })];
             _size_decorators = [attrs.size];
@@ -95,7 +95,7 @@ export let BlocksCard = (() => {
             __esDecorate(this, null, _$bodySlot_decorators, { kind: "accessor", name: "$bodySlot", static: false, private: false, access: { has: obj => "$bodySlot" in obj, get: obj => obj.$bodySlot, set: (obj, value) => { obj.$bodySlot = value; } } }, _$bodySlot_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$footerSlot_decorators, { kind: "accessor", name: "$footerSlot", static: false, private: false, access: { has: obj => "$footerSlot" in obj, get: obj => obj.$footerSlot, set: (obj, value) => { obj.$footerSlot = value; } } }, _$footerSlot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksCard = _classThis = _classDescriptor.value;
+            BlCard = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #shadow_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _shadow_initializers, void 0));
@@ -156,10 +156,10 @@ export let BlocksCard = (() => {
                     target: () => this[name],
                     init: () => {
                         const onSlotChange = () => this._emptyFeature[slotName].update();
-                        this.onConnected(() => {
+                        this.hook.onConnected(() => {
                             this[slotName].addEventListener('slotchange', onSlotChange);
                         });
-                        this.onDisconnected(() => {
+                        this.hook.onDisconnected(() => {
                             this[slotName].removeEventListener('slotchange', onSlotChange);
                         });
                     },
@@ -167,5 +167,5 @@ export let BlocksCard = (() => {
             });
         }
     };
-    return BlocksCard = _classThis;
+    return BlCard = _classThis;
 })();

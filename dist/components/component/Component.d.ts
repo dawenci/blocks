@@ -1,31 +1,30 @@
-import * as hook from './hook-internal.js';
-interface ComponentEventListenerCallback<E extends Event = Event> {
+import { Hook } from '../../common/Hook/index.js';
+import { Feature } from '../../common/Feature/Feature.js';
+export interface BlComponentEventListenerCallback<E extends Event = Event> {
     (evt: E): void;
 }
-interface ComponentEventListenerObject<E extends Event = Event> {
+export interface BlComponentEventListenerObject<E extends Event = Event> {
     handleEvent(object: E): void;
 }
-export type ComponentEventListener<E extends Event = Event> = ComponentEventListenerCallback<E> | ComponentEventListenerObject<E>;
-export interface ComponentEventMap extends HTMLElementEventMap {
+export type BlComponentEventListener<E extends Event = Event> = BlComponentEventListenerCallback<E> | BlComponentEventListenerObject<E>;
+export interface BlComponentEventMap extends HTMLElementEventMap {
     [other: string]: Event;
 }
-export interface Component extends HTMLElement {
-    addEventListener<K extends keyof ComponentEventMap>(type: K, listener: ComponentEventListener<ComponentEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof ComponentEventMap>(type: K, listener: ComponentEventListener<ComponentEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlComponent extends HTMLElement {
+    addEventListener<K extends keyof BlComponentEventMap>(type: K, listener: BlComponentEventListener<BlComponentEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlComponentEventMap>(type: K, listener: BlComponentEventListener<BlComponentEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class Component extends HTMLElement {
+export declare class BlComponent extends HTMLElement {
     #private;
+    static get role(): string;
     static get observedAttributes(): readonly string[];
+    blSilent: boolean;
+    get hook(): Hook;
     constructor();
     get cid(): number;
-    onConnected(callback: hook.ConnectedCallback): void;
-    onDisconnected(callback: hook.DisconnectedCallback): void;
-    onAdopted(callback: hook.AdoptedCallback): void;
-    onAttributeChanged<StrArr extends readonly string[] = string[]>(callback: hook.AttributeChangedCallback<StrArr>): void;
-    onAttributeChangedDep<Str extends string>(dep: Str, callback: hook.AttributeChangedCallback<[Str]>): void;
-    onAttributeChangedDeps<StrArr extends readonly string[] = string[]>(deps: StrArr, callback: hook.AttributeChangedCallback<StrArr>): void;
-    onRender(callback: hook.RenderCallback): void;
-    clearHooks(): void;
+    _features: Map<string | symbol, Feature>;
+    addFeature(key: string | symbol, feature: Feature): void;
+    getFeature(key: string | symbol): Feature<BlComponent> | undefined;
     connectedCallback(): void;
     disconnectedCallback(): void;
     adoptedCallback(): void;
@@ -39,12 +38,15 @@ export declare class Component extends HTMLElement {
     appendShadowChild(node: Node): void;
     appendShadowChildren(nodes: ArrayLike<Node>): void;
     appendChildren(nodes: ArrayLike<Node>): void;
-    insertStyle($style: HTMLStyleElement | DocumentFragment | string): void;
+    insertStyle($style: HTMLStyleElement | DocumentFragment | string): HTMLStyleElement | null;
     upgradeProperty(props?: string[]): void;
     initRole(): void;
     querySelectorHost<T extends Element>(selector: string): T | null;
     querySelectorShadow<T extends Element>(selector: string): T | null;
     querySelectorAllHost<T extends Element>(selector: string): NodeListOf<T>;
     querySelectorAllShadow<T extends Element>(selector: string): T[];
+    proxyEvent<T extends Element>($el: T, type: Parameters<T['addEventListener']>[0], options?: boolean | AddEventListenerOptions): () => void;
+    registerMicrotask(key: any, callback: () => void): void;
+    withBlSilent(fn: () => void): void;
+    dispatchEvent(event: Event): boolean;
 }
-export {};

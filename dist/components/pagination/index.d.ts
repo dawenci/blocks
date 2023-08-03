@@ -1,37 +1,27 @@
-import type { EnumAttrs } from '../../decorators/attr.js';
 import '../icon/index.js';
-import { Component, ComponentEventListener, ComponentEventMap } from '../component/Component.js';
-export interface PaginationEventMap extends ComponentEventMap {
-    'bl:pagination:current-change': CustomEvent<{
-        current: number;
-    }>;
-    'bl:pagination:page-size-change': CustomEvent<{
-        pageSize: number;
-    }>;
+import { BlComponent, BlComponentEventListener, BlComponentEventMap } from '../component/Component.js';
+export type PaginationEventMap = BlComponentEventMap;
+export interface BlPagination extends BlComponent {
+    addEventListener<K extends keyof PaginationEventMap>(type: K, listener: BlComponentEventListener<PaginationEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof PaginationEventMap>(type: K, listener: BlComponentEventListener<PaginationEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export interface BlocksPagination extends Component {
-    _ref: {
-        $pager: HTMLElement;
-        $items: HTMLElement;
-        $prev: HTMLButtonElement;
-        $next: HTMLButtonElement;
-        $jump: HTMLElement;
-        $sizes: HTMLElement;
-        $total: HTMLElement;
-    };
-    addEventListener<K extends keyof PaginationEventMap>(type: K, listener: ComponentEventListener<PaginationEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof PaginationEventMap>(type: K, listener: ComponentEventListener<PaginationEventMap[K]>, options?: boolean | EventListenerOptions): void;
-}
-export declare class BlocksPagination extends Component {
+export declare class BlPagination extends BlComponent {
     static get observedAttributes(): string[];
     accessor disabled: boolean;
     accessor current: number;
     accessor pageSize: number;
     accessor total: number;
-    accessor pageSizes: string | null;
-    accessor size: EnumAttrs['size'];
-    _itemPool: HTMLElement[];
+    accessor pageSizes: string;
+    accessor size: MaybeOneOf<['small', 'large']>;
+    accessor $pager: HTMLElement;
+    accessor $items: HTMLElement;
+    accessor $prev: HTMLButtonElement;
+    accessor $next: HTMLButtonElement;
+    accessor $jump: HTMLElement;
+    accessor $sizes: HTMLElement;
+    accessor $total: HTMLElement;
     constructor();
+    _itemPool: HTMLElement[];
     get showQuickJumper(): void;
     get showSizeChanger(): void;
     get showTotal(): void;

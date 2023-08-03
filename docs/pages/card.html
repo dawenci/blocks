@@ -21,201 +21,211 @@
     <script type="module" src="../../dist/components/grid/index.js"></script>
 
     <section class="section">
-      <h2>依赖引入</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
 
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/card/index.js"></script>
-      </div>
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/card/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认使用</h2>
-
-      <div data-codesource="html">
-        <bl-card style="width:310px" card-title="?????">
-          <strong slot="header" style="margin:0;">header slot</strong>
-          <div>
-            Body 内容<br>
-            Body 内容<br>
-            Body 内容
-          </div>
-          <span slot="footer" style="line-height: 28px;">footer slot</span>
-          <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
-        </bl-card>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">默认使用</h2>
+        
+        <div data-codesource="html">
+          <bl-card style="width:310px" card-title="?????">
+            <strong slot="header" style="margin:0;">header slot</strong>
+            <div>
+              Body 内容<br>
+              Body 内容<br>
+              Body 内容
+            </div>
+            <span slot="footer" style="line-height: 28px;">footer slot</span>
+            <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+          </bl-card>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>尺寸</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">尺寸</h2>
 
-      <div data-codesource="html">
-        <bl-row gutter="35">
-          <bl-col span="8">
-            <bl-card>
-              <strong slot="header" style="margin:0;">正常尺寸</strong>
-              <div>
-                Body 内容<br>
-                Body 内容<br>
-                Body 内容
-              </div>
-              <span slot="footer" style="line-height: 28px;">footer slot</span>
-              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
-            </bl-card>
-          </bl-col>
-          <bl-col span="8">
-            <bl-card size="small">
-              <strong slot="header" style="margin:0;">小尺寸</strong>
-              <div>
-                Body 内容<br>
-                Body 内容<br>
-                Body 内容
-              </div>
-              <span slot="footer" style="line-height: 28px;">footer slot</span>
-              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
-            </bl-card>
-          </bl-col>
-          <bl-col span="8">
-            <bl-card size="large">
-              <strong slot="header" style="margin:0;">大尺寸</strong>
-              <div>
-                Body 内容<br>
-                Body 内容<br>
-                Body 内容
-              </div>
-              <span slot="footer" style="line-height: 28px;">footer slot</span>
-              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
-            </bl-card>
-          </bl-col>
-        </bl-row>
-      </div>
+        <div data-codesource="html">
+          <bl-row gutter="35">
+            <bl-col span="8">
+              <bl-card>
+                <strong slot="header" style="margin:0;">正常尺寸</strong>
+                <div>
+                  Body 内容<br>
+                  Body 内容<br>
+                  Body 内容
+                </div>
+                <span slot="footer" style="line-height: 28px;">footer slot</span>
+                <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+              </bl-card>
+            </bl-col>
+            <bl-col span="8">
+              <bl-card size="small">
+                <strong slot="header" style="margin:0;">小尺寸</strong>
+                <div>
+                  Body 内容<br>
+                  Body 内容<br>
+                  Body 内容
+                </div>
+                <span slot="footer" style="line-height: 28px;">footer slot</span>
+                <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+              </bl-card>
+            </bl-col>
+            <bl-col span="8">
+              <bl-card size="large">
+                <strong slot="header" style="margin:0;">大尺寸</strong>
+                <div>
+                  Body 内容<br>
+                  Body 内容<br>
+                  Body 内容
+                </div>
+                <span slot="footer" style="line-height: 28px;">footer slot</span>
+                <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+              </bl-card>
+            </bl-col>
+          </bl-row>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>阴影</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">阴影</h2>
 
-      <div data-codesource="html">
-        <bl-row gutter="35">
-          <bl-col span="8">
-            <bl-card>
-              <strong slot="header" style="margin:0;">无阴影</strong>
-              <div>
-                Body 内容<br>
-                Body 内容<br>
-                Body 内容
-              </div>
-              <span slot="footer" style="line-height: 28px;">footer slot</span>
-              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
-            </bl-card>
-          </bl-col>
-
-          <bl-col span="8">
-            <bl-card shadow="hover">
-              <strong slot="header" style="margin:0;">hover 阴影</strong>
-              <div>
-                Body 内容<br>
-                Body 内容<br>
-                Body 内容
-              </div>
-              <span slot="footer" style="line-height: 28px;">footer slot</span>
-              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
-            </bl-card>
-          </bl-col>
-
-          <bl-col span="8">
-            <bl-card shadow>
-              <strong slot="header" style="margin:0;">有阴影</strong>
-              <div>
-                Body 内容<br>
-                Body 内容<br>
-                Body 内容
-              </div>
-              <span slot="footer" style="line-height: 28px;">footer slot</span>
-              <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
-            </bl-card>
-          </bl-col>          
-        </bl-row>
-      </div>
+        <div data-codesource="html">
+          <bl-row gutter="35">
+            <bl-col span="8">
+              <bl-card>
+                <strong slot="header" style="margin:0;">无阴影</strong>
+                <div>
+                  Body 内容<br>
+                  Body 内容<br>
+                  Body 内容
+                </div>
+                <span slot="footer" style="line-height: 28px;">footer slot</span>
+                <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+              </bl-card>
+            </bl-col>
+  
+            <bl-col span="8">
+              <bl-card shadow="hover">
+                <strong slot="header" style="margin:0;">hover 阴影</strong>
+                <div>
+                  Body 内容<br>
+                  Body 内容<br>
+                  Body 内容
+                </div>
+                <span slot="footer" style="line-height: 28px;">footer slot</span>
+                <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+              </bl-card>
+            </bl-col>
+  
+            <bl-col span="8">
+              <bl-card shadow>
+                <strong slot="header" style="margin:0;">有阴影</strong>
+                <div>
+                  Body 内容<br>
+                  Body 内容<br>
+                  Body 内容
+                </div>
+                <span slot="footer" style="line-height: 28px;">footer slot</span>
+                <bl-button style="float:right;" slot="footer" size="small" type="link">action</bl-button>
+              </bl-card>
+            </bl-col>          
+          </bl-row>
+        </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>图片</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">图片</h2>
 
-      <div data-codesource="html">
-        <bl-card style="width:310px">
-          <div slot="cover"><img src="../images/p1.jpg" style="width:100%"></div>
-          <h4 slot="header" style="margin:0;">header slot</h4>
-          <div>
-            Body 内容<br>
-            Body 内容<br>
-            Body 内容
-          </div>
-        </bl-card>
-      </div>
+        <div data-codesource="html">
+          <bl-card style="width:310px">
+            <div slot="cover"><img src="../images/p1.jpg" style="width:100%"></div>
+            <h4 slot="header" style="margin:0;">header slot</h4>
+            <div>
+              Body 内容<br>
+              Body 内容<br>
+              Body 内容
+            </div>
+          </bl-card>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
-      
-      <h3>Attrs / Props</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>shadow</td>
-            <td>'hover' | 'always'</td>
-            <td></td>
-            <td>阴影模式，默认无阴影，设置为 'hover' 则鼠标移上去会显示阴影，设置为 'always'，则总是显示阴影。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>size</td>
-            <td>'small' | 'large'</td>
-            <td></td>
-            <td>默认无设置则为中等尺寸。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
 
-      <h3>Slots</h3>
-      <table class="api-slots">
-        <thead>
-          <tr>
-            <th>slot 名称</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>cover</td>
-            <td>封面图</td>
-          </tr>
-          <tr>
-            <td>header</td>
-            <td>标题栏</td>
-          </tr>
-          <tr>
-            <td>footer</td>
-            <td>底部容器</td>
-          </tr>
-          <tr>
-            <td>default</td>
-            <td>主体内容</td>
-          </tr>
-        </tbody>
-      </table>
-
+        <h3>Attrs / Props</h3>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>shadow</td>
+              <td>shadow</td>
+              <td>'hover' | 'always'</td>
+              <td>无</td>
+              <td>阴影模式，默认无阴影，设置为 'hover' 则鼠标移上去会显示阴影，设置为 'always'，则总是显示阴影。</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>size</td>
+              <td>'small' | 'large'</td>
+              <td>无</td>
+              <td>默认无设置则为中等尺寸。</td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <h3>Slots</h3>
+        <table class="api-slots">
+          <thead>
+            <tr>
+              <th>slot 名称</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>cover</td>
+              <td>封面图</td>
+            </tr>
+            <tr>
+              <td>header</td>
+              <td>标题栏</td>
+            </tr>
+            <tr>
+              <td>footer</td>
+              <td>底部容器</td>
+            </tr>
+            <tr>
+              <td>default</td>
+              <td>主体内容</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

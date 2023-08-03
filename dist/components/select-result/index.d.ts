@@ -1,23 +1,19 @@
-import type { EnumAttrs } from '../../decorators/attr.js';
 import type { ISelected, ISelectResultComponent, ISelectResultEventMap } from '../../common/connectSelectable.js';
 import '../tag/index.js';
-import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js';
-import { ComponentEventListener } from '../component/Component.js';
-interface BlocksSelectResultEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
+import { BlClearableControlBox, BlClearableControlBoxEventMap } from '../base-clearable-control-box/index.js';
+import { BlComponentEventListener } from '../component/Component.js';
+interface BlSelectResultEventMap extends BlClearableControlBoxEventMap, ISelectResultEventMap {
     search: CustomEvent<{
         value: string;
     }>;
-    'select-result:accept': CustomEvent<{
-        value: ISelected[];
-    }>;
 }
-export interface BlocksSelectResult extends ClearableControlBox, ISelectResultComponent {
-    addEventListener<K extends keyof BlocksSelectResultEventMap>(type: K, listener: ComponentEventListener<BlocksSelectResultEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof BlocksSelectResultEventMap>(type: K, listener: ComponentEventListener<BlocksSelectResultEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlSelectResult extends BlClearableControlBox, ISelectResultComponent {
+    addEventListener<K extends keyof BlSelectResultEventMap>(type: K, listener: BlComponentEventListener<BlSelectResultEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlSelectResultEventMap>(type: K, listener: BlComponentEventListener<BlSelectResultEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksSelectResult extends ClearableControlBox implements ISelectResultComponent {
+export declare class BlSelectResult extends BlClearableControlBox implements ISelectResultComponent {
     #private;
-    accessor size: EnumAttrs['size'];
+    accessor size: MaybeOneOf<['small', 'large']>;
     accessor multiple: boolean;
     accessor searchable: boolean;
     accessor maxTagCount: number;
@@ -30,8 +26,8 @@ export declare class BlocksSelectResult extends ClearableControlBox implements I
     get data(): ISelected[];
     set data(selected: ISelected[]);
     get dataCount(): number;
-    get formatter(): (item: ISelected) => string;
-    set formatter(value: (item: ISelected) => string);
+    get formatter(): (item: ISelected<any>) => string;
+    set formatter(value: (item: ISelected<any>) => string);
     get label(): string;
     get labels(): string[];
     get value(): any | null;

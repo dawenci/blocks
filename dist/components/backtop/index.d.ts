@@ -1,6 +1,7 @@
-import { Component } from '../component/Component.js';
-export declare class BlocksBackTop extends Component {
+import { BlComponent } from '../component/Component.js';
+export declare class BlBackTop extends BlComponent {
     #private;
+    static get role(): string;
     accessor duration: number;
     accessor threshold: number;
     visible: import("../../common/reactive.js").IReactive<boolean>;

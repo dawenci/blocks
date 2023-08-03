@@ -9,7 +9,7 @@ export const style = `
   height: 20px;
   border-radius: 10px;
   contain: content;
-  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
+  transition: color var(--bl-transition-duration, ${__transition_duration}), border-color var(--bl-transition-duration, ${__transition_duration});
   font-size: 0;
 }
 
@@ -49,7 +49,7 @@ export const style = `
   border-radius: 50%;
   background: #fff;
   overflow: hidden;
-  transition: all var(--transition-duration, ${__transition_duration});
+  transition: all var(--bl-transition-duration, ${__transition_duration});
 }
 
 :host([checked]) #layout {
@@ -69,7 +69,7 @@ export const style = `
   opacity: .4;
 }
 :host([disabled]) * {
-  cursor: not-allowed;
+  cursor: default;
 }
 
 :host([size="small"]) {

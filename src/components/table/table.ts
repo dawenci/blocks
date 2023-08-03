@@ -1,20 +1,22 @@
-import type { BlocksTableBody, CellElement } from './body.js'
-import type { BlocksTableHeader, CellElement as HeaderCell } from './header.js'
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import type { BlTableBody, CellElement } from './body.js'
+import type { BlTableHeader, CellElement as HeaderCell } from './header.js'
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
 import type { RowColumn } from './RowColumn.js'
 import type { VirtualItem } from '../vlist/index.js'
 import './body.js'
 import './header.js'
 import '../scrollable/index.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { make } from './RowColumn.js'
 import { onDragMove } from '../../common/onDragMove.js'
+import { prop } from '../../decorators/prop/index.js'
 import { setStyles } from '../../common/style.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { style } from './table.style.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 // let gridId = 0
 
@@ -25,34 +27,37 @@ type EnterCellEvent = {
 
 type ResizeHandler = HTMLElement & { $cell: HeaderCell; column: RowColumn }
 
-export interface BlocksTableEventMap extends ComponentEventMap {
+export interface BlTableEventMap extends BlComponentEventMap {
   layout: CustomEvent
 }
 
-export interface BlocksTable extends Component {
-  $mainHeader: BlocksTableHeader
-  $mainBody: BlocksTableBody
-  $resizeHandle: ResizeHandler
+export interface BlTable extends BlComponent {
   $fixedLeftShadow?: HTMLElement
   $fixedRightShadow?: HTMLElement
 
-  addEventListener<K extends keyof BlocksTableEventMap>(
+  addEventListener<K extends keyof BlTableEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksTableEventMap[K]>,
+    listener: BlComponentEventListener<BlTableEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
-  removeEventListener<K extends keyof BlocksTableEventMap>(
+  removeEventListener<K extends keyof BlTableEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksTableEventMap[K]>,
+    listener: BlComponentEventListener<BlTableEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
 
+// TODO: 数据排序方法
+// TODO: 数据禁止切换激活的检查方法
 @defineClass({
   customElement: 'bl-table',
   styles: [style],
 })
-export class BlocksTable extends Component {
+export class BlTable extends BlComponent {
+  static override get role() {
+    return 'table'
+  }
+
   _data: any
   _columns: RowColumn[] = []
   width?: number
@@ -61,92 +66,48 @@ export class BlocksTable extends Component {
 
   @attr('boolean') accessor border!: boolean
 
-  // 数据排序方法
-  // @Prop({ type: Function }) sortMethod?: (a: any, b: any) => number
+  // columns 先于 data 定义（确保 upgrade 时先 upgrade columns）
+  @prop({
+    get(self) {
+      return self._columns ?? []
+    },
+    set(self, value) {
+      self._columns = (value ?? []).map((options: Partial<RowColumn>) => make(options))
+      self.$mainHeader.columns = value
+      self.$mainBody.columns = value
+      self.render()
+    },
+  })
+  accessor columns!: RowColumn[]
 
-  // 数据禁止切换激活的检查方法
-  // @Prop({ type: Function, default: () => false })
-  // disableActiveMethod
+  @prop({
+    get(self) {
+      return self._data ?? []
+    },
+    set(self, value) {
+      self._data = value
+      self.$mainBody.data = value
+    },
+  })
+  accessor data!: any[]
+
+  @shadowRef('bl-table-header') accessor $mainHeader!: BlTableHeader
+  @shadowRef('bl-table-body') accessor $mainBody!: BlTableBody
+  @shadowRef('#resize-handle') accessor $resizeHandle!: ResizeHandler
 
   constructor() {
     super()
 
     // 表头
-    const $mainHeader = document.createElement('bl-table-header') as BlocksTableHeader
-    $mainHeader.$host = this
-    this.appendShadowChild($mainHeader)
+    this.#setupHeader()
 
     // 表身
-    const $mainBody = document.createElement('bl-table-body') as BlocksTableBody
-    $mainBody.$host = this
-    this.appendShadowChild($mainBody)
+    this.#setupBody()
 
     // 列宽拖拽柄
-    const $resizeHandle = document.createElement('div') as unknown as ResizeHandler
-    $resizeHandle.id = 'resize-handle'
-    this.appendShadowChild($resizeHandle)
+    this.#setupResize()
 
-    // 水平滚动，同步 header 的左右滚动
-    $mainBody.addEventListener('bl:scroll', () => {
-      $mainHeader.viewportScrollLeft = $mainBody.getScrollCross()
-    })
-
-    // 如果存在固定列，渲染投影
-    $mainBody.addEventListener('bl:change:can-scroll-left', () => {
-      this._updateFiexedColumnShadow()
-    })
-    $mainBody.addEventListener('bl:change:can-scroll-right', () => {
-      this._updateFiexedColumnShadow()
-    })
-
-    // hover header 渲染拖拽柄
-    $mainHeader.addEventListener('enter-cell', e => {
-      const { $cell, column } = e.detail
-      // 只允许拖拽调整末级列
-      if (column.resizable && !column.children?.length && !this.classList.contains('resizing')) {
-        $resizeHandle.$cell = $cell
-        $resizeHandle.column = column
-        setStyles($resizeHandle, {
-          height: $cell.offsetHeight + 'px',
-          left: $cell.offsetLeft + $cell.clientWidth - $mainHeader.viewportScrollLeft - 3 + 'px',
-          top: $cell.offsetTop + 'px',
-        })
-      }
-    })
-
-    $mainHeader.addEventListener('sort', (e: any) => {
-      const column = e.detail.column
-      $mainBody.sortField = column.prop
-      $mainBody.sortOrder = column.sortOrder
-    })
-
-    this.$mainHeader = $mainHeader
-    this.$mainBody = $mainBody
-    this.$resizeHandle = $resizeHandle
-
-    this._initResizeEvent()
-
-    this.#setupBorder()
-  }
-
-  get data() {
-    return this._data ?? []
-  }
-
-  set data(value) {
-    this._data = value
-    this.$mainBody.data = value
-  }
-
-  get columns() {
-    return this._columns ?? []
-  }
-
-  set columns(value) {
-    this._columns = (value ?? []).map((options: Partial<RowColumn>) => make(options))
-    this.$mainHeader.columns = value
-    this.$mainBody.columns = value
-    this._updateFiexedColumnShadow()
+    this.#setupFixedColumnShadow()
   }
 
   // 当前的激活行
@@ -162,80 +123,198 @@ export class BlocksTable extends Component {
 
   resizeStartOffset = 0
 
-  _updateFiexedColumnShadow() {
-    const { $mainBody } = this
-    const leftSize = $mainBody.getFixedLeftShadowPosition()
-    const rightSize = $mainBody.getFixedRightShadowPosition()
+  #setupHeader() {
+    const $mainHeader = document.createElement('bl-table-header') as BlTableHeader
+    $mainHeader.$host = this
+    this.appendShadowChild($mainHeader)
 
-    if (leftSize && $mainBody.$viewport.canScrollLeft) {
-      if (!this.$fixedLeftShadow) {
-        this.$fixedLeftShadow = document.createElement('div')
-        this.$fixedLeftShadow.id = 'fixed-left-shadow'
-      }
-      if (!this.$fixedLeftShadow.parentNode) {
-        this.shadowRoot!.appendChild(this.$fixedLeftShadow)
-      }
-      this.$fixedLeftShadow.style.left = leftSize - 1 + 'px'
-    } else {
-      if (this.$fixedLeftShadow) {
-        if (this.$fixedLeftShadow.parentNode) {
-          this.shadowRoot!.removeChild(this.$fixedLeftShadow)
-        }
-      }
+    this.$mainHeader.addEventListener('sort', (e: any) => {
+      const column = e.detail.column
+      this.$mainBody.sortField = column.prop
+      this.$mainBody.sortOrder = column.sortOrder
+    })
+
+    const updateHeader = () => this.$mainHeader.render()
+    this.hook.onRender(updateHeader)
+
+    const updateBorder = () => {
+      this.$mainHeader.border = this.border
     }
-
-    if (rightSize && $mainBody.$viewport.canScrollRight) {
-      if (!this.$fixedRightShadow) {
-        this.$fixedRightShadow = document.createElement('div')
-        this.$fixedRightShadow.id = 'fixed-right-shadow'
-      }
-      if (!this.$fixedRightShadow.parentNode) {
-        this.shadowRoot!.appendChild(this.$fixedRightShadow)
-      }
-      this.$fixedRightShadow.style.right = rightSize + 'px'
-    } else {
-      if (this.$fixedRightShadow) {
-        if (this.$fixedRightShadow.parentNode) {
-          this.shadowRoot!.removeChild(this.$fixedRightShadow)
-        }
-      }
-    }
-
-    this.style.minWidth = leftSize + rightSize + 80 + 'px'
+    this.hook.onRender(updateBorder)
+    this.hook.onAttributeChangedDep('border', updateBorder)
+    this.hook.onConnected(updateBorder)
   }
 
-  override render() {
-    super.render()
-    this.$mainHeader.render()
-    this.$mainBody.render()
+  #setupBody() {
+    const $mainBody = document.createElement('bl-table-body') as BlTableBody
+    $mainBody.$host = this
+    this.appendShadowChild($mainBody)
+
+    // 水平滚动，同步 header 的左右滚动
+    this.$mainBody.addEventListener('bl:scroll', () => {
+      this.$mainHeader.viewportScrollLeft = $mainBody.getScrollCross()
+    })
+
+    this.hook.onRender(() => {
+      this.$mainBody.render()
+    })
+
+    const updateBorder = () => {
+      this.$mainBody.border = this.border
+    }
+    this.hook.onRender(updateBorder)
+    this.hook.onAttributeChangedDep('border', updateBorder)
+    this.hook.onConnected(updateBorder)
   }
 
-  _clearResizeHandler?: () => void
-  override connectedCallback() {
-    super.connectedCallback()
-    this.upgradeProperty(['columns', 'data'])
+  #setupResize() {
+    const $resizeHandle = document.createElement('div') as unknown as ResizeHandler
+    $resizeHandle.id = 'resize-handle'
+    this.appendShadowChild($resizeHandle)
 
-    this._clearResizeHandler = sizeObserve(this, () => {
-      this.layout(this.getCanvasWidth())
-      this.render()
-      // 刷新投影座标
-      this._updateFiexedColumnShadow()
+    // hover header 渲染拖拽柄
+    this.$mainHeader.addEventListener('enter-cell', e => {
+      const { $cell, column } = e.detail
+      // 只允许拖拽调整末级列
+      if (column.resizable && !column.children?.length && !this.classList.contains('resizing')) {
+        this.$resizeHandle.$cell = $cell
+        this.$resizeHandle.column = column
+        setStyles(this.$resizeHandle, {
+          height: $cell.offsetHeight + 'px',
+          left: $cell.offsetLeft + $cell.clientWidth - this.$mainHeader.viewportScrollLeft - 3 + 'px',
+          top: $cell.offsetTop + 'px',
+        })
+      }
+    })
+
+    const initEvent = () => {
+      let startX: number
+      let column: RowColumn
+      let $cell: HTMLElement & { column: RowColumn }
+
+      const update = (offset: { x: number }) => {
+        let newX = startX + offset.x
+        if (offset.x < 0) {
+          if (column.width + offset.x < column.minWidth) {
+            newX = startX - (column.width - column.minWidth)
+          }
+        } else {
+          if (column.width + offset.x > column.maxWidth) {
+            newX = startX - (column.width - column.maxWidth)
+          }
+        }
+        return newX
+      }
+
+      return onDragMove(this.$resizeHandle, {
+        onStart: () => {
+          this.classList.add('resizing')
+          startX = parseInt(this.$resizeHandle.style.left, 10)
+          column = this.$resizeHandle.column
+          $cell = this.$resizeHandle.$cell
+        },
+
+        onMove: ({ offset }) => {
+          const newX = update(offset)
+          this.$resizeHandle.style.left = newX + 'px'
+        },
+
+        onEnd: ({ offset }) => {
+          this.classList.remove('resizing')
+          const newX = update(offset)
+          const offsetX = newX - startX
+          if (offsetX !== 0) {
+            column.width += offsetX
+            this.$mainHeader.render()
+            this.$mainBody._resetCalculated()
+            this.$mainBody.redraw()
+            dispatchEvent(this, 'column-resize')
+          }
+        },
+
+        onCancel: () => {
+          this.classList.remove('resizing')
+        },
+      })
+    }
+    let clear: () => void
+    this.hook.onConnected(() => {
+      clear = initEvent()
+    })
+    this.hook.onDisconnected(() => {
+      if (clear) {
+        clear()
+      }
     })
   }
 
-  override disconnectedCallback() {
-    if (this._clearResizeHandler) {
-      this._clearResizeHandler()
-    }
-  }
-
-  #setupBorder() {
+  #setupFixedColumnShadow() {
     const update = () => {
-      this.$mainHeader.border = this.border
-      this.$mainBody.border = this.border
+      const { $mainBody } = this
+      const leftSize = $mainBody.getFixedLeftShadowPosition()
+      const rightSize = $mainBody.getFixedRightShadowPosition()
+
+      if (leftSize && $mainBody.$viewport.canScrollLeft) {
+        if (!this.$fixedLeftShadow) {
+          this.$fixedLeftShadow = document.createElement('div')
+          this.$fixedLeftShadow.id = 'fixed-left-shadow'
+        }
+        if (!this.$fixedLeftShadow.parentNode) {
+          this.shadowRoot!.appendChild(this.$fixedLeftShadow)
+        }
+        this.$fixedLeftShadow.style.left = leftSize - 1 + 'px'
+      } else {
+        if (this.$fixedLeftShadow) {
+          if (this.$fixedLeftShadow.parentNode) {
+            this.shadowRoot!.removeChild(this.$fixedLeftShadow)
+          }
+        }
+      }
+
+      if (rightSize && $mainBody.$viewport.canScrollRight) {
+        if (!this.$fixedRightShadow) {
+          this.$fixedRightShadow = document.createElement('div')
+          this.$fixedRightShadow.id = 'fixed-right-shadow'
+        }
+        if (!this.$fixedRightShadow.parentNode) {
+          this.shadowRoot!.appendChild(this.$fixedRightShadow)
+        }
+        this.$fixedRightShadow.style.right = rightSize + 'px'
+      } else {
+        if (this.$fixedRightShadow) {
+          if (this.$fixedRightShadow.parentNode) {
+            this.shadowRoot!.removeChild(this.$fixedRightShadow)
+          }
+        }
+      }
+
+      this.style.minWidth = leftSize + rightSize + 80 + 'px'
     }
-    this.onAttributeChangedDep('border', update)
-    update()
+
+    // 如果存在固定列，渲染投影
+    this.$mainBody.addEventListener('bl:change:can-scroll-left', () => {
+      update()
+    })
+    this.$mainBody.addEventListener('bl:change:can-scroll-right', () => {
+      update()
+    })
+    this.addEventListener('column-resize', () => {
+      update()
+    })
+
+    let stopObserve: () => void
+    this.hook.onConnected(() => {
+      stopObserve = sizeObserve(this, () => {
+        this.layout(this.getCanvasWidth())
+        this.render()
+        update()
+      })
+    })
+    this.hook.onDisconnected(() => {
+      if (stopObserve) {
+        stopObserve()
+      }
+    })
   }
 
   // 获取（可选过滤条件的）末级列
@@ -428,91 +507,5 @@ export class BlocksTable extends Component {
       }
     }
     loop(rest, columns)
-  }
-
-  // _isFirstColumn(columnId: string) {
-  //   // 检测入口
-  //   let column =
-  //     !this.shouldShowFixedColumns?.() || !this.hasFixedLeft()
-  //       ? // 没固定列
-  //         this.store.columns[0]
-  //       : // 首个固定列
-  //         this.store.columns.find(column => column.fixedLeft)
-
-  //   // 检测是否第一列，或者第一子孙列
-  //   while (column) {
-  //     if (column.columnId === columnId) return true
-  //     column = column.children?.[0]
-  //   }
-  //   return false
-  // }
-
-  // _isLastColumn(columnId: string) {
-  //   // 检测入口
-  //   let column =
-  //     !this.shouldShowFixedColumns?.() || !this.hasFixedRight()
-  //       ? // 没固定列
-  //         this.store.columns[this.store.columns.length - 1]
-  //       : // 最后一个右固定列
-  //         findLast(this.store.columns, column => column.fixedRight)
-
-  //   // 检测是否最后一列，或者最后的子孙列
-  //   while (column) {
-  //     if (column.columnId === columnId) return true
-  //     const children = column.children
-  //     if (!children) return false
-  //     column = children[children.length - 1]
-  //   }
-  //   return false
-  // }
-
-  _initResizeEvent() {
-    let startX: number
-    let column: RowColumn
-    let $cell: HTMLElement & { column: RowColumn }
-
-    const update = (offset: { x: number }) => {
-      let newX = startX + offset.x
-      if (offset.x < 0) {
-        if (column.width + offset.x < column.minWidth) {
-          newX = startX - (column.width - column.minWidth)
-        }
-      } else {
-        if (column.width + offset.x > column.maxWidth) {
-          newX = startX - (column.width - column.maxWidth)
-        }
-      }
-      return newX
-    }
-
-    onDragMove(this.$resizeHandle, {
-      onStart: () => {
-        this.classList.add('resizing')
-        startX = parseInt(this.$resizeHandle.style.left, 10)
-        column = this.$resizeHandle.column
-        $cell = this.$resizeHandle.$cell
-      },
-
-      onMove: ({ offset }) => {
-        const newX = update(offset)
-        this.$resizeHandle.style.left = newX + 'px'
-      },
-
-      onEnd: ({ offset }) => {
-        this.classList.remove('resizing')
-        const newX = update(offset)
-        const offsetX = newX - startX
-        if (offsetX !== 0) {
-          column.width += offsetX
-          this.$mainHeader.render()
-          this.$mainBody._resetCalculated()
-          this.$mainBody.redraw()
-        }
-      },
-
-      onCancel: () => {
-        this.classList.remove('resizing')
-      },
-    })
   }
 }

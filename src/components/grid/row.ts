@@ -1,17 +1,20 @@
-import type { NullableEnumAttr } from '../../decorators/attr.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './row.style.js'
 import { template } from './row.template.js'
-import { BlocksColumn } from './column.js'
-import { Component } from '../component/Component.js'
+import { BlColumn } from './column.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-row',
   styles: [style],
 })
-export class BlocksRow extends Component {
+export class BlRow extends BlComponent {
+  static override get role() {
+    return 'row'
+  }
+
   /** 栅格之间的间隙尺寸 */
   @attr('int') accessor gutter = 0
 
@@ -20,28 +23,28 @@ export class BlocksRow extends Component {
 
   /** 子元素垂直对齐方式 */
   @attr('enum', { enumValues: ['top', 'middle', 'bottom'], observed: false })
-  accessor align!: NullableEnumAttr<['top', 'middle', 'bottom']>
+  accessor align!:  MaybeOneOf<['top', 'middle', 'bottom']>
 
   /** 水平排列方式 */
   @attr('enum', {
     enumValues: ['start', 'end', 'center', 'space-around', 'space-between'],
     observed: false,
   })
-  accessor justify!: NullableEnumAttr<['start', 'end', 'center', 'space-around', 'space-between']>
+  accessor justify!:  MaybeOneOf<['start', 'end', 'center', 'space-around', 'space-between']>
 
   @shadowRef('slot') accessor $slot!: HTMLSlotElement
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
+
+    this.appendShadowChild(template())
 
     this.#setupGutter()
   }
 
   #setupGutter() {
     const _renderGutter = () => {
-      const cols = this.$slot.assignedElements() as BlocksColumn[]
+      const cols = this.$slot.assignedElements() as BlColumn[]
 
       if (this.gutter) {
         const half = this.gutter / 2
@@ -61,11 +64,11 @@ export class BlocksRow extends Component {
       }
     }
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       _renderGutter()
     })
 
-    this.onAttributeChangedDep('gutter', () => {
+    this.hook.onAttributeChangedDep('gutter', () => {
       _renderGutter()
     })
   }

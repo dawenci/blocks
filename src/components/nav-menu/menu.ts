@@ -1,31 +1,36 @@
-import type { BlocksNavMenuItem } from './menu-item.js'
-import type { EnumAttrs } from '../../decorators/attr.js'
+import type { BlNavMenuItem } from './menu-item.js'
+import type { BlPopup } from '../popup/popup.js'
 import './menu-group.js'
 import './menu-item.js'
-import { attr, attrs } from '../../decorators/attr.js'
+import '../tooltip/index.js'
+import { append, unmount } from '../../common/mount.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
+import { boolGetter, boolSetter } from '../../common/property.js'
 import { contentTemplate, groupTemplate, itemTemplate } from './menu.template.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { forEach } from '../../common/utils.js'
 import { style } from './menu.style.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
+import { PopupOrigin } from '../popup/origin.js'
 
-// TODO: collapse 模式，tooltip 显示一级菜单文本
-// TODO: collapse 和 inline 互斥，inline 和 horizontal 互斥
-// TODO: 解决 Firefox 不支持 :host-context 样式的问题
+export interface BlNavMenu extends BlComponent {
+  $tooltip?: BlPopup
+}
+
 @defineClass({
   customElement: 'bl-nav-menu',
   styles: [style],
 })
-export class BlocksNavMenu extends Component {
-  static get role() {
-    return 'navigation'
+export class BlNavMenu extends BlComponent {
+  static override get role() {
+    return 'menu'
   }
 
   @attr('number') accessor enterDelay = 150
 
   @attr('number') accessor leaveDelay = 200
 
-  @attrs.size accessor size!: EnumAttrs['size']
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
 
   @attr('int') accessor level = 0
 
@@ -33,21 +38,56 @@ export class BlocksNavMenu extends Component {
 
   @attr('boolean') accessor expand!: boolean
 
-  @attr('boolean') accessor inline!: boolean
+  @attr('boolean', {
+    get(self) {
+      return boolGetter('inline')(self)
+    },
+    set(self, value) {
+      boolSetter('inline')(self, value)
+      if (value) {
+        boolSetter('horizontal')(self, false)
+        boolSetter('collapse')(self, false)
+      }
+    },
+  })
+  accessor inline!: boolean
 
-  @attr('boolean') accessor horizontal!: boolean
+  @attr('boolean', {
+    get(self) {
+      return boolGetter('horizontal')(self)
+    },
+    set(self, value) {
+      boolSetter('horizontal')(self, value)
+      if (value) {
+        boolSetter('inline')(self, false)
+        boolSetter('collapse')(self, false)
+      }
+    },
+  })
+  accessor horizontal!: boolean
 
-  @attr('boolean') accessor collapse!: boolean
+  @attr('boolean', {
+    get(self) {
+      return boolGetter('collapse')(self)
+    },
+    set(self, value) {
+      boolSetter('collapse')(self, value)
+      if (value) {
+        boolSetter('inline')(self, false)
+        boolSetter('horizontal')(self, false)
+      }
+    },
+  })
+  accessor collapse!: boolean
 
   _data: (MenuItem | MenuGroup)[]
-  $parentMenu?: BlocksNavMenu
-  $parentItem?: BlocksNavMenuItem
+  $parentMenu?: BlNavMenu
+  $parentItem?: BlNavMenuItem
 
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(contentTemplate())
+    this.appendShadowChild(contentTemplate())
 
     this._data = []
 
@@ -61,16 +101,18 @@ export class BlocksNavMenu extends Component {
       }
     }
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.render()
       this.addEventListener('active', onActive)
     })
 
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('active', onActive)
     })
 
-    this.onAttributeChanged(this.render)
+    this.hook.onAttributeChanged(this.render)
+
+    this.#setupAria()
   }
 
   get data() {
@@ -108,6 +150,7 @@ export class BlocksNavMenu extends Component {
         }
         // item
         const $item = itemTemplate()
+        $item.setAttribute('host-context', 'horizontal')
         $item.$hostMenu = this
         $root.appendChild($item)
         $item.data = item as MenuItem
@@ -119,23 +162,27 @@ export class BlocksNavMenu extends Component {
   }
 
   verticalRender() {
+    // 垂直模式时，inline / collapse 互斥
+    const hostContext = this.inline ? 'inline' : this.collapse ? 'collapse' : 'vertical'
     const fragment = document.createDocumentFragment()
     const render = ($root: DocumentFragment, data: (MenuItem | MenuGroup)[] = []) => {
       data.forEach(item => {
-        // 不渲染 group，直接渲染里面的项
         if (isGroup(item)) {
           if (this.collapse) {
+            // 不渲染 group，直接渲染里面的项
             render($root, (item as MenuGroup).data)
           } else {
             const $group = groupTemplate()
             $group.$hostMenu = this
             $group.horizontal = this.horizontal
+            $group.inline = this.inline
             $group.collapse = this.collapse
             $root.appendChild($group)
             $group.data = item as MenuGroup
           }
         } else {
           const $item = itemTemplate()
+          $item.setAttribute('host-context', hostContext)
           $item.$hostMenu = this
           $root.appendChild($item)
           $item.data = item
@@ -145,6 +192,38 @@ export class BlocksNavMenu extends Component {
     render(fragment, this.data)
     this.innerHTML = ''
     this.appendChild(fragment)
+
+    if (this.collapse) {
+      if (!this.$tooltip) {
+        this.$tooltip = document.createElement('bl-popup')
+        this.$tooltip.origin = PopupOrigin.LeftCenter
+        this.$tooltip.style.cssText = 'padding:8px;font-size:14px;'
+        this.$tooltip.arrow = 6
+        append(this.$tooltip, document.body)
+        Array.prototype.forEach.call(this.children, $item => {
+          if ($item.hasSubmenu) return
+          $item.onmouseenter = () => {
+            console.log('mouseenter')
+            if (this.collapse && this.$tooltip) {
+              this.$tooltip.anchorElement = () => $item
+              this.$tooltip.innerText = $item.data.label
+              this.$tooltip.open = true
+            }
+          }
+          $item.onmouseleave = () => {
+            console.log('mouseleave')
+            if (this.$tooltip) {
+              this.$tooltip.open = false
+            }
+          }
+        })
+      }
+    } else {
+      if (this.$tooltip) {
+        unmount(this.$tooltip)
+        this.$tooltip = undefined
+      }
+    }
   }
 
   override render() {
@@ -157,6 +236,15 @@ export class BlocksNavMenu extends Component {
     else {
       this.verticalRender()
     }
+  }
+
+  #setupAria() {
+    const update = () => {
+      this.setAttribute('aria-orientation', this.horizontal ? 'horizontal' : 'vertical')
+    }
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDep('horizontal', update)
   }
 }
 

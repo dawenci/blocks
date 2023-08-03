@@ -1,8 +1,7 @@
-import type { EnumAttrs } from '../../decorators/attr.js'
 import type { ISelected, ISelectResultComponent, ISelectResultEventMap } from '../../common/connectSelectable.js'
 import '../tag/index.js'
-import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js'
-import { attr, attrs } from '../../decorators/attr.js'
+import { append, mountAfter, mountBefore, prepend, unmount } from '../../common/mount.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
 import {
   contentTemplate,
   moreTemplate,
@@ -11,29 +10,28 @@ import {
   tagTemplate,
   valueTextTemplate,
 } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
-import { BlocksTag } from '../tag/index.js'
-import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
-import { ComponentEventListener } from '../component/Component.js'
+import { BlTag } from '../tag/index.js'
+import { BlClearableControlBox, BlClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
+import { BlComponentEventListener } from '../component/Component.js'
 
-interface BlocksSelectResultEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
+interface BlSelectResultEventMap extends BlClearableControlBoxEventMap, ISelectResultEventMap {
   search: CustomEvent<{ value: string }>
-  'select-result:accept': CustomEvent<{ value: ISelected[] }>
 }
 
-export interface BlocksSelectResult extends ClearableControlBox, ISelectResultComponent {
-  addEventListener<K extends keyof BlocksSelectResultEventMap>(
+export interface BlSelectResult extends BlClearableControlBox, ISelectResultComponent {
+  addEventListener<K extends keyof BlSelectResultEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksSelectResultEventMap[K]>,
+    listener: BlComponentEventListener<BlSelectResultEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof BlocksSelectResultEventMap>(
+  removeEventListener<K extends keyof BlSelectResultEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksSelectResultEventMap[K]>,
+    listener: BlComponentEventListener<BlSelectResultEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -42,8 +40,8 @@ export interface BlocksSelectResult extends ClearableControlBox, ISelectResultCo
   customElement: 'bl-select-result',
   styles: [style],
 })
-export class BlocksSelectResult extends ClearableControlBox implements ISelectResultComponent {
-  @attrs.size accessor size!: EnumAttrs['size']
+export class BlSelectResult extends BlClearableControlBox implements ISelectResultComponent {
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
 
   @attr('boolean') accessor multiple!: boolean
 
@@ -62,25 +60,8 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
     super()
 
     this.appendContent(contentTemplate())
-    this._tabIndexFeature
-      .withTabIndex(0)
-      // 有搜索时，焦点设置在搜索框，否则设置在 $layout
-      .withTarget(() => (this.searchable ? [this.$search!] : [this.$layout]))
-      .withPostUpdate(() => {
-        if (this.searchable) {
-          if (this.$layout.tabIndex !== -1) {
-            this.$layout.tabIndex = -1
-          }
-        } else {
-          if (this.$search && this.$search.tabIndex !== -1) {
-            this.$search.tabIndex = -1
-          }
-        }
-      })
-    this.onAttributeChangedDep('searchable', () => {
-      this._tabIndexFeature.update()
-    })
 
+    this.#setupTabindex()
     this.#setupMultiple()
     this.#setupEmptyClass()
     this.#setupPlaceholder()
@@ -90,11 +71,11 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
     this.#setupDeselect()
     this.#setupClear()
 
-    this.onConnected(this.render)
+    this.hook.onConnected(this.render)
   }
 
   // 记录 multiple 模式下，tag 对应的 value
-  #tagSelectedMap = new WeakMap<BlocksTag, ISelected>()
+  #tagSelectedMap = new WeakMap<BlTag, ISelected>()
 
   #data: ISelected[] = []
   get data() {
@@ -104,6 +85,7 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
   set data(selected: ISelected[]) {
     this.#data = selected
     this._reanderData()
+    this._emptyFeature.update()
   }
 
   get dataCount() {
@@ -144,23 +126,42 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
     } else {
       this.data = selected.slice(0, 1)
     }
-    dispatchEvent(this, 'select-result:accept', { detail: { value: this.data } })
+    dispatchEvent(this, 'select-result:after-accept-selected')
+  }
+
+  #setupTabindex() {
+    this._tabIndexFeature
+      .withTabIndex(0)
+      // 有搜索时，焦点设置在搜索框，否则设置在 $layout
+      .withTarget(() => (this.searchable ? [this.$search!] : [this.$layout]))
+      .withPostUpdate(() => {
+        if (this.searchable) {
+          this.$layout.removeAttribute('tabindex')
+        } else {
+          if (this.$search) {
+            this.$search.removeAttribute('tabindex')
+          }
+        }
+      })
+    this.hook.onAttributeChangedDep('searchable', () => {
+      this._tabIndexFeature.update()
+    })
   }
 
   #setupEmptyClass() {
     this._emptyFeature.withPredicate(() => !this.dataCount)
     const render = () => this._emptyFeature.update()
-    this.onRender(render)
-    this.onConnected(render)
-    this.onConnected(() => {
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
+    this.hook.onConnected(() => {
       this.addEventListener('select-result:clear', render)
       this.addEventListener('select-result:deselect', render)
-      this.addEventListener('select-result:accept', render)
+      this.addEventListener('select-result:after-accept-selected', render)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('select-result:clear', render)
       this.removeEventListener('select-result:deselect', render)
-      this.removeEventListener('select-result:accept', render)
+      this.removeEventListener('select-result:after-accept-selected', render)
     })
   }
 
@@ -169,9 +170,9 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
       this.$layout.classList.toggle('single', !this.multiple)
       this.$layout.classList.toggle('multiple', this.multiple)
     }
-    this.onRender(render)
-    this.onConnected(render)
-    this.onAttributeChangedDep('multiple', render)
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
+    this.hook.onAttributeChangedDep('multiple', render)
   }
 
   #setupPlaceholder() {
@@ -189,9 +190,9 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
         }
       }
     }
-    this.onRender(render)
-    this.onConnected(render)
-    this.onAttributeChangedDeps(['placeholder', 'prefix-icon', 'loading'], render)
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
+    this.hook.onAttributeChangedDeps(['placeholder', 'prefix-icon', 'loading'], render)
   }
 
   #setupClear() {
@@ -202,10 +203,10 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
     }
 
     // 点击清空按钮，发出清空事件，方便候选列表清理
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('click-clear', notifyClear)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('click-clear', notifyClear)
     })
   }
@@ -218,20 +219,20 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
     }
     // 点击 tag 上的 close 按钮，发出取消选择事件，方便候选列表取消选中状态
     const onDeselect = (e: Event) => {
-      const $tag = e.target as BlocksTag
+      const $tag = e.target as BlTag
       notifyDeselect(this.#tagSelectedMap.get($tag)!)
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$layout.addEventListener('close', onDeselect)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$layout.removeEventListener('close', onDeselect)
     })
   }
 
   #setupSearch() {
-    this.onRender(this._renderSearchable)
-    this.onAttributeChangedDep('searchable', this._renderSearchable)
+    this.hook.onRender(this._renderSearchable)
+    this.hook.onAttributeChangedDep('searchable', this._renderSearchable)
     this.addEventListener('select-result:search', e => {
       this.$layout.classList.toggle('searching', !!e.detail.searchString.length)
     })
@@ -245,11 +246,7 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
     if (this.searchable) {
       if (!this.$search) {
         const $search = searchTemplate()
-        if (this.$valueText) {
-          mountBefore($search, this.$valueText)
-        } else {
-          append($search, this.$content)
-        }
+        prepend($search, this.$content)
         this._tabIndexFeature.update()
       }
     } else {
@@ -273,8 +270,8 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
   }
 
   #setupData() {
-    this.onRender(this._reanderData)
-    this.onAttributeChangedDep('max-tag-count', this._reanderData)
+    this.hook.onRender(this._reanderData)
+    this.hook.onAttributeChangedDep('max-tag-count', this._reanderData)
   }
 
   _reanderData() {
@@ -312,11 +309,7 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
     }
     while ($tags.length < tagCount) {
       const $tag = tagTemplate()
-      if (this.$search) {
-        mountBefore($tag, this.$search)
-      } else {
-        append($tag, this.$content)
-      }
+      append($tag, this.$content)
     }
     // 更新 tag 内容
     for (let i = 0; i < tagCount; i += 1) {
@@ -350,6 +343,6 @@ export class BlocksSelectResult extends ClearableControlBox implements ISelectRe
   }
 
   #setupSize() {
-    this.onAttributeChangedDep('size', this.render)
+    this.hook.onAttributeChangedDep('size', this.render)
   }
 }

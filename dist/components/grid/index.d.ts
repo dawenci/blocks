@@ -1,2 +1,2 @@
-export { BlocksRow } from './row.js';
-export { BlocksColumn } from './column.js';
+export { BlRow } from './row.js';
+export { BlColumn } from './column.js';

@@ -1,20 +1,20 @@
-import type { ComponentEventListener } from '../component/Component.js';
+import type { BlComponentEventListener } from '../component/Component.js';
 import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js';
 import '../icon/index.js';
 import '../loading/index.js';
-import { Control } from '../base-control/index.js';
+import { BlControl } from '../base-control/index.js';
 import { WithOpenTransition } from '../with-open-transition/index.js';
 type ImageTransformStates = Map<HTMLImageElement, {
     scale: number;
     rotate: number;
 }>;
-export type BlocksImageViewerEventMap = WithOpenTransitionEventMap;
-export interface BlocksImageViewer extends Control, WithOpenTransition {
+export type BlImageViewerEventMap = WithOpenTransitionEventMap;
+export interface BlImageViewer extends BlControl, WithOpenTransition {
     imgMap: ImageTransformStates;
-    addEventListener<K extends keyof BlocksImageViewerEventMap>(type: K, listener: ComponentEventListener<BlocksImageViewerEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof BlocksImageViewerEventMap>(type: K, listener: ComponentEventListener<BlocksImageViewerEventMap[K]>, options?: boolean | EventListenerOptions): void;
+    addEventListener<K extends keyof BlImageViewerEventMap>(type: K, listener: BlComponentEventListener<BlImageViewerEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlImageViewerEventMap>(type: K, listener: BlComponentEventListener<BlImageViewerEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksImageViewer extends Control {
+export declare class BlImageViewer extends BlControl {
     #private;
     accessor closeOnClickMask: boolean;
     accessor closeOnPressEscape: boolean;

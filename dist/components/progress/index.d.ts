@@ -1,15 +1,9 @@
-import type { NullableEnumAttr } from '../../decorators/attr.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 declare const status: string[];
-export interface BlocksProgress extends Component {
-    _ref: {
-        $progress: HTMLElement;
-        $value: HTMLElement;
-    };
-}
-export declare class BlocksProgress extends Component {
+export declare class BlProgress extends BlComponent {
+    static get role(): string;
     accessor value: number | null;
-    accessor status: NullableEnumAttr<typeof status>;
+    accessor status: MaybeOneOf<typeof status>;
     accessor percentage: boolean;
     accessor $progress: HTMLElement;
     accessor $value: HTMLElement;

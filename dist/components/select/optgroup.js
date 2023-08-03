@@ -32,10 +32,10 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { Component } from '../component/Component.js';
-export let BlocksOptGroup = (() => {
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { BlComponent } from '../component/Component.js';
+export let BlOptGroup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-optgroup',
         })];
@@ -47,14 +47,14 @@ export let BlocksOptGroup = (() => {
     let _label_initializers = [];
     let _disabled_decorators;
     let _disabled_initializers = [];
-    var BlocksOptGroup = class extends Component {
+    var BlOptGroup = class extends BlComponent {
         static {
             _label_decorators = [attr('string')];
             _disabled_decorators = [attr('boolean')];
             __esDecorate(this, null, _label_decorators, { kind: "accessor", name: "label", static: false, private: false, access: { has: obj => "label" in obj, get: obj => obj.label, set: (obj, value) => { obj.label = value; } } }, _label_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _disabled_decorators, { kind: "accessor", name: "disabled", static: false, private: false, access: { has: obj => "disabled" in obj, get: obj => obj.disabled, set: (obj, value) => { obj.disabled = value; } } }, _disabled_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksOptGroup = _classThis = _classDescriptor.value;
+            BlOptGroup = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #label_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _label_initializers, void 0));
@@ -65,9 +65,9 @@ export let BlocksOptGroup = (() => {
         set disabled(value) { this.#disabled_accessor_storage = value; }
         constructor() {
             super();
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
         }
     };
-    return BlocksOptGroup = _classThis;
+    return BlOptGroup = _classThis;
 })();

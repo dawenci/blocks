@@ -32,13 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './row.style.js';
 import { template } from './row.template.js';
-import { Component } from '../component/Component.js';
-export let BlocksRow = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlRow = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-row',
             styles: [style],
@@ -57,7 +57,7 @@ export let BlocksRow = (() => {
     let _justify_initializers = [];
     let _$slot_decorators;
     let _$slot_initializers = [];
-    var BlocksRow = class extends Component {
+    var BlRow = class extends BlComponent {
         static {
             _gutter_decorators = [attr('int')];
             _wrap_decorators = [attr('boolean', { observed: false })];
@@ -73,8 +73,11 @@ export let BlocksRow = (() => {
             __esDecorate(this, null, _justify_decorators, { kind: "accessor", name: "justify", static: false, private: false, access: { has: obj => "justify" in obj, get: obj => obj.justify, set: (obj, value) => { obj.justify = value; } } }, _justify_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksRow = _classThis = _classDescriptor.value;
+            BlRow = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'row';
         }
         #gutter_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _gutter_initializers, 0));
         get gutter() { return this.#gutter_accessor_storage; }
@@ -93,8 +96,7 @@ export let BlocksRow = (() => {
         set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
+            this.appendShadowChild(template());
             this.#setupGutter();
         }
         #setupGutter() {
@@ -118,13 +120,13 @@ export let BlocksRow = (() => {
                     });
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 _renderGutter();
             });
-            this.onAttributeChangedDep('gutter', () => {
+            this.hook.onAttributeChangedDep('gutter', () => {
                 _renderGutter();
             });
         }
     };
-    return BlocksRow = _classThis;
+    return BlRow = _classThis;
 })();

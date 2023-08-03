@@ -1,1 +1,1 @@
-export declare const clearTemplate: () => HTMLButtonElement;
+export declare const clearTemplate: () => import("../close-button/index").BlCloseButton;

@@ -1,3 +1,2 @@
-import type { BlocksPopup } from '../popup/index.js';
-export declare const resultTemplate: () => HTMLElement;
-export declare const popupTemplate: () => BlocksPopup;
+export declare const resultTemplate: () => import("../select-result/index").BlSelectResult;
+export declare const popupTemplate: () => import("../popup/popup").BlPopup;

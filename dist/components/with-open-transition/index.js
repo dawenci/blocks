@@ -32,12 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js';
 import { style } from './style.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 export let WithOpenTransition = (() => {
     let _classDecorators = [defineClass({
             styles: [style],
@@ -50,7 +50,7 @@ export let WithOpenTransition = (() => {
     let _open_initializers = [];
     let _openTransitionName_decorators;
     let _openTransitionName_initializers = [];
-    var WithOpenTransition = class extends Component {
+    var WithOpenTransition = class extends BlComponent {
         static {
             _open_decorators = [attr('boolean')];
             _openTransitionName_decorators = [attr('string', { defaults: 'zoom' })];
@@ -84,11 +84,11 @@ export let WithOpenTransition = (() => {
                     },
                 });
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 if (this.open)
                     _onOpenAttributeChange();
             });
-            this.onAttributeChangedDep('open', _onOpenAttributeChange);
+            this.hook.onAttributeChangedDep('open', _onOpenAttributeChange);
         }
     };
     return WithOpenTransition = _classThis;

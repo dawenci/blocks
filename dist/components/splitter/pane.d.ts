@@ -1,6 +1,5 @@
-import { Component } from '../component/Component.js';
-export declare class BlocksSplitterPane extends Component {
-    static get observedAttributes(): string[];
+import { BlComponent } from '../component/Component.js';
+export declare class BlSplitterPane extends BlComponent {
     accessor basis: number;
     accessor grow: number;
     accessor shrink: number;

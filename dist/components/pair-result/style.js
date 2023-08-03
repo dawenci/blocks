@@ -1,19 +1,12 @@
 import { __fg_base, __height_base } from '../../theme/var-light.js';
 export const style = `
-:host(:focus),
-:host(:focus-within),
-:host(:hover) {
-  --fg: var(--fg-base);
-  --bg: var(--bg-base);
-}
-
-#content {
+[part="content"] {
   height: calc(var(--height) - 2px);
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
 }
-input {
+[part="first"], [part="second"] {
   box-sizing: border-box;
   border: 0;
   height: 100%;
@@ -26,34 +19,25 @@ input {
   height: var(--bl-height-base, ${__height_base});
   text-align: center;
 }
-input:hover {
-  background-color: rgba(0, 0, 0, .025);
-}
-input:focus {
+[part="first"]:focus, [part="second"]:focus {
   outline: 0;
 }
-input.active {
+[part="first"]:active, [part="second"]:active {
   color: var(--bl-color-primary-base);
 }
-input::placeholder {
+[part="first"]::placeholder, [part="second"]::placeholder {
   text-align: center;
   color: var(--bl-fg-placeholder);
 }
 
-#first,
-#second {
-  flex: 1 1 auto;
+[part="first"], [part="second"] {
+  flex: 1 1 50%;
+  width: 50%;
 }
-#first.active {
-  background-image: linear-gradient(to right, transparent, var(--bl-bg-hover));
-}
-#second.active {
-  background-image: linear-gradient(to left, transparent, var(--bl-bg-hover));
-}
-#first {
+[part="first"] {
   padding-left: 4px;
 }
-#separator {
+[part="separator"] {
   flex: 0 0 auto;
   margin: auto 4px;
   color: var(--bl-fg-secondary);

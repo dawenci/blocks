@@ -1,13 +1,13 @@
-import type { ComponentEventListener } from '../component/Component.js';
+import type { BlComponentEventListener } from '../component/Component.js';
 import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 import { WithOpenTransition } from '../with-open-transition/index.js';
-export type BlocksModalMaskEventMap = WithOpenTransitionEventMap;
-export interface BlocksModalMask extends Component, WithOpenTransition {
-    addEventListener<K extends keyof BlocksModalMaskEventMap>(type: K, listener: ComponentEventListener<BlocksModalMaskEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof BlocksModalMaskEventMap>(type: K, listener: ComponentEventListener<BlocksModalMaskEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export type BlModalMaskEventMap = WithOpenTransitionEventMap;
+export interface BlModalMask extends WithOpenTransition {
+    addEventListener<K extends keyof BlModalMaskEventMap>(type: K, listener: BlComponentEventListener<BlModalMaskEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlModalMaskEventMap>(type: K, listener: BlComponentEventListener<BlModalMaskEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksModalMask extends Component {
+export declare class BlModalMask extends BlComponent {
     accessor zIndex: number | null;
     connectedCallback(): void;
     _updateScrollLock(): void;

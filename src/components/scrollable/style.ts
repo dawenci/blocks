@@ -39,7 +39,7 @@ export const style = /*css*/ `
   z-index: 1;
   border-radius: 3px;
   user-select: none;
-  transition: opacity var(--transition-duration, ${__transition_duration});
+  transition: opacity var(--bl-transition-duration, ${__transition_duration});
   backgrond: var(--bg-track, transparent);
   cursor: default;
 }
@@ -69,7 +69,7 @@ export const style = /*css*/ `
   border-radius: 3px;
   background: var(--bg-thumb, #000);
   user-select: none;
-  transition: opacity var(--transition-duration, ${__transition_duration});
+  transition: opacity var(--bl-transition-duration, ${__transition_duration});
   opacity: .3;
 }
 #horizontal .thumb {

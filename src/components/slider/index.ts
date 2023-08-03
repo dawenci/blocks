@@ -1,30 +1,26 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { numGetter, numSetter } from '../../common/property.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import { round } from '../../common/utils.js'
 import { setStyles } from '../../common/style.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Control } from '../base-control/index.js'
+import { BlControl } from '../base-control/index.js'
 
 @defineClass({
   customElement: 'bl-slider',
   styles: [style],
 })
-export class BlocksSlider extends Control {
-  static get role() {
+export class BlSlider extends BlControl {
+  static override get role() {
     return 'slider'
   }
 
   static override get observedAttributes() {
     return ['disabled', 'max', 'min', 'size', 'step', 'round', 'value', 'vertical'] as const
-  }
-
-  static override get disableEventTypes() {
-    return ['click', 'keydown', 'touchstart']
   }
 
   @attr('intRange', { min: 1, max: 10 }) accessor shadowSize = 2
@@ -51,15 +47,16 @@ export class BlocksSlider extends Control {
     super()
 
     this.appendShadowChild(template())
+    this._disabledFeature.withDisableEventTypes(['click', 'keydown', 'touchstart'])
     this._tabIndexFeature.withTabIndex(0).withTarget(() => {
       return [this.$point]
     })
 
     this.#setupDragEvents()
 
-    this.onConnected(this.render)
-    this.onAttributeChangedDep('size', this.render)
-    this.onAttributeChangedDep('value', () => {
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChangedDep('size', this.render)
+    this.hook.onAttributeChangedDep('value', () => {
       this.#renderPoint()
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     })
@@ -73,6 +70,8 @@ export class BlocksSlider extends Control {
         this.value -= this.step
       }
     })
+
+    this.#setupAria()
   }
 
   get value() {
@@ -137,7 +136,7 @@ export class BlocksSlider extends Control {
 
     let clear: () => void
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       clear = onDragMove(this.$track, {
         onStart: ({ start, $target, stop }) => {
           if (this.disabled) {
@@ -187,7 +186,7 @@ export class BlocksSlider extends Control {
       })
     })
 
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       clear()
     })
   }
@@ -206,6 +205,15 @@ export class BlocksSlider extends Control {
 
   #posMax() {
     return this.#trackSize() - this.size
+  }
+
+  #setupAria() {
+    const update = () => {
+      this.setAttribute('aria-orientation', this.vertical ? 'vertical' : 'horizontal')
+    }
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDep('vertical', update)
   }
 }
 

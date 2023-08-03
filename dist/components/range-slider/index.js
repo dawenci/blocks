@@ -32,18 +32,18 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { round } from '../../common/utils.js';
 import { setStyles } from '../../common/style.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Control } from '../base-control/index.js';
-export let BlocksRangeSlider = (() => {
+import { BlControl } from '../base-control/index.js';
+export let BlRangeSlider = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-range-slider',
             styles: [style],
@@ -78,7 +78,7 @@ export let BlocksRangeSlider = (() => {
     let _$point2_initializers = [];
     let _$range_decorators;
     let _$range_initializers = [];
-    var BlocksRangeSlider = class extends Control {
+    var BlRangeSlider = class extends BlControl {
         static {
             _shadowSize_decorators = [attr('intRange', { min: 1, max: 10 })];
             _size_decorators = [attr('intRange', { min: 14, max: 100 })];
@@ -107,17 +107,14 @@ export let BlocksRangeSlider = (() => {
             __esDecorate(this, null, _$point2_decorators, { kind: "accessor", name: "$point2", static: false, private: false, access: { has: obj => "$point2" in obj, get: obj => obj.$point2, set: (obj, value) => { obj.$point2 = value; } } }, _$point2_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$range_decorators, { kind: "accessor", name: "$range", static: false, private: false, access: { has: obj => "$range" in obj, get: obj => obj.$range, set: (obj, value) => { obj.$range = value; } } }, _$range_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksRangeSlider = _classThis = _classDescriptor.value;
+            BlRangeSlider = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get role() {
-            return 'slider';
+            return 'range';
         }
         static get observedAttributes() {
             return ['step', 'value'];
-        }
-        static get disableEventTypes() {
-            return ['click', 'keydown', 'touchstart'];
         }
         #shadowSize_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _shadowSize_initializers, 2));
         get shadowSize() { return this.#shadowSize_accessor_storage; }
@@ -165,12 +162,13 @@ export let BlocksRangeSlider = (() => {
                 return [this.$point, this.$point2];
             });
             this.#setupDragEvents();
-            this.onConnected(this.render);
-            this.onAttributeChangedDep('value', () => {
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChangedDep('value', () => {
                 this.#renderPoint();
                 this.#renderRangeLine();
                 dispatchEvent(this, 'change', { detail: { value: this.value } });
             });
+            this.#setupAria();
         }
         #dragging = false;
         get value() {
@@ -334,10 +332,10 @@ export let BlocksRangeSlider = (() => {
                     },
                 });
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 bindEvent();
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 if (clear) {
                     clear();
                     clear = undefined;
@@ -356,8 +354,16 @@ export let BlocksRangeSlider = (() => {
         #trackSize() {
             return parseFloat(getComputedStyle(this.$track).getPropertyValue(this.vertical ? 'height' : 'width'));
         }
+        #setupAria() {
+            const update = () => {
+                this.setAttribute('aria-orientation', this.vertical ? 'vertical' : 'horizontal');
+            };
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDep('vertical', update);
+        }
     };
-    return BlocksRangeSlider = _classThis;
+    return BlRangeSlider = _classThis;
 })();
 function getRatio(current, min, max) {
     const span = max - min;

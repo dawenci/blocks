@@ -1,12 +1,13 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import type { BlControlEventMap } from '../base-control/index.js'
+import type { BlComponentEventListener } from '../component/Component.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { forEach } from '../../common/utils.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlControl } from '../base-control/index.js'
 
 enum State {
   // 初始化状态
@@ -25,21 +26,21 @@ enum State {
   Result = 'Result',
 }
 
-interface CalcEventMap extends ComponentEventMap {
+export interface CalcEventMap extends BlControlEventMap {
   'bl:calc:screen': CustomEvent<{ value: number }>
   'bl:calc:result': CustomEvent<{ value: number }>
 }
 
-export interface BlocksCalc extends Component {
+export interface BlCalc extends BlControl {
   addEventListener<K extends keyof CalcEventMap>(
     type: K,
-    listener: ComponentEventListener<CalcEventMap[K]>,
+    listener: BlComponentEventListener<CalcEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
   removeEventListener<K extends keyof CalcEventMap>(
     type: K,
-    listener: ComponentEventListener<CalcEventMap[K]>,
+    listener: BlComponentEventListener<CalcEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -48,7 +49,7 @@ export interface BlocksCalc extends Component {
   customElement: 'bl-calc',
   styles: [style],
 })
-export class BlocksCalc extends Component {
+export class BlCalc extends BlControl {
   @attr('string') accessor screen = '0'
 
   @shadowRef('#layout') accessor $layout!: HTMLDivElement
@@ -71,18 +72,21 @@ export class BlocksCalc extends Component {
 
   constructor() {
     super()
-    this.shadowRoot!.appendChild(template())
 
-    this.onConnected(() => {
+    this.appendShadowChild(template())
+
+    this._tabIndexFeature.withTarget(() => [this.$layout]).withTabIndex(0)
+
+    this.hook.onConnected(() => {
       this.render()
       this.$layout.onkeypress = this.onKeyPress.bind(this)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$layout.onkeypress = null
     })
 
-    this.onAttributeChanged(this.render)
-    this.onAttributeChangedDep('screen', this.onScreenChange)
+    this.hook.onAttributeChanged(this.render)
+    this.hook.onAttributeChangedDep('screen', this.onScreenChange)
   }
 
   get memoryKeys() {

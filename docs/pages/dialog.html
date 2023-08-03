@@ -20,20 +20,22 @@
       <h1>dialog</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
 
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/dialog/index.js"></script>
-      </div>
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/dialog/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认</h2>
-
-      <div class="case" id="case-default">
+      <bl-card id="case-default">
+        <h2 slot="header" class="section-title">默认</h2>
         <bl-button onclick="document.querySelector('#default').open = !document.querySelector('#default').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -43,13 +45,12 @@
             </div>
           </bl-dialog>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>遮罩</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">遮罩</h2>
         <bl-button onclick="document.querySelector('#mask').open = true">打开</bl-button>
 
         <template data-codesource="html">
@@ -59,13 +60,12 @@
             </div>
           </bl-dialog>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>点击遮罩关闭</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">点击遮罩关闭</h2>
         <bl-button onclick="document.querySelector('#mask-close').open = true">打开</bl-button>
 
         <template data-codesource="html">
@@ -75,14 +75,13 @@
             </div>
           </bl-dialog>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>点击外部关闭</h2>
-
-      <div class="case" id="case-clickOutside">
+      <bl-card id="case-clickOutside">
+        <h2 slot="header" class="section-title">点击外部关闭</h2>
         <bl-button onclick="document.querySelector('#clickOutside').open = !document.querySelector('#clickOutside').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -92,14 +91,13 @@
             </div>
           </bl-dialog>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>Esc 关闭</h2>
-
-      <div class="case" id="case-close-on-press-escape">
+      <bl-card id="case-close-on-press-escape">
+        <h2 slot="header" class="section-title">Esc 关闭</h2>
         <bl-button onclick="document.querySelector('#close-on-press-escape').open = !document.querySelector('#close-on-press-escape').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -109,14 +107,13 @@
             </div>
           </bl-dialog>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>限制焦点</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">限制焦点</h2>
         <bl-button onclick="document.getElementById('capturefocus').open = !document.getElementById('capturefocus').open">打开 / 关闭</bl-button>
         <bl-button onclick="document.getElementById('capturefocus').capturefocus = !document.getElementById('capturefocus').capturefocus">切换状态</bl-button>
 
@@ -134,14 +131,13 @@
               <input value='slot="footer"'>
             </div>
           </bl-dialog>
-        </div>
+        </bl-card>
       </template>
     </section>
 
     <section class="section">
-      <h2>插入到 body</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">插入到 body</h2>
         <bl-button onclick="document.getElementById('appendToBody').open = !document.getElementById('appendToBody').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -149,13 +145,12 @@
             <div style="padding:50px;">parent 为 body</div>
           </bl-dialog>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>header slot</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">header slot</h2>
         <bl-button onclick="document.getElementById('slot-header').open = !document.getElementById('slot-header').open">打开 / 关闭</bl-button>
 
         <template data-codesource="html">
@@ -169,13 +164,12 @@
             </div>
           </bl-dialog>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>footer slot</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">footer slot</h2>
         <bl-button onclick="document.getElementById('slot-footer').open = true">打开3</bl-button>
 
         <template data-codesource="html">
@@ -190,112 +184,142 @@
               </bl-button>
             </div>
           </bl-dialog>
-
-          
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
 
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>capturefocus</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否捕获焦点。如果是，tab 键不会将焦点移出 Dialog。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>closeable</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否提供关闭按钮。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>mask</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否显示遮罩。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>open</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>对话框的打开状态。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>title-text</td>
-            <td>string</td>
-            <td></td>
-            <td>对话框的标题</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <h3>Attrs / Props</h3>
 
-      <h3>Slots</h3>
-      <table class="api-slots">
-        <thead>
-          <tr>
-            <th>slot 名称</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>header</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>footer</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>default</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>capturefocus</td>
+              <td>capturefocus</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否捕获焦点。如果是，tab 键不会将焦点移出 Dialog。</td>
+            </tr>
+            <tr>
+              <td>closeable</td>
+              <td>closeable</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否提供关闭按钮。</td>
+            </tr>
+            <tr>
+              <td>close-on-click-mask</td>
+              <td>closeOnClickMask</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>点击遮罩时关闭。</td>
+            </tr>
+            <tr>
+              <td>close-on-click-outside</td>
+              <td>closeOnClickOutside</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>点击对话框外部时关闭。</td>
+            </tr>
+            <tr>
+              <td>close-on-press-escape</td>
+              <td>closeOnPressEscape</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>按下 Esc 时关闭。</td>
+            </tr>
+            <tr>
+              <td>mask</td>
+              <td>mask</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否显示遮罩。</td>
+            </tr>
+            <tr>
+              <td>open</td>
+              <td>open</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>对话框的打开状态。</td>
+            </tr>
+            <tr>
+              <td>title-text</td>
+              <td>titleText</td>
+              <td>string</td>
+              <td>无</td>
+              <td>对话框的标题。</td>
+            </tr>
+            <tr>
+              <td>unmount-on-closed</td>
+              <td>unmountOnClosed</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>关闭时自动卸载 DOM。</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Slots</h3>
 
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>closed</td>
-            <td></td>
-            <td>对话框关闭时触发。</td>
-          </tr>
-          <tr>
-            <td>opened</td>
-            <td></td>
-            <td>对话框打开时触发。</td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="api-slots">
+          <thead>
+            <tr>
+              <th>slot 名称</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>header</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>footer</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>default</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Events</h3>
 
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>closed</td>
+              <td>CustomEvent</td>
+              <td>对话框关闭时触发。</td>
+            </tr>
+            <tr>
+              <td>opened</td>
+              <td>CustomEvent</td>
+              <td>对话框打开时触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

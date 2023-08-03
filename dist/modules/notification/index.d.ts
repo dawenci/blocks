@@ -9,7 +9,7 @@ type NotifyOptions = {
     placement?: NotificationPlacement;
 };
 export declare function blNotify(options?: NotifyOptions): {
-    el: import("../../components/notification/notification").BlocksNotification;
+    el: import("../../components/notification/notification").BlNotification;
     close(): any;
     onclose(callback: () => void): any;
 };

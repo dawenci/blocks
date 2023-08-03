@@ -48,7 +48,7 @@ button {
   cursor: pointer;
   color: var(--bl-fg-base, ${__fg_base});
   fill: var(--bl-fg-base, ${__fg_base});
-  transition: all var(--transition-duration, ${__transition_duration});
+  transition: all var(--bl-transition-duration, ${__transition_duration});
 }
 button.current {
   color: var(--bl-color-primary-base, ${__color_primary});

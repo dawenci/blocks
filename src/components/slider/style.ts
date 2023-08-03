@@ -13,7 +13,7 @@ export const style = /*css*/ `
   display: inline-block;
   align-items: center;
   text-align: center;
-  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
+  transition: color var(--bl-transition-duration, ${__transition_duration}), border-color var(--bl-transition-duration, ${__transition_duration});
   font-size: 0;
   width: 118px;
   height: auto;
@@ -67,7 +67,7 @@ export const style = /*css*/ `
   background-color: rgba(0,0,0,.05);
   border-radius: 2px;
   overflow: hidden;
-  transition: all var(--transition-duration, ${__transition_duration});
+  transition: all var(--bl-transition-duration, ${__transition_duration});
 }
 :host([vertical]) #track__bg {
   width: 4px;
@@ -100,7 +100,7 @@ export const style = /*css*/ `
   border-radius: 50%;
   border: 2px solid var(--bl-color-primary-base, ${__color_primary});
   background: #fff;
-  transition: border-color var(--transition-duration, ${__transition_duration});
+  transition: border-color var(--bl-transition-duration, ${__transition_duration});
 }
 :host([vertical]) #point {
   top: auto;

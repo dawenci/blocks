@@ -32,17 +32,18 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { onDragMove } from '../../common/onDragMove.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
 import { style } from './splitter.style.js';
 import { template } from './splitter.template.js';
 import { template as handleTemplate } from './handle.template.js';
-import { BlocksSplitterPane } from './pane.js';
-import { Component } from '../component/Component.js';
-export let BlocksSplitter = (() => {
+import { BlSplitterPane } from './pane.js';
+import { BlComponent } from '../component/Component.js';
+export let BlSplitter = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-splitter',
             styles: [style],
@@ -55,14 +56,30 @@ export let BlocksSplitter = (() => {
     let _direction_initializers = [];
     let _handleSize_decorators;
     let _handleSize_initializers = [];
-    var BlocksSplitter = class extends Component {
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    let _$panes_decorators;
+    let _$panes_initializers = [];
+    let _$cover_decorators;
+    let _$cover_initializers = [];
+    let _$slot_decorators;
+    let _$slot_initializers = [];
+    var BlSplitter = class extends BlComponent {
         static {
             _direction_decorators = [attr('enum', { enumValues: ['horizontal', 'vertical'] })];
             _handleSize_decorators = [attr('int')];
+            _$layout_decorators = [shadowRef('[part="layout"]')];
+            _$panes_decorators = [shadowRef('[part="panes"]')];
+            _$cover_decorators = [shadowRef('[part="cover"]')];
+            _$slot_decorators = [shadowRef('[part="default-slot"]')];
             __esDecorate(this, null, _direction_decorators, { kind: "accessor", name: "direction", static: false, private: false, access: { has: obj => "direction" in obj, get: obj => obj.direction, set: (obj, value) => { obj.direction = value; } } }, _direction_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _handleSize_decorators, { kind: "accessor", name: "handleSize", static: false, private: false, access: { has: obj => "handleSize" in obj, get: obj => obj.handleSize, set: (obj, value) => { obj.handleSize = value; } } }, _handleSize_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$panes_decorators, { kind: "accessor", name: "$panes", static: false, private: false, access: { has: obj => "$panes" in obj, get: obj => obj.$panes, set: (obj, value) => { obj.$panes = value; } } }, _$panes_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$cover_decorators, { kind: "accessor", name: "$cover", static: false, private: false, access: { has: obj => "$cover" in obj, get: obj => obj.$cover, set: (obj, value) => { obj.$cover = value; } } }, _$cover_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksSplitter = _classThis = _classDescriptor.value;
+            BlSplitter = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #direction_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _direction_initializers, 'horizontal'));
@@ -73,21 +90,27 @@ export let BlocksSplitter = (() => {
         set handleSize(value) { this.#handleSize_accessor_storage = value; }
         panes = [];
         handles = [];
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$panes_accessor_storage = __runInitializers(this, _$panes_initializers, void 0);
+        get $panes() { return this.#$panes_accessor_storage; }
+        set $panes(value) { this.#$panes_accessor_storage = value; }
+        #$cover_accessor_storage = __runInitializers(this, _$cover_initializers, void 0);
+        get $cover() { return this.#$cover_accessor_storage; }
+        set $cover(value) { this.#$cover_accessor_storage = value; }
+        #$slot_accessor_storage = __runInitializers(this, _$slot_initializers, void 0);
+        get $slot() { return this.#$slot_accessor_storage; }
+        set $slot(value) { this.#$slot_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
-            const $layout = shadowRoot.getElementById('layout');
-            const $panes = shadowRoot.getElementById('panes');
-            const $cover = shadowRoot.getElementById('cover');
-            const $slot = $panes.querySelector('slot');
-            this._ref = { $layout, $panes, $cover, $slot };
+            this.appendShadowChild(template());
             this.#setupSlotEvent();
             this.#setupResizeEvents();
             this.#setupSizeObserve();
-            this.onConnected(this.render);
-            this.onAttributeChangedDep('direction', this._renderDirection);
-            this.onAttributeChangedDep('handle-size', this.layout);
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChangedDep('direction', this._renderDirection);
+            this.hook.onAttributeChangedDep('handle-size', this.layout);
         }
         _renderDirection() {
             this.panes.forEach($pane => {
@@ -96,14 +119,14 @@ export let BlocksSplitter = (() => {
             });
         }
         get size() {
-            return this._ref.$panes[this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight'];
+            return this.$panes[this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight'];
         }
         #setupSizeObserve() {
             let clear;
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 clear = sizeObserve(this, this.layout.bind(this));
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 if (clear) {
                     clear();
                     clear = undefined;
@@ -111,7 +134,7 @@ export let BlocksSplitter = (() => {
             });
         }
         renderHandles() {
-            const { $layout, $cover } = this._ref;
+            const { $layout, $cover } = this;
             const count = this.panes.length - 1;
             let len = $layout.querySelectorAll('.handle').length;
             while (len++ < count) {
@@ -247,28 +270,26 @@ export let BlocksSplitter = (() => {
             this.handles.forEach($handle => $handle.classList.remove('active'));
         }
         getHandleIndex($handle) {
-            return Array.prototype.indexOf.call(this._ref.$layout.querySelectorAll('.handle'), $handle);
+            return Array.prototype.indexOf.call(this.$layout.querySelectorAll('.handle'), $handle);
         }
         #setupSlotEvent() {
             const onSlotChange = () => {
-                this.panes = this._ref.$slot
-                    .assignedElements()
-                    .filter($item => $item instanceof BlocksSplitterPane);
+                this.panes = this.$slot.assignedElements().filter($item => $item instanceof BlSplitterPane);
                 this._renderDirection();
                 this.layout();
             };
-            this.onConnected(() => {
-                this._ref.$slot.addEventListener('slotchange', onSlotChange);
+            this.hook.onConnected(() => {
+                this.$slot.addEventListener('slotchange', onSlotChange);
             });
-            this.onDisconnected(() => {
-                this._ref.$slot.removeEventListener('slotchange', onSlotChange);
+            this.hook.onDisconnected(() => {
+                this.$slot.removeEventListener('slotchange', onSlotChange);
             });
         }
         #setupResizeEvents() {
             let startSize = 0;
             let $handle = null;
             let $pane = null;
-            onDragMove(this._ref.$layout, {
+            onDragMove(this.$layout, {
                 onStart: ({ stop, $target }) => {
                     if (!$target.classList.contains('handle')) {
                         return stop();
@@ -365,8 +386,8 @@ export let BlocksSplitter = (() => {
             }
         }
         toggleCover(visible) {
-            this._ref.$cover.style.display = visible ? 'block' : 'none';
+            this.$cover.style.display = visible ? 'block' : 'none';
         }
     };
-    return BlocksSplitter = _classThis;
+    return BlSplitter = _classThis;
 })();

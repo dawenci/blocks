@@ -1,33 +1,32 @@
-import type { ComponentEventListener } from '../component/Component.js'
-import type { EnumAttr } from '../../decorators/attr.js'
+import type { BlComponentEventListener } from '../component/Component.js'
 import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { updateBg } from './bg.js'
-import { prop } from '../../decorators/prop.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { prop } from '../../decorators/prop/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 import { PopupOrigin } from './origin.js'
 import { SetupFocusCapture } from '../setup-focus-capture/index.js'
 import { WithOpenTransition } from '../with-open-transition/index.js'
 
 const originArray = Object.values(PopupOrigin)
 
-export type BlocksPopupEventMap = WithOpenTransitionEventMap
+export type BlPopupEventMap = WithOpenTransitionEventMap
 
-export interface BlocksPopup extends WithOpenTransition {
-  addEventListener<K extends keyof BlocksPopupEventMap>(
+export interface BlPopup extends WithOpenTransition {
+  addEventListener<K extends keyof BlPopupEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksPopupEventMap[K]>,
+    listener: BlComponentEventListener<BlPopupEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof BlocksPopupEventMap>(
+  removeEventListener<K extends keyof BlPopupEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksPopupEventMap[K]>,
+    listener: BlComponentEventListener<BlPopupEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -42,18 +41,14 @@ export interface BlocksPopup extends WithOpenTransition {
   styles: [style],
   mixins: [WithOpenTransition],
 })
-export class BlocksPopup extends Component {
-  static get role() {
-    return 'popup'
-  }
-
+export class BlPopup extends BlComponent {
   /**
    * Popup 的定位原点，决定 Popup 本身用哪个部位去吸附 anchor，以及 Popup 的箭头位置和朝向。
    * 例如，设为 TopStart，代表希望 Popup 的箭头在 Popup 的左上角，箭头方向朝上，箭头紧紧吸附在 anchor 的底部边线外侧（可通过 inset 调整为内侧）。
    * 其中，默认的 Center 是个特殊值，代表希望 Popup 的中心点与 anchor 的中心点重叠，且无需展示箭头，表现为 Popup 在 anchor 里居中。
    */
   @attr('enum', { enumValues: originArray })
-  accessor origin: EnumAttr<typeof originArray> = PopupOrigin.Center
+  accessor origin: OneOf<typeof originArray> = PopupOrigin.Center
 
   /** 在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染） */
   @attr('boolean') accessor inset!: boolean
@@ -111,7 +106,7 @@ export class BlocksPopup extends Component {
     get(self) {
       return self.#anchorElement
     },
-    set: (self, value: (() => HTMLElement) | undefined) => {
+    set(self, value: (() => HTMLElement) | undefined) {
       self.#anchorElement = value
       self.updatePositionAndDirection()
     },
@@ -132,6 +127,7 @@ export class BlocksPopup extends Component {
     this.#setupAppendBody()
     this.#setupAnchorAdsorption()
     this.#setupArrow()
+    this.#setupAria()
   }
 
   #isVerticalFlipped = false
@@ -332,13 +328,13 @@ export class BlocksPopup extends Component {
       if (clear) clear()
       clear = undefined
     }
-    this.onRender(update)
-    this.onConnected(update)
-    this.onAttributeChangedDep('arrow', update)
-    this.onConnected(() => {
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDep('arrow', update)
+    this.hook.onConnected(() => {
       clear = sizeObserve(this.$layout, update)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       cleanup()
     })
   }
@@ -380,13 +376,13 @@ export class BlocksPopup extends Component {
   }
 
   #setupAppendBody() {
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       if (this.appendToBody && this.parentElement !== document.body) {
         document.body.appendChild(this)
       }
     })
 
-    this.onAttributeChangedDep('append-to-body', () => {
+    this.hook.onAttributeChangedDep('append-to-body', () => {
       if (this.appendToBody && this.parentElement !== document.body && document.documentElement.contains(this)) {
         document.body.appendChild(this)
       }
@@ -412,15 +408,15 @@ export class BlocksPopup extends Component {
       window.removeEventListener('resize', refreshPos)
       refreshPos = null
     }
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       _destroyAnchorEvent()
     })
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       if (this.open) {
         _initAnchorEvent()
       }
     })
-    this.onAttributeChangedDep('open', () => {
+    this.hook.onAttributeChangedDep('open', () => {
       if (this.open) {
         _initAnchorEvent()
       } else {
@@ -428,21 +424,20 @@ export class BlocksPopup extends Component {
       }
     })
 
-    this.onRender(this.updatePositionAndDirection)
-    this.onConnected(this.updatePositionAndDirection)
-    this.onAttributeChangedDeps(
+    this.hook.onRender(this.updatePositionAndDirection)
+    this.hook.onConnected(this.updatePositionAndDirection)
+    this.hook.onAttributeChangedDeps(
       [
-        'open',
-        'anchor',
-        'offset-x',
-        'offset-y',
+        'arrow',
         'anchor-x',
         'anchor-y',
         'anchor-width',
         'anchor-height',
         'anchor-selector',
+        'offset-x',
+        'offset-y',
+        'open',
         'origin',
-        'arrow',
       ],
       this.updatePositionAndDirection
     )
@@ -454,8 +449,8 @@ export class BlocksPopup extends Component {
         if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '-1')
       }
     }
-    this.onConnected(initTabIndex)
-    this.onAttributeChangedDeps(['focusable', 'autofocus'], initTabIndex)
+    this.hook.onConnected(initTabIndex)
+    this.hook.onAttributeChangedDeps(['focusable', 'autofocus'], initTabIndex)
 
     let $prevFocus: HTMLElement | null
     const _focus = () => {
@@ -489,12 +484,12 @@ export class BlocksPopup extends Component {
       _blur()
     }
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('opened', onOpened)
       this.addEventListener('closed', onClosed)
     })
 
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('opened', onOpened)
       this.removeEventListener('closed', onClosed)
     })
@@ -506,10 +501,10 @@ export class BlocksPopup extends Component {
     predicate: () => this.open,
     container: () => this.$layout,
     init: () => {
-      this.onConnected(() => {
+      this.hook.onConnected(() => {
         if (this.capturefocus) this._focusCapture.start()
       })
-      this.onAttributeChangedDep('capturefocus', () => {
+      this.hook.onAttributeChangedDep('capturefocus', () => {
         if (this.capturefocus) {
           this._focusCapture.start()
         } else {
@@ -564,6 +559,15 @@ export class BlocksPopup extends Component {
   #isVertical() {
     return this.origin.startsWith('top') || this.origin.startsWith('bottom')
   }
+
+  #setupAria() {
+    const update = () => {
+      this.setAttribute('aria-orientation', this.#isVertical() ? 'vertical' : 'horizontal')
+    }
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDep('origin', update)
+  }
 }
 
 function flipY(y: 'top' | 'center' | 'bottom'): 'top' | 'center' | 'bottom' {
@@ -574,7 +578,7 @@ function flipX(x: 'left' | 'center' | 'right'): 'left' | 'center' | 'right' {
   return x === 'left' ? 'right' : x === 'right' ? 'left' : 'center'
 }
 
-function getOffsetParent(popup: BlocksPopup) {
+function getOffsetParent(popup: BlPopup) {
   let el: HTMLElement | null = popup
   while (el) {
     if (el.offsetParent) {

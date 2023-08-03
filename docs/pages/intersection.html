@@ -17,22 +17,24 @@
     <header>
       <h1>intersection</h1>
     </header>
+
+    <script type="module" src="../../dist/components/card/index.js"></script>
     <script type="module" src="../../dist/components/image/index.js"></script>
 
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/intersection/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/intersection/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>相交检测</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">相交检测</h2>
         <template data-codesource="html">
           <style>
             .container {
@@ -65,14 +67,13 @@
             document.querySelector('.container').addEventListener('intersection', console.log)
           </script>          
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>懒加载</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">懒加载</h2>
         <template data-codesource="html">
           <style>
             .lazy {
@@ -86,12 +87,12 @@
             }
           </style>
           <div class="lazy">
-            <bl-intersection root=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
-            <bl-intersection root=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
-            <bl-intersection root=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
-            <bl-intersection root=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
-            <bl-intersection root=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
-            <bl-intersection root=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
+            <bl-intersection root-selector=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
+            <bl-intersection root-selector=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
+            <bl-intersection root-selector=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
+            <bl-intersection root-selector=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
+            <bl-intersection root-selector=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
+            <bl-intersection root-selector=".lazy"><bl-image manual src="../images/p1.jpg"></bl-image></bl-intersection>
           </div>
           <script>
             document.querySelector('.lazy').addEventListener('intersection', e => {
@@ -102,31 +103,76 @@
             })
           </script>          
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+
+        <h3>Attrs / Props</h3>
+
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>root-selector</td>
+              <td>rootSelector</td>
+              <td>string</td>
+              <td>无</td>
+              <td>root 元素选择器。</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>rootElement</td>
+              <td>() => HTMLElement</td>
+              <td>无</td>
+              <td>root 元素获取函数，优先级高于 root-selector。</td>
+            </tr>
+            <tr>
+              <td>root-margin</td>
+              <td>rootMargin</td>
+              <td>string</td>
+              <td>'0px'</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>threshold</td>
+              <td>threshold</td>
+              <td>number</td>
+              <td>0</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Events</h3>
+
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>intersection</td>
+              <td>CustomEvent&lt;{ entries: IntersectionObserverEntry[]; observer: IntersectionObserver }&gt;</td>
+              <td>元素与指定的 root 元素相交时触发</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
 
     </section>
   </article>

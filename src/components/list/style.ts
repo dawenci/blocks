@@ -36,7 +36,7 @@ export const style = /*css*/ `
 
   --bg-stripe: var(--bl-bg-hover, ${__bg_hover});
   --font-size: var(--bl-font-size-base, ${__font_size_base});
-  --duration: var(--transition-duration, ${__transition_duration});    
+  --duration: var(--bl-transition-duration, ${__transition_duration});    
 }
 
 :host {
@@ -147,7 +147,7 @@ export const style = /*css*/ `
 .item.item[disabled] {
   background-color: var(--item-bg-disabled);
   color: var(--item-fg-disabled);
-  cursor: not-allowed !important;
+  cursor: default;
 }
 :host([disabled]) .item::before,
 :host([disabled]) .item::after,

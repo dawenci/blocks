@@ -18,20 +18,22 @@
       <h1>pagination</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
 
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/pagination/index.js"></script>
-      </div>
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/pagination/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认使用</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认使用</h2>
         <template data-codesource="html">
           <div style="margin:10px;">
             <bl-pagination total="70" page-size="10" current="1"></bl-pagination>
@@ -46,14 +48,13 @@
             <bl-pagination total="850" page-size="10" current="1"></bl-pagination>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>尺寸</h2>
-
-      <div class="case">
-        <template data-codesource="html">          
+      <bl-card>
+        <h2 slot="header" class="section-title">尺寸</h2>
+        <template data-codesource="html">
           <div style="margin:10px;">
             <bl-pagination total="850" page-size="10" current="1"></bl-pagination>
           </div>
@@ -66,70 +67,71 @@
             <bl-pagination size="large" total="850" page-size="10" current="1"></bl-pagination>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
 
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>current</td>
-            <td>number</td>
-            <td>1</td>
-            <td>当前页码。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>disabled</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否禁用。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>page-size</td>
-            <td>number</td>
-            <td>10</td>
-            <td>每页大小。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>page-sizes</td>
-            <td>number</td>
-            <td></td>
-            <td>可选的每页大小数组（未实现）。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>size</td>
-            <td>'small' | 'large'</td>
-            <td></td>
-            <td>组件尺寸，不设置则为中等尺寸。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>total</td>
-            <td>number</td>
-            <td>0</td>
-            <td>总记录数。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>current</td>
+              <td>current</td>
+              <td>number</td>
+              <td>1</td>
+              <td>当前页码。</td>
+            </tr>
+            <tr>
+              <td>disabled</td>
+              <td>disabled</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否禁用。</td>
+            </tr>
+            <tr>
+              <td>page-size</td>
+              <td>pageSize</td>
+              <td>number</td>
+              <td>10</td>
+              <td>每页大小。</td>
+            </tr>
+            <tr>
+              <td>page-sizes</td>
+              <td>pageSizes</td>
+              <td>string</td>
+              <td>无</td>
+              <td>可选的每页大小数组（未实现）。</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>size</td>
+              <td>'small' | 'large'</td>
+              <td>无</td>
+              <td>组件尺寸，不设置则为中等尺寸。</td>
+            </tr>
+            <tr>
+              <td>total</td>
+              <td>total</td>
+              <td>number</td>
+              <td>0</td>
+              <td>总记录数。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

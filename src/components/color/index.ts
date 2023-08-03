@@ -1,33 +1,32 @@
 import type { ColorFormat, ColorTuple4 } from './Color.js'
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
-import type { EnumAttr } from '../../decorators/attr.js'
-import { attr } from '../../decorators/attr.js'
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
+import { attr } from '../../decorators/attr/index.js'
 import { onDragMove } from '../../common/onDragMove.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { round } from '../../common/utils.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { style } from './style.js'
 import { template } from './template.js'
 import { Color } from './Color.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 import { IReactive, reactive, subscribe, unsubscribe } from '../../common/reactive.js'
 
-export interface ColorEventMap extends ComponentEventMap {
+export interface BlColorEventMap extends BlComponentEventMap {
   change: CustomEvent<{ value: string }>
 }
 
-export interface BlocksColor extends Component {
-  addEventListener<K extends keyof ColorEventMap>(
+export interface BlColor extends BlComponent {
+  addEventListener<K extends keyof BlColorEventMap>(
     type: K,
-    listener: ComponentEventListener<ColorEventMap[K]>,
+    listener: BlComponentEventListener<BlColorEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof ColorEventMap>(
+  removeEventListener<K extends keyof BlColorEventMap>(
     type: K,
-    listener: ComponentEventListener<ColorEventMap[K]>,
+    listener: BlComponentEventListener<BlColorEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -38,11 +37,11 @@ const POINT_SIZE = 12
   customElement: 'bl-color',
   styles: [style],
 })
-export class BlocksColor extends Component {
+export class BlColor extends BlComponent {
   @attr('int', { defaults: Color.RED.value }) accessor value!: number
 
   @attr('enum', { enumValues: ['hex', 'rgb', 'hsl', 'hsv'] })
-  accessor mode: EnumAttr<['hex', 'rgb', 'hsl', 'hsv']> = 'hex'
+  accessor mode: OneOf<['hex', 'rgb', 'hsl', 'hsv']> = 'hex'
 
   @shadowRef('#layout') accessor $layout!: HTMLDivElement
   @shadowRef('#hsv-picker') accessor $hsv!: HTMLDivElement
@@ -186,6 +185,7 @@ export class BlocksColor extends Component {
     this.#s.content = saturation
     this.#v.content = value
     this.#alpha.content = alpha
+    if (this.value !== color.value) this.value = color.value
     const payload = { detail: { value: this.value } }
     dispatchEvent(this, 'bl:color:change', payload)
     dispatchEvent(this, 'change', payload)
@@ -232,13 +232,13 @@ export class BlocksColor extends Component {
       this.$alphaButton.style.left = alphaX + 'px'
     }
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       subscribe(this.#h, renderHue)
       subscribe(this.#s, renderSaturation)
       subscribe(this.#v, renderValue)
       subscribe(this.#alpha, renderAlpha)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       unsubscribe(this.#h, renderHue)
       unsubscribe(this.#s, renderSaturation)
       unsubscribe(this.#v, renderValue)
@@ -251,14 +251,14 @@ export class BlocksColor extends Component {
       renderValue()
       renderAlpha()
     }
-    this.onRender(render)
-    this.onConnected(render)
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
 
     let clear: () => void
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       clear = sizeObserve(this.$layout, render)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       if (clear) clear()
     })
 
@@ -356,14 +356,14 @@ export class BlocksColor extends Component {
       const [, s, l, a] = this.hsla
       this.$resultBg.style.backgroundColor = `hsla(${h},${s * 100}%,${l * 100}%,${a})`
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       subscribe(this.#h, renderHsvBg)
       subscribe(this.#h, renderResultBg)
       subscribe(this.#s, renderResultBg)
       subscribe(this.#v, renderResultBg)
       subscribe(this.#alpha, renderResultBg)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       unsubscribe(this.#h, renderHsvBg)
       unsubscribe(this.#h, renderResultBg)
       unsubscribe(this.#s, renderResultBg)
@@ -375,8 +375,8 @@ export class BlocksColor extends Component {
       renderHsvBg()
       renderResultBg()
     }
-    this.onRender(render)
-    this.onConnected(render)
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
   }
 
   // 各个颜色分量输入框
@@ -449,20 +449,20 @@ export class BlocksColor extends Component {
           return renderHsl()
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       subscribe(this.#h, render)
       subscribe(this.#s, render)
       subscribe(this.#v, render)
       subscribe(this.#alpha, render)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       unsubscribe(this.#h, render)
       unsubscribe(this.#s, render)
       unsubscribe(this.#v, render)
       unsubscribe(this.#alpha, render)
     })
-    this.onRender(render)
-    this.onConnected(render)
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
 
     // 切换模式事件
     const onClick = () => {
@@ -470,13 +470,13 @@ export class BlocksColor extends Component {
       const mode = modes[(modes.indexOf(this.mode) + 1) % 4]
       this.mode = mode
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$modeSwitch.onclick = onClick
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$modeSwitch.onclick = null
     })
-    this.onAttributeChangedDep('mode', render)
+    this.hook.onAttributeChangedDep('mode', render)
   }
 
   // 处理输入
@@ -487,7 +487,7 @@ export class BlocksColor extends Component {
       if (/^#?(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)) {
         this.#preventRenderInputByDataChange = true
         this.value = Color.fromHex(value).value
-        console.log(Color.fromHex(value).toString('hex'))
+        // console.log(Color.fromHex(value).toString('hex'))
         this.#preventRenderInputByDataChange = false
       }
     }
@@ -541,10 +541,10 @@ export class BlocksColor extends Component {
           return
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$modeContent.onchange = onChange
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$modeContent.onchange = null
     })
   }
@@ -577,7 +577,7 @@ export class BlocksColor extends Component {
   }
 
   #setupValueAttr() {
-    this.onAttributeChangedDep('value', () => {
+    this.hook.onAttributeChangedDep('value', () => {
       const newColor = new Color(this.value)
       this.setColor(newColor)
     })

@@ -44,7 +44,7 @@ export function generateDates(century, decade, year, month, startWeekOn) {
         return [];
     const firstDate = getFirstDate(year, month);
     const lastDate = getLastDate(year, month);
-    const results = range(1, lastDate.getDate()).map(date => ({
+    const results = range(1, lastDate.getUTCDate()).map(date => ({
         label: String(date),
         century,
         decade,
@@ -55,9 +55,9 @@ export function generateDates(century, decade, year, month, startWeekOn) {
     const firstDateIndex = firstDate.getDay();
     if (firstDateIndex !== startWeekOn) {
         const prevLastDate = getLastDateOfPrevMonth(year, month);
-        const prevYear = prevLastDate.getFullYear();
-        const prevMonth = prevLastDate.getMonth();
-        let date = prevLastDate.getDate();
+        const prevYear = prevLastDate.getUTCFullYear();
+        const prevMonth = prevLastDate.getUTCMonth();
+        let date = prevLastDate.getUTCDate();
         let n = (7 + firstDateIndex - startWeekOn) % 7;
         while (n--) {
             results.unshift({
@@ -72,9 +72,9 @@ export function generateDates(century, decade, year, month, startWeekOn) {
         }
     }
     const nextFirstDate = getFirstDateOfNextMonth(year, month);
-    const nextYear = nextFirstDate.getFullYear();
-    const nextMonth = nextFirstDate.getMonth();
-    let date = nextFirstDate.getDate();
+    const nextYear = nextFirstDate.getUTCFullYear();
+    const nextMonth = nextFirstDate.getUTCMonth();
+    let date = nextFirstDate.getUTCDate();
     while (results.length < 42) {
         results.push({
             label: String(date),
@@ -172,7 +172,7 @@ export function generateWeekHeaders(startWeekOn) {
 }
 export function isToday(model) {
     const today = new Date();
-    return model.year === today.getFullYear() && model.month === today.getMonth() && model.date === today.getDate();
+    return (model.year === today.getUTCFullYear() && model.month === today.getUTCMonth() && model.date === today.getUTCDate());
 }
 export function isAllEqual(arr1, arr2) {
     return arr1.length === arr2.length && arr1.every((date, index) => date.getTime() === arr2[index].getTime());
@@ -193,9 +193,9 @@ export function modelToDate(model, viewDepth) {
     }
 }
 export function dateToModel(dateObj, depth) {
-    const year = dateObj.getFullYear();
-    const month = dateObj.getMonth();
-    const date = dateObj.getDate();
+    const year = dateObj.getUTCFullYear();
+    const month = dateObj.getUTCMonth();
+    const date = dateObj.getUTCDate();
     const century = Math.floor(year / 100);
     const decade = Math.floor(year / 10);
     const label = depth === Depth.Month
@@ -229,13 +229,13 @@ export function getClosestDate(dates = []) {
     return result;
 }
 function getFirstDate(year, month) {
-    return new Date(year, month, 1);
+    return new Date(Date.UTC(year, month, 1, 0, 0, 0));
 }
 function getLastDate(year, month) {
-    return new Date(year, month + 1, 0);
+    return new Date(Date.UTC(year, month + 1, 0, 0, 0, 0));
 }
 function getFirstDateOfNextMonth(year, month) {
-    return new Date(year, month + 1, 1);
+    return new Date(Date.UTC(year, month + 1, 1, 0, 0, 0));
 }
 function getLastDateOfPrevMonth(year, month) {
     return getLastDate(year, month - 1);

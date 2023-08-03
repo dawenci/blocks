@@ -1,16 +1,20 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { selectedSetter } from '../../common/propertyAccessor.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-option',
 })
-export class BlocksOption extends Component {
+export class BlOption extends BlComponent {
+  static override get role() {
+    return 'option'
+  }
+
   @attr('string') accessor value!: string | null
 
   @attr('string', {
-    defaults: (self: BlocksOption) => {
+    defaults: (self: BlOption) => {
       return self.textContent || String(self.value)
     },
   })
@@ -25,7 +29,7 @@ export class BlocksOption extends Component {
   constructor() {
     super()
 
-    this.onAttributeChangedDep('selected', (_, oldValue, newValue) => {
+    this.hook.onAttributeChangedDep('selected', (_, oldValue, newValue) => {
       if (newValue !== oldValue) {
         const eventType = newValue === null ? 'deselect' : 'select'
         if (!this.#silentFlag) {
@@ -42,8 +46,10 @@ export class BlocksOption extends Component {
   }
 
   silentSelected(value: boolean) {
-    this.#silentFlag = true
-    selectedSetter(this, value)
-    this.#silentFlag = false
+    this.withBlSilent(() => {
+      this.#silentFlag = true
+      selectedSetter(this, value)
+      this.#silentFlag = false
+    })
   }
 }

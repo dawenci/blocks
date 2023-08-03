@@ -2,12 +2,12 @@ import { __bg_base, __border_color_hover, __fg_base, __font_family, __transition
 export const style = `
 :host {
   box-sizing: border-box;
-  font-family: var(--font-family, ${__font_family});
+  font-family: var(--bl-font-family, ${__font_family});
   font-size: 14px;
   display: flex;
   flex-flow: column nowrap;
   position: relative;
-  transition: height var(--transition-duration, ${__transition_duration});
+  transition: height var(--bl-transition-duration, ${__transition_duration});
   background-color: var(--bl-bg-base, ${__bg_base});
   color: var(--bl-fg-base, ${__fg_base});
 }

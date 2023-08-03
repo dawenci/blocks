@@ -15,7 +15,7 @@ export const style = `
   --label-color: var(--bl-fg-base, ${__fg_base});
   --label-color-disabled: var(--bl-fg-disabled, ${__fg_disabled});
 
-  --duration: var(--transition-duration, ${__transition_duration});
+  --duration: var(--bl-transition-duration, ${__transition_duration});
   --font-size: var(--bl-font-size-base, ${__font_size_base});
   --radius: var(--bl-radius-base, ${__radius_base});
   --size: 14px;
@@ -158,10 +158,10 @@ export const style = `
 :host([disabled][checked]:focus) #checkbox {
   border-color: transparent;
   background-color: var(--checkbox-color-disabled-checked);
-  cursor: not-allowed;
+  cursor: default;
 }
 
 :host([disabled]) * {
-  cursor: not-allowed;
+  cursor: default;
 }
 `;

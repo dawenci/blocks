@@ -17,6 +17,8 @@ type ScrollToOptions = {
   property?: string
 }
 
+const animateMap = new WeakMap<HTMLElement, () => void>()
+
 /**
  * 设置滚动容器 scrollable 的滚动位置，以将 element 显示在顶部的位置
  * @param {HTMLElement} scrollable 可以滚动的容器
@@ -24,20 +26,37 @@ type ScrollToOptions = {
  * @param {ScrollToOptions} [options] 选项
  */
 export function scrollTo(scrollable: HTMLElement, to = 0, options: ScrollToOptions = {}) {
-  if (!scrollable) return
+  if (!scrollable) {
+    if (typeof options.done === 'function') {
+      options?.done?.()
+    }
+    return noop
+  }
+
+  if (animateMap.get(scrollable)) {
+    animateMap.get(scrollable)?.()
+  }
+
   const duration = options.duration || 0
 
   const property = (options.property as keyof HTMLElement) ?? 'scrollTop'
   const startPosition = scrollable[property] as number
   const offset = to - startPosition
-  if (offset === 0) return
+  if (offset === 0) {
+    if (typeof options.done === 'function') {
+      options?.done?.()
+    }
+    animateMap.delete(scrollable)
+    return noop
+  }
 
   if (duration <= 0) {
     ;(scrollable[property] as number) = to
     if (typeof options.done === 'function') {
       options.done()
     }
-    return
+    animateMap.delete(scrollable)
+    return noop
   }
 
   const startTime = Date.now()
@@ -48,7 +67,10 @@ export function scrollTo(scrollable: HTMLElement, to = 0, options: ScrollToOptio
     if (rafId) {
       cancelAnimationFrame(rafId)
       rafId = undefined
-      if (typeof options.done === 'function') options?.done?.()
+      if (typeof options.done === 'function') {
+        options?.done?.()
+      }
+      animateMap.delete(scrollable)
     }
   }
 
@@ -60,6 +82,7 @@ export function scrollTo(scrollable: HTMLElement, to = 0, options: ScrollToOptio
       if (typeof options.done === 'function') {
         options.done()
       }
+      animateMap.delete(scrollable)
       return
     }
 
@@ -72,6 +95,8 @@ export function scrollTo(scrollable: HTMLElement, to = 0, options: ScrollToOptio
 
   refresh()
 
+  animateMap.set(scrollable, cancel)
+
   return cancel
 }
 
@@ -80,4 +105,8 @@ function easeInOutSmoother(t: number): number {
   const ts = t * t
   const tc = ts * t
   return 6 * tc * ts - 15 * ts * ts + 10 * tc
+}
+
+function noop() {
+  //
 }

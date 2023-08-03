@@ -1,35 +1,52 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import type { BlComponentEventListener } from '../component/Component.js'
+import type { BlControlEventMap } from '../base-control/index.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { dispatchEvent } from '../../common/event.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { enumGetter, enumSetter } from '../../common/property.js'
 import { forEach } from '../../common/utils.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Control } from '../base-control/index.js'
+import { BlControl } from '../base-control/index.js'
 
 const halfValueGetter = enumGetter('value', ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
 const halfValueSetter = enumSetter('value', ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'])
 const valueGetter = enumGetter('value', ['0', '1', '2', '3', '4', '5'])
 const valueSetter = enumSetter('value', ['0', '1', '2', '3', '4', '5'])
 
+export interface BlRateEventMap extends BlControlEventMap {
+  change: CustomEvent<{ value: number }>
+}
+
+export interface BlRate extends BlControl {
+  addEventListener<K extends keyof BlRateEventMap>(
+    type: K,
+    listener: BlComponentEventListener<BlRateEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof BlRateEventMap>(
+    type: K,
+    listener: BlComponentEventListener<BlRateEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
+}
+
 @defineClass({
   customElement: 'bl-rate',
   styles: [style],
 })
-export class BlocksRate extends Control {
-  static override get disableEventTypes(): readonly string[] {
-    return ['click', 'mouseover', 'mouseleave', 'keydown']
-  }
-
+export class BlRate extends BlControl {
   @attr('number', {
-    get: self => {
+    get(self) {
       if (self.resultMode) return +self.getAttribute('value')
       const value = self.half ? halfValueGetter(self) : valueGetter(self)
       if (value == null) return 0
       return +value
     },
 
-    set: (self, value: any) => {
+    set(self, value) {
       if (self.resultMode) {
         self.setAttribute('value', value)
       }
@@ -52,15 +69,20 @@ export class BlocksRate extends Control {
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
 
+    this.appendShadowChild(template())
+
+    this._disabledFeature.withDisableEventTypes(['click', 'mousedown', 'focus', 'mouseover', 'mouseleave', 'keydown'])
     this._tabIndexFeature.withTarget(() => [this.$layout]).withTabIndex(0)
 
     this.#setupEvents()
 
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
+
+    this.hook.onAttributeChangedDep('value', () => {
+      dispatchEvent(this, 'change', { detail: { value: this.value } })
+    })
   }
 
   #hoverValue?: number
@@ -130,13 +152,13 @@ export class BlocksRate extends Control {
       }
     }
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$layout.addEventListener('keydown', onKeydown)
       this.$layout.addEventListener('mouseover', onMouseOver)
       this.$layout.addEventListener('click', onClick)
       this.$layout.addEventListener('mouseleave', onMouseLeave)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$layout.removeEventListener('keydown', onKeydown)
       this.$layout.removeEventListener('mouseover', onMouseOver)
       this.$layout.removeEventListener('click', onClick)

@@ -32,18 +32,18 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { numGetter, numSetter } from '../../common/property.js';
 import { onDragMove } from '../../common/onDragMove.js';
 import { round } from '../../common/utils.js';
 import { setStyles } from '../../common/style.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Control } from '../base-control/index.js';
-export let BlocksSlider = (() => {
+import { BlControl } from '../base-control/index.js';
+export let BlSlider = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-slider',
             styles: [style],
@@ -74,7 +74,7 @@ export let BlocksSlider = (() => {
     let _$trackBg_initializers = [];
     let _$point_decorators;
     let _$point_initializers = [];
-    var BlocksSlider = class extends Control {
+    var BlSlider = class extends BlControl {
         static {
             _shadowSize_decorators = [attr('intRange', { min: 1, max: 10 })];
             _size_decorators = [attr('intRange', { min: 14, max: 100 })];
@@ -99,7 +99,7 @@ export let BlocksSlider = (() => {
             __esDecorate(this, null, _$trackBg_decorators, { kind: "accessor", name: "$trackBg", static: false, private: false, access: { has: obj => "$trackBg" in obj, get: obj => obj.$trackBg, set: (obj, value) => { obj.$trackBg = value; } } }, _$trackBg_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$point_decorators, { kind: "accessor", name: "$point", static: false, private: false, access: { has: obj => "$point" in obj, get: obj => obj.$point, set: (obj, value) => { obj.$point = value; } } }, _$point_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksSlider = _classThis = _classDescriptor.value;
+            BlSlider = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get role() {
@@ -107,9 +107,6 @@ export let BlocksSlider = (() => {
         }
         static get observedAttributes() {
             return ['disabled', 'max', 'min', 'size', 'step', 'round', 'value', 'vertical'];
-        }
-        static get disableEventTypes() {
-            return ['click', 'keydown', 'touchstart'];
         }
         #shadowSize_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _shadowSize_initializers, 2));
         get shadowSize() { return this.#shadowSize_accessor_storage; }
@@ -147,13 +144,14 @@ export let BlocksSlider = (() => {
         constructor() {
             super();
             this.appendShadowChild(template());
+            this._disabledFeature.withDisableEventTypes(['click', 'keydown', 'touchstart']);
             this._tabIndexFeature.withTabIndex(0).withTarget(() => {
                 return [this.$point];
             });
             this.#setupDragEvents();
-            this.onConnected(this.render);
-            this.onAttributeChangedDep('size', this.render);
-            this.onAttributeChangedDep('value', () => {
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChangedDep('size', this.render);
+            this.hook.onAttributeChangedDep('value', () => {
                 this.#renderPoint();
                 dispatchEvent(this, 'change', { detail: { value: this.value } });
             });
@@ -167,6 +165,7 @@ export let BlocksSlider = (() => {
                     this.value -= this.step;
                 }
             });
+            this.#setupAria();
         }
         get value() {
             const value = numGetter('value')(this) ?? this.min;
@@ -222,7 +221,7 @@ export let BlocksSlider = (() => {
             this.#dragging = false;
             let positionStart;
             let clear;
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 clear = onDragMove(this.$track, {
                     onStart: ({ start, $target, stop }) => {
                         if (this.disabled) {
@@ -263,7 +262,7 @@ export let BlocksSlider = (() => {
                     },
                 });
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 clear();
             });
         }
@@ -279,8 +278,16 @@ export let BlocksSlider = (() => {
         #posMax() {
             return this.#trackSize() - this.size;
         }
+        #setupAria() {
+            const update = () => {
+                this.setAttribute('aria-orientation', this.vertical ? 'vertical' : 'horizontal');
+            };
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDep('vertical', update);
+        }
     };
-    return BlocksSlider = _classThis;
+    return BlSlider = _classThis;
 })();
 function getRatio(current, min, max) {
     const span = max - min;

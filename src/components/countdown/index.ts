@@ -1,30 +1,30 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
 import type { Token } from '../../common/dateFormat.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { padLeft } from '../../common/utils.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
-interface CountDownEventMap extends ComponentEventMap {
+interface BlCountDownEventMap extends BlComponentEventMap {
   start: CustomEvent<void>
   stop: CustomEvent<void>
   finish: CustomEvent<void>
 }
 
-export interface BlocksCountdown extends Component {
-  addEventListener<K extends keyof CountDownEventMap>(
+export interface BlCountdown extends BlComponent {
+  addEventListener<K extends keyof BlCountDownEventMap>(
     type: K,
-    listener: ComponentEventListener<CountDownEventMap[K]>,
+    listener: BlComponentEventListener<BlCountDownEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof CountDownEventMap>(
+  removeEventListener<K extends keyof BlCountDownEventMap>(
     type: K,
-    listener: ComponentEventListener<CountDownEventMap[K]>,
+    listener: BlComponentEventListener<BlCountDownEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -33,7 +33,7 @@ export interface BlocksCountdown extends Component {
   customElement: 'bl-countdown',
   styles: [style],
 })
-export class BlocksCountdown extends Component {
+export class BlCountdown extends BlComponent {
   // timestamp
   @attr('number', { defaults: () => Date.now() }) accessor value!: number
 
@@ -46,14 +46,14 @@ export class BlocksCountdown extends Component {
 
     this.appendShadowChild(template())
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.run()
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.stop()
     })
 
-    this.onAttributeChanged(name => {
+    this.hook.onAttributeChanged(name => {
       if (name === 'value') {
         this.run()
       } else {

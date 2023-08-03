@@ -33,12 +33,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import '../button/index.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
-export let BlocksButtonGroup = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlButtonGroup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-button-group',
             styles: [style],
@@ -49,13 +49,16 @@ export let BlocksButtonGroup = (() => {
     let _instanceExtraInitializers = [];
     let _$slot_decorators;
     let _$slot_initializers = [];
-    var BlocksButtonGroup = class extends Component {
+    var BlButtonGroup = class extends BlComponent {
         static {
             _$slot_decorators = [shadowRef('slot')];
             __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksButtonGroup = _classThis = _classDescriptor.value;
+            BlButtonGroup = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'group';
         }
         #$slot_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _$slot_initializers, void 0));
         get $slot() { return this.#$slot_accessor_storage; }
@@ -74,8 +77,8 @@ export let BlocksButtonGroup = (() => {
                 });
             };
             this.$slot.addEventListener('slotchange', updateChildren);
-            this.onConnected(updateChildren);
+            this.hook.onConnected(updateChildren);
         }
     };
-    return BlocksButtonGroup = _classThis;
+    return BlButtonGroup = _classThis;
 })();

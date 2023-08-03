@@ -1,13 +1,18 @@
-import type { BlocksNavMenuItem } from './menu-item.js';
-import type { EnumAttrs } from '../../decorators/attr.js';
+import type { BlNavMenuItem } from './menu-item.js';
+import type { BlPopup } from '../popup/popup.js';
 import './menu-group.js';
 import './menu-item.js';
-import { Component } from '../component/Component.js';
-export declare class BlocksNavMenu extends Component {
+import '../tooltip/index.js';
+import { BlComponent } from '../component/Component.js';
+export interface BlNavMenu extends BlComponent {
+    $tooltip?: BlPopup;
+}
+export declare class BlNavMenu extends BlComponent {
+    #private;
     static get role(): string;
     accessor enterDelay: number;
     accessor leaveDelay: number;
-    accessor size: EnumAttrs['size'];
+    accessor size: MaybeOneOf<['small', 'large']>;
     accessor level: number;
     accessor submenu: boolean;
     accessor expand: boolean;
@@ -15,8 +20,8 @@ export declare class BlocksNavMenu extends Component {
     accessor horizontal: boolean;
     accessor collapse: boolean;
     _data: (MenuItem | MenuGroup)[];
-    $parentMenu?: BlocksNavMenu;
-    $parentItem?: BlocksNavMenuItem;
+    $parentMenu?: BlNavMenu;
+    $parentItem?: BlNavMenuItem;
     constructor();
     get data(): (MenuItem | MenuGroup)[];
     set data(value: (MenuItem | MenuGroup)[]);

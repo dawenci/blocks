@@ -1,56 +1,45 @@
-import type { EnumAttr } from '../../decorators/attr.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { onDragMove } from '../../common/onDragMove.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { style } from './splitter.style.js'
 import { template } from './splitter.template.js'
 import { template as handleTemplate } from './handle.template.js'
-import { BlocksSplitterPane } from './pane.js'
-import { Component } from '../component/Component.js'
-
-export interface BlocksSplitter extends Component {
-  _ref: {
-    $layout: HTMLElement
-    $panes: HTMLElement
-    $cover: HTMLElement
-    $slot: HTMLSlotElement
-  }
-}
+import { BlSplitterPane } from './pane.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-splitter',
   styles: [style],
 })
-export class BlocksSplitter extends Component {
+export class BlSplitter extends BlComponent {
   @attr('enum', { enumValues: ['horizontal', 'vertical'] })
-  accessor direction: EnumAttr<['horizontal', 'vertical']> = 'horizontal'
+  accessor direction: OneOf<['horizontal', 'vertical']> = 'horizontal'
 
   @attr('int') accessor handleSize = 6
 
-  panes: BlocksSplitterPane[] = []
+  panes: BlSplitterPane[] = []
   handles: HTMLElement[] = []
+
+  @shadowRef('[part="layout"]') accessor $layout!: HTMLElement
+  @shadowRef('[part="panes"]') accessor $panes!: HTMLElement
+  @shadowRef('[part="cover"]') accessor $cover!: HTMLElement
+  @shadowRef('[part="default-slot"]') accessor $slot!: HTMLSlotElement
 
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
 
-    const $layout = shadowRoot.getElementById('layout') as HTMLElement
-    const $panes = shadowRoot.getElementById('panes') as HTMLElement
-    const $cover = shadowRoot.getElementById('cover') as HTMLElement
-    const $slot = $panes.querySelector('slot')!
-
-    this._ref = { $layout, $panes, $cover, $slot }
+    this.appendShadowChild(template())
 
     this.#setupSlotEvent()
     this.#setupResizeEvents()
     this.#setupSizeObserve()
 
-    this.onConnected(this.render)
-    this.onAttributeChangedDep('direction', this._renderDirection)
-    this.onAttributeChangedDep('handle-size', this.layout)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChangedDep('direction', this._renderDirection)
+    this.hook.onAttributeChangedDep('handle-size', this.layout)
   }
 
   _renderDirection() {
@@ -61,15 +50,15 @@ export class BlocksSplitter extends Component {
   }
 
   get size() {
-    return this._ref.$panes[this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight']
+    return this.$panes[this.direction === 'horizontal' ? 'clientWidth' : 'clientHeight']
   }
 
   #setupSizeObserve() {
     let clear: (() => void) | undefined
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       clear = sizeObserve(this, this.layout.bind(this))
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       if (clear) {
         clear()
         clear = undefined
@@ -78,7 +67,7 @@ export class BlocksSplitter extends Component {
   }
 
   renderHandles() {
-    const { $layout, $cover } = this._ref
+    const { $layout, $cover } = this
     const count = this.panes.length - 1
     let len = $layout.querySelectorAll('.handle').length
     while (len++ < count) {
@@ -98,7 +87,7 @@ export class BlocksSplitter extends Component {
   }
 
   /** 计算 pane 的尺寸 */
-  getPaneSize($pane: BlocksSplitterPane) {
+  getPaneSize($pane: BlSplitterPane) {
     let size = $pane.size || 0
     size = Math.max(size, $pane.min)
     size = Math.min(size, $pane.max)
@@ -106,12 +95,12 @@ export class BlocksSplitter extends Component {
   }
 
   /** 检测面板是否冻结尺寸不允许调整 */
-  isSizeFrozen($pane: BlocksSplitterPane) {
+  isSizeFrozen($pane: BlSplitterPane) {
     return $pane.max === $pane.min
   }
 
   /** 计算 pane 的定位 */
-  getPanePosition($pane: BlocksSplitterPane) {
+  getPanePosition($pane: BlSplitterPane) {
     if (this.panes.length) {
       const index = this.panes.indexOf($pane)
       if (index !== -1) {
@@ -129,12 +118,12 @@ export class BlocksSplitter extends Component {
   }
 
   /** 获取当前是第几个面板 */
-  getPaneIndex($pane: BlocksSplitterPane) {
+  getPaneIndex($pane: BlSplitterPane) {
     return this.panes.indexOf($pane)
   }
 
   /** 调整 pane 的尺寸 */
-  resizePane($pane: BlocksSplitterPane, newSize: number) {
+  resizePane($pane: BlSplitterPane, newSize: number) {
     const panes = this.panes
     // 面板是冻结的的，意味着不能调整尺寸，退出
     if (this.isSizeFrozen($pane)) return
@@ -217,13 +206,13 @@ export class BlocksSplitter extends Component {
   }
 
   // 折叠面板到最小尺寸
-  collapsePane($pane: BlocksSplitterPane) {
+  collapsePane($pane: BlSplitterPane) {
     $pane.collapseSize = $pane.size
     this.resizePane($pane, 0)
   }
 
   // 展开面板
-  expandPane($pane: BlocksSplitterPane) {
+  expandPane($pane: BlSplitterPane) {
     this.resizePane($pane, $pane.collapseSize || 0)
   }
 
@@ -254,7 +243,7 @@ export class BlocksSplitter extends Component {
     dispatchEvent(this, 'layout')
   }
 
-  setActiveHandle($pane: BlocksSplitterPane) {
+  setActiveHandle($pane: BlSplitterPane) {
     this.clearActiveHandle()
     const index = this.getPaneIndex($pane)
     this.handles[index] && this.handles[index].classList.add('active')
@@ -266,22 +255,20 @@ export class BlocksSplitter extends Component {
   }
 
   getHandleIndex($handle: HTMLElement) {
-    return Array.prototype.indexOf.call(this._ref.$layout.querySelectorAll('.handle'), $handle)
+    return Array.prototype.indexOf.call(this.$layout.querySelectorAll('.handle'), $handle)
   }
 
   #setupSlotEvent() {
     const onSlotChange = () => {
-      this.panes = this._ref.$slot
-        .assignedElements()
-        .filter($item => $item instanceof BlocksSplitterPane) as BlocksSplitterPane[]
+      this.panes = this.$slot.assignedElements().filter($item => $item instanceof BlSplitterPane) as BlSplitterPane[]
       this._renderDirection()
       this.layout()
     }
-    this.onConnected(() => {
-      this._ref.$slot.addEventListener('slotchange', onSlotChange)
+    this.hook.onConnected(() => {
+      this.$slot.addEventListener('slotchange', onSlotChange)
     })
-    this.onDisconnected(() => {
-      this._ref.$slot.removeEventListener('slotchange', onSlotChange)
+    this.hook.onDisconnected(() => {
+      this.$slot.removeEventListener('slotchange', onSlotChange)
     })
   }
 
@@ -290,9 +277,9 @@ export class BlocksSplitter extends Component {
     // 用于计算偏移
     let startSize = 0
     let $handle: HTMLElement | null = null
-    let $pane: BlocksSplitterPane | null = null
+    let $pane: BlSplitterPane | null = null
 
-    onDragMove(this._ref.$layout, {
+    onDragMove(this.$layout, {
       onStart: ({ stop, $target }) => {
         if (!$target.classList.contains('handle')) {
           return stop()
@@ -328,24 +315,24 @@ export class BlocksSplitter extends Component {
   }
 
   // 获取面板允许扩张的尺寸
-  _getGrowSize($pane: BlocksSplitterPane) {
+  _getGrowSize($pane: BlSplitterPane) {
     if (this.isSizeFrozen($pane)) return 0
     if ($pane.grow <= 0) return 0
     return $pane.max - $pane.size
   }
 
   // 获取面板允许收缩的尺寸
-  _getShrinkSize($pane: BlocksSplitterPane) {
+  _getShrinkSize($pane: BlSplitterPane) {
     if (this.isSizeFrozen($pane)) return 0
     if ($pane.shrink <= 0) return 0
     return $pane.max - $pane.size
   }
 
   // 将 rest 尺寸分配到 panes 上
-  _growPanes(rest: number, panes: BlocksSplitterPane[]) {
+  _growPanes(rest: number, panes: BlSplitterPane[]) {
     let refresh = false
     // 递归处理，返回一趟处理完毕剩余未分配的尺寸
-    const loop = (rest: number, panes: BlocksSplitterPane[]) => {
+    const loop = (rest: number, panes: BlSplitterPane[]) => {
       // 找出能接纳扩张的 pane
       const $list = panes.filter($pane => this._getGrowSize($pane) >= 1)
       if (!$list.length) return
@@ -373,10 +360,10 @@ export class BlocksSplitter extends Component {
     }
   }
 
-  _shrinkPanes(rest: number, panes: BlocksSplitterPane[]) {
+  _shrinkPanes(rest: number, panes: BlSplitterPane[]) {
     let refresh = false
     // 递归处理，返回一趟处理完毕剩余未分配的尺寸
-    const loop = (rest: number, panes: BlocksSplitterPane[]) => {
+    const loop = (rest: number, panes: BlSplitterPane[]) => {
       // 找出能接纳收缩的 pane
       const $list = panes.filter($pane => this._getShrinkSize($pane) >= 1)
       if (!$list.length) return
@@ -407,6 +394,6 @@ export class BlocksSplitter extends Component {
 
   // 显示遮罩，这是为了避免某个 pane 里面存在 iframe， 捕获了鼠标，导致 mousemove 事件无法正确工作
   toggleCover(visible: boolean) {
-    this._ref.$cover.style.display = visible ? 'block' : 'none'
+    this.$cover.style.display = visible ? 'block' : 'none'
   }
 }

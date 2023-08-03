@@ -1,34 +1,34 @@
-import type { ComponentEventListener } from '../component/Component.js'
+import type { BlComponentEventListener } from '../component/Component.js'
 import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 import '../icon/index.js'
 import '../loading/index.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { disabledSetter } from '../../common/propertyAccessor.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { forEach } from '../../common/utils.js'
 import { onWheel } from '../../common/onWheel.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Control } from '../base-control/index.js'
+import { BlControl } from '../base-control/index.js'
 import { WithOpenTransition } from '../with-open-transition/index.js'
 
 type ImageTransformStates = Map<HTMLImageElement, { scale: number; rotate: number }>
 
-export type BlocksImageViewerEventMap = WithOpenTransitionEventMap
+export type BlImageViewerEventMap = WithOpenTransitionEventMap
 
-export interface BlocksImageViewer extends Control, WithOpenTransition {
+export interface BlImageViewer extends BlControl, WithOpenTransition {
   imgMap: ImageTransformStates
 
-  addEventListener<K extends keyof BlocksImageViewerEventMap>(
+  addEventListener<K extends keyof BlImageViewerEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksImageViewerEventMap[K]>,
+    listener: BlComponentEventListener<BlImageViewerEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof BlocksImageViewerEventMap>(
+  removeEventListener<K extends keyof BlImageViewerEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksImageViewerEventMap[K]>,
+    listener: BlComponentEventListener<BlImageViewerEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -39,7 +39,7 @@ export interface BlocksImageViewer extends Control, WithOpenTransition {
   mixins: [WithOpenTransition],
   styles: [style],
 })
-export class BlocksImageViewer extends Control {
+export class BlImageViewer extends BlControl {
   @attr('boolean') accessor closeOnClickMask!: boolean
   @attr('boolean') accessor closeOnPressEscape!: boolean
 
@@ -69,8 +69,8 @@ export class BlocksImageViewer extends Control {
     this.#setupContent()
     this.#setupEvents()
 
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
   }
 
   #setupContent() {

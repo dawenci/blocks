@@ -1,200 +1,272 @@
+import type { BlComponentEventListener } from '../component/Component.js'
+import type { BlTimeEventMap, ValueField } from '../time/index.js'
+import type { TimeModel } from '../time/index.js'
+import '../input/index.js'
+import '../select-result/index.js'
 import '../popup/index.js'
 import '../time/index.js'
-import { attr } from '../../decorators/attr.js'
-import { boolSetter } from '../../common/property.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { connectSelectable, makeISelectableProxy } from '../../common/connectSelectable.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
-import { onClickOutside } from '../../common/onClickOutside.js'
-import { padLeft } from '../../common/utils.js'
+import { prop } from '../../decorators/prop/index.js'
+import { reactive, subscribe } from '../../common/reactive.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
 import { template as popupTemplate } from './popup.template.js'
-import { BlocksInput } from '../input/index.js'
-import { BlocksPopup } from '../popup/index.js'
-import { BlocksTime } from '../time/index.js'
-import { Component } from '../component/Component.js'
+import { BlControl } from '../base-control/index.js'
+import { BlPopup } from '../popup/index.js'
+import { BlTime, timeEquals } from '../time/index.js'
+import { BlSelectResult } from '../select-result/index.js'
+import {
+  PROXY_POPUP_ACCESSORS,
+  PROXY_POPUP_ACCESSORS_KEBAB,
+  PROXY_RESULT_ACCESSORS,
+  PROXY_RESULT_ACCESSORS_KEBAB,
+} from '../../common/constants.js'
+import { SetupClickOutside } from '../setup-click-outside/index.js'
 
-// TODO, placeholder
+export interface BlTimePickerEventMap extends BlTimeEventMap {
+  change: CustomEvent<{ value: TimeModel | null }>
+}
 
-export interface BlocksTimePicker extends Component {
-  _ref: {
-    $popup: BlocksPopup
-    $time: BlocksTime
-  }
+export interface BlTimePicker
+  extends BlControl,
+    Pick<BlPopup, OneOf<typeof PROXY_POPUP_ACCESSORS>>,
+    Pick<BlSelectResult, OneOf<typeof PROXY_RESULT_ACCESSORS>> {
+  $popup: BlPopup
+  $time: BlTime
+
+  addEventListener<K extends keyof BlTimePickerEventMap>(
+    type: K,
+    listener: BlComponentEventListener<BlTimePickerEventMap[K]>,
+    options?: boolean | AddEventListenerOptions
+  ): void
+
+  removeEventListener<K extends keyof BlTimePickerEventMap>(
+    type: K,
+    listener: BlComponentEventListener<BlTimePickerEventMap[K]>,
+    options?: boolean | EventListenerOptions
+  ): void
 }
 
 @defineClass({
   customElement: 'bl-time-picker',
   styles: [style],
+  proxyAccessors: [
+    { klass: BlPopup, names: PROXY_POPUP_ACCESSORS },
+    { klass: BlSelectResult, names: PROXY_RESULT_ACCESSORS },
+  ],
 })
-export class BlocksTimePicker extends Component {
+export class BlTimePicker extends BlControl {
   static override get observedAttributes() {
-    return [...BlocksTime.observedAttributes, ...BlocksInput.observedAttributes]
+    return [...PROXY_POPUP_ACCESSORS_KEBAB, ...PROXY_RESULT_ACCESSORS_KEBAB, ...BlTime.observedAttributes]
   }
 
-  @attr('intRange', { min: 0, max: 23 }) accessor hour!: number | null
+  @attr('boolean') accessor open!: boolean
 
-  @attr('intRange', { min: 0, max: 59 }) accessor minute!: number | null
+  @prop({
+    get(self) {
+      return self.#model.content?.hour ?? null
+    },
+    set(self, value) {
+      BlTime.prototype.setField.call(self, self.#model, 'hour', value)
+    },
+  })
+  accessor hour!: number | null
 
-  @attr('intRange', { min: 0, max: 59 }) accessor second!: number | null
+  @prop({
+    get(self) {
+      return self.#model.content?.minute ?? null
+    },
+    set(self, value) {
+      BlTime.prototype.setField.call(self, self.#model, 'minute', value)
+    },
+  })
+  accessor minute!: number | null
 
-  @shadowRef('#result') accessor $input!: BlocksInput
+  @prop({
+    get(self) {
+      return self.#model.content?.second ?? null
+    },
+    set(self, value) {
+      BlTime.prototype.setField.call(self, self.#model, 'second', value)
+    },
+  })
+  accessor second!: number | null
 
-  #clearup?: () => void
+  @shadowRef('[part="result"]') accessor $result!: BlSelectResult
 
-  _prevValue: {
-    hour: number | null
-    minute: number | null
-    second: number | null
-  } | null = {
-    hour: null,
-    minute: null,
-    second: null,
-  }
+  #model = reactive<TimeModel | null>(null, timeEquals)
 
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
+    this.appendShadowChild(template())
 
-    // input 部分
-    shadowRoot.appendChild(template())
+    this.#setupResult()
+    this.#setupPopup()
+    this.#setupConnect()
+    this.#setupAria()
+  }
 
-    const { $input } = this
+  get value() {
+    return this.#model.content
+  }
 
+  set value(value: TimeModel | null) {
+    BlTime.prototype.setModel.call(this, this.#model, value)
+  }
+
+  get disabledTime() {
+    return this.$time.disabledTime
+  }
+  set disabledTime(value) {
+    this.$time.disabledTime = value
+  }
+
+  isDisabled(field: ValueField, value: number) {
+    return this.$time.isDisabled(field, value)
+  }
+
+  firstEnableModel(fixHour?: number, fixMinute?: number, fixSecond?: number): TimeModel | null {
+    return this.$time.firstEnableModel(fixHour, fixMinute, fixSecond)
+  }
+
+  _clickOutside: SetupClickOutside<this> = SetupClickOutside.setup({
+    component: this,
+    target() {
+      return [this, this.$popup]
+    },
+    update() {
+      if (this.open) this.open = false
+    },
+    init() {
+      this.hook.onAttributeChangedDep('open', () => {
+        if (this.open) {
+          this._clickOutside.bind()
+        } else {
+          this._clickOutside.unbind()
+        }
+      })
+    },
+  })
+
+  #setupResult() {
+    this.hook.onAttributeChangedDeps(PROXY_RESULT_ACCESSORS_KEBAB, (attrName, oldValue, newValue) => {
+      this.$result.setAttribute(attrName, newValue as string)
+    })
+  }
+
+  #setupPopup() {
     // 面板部分
-    const $popup = popupTemplate()
-    const $time = $popup.querySelector('bl-time')!
+    this.$popup = popupTemplate()
+    this.$time = this.$popup.querySelector('bl-time')!
 
-    this._ref = {
-      $popup,
-      $time,
+    this.$popup.anchorElement = () => this.$result
+
+    // 标记该次 focus 是点击了 clear 按钮触发的
+    // 点击 clear 按钮，无需弹出弹窗
+    let isClickClear = false
+    const onClearStart = () => {
+      isClickClear = true
     }
-
-    $popup.anchorElement = () => $input
-
-    const $confirm = $popup.querySelector('bl-button')!
-
     const onFocus = () => {
-      $time.scrollToActive()
-      $popup.open = true
-    }
-    $input.onfocus = $input.onclick = onFocus
-
-    const onClear = () => {
-      $time.clear()
-      this._prevValue = {
-        hour: null,
-        minute: null,
-        second: null,
+      if (!isClickClear) {
+        this.open = true
+        this.$time.scrollToActive()
       }
+      isClickClear = false
     }
-    $input.addEventListener('click-clear', onClear)
-
-    const onTimeChange = () => this.render()
-    $time.addEventListener('change', onTimeChange)
-
-    const onToggleOpen = () => boolSetter('popup-open')(this, $popup.open)
-    $popup.addEventListener('open-changed', onToggleOpen)
-
-    const onOpened = () => {
-      this._prevValue = {
-        hour: $time.hour,
-        minute: $time.minute,
-        second: $time.second,
-      }
+    const onClearEnd = () => {
+      isClickClear = false
     }
-    $popup.addEventListener('opened', onOpened)
 
-    const onClosed = () => {
-      if (this._prevValue) {
-        $time.hour = this._prevValue.hour
-        $time.minute = this._prevValue.minute
-        $time.second = this._prevValue.second
-        this._prevValue = null
-      }
-    }
-    $popup.addEventListener('closed', onClosed)
+    this.hook.onConnected(() => {
+      // 触发顺序：mousedown-clear -> focus -> click-clear
+      this.addEventListener('mousedown-clear', onClearStart)
+      this.addEventListener('focus', onFocus)
+      this.addEventListener('click-clear', onClearEnd)
+    })
+    this.hook.onDisconnected(() => {
+      this.removeEventListener('mousedown-clear', onClearStart)
+      this.removeEventListener('focus', onFocus)
+      this.removeEventListener('click-clear', onClearEnd)
+    })
+
+    const $confirm = this.$popup.querySelector('bl-button')!
 
     const onConfirm = this._confirm.bind(this)
     $confirm!.onclick = onConfirm
 
-    this.onConnected(this.render)
-
-    this.#setupPopup()
-
-    this.onAttributeChangedDeps(BlocksInput.observedAttributes, (attrName, oldValue, newValue) => {
-      this.$input.setAttribute(attrName, newValue as string)
+    this.hook.onDisconnected(() => {
+      document.body.removeChild(this.$popup)
+    })
+    this.hook.onAttributeChangedDeps(PROXY_POPUP_ACCESSORS_KEBAB, (name, _, val) => {
+      if (name === 'open') {
+        // 首次打开的时候，挂载 $popup 的 DOM
+        if (this.open && !document.body.contains(this.$popup)) {
+          document.body.appendChild(this.$popup)
+        }
+        this.$popup.open = this.open
+      } else {
+        this.$popup.setAttribute(name, val as string)
+      }
     })
 
-    this.onAttributeChangedDeps(BlocksTime.observedAttributes, (attrName, oldValue, newValue) => {
-      this._ref.$time.setAttribute(attrName, newValue as string)
-    })
+    // 代理 popup 事件
+    {
+      this.proxyEvent(this.$popup, 'opened')
+      this.proxyEvent(this.$popup, 'closed')
+    }
 
-    this.onAttributeChanged(this.render)
+    this.#setupTime()
   }
 
-  #setupPopup() {
-    const _initClickOutside = () => {
-      if (!this.#clearup) {
-        this.#clearup = onClickOutside([this, this._ref.$popup], () => {
-          if (this._ref.$popup.open) this._ref.$popup.open = false
-        })
-      }
-    }
-
-    const _destroyClickOutside = () => {
-      if (this.#clearup) {
-        this.#clearup()
-        this.#clearup = undefined
-      }
-    }
-
-    const onOpened = () => {
-      _initClickOutside()
-    }
-    const onClosed = () => {
-      _destroyClickOutside()
-    }
-
-    this.onConnected(() => {
-      document.body.appendChild(this._ref.$popup)
-      this._ref.$popup.addEventListener('opened', onOpened)
-      this._ref.$popup.addEventListener('closed', onClosed)
+  #setupTime() {
+    this.hook.onAttributeChangedDeps(BlTime.observedAttributes, (attrName, oldValue, newValue) => {
+      this.$time.setAttribute(attrName, newValue as string)
     })
-
-    this.onDisconnected(() => {
-      document.body.removeChild(this._ref.$popup)
-      _destroyClickOutside()
-      this._ref.$popup.removeEventListener('opened', onOpened)
-      this._ref.$popup.removeEventListener('closed', onClosed)
-    })
-  }
-
-  override render() {
-    super.render()
-    const { $time } = this._ref
-    if ([$time.hour, $time.minute, $time.second].some(v => Object.is(v, NaN) || v == null)) {
-      this.$input.value = ''
-      return
-    }
-    const hour = padLeft('0', 2, String($time.hour))
-    const minute = padLeft('0', 2, String($time.minute))
-    const second = padLeft('0', 2, String($time.second))
-    this.$input.value = `${hour}:${minute}:${second}`
   }
 
   _confirm() {
-    const { $popup, $time } = this._ref
-    this._prevValue = null
-    dispatchEvent(this, 'change', {
-      detail: {
-        hour: $time.hour,
-        minute: $time.minute,
-        second: $time.second,
-      },
+    this.open = false
+  }
+
+  #setupConnect() {
+    const $proxy = makeISelectableProxy<TimeModel>()
+
+    // 代理结果、选项之间的连接
+    connectSelectable(this.$result, $proxy)
+    connectSelectable($proxy, this.$time)
+
+    // 处理 $date 面板发送过来的选中值
+    $proxy.acceptSelected = selected => {
+      this.#model.content = selected[0]?.value ?? null
+    }
+    // 处理 $result 发送过来的清空请求
+    $proxy.clearSelected = () => {
+      this.#model.content = null
+      // afterListClear
+      this.open = false
+      this.blur()
+    }
+
+    // model 更新时，分别同步到 $result / $date，刷新 $date 面板，触发 change
+    subscribe(this.#model, value => {
+      const selected = value == null ? [] : [{ value, label: this.$time.formatter(value) }]
+
+      this.$result.acceptSelected(selected)
+      this.$time.value = value
+
+      dispatchEvent(this, 'change', { detail: { value } })
     })
-    $popup.open = false
+  }
+
+  #setupAria() {
+    this.hook.onConnected(() => {
+      this.setAttribute('aria-haspopup', 'true')
+    })
   }
 }

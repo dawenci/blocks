@@ -1,17 +1,18 @@
-import type { BlocksTable } from './table.js'
-import type { ComponentEventListener } from '../component/Component.js'
+import type { BlTable } from './table.js'
+import type { BlComponentEventListener } from '../component/Component.js'
 import type { RowColumn } from './RowColumn.js'
 import type { VListEventMap } from '../vlist/index.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { cellTemplate, summaryTemplate } from './body.template.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
-import { template } from './body-template.js'
-import { BlocksVList } from '../vlist/index.js'
+import { style, summaryStyle } from './body.style.js'
+import { BlVList } from '../vlist/index.js'
 
 export type CellElement = HTMLElement & { column: RowColumn; data: any }
 
-export interface BlocksTableBodyEventMap extends VListEventMap {
+export interface BlTableBodyEventMap extends VListEventMap {
   'click-cell': CustomEvent<{
     $el: CellElement
     column: RowColumn
@@ -19,28 +20,33 @@ export interface BlocksTableBodyEventMap extends VListEventMap {
   'click-row': CustomEvent<{ $el: HTMLElement; data: any }>
 }
 
-export interface BlocksTableBody extends BlocksVList {
-  $host: BlocksTable
+export interface BlTableBody extends BlVList {
+  $host: BlTable
   $summary?: HTMLElement
 
-  addEventListener<K extends keyof BlocksTableBodyEventMap>(
+  addEventListener<K extends keyof BlTableBodyEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksTableBodyEventMap[K]>,
+    listener: BlComponentEventListener<BlTableBodyEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
-  removeEventListener<K extends keyof BlocksTableBodyEventMap>(
+  removeEventListener<K extends keyof BlTableBodyEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksTableBodyEventMap[K]>,
+    listener: BlComponentEventListener<BlTableBodyEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
 
 @defineClass({
   customElement: 'bl-table-body',
+  styles: [style],
 })
-export class BlocksTableBody extends BlocksVList {
+export class BlTableBody extends BlVList {
+  static override get role() {
+    return 'rowgroup'
+  }
+
   static override get observedAttributes() {
-    return BlocksVList.observedAttributes.concat(['sort-field', 'sort-order', 'summary-height'])
+    return BlVList.observedAttributes.concat(['sort-field', 'sort-order', 'summary-height'])
   }
 
   #sortFlag?: Promise<void>
@@ -61,11 +67,6 @@ export class BlocksTableBody extends BlocksVList {
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-
-    const { cssTemplate } = template()
-    shadowRoot.appendChild(cssTemplate.cloneNode(true))
-
     this.$list.onclick = this._onClick.bind(this)
 
     this.addEventListener('bl:scroll', () => {
@@ -80,9 +81,11 @@ export class BlocksTableBody extends BlocksVList {
     return this.flattenColumns.some(column => typeof column.summaryRender === 'function')
   }
 
-  override async sortMethod(data: any[]) {
+  override sortMethod(data: any[], callback: (data: any) => any) {
     const column = this.flattenColumns.find(column => column.prop == this.sortField)
-    if (!column || column.sortOrder === 'none') return data
+    if (!column || column.sortOrder === 'none') {
+      return callback(data)
+    }
 
     const $cell = document.createElement('div')
     data.sort((a, b) => {
@@ -97,7 +100,7 @@ export class BlocksTableBody extends BlocksVList {
       const vb = labelB instanceof Node ? labelB.textContent : labelB
       return va!.localeCompare(vb!) * (column.sortOrder === 'ascending' ? 1 : -1)
     })
-    return data
+    callback(data)
   }
 
   override beforeRender() {
@@ -120,9 +123,8 @@ export class BlocksTableBody extends BlocksVList {
       $item.removeChild($item.lastElementChild)
     }
 
-    const { cellTemplate } = template()
     while ($item.children.length < this.flattenColumns.length) {
-      $item.appendChild(cellTemplate.cloneNode(true))
+      $item.appendChild(cellTemplate())
     }
 
     this.flattenColumns.forEach((column, index) => {
@@ -172,7 +174,7 @@ export class BlocksTableBody extends BlocksVList {
   _renderSummaryRow() {
     if (this.shouldRenderSummary) {
       if (!this.$summary) return
-      this.$viewport._ref.$layout.classList.toggle('has-summary', true)
+      this.$viewport.$layout.classList.toggle('has-summary', true)
 
       const data = this.$host.data
       const $items = this.$summary.firstElementChild as HTMLElement
@@ -181,9 +183,8 @@ export class BlocksTableBody extends BlocksVList {
         $items.removeChild($items.lastElementChild!)
       }
 
-      const { cellTemplate } = template()
       while ($items.children.length < this.flattenColumns.length) {
-        $items.appendChild(cellTemplate.cloneNode(true))
+        $items.appendChild(cellTemplate())
       }
 
       this.flattenColumns.forEach((column, index) => {
@@ -229,7 +230,7 @@ export class BlocksTableBody extends BlocksVList {
         })
       })
     } else {
-      this.$viewport._ref.$layout.classList.toggle('has-summary', false)
+      this.$viewport.$layout.classList.toggle('has-summary', false)
     }
   }
 
@@ -285,17 +286,14 @@ export class BlocksTableBody extends BlocksVList {
     this.upgradeProperty(['columns', 'data'])
 
     requestAnimationFrame(() => {
-      const { cssTemplate2 } = template()
       if (!this.$viewport.shadowRoot!.querySelector('style#tableBodyStyle')) {
-        this.$viewport.shadowRoot!.insertBefore(cssTemplate2.cloneNode(true), this.$viewport._ref.$layout)
+        const $style = this.$viewport.insertStyle(summaryStyle)!
+        $style.id = 'tableBodyStyle'
       }
 
-      if (!this.$viewport._ref.$layout.querySelector('#summary')) {
-        const $summary = document.createElement('div')
-        $summary.id = 'summary'
-        $summary.appendChild(document.createElement('div')).className = 'row'
-        this.$viewport._ref.$layout.appendChild($summary)
-        this.$summary = $summary
+      if (!this.$viewport.$layout.querySelector('#summary')) {
+        this.$summary = summaryTemplate()
+        this.$viewport.$layout.appendChild(this.$summary)
       }
     })
   }
@@ -316,7 +314,11 @@ export class BlocksTableBody extends BlocksVList {
   doSort() {
     if (!this.#sortFlag) {
       this.#sortFlag = Promise.resolve().then(() => {
-        this.generateViewData()
+        this.generateViewData({
+          complete: () => {
+            /*noop*/
+          },
+        })
         this.#sortFlag = undefined
       })
     }

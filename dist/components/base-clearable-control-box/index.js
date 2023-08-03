@@ -32,16 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
+import '../close-button/index.js';
+import { attr } from '../../decorators/attr/index.js';
 import { clearTemplate } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { unmount } from '../../common/mount.js';
-import { ControlBox } from '../base-control-box/index.js';
+import { BlControlBox } from '../base-control-box/index.js';
 import { SetupEmpty } from '../setup-empty/index.js';
-export let ClearableControlBox = (() => {
+export let BlClearableControlBox = (() => {
     let _classDecorators = [defineClass({
             styles: [style],
         })];
@@ -53,14 +54,14 @@ export let ClearableControlBox = (() => {
     let _clearable_initializers = [];
     let _$clear_decorators;
     let _$clear_initializers = [];
-    var ClearableControlBox = class extends ControlBox {
+    var BlClearableControlBox = class extends BlControlBox {
         static {
             _clearable_decorators = [attr('boolean')];
             _$clear_decorators = [shadowRef('[part="clear"]', false)];
             __esDecorate(this, null, _clearable_decorators, { kind: "accessor", name: "clearable", static: false, private: false, access: { has: obj => "clearable" in obj, get: obj => obj.clearable, set: (obj, value) => { obj.clearable = value; } } }, _clearable_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$clear_decorators, { kind: "accessor", name: "$clear", static: false, private: false, access: { has: obj => "$clear" in obj, get: obj => obj.$clear, set: (obj, value) => { obj.$clear = value; } } }, _$clear_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            ClearableControlBox = _classThis = _classDescriptor.value;
+            BlClearableControlBox = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #clearable_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _clearable_initializers, void 0));
@@ -72,6 +73,7 @@ export let ClearableControlBox = (() => {
         constructor() {
             super();
             this.#setupClearableFeature();
+            this._disabledFeature.withTarget(() => [this, this.$clear]);
         }
         _emptyFeature = SetupEmpty.setup({
             component: this,
@@ -83,48 +85,45 @@ export let ClearableControlBox = (() => {
             },
             init() {
                 const render = () => {
-                    Promise.resolve().then(() => this._emptyFeature.update());
+                    queueMicrotask(() => {
+                        this._emptyFeature.update();
+                    });
                 };
-                this.onConnected(() => {
+                this.hook.onConnected(() => {
                     this.addEventListener('click-clear', render);
                 });
-                this.onDisconnected(() => {
+                this.hook.onDisconnected(() => {
                     this.removeEventListener('click-clear', render);
                 });
             },
         });
         #setupClearableFeature() {
-            const onClickClear = (e) => {
-                const target = e.target;
-                if (this.$clear && this.$clear.contains(target)) {
-                    dispatchEvent(this, e.type === 'mousedown' ? 'mousedown-clear' : 'click-clear');
-                    return;
+            const render = () => {
+                this.$layout.classList.toggle('with-clear', this.clearable);
+                if (this.clearable) {
+                    if (!this.$clear) {
+                        const onClickClear = (e) => {
+                            const target = e.target;
+                            if (this.$clear && this.$clear.contains(target)) {
+                                dispatchEvent(this, e.type === 'mousedown' ? 'mousedown-clear' : 'click-clear');
+                                return;
+                            }
+                        };
+                        const $clearButton = clearTemplate();
+                        $clearButton.addEventListener('mousedown', onClickClear);
+                        $clearButton.addEventListener('click', onClickClear);
+                        this.$layout.append($clearButton);
+                    }
+                }
+                else {
+                    if (this.$clear) {
+                        unmount(this.$clear);
+                    }
                 }
             };
-            this.onRender(this._renderClearable);
-            this.onConnected(() => {
-                this._renderClearable();
-                this.$layout.addEventListener('mousedown', onClickClear);
-                this.$layout.addEventListener('click', onClickClear);
-            });
-            this.onDisconnected(() => {
-                this.$layout.removeEventListener('click', onClickClear);
-            });
-            this.onAttributeChangedDep('clearable', this._renderClearable);
-        }
-        _renderClearable() {
-            this.$layout.classList.toggle('with-clear', this.clearable);
-            if (this.clearable) {
-                if (!this.$clear) {
-                    const $clearButton = clearTemplate();
-                    this.$layout.append($clearButton);
-                }
-            }
-            else {
-                if (this.$clear) {
-                    unmount(this.$clear);
-                }
-            }
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onAttributeChangedDep('clearable', render);
         }
         appendContent($el) {
             const $last = this.$suffix ?? this.$clear;
@@ -143,5 +142,5 @@ export let ClearableControlBox = (() => {
             }
         }
     };
-    return ClearableControlBox = _classThis;
+    return BlClearableControlBox = _classThis;
 })();

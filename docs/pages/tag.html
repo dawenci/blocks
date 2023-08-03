@@ -18,126 +18,142 @@
       <h1>tag</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/tag/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/tag/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>尺寸设置</h2>
-
-      <p>可通过 size 设置尺寸，可选值: `small`, `large`</p>
-
-      <template data-codesource="html">
-        <bl-tag size="small">small</bl-tag>
-        <bl-tag>default</bl-tag>
-        <bl-tag size="large">large</bl-tag>
-      </template>
+      <bl-card>
+        <h2 slot="header" class="section-title">尺寸设置</h2>
+        <p slot="header">可通过 size 设置尺寸，可选值: `small`, `large`</p>
+  
+        <template data-codesource="html">
+          <bl-tag size="small">small</bl-tag>
+          <bl-tag>default</bl-tag>
+          <bl-tag size="large">large</bl-tag>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>关闭按钮</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">关闭按钮</h2>
+        <p slot="header">设置 `closeable` 属性，则启用关闭按钮，点击会触发 `close` 的 DOM 自定义事件</p>
 
-      <p>设置 `closeable` 属性，则启用关闭按钮，点击会触发 `close` 的 DOM 自定义事件</p>
-      <template data-codesource="html">
-        <bl-tag onclose="alert('点击了关闭')" closeable>可关闭</bl-tag>
-      </template>
+        <template data-codesource="html">
+          <bl-tag onclose="alert('点击了关闭')" size="small" closeable>可关闭</bl-tag>
+          <bl-tag onclose="alert('点击了关闭')" closeable>可关闭</bl-tag>
+          <bl-tag onclose="alert('点击了关闭')" size="large" closeable>可关闭</bl-tag>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>主题</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">主题</h2>
+        <div slot="header">
+          <h3>type</h3>
+          <p>`type` 可以设定主题类别，支持 `primary`, `danger`, `warning`, `success`</p>
+        </div>
+  
+        <template data-codesource="html">
+          <bl-tag closeable type="primary">primary</bl-tag>
+          <bl-tag closeable type="danger">danger</bl-tag>
+          <bl-tag closeable type="warning">warning</bl-tag>
+          <bl-tag closeable type="success">success</bl-tag>
+        </template>
 
-      <h3>type</h3>
-      <p>`type` 可以设定主题类别，支持 `primary`, `danger`, `warning`, `success`</p>
-
-      <template data-codesource="html">
-        <bl-tag closeable type="primary">primary</bl-tag>
-        <bl-tag closeable type="danger">danger</bl-tag>
-        <bl-tag closeable type="warning">warning</bl-tag>
-        <bl-tag closeable type="success">success</bl-tag>
-      </template>
-
-      <h3>outline</h3>
-      <p>支持 `outline` 变种样式</p>
-
-      <template data-codesource="html">
-        <bl-tag closeable type="primary" outline>primary outline</bl-tag>
-        <bl-tag closeable type="danger" outline>danger outline</bl-tag>
-        <bl-tag closeable type="warning" outline>warning outline</bl-tag>
-        <bl-tag closeable type="success" outline>success outline</bl-tag>
-      </template>
+        <div>
+          <h3>outline</h3>
+          <p>支持 `outline` 变种样式</p>
+        </div>
+  
+        <template data-codesource="html">
+          <bl-tag closeable type="primary" outline>primary outline</bl-tag>
+          <bl-tag closeable type="danger" outline>danger outline</bl-tag>
+          <bl-tag closeable type="warning" outline>warning outline</bl-tag>
+          <bl-tag closeable type="success" outline>success outline</bl-tag>
+        </template>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>圆角</h2>
-
-      <p>可通过 round 设置圆角</p>
-
-      <template data-codesource="html">
-        <bl-tag size="small" round>round</bl-tag>
-        <bl-tag round>round</bl-tag>
-        <bl-tag size="large" round>round</bl-tag>
-      </template>
+      <bl-card>
+        <h2 slot="header" class="section-title">圆角</h2>
+        <p slot="header">可通过 round 设置圆角</p>
+  
+        <template data-codesource="html">
+          <bl-tag size="small" round>round</bl-tag>
+          <bl-tag round>round</bl-tag>
+          <bl-tag size="large" round>round</bl-tag>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
-      
-      <h3>Attrs / Props</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>closeable</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否显示关闭按钮。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>outline</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否 outline 风格。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>round</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否圆角风格。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>size</td>
-            <td>'small' | 'large'</td>
-            <td></td>
-            <td>默认中等尺寸。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>type</td>
-            <td>'primary' | 'danger' | 'warning' | 'success'</td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+  
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>closeable</td>
+              <td>closeable</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否显示关闭按钮。</td>
+            </tr>
+            <tr>
+              <td>outline</td>
+              <td>outline</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否 outline 风格。</td>
+            </tr>
+            <tr>
+              <td>round</td>
+              <td>round</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否圆角风格。</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>size</td>
+              <td>'small' | 'large'</td>
+              <td>无</td>
+              <td>默认中等尺寸。</td>
+            </tr>
+            <tr>
+              <td>type</td>
+              <td>type</td>
+              <td>'primary' | 'danger' | 'warning' | 'success'</td>
+              <td>无</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

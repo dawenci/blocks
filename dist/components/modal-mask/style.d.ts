@@ -1,1 +1,1 @@
-export declare const style = "\n:host {\n  display: none;\n  box-sizing: border-box;\n  position: fixed;\n  overflow: hidden;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  background-color: rgba(0,0,0,.3);\n}\n:host([open]) {\n  display: block;\n}\n";
+export declare const style = "\n/*<component>modal-mask*/\n:host {\n  --bg: rgba(0,0,0,.5);\n}\n:host {\n  box-sizing: border-box;\n  position: fixed;\n  overflow: hidden;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  background-color: var(--bg);\n}\n";

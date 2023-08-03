@@ -17,7 +17,7 @@ export const style = /*css*/ `
   box-shadow: 0 0 5px -2px rgb(0,0,0,0.16),
     0 0 16px 0 rgb(0,0,0,0.08),
     0 0 28px 8px rgb(0,0,0,0.05);
-  transition: all var(--transition-duration, ${__transition_duration}) ease-out;
+  transition: all var(--bl-transition-duration, ${__transition_duration}) ease-out;
   border-radius: var(--bl-radius-base, ${__radius_base});
   pointer-events: auto;
   background-color: var(--bl-bg-base, ${__bg_base});
@@ -51,26 +51,16 @@ export const style = /*css*/ `
   line-height: 24px;
   font-size: 14px;
 }
-#close {
+
+[part="close"] {
+  --size: 23px;
+  --fg: #aaa;
+  --shadow-size: 4px;
   flex: 0 0 auto;
-  display: block;
-  width: 18px;
-  height: 18px;
-  margin: 3px 0 0 12px;
-  padding: 0;
-  border: 0 none;
-  background: transparent;
-  fill: #aaa;
+  margin: 0 0 0 8px;
 }
-#close:hover {
-  fill: #888;
-}
-#close:focus {
-  outline: 0 none;
-}
-#close svg {
-  width: 100%;
-  height: 100%;
+[part="close"]:hover {
+  --fg: #888;
 }
 
 :host([type="success"]) {
@@ -78,19 +68,42 @@ export const style = /*css*/ `
   color: #fff;
   fill: #fff;
 }
+:host([type="success"]) [part="close"] {
+  --fg: #fff;
+  --fg-hover: #fff;
+  --fg-active: #fff;
+}
+
 :host([type="error"]) {
   background-color: var(--bl-color-danger-base, ${__color_danger});
   color: #fff;
   fill: #fff;
 }
+:host([type="error"]) [part="close"] {
+  --fg: #fff;
+  --fg-hover: #fff;
+  --fg-active: #fff;
+}
+
 :host([type="warning"]) {
   background-color: var(--bl-color-warning-base, ${__color_warning});
   color: #fff;
   fill: #fff;
 }
+:host([type="warning"]) [part="close"] {
+  --fg: #fff;
+  --fg-hover: #fff;
+  --fg-active: #fff;
+}
+
 :host([type="info"]) {
   background-color: var(--bl-color-primary-base, ${__color_primary});
   color: #fff;
   fill: #fff;
+}
+:host([type="info"]) [part="close"] {
+  --fg: #fff;
+  --fg-hover: #fff;
+  --fg-active: #fff;
 }
 `

@@ -1,42 +1,33 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { onDragMove, OnEnd, OnMove, OnStart } from '../../common/onDragMove.js'
 import { setStyles } from '../../common/style.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { sizeObserve } from '../../common/sizeObserve.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component, ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import { BlComponent, BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
 
-export interface ScrollableEventMap extends ComponentEventMap {
-  'bl:scroll': CustomEvent
-  'bl:resize': CustomEvent<{ width: number; height: number }>
-  'bl:change:can-scroll-top': CustomEvent<{ value: boolean }>
-  'bl:change:can-scroll-right': CustomEvent<{ value: boolean }>
+export interface ScrollableEventMap extends BlComponentEventMap {
   'bl:change:can-scroll-bottom': CustomEvent<{ value: boolean }>
   'bl:change:can-scroll-left': CustomEvent<{ value: boolean }>
+  'bl:change:can-scroll-right': CustomEvent<{ value: boolean }>
+  'bl:change:can-scroll-top': CustomEvent<{ value: boolean }>
   'bl:drag-scroll-end': CustomEvent
+  'bl:resize': CustomEvent<{ width: number; height: number }>
+  'bl:scroll': CustomEvent
 }
 
-export interface BlocksScrollable extends Component {
-  _ref: {
-    $layout: HTMLElement
-    $viewport: HTMLElement
-    $horizontal: HTMLElement
-    $vertical: HTMLElement
-    $horizontalThumb: HTMLElement
-    $verticalThumb: HTMLElement
-  }
-
+export interface BlScrollable extends BlComponent {
   addEventListener<K extends keyof ScrollableEventMap>(
     type: K,
-    listener: ComponentEventListener<ScrollableEventMap[K]>,
+    listener: BlComponentEventListener<ScrollableEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
   removeEventListener<K extends keyof ScrollableEventMap>(
     type: K,
-    listener: ComponentEventListener<ScrollableEventMap[K]>,
+    listener: BlComponentEventListener<ScrollableEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -45,7 +36,7 @@ export interface BlocksScrollable extends Component {
   customElement: 'bl-scrollable',
   styles: [style],
 })
-export class BlocksScrollable extends Component {
+export class BlScrollable extends BlComponent {
   @attr('boolean') accessor shadow!: boolean
 
   #draggingFlag?: boolean
@@ -64,43 +55,27 @@ export class BlocksScrollable extends Component {
   constructor() {
     super()
 
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template())
-    const $layout = shadowRoot.getElementById('layout')!
-    const $viewport = shadowRoot.getElementById('viewport')!
-    const $horizontal = shadowRoot.getElementById('horizontal')!
-    const $horizontalThumb = $horizontal.firstElementChild as HTMLElement
-    const $vertical = shadowRoot.getElementById('vertical')!
-    const $verticalThumb = $vertical.firstElementChild as HTMLElement
+    this.appendShadowChild(template())
 
-    this._ref = {
-      $layout,
-      $viewport,
-      $horizontal,
-      $horizontalThumb,
-      $vertical,
-      $verticalThumb,
-    }
-
-    $layout.onmouseenter = () => {
+    this.$layout.onmouseenter = () => {
       this._updateScrollbar()
     }
 
-    sizeObserve($layout, size => {
+    sizeObserve(this.$layout, size => {
       this._updateScrollbar()
       dispatchEvent(this, 'bl:resize', { detail: size })
     })
 
     this._initMoveEvents()
 
-    $viewport.onscroll = () => {
+    this.$viewport.onscroll = () => {
       if (!this.#draggingFlag) {
         this._updateScrollbar()
       }
       dispatchEvent(this, 'bl:scroll')
     }
 
-    this.onConnected(this.render)
+    this.hook.onConnected(this.render)
   }
 
   get canScrollLeft() {

@@ -11,7 +11,7 @@ export const style = `
   padding: 4px;
   border: 1px solid var(--bl-border-color-base, ${__border_color_base});
   border-radius: var(--bl-radius-base, ${__radius_base});
-  font-family: var(--font-family, ${__font_family});
+  font-family: var(--bl-font-family, ${__font_family});
 }
 
 #layout {

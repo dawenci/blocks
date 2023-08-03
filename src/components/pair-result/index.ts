@@ -1,65 +1,66 @@
-import type { EnumAttrs } from '../../decorators/attr.js'
 import type {
   ISelected,
+  ISelectPair,
   IPairSelectResultComponent,
   IPairSelectResultEventMap,
 } from '../../common/connectSelectable.js'
-import { attr, attrs } from '../../decorators/attr.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
 import { template } from './template.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
-import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
-import { ComponentEventListener } from '../component/Component.js'
+import { BlClearableControlBox, BlClearableControlBoxEventMap } from '../base-clearable-control-box/index.js'
+import { BlComponentEventListener } from '../component/Component.js'
 
-export interface BlocksPairResultEventMap extends ClearableControlBoxEventMap, IPairSelectResultEventMap {
+export interface BlPairResultEventMap extends BlClearableControlBoxEventMap, IPairSelectResultEventMap {
   active: CustomEvent<{ value: 'first' | 'second' | null }>
   'change-first': CustomEvent<{ value: ISelected | null }>
   'change-second': CustomEvent<{ value: ISelected | null }>
   change: CustomEvent<{ value: [ISelected | null, ISelected | null] }>
   search: CustomEvent<{ value: string }>
-  'select-result:accept': CustomEvent
 }
 
-export interface BlocksPairResult extends ClearableControlBox, IPairSelectResultComponent {
-  addEventListener<K extends keyof BlocksPairResultEventMap>(
+export interface BlPairResult extends BlClearableControlBox, IPairSelectResultComponent {
+  addEventListener<K extends keyof BlPairResultEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksPairResultEventMap[K]>,
+    listener: BlComponentEventListener<BlPairResultEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof BlocksPairResultEventMap>(
+  removeEventListener<K extends keyof BlPairResultEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksPairResultEventMap[K]>,
+    listener: BlComponentEventListener<BlPairResultEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
 
+// TODO: size
 @defineClass({
   customElement: 'bl-pair-result',
   styles: [style],
 })
-export class BlocksPairResult extends ClearableControlBox implements IPairSelectResultComponent {
-  static override get disableEventTypes(): readonly string[] {
-    return ['focus', 'click', 'touchstart', 'keydown']
-  }
-
-  @attrs.size accessor size!: EnumAttrs['size']
+export class BlPairResult extends BlClearableControlBox implements IPairSelectResultComponent {
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
 
   @attr('string') accessor placeholderFirst!: string | null
   @attr('string') accessor placeholderSecond!: string | null
+  /** 设置一边后，自动激活另一边 */
+  @attr('boolean') accessor autoSwitch!: boolean
+  /** 两边都有值后，自动关闭弹窗 */
+  @attr('boolean') accessor autoCommit!: boolean
 
-  @shadowRef('#content') accessor $content!: HTMLElement
+  @shadowRef('[part="content"]') accessor $content!: HTMLElement
   @shadowRef('[part="first"]') accessor $first!: HTMLInputElement
   @shadowRef('[part="second"]') accessor $second!: HTMLInputElement
+  @shadowRef('[part="separator"]') accessor $separator!: HTMLElement
 
   constructor() {
     super()
 
     this.appendContent(template())
     this._disabledFeature.withTarget(() => [this, this.$first, this.$second])
-    this._tabIndexFeature.withTabIndex(-1)
+    this._tabIndexFeature.withTabIndex(-1).withTarget(() => [this.$first, this.$second])
     this._emptyFeature.withPredicate(() => !this.firstSelected || !this.secondSelected)
     this.#setupResult()
     this.#setupPlaceholder()
@@ -98,7 +99,10 @@ export class BlocksPairResult extends ClearableControlBox implements IPairSelect
   set firstSelected(value) {
     this.#firstSelected = value
     this.$first.value = this.firstSelected ? this.formatter(this.firstSelected) : ''
-    dispatchEvent(this, 'change-first', { detail: { value } })
+
+    if (this.firstSelected?.value !== value?.value) {
+      dispatchEvent(this, 'change-first', { detail: { value } })
+    }
   }
 
   #secondSelected: ISelected | null = null
@@ -108,7 +112,10 @@ export class BlocksPairResult extends ClearableControlBox implements IPairSelect
   set secondSelected(value) {
     this.#secondSelected = value
     this.$second.value = this.secondSelected ? this.formatter(this.secondSelected) : ''
-    dispatchEvent(this, 'change-second', { detail: { value } })
+
+    if (this.secondSelected?.value !== value?.value) {
+      dispatchEvent(this, 'change-second', { detail: { value } })
+    }
   }
 
   get activeSelected() {
@@ -156,37 +163,52 @@ export class BlocksPairResult extends ClearableControlBox implements IPairSelect
     return [this.firstSelected?.value ?? null, this.secondSelected?.value ?? null]
   }
 
+  #notifyChange() {
+    dispatchEvent(this, 'change', { detail: { value: [this.firstSelected, this.secondSelected] } })
+    dispatchEvent(this, 'pair-result:after-accept-selected')
+  }
+
   // IPairSelectResultComponent 接口实现
-  acceptSelected(selected: [ISelected | null, ISelected | null]) {
+  acceptSelected(selected: ISelectPair) {
     // 两边同时清空
+    // 如果启用自动提交，则自动关闭弹窗
     if (!selected[0] && !selected[1]) {
       this.firstSelected = this.secondSelected = null
-      this.active = null
-      dispatchEvent(this, 'change', { detail: { value: [null, null] } })
+      if (this.autoCommit) {
+        this.active = null
+      }
+      this.#notifyChange()
     }
-    // 两边同事有值，则提交
+    // 两边同时有值
+    // 如果启用自动提交，则自动关闭弹窗
     else if (selected[0] && selected[1]) {
       this.firstSelected = selected[0]
       this.secondSelected = selected[1]
-      this.active = null
-      dispatchEvent(this, 'change', { detail: { value: [this.firstSelected, this.secondSelected] } })
+      if (this.autoCommit) {
+        this.active = null
+      }
+      this.#notifyChange()
     }
-    // 单边有值，赋值后，则自动激活另一边
+    // 单边赋值
+    // 如果启用自动切换，则赋值后自动切换设置另一边
     else {
       if (selected[0]) {
         this.firstSelected = selected[0]
         this.secondSelected = null
-        dispatchEvent(this, 'change', { detail: { value: [this.firstSelected, this.secondSelected] } })
-        this.active = 'second'
+        this.#notifyChange()
+        if (this.autoSwitch) {
+          this.active = 'second'
+        }
       } else if (selected[1]) {
         this.secondSelected = selected[1]
         this.firstSelected = null
-        dispatchEvent(this, 'change', { detail: { value: [this.firstSelected, this.secondSelected] } })
-        this.active = 'first'
+        this.#notifyChange()
+        if (this.autoSwitch) {
+          this.active = 'first'
+        }
       }
     }
     this._emptyFeature.update()
-    dispatchEvent(this, 'select-result:accept')
   }
 
   #setupResult() {
@@ -194,8 +216,14 @@ export class BlocksPairResult extends ClearableControlBox implements IPairSelect
       this.$first.value = this.firstSelected ? this.formatter(this.firstSelected) : ''
       this.$second.value = this.secondSelected ? this.formatter(this.secondSelected) : ''
     }
-    this.onConnected(updateDisplay)
+    this.hook.onConnected(updateDisplay)
 
+    // 标记该次 focus 是点击了 clear 按钮触发的
+    // 点击 clear 无需 active
+    let isClickClear = false
+    const onClearStart = () => {
+      isClickClear = true
+    }
     const onFocus = (e: FocusEvent) => {
       const $target = e.target as HTMLInputElement
       if (this.$first.contains($target)) {
@@ -205,15 +233,22 @@ export class BlocksPairResult extends ClearableControlBox implements IPairSelect
       }
     }
     const onLayoutFocus = () => {
+      if (isClickClear) {
+        isClickClear = false
+        return
+      }
       if (this.active === null) {
         this.active = 'first'
       }
     }
-    this.onConnected(() => {
-      this.$first.onfocus = this.$second.onfocus = onFocus
+    this.hook.onConnected(() => {
+      // 触发顺序：mousedown-clear -> click-clear -> click
+      this.addEventListener('mousedown-clear', onClearStart)
       this.addEventListener('click', onLayoutFocus)
+      this.$first.onfocus = this.$second.onfocus = onFocus
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
+      this.removeEventListener('mousedown-clear', onClearStart)
       this.removeEventListener('click', onLayoutFocus)
       this.$first.onfocus = this.$second.onfocus = null
     })
@@ -221,17 +256,17 @@ export class BlocksPairResult extends ClearableControlBox implements IPairSelect
 
   #setupEmptyClass() {
     const render = () => this._emptyFeature.update()
-    this.onRender(render)
-    this.onConnected(render)
-    this.onConnected(() => {
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
+    this.hook.onConnected(() => {
       this.addEventListener('select-result:clear', render)
       this.addEventListener('select-result:deselect', render)
-      this.addEventListener('select-result:accept', render)
+      this.addEventListener('select-result:after-accept-selected', render)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('select-result:clear', render)
       this.removeEventListener('select-result:deselect', render)
-      this.removeEventListener('select-result:accept', render)
+      this.removeEventListener('select-result:after-accept-selected', render)
     })
   }
 
@@ -241,9 +276,9 @@ export class BlocksPairResult extends ClearableControlBox implements IPairSelect
       this.$first.setAttribute('placeholder', this.placeholderFirst ?? '')
       this.$second.setAttribute('placeholder', this.placeholderSecond ?? '')
     }
-    this.onRender(renderPlaceholder)
-    this.onConnected(renderPlaceholder)
-    this.onAttributeChangedDeps(['placeholder-first', 'placeholder-second'], renderPlaceholder)
+    this.hook.onRender(renderPlaceholder)
+    this.hook.onConnected(renderPlaceholder)
+    this.hook.onAttributeChangedDeps(['placeholder-first', 'placeholder-second'], renderPlaceholder)
   }
 
   // SelectResultEventMap 接口实现
@@ -253,15 +288,15 @@ export class BlocksPairResult extends ClearableControlBox implements IPairSelect
       dispatchEvent(this, 'pair-result:clear')
     }
     // 点击清空按钮，发出清空事件，方便候选列表清理
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('click-clear', notifyClear)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('click-clear', notifyClear)
     })
   }
 
   #setupSize() {
-    this.onAttributeChangedDep('size', this.render)
+    this.hook.onAttributeChangedDep('size', this.render)
   }
 }

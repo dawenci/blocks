@@ -1,22 +1,25 @@
 import type { ColorFormat } from '../color/Color.js';
 import '../color/index.js';
-import '../icon/index.js';
-import '../input/index.js';
-import { BlocksPopup } from '../popup/index.js';
-import { BlocksColor } from '../color/index.js';
-import { Control } from '../base-control/index.js';
-export interface BlocksColorPicker extends Control {
-    $popup: BlocksPopup;
-    $color: BlocksColor;
+import '../select-result/index.js';
+import { BlPopup } from '../popup/index.js';
+import { BlColor } from '../color/index.js';
+import { BlControl } from '../base-control/index.js';
+import { BlSelectResult } from '../select-result/index.js';
+import { PROXY_POPUP_ACCESSORS, PROXY_RESULT_ACCESSORS } from '../../common/constants.js';
+export interface BlColorPicker extends BlControl, Pick<BlPopup, OneOf<typeof PROXY_POPUP_ACCESSORS>>, Pick<BlSelectResult, OneOf<typeof PROXY_RESULT_ACCESSORS>> {
+    $popup: BlPopup;
+    $color: BlColor;
+    defaultColor?: number;
 }
-export declare class BlocksColorPicker extends Control {
+export declare class BlColorPicker extends BlControl {
     #private;
     static get observedAttributes(): readonly string[];
-    static get disableEventTypes(): readonly string[];
+    accessor formatString: ColorFormat;
     accessor value: number;
     accessor open: boolean;
-    accessor $layout: HTMLElement;
-    accessor $icon: HTMLElement;
+    accessor clearable: boolean;
+    accessor $result: BlSelectResult;
+    get $arrowWrapper(): HTMLSpanElement;
     constructor();
     get hex(): string;
     set hex(value: string);
@@ -32,6 +35,5 @@ export declare class BlocksColorPicker extends Control {
     set rgb(value: import("../color/Color.js").ColorTuple3);
     get rgba(): import("../color/Color.js").ColorTuple4;
     set rgba(value: import("../color/Color.js").ColorTuple4);
-    render(): void;
     format(fmt: ColorFormat): string;
 }

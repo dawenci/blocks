@@ -1,2 +1,2 @@
-export { BlocksSplitter } from './splitter.js'
-export { BlocksSplitterPane } from './pane.js'
+export { BlSplitter } from './splitter.js'
+export { BlSplitterPane } from './pane.js'

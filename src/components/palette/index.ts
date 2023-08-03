@@ -1,11 +1,11 @@
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
-export class BlocksPalette extends Component {
+export class BlPalette extends BlComponent {
   constructor() {
     super()
-    const shadowRoot = this.shadowRoot!
-    shadowRoot.appendChild(template().content.cloneNode(true))
+
+    this.appendShadowChild(template().content.cloneNode(true))
   }
 
   override connectedCallback() {
@@ -15,5 +15,5 @@ export class BlocksPalette extends Component {
 }
 
 if (!customElements.get('bl-palette')) {
-  customElements.define('bl-palette', BlocksPalette)
+  customElements.define('bl-palette', BlPalette)
 }

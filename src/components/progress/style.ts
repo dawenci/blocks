@@ -56,7 +56,7 @@ export const style = /*css*/ `
   position: relative;
   width: 0;
   height: 100%;
-  transition: var(--transition-duration, ${__transition_duration}) all;
+  transition: var(--bl-transition-duration, ${__transition_duration}) all;
   border-radius: var(--bl-radius-base, ${__radius_base});
 }
 #progress:after {

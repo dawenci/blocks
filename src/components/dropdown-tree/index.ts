@@ -1,36 +1,35 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
-import type { EnumAttr } from '../../decorators/attr.js'
-import { attr } from '../../decorators/attr.js'
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
+import { attr } from '../../decorators/attr/index.js'
 import {
   connectSelectable,
   ISelected,
   ISelectListEventMap,
   ISelectResultComponent,
 } from '../../common/connectSelectable.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
 import { treeTemplate, popupTemplate, styleTemplate } from './template.js'
-import { BlocksPopup, PopupOrigin } from '../popup/index.js'
-import { BlocksTree } from '../tree/index.js'
-import { Control } from '../base-control/index.js'
+import { BlPopup, PopupOrigin } from '../popup/index.js'
+import { BlTree } from '../tree/index.js'
+import { BlControl } from '../base-control/index.js'
 
-interface BlocksDropdownTreeEventMap extends ComponentEventMap, ISelectListEventMap {
+export interface BlDropdownTreeEventMap extends BlComponentEventMap, ISelectListEventMap {
   'click-item': CustomEvent<{ id: any }>
 }
 
-export interface BlocksDropdownTree extends Control, ISelectResultComponent {
-  $popup: BlocksPopup
-  $tree: BlocksTree
-  addEventListener<K extends keyof BlocksDropdownTreeEventMap>(
+export interface BlDropdownTree extends BlControl, ISelectResultComponent {
+  $popup: BlPopup
+  $tree: BlTree
+  addEventListener<K extends keyof BlDropdownTreeEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksDropdownTreeEventMap[K]>,
+    listener: BlComponentEventListener<BlDropdownTreeEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
-  removeEventListener<K extends keyof BlocksDropdownTreeEventMap>(
+  removeEventListener<K extends keyof BlDropdownTreeEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksDropdownTreeEventMap[K]>,
+    listener: BlComponentEventListener<BlDropdownTreeEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -38,13 +37,13 @@ export interface BlocksDropdownTree extends Control, ISelectResultComponent {
 @defineClass({
   customElement: 'bl-dropdown-tree',
 })
-export class BlocksDropdownTree extends Control implements ISelectResultComponent {
+export class BlDropdownTree extends BlControl implements ISelectResultComponent {
   static override get observedAttributes() {
-    return [...BlocksPopup.observedAttributes, ...BlocksTree.observedAttributes]
+    return [...BlPopup.observedAttributes, ...BlTree.observedAttributes]
   }
 
   @attr('enum', { enumValues: ['hover', 'click'] })
-  accessor triggerMode: EnumAttr<['hover', 'click']> = 'click'
+  accessor triggerMode: OneOf<['hover', 'click']> = 'click'
   @attr('boolean') accessor open!: boolean
   @attr('enum', { enumValues: Object.values(PopupOrigin) })
   accessor origin!: PopupOrigin | null
@@ -64,52 +63,60 @@ export class BlocksDropdownTree extends Control implements ISelectResultComponen
     this.$tree = treeTemplate()
     this.$popup.appendChildren([styleTemplate(), this.$tree])
 
-    // this 代理 slot 里的 $result
-    connectSelectable(this, this.$tree, {
-      afterHandleListChange: () => {
-        if (!this.multiple) {
-          this.open = false
-        }
-      },
-      afterHandleResultClear: () => {
-        this.closePopup()
-        // 点击 clear 后，取消 slot 里面的焦点
-        // 否则，控件无法重新通过 focus 触发
-        if (document.activeElement) {
-          ;(document.activeElement as any).blur()
-        }
-      },
-    })
-
+    this.#setupConnect()
     this.#setupPopup()
     this.#setupList()
 
-    this.onConnected(this.render)
+    this.hook.onConnected(this.render)
   }
 
-  // TODO: resize popup/list
+  #setupConnect() {
+    this.$tree.afterResultAccepted = () => {
+      if (!this.multiple) {
+        this.open = false
+      }
+    }
+    this.afterListClear = () => {
+      this.closePopup()
+      // 点击 clear 后，取消 slot 里面的焦点
+      // 否则，控件无法重新通过 focus 触发
+      if (document.activeElement) {
+        ;(document.activeElement as any).blur()
+      }
+    }
+    // this 代理 slot 里的 $result
+    connectSelectable(this, this.$tree)
+  }
+
   #setupPopup() {
-    this.onConnected(() => {
+    const defaultAnchorGetter = () => this.$slot.assignedElements()?.[0] ?? this
+    const updatePopupSize = () => {
+      const anchorWidth = (this.$popup.anchorElement?.() as HTMLElement)?.offsetWidth ?? 0
+      this.$popup.style.width = Math.max(200, anchorWidth) + 'px'
+      this.$popup.style.height = 240 + this.$popup.arrow + 'px'
+    }
+
+    this.hook.onConnected(() => {
+      this.setAnchorGetter(defaultAnchorGetter)
       if (!this.hasAttribute('origin')) {
         this.origin = PopupOrigin.TopStart
       }
-      const defaultAnchorGetter = () => this.$slot.assignedElements()?.[0] ?? this
-      this.setAnchorGetter(defaultAnchorGetter)
       this.$popup.arrow = 8
       this.$popup.autoflip = true
       this.$popup.anchorElement = () => (this.getAnchorGetter() ?? defaultAnchorGetter)()
     })
 
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       document.body.removeChild(this.$popup)
     })
 
-    this.onAttributeChangedDeps(BlocksPopup.observedAttributes, (name, _, newValue) => {
+    this.hook.onAttributeChangedDeps(BlPopup.observedAttributes, (name, _, newValue) => {
       if (name === 'open') {
         // 首次打开的时候，挂载 $popup 的 DOM
         if (this.open && !document.body.contains(this.$popup)) {
           document.body.appendChild(this.$popup)
         }
+        updatePopupSize()
         this.$popup.open = this.open
       } else {
         this.$popup.setAttribute(name, newValue as string)
@@ -132,11 +139,11 @@ export class BlocksDropdownTree extends Control implements ISelectResultComponen
     }
     const onOpened = () => initClickOutside()
     const onClosed = () => destroyClickOutside()
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$popup.addEventListener('opened', onOpened)
       this.$popup.addEventListener('closed', onClosed)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$popup.removeEventListener('opened', onOpened)
       this.$popup.removeEventListener('closed', onClosed)
     })
@@ -154,7 +161,7 @@ export class BlocksDropdownTree extends Control implements ISelectResultComponen
       if (!isClickClear) this.openPopup()
       isClickClear = false
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('mousedown-clear', onClearStart)
       // focus 不冒泡，关注 slot 里面的 focus，需要用捕获模式，
       // 同时注册 click，以防止 slot 里内容无法聚焦
@@ -162,7 +169,7 @@ export class BlocksDropdownTree extends Control implements ISelectResultComponen
       this.addEventListener('click', onSlotFocus, true)
       this.addEventListener('click-clear', onClearEnd)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('mousedown-clear', onClearStart)
       this.removeEventListener('focus', onSlotFocus, true)
       this.removeEventListener('click', onSlotFocus, true)
@@ -171,8 +178,8 @@ export class BlocksDropdownTree extends Control implements ISelectResultComponen
   }
 
   #setupList() {
-    this.onAttributeChanged((attrName, _, newValue) => {
-      if (BlocksTree.observedAttributes.includes(attrName)) {
+    this.hook.onAttributeChanged((attrName, _, newValue) => {
+      if (BlTree.observedAttributes.includes(attrName)) {
         this.$tree.setAttribute(attrName, newValue as string)
       }
     })
@@ -181,11 +188,11 @@ export class BlocksDropdownTree extends Control implements ISelectResultComponen
     const onClickItem = (event: any) => {
       dispatchEvent(this, 'click-item', { detail: { id: event.detail.id } })
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$popup.addEventListener('opened', onOpened)
       this.$tree.addEventListener('click-item', onClickItem)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$popup.removeEventListener('opened', onOpened)
       this.$tree.removeEventListener('click-item', onClickItem)
     })
@@ -204,6 +211,7 @@ export class BlocksDropdownTree extends Control implements ISelectResultComponen
     if ($result && $result.acceptSelected) {
       $result.acceptSelected(value)
     }
+    dispatchEvent(this, 'select-result:after-accept-selected')
   }
 
   get data() {

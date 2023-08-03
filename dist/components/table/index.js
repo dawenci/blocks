@@ -1,1 +1,1 @@
-export { BlocksTable } from './table.js';
+export { BlTable } from './table.js';

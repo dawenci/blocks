@@ -22,7 +22,7 @@ export const style = /*css*/ `
   display: block;
   width: 100%;
   height: 100%;
-  transition: opacity var(--transition-duration, ${__transition_duration});
+  transition: opacity var(--bl-transition-duration, ${__transition_duration});
 }
 
 #placeholder,

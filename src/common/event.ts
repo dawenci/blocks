@@ -1,4 +1,4 @@
-import { Component, ComponentEventMap } from '../components/component/Component.js'
+import { BlComponent, BlComponentEventMap } from '../components/component/Component.js'
 
 export function dispatchEvent<T = any>(element: Element, eventName: string, options: CustomEventInit = {}): boolean {
   options = Object.assign(
@@ -23,10 +23,10 @@ export function onEvent<M, K extends keyof M, E extends Element = Element>(
   listener: (this: E, ev: M[K]) => any,
   options?: boolean | AddEventListenerOptions
 ): () => void
-export function onEvent<K extends keyof ComponentEventMap, E extends Component = Component>(
+export function onEvent<K extends keyof BlComponentEventMap, E extends BlComponent = BlComponent>(
   element: E,
   type: K,
-  listener: (this: E, ev: ComponentEventMap[K]) => any,
+  listener: (this: E, ev: BlComponentEventMap[K]) => any,
   options?: boolean | AddEventListenerOptions
 ): () => void
 export function onEvent<E extends Element = Element>(
@@ -48,10 +48,10 @@ export function onceEvent<M, K extends keyof M, E extends Element = Element>(
   listener: (this: E, ev: M[K]) => any,
   options?: boolean | AddEventListenerOptions
 ): () => void
-export function onceEvent<K extends keyof ComponentEventMap, E extends Component = Component>(
+export function onceEvent<K extends keyof BlComponentEventMap, E extends BlComponent = BlComponent>(
   element: E,
   type: K,
-  listener: (this: E, ev: ComponentEventMap[K]) => any,
+  listener: (this: E, ev: BlComponentEventMap[K]) => any,
   options?: boolean | AddEventListenerOptions
 ): () => void
 export function onceEvent<E extends Element = Element>(

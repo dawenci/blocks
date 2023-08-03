@@ -33,13 +33,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import './item.js';
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './breadcrumb.style.js';
 import { template } from './breadcrumb.template.js';
-import { Component } from '../component/Component.js';
-export let BlocksBreadcrumb = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlBreadcrumb = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-breadcrumb',
             styles: [style],
@@ -52,14 +52,14 @@ export let BlocksBreadcrumb = (() => {
     let _separator_initializers = [];
     let _$slot_decorators;
     let _$slot_initializers = [];
-    var BlocksBreadcrumb = class extends Component {
+    var BlBreadcrumb = class extends BlComponent {
         static {
             _separator_decorators = [attr('string')];
             _$slot_decorators = [shadowRef('slot')];
             __esDecorate(this, null, _separator_decorators, { kind: "accessor", name: "separator", static: false, private: false, access: { has: obj => "separator" in obj, get: obj => obj.separator, set: (obj, value) => { obj.separator = value; } } }, _separator_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksBreadcrumb = _classThis = _classDescriptor.value;
+            BlBreadcrumb = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #separator_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _separator_initializers, '/'));
@@ -81,18 +81,18 @@ export let BlocksBreadcrumb = (() => {
                     }
                 });
             };
-            this.onRender(render);
-            this.onConnected(render);
-            this.onAttributeChangedDep('separator', render);
-            this.onConnected(() => {
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onAttributeChangedDep('separator', render);
+            this.hook.onConnected(() => {
                 this.$slot.addEventListener('slotchange', render);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$slot.removeEventListener('slotchange', render);
             });
         }
     };
-    return BlocksBreadcrumb = _classThis;
+    return BlBreadcrumb = _classThis;
 })();
 function isItem(item) {
     return !!item._renderSeparator;

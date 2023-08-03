@@ -1,20 +1,18 @@
-import type { EnumAttrs } from '../../decorators/attr.js';
-import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js';
-import { ComponentEventListener } from '../component/Component.js';
+import { BlClearableControlBox, BlClearableControlBoxEventMap } from '../base-clearable-control-box/index.js';
+import { BlComponentEventListener } from '../component/Component.js';
 import { ISelected, ISelectResultEventMap, ISelectResultComponent } from '../../common/connectSelectable.js';
-interface BlocksInputEventMap extends ClearableControlBoxEventMap, ISelectResultEventMap {
+export interface BlInputEventMap extends BlClearableControlBoxEventMap, ISelectResultEventMap {
     change: CustomEvent<{
         value: string;
     }>;
 }
-export interface BlocksInput extends ClearableControlBox, ISelectResultComponent {
-    addEventListener<K extends keyof BlocksInputEventMap>(type: K, listener: ComponentEventListener<BlocksInputEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof BlocksInputEventMap>(type: K, listener: ComponentEventListener<BlocksInputEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlInput extends BlClearableControlBox, ISelectResultComponent {
+    addEventListener<K extends keyof BlInputEventMap>(type: K, listener: BlComponentEventListener<BlInputEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlInputEventMap>(type: K, listener: BlComponentEventListener<BlInputEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksInput extends ClearableControlBox implements ISelectResultComponent {
+export declare class BlInput extends BlClearableControlBox implements ISelectResultComponent {
     #private;
     static get role(): string;
-    static get disableEventTypes(): string[];
     accessor value: string | null;
     accessor type: string | null;
     accessor step: string | null;
@@ -27,7 +25,7 @@ export declare class BlocksInput extends ClearableControlBox implements ISelectR
     accessor maxlength: string | null;
     accessor autocomplete: boolean;
     accessor autofocus: boolean;
-    accessor size: EnumAttrs['size'];
+    accessor size: MaybeOneOf<['small', 'large']>;
     accessor multiple: boolean;
     accessor $input: HTMLInputElement;
     constructor();
@@ -35,4 +33,3 @@ export declare class BlocksInput extends ClearableControlBox implements ISelectR
     clearSearch(): void;
     focus(): void;
 }
-export {};

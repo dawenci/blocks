@@ -1,3 +1,3 @@
-export { BlocksNavMenu } from './menu.js'
-export { BlocksNavMenuGroup } from './menu-group.js'
-export { BlocksNavMenuItem } from './menu-item.js'
+export { BlNavMenu } from './menu.js'
+export { BlNavMenuGroup } from './menu-group.js'
+export { BlNavMenuItem } from './menu-item.js'

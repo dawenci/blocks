@@ -37,11 +37,11 @@ export class SetupControlEvent {
                 }));
             }
         };
-        this.#component.onConnected(() => {
+        this.#component.hook.onConnected(() => {
             this.#component.addEventListener('keydown', onKeydown);
             this.#component.addEventListener('keyup', onKeyup);
         });
-        this.#component.onDisconnected(() => {
+        this.#component.hook.onDisconnected(() => {
             this.#component.removeEventListener('keydown', onKeydown);
             this.#component.removeEventListener('keyup', onKeyup);
         });

@@ -32,12 +32,12 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { style } from './pane.style.js';
 import { template } from './pane.template.js';
-import { Component } from '../component/Component.js';
-export let BlocksSplitterPane = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlSplitterPane = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-splitter-pane',
             styles: [style],
@@ -56,7 +56,7 @@ export let BlocksSplitterPane = (() => {
     let _max_initializers = [];
     let _min_decorators;
     let _min_initializers = [];
-    var BlocksSplitterPane = class extends Component {
+    var BlSplitterPane = class extends BlComponent {
         static {
             _basis_decorators = [attr('number')];
             _grow_decorators = [attr('number')];
@@ -69,17 +69,8 @@ export let BlocksSplitterPane = (() => {
             __esDecorate(this, null, _max_decorators, { kind: "accessor", name: "max", static: false, private: false, access: { has: obj => "max" in obj, get: obj => obj.max, set: (obj, value) => { obj.max = value; } } }, _max_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _min_decorators, { kind: "accessor", name: "min", static: false, private: false, access: { has: obj => "min" in obj, get: obj => obj.min, set: (obj, value) => { obj.min = value; } } }, _min_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksSplitterPane = _classThis = _classDescriptor.value;
+            BlSplitterPane = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get observedAttributes() {
-            return [
-                'basis',
-                'grow',
-                'max',
-                'min',
-                'shrink',
-            ];
         }
         #basis_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _basis_initializers, 0));
         get basis() { return this.#basis_accessor_storage; }
@@ -99,17 +90,17 @@ export let BlocksSplitterPane = (() => {
         collapseSize;
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
+            this.appendShadowChild(template());
             const onMouseEnter = () => {
                 this.getSplitter().setActiveHandle(this);
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('mouseenter', onMouseEnter);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('mouseenter', onMouseEnter);
             });
-            this.onConnected(this.render);
+            this.hook.onConnected(this.render);
         }
         _size;
         get size() {
@@ -134,5 +125,5 @@ export let BlocksSplitterPane = (() => {
             this.getSplitter().expandPane(this);
         }
     };
-    return BlocksSplitterPane = _classThis;
+    return BlSplitterPane = _classThis;
 })();

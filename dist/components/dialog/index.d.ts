@@ -1,22 +1,23 @@
-import type { ComponentEventListener } from '../component/Component.js';
-import type { BlocksModalMask } from '../modal-mask/index.js';
-import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js';
+import type { BlComponentEventListener } from '../component/Component.js';
+import type { BlModalMask } from '../modal-mask/index.js';
+import type { BlPopupEventMap } from '../popup/index.js';
+import '../close-button/index.js';
 import '../modal-mask/index.js';
-import { BlocksPopup } from '../popup/index.js';
+import { BlPopup } from '../popup/index.js';
 import { SetupClickOutside } from '../setup-click-outside/index.js';
-type BlocksDialogEventMap = WithOpenTransitionEventMap;
-interface BlocksDialog extends BlocksPopup {
-    $mask: BlocksModalMask | null;
-    addEventListener<K extends keyof BlocksDialogEventMap>(type: K, listener: ComponentEventListener<BlocksDialogEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof BlocksDialogEventMap>(type: K, listener: ComponentEventListener<BlocksDialogEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export type BlDialogEventMap = BlPopupEventMap;
+interface BlDialog extends BlPopup {
+    $mask: BlModalMask | null;
+    addEventListener<K extends keyof BlDialogEventMap>(type: K, listener: BlComponentEventListener<BlDialogEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlDialogEventMap>(type: K, listener: BlComponentEventListener<BlDialogEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-declare class BlocksDialog extends BlocksPopup {
+declare class BlDialog extends BlPopup {
     #private;
     static get role(): string;
     accessor mask: boolean;
     accessor closeable: boolean;
     accessor titleText: string;
-    accessor unmountAfterClose: boolean;
+    accessor unmountOnClosed: boolean;
     accessor closeOnClickMask: boolean;
     accessor closeOnClickOutside: boolean;
     accessor closeOnPressEscape: boolean;
@@ -25,9 +26,9 @@ declare class BlocksDialog extends BlocksPopup {
     accessor $body: HTMLElement;
     accessor $footer: HTMLElement;
     accessor $headerSlot: HTMLSlotElement;
-    accessor $footerSlot: HTMLSlotElement;
     accessor $bodySlot: HTMLSlotElement;
+    accessor $footerSlot: HTMLSlotElement;
     constructor();
     _clickOutside: SetupClickOutside<this>;
 }
-export { BlocksDialog };
+export { BlDialog };

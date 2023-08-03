@@ -33,20 +33,29 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import '../loading/index.js';
-import { attr } from '../../decorators/attr.js';
+import { attr } from '../../decorators/attr/index.js';
 import { boolSetter, enumGetter, enumSetter } from '../../common/property.js';
 import { compile } from '../../common/dateFormat.js';
 import { computed } from '../../common/reactive.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { fromAttr } from '../component/reactive.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Control } from '../base-control/index.js';
+import { BlControl } from '../base-control/index.js';
 import { Depth } from './type.js';
 import * as Helpers from './helpers.js';
-export let BlocksDate = (() => {
+export const dateEquals = (a, b) => {
+    if (a === b)
+        return true;
+    if (a == null || b == null)
+        return false;
+    return (a.getUTCFullYear() === b.getUTCFullYear() &&
+        a.getUTCMonth() === b.getUTCMonth() &&
+        a.getUTCDate() === b.getUTCDate());
+};
+export let BlDate = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-date',
             styles: [style],
@@ -95,41 +104,41 @@ export let BlocksDate = (() => {
     let _$list_initializers = [];
     let _$loading_decorators;
     let _$loading_initializers = [];
-    var BlocksDate = class extends Control {
+    var BlDate = class extends BlControl {
         static {
             _loading_decorators = [attr('boolean')];
             _max_decorators = [attr('int')];
             _mode_decorators = [attr('enum', { enumValues: ['single', 'multiple', 'range'] })];
             _depth_decorators = [attr('enum', { enumValues: Helpers.LeafDepths })];
             _minDepth_decorators = [attr('string', {
-                    get(element) {
-                        const value = enumGetter('mindepth', Helpers.Depths)(element) ?? Depth.Century;
-                        return Helpers.normalizeMinDepth(value, element.depth);
+                    get(self) {
+                        const value = enumGetter('min-depth', Helpers.Depths)(self) ?? Depth.Century;
+                        return Helpers.normalizeMinDepth(value, self.depth);
                     },
-                    set(element, value) {
+                    set(self, value) {
                         if (Helpers.Depths.includes(value)) {
-                            enumSetter('mindepth', Helpers.Depths)(element, Helpers.normalizeMinDepth(value, element.depth));
+                            enumSetter('min-depth', Helpers.Depths)(self, Helpers.normalizeMinDepth(value, self.depth));
                         }
                     },
                 })];
             _startDepth_decorators = [attr('string', {
-                    get(element) {
-                        const value = enumGetter('startdepth', Helpers.Depths)(element) ?? element.depth;
-                        return Helpers.normalizeActiveDepth(value, element.minDepth, element.depth);
+                    get(self) {
+                        const value = enumGetter('start-depth', Helpers.Depths)(self) ?? self.depth;
+                        return Helpers.normalizeActiveDepth(value, self.minDepth, self.depth);
                     },
-                    set(element, value) {
+                    set(self, value) {
                         if (Helpers.Depths.includes(value)) {
-                            enumSetter('startdepth', Helpers.Depths)(element, Helpers.normalizeActiveDepth(value, element.minDepth, element.depth));
+                            enumSetter('start-depth', Helpers.Depths)(self, Helpers.normalizeActiveDepth(value, self.minDepth, self.depth));
                         }
                     },
                 })];
             _startWeekOn_decorators = [attr('string', {
-                    get(element) {
-                        const value = enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(element) ?? '1';
+                    get(self) {
+                        const value = enumGetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(self) ?? '1';
                         return Number(value);
                     },
-                    set(element, value) {
-                        enumSetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(element, String(value));
+                    set(self, value) {
+                        enumSetter('start-week-on', ['1', '2', '3', '4', '5', '6', '0'])(self, String(value));
                     },
                 })];
             _format_decorators = [attr('string', { defaults: 'YYYY-MM-DD' })];
@@ -162,7 +171,7 @@ export let BlocksDate = (() => {
             __esDecorate(this, null, _$list_decorators, { kind: "accessor", name: "$list", static: false, private: false, access: { has: obj => "$list" in obj, get: obj => obj.$list, set: (obj, value) => { obj.$list = value; } } }, _$list_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$loading_decorators, { kind: "accessor", name: "$loading", static: false, private: false, access: { has: obj => "$loading" in obj, get: obj => obj.$loading, set: (obj, value) => { obj.$loading = value; } } }, _$loading_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksDate = _classThis = _classDescriptor.value;
+            BlDate = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
@@ -195,7 +204,6 @@ export let BlocksDate = (() => {
         #format_accessor_storage = __runInitializers(this, _format_initializers, void 0);
         get format() { return this.#format_accessor_storage; }
         set format(value) { this.#format_accessor_storage = value; }
-        #formatter = computed(format => compile(format), [fromAttr(this, 'format')]);
         #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
         get $layout() { return this.#$layout_accessor_storage; }
         set $layout(value) { this.#$layout_accessor_storage = value; }
@@ -226,11 +234,11 @@ export let BlocksDate = (() => {
         #$loading_accessor_storage = __runInitializers(this, _$loading_initializers, void 0);
         get $loading() { return this.#$loading_accessor_storage; }
         set $loading(value) { this.#$loading_accessor_storage = value; }
+        formatter = computed(format => compile(format), [fromAttr(this, 'format')]);
         constructor() {
             super();
             this.appendShadowChild(template());
             this._tabIndexFeature.withTabIndex(null);
-            this.activeDepth = this.startDepth;
             this.#setupInitViewData();
             this.#setupNavButtons();
             this.#setupTitle();
@@ -238,8 +246,8 @@ export let BlocksDate = (() => {
             this.#setupWeekHeader();
             this.#setupLoading();
             this.#setupFocus();
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
         }
         #$pool = [];
         #selected = [];
@@ -316,6 +324,9 @@ export let BlocksDate = (() => {
                 dispatchEvent(this, 'active-century-change', { detail: { century } });
             }
         }
+        get activeCenturyDefault() {
+            return this.activeCentury ?? Helpers.decadeToCentury(this.activeDecadeDefault);
+        }
         #activeDecade;
         get activeDecade() {
             if (this.#activeDecade != null)
@@ -329,6 +340,9 @@ export let BlocksDate = (() => {
                 this.#activeDecade = decade;
                 dispatchEvent(this, 'active-decade-change', { detail: { decade } });
             }
+        }
+        get activeDecadeDefault() {
+            return this.activeDecade ?? Helpers.yearToDecade(this.activeYear ?? new Date().getUTCFullYear());
         }
         #activeYear;
         get activeYear() {
@@ -400,23 +414,24 @@ export let BlocksDate = (() => {
             dispatchEvent(this, 'badges-change', { detail: { value } });
         }
         #setupInitViewData() {
+            this.activeDepth = this.startDepth;
             const date = Helpers.getClosestDate(this.selected) ?? new Date();
             switch (this.activeDepth) {
                 case Depth.Month: {
-                    this.activeMonth = date.getMonth();
-                    this.activeYear = date.getFullYear();
+                    this.activeMonth = date.getUTCMonth();
+                    this.activeYear = date.getUTCFullYear();
                     return;
                 }
                 case Depth.Year: {
-                    this.activeYear = date.getFullYear();
+                    this.activeYear = date.getUTCFullYear();
                     return;
                 }
                 case Depth.Decade: {
-                    this.activeDecade = Helpers.yearToDecade(date.getFullYear());
+                    this.activeDecade = Helpers.yearToDecade(date.getUTCFullYear());
                     return;
                 }
                 case Depth.Century: {
-                    this.activeCentury = Helpers.yearToCentury(date.getFullYear());
+                    this.activeCentury = Helpers.yearToCentury(date.getUTCFullYear());
                     return;
                 }
             }
@@ -432,12 +447,12 @@ export let BlocksDate = (() => {
                     this.$nextNext.style.cssText = 'transfrom:scale(0,0);flex:0 0 0';
                 }
             };
-            this.onRender(render);
-            this.onConnected(render);
-            this.onConnected(() => {
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onConnected(() => {
                 this.addEventListener('active-depth-change', render);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('active-depth-change', render);
             });
             const onPrev = () => {
@@ -478,13 +493,13 @@ export let BlocksDate = (() => {
                     this.showNextYear();
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$prevPrev.onclick = onPrevPrev;
                 this.$prev.onclick = onPrev;
                 this.$next.onclick = onNext;
                 this.$nextNext.onclick = onNextNext;
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$prevPrev.onclick = this.$prev.onclick = this.$next.onclick = this.$nextNext.onclick = null;
             });
         }
@@ -493,11 +508,13 @@ export let BlocksDate = (() => {
                 let text;
                 switch (this.activeDepth) {
                     case Depth.Century: {
-                        text = `${Helpers.firstYearOfCentury(this.activeCentury)} ~ ${Helpers.lastYearOfCentury(this.activeCentury)}`;
+                        const activeCentury = this.activeCenturyDefault;
+                        text = `${Helpers.firstYearOfCentury(activeCentury)} ~ ${Helpers.lastYearOfCentury(activeCentury)}`;
                         break;
                     }
                     case Depth.Decade: {
-                        text = `${Helpers.firstYearOfDecade(this.activeDecade)} ~ ${Helpers.lastYearOfDecade(this.activeDecade)}`;
+                        const activeDecade = this.activeDecadeDefault;
+                        text = `${Helpers.firstYearOfDecade(activeDecade)} ~ ${Helpers.lastYearOfDecade(activeDecade)}`;
                         break;
                     }
                     case Depth.Year: {
@@ -509,16 +526,16 @@ export let BlocksDate = (() => {
                 }
                 this.$title.textContent = text;
             };
-            this.onRender(render);
-            this.onConnected(render);
-            this.onConnected(() => {
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onConnected(() => {
                 this.addEventListener('active-depth-change', render);
                 this.addEventListener('active-century-change', render);
                 this.addEventListener('active-decade-change', render);
                 this.addEventListener('active-year-change', render);
                 this.addEventListener('active-month-change', render);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('active-depth-change', render);
                 this.removeEventListener('active-century-change', render);
                 this.removeEventListener('active-decade-change', render);
@@ -531,10 +548,10 @@ export let BlocksDate = (() => {
                     this.rollUp();
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$layout.addEventListener('click', onClick);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$layout.removeEventListener('click', onClick);
             });
         }
@@ -559,13 +576,13 @@ export let BlocksDate = (() => {
                     $weekHeader.style.opacity = '0';
                 }
             };
-            this.onConnected(render);
-            this.onRender(render);
-            this.onAttributeChangedDep('start-week-on', render);
-            this.onConnected(() => {
+            this.hook.onConnected(render);
+            this.hook.onRender(render);
+            this.hook.onAttributeChangedDep('start-week-on', render);
+            this.hook.onConnected(() => {
                 this.addEventListener('active-depth-change', render);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('active-depth-change', render);
             });
         }
@@ -619,18 +636,18 @@ export let BlocksDate = (() => {
                 this.maybeRangeTo = getModel($button);
                 render();
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$layout.addEventListener('click', onClick);
                 this.$layout.addEventListener('mouseover', onMouseOver);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$layout.removeEventListener('click', onClick);
                 this.$layout.removeEventListener('mouseover', onMouseOver);
             });
             const includesToday = (item) => {
                 const today = new Date();
-                const year = today.getFullYear();
-                const month = today.getMonth();
+                const year = today.getUTCFullYear();
+                const month = today.getUTCMonth();
                 switch (this.activeDepth) {
                     case Depth.Year:
                         return item.year === year && item.month === month;
@@ -675,11 +692,11 @@ export let BlocksDate = (() => {
                 else {
                     switch (this.activeDepth) {
                         case Depth.Year:
-                            return this.selected.some((t) => t.getMonth() === itemModel.month && t.getFullYear() === itemModel.year);
+                            return this.selected.some((t) => t.getUTCMonth() === itemModel.month && t.getUTCFullYear() === itemModel.year);
                         case Depth.Decade:
-                            return this.selected.some((t) => t.getFullYear() === itemModel.year);
+                            return this.selected.some((t) => t.getUTCFullYear() === itemModel.year);
                         case Depth.Century:
-                            return this.selected.some((t) => Math.floor(t.getFullYear() / 10) === itemModel.decade);
+                            return this.selected.some((t) => Math.floor(t.getUTCFullYear() / 10) === itemModel.decade);
                         default:
                             return false;
                     }
@@ -722,7 +739,8 @@ export let BlocksDate = (() => {
                 return Array.prototype.slice.call($list.children);
             };
             const renderCenturyView = () => {
-                const decades = Helpers.generateDecades(this.activeCentury);
+                const activeCentury = this.activeCenturyDefault;
+                const decades = Helpers.generateDecades(activeCentury);
                 if (!decades.length)
                     return;
                 ensureItemCount(10).forEach(($el, i) => {
@@ -747,7 +765,7 @@ export let BlocksDate = (() => {
                 });
             };
             const renderDecadeView = () => {
-                const years = Helpers.generateYears(Helpers.decadeToCentury(this.activeDecade), this.activeDecade);
+                const years = Helpers.generateYears(Helpers.decadeToCentury(this.activeDecadeDefault), this.activeDecadeDefault);
                 if (!years.length)
                     return;
                 ensureItemCount(10).forEach(($el, i) => {
@@ -874,9 +892,9 @@ export let BlocksDate = (() => {
                     renderCenturyView();
                 }
             };
-            this.onRender(render);
-            this.onConnected(render);
-            this.onConnected(() => {
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onConnected(() => {
                 this.addEventListener('badges-change', render);
                 this.addEventListener('active-depth-change', render);
                 this.addEventListener('active-century-change', render);
@@ -885,7 +903,7 @@ export let BlocksDate = (() => {
                 this.addEventListener('active-month-change', render);
                 this.addEventListener('disabled-date-change', render);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('badges-change', render);
                 this.removeEventListener('active-depth-change', render);
                 this.removeEventListener('active-century-change', render);
@@ -899,16 +917,16 @@ export let BlocksDate = (() => {
             const render = () => {
                 this.$loading.style.display = this.loading ? '' : 'none';
             };
-            this.onRender(render);
-            this.onConnected(render);
-            this.onAttributeChangedDep('loading', render);
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onAttributeChangedDep('loading', render);
         }
         #setupFocus() {
             const onClick = () => this.focus();
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$layout.addEventListener('click', onClick);
             });
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$layout.removeEventListener('click', onClick);
             });
         }
@@ -929,6 +947,7 @@ export let BlocksDate = (() => {
         }
         clearSelected() {
             this.selected = [];
+            dispatchEvent(this, 'select-list:after-clear');
         }
         deselect(selected) {
             const date = selected.value;
@@ -938,7 +957,7 @@ export let BlocksDate = (() => {
             const value = this.selected.map(date => {
                 return {
                     value: date,
-                    label: this.#formatter.content(date),
+                    label: this.formatter.content(date),
                 };
             });
             dispatchEvent(this, 'select-list:change', {
@@ -992,8 +1011,8 @@ export let BlocksDate = (() => {
             if (this.depth === Depth.Month) {
                 const model = itemModel;
                 inRange = (t1, t2) => {
-                    const t1Time = Helpers.makeDate(t1.getFullYear(), t1.getMonth(), t1.getDate()).getTime();
-                    const t2Time = Helpers.makeDate(t2.getFullYear(), t2.getMonth(), t2.getDate()).getTime();
+                    const t1Time = Helpers.makeDate(t1.getUTCFullYear(), t1.getUTCMonth(), t1.getUTCDate()).getTime();
+                    const t2Time = Helpers.makeDate(t2.getUTCFullYear(), t2.getUTCMonth(), t2.getUTCDate()).getTime();
                     const itemTime = Helpers.makeDate(model.year, model.month, model.date).getTime();
                     return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime;
                 };
@@ -1001,8 +1020,8 @@ export let BlocksDate = (() => {
             else if (this.depth === Depth.Year) {
                 const model = itemModel;
                 inRange = (t1, t2) => {
-                    const t1Time = Helpers.makeDate(t1.getFullYear(), t1.getMonth(), 1).getTime();
-                    const t2Time = Helpers.makeDate(t2.getFullYear(), t2.getMonth(), 1).getTime();
+                    const t1Time = Helpers.makeDate(t1.getUTCFullYear(), t1.getUTCMonth(), 1).getTime();
+                    const t2Time = Helpers.makeDate(t2.getUTCFullYear(), t2.getUTCMonth(), 1).getTime();
                     const itemTime = Helpers.makeDate(model.year, model.month, 1).getTime();
                     return Math.min(t1Time, t2Time) <= itemTime && Math.max(t1Time, t2Time) >= itemTime;
                 };
@@ -1010,8 +1029,8 @@ export let BlocksDate = (() => {
             else if (this.depth === Depth.Decade) {
                 const model = itemModel;
                 inRange = (t1, t2) => {
-                    return (Math.min(t1.getFullYear(), t2.getFullYear()) <= model.year &&
-                        Math.max(t1.getFullYear(), t2.getFullYear()) >= model.year);
+                    return (Math.min(t1.getUTCFullYear(), t2.getUTCFullYear()) <= model.year &&
+                        Math.max(t1.getUTCFullYear(), t2.getUTCFullYear()) >= model.year);
                 };
             }
             else {
@@ -1036,13 +1055,13 @@ export let BlocksDate = (() => {
                 return this.#isRangeFrom(itemModel) || this.#isRangeTo(itemModel);
             }
             const isSameDate = (item, date) => {
-                return date.getFullYear() === item.year && date.getMonth() === item.month && date.getDate() === item.date;
+                return date.getUTCFullYear() === item.year && date.getUTCMonth() === item.month && date.getUTCDate() === item.date;
             };
             const isSameMonth = (item, date) => {
-                return date.getFullYear() === item.year && date.getMonth() === item.month;
+                return date.getUTCFullYear() === item.year && date.getUTCMonth() === item.month;
             };
             const isSameYear = (item, date) => {
-                return date.getFullYear() === item.year;
+                return date.getUTCFullYear() === item.year;
             };
             const isActive = this.depth === Depth.Month
                 ? isSameDate.bind(this, itemModel)
@@ -1078,12 +1097,12 @@ export let BlocksDate = (() => {
                     const values = this.selected.slice();
                     if (this.#isActiveLeaf(itemModel)) {
                         const pred = this.activeDepth === Depth.Month
-                            ? (t) => t.getDate() === itemModel.date &&
-                                t.getMonth() === itemModel.month &&
-                                t.getFullYear() === itemModel.year
+                            ? (t) => t.getUTCDate() === itemModel.date &&
+                                t.getUTCMonth() === itemModel.month &&
+                                t.getUTCFullYear() === itemModel.year
                             : this.activeDepth === Depth.Year
-                                ? (t) => t.getMonth() === itemModel.month && t.getFullYear() === itemModel.year
-                                : (t) => t.getFullYear() === itemModel.year;
+                                ? (t) => t.getUTCMonth() === itemModel.month && t.getUTCFullYear() === itemModel.year
+                                : (t) => t.getUTCFullYear() === itemModel.year;
                         const index = values.findIndex(pred);
                         if (index !== -1)
                             values.splice(index, 1);
@@ -1232,25 +1251,27 @@ export let BlocksDate = (() => {
             }
         }
         showValue(dateObj) {
+            if (!dateObj)
+                return;
             this.activeDepth = this.depth;
             switch (this.depth) {
                 case Depth.Month: {
                     this.activeCentury = undefined;
                     this.activeDecade = undefined;
-                    this.activeYear = dateObj.getFullYear();
-                    this.activeMonth = dateObj.getMonth();
+                    this.activeYear = dateObj.getUTCFullYear();
+                    this.activeMonth = dateObj.getUTCMonth();
                     break;
                 }
                 case Depth.Year: {
                     this.activeCentury = undefined;
                     this.activeDecade = undefined;
-                    this.activeYear = dateObj.getFullYear();
+                    this.activeYear = dateObj.getUTCFullYear();
                     this.activeMonth = undefined;
                     break;
                 }
                 case Depth.Decade: {
                     this.activeCentury = undefined;
-                    this.activeDecade = Helpers.yearToDecade(dateObj.getFullYear());
+                    this.activeDecade = Helpers.yearToDecade(dateObj.getUTCFullYear());
                     this.activeYear = undefined;
                     this.activeMonth = undefined;
                     break;
@@ -1358,7 +1379,9 @@ export let BlocksDate = (() => {
         dateEquals(a, b) {
             if (a === b)
                 return true;
-            return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+            return (a.getUTCFullYear() === b.getUTCFullYear() &&
+                a.getUTCMonth() === b.getUTCMonth() &&
+                a.getUTCDate() === b.getUTCDate());
         }
         getBadges(item) {
             let badges;
@@ -1380,5 +1403,5 @@ export let BlocksDate = (() => {
             return badges;
         }
     };
-    return BlocksDate = _classThis;
+    return BlDate = _classThis;
 })();

@@ -1,2 +1,2 @@
 export declare const contentTemplate: () => HTMLElement;
-export declare const menuTemplate: () => import("./menu").BlocksPopupMenu;
+export declare const menuTemplate: () => import("./menu").BlPopupMenu;

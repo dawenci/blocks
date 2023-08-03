@@ -33,14 +33,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import './menu-item.js';
-import { attr } from '../../decorators/attr.js';
+import { attr } from '../../decorators/attr/index.js';
 import { contentTemplate, itemTemplate } from './menu-group.template.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { forEach } from '../../common/utils.js';
 import { style } from './menu-group.style.js';
-import { Component } from '../component/Component.js';
-export let BlocksNavMenuGroup = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlNavMenuGroup = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-nav-menu-group',
             styles: [style],
@@ -55,25 +55,32 @@ export let BlocksNavMenuGroup = (() => {
     let _horizontal_initializers = [];
     let _collapse_decorators;
     let _collapse_initializers = [];
+    let _inline_decorators;
+    let _inline_initializers = [];
     let _$head_decorators;
     let _$head_initializers = [];
     let _$body_decorators;
     let _$body_initializers = [];
-    var BlocksNavMenuGroup = class extends Component {
+    var BlNavMenuGroup = class extends BlComponent {
         static {
             _titleText_decorators = [attr('string')];
             _horizontal_decorators = [attr('boolean')];
             _collapse_decorators = [attr('boolean')];
+            _inline_decorators = [attr('boolean')];
             _$head_decorators = [shadowRef('#head')];
             _$body_decorators = [shadowRef('#body')];
             __esDecorate(this, null, _titleText_decorators, { kind: "accessor", name: "titleText", static: false, private: false, access: { has: obj => "titleText" in obj, get: obj => obj.titleText, set: (obj, value) => { obj.titleText = value; } } }, _titleText_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _horizontal_decorators, { kind: "accessor", name: "horizontal", static: false, private: false, access: { has: obj => "horizontal" in obj, get: obj => obj.horizontal, set: (obj, value) => { obj.horizontal = value; } } }, _horizontal_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _collapse_decorators, { kind: "accessor", name: "collapse", static: false, private: false, access: { has: obj => "collapse" in obj, get: obj => obj.collapse, set: (obj, value) => { obj.collapse = value; } } }, _collapse_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _inline_decorators, { kind: "accessor", name: "inline", static: false, private: false, access: { has: obj => "inline" in obj, get: obj => obj.inline, set: (obj, value) => { obj.inline = value; } } }, _inline_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$head_decorators, { kind: "accessor", name: "$head", static: false, private: false, access: { has: obj => "$head" in obj, get: obj => obj.$head, set: (obj, value) => { obj.$head = value; } } }, _$head_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$body_decorators, { kind: "accessor", name: "$body", static: false, private: false, access: { has: obj => "$body" in obj, get: obj => obj.$body, set: (obj, value) => { obj.$body = value; } } }, _$body_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksNavMenuGroup = _classThis = _classDescriptor.value;
+            BlNavMenuGroup = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'group';
         }
         #titleText_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _titleText_initializers, ''));
         get titleText() { return this.#titleText_accessor_storage; }
@@ -84,6 +91,9 @@ export let BlocksNavMenuGroup = (() => {
         #collapse_accessor_storage = __runInitializers(this, _collapse_initializers, void 0);
         get collapse() { return this.#collapse_accessor_storage; }
         set collapse(value) { this.#collapse_accessor_storage = value; }
+        #inline_accessor_storage = __runInitializers(this, _inline_initializers, void 0);
+        get inline() { return this.#inline_accessor_storage; }
+        set inline(value) { this.#inline_accessor_storage = value; }
         #$head_accessor_storage = __runInitializers(this, _$head_initializers, void 0);
         get $head() { return this.#$head_accessor_storage; }
         set $head(value) { this.#$head_accessor_storage = value; }
@@ -93,10 +103,9 @@ export let BlocksNavMenuGroup = (() => {
         _data;
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(contentTemplate());
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
+            this.appendShadowChild(contentTemplate());
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
         }
         #hostMenu;
         get $hostMenu() {
@@ -122,11 +131,19 @@ export let BlocksNavMenuGroup = (() => {
             else {
                 this.$head.style.display = 'none';
             }
+            const hostContext = this.horizontal
+                ? 'horizontal'
+                : this.inline
+                    ? 'inline'
+                    : this.collapse
+                        ? 'collapse'
+                        : 'vertical';
             const bodyFragment = document.createDocumentFragment();
             (this.data.data ?? []).forEach((item) => {
                 if (!item.label && item.data)
                     return;
                 const $item = itemTemplate();
+                $item.setAttribute('host-context', hostContext);
                 $item.$hostMenu = this.$hostMenu;
                 bodyFragment.appendChild($item);
                 $item.data = item;
@@ -141,5 +158,5 @@ export let BlocksNavMenuGroup = (() => {
             });
         }
     };
-    return BlocksNavMenuGroup = _classThis;
+    return BlNavMenuGroup = _classThis;
 })();

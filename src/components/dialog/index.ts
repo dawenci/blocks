@@ -1,33 +1,34 @@
-import type { ComponentEventListener } from '../component/Component.js'
-import type { BlocksModalMask } from '../modal-mask/index.js'
-import type { BlocksPopupEventMap } from '../popup/index.js'
+import type { BlComponentEventListener } from '../component/Component.js'
+import type { BlModalMask } from '../modal-mask/index.js'
+import type { BlPopupEventMap } from '../popup/index.js'
+import '../close-button/index.js'
 import '../modal-mask/index.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { template } from './template.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { dispatchEvent, onceEvent } from '../../common/event.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import { onKeymap } from '../../common/onKeymap.js'
 import { style } from './style.js'
 import { mountBefore, unmount, append } from '../../common/mount.js'
-import { BlocksPopup } from '../popup/index.js'
+import { BlPopup } from '../popup/index.js'
 import { SetupClickOutside } from '../setup-click-outside/index.js'
 
-type BlocksDialogEventMap = BlocksPopupEventMap
+export type BlDialogEventMap = BlPopupEventMap
 
-interface BlocksDialog extends BlocksPopup {
-  $mask: BlocksModalMask | null
+interface BlDialog extends BlPopup {
+  $mask: BlModalMask | null
 
-  addEventListener<K extends keyof BlocksDialogEventMap>(
+  addEventListener<K extends keyof BlDialogEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksDialogEventMap[K]>,
+    listener: BlComponentEventListener<BlDialogEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof BlocksDialogEventMap>(
+  removeEventListener<K extends keyof BlDialogEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksDialogEventMap[K]>,
+    listener: BlComponentEventListener<BlDialogEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -36,7 +37,7 @@ interface BlocksDialog extends BlocksPopup {
   customElement: 'bl-dialog',
   styles: [style],
 })
-class BlocksDialog extends BlocksPopup {
+class BlDialog extends BlPopup {
   static override get role() {
     return 'dialog'
   }
@@ -76,8 +77,8 @@ class BlocksDialog extends BlocksPopup {
     this.#setupFooter()
     this.#setupClose()
     this.#setupDragEvent()
-    this.#setupClickOutside()
     this.#setupKeymap()
+    this.#setupAria()
   }
 
   _clickOutside: SetupClickOutside<this> = SetupClickOutside.setup({
@@ -88,10 +89,20 @@ class BlocksDialog extends BlocksPopup {
     update() {
       this.open = false
     },
+    init() {
+      const update = () => {
+        if (this.open && this.closeOnClickOutside) {
+          this._clickOutside.bind()
+        } else {
+          this._clickOutside.unbind()
+        }
+      }
+      this.hook.onAttributeChangedDeps(['open', 'close-on-click-outside'], update)
+    },
   })
 
   #setupPopup() {
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.autofocus = true
       if (this.parentElement !== document.body) {
         document.body.appendChild(this)
@@ -101,10 +112,10 @@ class BlocksDialog extends BlocksPopup {
     const unmountDialog = () => {
       if (this.unmountOnClosed) unmount(this)
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('closed', unmountDialog)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('closed', unmountDialog)
     })
   }
@@ -155,15 +166,15 @@ class BlocksDialog extends BlocksPopup {
       }
     }
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       if (this.mask && this.open) _ensureMask()
     })
 
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       _destroyMask()
     })
 
-    this.onAttributeChangedDeps(['mask', 'open'], () => {
+    this.hook.onAttributeChangedDeps(['mask', 'open'], () => {
       if (!this.$mask && this.mask && this.open) {
         return _ensureMask()
       }
@@ -180,7 +191,7 @@ class BlocksDialog extends BlocksPopup {
   #setupClose() {
     const update = () => {
       if (this.closeable && !this.$close) {
-        const $close = document.createElement('button')
+        const $close = document.createElement('bl-close-button')
         $close.setAttribute('part', 'close')
         $close.onclick = () => {
           this.open = false
@@ -198,9 +209,9 @@ class BlocksDialog extends BlocksPopup {
       }
     }
 
-    this.onConnected(update)
-    this.onRender(update)
-    this.onAttributeChangedDep('closeable', update)
+    this.hook.onConnected(update)
+    this.hook.onRender(update)
+    this.hook.onAttributeChangedDep('closeable', update)
   }
 
   #setupHeader() {
@@ -215,15 +226,15 @@ class BlocksDialog extends BlocksPopup {
         this.$layout.classList.add('no-header')
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$headerSlot.addEventListener('slotchange', update)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$headerSlot.removeEventListener('slotchange', update)
     })
-    this.onConnected(update)
-    this.onRender(update)
-    this.onAttributeChangedDep('title-text', update)
+    this.hook.onConnected(update)
+    this.hook.onRender(update)
+    this.hook.onAttributeChangedDep('title-text', update)
   }
 
   #setupFooter() {
@@ -234,12 +245,12 @@ class BlocksDialog extends BlocksPopup {
         this.$layout.classList.add('no-footer')
       }
     }
-    this.onConnected(update)
-    this.onRender(update)
-    this.onConnected(() => {
+    this.hook.onConnected(update)
+    this.hook.onRender(update)
+    this.hook.onConnected(() => {
       this.$footerSlot.addEventListener('slotchange', update)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$footerSlot.removeEventListener('slotchange', update)
     })
   }
@@ -304,15 +315,15 @@ class BlocksDialog extends BlocksPopup {
       }
     }
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       _initKeydown()
     })
 
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       _destroyKeydown()
     })
 
-    this.onAttributeChangedDep('close-on-press-escape', () => {
+    this.hook.onAttributeChangedDep('close-on-press-escape', () => {
       if (this.closeOnPressEscape) {
         _initKeydown()
       } else {
@@ -321,21 +332,14 @@ class BlocksDialog extends BlocksPopup {
     })
   }
 
-  #setupClickOutside() {
-    this.onConnected(() => {
-      this.addEventListener('opened', () => {
-        if (this.closeOnClickOutside) this._clickOutside.bind()
-      })
-      this.addEventListener('closed', () => {
-        this._clickOutside.unbind()
-      })
-    })
-
-    this.onAttributeChangedDep('close-on-click-outside', () => {
-      if (this.closeOnClickOutside) this._clickOutside.bind()
-      else this._clickOutside.unbind()
-    })
+  #setupAria() {
+    const update = () => {
+      this.setAttribute('aria-modal', this.mask ? 'true' : 'false')
+    }
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDep('mask', update)
   }
 }
 
-export { BlocksDialog }
+export { BlDialog }

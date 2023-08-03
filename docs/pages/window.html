@@ -18,22 +18,25 @@
       <h1>window</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
       <script type="module" src="../../dist/components/button/index.js"></script>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/window/index.js"></script>
-      </div>
+      
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/window/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>基础窗口</h2>
-
-      <div class="case" id="base-case">
+      <bl-card id="base-case">
+        <h2 slot="header" class="section-title">基础窗口</h2>
         <bl-button>显示/隐藏</bl-button>
         <script>
           document.querySelector('#base-case bl-button').onclick = () => {
@@ -46,14 +49,13 @@
             <div style="padding:50px 0;text-align:center;">内容</div>
           </bl-window>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>标题图标</h2>
-
-      <div class="case" id="icon-case">
+      <bl-card id="icon-case">
+        <h2 slot="header" class="section-title">标题图标</h2>
         <bl-button>显示/隐藏</bl-button>
         <script>
           document.querySelector('#icon-case bl-button').onclick = () => {
@@ -66,14 +68,13 @@
             <div style="padding:50px 0;text-align:center;">内容</div>
           </bl-window>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>焦点捕获</h2>
-
-      <div class="case" id="foucs-case">
+      <bl-card id="foucs-case">
+        <h2 slot="header" class="section-title">焦点捕获</h2>
         <bl-button>显示/隐藏</bl-button>
         <script>
           document.querySelector('#foucs-case bl-button').onclick = () => {
@@ -88,14 +89,13 @@
             </div>
           </bl-window>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>状态栏 slot</h2>
-
-      <div class="case" id="status-bar-case">
+      <bl-card id="status-bar-case">
+        <h2 slot="header" class="section-title">状态栏 slot</h2>
         <bl-button>显示/隐藏</bl-button>
         <script>
           document.querySelector('#status-bar-case bl-button').onclick = () => {
@@ -113,123 +113,124 @@
             </div>
           </bl-window>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
-
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>actions</td>
-            <td>string</td>
-            <td>'minimize,maximize,close'</td>
-            <td>窗口动作按钮，使用字符串 'minimize', 'maximize', 'close' 任意组合，使用英文逗号分割，顺序不限。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>capturefocus</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否将焦点限制在窗口里面，而不被 tab 切走。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>icon</td>
-            <td>string</td>
-            <td></td>
-            <td>标题栏图标。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>maximized</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否最大化窗口。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>minimized</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否最小化窗口。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>name</td>
-            <td>string</td>
-            <td></td>
-            <td>窗口的标题。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>open</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>窗口是否打开。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Slots</h3>
-      <table class="api-slots">
-        <thead>
-          <tr>
-            <th>slot 名称</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>default</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>status-bar</td>
-            <td></td>
-          </tr>          
-        </tbody>
-      </table>
-
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>closed</td>
-            <td></td>
-            <td>窗口关闭之后（动画播放完毕）触发。</td>
-          </tr>
-          <tr>
-            <td>opened</td>
-            <td></td>
-            <td>窗口打开之后（动画播放完毕）触发。</td>
-          </tr>          
-          <tr>
-            <td>resize</td>
-            <td>CustomEvent<{ width: number; height: number }></td>
-            <td>窗口尺寸变化触发。</td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>actions</td>
+              <td>actions</td>
+              <td>string</td>
+              <td>'minimize,maximize,close'</td>
+              <td>窗口动作按钮，使用字符串 'minimize', 'maximize', 'close' 任意组合，使用英文逗号分割，顺序不限。</td>
+            </tr>
+            <tr>
+              <td>capturefocus</td>
+              <td>capturefocus</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否将焦点限制在窗口里面，而不被 tab 切走。</td>
+            </tr>
+            <tr>
+              <td>icon</td>
+              <td>icon</td>
+              <td>string</td>
+              <td></td>
+              <td>标题栏图标。</td>
+            </tr>
+            <tr>
+              <td>maximized</td>
+              <td>maximized</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否最大化窗口。</td>
+            </tr>
+            <tr>
+              <td>minimized</td>
+              <td>minimized</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否最小化窗口。</td>
+            </tr>
+            <tr>
+              <td>name</td>
+              <td>name</td>
+              <td>string</td>
+              <td></td>
+              <td>窗口的标题。</td>
+            </tr>
+            <tr>
+              <td>open</td>
+              <td>open</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>窗口是否打开。</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Slots</h3>
+        <table class="api-slots">
+          <thead>
+            <tr>
+              <th>slot 名称</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>default</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>status-bar</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Events</h3>
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>bl:resize</td>
+              <td>CustomEvent&lt;{ width: number; height: number }&gt;</td>
+              <td>窗口尺寸变化触发。</td>
+            </tr>
+            <tr>
+              <td>closed</td>
+              <td></td>
+              <td>窗口关闭之后（动画播放完毕）触发。</td>
+            </tr>
+            <tr>
+              <td>opened</td>
+              <td></td>
+              <td>窗口打开之后（动画播放完毕）触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

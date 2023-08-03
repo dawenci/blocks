@@ -142,8 +142,8 @@ export const __z_index_drawer_focus = '11'
 
 // 其他 ****************************** /
 
-// --font-family
+// --bl-font-family
 export const __font_family = `-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol'`
 
-// --transition-duration
+// --bl-transition-duration
 export const __transition_duration = '.16s'

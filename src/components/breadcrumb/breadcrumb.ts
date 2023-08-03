@@ -1,17 +1,17 @@
-import type { BlocksBreadcrumbItem } from './item.js'
+import type { BlBreadcrumbItem } from './item.js'
 import './item.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './breadcrumb.style.js'
 import { template } from './breadcrumb.template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-breadcrumb',
   styles: [style],
 })
-export class BlocksBreadcrumb extends Component {
+export class BlBreadcrumb extends BlComponent {
   @attr('string') accessor separator = '/'
 
   @shadowRef('slot') accessor $slot!: HTMLSlotElement
@@ -30,18 +30,18 @@ export class BlocksBreadcrumb extends Component {
         }
       })
     }
-    this.onRender(render)
-    this.onConnected(render)
-    this.onAttributeChangedDep('separator', render)
-    this.onConnected(() => {
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
+    this.hook.onAttributeChangedDep('separator', render)
+    this.hook.onConnected(() => {
       this.$slot.addEventListener('slotchange', render)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$slot.removeEventListener('slotchange', render)
     })
   }
 }
 
-function isItem(item: Element): item is BlocksBreadcrumbItem {
-  return !!(item as BlocksBreadcrumbItem)._renderSeparator
+function isItem(item: Element): item is BlBreadcrumbItem {
+  return !!(item as BlBreadcrumbItem)._renderSeparator
 }

@@ -1,5 +1,6 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
-import { Component } from '../component/Component.js';
+import type { BlControlEventMap } from '../base-control/index.js';
+import type { BlComponentEventListener } from '../component/Component.js';
+import { BlControl } from '../base-control/index.js';
 declare enum State {
     Init = "Init",
     OperandLeft = "OperandLeft",
@@ -9,7 +10,7 @@ declare enum State {
     OperandRightEnd = "OperandRightEnd",
     Result = "Result"
 }
-interface CalcEventMap extends ComponentEventMap {
+export interface CalcEventMap extends BlControlEventMap {
     'bl:calc:screen': CustomEvent<{
         value: number;
     }>;
@@ -17,11 +18,11 @@ interface CalcEventMap extends ComponentEventMap {
         value: number;
     }>;
 }
-export interface BlocksCalc extends Component {
-    addEventListener<K extends keyof CalcEventMap>(type: K, listener: ComponentEventListener<CalcEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof CalcEventMap>(type: K, listener: ComponentEventListener<CalcEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlCalc extends BlControl {
+    addEventListener<K extends keyof CalcEventMap>(type: K, listener: BlComponentEventListener<CalcEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof CalcEventMap>(type: K, listener: BlComponentEventListener<CalcEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksCalc extends Component {
+export declare class BlCalc extends BlControl {
     accessor screen: string;
     accessor $layout: HTMLDivElement;
     accessor $result: HTMLDivElement;

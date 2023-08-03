@@ -32,13 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr, attrs } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr, attrs } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { forEach } from '../../common/utils.js';
 import { itemTemplate, groupTemplate } from './menu.template.js';
 import { onClickOutside } from '../../common/onClickOutside.js';
-import { BlocksPopup } from '../popup/index.js';
-export let BlocksPopupMenu = (() => {
+import { BlPopup } from '../popup/index.js';
+export let BlPopupMenu = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-popup-menu',
         })];
@@ -54,7 +54,7 @@ export let BlocksPopupMenu = (() => {
     let _size_initializers = [];
     let _level_decorators;
     let _level_initializers = [];
-    var BlocksPopupMenu = class extends BlocksPopup {
+    var BlPopupMenu = class extends BlPopup {
         static {
             _enterDelay_decorators = [attr('number')];
             _leaveDelay_decorators = [attr('number')];
@@ -65,8 +65,11 @@ export let BlocksPopupMenu = (() => {
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _level_decorators, { kind: "accessor", name: "level", static: false, private: false, access: { has: obj => "level" in obj, get: obj => obj.level, set: (obj, value) => { obj.level = value; } } }, _level_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksPopupMenu = _classThis = _classDescriptor.value;
+            BlPopupMenu = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'menu';
         }
         #enterDelay_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _enterDelay_initializers, 150));
         get enterDelay() { return this.#enterDelay_accessor_storage; }
@@ -119,7 +122,7 @@ export let BlocksPopupMenu = (() => {
             this._enterTimer = setTimeout(() => {
                 this.open = true;
             }, this.enterDelay);
-            if (this.$parentMenu instanceof BlocksPopupMenu) {
+            if (this.$parentMenu instanceof BlPopupMenu) {
                 if (this.$parentMenu.enter) {
                     this.$parentMenu.enter();
                 }
@@ -139,7 +142,7 @@ export let BlocksPopupMenu = (() => {
             this._leaveTimer = setTimeout(() => {
                 this.open = false;
             }, this.leaveDelay);
-            if (this.$parentMenu instanceof BlocksPopupMenu) {
+            if (this.$parentMenu instanceof BlPopupMenu) {
                 if (this.$parentMenu.leave) {
                     this.$parentMenu.leave();
                 }
@@ -151,7 +154,7 @@ export let BlocksPopupMenu = (() => {
         }
         closeAll() {
             this.open = false;
-            if (this.$parentMenu instanceof BlocksPopupMenu) {
+            if (this.$parentMenu instanceof BlPopupMenu) {
                 this.$parentMenu.closeAll();
             }
         }
@@ -169,12 +172,14 @@ export let BlocksPopupMenu = (() => {
                 if (item.data) {
                     const $group = groupTemplate();
                     $group.$hostMenu = this;
+                    $group.size = this.size;
                     fragment.appendChild($group);
                     $group.data = item;
                     return;
                 }
                 const $item = itemTemplate();
                 $item.$hostMenu = this;
+                $item.size = this.size;
                 fragment.appendChild($item);
                 $item.data = item;
             });
@@ -193,7 +198,7 @@ export let BlocksPopupMenu = (() => {
         }
         attributeChangedCallback(attrName, oldValue, newValue) {
             super.attributeChangedCallback(attrName, oldValue, newValue);
-            if (BlocksPopup.observedAttributes.includes(attrName)) {
+            if (BlPopup.observedAttributes.includes(attrName)) {
                 super.attributeChangedCallback(attrName, oldValue, newValue);
             }
             if (attrName === 'open') {
@@ -227,5 +232,5 @@ export let BlocksPopupMenu = (() => {
             }
         }
     };
-    return BlocksPopupMenu = _classThis;
+    return BlPopupMenu = _classThis;
 })();

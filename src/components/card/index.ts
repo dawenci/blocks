@@ -1,23 +1,22 @@
-import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 import { SetupEmpty } from '../setup-empty/index.js'
 
-type EmptyMap<T extends Component> = Record<'$coverSlot' | '$headerSlot' | '$bodySlot' | '$footerSlot', SetupEmpty<T>>
+type EmptyMap<T extends BlComponent> = Record<'$coverSlot' | '$headerSlot' | '$bodySlot' | '$footerSlot', SetupEmpty<T>>
 
 @defineClass({
   customElement: 'bl-card',
   styles: [style],
 })
-export class BlocksCard extends Component {
+export class BlCard extends BlComponent {
   @attr('enum', { enumValues: ['hover', 'always'] as const })
-  accessor shadow!: NullableEnumAttr<['hover', 'always']>
+  accessor shadow!: MaybeOneOf<['hover', 'always']>
 
-  @attrs.size accessor size!: EnumAttrs['size']
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
 
   @shadowRef('[part="layout"]') accessor $layout!: HTMLElement
   @shadowRef('[part="cover"]') accessor $cover!: HTMLElement
@@ -55,10 +54,10 @@ export class BlocksCard extends Component {
         target: () => this[name],
         init: () => {
           const onSlotChange = () => this._emptyFeature[slotName].update()
-          this.onConnected(() => {
+          this.hook.onConnected(() => {
             this[slotName].addEventListener('slotchange', onSlotChange)
           })
-          this.onDisconnected(() => {
+          this.hook.onDisconnected(() => {
             this[slotName].removeEventListener('slotchange', onSlotChange)
           })
         },

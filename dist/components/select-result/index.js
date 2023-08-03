@@ -33,15 +33,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import '../tag/index.js';
-import { append, mountAfter, mountBefore, unmount } from '../../common/mount.js';
-import { attr, attrs } from '../../decorators/attr.js';
+import { append, mountAfter, mountBefore, prepend, unmount } from '../../common/mount.js';
+import { attr, attrs } from '../../decorators/attr/index.js';
 import { contentTemplate, moreTemplate, placeholderTemplate, searchTemplate, tagTemplate, valueTextTemplate, } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
-import { ClearableControlBox } from '../base-clearable-control-box/index.js';
-export let BlocksSelectResult = (() => {
+import { BlClearableControlBox } from '../base-clearable-control-box/index.js';
+export let BlSelectResult = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-select-result',
             styles: [style],
@@ -68,7 +68,7 @@ export let BlocksSelectResult = (() => {
     let _$valueText_initializers = [];
     let _$placeholder_decorators;
     let _$placeholder_initializers = [];
-    var BlocksSelectResult = class extends ClearableControlBox {
+    var BlSelectResult = class extends BlClearableControlBox {
         static {
             _size_decorators = [attrs.size];
             _multiple_decorators = [attr('boolean')];
@@ -89,7 +89,7 @@ export let BlocksSelectResult = (() => {
             __esDecorate(this, null, _$valueText_decorators, { kind: "accessor", name: "$valueText", static: false, private: false, access: { has: obj => "$valueText" in obj, get: obj => obj.$valueText, set: (obj, value) => { obj.$valueText = value; } } }, _$valueText_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$placeholder_decorators, { kind: "accessor", name: "$placeholder", static: false, private: false, access: { has: obj => "$placeholder" in obj, get: obj => obj.$placeholder, set: (obj, value) => { obj.$placeholder = value; } } }, _$placeholder_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksSelectResult = _classThis = _classDescriptor.value;
+            BlSelectResult = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #size_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _size_initializers, void 0));
@@ -122,24 +122,7 @@ export let BlocksSelectResult = (() => {
         constructor() {
             super();
             this.appendContent(contentTemplate());
-            this._tabIndexFeature
-                .withTabIndex(0)
-                .withTarget(() => (this.searchable ? [this.$search] : [this.$layout]))
-                .withPostUpdate(() => {
-                if (this.searchable) {
-                    if (this.$layout.tabIndex !== -1) {
-                        this.$layout.tabIndex = -1;
-                    }
-                }
-                else {
-                    if (this.$search && this.$search.tabIndex !== -1) {
-                        this.$search.tabIndex = -1;
-                    }
-                }
-            });
-            this.onAttributeChangedDep('searchable', () => {
-                this._tabIndexFeature.update();
-            });
+            this.#setupTabindex();
             this.#setupMultiple();
             this.#setupEmptyClass();
             this.#setupPlaceholder();
@@ -148,7 +131,7 @@ export let BlocksSelectResult = (() => {
             this.#setupSearch();
             this.#setupDeselect();
             this.#setupClear();
-            this.onConnected(this.render);
+            this.hook.onConnected(this.render);
         }
         #tagSelectedMap = new WeakMap();
         #data = [];
@@ -158,6 +141,7 @@ export let BlocksSelectResult = (() => {
         set data(selected) {
             this.#data = selected;
             this._reanderData();
+            this._emptyFeature.update();
         }
         get dataCount() {
             return this.data.length;
@@ -192,22 +176,40 @@ export let BlocksSelectResult = (() => {
             else {
                 this.data = selected.slice(0, 1);
             }
-            dispatchEvent(this, 'select-result:accept', { detail: { value: this.data } });
+            dispatchEvent(this, 'select-result:after-accept-selected');
+        }
+        #setupTabindex() {
+            this._tabIndexFeature
+                .withTabIndex(0)
+                .withTarget(() => (this.searchable ? [this.$search] : [this.$layout]))
+                .withPostUpdate(() => {
+                if (this.searchable) {
+                    this.$layout.removeAttribute('tabindex');
+                }
+                else {
+                    if (this.$search) {
+                        this.$search.removeAttribute('tabindex');
+                    }
+                }
+            });
+            this.hook.onAttributeChangedDep('searchable', () => {
+                this._tabIndexFeature.update();
+            });
         }
         #setupEmptyClass() {
             this._emptyFeature.withPredicate(() => !this.dataCount);
             const render = () => this._emptyFeature.update();
-            this.onRender(render);
-            this.onConnected(render);
-            this.onConnected(() => {
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onConnected(() => {
                 this.addEventListener('select-result:clear', render);
                 this.addEventListener('select-result:deselect', render);
-                this.addEventListener('select-result:accept', render);
+                this.addEventListener('select-result:after-accept-selected', render);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('select-result:clear', render);
                 this.removeEventListener('select-result:deselect', render);
-                this.removeEventListener('select-result:accept', render);
+                this.removeEventListener('select-result:after-accept-selected', render);
             });
         }
         #setupMultiple() {
@@ -215,9 +217,9 @@ export let BlocksSelectResult = (() => {
                 this.$layout.classList.toggle('single', !this.multiple);
                 this.$layout.classList.toggle('multiple', this.multiple);
             };
-            this.onRender(render);
-            this.onConnected(render);
-            this.onAttributeChangedDep('multiple', render);
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onAttributeChangedDep('multiple', render);
         }
         #setupPlaceholder() {
             const render = () => {
@@ -235,9 +237,9 @@ export let BlocksSelectResult = (() => {
                     }
                 }
             };
-            this.onRender(render);
-            this.onConnected(render);
-            this.onAttributeChangedDeps(['placeholder', 'prefix-icon', 'loading'], render);
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onAttributeChangedDeps(['placeholder', 'prefix-icon', 'loading'], render);
         }
         #setupClear() {
             const notifyClear = () => {
@@ -245,10 +247,10 @@ export let BlocksSelectResult = (() => {
                     return;
                 dispatchEvent(this, 'select-result:clear');
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('click-clear', notifyClear);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('click-clear', notifyClear);
             });
         }
@@ -262,16 +264,16 @@ export let BlocksSelectResult = (() => {
                 const $tag = e.target;
                 notifyDeselect(this.#tagSelectedMap.get($tag));
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$layout.addEventListener('close', onDeselect);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$layout.removeEventListener('close', onDeselect);
             });
         }
         #setupSearch() {
-            this.onRender(this._renderSearchable);
-            this.onAttributeChangedDep('searchable', this._renderSearchable);
+            this.hook.onRender(this._renderSearchable);
+            this.hook.onAttributeChangedDep('searchable', this._renderSearchable);
             this.addEventListener('select-result:search', e => {
                 this.$layout.classList.toggle('searching', !!e.detail.searchString.length);
             });
@@ -284,12 +286,7 @@ export let BlocksSelectResult = (() => {
             if (this.searchable) {
                 if (!this.$search) {
                     const $search = searchTemplate();
-                    if (this.$valueText) {
-                        mountBefore($search, this.$valueText);
-                    }
-                    else {
-                        append($search, this.$content);
-                    }
+                    prepend($search, this.$content);
                     this._tabIndexFeature.update();
                 }
             }
@@ -311,8 +308,8 @@ export let BlocksSelectResult = (() => {
             dispatchEvent(this, 'select-result:search', { detail: { searchString } });
         }
         #setupData() {
-            this.onRender(this._reanderData);
-            this.onAttributeChangedDep('max-tag-count', this._reanderData);
+            this.hook.onRender(this._reanderData);
+            this.hook.onAttributeChangedDep('max-tag-count', this._reanderData);
         }
         _reanderData() {
             this.$layout.classList.toggle('has-result', !!this.dataCount);
@@ -343,12 +340,7 @@ export let BlocksSelectResult = (() => {
             }
             while ($tags.length < tagCount) {
                 const $tag = tagTemplate();
-                if (this.$search) {
-                    mountBefore($tag, this.$search);
-                }
-                else {
-                    append($tag, this.$content);
-                }
+                append($tag, this.$content);
             }
             for (let i = 0; i < tagCount; i += 1) {
                 const item = values[i];
@@ -382,8 +374,8 @@ export let BlocksSelectResult = (() => {
             }
         }
         #setupSize() {
-            this.onAttributeChangedDep('size', this.render);
+            this.hook.onAttributeChangedDep('size', this.render);
         }
     };
-    return BlocksSelectResult = _classThis;
+    return BlSelectResult = _classThis;
 })();

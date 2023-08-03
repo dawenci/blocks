@@ -1,7 +1,6 @@
 import { makeTemplate } from '../../common/template.js'
-import { BlocksPopup } from '../popup/index.js'
 
-export const template = makeTemplate<BlocksPopup>(/*html*/ `
+export const template = makeTemplate<'bl-popup'>(/*html*/ `
 <bl-popup append-to-body class="time-picker-popup" origin="top-start" arrow="8" autoflip>
   <bl-time class="time-picker-panel"></bl-time>
   <div id="action" style="padding:5px;text-align:center;">

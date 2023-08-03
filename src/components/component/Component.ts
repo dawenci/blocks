@@ -1,35 +1,37 @@
 import { append, mountAfter, mountBefore, prepend, unmount } from '../../common/mount.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { dispatchEvent } from '../../common/event.js'
 import { uniqId } from '../../common/uniqId.js'
 import { upgradeProperty } from '../../common/upgradeProperty.js'
-import * as hook from './hook-internal.js'
+import { Hook } from '../../common/Hook/index.js'
+import { Feature } from '../../common/Feature/Feature.js'
 
-interface ComponentEventListenerCallback<E extends Event = Event> {
+export interface BlComponentEventListenerCallback<E extends Event = Event> {
   (evt: E): void
 }
 
-interface ComponentEventListenerObject<E extends Event = Event> {
+export interface BlComponentEventListenerObject<E extends Event = Event> {
   handleEvent(object: E): void
 }
 
-export type ComponentEventListener<E extends Event = Event> =
-  | ComponentEventListenerCallback<E>
-  | ComponentEventListenerObject<E>
+export type BlComponentEventListener<E extends Event = Event> =
+  | BlComponentEventListenerCallback<E>
+  | BlComponentEventListenerObject<E>
 
-export interface ComponentEventMap extends HTMLElementEventMap {
+export interface BlComponentEventMap extends HTMLElementEventMap {
   [other: string]: Event
 }
 
-export interface Component extends HTMLElement {
-  addEventListener<K extends keyof ComponentEventMap>(
+export interface BlComponent extends HTMLElement {
+  addEventListener<K extends keyof BlComponentEventMap>(
     type: K,
-    listener: ComponentEventListener<ComponentEventMap[K]>,
+    listener: BlComponentEventListener<BlComponentEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof ComponentEventMap>(
+  removeEventListener<K extends keyof BlComponentEventMap>(
     type: K,
-    listener: ComponentEventListener<ComponentEventMap[K]>,
+    listener: BlComponentEventListener<BlComponentEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -39,14 +41,24 @@ let cidSeed = uniqId()
 @defineClass({
   attachShadow: true,
 })
-export class Component extends HTMLElement {
+export class BlComponent extends HTMLElement {
+  static get role() {
+    return 'widget'
+  }
+
   static get observedAttributes(): readonly string[] {
     return []
   }
 
+  blSilent = false
+
+  #hook = new Hook()
+  get hook() {
+    return this.#hook
+  }
+
   constructor() {
     super()
-    hook.setCurrentHook(this.#hook)
 
     const ctor = this.constructor as any
 
@@ -73,33 +85,15 @@ export class Component extends HTMLElement {
     return this.#cid
   }
 
-  #hook = new hook.Hook()
-  onConnected(callback: hook.ConnectedCallback) {
-    hook.onConnected(this.#hook, callback)
+  _features: Map<string | symbol, Feature> = new Map()
+  addFeature(key: string | symbol, feature: Feature) {
+    if (!this._features.has(key)) {
+      this._features.set(key, feature)
+      this.hook.merge(feature.hook)
+    }
   }
-  onDisconnected(callback: hook.DisconnectedCallback) {
-    hook.onDisconnected(this.#hook, callback)
-  }
-  onAdopted(callback: hook.AdoptedCallback) {
-    hook.onAdopted(this.#hook, callback)
-  }
-  onAttributeChanged<StrArr extends readonly string[] = string[]>(callback: hook.AttributeChangedCallback<StrArr>) {
-    hook.onAttributeChanged(this.#hook, callback)
-  }
-  onAttributeChangedDep<Str extends string>(dep: Str, callback: hook.AttributeChangedCallback<[Str]>) {
-    hook.onAttributeChangedDep(this.#hook, callback, dep)
-  }
-  onAttributeChangedDeps<StrArr extends readonly string[] = string[]>(
-    deps: StrArr,
-    callback: hook.AttributeChangedCallback<StrArr>
-  ) {
-    hook.onAttributeChangedDeps(this.#hook, callback, deps)
-  }
-  onRender(callback: hook.RenderCallback) {
-    hook.onRender(this.#hook, callback)
-  }
-  clearHooks() {
-    hook.clearHooks(this.#hook)
+  getFeature(key: string | symbol) {
+    return this._features.get(key)
   }
 
   /**
@@ -108,35 +102,35 @@ export class Component extends HTMLElement {
   connectedCallback() {
     this.initRole()
     this.upgradeProperty()
-    this.#hook.call(this, hook.HookType.Connected)
+    this.hook.callConnected(this)
   }
 
   /**
    * 从 DOM 中脱离
    */
   disconnectedCallback() {
-    this.#hook.call(this, hook.HookType.Disconnected)
+    this.hook.callDisconnected(this)
   }
 
   /**
    * 跨文档移动 DOM
    */
   adoptedCallback(): void {
-    this.#hook.call(this, hook.HookType.Adopted)
+    this.hook.callAdopted(this)
   }
 
   /**
    * attribute 变化处理
    */
   attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
-    this.#hook.call(this, hook.HookType.AttributeChanged, name, oldValue, newValue)
+    this.hook.callAttributeChanged(this, name, oldValue, newValue)
   }
 
   /**
    * 渲染逻辑
    */
   render() {
-    this.#hook.call(this, hook.HookType.Render)
+    this.hook.callRender(this)
   }
 
   prependTo($parent: Node) {
@@ -182,7 +176,7 @@ export class Component extends HTMLElement {
   /**
    * 插入样式
    */
-  insertStyle($style: HTMLStyleElement | DocumentFragment | string) {
+  insertStyle($style: HTMLStyleElement | DocumentFragment | string): HTMLStyleElement | null {
     if (this.shadowRoot) {
       // 找到当前组件已经插入的 style，如果存在，则新样式插入到该 style 后面
       const $lastStyle: HTMLStyleElement =
@@ -192,16 +186,23 @@ export class Component extends HTMLElement {
         const textContent = $style
         $style = document.createElement('style')
         $style.textContent = textContent
-      }
-      const _$last = $style.nodeType === 11 ? $style.children[$style.children.length - 1] : $style
-      if ($lastStyle) {
-        mountAfter($style.cloneNode(true), $lastStyle)
       } else {
-        prepend($style.cloneNode(true), this.shadowRoot)
+        $style = $style.cloneNode(true) as HTMLStyleElement | DocumentFragment
+      }
+      const _$last =
+        $style.nodeType === 11
+          ? ($style.children[$style.children.length - 1] as HTMLStyleElement)
+          : ($style as HTMLStyleElement)
+      if ($lastStyle) {
+        mountAfter($style, $lastStyle)
+      } else {
+        prepend($style, this.shadowRoot)
       }
       // 缓存
       ;(this as any)._$lastStyle = _$last
+      return _$last
     }
+    return null
   }
 
   /**
@@ -255,6 +256,51 @@ export class Component extends HTMLElement {
       return Array.from(this.shadowRoot.querySelectorAll<T>(selector))
     }
     return []
+  }
+
+  proxyEvent<T extends Element>(
+    $el: T,
+    type: Parameters<T['addEventListener']>[0],
+    options?: boolean | AddEventListenerOptions
+  ): () => void {
+    const handler = (event: any) => {
+      if (event.detail != null) {
+        dispatchEvent(this, type, { detail: event.detail })
+      } else {
+        dispatchEvent(this, type)
+      }
+    }
+    $el.addEventListener(type, handler, options)
+    return () => {
+      $el.removeEventListener(type, handler, options)
+    }
+  }
+
+  #microtasks = new Map()
+  /**
+   * 注册一次事件循环只调用一次的函数,连续注册,则以最后一次的函数为准
+   */
+  registerMicrotask(key: any, callback: () => void) {
+    if (!this.#microtasks.has(key)) {
+      queueMicrotask(() => {
+        this.#microtasks.get(key).call(this)
+        this.#microtasks.delete(key)
+      })
+    }
+    this.#microtasks.set(key, callback)
+  }
+
+  withBlSilent(fn: () => void) {
+    const before = this.blSilent
+    this.blSilent = true
+    fn()
+    this.blSilent = before
+  }
+  override dispatchEvent(event: Event) {
+    if (this.blSilent) {
+      return event.cancelable === false || event.defaultPrevented === false
+    }
+    return super.dispatchEvent(event)
   }
 }
 

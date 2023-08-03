@@ -32,56 +32,93 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import '../input/index.js';
+import '../select-result/index.js';
 import '../popup/index.js';
 import '../time/index.js';
-import { attr } from '../../decorators/attr.js';
-import { boolSetter } from '../../common/property.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { connectSelectable, makeISelectableProxy } from '../../common/connectSelectable.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
-import { onClickOutside } from '../../common/onClickOutside.js';
-import { padLeft } from '../../common/utils.js';
+import { prop } from '../../decorators/prop/index.js';
+import { reactive, subscribe } from '../../common/reactive.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
 import { template as popupTemplate } from './popup.template.js';
-import { BlocksInput } from '../input/index.js';
-import { BlocksTime } from '../time/index.js';
-import { Component } from '../component/Component.js';
-export let BlocksTimePicker = (() => {
+import { BlControl } from '../base-control/index.js';
+import { BlPopup } from '../popup/index.js';
+import { BlTime, timeEquals } from '../time/index.js';
+import { BlSelectResult } from '../select-result/index.js';
+import { PROXY_POPUP_ACCESSORS, PROXY_POPUP_ACCESSORS_KEBAB, PROXY_RESULT_ACCESSORS, PROXY_RESULT_ACCESSORS_KEBAB, } from '../../common/constants.js';
+import { SetupClickOutside } from '../setup-click-outside/index.js';
+export let BlTimePicker = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-time-picker',
             styles: [style],
+            proxyAccessors: [
+                { klass: BlPopup, names: PROXY_POPUP_ACCESSORS },
+                { klass: BlSelectResult, names: PROXY_RESULT_ACCESSORS },
+            ],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
+    let _open_decorators;
+    let _open_initializers = [];
     let _hour_decorators;
     let _hour_initializers = [];
     let _minute_decorators;
     let _minute_initializers = [];
     let _second_decorators;
     let _second_initializers = [];
-    let _$input_decorators;
-    let _$input_initializers = [];
-    var BlocksTimePicker = class extends Component {
+    let _$result_decorators;
+    let _$result_initializers = [];
+    var BlTimePicker = class extends BlControl {
         static {
-            _hour_decorators = [attr('intRange', { min: 0, max: 23 })];
-            _minute_decorators = [attr('intRange', { min: 0, max: 59 })];
-            _second_decorators = [attr('intRange', { min: 0, max: 59 })];
-            _$input_decorators = [shadowRef('#result')];
+            _open_decorators = [attr('boolean')];
+            _hour_decorators = [prop({
+                    get(self) {
+                        return self.#model.content?.hour ?? null;
+                    },
+                    set(self, value) {
+                        BlTime.prototype.setField.call(self, self.#model, 'hour', value);
+                    },
+                })];
+            _minute_decorators = [prop({
+                    get(self) {
+                        return self.#model.content?.minute ?? null;
+                    },
+                    set(self, value) {
+                        BlTime.prototype.setField.call(self, self.#model, 'minute', value);
+                    },
+                })];
+            _second_decorators = [prop({
+                    get(self) {
+                        return self.#model.content?.second ?? null;
+                    },
+                    set(self, value) {
+                        BlTime.prototype.setField.call(self, self.#model, 'second', value);
+                    },
+                })];
+            _$result_decorators = [shadowRef('[part="result"]')];
+            __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _hour_decorators, { kind: "accessor", name: "hour", static: false, private: false, access: { has: obj => "hour" in obj, get: obj => obj.hour, set: (obj, value) => { obj.hour = value; } } }, _hour_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _minute_decorators, { kind: "accessor", name: "minute", static: false, private: false, access: { has: obj => "minute" in obj, get: obj => obj.minute, set: (obj, value) => { obj.minute = value; } } }, _minute_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _second_decorators, { kind: "accessor", name: "second", static: false, private: false, access: { has: obj => "second" in obj, get: obj => obj.second, set: (obj, value) => { obj.second = value; } } }, _second_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _$input_decorators, { kind: "accessor", name: "$input", static: false, private: false, access: { has: obj => "$input" in obj, get: obj => obj.$input, set: (obj, value) => { obj.$input = value; } } }, _$input_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$result_decorators, { kind: "accessor", name: "$result", static: false, private: false, access: { has: obj => "$result" in obj, get: obj => obj.$result, set: (obj, value) => { obj.$result = value; } } }, _$result_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksTimePicker = _classThis = _classDescriptor.value;
+            BlTimePicker = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return [...BlocksTime.observedAttributes, ...BlocksInput.observedAttributes];
+            return [...PROXY_POPUP_ACCESSORS_KEBAB, ...PROXY_RESULT_ACCESSORS_KEBAB, ...BlTime.observedAttributes];
         }
-        #hour_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _hour_initializers, void 0));
+        #open_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _open_initializers, void 0));
+        get open() { return this.#open_accessor_storage; }
+        set open(value) { this.#open_accessor_storage = value; }
+        #hour_accessor_storage = __runInitializers(this, _hour_initializers, void 0);
         get hour() { return this.#hour_accessor_storage; }
         set hour(value) { this.#hour_accessor_storage = value; }
         #minute_accessor_storage = __runInitializers(this, _minute_initializers, void 0);
@@ -90,132 +127,144 @@ export let BlocksTimePicker = (() => {
         #second_accessor_storage = __runInitializers(this, _second_initializers, void 0);
         get second() { return this.#second_accessor_storage; }
         set second(value) { this.#second_accessor_storage = value; }
-        #$input_accessor_storage = __runInitializers(this, _$input_initializers, void 0);
-        get $input() { return this.#$input_accessor_storage; }
-        set $input(value) { this.#$input_accessor_storage = value; }
-        #clearup;
-        _prevValue = {
-            hour: null,
-            minute: null,
-            second: null,
-        };
+        #$result_accessor_storage = __runInitializers(this, _$result_initializers, void 0);
+        get $result() { return this.#$result_accessor_storage; }
+        set $result(value) { this.#$result_accessor_storage = value; }
+        #model = reactive(null, timeEquals);
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
-            const { $input } = this;
-            const $popup = popupTemplate();
-            const $time = $popup.querySelector('bl-time');
-            this._ref = {
-                $popup,
-                $time,
-            };
-            $popup.anchorElement = () => $input;
-            const $confirm = $popup.querySelector('bl-button');
-            const onFocus = () => {
-                $time.scrollToActive();
-                $popup.open = true;
-            };
-            $input.onfocus = $input.onclick = onFocus;
-            const onClear = () => {
-                $time.clear();
-                this._prevValue = {
-                    hour: null,
-                    minute: null,
-                    second: null,
-                };
-            };
-            $input.addEventListener('click-clear', onClear);
-            const onTimeChange = () => this.render();
-            $time.addEventListener('change', onTimeChange);
-            const onToggleOpen = () => boolSetter('popup-open')(this, $popup.open);
-            $popup.addEventListener('open-changed', onToggleOpen);
-            const onOpened = () => {
-                this._prevValue = {
-                    hour: $time.hour,
-                    minute: $time.minute,
-                    second: $time.second,
-                };
-            };
-            $popup.addEventListener('opened', onOpened);
-            const onClosed = () => {
-                if (this._prevValue) {
-                    $time.hour = this._prevValue.hour;
-                    $time.minute = this._prevValue.minute;
-                    $time.second = this._prevValue.second;
-                    this._prevValue = null;
-                }
-            };
-            $popup.addEventListener('closed', onClosed);
-            const onConfirm = this._confirm.bind(this);
-            $confirm.onclick = onConfirm;
-            this.onConnected(this.render);
+            this.appendShadowChild(template());
+            this.#setupResult();
             this.#setupPopup();
-            this.onAttributeChangedDeps(BlocksInput.observedAttributes, (attrName, oldValue, newValue) => {
-                this.$input.setAttribute(attrName, newValue);
+            this.#setupConnect();
+            this.#setupAria();
+        }
+        get value() {
+            return this.#model.content;
+        }
+        set value(value) {
+            BlTime.prototype.setModel.call(this, this.#model, value);
+        }
+        get disabledTime() {
+            return this.$time.disabledTime;
+        }
+        set disabledTime(value) {
+            this.$time.disabledTime = value;
+        }
+        isDisabled(field, value) {
+            return this.$time.isDisabled(field, value);
+        }
+        firstEnableModel(fixHour, fixMinute, fixSecond) {
+            return this.$time.firstEnableModel(fixHour, fixMinute, fixSecond);
+        }
+        _clickOutside = SetupClickOutside.setup({
+            component: this,
+            target() {
+                return [this, this.$popup];
+            },
+            update() {
+                if (this.open)
+                    this.open = false;
+            },
+            init() {
+                this.hook.onAttributeChangedDep('open', () => {
+                    if (this.open) {
+                        this._clickOutside.bind();
+                    }
+                    else {
+                        this._clickOutside.unbind();
+                    }
+                });
+            },
+        });
+        #setupResult() {
+            this.hook.onAttributeChangedDeps(PROXY_RESULT_ACCESSORS_KEBAB, (attrName, oldValue, newValue) => {
+                this.$result.setAttribute(attrName, newValue);
             });
-            this.onAttributeChangedDeps(BlocksTime.observedAttributes, (attrName, oldValue, newValue) => {
-                this._ref.$time.setAttribute(attrName, newValue);
-            });
-            this.onAttributeChanged(this.render);
         }
         #setupPopup() {
-            const _initClickOutside = () => {
-                if (!this.#clearup) {
-                    this.#clearup = onClickOutside([this, this._ref.$popup], () => {
-                        if (this._ref.$popup.open)
-                            this._ref.$popup.open = false;
-                    });
+            this.$popup = popupTemplate();
+            this.$time = this.$popup.querySelector('bl-time');
+            this.$popup.anchorElement = () => this.$result;
+            let isClickClear = false;
+            const onClearStart = () => {
+                isClickClear = true;
+            };
+            const onFocus = () => {
+                if (!isClickClear) {
+                    this.open = true;
+                    this.$time.scrollToActive();
                 }
+                isClickClear = false;
             };
-            const _destroyClickOutside = () => {
-                if (this.#clearup) {
-                    this.#clearup();
-                    this.#clearup = undefined;
+            const onClearEnd = () => {
+                isClickClear = false;
+            };
+            this.hook.onConnected(() => {
+                this.addEventListener('mousedown-clear', onClearStart);
+                this.addEventListener('focus', onFocus);
+                this.addEventListener('click-clear', onClearEnd);
+            });
+            this.hook.onDisconnected(() => {
+                this.removeEventListener('mousedown-clear', onClearStart);
+                this.removeEventListener('focus', onFocus);
+                this.removeEventListener('click-clear', onClearEnd);
+            });
+            const $confirm = this.$popup.querySelector('bl-button');
+            const onConfirm = this._confirm.bind(this);
+            $confirm.onclick = onConfirm;
+            this.hook.onDisconnected(() => {
+                document.body.removeChild(this.$popup);
+            });
+            this.hook.onAttributeChangedDeps(PROXY_POPUP_ACCESSORS_KEBAB, (name, _, val) => {
+                if (name === 'open') {
+                    if (this.open && !document.body.contains(this.$popup)) {
+                        document.body.appendChild(this.$popup);
+                    }
+                    this.$popup.open = this.open;
                 }
-            };
-            const onOpened = () => {
-                _initClickOutside();
-            };
-            const onClosed = () => {
-                _destroyClickOutside();
-            };
-            this.onConnected(() => {
-                document.body.appendChild(this._ref.$popup);
-                this._ref.$popup.addEventListener('opened', onOpened);
-                this._ref.$popup.addEventListener('closed', onClosed);
+                else {
+                    this.$popup.setAttribute(name, val);
+                }
             });
-            this.onDisconnected(() => {
-                document.body.removeChild(this._ref.$popup);
-                _destroyClickOutside();
-                this._ref.$popup.removeEventListener('opened', onOpened);
-                this._ref.$popup.removeEventListener('closed', onClosed);
-            });
-        }
-        render() {
-            super.render();
-            const { $time } = this._ref;
-            if ([$time.hour, $time.minute, $time.second].some(v => Object.is(v, NaN) || v == null)) {
-                this.$input.value = '';
-                return;
+            {
+                this.proxyEvent(this.$popup, 'opened');
+                this.proxyEvent(this.$popup, 'closed');
             }
-            const hour = padLeft('0', 2, String($time.hour));
-            const minute = padLeft('0', 2, String($time.minute));
-            const second = padLeft('0', 2, String($time.second));
-            this.$input.value = `${hour}:${minute}:${second}`;
+            this.#setupTime();
+        }
+        #setupTime() {
+            this.hook.onAttributeChangedDeps(BlTime.observedAttributes, (attrName, oldValue, newValue) => {
+                this.$time.setAttribute(attrName, newValue);
+            });
         }
         _confirm() {
-            const { $popup, $time } = this._ref;
-            this._prevValue = null;
-            dispatchEvent(this, 'change', {
-                detail: {
-                    hour: $time.hour,
-                    minute: $time.minute,
-                    second: $time.second,
-                },
+            this.open = false;
+        }
+        #setupConnect() {
+            const $proxy = makeISelectableProxy();
+            connectSelectable(this.$result, $proxy);
+            connectSelectable($proxy, this.$time);
+            $proxy.acceptSelected = selected => {
+                this.#model.content = selected[0]?.value ?? null;
+            };
+            $proxy.clearSelected = () => {
+                this.#model.content = null;
+                this.open = false;
+                this.blur();
+            };
+            subscribe(this.#model, value => {
+                const selected = value == null ? [] : [{ value, label: this.$time.formatter(value) }];
+                this.$result.acceptSelected(selected);
+                this.$time.value = value;
+                dispatchEvent(this, 'change', { detail: { value } });
             });
-            $popup.open = false;
+        }
+        #setupAria() {
+            this.hook.onConnected(() => {
+                this.setAttribute('aria-haspopup', 'true');
+            });
         }
     };
-    return BlocksTimePicker = _classThis;
+    return BlTimePicker = _classThis;
 })();

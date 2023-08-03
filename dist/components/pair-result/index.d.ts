@@ -1,8 +1,7 @@
-import type { EnumAttrs } from '../../decorators/attr.js';
-import type { ISelected, IPairSelectResultComponent, IPairSelectResultEventMap } from '../../common/connectSelectable.js';
-import { ClearableControlBox, ClearableControlBoxEventMap } from '../base-clearable-control-box/index.js';
-import { ComponentEventListener } from '../component/Component.js';
-export interface BlocksPairResultEventMap extends ClearableControlBoxEventMap, IPairSelectResultEventMap {
+import type { ISelected, ISelectPair, IPairSelectResultComponent, IPairSelectResultEventMap } from '../../common/connectSelectable.js';
+import { BlClearableControlBox, BlClearableControlBoxEventMap } from '../base-clearable-control-box/index.js';
+import { BlComponentEventListener } from '../component/Component.js';
+export interface BlPairResultEventMap extends BlClearableControlBoxEventMap, IPairSelectResultEventMap {
     active: CustomEvent<{
         value: 'first' | 'second' | null;
     }>;
@@ -18,33 +17,34 @@ export interface BlocksPairResultEventMap extends ClearableControlBoxEventMap, I
     search: CustomEvent<{
         value: string;
     }>;
-    'select-result:accept': CustomEvent;
 }
-export interface BlocksPairResult extends ClearableControlBox, IPairSelectResultComponent {
-    addEventListener<K extends keyof BlocksPairResultEventMap>(type: K, listener: ComponentEventListener<BlocksPairResultEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof BlocksPairResultEventMap>(type: K, listener: ComponentEventListener<BlocksPairResultEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlPairResult extends BlClearableControlBox, IPairSelectResultComponent {
+    addEventListener<K extends keyof BlPairResultEventMap>(type: K, listener: BlComponentEventListener<BlPairResultEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlPairResultEventMap>(type: K, listener: BlComponentEventListener<BlPairResultEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksPairResult extends ClearableControlBox implements IPairSelectResultComponent {
+export declare class BlPairResult extends BlClearableControlBox implements IPairSelectResultComponent {
     #private;
-    static get disableEventTypes(): readonly string[];
-    accessor size: EnumAttrs['size'];
+    accessor size: MaybeOneOf<['small', 'large']>;
     accessor placeholderFirst: string | null;
     accessor placeholderSecond: string | null;
+    accessor autoSwitch: boolean;
+    accessor autoCommit: boolean;
     accessor $content: HTMLElement;
     accessor $first: HTMLInputElement;
     accessor $second: HTMLInputElement;
+    accessor $separator: HTMLElement;
     constructor();
     get active(): "second" | "first" | null;
     set active(value: "second" | "first" | null);
-    get firstSelected(): ISelected | null;
-    set firstSelected(value: ISelected | null);
-    get secondSelected(): ISelected | null;
-    set secondSelected(value: ISelected | null);
-    get activeSelected(): ISelected | null;
-    set activeSelected(value: ISelected | null);
-    get formatter(): (item: ISelected) => string;
-    set formatter(value: (item: ISelected) => string);
+    get firstSelected(): ISelected<any> | null;
+    set firstSelected(value: ISelected<any> | null);
+    get secondSelected(): ISelected<any> | null;
+    set secondSelected(value: ISelected<any> | null);
+    get activeSelected(): ISelected<any> | null;
+    set activeSelected(value: ISelected<any> | null);
+    get formatter(): (item: ISelected<any>) => string;
+    set formatter(value: (item: ISelected<any>) => string);
     get labels(): [string, string];
     get values(): [any, any];
-    acceptSelected(selected: [ISelected | null, ISelected | null]): void;
+    acceptSelected(selected: ISelectPair): void;
 }

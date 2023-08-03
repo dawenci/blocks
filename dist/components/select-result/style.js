@@ -1,7 +1,6 @@
 import { __fg_placeholder, __font_size_small } from '../../theme/var-light.js';
 export const style = `
 :host {
-  width: 200px;
   height: var(--height);
 }
 :host([multiple]) {
@@ -38,9 +37,11 @@ export const style = `
 
 .value-text {
   margin: 0 8px;
+  white-space: nowrap;
 }
 
 bl-tag {
+  order: 1;
   margin: 1px;
   flex: 0 0 auto;
   border: 0 none;
@@ -50,12 +51,14 @@ bl-tag:focus {
   outline: 0 none;
 }
 .more {
+  order: 3;
   font-size: var(--bl-font-size-small, ${__font_size_small});
   user-select: none;
   color: var(--bl-fg-secondary);
 }
 
 .search {
+  order: 2;
   box-sizing: border-box;
   border: 0;
   background: rgba(255,255,255,0);

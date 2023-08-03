@@ -1,13 +1,13 @@
-import type { BlocksTable } from './table.js';
-import type { ComponentEventListener } from '../component/Component.js';
+import type { BlTable } from './table.js';
+import type { BlComponentEventListener } from '../component/Component.js';
 import type { RowColumn } from './RowColumn.js';
 import type { VListEventMap } from '../vlist/index.js';
-import { BlocksVList } from '../vlist/index.js';
+import { BlVList } from '../vlist/index.js';
 export type CellElement = HTMLElement & {
     column: RowColumn;
     data: any;
 };
-export interface BlocksTableBodyEventMap extends VListEventMap {
+export interface BlTableBodyEventMap extends VListEventMap {
     'click-cell': CustomEvent<{
         $el: CellElement;
         column: RowColumn;
@@ -17,14 +17,15 @@ export interface BlocksTableBodyEventMap extends VListEventMap {
         data: any;
     }>;
 }
-export interface BlocksTableBody extends BlocksVList {
-    $host: BlocksTable;
+export interface BlTableBody extends BlVList {
+    $host: BlTable;
     $summary?: HTMLElement;
-    addEventListener<K extends keyof BlocksTableBodyEventMap>(type: K, listener: ComponentEventListener<BlocksTableBodyEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof BlocksTableBodyEventMap>(type: K, listener: ComponentEventListener<BlocksTableBodyEventMap[K]>, options?: boolean | EventListenerOptions): void;
+    addEventListener<K extends keyof BlTableBodyEventMap>(type: K, listener: BlComponentEventListener<BlTableBodyEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlTableBodyEventMap>(type: K, listener: BlComponentEventListener<BlTableBodyEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksTableBody extends BlocksVList {
+export declare class BlTableBody extends BlVList {
     #private;
+    static get role(): string;
     static get observedAttributes(): string[];
     columns: RowColumn[];
     flattenColumns: RowColumn[];
@@ -36,7 +37,7 @@ export declare class BlocksTableBody extends BlocksVList {
     accessor summaryHeight: number;
     constructor();
     get shouldRenderSummary(): boolean;
-    sortMethod(data: any[]): Promise<any[]>;
+    sortMethod(data: any[], callback: (data: any) => any): any;
     beforeRender(): void;
     afterRender(): void;
     itemRender($item: any, vitem: any): void;

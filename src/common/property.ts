@@ -10,11 +10,13 @@ export function strSetter(attr: string): (element: Element, value: any) => void 
     const oldAttrValue = element.getAttribute(attr)
     if (oldAttrValue === null && value === null) return
     if (oldAttrValue === String(value)) return
+
     if (value === null) {
       element.removeAttribute(attr)
-    } else {
-      element.setAttribute(attr, value)
+      return
     }
+
+    element.setAttribute(attr, value)
   }
 }
 
@@ -35,10 +37,11 @@ export function boolSetter(attr: string): (element: Element, value: any) => void
       if (element.hasAttribute(attr)) {
         element.removeAttribute(attr)
       }
-    } else {
-      if (!element.hasAttribute(attr)) {
-        element.setAttribute(attr, '')
-      }
+      return
+    }
+
+    if (!element.hasAttribute(attr)) {
+      element.setAttribute(attr, '')
     }
   }
 }
@@ -64,17 +67,25 @@ export function numGetter(attr: string): (element: Element) => number | null {
  */
 export function numSetter(attr: string): (element: Element, value: any) => void {
   return (element, value) => {
-    if (value === element.getAttribute(attr)) return
+    const oldAttrValue = element.getAttribute(attr)
+    if (oldAttrValue === null && value === null) return
+    if (oldAttrValue === String(value)) return
+
     if (value === null) {
       element.removeAttribute(attr)
       return
     }
+
     if (typeof value === 'number') {
       element.setAttribute(attr, String(value))
-    } else {
-      if (Object.is(parseFloat(String(value)), NaN)) return
-      element.setAttribute(attr, value)
+      return
     }
+
+    if (Object.is(parseFloat(String(value)), NaN)) {
+      return
+    }
+
+    element.setAttribute(attr, value)
   }
 }
 
@@ -99,17 +110,25 @@ export function intGetter(attr: string): (element: Element) => number | null {
  */
 export function intSetter(attr: string): (element: Element, value: any) => void {
   return (element, value) => {
-    if (value === element.getAttribute(attr)) return
+    const oldAttrValue = element.getAttribute(attr)
+    if (oldAttrValue === null && value === null) return
+    if (oldAttrValue === String(value)) return
+
     if (value === null) {
       element.removeAttribute(attr)
       return
     }
+
     if (typeof value === 'number') {
-      element.setAttribute(attr, String(value))
-    } else {
-      if (Object.is(parseInt(String(value), 10), NaN)) return
-      element.setAttribute(attr, value)
+      element.setAttribute(attr, String(Math.trunc(value)))
+      return
     }
+
+    if (Object.is(parseInt(String(value), 10), NaN)) {
+      return
+    }
+
+    element.setAttribute(attr, value)
   }
 }
 
@@ -130,19 +149,28 @@ export function intRangeGetter(attr: string, min: number, max: number): (element
  */
 export function intRangeSetter(attr: string, min: number, max: number): (element: Element, value: any) => void {
   return (element, value) => {
-    if (value === element.getAttribute(attr)) return
+    const oldAttrValue = element.getAttribute(attr)
+    if (oldAttrValue === null && value === null) return
+    if (oldAttrValue === String(value)) return
+
     if (value === null) {
       element.removeAttribute(attr)
       return
     }
+
     if (typeof value === 'number') {
+      value = Math.trunc(value)
       if (value < min || value > max) return
       element.setAttribute(attr, String(value))
-    } else {
-      value = parseInt(String(value), 10)
-      if (Object.is(value, NaN) || value < min || value > max) return
-      element.setAttribute(attr, value)
+      return
     }
+
+    value = parseInt(String(value), 10)
+    if (Object.is(value, NaN) || value < min || value > max) {
+      return
+    }
+
+    element.setAttribute(attr, value)
   }
 }
 
@@ -169,16 +197,18 @@ export function enumSetter<T extends string>(
   values: readonly T[]
 ): (element: Element, value: any) => void {
   return (element, value) => {
-    if ((element.getAttribute(attr) as any) === value) {
-      return
-    }
+    const oldAttrValue = element.getAttribute(attr)
+    if (oldAttrValue === null && value === null) return
+    if (oldAttrValue === String(value)) return
+
     if (value === null) {
       element.removeAttribute(attr)
-    } else {
-      if (!values.includes(value as any)) {
-        return
-      }
-      element.setAttribute(attr, value as unknown as string)
+      return
     }
+
+    if (!values.includes(value as any)) {
+      return
+    }
+    element.setAttribute(attr, value as unknown as string)
   }
 }

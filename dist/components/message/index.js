@@ -32,14 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import '../close-button/index.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
-export let BlocksMessage = (() => {
+import { BlComponent } from '../component/Component.js';
+import { unmount } from '../../common/mount.js';
+export let BlMessage = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-message',
             styles: [style],
@@ -54,18 +57,34 @@ export let BlocksMessage = (() => {
     let _duration_initializers = [];
     let _type_decorators;
     let _type_initializers = [];
-    var BlocksMessage = class extends Component {
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    let _$icon_decorators;
+    let _$icon_initializers = [];
+    let _$content_decorators;
+    let _$content_initializers = [];
+    let _$close_decorators;
+    let _$close_initializers = [];
+    var BlMessage = class extends BlComponent {
         static {
             _closeable_decorators = [attr('boolean')];
             _duration_decorators = [attr('number')];
             _type_decorators = [attr('enum', {
                     enumValues: ['message', 'success', 'error', 'info', 'warning'],
                 })];
+            _$layout_decorators = [shadowRef('[part="layout"]')];
+            _$icon_decorators = [shadowRef('[part="icon"]')];
+            _$content_decorators = [shadowRef('[part="content"]')];
+            _$close_decorators = [shadowRef('[part="close"]', false)];
             __esDecorate(this, null, _closeable_decorators, { kind: "accessor", name: "closeable", static: false, private: false, access: { has: obj => "closeable" in obj, get: obj => obj.closeable, set: (obj, value) => { obj.closeable = value; } } }, _closeable_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _duration_decorators, { kind: "accessor", name: "duration", static: false, private: false, access: { has: obj => "duration" in obj, get: obj => obj.duration, set: (obj, value) => { obj.duration = value; } } }, _duration_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _type_decorators, { kind: "accessor", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type, set: (obj, value) => { obj.type = value; } } }, _type_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$icon_decorators, { kind: "accessor", name: "$icon", static: false, private: false, access: { has: obj => "$icon" in obj, get: obj => obj.$icon, set: (obj, value) => { obj.$icon = value; } } }, _$icon_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$content_decorators, { kind: "accessor", name: "$content", static: false, private: false, access: { has: obj => "$content" in obj, get: obj => obj.$content, set: (obj, value) => { obj.$content = value; } } }, _$content_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$close_decorators, { kind: "accessor", name: "$close", static: false, private: false, access: { has: obj => "$close" in obj, get: obj => obj.$close, set: (obj, value) => { obj.$close = value; } } }, _$close_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksMessage = _classThis = _classDescriptor.value;
+            BlMessage = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #closeable_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _closeable_initializers, void 0));
@@ -77,34 +96,58 @@ export let BlocksMessage = (() => {
         #type_accessor_storage = __runInitializers(this, _type_initializers, void 0);
         get type() { return this.#type_accessor_storage; }
         set type(value) { this.#type_accessor_storage = value; }
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$icon_accessor_storage = __runInitializers(this, _$icon_initializers, void 0);
+        get $icon() { return this.#$icon_accessor_storage; }
+        set $icon(value) { this.#$icon_accessor_storage = value; }
+        #$content_accessor_storage = __runInitializers(this, _$content_initializers, void 0);
+        get $content() { return this.#$content_accessor_storage; }
+        set $content(value) { this.#$content_accessor_storage = value; }
+        #$close_accessor_storage = __runInitializers(this, _$close_initializers, void 0);
+        get $close() { return this.#$close_accessor_storage; }
+        set $close(value) { this.#$close_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
-            const $layout = shadowRoot.querySelector('#layout');
-            const $icon = shadowRoot.querySelector('#icon');
-            const $content = shadowRoot.querySelector('#content');
-            this._ref = {
-                $layout,
-                $icon,
-                $content,
-            };
+            this.appendShadowChild(template());
+            this.#setupClose();
             this.#setupAutoClose();
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
+        }
+        #setupClose() {
+            const update = () => {
+                if (this.closeable) {
+                    if (!this.$close) {
+                        const $close = this.$layout.appendChild(document.createElement('bl-close-button'));
+                        $close.setAttribute('part', 'close');
+                        $close.onclick = () => {
+                            this.close();
+                        };
+                    }
+                }
+                else {
+                    if (this.$close) {
+                        unmount(this.$close);
+                    }
+                }
+            };
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
         }
         #setupAutoClose() {
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this._setAutoClose();
             });
-            this.onAttributeChangedDep('duration', () => {
+            this.hook.onAttributeChangedDep('duration', () => {
                 if (this.duration)
                     this._setAutoClose();
             });
-            this._ref.$layout.onmouseenter = () => {
+            this.$layout.onmouseenter = () => {
                 this._clearAutoClose();
             };
-            this._ref.$layout.onmouseleave = () => {
+            this.$layout.onmouseleave = () => {
                 this._setAutoClose();
             };
         }
@@ -129,24 +172,8 @@ export let BlocksMessage = (() => {
             const iconName = this.type === 'warning' ? 'info' : this.type || '';
             const icon = getRegisteredSvgIcon(iconName);
             if (icon) {
-                this._ref.$icon.innerHTML = '';
-                this._ref.$icon.appendChild(icon);
-            }
-            if (this.closeable) {
-                if (!this._ref.$close) {
-                    this._ref.$close = this._ref.$layout.appendChild(document.createElement('button'));
-                    this._ref.$close.id = 'close';
-                    this._ref.$close.appendChild(getRegisteredSvgIcon('cross'));
-                    this._ref.$close.onclick = () => {
-                        this.close();
-                    };
-                }
-            }
-            else {
-                if (this._ref.$close) {
-                    this._ref.$close.parentElement.removeChild(this._ref.$close);
-                    this._ref.$close = undefined;
-                }
+                this.$icon.innerHTML = '';
+                this.$icon.appendChild(icon);
             }
         }
         destroy() {
@@ -168,5 +195,5 @@ export let BlocksMessage = (() => {
             }
         }
     };
-    return BlocksMessage = _classThis;
+    return BlMessage = _classThis;
 })();

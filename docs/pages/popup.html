@@ -18,40 +18,44 @@
       <h1>Popup</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section" style="position:relative">
       <script type="module" src="../../dist/components/button/index.js"></script>
       <script type="module" src="../../dist/components/switch/index.js"></script>
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/popup/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/popup/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>定位说明</h2>
-      <p>Popup 的定位，通过锚定一个矩形区域来实现。</p>
-      <p>Popup 根据 origin 不同，会吸附在该矩形的四条边中的某一条的外侧（设置 `inset` attribute 后在内测），或与该矩形中心对齐（`origin` 为 center 的情况）。</p>
-      <p>有多种方式可以指定这个锚定的布局框：</p>
-      <ol>
-        <li>1. 通过指定原点、宽高，确定一个矩形：设置 `anchorX` & `anchorY` & `anchorWidth` & `anchorHeight` attribute</li>
-        <li>2. 通过指定一个元素的 CSS 选择器，以该元素的矩形框来确定：设置 `anchorSelector`</li>
-        <li>3. 通过 JavaScript API 指定锚定的元素的获取函数: 设置 `anchorElement` 属性</li>
-        <li>4. 使用默认锚定，什么都不用设置，默认使用 `offsetParent` 作为锚定元素</li>
-      </ol>
-      <p>优先级：anchorElement > anchorSelector > anchorX/anchorY/anchorWidth/anchorHeight > 默认</p>
-
-      <p>在确定锚定区域的基础上，可以通过 `offset-x` & `offset-y` 这两个 attribute 来偏移定位。</p>
+      <bl-card>
+        <h2 slot="header" class="section-title">定位说明</h2>
+        <p>Popup 的定位，通过锚定一个矩形区域来实现。</p>
+        <p>Popup 根据 origin 不同，会吸附在该矩形的四条边中的某一条的外侧（设置 `inset` attribute 后在内测），或与该矩形中心对齐（`origin` 为 center 的情况）。</p>
+        <p>有多种方式可以指定这个锚定的布局框：</p>
+        <ol>
+          <li>1. 通过指定原点、宽高，确定一个矩形：设置 `anchorX` & `anchorY` & `anchorWidth` & `anchorHeight` attribute</li>
+          <li>2. 通过指定一个元素的 CSS 选择器，以该元素的矩形框来确定：设置 `anchorSelector`</li>
+          <li>3. 通过 JavaScript API 指定锚定的元素的获取函数: 设置 `anchorElement` 属性</li>
+          <li>4. 使用默认锚定，什么都不用设置，默认使用 `offsetParent` 作为锚定元素</li>
+        </ol>
+        <p>优先级：anchorElement > anchorSelector > anchorX/anchorY/anchorWidth/anchorHeight > 默认</p>
+  
+        <p>在确定锚定区域的基础上，可以通过 `offset-x` & `offset-y` 这两个 attribute 来偏移定位。</p>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认</h2>
-
-      <p>通过 `open` 属性控制显示。默认以 Popup 的中心点为原点，相对于 offsetParent 的中心点进行定位。</p>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认</h2>
+        <p slot="header">通过 `open` 属性控制显示。默认以 Popup 的中心点为原点，相对于 offsetParent 的中心点进行定位。</p>
+  
         <bl-button
           style="margin-bottom:15px;"
           onclick="document.querySelector('.popup-default1').open = !document.querySelector('.popup-default1').hasAttribute('open')">
@@ -65,17 +69,18 @@
             </bl-popup>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>指定定位</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">指定定位</h2>
+        <div slot="header">
+          <p>Popup 的定位，通过 anchor（通过 `anchor-x`/`anchor-y`/`anchor-width`/`anchor-height` 或 `anchor-selector` 或 `anchorElement` 来确定）锚定矩形、 `origin`（原点）、`offset-x`（水平偏移）、`offset-y`（垂直偏移）以及 `inset`（内部吸附）5 个属性来共同确定。</p>
+          <p>Popup 会根据 `origin` 和 `inset` 的不同，吸附在 `anchor` 矩形的不同边上（或中心上）。 </p>
+          <p>默认未作设置的情况，`anchor` 为 `offsetParent`，即 Popup 的祖先元素中，最近的拥有定位属性的元素；而 `origin` 默认为 `center`，表示默认中心对齐，即 Popup 的中心点和 `offsetParent` 的中心点对齐；`inset` 默认为 false，该属性决定 Popup 是吸附在矩形的外侧，还是内部。</p>
+        </div>
 
-      <p>Popup 的定位，通过 anchor（通过 `anchor-x`/`anchor-y`/`anchor-width`/`anchor-height` 或 `anchor-selector` 或 `anchorElement` 来确定）锚定矩形、 `origin`（原点）、`offset-x`（水平偏移）、`offset-y`（垂直偏移）以及 `inset`（内部吸附）5 个属性来共同确定。</p>
-      <p>Popup 会根据 `origin` 和 `inset` 的不同，吸附在 `anchor` 矩形的不同边上（或中心上）。 </p>
-      <p>默认未作设置的情况，`anchor` 为 `offsetParent`，即 Popup 的祖先元素中，最近的拥有定位属性的元素；而 `origin` 默认为 `center`，表示默认中心对齐，即 Popup 的中心点和 `offsetParent` 的中心点对齐；`inset` 默认为 false，该属性决定 Popup 是吸附在矩形的外侧，还是内部。</p>
-
-      <div class="case">
         <bl-button
           style="margin-bottom:15px;"
           onclick="document.querySelector('.popup-anchor1').open = !document.querySelector('.popup-anchor1').hasAttribute('open')">
@@ -91,15 +96,14 @@
             </bl-popup>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>吸附（锚定）其他元素</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">吸附（锚定）其他元素</h2>
+        <p slot="header">通过 `anchor` 属性，传入需要吸附的目标元素 selector（或 DOM 元素，或者自定义函数），可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
 
-      <p>通过 `anchor` 属性，传入需要吸附的目标元素 selector（或 DOM 元素，或者自定义函数），可以让 popup 吸附在该元素的吸附点上，吸附位置根据 popup 的 `origin` 自动确定。</p>
-
-      <div class="case">
         <bl-button
           style="margin-bottom:15px;"
           onclick="document.querySelector('.popup-selector1').open = !document.querySelector('.popup-selector1').hasAttribute('open')">
@@ -108,21 +112,20 @@
         <template data-codesource="html">
           <div style="height:100px;padding:15px;background:#e8e8e8;">
             <div class="popup-selector1-anchor" style="width:100px;height:100px;line-height:100px;background:#888;text-align:center;">吸附我</div>
-
+  
             <bl-popup class="popup-selector1" origin="left-start" anchor-selector=".popup-selector1-anchor">
               <div style="padding:15px;">左上角吸附于 anchor 右侧</div>
             </bl-popup>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>渲染在 anchor 内部</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">渲染在 anchor 内部</h2>
+        <p slot="header">通过 `inset` 属性，让 Popup 渲染在 anchor 的内部（而不是吸附在 anchor 的外面）。</p>
 
-      <p>通过 `inset` 属性，让 Popup 渲染在 anchor 的内部（而不是吸附在 anchor 的外面）。</p>
-
-      <div class="case">
         <bl-button
           style="margin-bottom:15px;"
           onclick="document.querySelector('.popup-anchor-inset1').open = !document.querySelector('.popup-anchor-inset1').hasAttribute('open')">
@@ -137,15 +140,14 @@
             </bl-popup>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>箭头</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">箭头</h2>
+        <p slot="header">通过 `arrow` 属性控制箭头尺寸。</p>
 
-      <p>通过 `arrow` 属性控制箭头尺寸。</p>
-
-      <div class="case">
         <bl-button
           style="margin-bottom:15px;"
           onclick="document.querySelector('.popup-arrow1').open = !document.querySelector('.popup-arrow1').hasAttribute('open')">
@@ -160,18 +162,16 @@
             </bl-popup>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>位置方向</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">位置方向</h2>
+        <p slot="header">通过 origin 属性配置箭头位置（弹出方向与箭头相反）。</p>
 
-      <p>通过 origin 属性配置箭头位置（弹出方向与箭头相反）。</p>
-
-      <div style="width:550px;padding: 15px;border: 1px solid #e8e8e8;">
         <bl-switch id="switch-mode"></bl-switch>
         <span style="line-height:20px;vertical-align: top;">inset mode</span>
-
 
         <div data-codesource="html">
           <div class="box">
@@ -226,7 +226,7 @@
             position: relative;
             width: 350px;
             height: 250px;
-            margin: 100px;
+            margin: 100px auto;
           }
           .top, .bottom, .left, .right {
             position: absolute;
@@ -251,32 +251,31 @@
           .left { left: 0; }
           .right { right: 0; }
         </style>
-      </div>
 
-      <script>
-        document.getElementById('switch-mode').onchange = (e) => {
-          const value = e.detail.value
-          const buttons = e.target.parentElement.parentElement.querySelectorAll('.box bl-button')
-          ;[].forEach.call(buttons, button => {
-            const popup = document.querySelector(`[anchor-selector='#${button.id}']`)
-            popup.inset = value
-          })
-        }
-      </script>
+        <script>
+          document.getElementById('switch-mode').onchange = (e) => {
+            const value = e.detail.value
+            const buttons = e.target.parentElement.parentElement.querySelectorAll('.box bl-button')
+            ;[].forEach.call(buttons, button => {
+              const popup = document.querySelector(`[anchor-selector='#${button.id}']`)
+              popup.inset = value
+            })
+          }
+        </script>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>自动翻转</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">自动翻转</h2>
+        <p slot="header">通过 `autoflip` 属性，启用自动翻转功能，在 offsetParent 不足以容纳 popup 时，尝试翻转方向显示。</p>
 
-      <p>通过 `autoflip` 属性，启用自动翻转功能，在 offsetParent 不足以容纳 popup 时，尝试翻转方向显示。</p>
-
-      <div class="case">
         <bl-button
           style="margin-bottom:15px;"
           onclick="document.querySelector('.popup-autoflip1').open = !document.querySelector('.popup-autoflip1').hasAttribute('open')">
           显示/隐藏 popup
         </bl-button>
-
+  
         <template data-codesource="html">
           <div style="position:relative;width:250px;height:180px;background:#e8e8e8;">
             <div
@@ -287,26 +286,27 @@
             </bl-popup>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>插入到 body</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">插入到 body</h2>
+        <div slot="header">
+          <p>可以使用 `append-to-body` 属性，将组件插入到 `document.body`，以确保层叠次序精确。</p>
+          <p class="note">注意：如果将 popup 作为其他组件的一部分，并在 popup 里面使用 slot 的话，因为 DOM 的移动，会导致 slot 失效，popup 无法展示通过 slot 置入的内容。</p>
+        </div>
 
-      <p>可以使用 `append-to-body` 属性，将组件插入到 `document.body`，以确保层叠次序精确。</p>
-      <p class="note">注意：如果将 popup 作为其他组件的一部分，并在 popup 里面使用 slot 的话，因为 DOM 的移动，会导致 slot 失效，popup 无法展示通过 slot 置入的内容。</p>
-
-      <div class="case">
         <bl-button
           style="margin-bottom:15px;"
           onclick="document.querySelector('.popup-append-to-body').open = !document.querySelector('.popup-append-to-body').hasAttribute('open')">
           显示/隐藏 popup
         </bl-button>
-
+  
         <template data-codesource="html">
           <div style="position:relative;padding:15px;background:#e8e8e8;">
             <div class="popup-append-to-body-anchor" style="width:100px;height:100px;line-height:100px;background:#888;text-align:center;">吸附我</div>
-
+  
             <bl-popup
               class="popup-append-to-body"
               arrow="8"
@@ -317,15 +317,14 @@
             </bl-popup>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>限制焦点</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">限制焦点</h2>
+        <p slot="header">限制 tab 键只会让焦点在 popup 内部移动</p>
 
-      <p>限制 tab 键只会让焦点在 popup 内部移动</p>
-
-      <div class="case">
         <bl-button
           style="margin-bottom: 15px;"
           onclick="document.querySelector('.popup-capturefocus1').open = !document.querySelector('.popup-capturefocus1').hasAttribute('open')">
@@ -350,189 +349,213 @@
             </bl-popup>
           </div>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+        
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>anchor-x</td>
+              <td>anchorX</td>
+              <td>number</td>
+              <td>无</td>
+              <td>
+                Popup 锚定的布局框的左上角 X 座标
+              </td>
+            </tr>
+            <tr>
+              <td>anchor-y</td>
+              <td>anchorY</td>
+              <td>number</td>
+              <td>无</td>
+              <td>
+                Popup 锚定的布局框的左上角 Y 座标
+              </td>
+            </tr>
+            <tr>
+              <td>anchor-width</td>
+              <td>anchorWidth</td>
+              <td>number</td>
+              <td>0</td>
+              <td>
+                Popup 锚定的布局框的宽度
+              </td>
+            </tr>
+            <tr>
+              <td>anchor-height</td>
+              <td>anchorHeight</td>
+              <td>number</td>
+              <td>0</td>
+              <td>
+                Popup 锚定的布局框的高度
+              </td>
+            </tr>
+            <tr>
+              <td>anchor-selector</td>
+              <td>anchorSelector</td>
+              <td>string</td>
+              <td>无</td>
+              <td>
+                Popup 锚定的元素的 CSS 选择器
+              </td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>anchorElement</td>
+              <td>() => HTMLElement</td>
+              <td>无</td>
+              <td>
+                Popup 锚定的元素的获取方法
+              </td>
+            </tr>
+            <tr>
+              <td>append-to-body</td>
+              <td>appendToBody</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否将节点插入到 document.body 中（通常用于确保 z-index 不会被遮挡）。</td>
+            </tr>
+            <tr>
+              <td>arrow</td>
+              <td>arrow</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>Popup 是否显示箭头。</td>
+            </tr>
+            <tr>
+              <td>autoflip</td>
+              <td>autoflip</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否启用自动翻转功能。启用后，Popup 在 x 或 y 轴上溢出文档时，自动翻转显示。</td>
+            </tr>
+            <tr>
+              <td>autofocus</td>
+              <td></td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>打开时是否自动聚焦。</td>
+            </tr>
+            <tr>
+              <td>capturefocus</td>
+              <td>capturefocus</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否捕获焦点，启用后，tab 键不会将焦点移出 Popup。</td>
+            </tr>
+            <tr>
+              <td>inset</td>
+              <td>inset</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染）。</td>
+            </tr>
+            <tr>
+              <td>open</td>
+              <td>open</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>Popup 是否展示。</td>
+            </tr>
+            <tr>
+              <td>origin</td>
+              <td>origin</td>
+              <td>
+                PopupOrigin
+                <hr>
+  <pre>
+  type PopupOrigin =
+    | 'center'
+    | 'top-start'
+    | 'top-center'
+    | 'top-end'
+    | 'right-start'
+    | 'right-center'
+    | 'right-end'
+    | 'bottom-end'
+    | 'bottom-center'
+    | 'bottom-start'
+    | 'left-end'
+    | 'left-center'
+    | 'left-start'
+  </pre>
+                
+              </td>
+              <td>'center'</td>
+              <td>Popup 的原点（吸附点）。</td>
+            </tr>
+            <tr>
+              <td>restorefocus</td>
+              <td>restorefocus</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>失去焦点时，是否恢复获得焦点前的焦点。</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Events</h3>
 
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>anchor-x</td>
-            <td>number</td>
-            <td></td>
-            <td>
-              Popup 锚定的布局框的左上角 X 座标
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>anchor-y</td>
-            <td>number</td>
-            <td></td>
-            <td>
-              Popup 锚定的布局框的左上角 Y 座标
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>anchor-width</td>
-            <td>number</td>
-            <td></td>
-            <td>
-              Popup 锚定的布局框的宽度
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>anchor-height</td>
-            <td>number</td>
-            <td></td>
-            <td>
-              Popup 锚定的布局框的高度
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>anchor-selector</td>
-            <td>string</td>
-            <td></td>
-            <td>
-              Popup 锚定的元素的 CSS 选择器
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>anchorElement</td>
-            <td>() => HTMLElement</td>
-            <td></td>
-            <td>
-              Popup 锚定的元素的获取方法
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>append-to-body</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否将节点插入到 document.body 中（通常用于确保 z-index 不会被遮挡）。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>arrow</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>Popup 是否显示箭头。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>autoflip</td>
-            <td>false</td>
-            <td></td>
-            <td>是否启用自动翻转功能。启用后，Popup 在 x 或 y 轴上溢出文档时，自动翻转显示。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>autofocus</td>
-            <td>false</td>
-            <td></td>
-            <td>打开时是否自动聚焦。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>capturefocus</td>
-            <td>false</td>
-            <td></td>
-            <td>是否捕获焦点，启用后，tab 键不会将焦点移出 Popup。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>inset</td>
-            <td>false</td>
-            <td></td>
-            <td>在锚定的布局框内部渲染 popup（默认吸附在边上，往外面渲染）。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>open</td>
-            <td>false</td>
-            <td></td>
-            <td>Popup 是否展示。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>origin</td>
-            <td>'center' | 'top-start' | 'top-center' | 'top-end' | 'right-start' | 'right-center' | 'right-end' | 'bottom-end' | 'bottom-center' | 'bottom-start' | 'left-end' | 'left-center' | 'left-start'</td>
-            <td>'center'</td>
-            <td>Popup 的原点（吸附点）。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>restorefocus</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>失去焦点时，是否恢复获得焦点前的焦点。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>closed</td>
+              <td></td>
+              <td>Popup 关闭时触发。</td>
+            </tr>
+            <tr>
+              <td>opened</td>
+              <td></td>
+              <td>Popup 打开时触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>CSS Variables</h3>
 
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>closed</td>
-            <td></td>
-            <td>Popup 关闭时触发。</td>
-          </tr>
-          <tr>
-            <td>opened</td>
-            <td></td>
-            <td>Popup 打开时触发。</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>CSS Variables</h3>
-      <table class="api-css">
-        <thead>
-          <tr>
-            <th>变量名</th>
-            <th>默认值</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>--z-index</td>
-            <td>--bl-z-index-popup-base</td>
-            <td>z-index 的值，默认值取自全局样式变量。</td>
-          </tr>
-          <tr>
-            <td>--z-index-focus</td>
-            <td>--bl-z-index-popup-focus</td>
-            <td>Popup 聚焦状态下的 z-index 值，默认取值自全局样式变量。</td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="api-css">
+          <thead>
+            <tr>
+              <th>变量名</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>--z-index</td>
+              <td>--bl-z-index-popup-base</td>
+              <td>z-index 的值，默认值取自全局样式变量。</td>
+            </tr>
+            <tr>
+              <td>--z-index-focus</td>
+              <td>--bl-z-index-popup-focus</td>
+              <td>Popup 聚焦状态下的 z-index 值，默认取值自全局样式变量。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

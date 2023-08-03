@@ -1,19 +1,20 @@
-import type { ComponentEventListener } from '../component/Component.js';
+import type { BlComponentEventListener } from '../component/Component.js';
 import type { ISelected, ISelectListEventMap, ISelectableListComponent } from '../../common/connectSelectable.js';
 import type { VListEventMap } from '../vlist/index.js';
-import { BlocksVList } from '../vlist/index.js';
+import { BlVList } from '../vlist/index.js';
 import { SetupDisabled } from '../setup-disabled/index.js';
 import { SetupTabIndex } from '../setup-tab-index/index.js';
-interface BlocksListEventMap extends VListEventMap, ISelectListEventMap {
+interface BlListEventMap extends VListEventMap, ISelectListEventMap {
 }
-export interface BlocksList extends BlocksVList, ISelectableListComponent {
+export interface BlList extends BlVList, ISelectableListComponent {
     idMethod?: (data: any) => string;
     labelMethod?: (data: any) => string;
-    addEventListener<K extends keyof BlocksListEventMap>(type: K, listener: ComponentEventListener<BlocksListEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof BlocksListEventMap>(type: K, listener: ComponentEventListener<BlocksListEventMap[K]>, options?: boolean | EventListenerOptions): void;
+    addEventListener<K extends keyof BlListEventMap>(type: K, listener: BlComponentEventListener<BlListEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlListEventMap>(type: K, listener: BlComponentEventListener<BlListEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksList extends BlocksVList {
+export declare class BlList extends BlVList implements ISelectableListComponent {
     #private;
+    static get role(): string;
     accessor border: boolean;
     accessor stripe: boolean;
     accessor disabled: boolean;
@@ -43,7 +44,7 @@ export declare class BlocksList extends BlocksVList {
     attributeChangedCallback(attrName: string, oldValue: any, newValue: any): void;
     internalLabelMethod(data: any): any;
     keyMethod(data: any): string;
-    filterMethod(data: any): Promise<any>;
+    filterMethod(data: any, callback: (data: any) => any): any;
     parseHighlight(label: string, highlightText: string): {
         text: string;
         highlight: boolean;

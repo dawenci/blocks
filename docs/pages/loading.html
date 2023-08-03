@@ -18,52 +18,60 @@
       <h1>loading</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/loading/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/loading/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>loading</h2>
-
-      <p>loading 将自动基于有定位属性的祖先元素，绝对定位居中。</p>
-
-      <div class="case">
-        <template data-codesource="html">
-          <div style="height:200px;position:relative;background:#e8e8e8;">
-            <bl-loading></bl-loading>
-          </div>
-        </template>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">loading</h2>
+        <p slot="header">loading 将自动基于有定位属性的祖先元素，绝对定位居中。</p>
+  
+        <div class="case">
+          <template data-codesource="html">
+            <div style="height:200px;position:relative;background:#e8e8e8;">
+              <bl-loading></bl-loading>
+            </div>
+          </template>
+        </div>
+      </bl-card>
     </section>
     
     <section class="section">
-      <h2>API</h2>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>暂无</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>暂无</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

@@ -1,7 +1,7 @@
 import { makeTemplate } from '../../common/template.js';
 export const template = makeTemplate(`
-<div id="layout">
-  <div id="panes"><slot></slot></div>
-  <div id="cover"></div>
+<div part="layout" id="layout">
+  <div part="panes" id="panes"><slot part="default-slot"></slot></div>
+  <div part="cover" id="cover"></div>
 </div>
 `);

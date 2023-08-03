@@ -1,24 +1,24 @@
-import type { ComponentEventListener } from '../component/Component.js'
+import type { BlComponentEventListener } from '../component/Component.js'
 import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js'
 import { style } from './style.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 import { WithOpenTransition } from '../with-open-transition/index.js'
 
-export type BlocksModalMaskEventMap = WithOpenTransitionEventMap
+export type BlModalMaskEventMap = WithOpenTransitionEventMap
 
-export interface BlocksModalMask extends WithOpenTransition {
-  addEventListener<K extends keyof BlocksModalMaskEventMap>(
+export interface BlModalMask extends WithOpenTransition {
+  addEventListener<K extends keyof BlModalMaskEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
+    listener: BlComponentEventListener<BlModalMaskEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof BlocksModalMaskEventMap>(
+  removeEventListener<K extends keyof BlModalMaskEventMap>(
     type: K,
-    listener: ComponentEventListener<BlocksModalMaskEventMap[K]>,
+    listener: BlComponentEventListener<BlModalMaskEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -28,7 +28,7 @@ export interface BlocksModalMask extends WithOpenTransition {
   styles: [style],
   mixins: [WithOpenTransition],
 })
-export class BlocksModalMask extends Component {
+export class BlModalMask extends BlComponent {
   @attr('int') accessor zIndex!: number | null
 
   override connectedCallback() {
@@ -42,7 +42,7 @@ export class BlocksModalMask extends Component {
       this._updateScrollLock()
     }
 
-    this.onAttributeChangedDep('open', () => {
+    this.hook.onAttributeChangedDep('open', () => {
       this._updateScrollLock()
     })
   }

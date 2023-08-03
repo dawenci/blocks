@@ -87,49 +87,18 @@ export const style = `
 
 /* 关闭按钮 */
 [part="close"] {
-  overflow: hidden;
+  --size: 32px;
   position:absolute;
   z-index: 1;
-  right:10px;
-  top:10px;
-  display: block;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: 0 none;
-  background: transparent;
-}
-[part="close"]::before,
-[part="close"]::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 14px;
-  height: 1px;
-  margin: auto;
-  background-color: #aaa;
-}
-[part="close"]::before {
-  transform: rotate(45deg);
-}
-[part="close"]::after {
-  transform: rotate(-45deg);
+  right:5px;
+  top:5px;
+  opacity: .7;
 }
 [part="close"]:hover,
-[part="close"]:focus,
-[part="close"]:active {
-  background-color: transparent;
-  outline: 0 none;
+[part="close"]:focus {
+  opacity: .8;
 }
-[part="close"]:hover::before,
-[part="close"]:hover::after,
-[part="close"]:focus::before,
-[part="close"]:focus::after,
-[part="close"]:active::before,
-[part="close"]:active::after  {
-  background-color: #888;
+[part="close"]:active {
+  opacity: 1;
 }
 `;

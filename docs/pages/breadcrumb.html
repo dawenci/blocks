@@ -18,21 +18,24 @@
       <h1>breadcrumb</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/breadcrumb/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/breadcrumb/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>使用</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">使用</h2>
 
-      <div class="case">
         <template data-codesource="html">
           <bl-breadcrumb>
             <bl-breadcrumb-item href="/docs">首页</bl-breadcrumb-item>
@@ -40,57 +43,58 @@
             <bl-breadcrumb-item>详情</bl-breadcrumb-item>
           </bl-breadcrumb>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>API</h2>
+      
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props (bl-breadcrumb)</h3>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>separator</td>
+              <td>separator</td>
+              <td>string</td>
+              <td>'/'</td>
+              <td>菜单项之间的分隔符。</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <h3>Attrs / Props (bl-breadcrumb)</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>separator</td>
-            <td>string</td>
-            <td>'/'</td>
-            <td>菜单项之间的分隔符。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Attrs / Props (bl-breadcrumb-item)</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>href</td>
-            <td>string</td>
-            <td></td>
-            <td>菜单项的链接。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
+        <h3>Attrs / Props (bl-breadcrumb-item)</h3>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>href</td>
+              <td>href</td>
+              <td>string</td>
+              <td></td>
+              <td>菜单项的链接。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

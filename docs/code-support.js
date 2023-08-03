@@ -1,10 +1,9 @@
 import { forEach } from '../dist/common/utils.js'
 import '../dist/components/button/index.js'
 
-
 // html 由于缩进，每行前面有固定的空格，使用该方法移除掉每行的开头 count 个空格
 // 删除的数量，以第一行的为准
-const removeLeadingSpaces = (str) => {
+const removeLeadingSpaces = str => {
   let lines = []
   let rawLines = str.split(/\n\r?/)
 
@@ -36,13 +35,15 @@ const removeLeadingSpaces = (str) => {
     if (firstLine[spaceCount] !== ' ') break
   }
 
-  return lines.map(line => {
-    let i = 0;
-    for (; i < spaceCount; i += 1) {
-      if (str.charCodeAt(i) > 32) break
-    }
-    return line.slice(i)
-  }).join('\n')
+  return lines
+    .map(line => {
+      let i = 0
+      for (; i < spaceCount; i += 1) {
+        if (str.charCodeAt(i) > 32) break
+      }
+      return line.slice(i)
+    })
+    .join('\n')
 }
 
 const insertAfter = (newElement, element) => {
@@ -50,13 +51,11 @@ const insertAfter = (newElement, element) => {
   const next = element.nextElementSibling
   if (next) {
     parent.insertBefore(newElement, next)
-  }
-  else {
+  } else {
     parent.appendChild(newElement)
   }
   return newElement
 }
-
 
 window.onload = () => {
   // 生成 h2 标题导航
@@ -65,15 +64,19 @@ window.onload = () => {
     headingNav.className = 'heading-nav'
 
     const nav = headingNav.appendChild(document.createElement('ol'))
-    forEach(document.querySelectorAll('.section > h2'), h2 => {
+    forEach(document.querySelectorAll('.section-title'), h2 => {
       const item = nav.appendChild(document.createElement('li'))
       item.textContent = h2.textContent
       item.onclick = () => {
         const top = h2.offsetTop
-        document.querySelector('article').scrollTop = top
+        document.querySelector('article').scrollTo({
+          top,
+          left: 0,
+          behavior: 'smooth',
+        })
       }
     })
-    if (nav.childElementCount > 2) {
+    if (nav.childElementCount > 1) {
       document.body.appendChild(headingNav)
     }
   }
@@ -110,12 +113,12 @@ window.onload = () => {
 
       // 非 js 代码
       else {
-        $exampleBlock =document.createElement('div')
+        $exampleBlock = document.createElement('div')
         $exampleBlock.appendChild($codeSource.content.cloneNode(true))
         $codeSource.parentElement.insertBefore($exampleBlock, $codeSource)
       }
     }
-    
+
     // 第二步：打印原始代码
     // 读取代码内容，插入到 source 后面
     const title = $codeSource.dataset.title
@@ -125,37 +128,42 @@ window.onload = () => {
     if (role === 'html') {
       $printArea.innerHTML = `
       <h3 class="print-title"><span>${title ?? '对应的 HTML'}</span><i class="toggle"></i></h3>
-      <pre data-codeprint="html-code" style="display:${defaultExapnd ? 'block' : 'none'}"><code class="html"></code></pre>
+      <pre data-codeprint="html-code" style="display:${
+        defaultExapnd ? 'block' : 'none'
+      }"><code class="html"></code></pre>
       `
       const $code = $printArea.querySelector('[data-codeprint="html-code"] code')
       const code = removeLeadingSpaces(rawCode)
       $code.textContent = code
       hljs.highlightBlock($code)
-    }
-    else if (role === 'script') {
+    } else if (role === 'script') {
       $printArea.innerHTML = `
       <h3 class="print-title"><span>${title ?? '对应的 JavaScript'}</span><i class="toggle"></i></h3>
-      <pre data-codeprint="script-code" style="display:${defaultExapnd ? 'block' : 'none'}"><code class="javascript"></code></pre>
+      <pre data-codeprint="script-code" style="display:${
+        defaultExapnd ? 'block' : 'none'
+      }"><code class="javascript"></code></pre>
       `
       const $code = $printArea.querySelector('[data-codeprint="script-code"] code')
       const code = removeLeadingSpaces(rawCode)
       $code.textContent = code
       hljs.highlightBlock($code)
-    }
-    else if (role === 'style') {
+    } else if (role === 'style') {
       $printArea.innerHTML = `
       <h3 class="print-title"><span>${title ?? '对应的 CSS'}</span><i class="toggle"></i></h3>
-      <pre data-codeprint="style-code" style="display:${defaultExapnd ? 'block' : 'none'}"><code class="css"></code></pre>
+      <pre data-codeprint="style-code" style="display:${
+        defaultExapnd ? 'block' : 'none'
+      }"><code class="css"></code></pre>
       `
       const $code = $printArea.querySelector('[data-codeprint="style-code"] code')
       const code = removeLeadingSpaces(rawCode)
       $code.textContent = code
       hljs.highlightBlock($code)
-    }
-    else {
+    } else {
       $printArea.innerHTML = `
       <h3 class="print-title"><span>${title ?? '对应的 代码'}</span><i class="toggle"></i></h3>
-      <pre data-codeprint="${role}" style="display:${defaultExapnd ? 'block' : 'none'}"><code class="${role}"></code></pre>
+      <pre data-codeprint="${role}" style="display:${
+        defaultExapnd ? 'block' : 'none'
+      }"><code class="${role}"></code></pre>
       `
       const $code = $printArea.querySelector('[data-codeprint] code')
       const code = removeLeadingSpaces(rawCode)
@@ -177,6 +185,5 @@ window.onload = () => {
       }
       update()
     })
-
   })
 }

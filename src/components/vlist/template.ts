@@ -1,6 +1,6 @@
 import { makeDomTemplate } from '../../common/template.js'
 import '../icon/index.js'
-import { BlocksScrollable } from '../scrollable/index.js'
+import { BlScrollable } from '../scrollable/index.js'
 
 export const contentTemplate = (() => {
   const $scrollable = document.createElement('bl-scrollable')
@@ -12,7 +12,7 @@ export const contentTemplate = (() => {
   $scrollable.appendChild($listSize)
   $scrollable.appendChild($list)
   return () => {
-    return $scrollable.cloneNode(true) as BlocksScrollable
+    return $scrollable.cloneNode(true) as BlScrollable
   }
 })()
 

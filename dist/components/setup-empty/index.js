@@ -34,8 +34,8 @@ export class SetupEmpty {
             return this;
         this.#setup = true;
         const update = () => this.update();
-        this.#component.onRender(update);
-        this.#component.onConnected(update);
+        this.#component.hook.onRender(update);
+        this.#component.hook.onConnected(update);
         if (this.#init)
             this.#init.call(this.#component);
         return this;

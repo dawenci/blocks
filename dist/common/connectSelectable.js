@@ -18,6 +18,12 @@ export function connectSelectable($result, $list, options) {
         }
     };
     $result.addEventListener('select-result:deselect', onResultDeselect, useCaptureResult);
+    const onAfterResultAccepted = event => {
+        if (typeof $list.afterResultAccepted === 'function') {
+            $list.afterResultAccepted();
+        }
+    };
+    $result.addEventListener('select-result:after-accept-selected', onAfterResultAccepted);
     const onResultSearch = event => {
         if (typeof $list.searchSelectable === 'function') {
             $list.searchSelectable(event.detail.searchString);
@@ -34,6 +40,24 @@ export function connectSelectable($result, $list, options) {
         }
     };
     $list.addEventListener('select-list:change', onListChange, useCaptureList);
+    const onAfterListClear = () => {
+        if (typeof $result.afterListClear === 'function') {
+            $result.afterListClear();
+        }
+    };
+    $list.addEventListener('select-list:after-clear', onAfterListClear, useCaptureList);
+    const onAfterListDeselect = () => {
+        if (typeof $result.afterListDeselect === 'function') {
+            $result.afterListDeselect();
+        }
+    };
+    $list.addEventListener('select-list:after-clear', onAfterListDeselect, useCaptureList);
+    const onAfterListSearch = () => {
+        if (typeof $result.afterListSearch === 'function') {
+            $result.afterListSearch();
+        }
+    };
+    $list.addEventListener('select-list:after-clear', onAfterListSearch, useCaptureList);
     return () => {
         $result.removeEventListener('select-result:clear', onResultClear, useCaptureResult);
         $result.removeEventListener('select-result:deselect', onResultDeselect, useCaptureResult);
@@ -52,6 +76,12 @@ export function connectPairSelectable($result, $list, options) {
         }
     };
     $result.addEventListener('pair-result:clear', onResultClear, useCaptureResult);
+    const onAfterResultAccepted = event => {
+        if (typeof $list.afterResultAccepted === 'function') {
+            $list.afterResultAccepted();
+        }
+    };
+    $result.addEventListener('pair-result:after-accept-selected', onAfterResultAccepted);
     const onListChange = event => {
         if (typeof $result.acceptSelected === 'function') {
             const [first, second] = event.detail.value;
@@ -64,8 +94,20 @@ export function connectPairSelectable($result, $list, options) {
         }
     };
     $list.addEventListener('pair-select-list:change', onListChange, useCaptureList);
+    const onAfterListClear = () => {
+        if (typeof $result.afterListClear === 'function') {
+            $result.afterListClear();
+        }
+    };
+    $list.addEventListener('pair-select-list:after-clear', onAfterListClear, useCaptureList);
     return () => {
         $result.removeEventListener('pair-result:clear', onResultClear, useCaptureResult);
         $list.removeEventListener('pair-select-list:change', onListChange, useCaptureList);
     };
+}
+export function makeISelectableProxy() {
+    return document.createElement('div');
+}
+export function makeIPairSelectableProxy() {
+    return document.createElement('div');
 }

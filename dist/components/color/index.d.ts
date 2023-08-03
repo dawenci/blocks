@@ -1,21 +1,20 @@
 import type { ColorFormat, ColorTuple4 } from './Color.js';
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
-import type { EnumAttr } from '../../decorators/attr.js';
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js';
 import { Color } from './Color.js';
-import { Component } from '../component/Component.js';
-export interface ColorEventMap extends ComponentEventMap {
+import { BlComponent } from '../component/Component.js';
+export interface BlColorEventMap extends BlComponentEventMap {
     change: CustomEvent<{
         value: string;
     }>;
 }
-export interface BlocksColor extends Component {
-    addEventListener<K extends keyof ColorEventMap>(type: K, listener: ComponentEventListener<ColorEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof ColorEventMap>(type: K, listener: ComponentEventListener<ColorEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlColor extends BlComponent {
+    addEventListener<K extends keyof BlColorEventMap>(type: K, listener: BlComponentEventListener<BlColorEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlColorEventMap>(type: K, listener: BlComponentEventListener<BlColorEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksColor extends Component {
+export declare class BlColor extends BlComponent {
     #private;
     accessor value: number;
-    accessor mode: EnumAttr<['hex', 'rgb', 'hsl', 'hsv']>;
+    accessor mode: OneOf<['hex', 'rgb', 'hsl', 'hsv']>;
     accessor $layout: HTMLDivElement;
     accessor $hsv: HTMLDivElement;
     accessor $result: HTMLDivElement;

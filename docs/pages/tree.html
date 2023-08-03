@@ -20,21 +20,22 @@
 
     <script type="module" src="../../dist/components/input/index.js"></script>
     <script type="module" src="../../dist/components/button/index.js"></script>
+    <script type="module" src="../../dist/components/card/index.js"></script>
 
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/tree/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/tree/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认使用</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认使用</h2>
         <div data-codesource="html">
           <bl-tree id="default" style="height:300px;"></bl-tree>
           <script>
@@ -58,13 +59,12 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>换行效果</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">换行效果</h2>
         <bl-button id="toggle-wrap" style="margin-bottom: 10px;">切换换行</bl-button>
         <script>
           document.querySelector('#toggle-wrap').onclick = () => {
@@ -87,7 +87,7 @@
                   data.push({ label, id, pid })
                 }
                 return data
-              }              
+              }
               const data = makeData(100)
               data.forEach(data => {
                 data.children = makeData(2, data.id)
@@ -96,14 +96,13 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>分割线</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">分割线</h2>
         <div data-codesource="html">
           <bl-tree border id="border" style="height:300px;"></bl-tree>
 
@@ -117,14 +116,13 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>斑马纹</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">斑马纹</h2>
         <div data-codesource="html">
           <bl-tree stripe id="stripe" style="height:300px;"></bl-tree>
 
@@ -138,14 +136,13 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>高亮选中</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">高亮选中</h2>
         <div data-codesource="html">
           <bl-tree activable id="activable" style="height:300px;"></bl-tree>
 
@@ -159,13 +156,12 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>点击结点切换折叠</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">点击结点切换折叠</h2>
         <div data-codesource="html">
           <bl-tree expand-on-click-node id="expand-on-click-node" style="height:300px;"></bl-tree>
 
@@ -179,13 +175,12 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>缩进尺寸</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">缩进尺寸</h2>
         <div data-codesource="html">
           <bl-tree indent-unit="40" id="indent-unit" style="height:300px;"></bl-tree>
 
@@ -199,18 +194,13 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
-    
-
-    
-
     <section class="section">
-      <h2>单选</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">单选</h2>
         <div data-codesource="html">
           <bl-tree id="single-select" checkable check-on-click-node style="height:300px;"></bl-tree>
 
@@ -228,15 +218,15 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>多选</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">多选</h2>
+        <h3>父子节点联动选择</h3>
 
-      <h3>父子节点联动选择</h3>
-      <div class="case">
         <div data-codesource="html">
           <bl-tree id="multi-select" checkable multiple check-on-click-node style="height:300px;"></bl-tree>
 
@@ -254,14 +244,14 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
 
-      <h3>父子节点独立选择</h3>
+      <bl-card>
+        <h3>父子节点独立选择</h3>
 
-      <div class="case">
         <div data-codesource="html">
           <bl-tree id="check-strictly" checkable multiple check-strictly check-on-click-node style="height:300px;"></bl-tree>
-
+  
           <script>
             (() => {
               const data = makeData(10)
@@ -271,20 +261,18 @@
                   if (index === 0) data.children = makeData(2, data.id)
                 })
               })
-
+  
               document.getElementById('check-strictly').data = data
             })()
           </script>
         </div>
-      </div>
-      
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>默认全部折叠</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认全部折叠</h2>
         <div data-codesource="html">
           <bl-tree id="foldAll" default-fold-all style="height:300px;"></bl-tree>
 
@@ -302,14 +290,13 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>内容搜索</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">内容搜索</h2>
         <div data-codesource="html">
           <bl-input id="input" style="margin-bottom:10px;width:100%;"></bl-input>
           <bl-tree id="search" style="height:300px;"></bl-tree>
@@ -333,164 +320,202 @@
             })()
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>API</h2>
-
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>activable</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否可以高亮选中结点。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>active-key</td>
-            <td>string | number</td>
-            <td></td>
-            <td>当前高亮选中的结点的 key。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>border</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>条目之间是否显示分割线。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>check-on-click-node</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否在点击结点时选中。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>check-strictly</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>多选时，父子结点是否独立选择而不联动。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>data</td>
-            <td>Array</td>
-            <td></td>
-            <td>数据源数组，子结点字段为 'children'。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>default-fold-all</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>默认是否全部折叠。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>disabled</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否不可用状态。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>expand-on-click-node</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否在点击条目任意位置时折叠、展开子树。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>id-field</td>
-            <td>string</td>
-            <td>'id'</td>
-            <td>结点的唯一 key 生成字段（通常使用数据 id）。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>indent-unit</td>
-            <td>number</td>
-            <td>16</td>
-            <td>子结点的缩进距离（px）。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>label-field</td>
-            <td>string</td>
-            <td>'label'</td>
-            <td>结点的显示文本字段。</td>
-            <td></td>
-          </tr>          
-          <tr>
-            <td>search</td>
-            <td>string</td>
-            <td></td>
-            <td>搜索条目的关键词。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>stripe</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否显示斑马纹背景。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Methods</h3>
-      <table class="api-fns">
-        <thead>
-          <tr>
-            <th>函数名称</th>
-            <th>类型</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>disableActiveMethod</td>
-            <td>(data) => boolean</td>
-            <td>是否禁止条目被高亮选中的检测方法。</td>
-          </tr>
-          <tr>
-            <td>disableCheckMethod</td>
-            <td>(data) => boolean</td>
-            <td>是否禁止条目被单选、复选选中的检测方法。</td>
-          </tr>
-          <tr>
-            <td>disableToggleMethod</td>
-            <td>(data) => boolean</td>
-            <td>是否禁止条目被展开、折叠的检测方法。</td>
-          </tr>
-          <tr>
-            <td>keyMethod</td>
-            <td>(data) => string</td>
-            <td>结点的唯一 key 生成方法，优先级高于 id-field 属性。</td>
-          </tr>
-          <tr>
-            <td>labelMethod</td>
-            <td>(data) => string</td>
-            <td>结点内容的显示方法。优先级高于 label-field 属性。</td>
-          </tr>          
-        </tbody>
-      </table>
-
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>activable</td>
+              <td>activable</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否可以高亮选中结点。</td>
+            </tr>
+            <tr>
+              <td>active-key</td>
+              <td>activeKey</td>
+              <td>string | number</td>
+              <td></td>
+              <td>当前高亮选中的结点的 key。</td>
+            </tr>
+            <tr>
+              <td>border</td>
+              <td>-</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>条目之间是否显示分割线。</td>
+            </tr>
+            <tr>
+              <td>check-on-click-node</td>
+              <td>checkOnClickNode</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否在点击结点时选中。</td>
+            </tr>
+            <tr>
+              <td>check-strictly</td>
+              <td>checkStrictly</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>多选时，父子结点是否独立选择而不联动。</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>data</td>
+              <td>Array</td>
+              <td></td>
+              <td>数据源数组，子结点字段为 'children'。</td>
+            </tr>
+            <tr>
+              <td>default-fold-all</td>
+              <td>defaultFoldAll</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>默认是否全部折叠。</td>
+            </tr>
+            <tr>
+              <td>disabled</td>
+              <td>disabled</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否不可用状态。</td>
+            </tr>
+            <tr>
+              <td>expand-on-click-node</td>
+              <td>expandOnClickNode</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否在点击条目任意位置时折叠、展开子树。</td>
+            </tr>
+            <tr>
+              <td>id-field</td>
+              <td>idField</td>
+              <td>string</td>
+              <td>'id'</td>
+              <td>结点的唯一 key 生成字段（通常使用数据 id）。</td>
+            </tr>
+            <tr>
+              <td>indent-unit</td>
+              <td>indentUnit</td>
+              <td>number</td>
+              <td>16</td>
+              <td>子结点的缩进距离（px）。</td>
+            </tr>
+            <tr>
+              <td>label-field</td>
+              <td>labelField</td>
+              <td>string</td>
+              <td>'label'</td>
+              <td>结点的显示文本字段。</td>
+            </tr>
+            <tr>
+              <td>search</td>
+              <td>search</td>
+              <td>string</td>
+              <td></td>
+              <td>搜索条目的关键词。</td>
+            </tr>
+            <tr>
+              <td>stripe</td>
+              <td>-</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否显示斑马纹背景。</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Methods</h3>
+        <table class="api-fns">
+          <thead>
+            <tr>
+              <th>函数名称</th>
+              <th>类型</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>disableActiveMethod</td>
+              <td>(data) => boolean</td>
+              <td>是否禁止条目被高亮选中的检测方法。</td>
+            </tr>
+            <tr>
+              <td>disableCheckMethod</td>
+              <td>(data) => boolean</td>
+              <td>是否禁止条目被单选、复选选中的检测方法。</td>
+            </tr>
+            <tr>
+              <td>disableToggleMethod</td>
+              <td>(data) => boolean</td>
+              <td>是否禁止条目被展开、折叠的检测方法。</td>
+            </tr>
+            <tr>
+              <td>keyMethod</td>
+              <td>(data) => string</td>
+              <td>结点的唯一 key 生成方法，优先级高于 id-field 属性。</td>
+            </tr>
+            <tr>
+              <td>labelMethod</td>
+              <td>(data) => string</td>
+              <td>结点内容的显示方法。优先级高于 label-field 属性。</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Events</h3>
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>change</td>
+              <td>CustomEvent</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>active</td>
+              <td>CustomEvent&lt;{key: string; oldKey: string}&gt;</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>inactive</td>
+              <td>CustomEvent&lt;{key: string}&gt;</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>expand</td>
+              <td>CustomEvent&lt;{key: string}&gt;</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>fold</td>
+              <td>CustomEvent&lt;{key: string}&gt;</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

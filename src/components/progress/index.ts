@@ -1,42 +1,37 @@
-import type { NullableEnumAttr } from '../../decorators/attr.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 const status = ['success', 'error', 'warning']
-
-export interface BlocksProgress extends Component {
-  _ref: {
-    $progress: HTMLElement
-    $value: HTMLElement
-  }
-}
 
 @defineClass({
   customElement: 'bl-progress',
   styles: [style],
 })
-export class BlocksProgress extends Component {
+export class BlProgress extends BlComponent {
+  static override get role() {
+    return 'progressbar'
+  }
+
   @attr('number') accessor value!: number | null
 
-  @attr('enum', { enumValues: status }) accessor status!: NullableEnumAttr<typeof status>
+  @attr('enum', { enumValues: status }) accessor status!:  MaybeOneOf<typeof status>
 
   @attr('boolean') accessor percentage!: boolean
 
-  @shadowRef('#progress') accessor $progress!: HTMLElement
-
-  @shadowRef('#value') accessor $value!: HTMLElement
+  @shadowRef('[part="progress"]') accessor $progress!: HTMLElement
+  @shadowRef('[part="value"]') accessor $value!: HTMLElement
 
   constructor() {
     super()
 
-    this.shadowRoot!.appendChild(template())
+    this.appendShadowChild(template())
 
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
   }
 
   override render() {

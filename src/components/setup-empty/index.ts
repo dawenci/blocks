@@ -1,4 +1,4 @@
-import type { Component } from '../component/Component'
+import type { BlComponent } from '../component/Component'
 export interface InitOptions<T> {
   component: T
   predicate: (this: T) => boolean
@@ -8,8 +8,8 @@ export interface InitOptions<T> {
   init?: (this: T) => void
 }
 
-export class SetupEmpty<T extends Component = Component> {
-  static setup<T extends Component = Component>(options: InitOptions<T>) {
+export class SetupEmpty<T extends BlComponent = BlComponent> {
+  static setup<T extends BlComponent = BlComponent>(options: InitOptions<T>) {
     return new SetupEmpty(options).setup()
   }
 
@@ -50,8 +50,8 @@ export class SetupEmpty<T extends Component = Component> {
     this.#setup = true
 
     const update = () => this.update()
-    this.#component.onRender(update)
-    this.#component.onConnected(update)
+    this.#component.hook.onRender(update)
+    this.#component.hook.onConnected(update)
     if (this.#init) this.#init.call(this.#component)
     return this
   }

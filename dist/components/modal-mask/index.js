@@ -32,13 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { getBodyScrollBarWidth } from '../../common/getBodyScrollBarWidth.js';
 import { style } from './style.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 import { WithOpenTransition } from '../with-open-transition/index.js';
-export let BlocksModalMask = (() => {
+export let BlModalMask = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-modal-mask',
             styles: [style],
@@ -50,12 +50,12 @@ export let BlocksModalMask = (() => {
     let _instanceExtraInitializers = [];
     let _zIndex_decorators;
     let _zIndex_initializers = [];
-    var BlocksModalMask = class extends Component {
+    var BlModalMask = class extends BlComponent {
         static {
             _zIndex_decorators = [attr('int')];
             __esDecorate(this, null, _zIndex_decorators, { kind: "accessor", name: "zIndex", static: false, private: false, access: { has: obj => "zIndex" in obj, get: obj => obj.zIndex, set: (obj, value) => { obj.zIndex = value; } } }, _zIndex_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksModalMask = _classThis = _classDescriptor.value;
+            BlModalMask = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #zIndex_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _zIndex_initializers, void 0));
@@ -68,7 +68,7 @@ export let BlocksModalMask = (() => {
             if (this.open) {
                 this._updateScrollLock();
             }
-            this.onAttributeChangedDep('open', () => {
+            this.hook.onAttributeChangedDep('open', () => {
                 this._updateScrollLock();
             });
         }
@@ -107,5 +107,5 @@ export let BlocksModalMask = (() => {
             }
         }
     };
-    return BlocksModalMask = _classThis;
+    return BlModalMask = _classThis;
 })();

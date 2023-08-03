@@ -1,39 +1,37 @@
-import { Component, ComponentEventListener, ComponentEventMap } from '../component/Component.js';
-export interface ScrollableEventMap extends ComponentEventMap {
-    'bl:scroll': CustomEvent;
-    'bl:resize': CustomEvent<{
-        width: number;
-        height: number;
-    }>;
-    'bl:change:can-scroll-top': CustomEvent<{
-        value: boolean;
-    }>;
-    'bl:change:can-scroll-right': CustomEvent<{
-        value: boolean;
-    }>;
+import { BlComponent, BlComponentEventListener, BlComponentEventMap } from '../component/Component.js';
+export interface ScrollableEventMap extends BlComponentEventMap {
     'bl:change:can-scroll-bottom': CustomEvent<{
         value: boolean;
     }>;
     'bl:change:can-scroll-left': CustomEvent<{
         value: boolean;
     }>;
+    'bl:change:can-scroll-right': CustomEvent<{
+        value: boolean;
+    }>;
+    'bl:change:can-scroll-top': CustomEvent<{
+        value: boolean;
+    }>;
     'bl:drag-scroll-end': CustomEvent;
+    'bl:resize': CustomEvent<{
+        width: number;
+        height: number;
+    }>;
+    'bl:scroll': CustomEvent;
 }
-export interface BlocksScrollable extends Component {
-    _ref: {
-        $layout: HTMLElement;
-        $viewport: HTMLElement;
-        $horizontal: HTMLElement;
-        $vertical: HTMLElement;
-        $horizontalThumb: HTMLElement;
-        $verticalThumb: HTMLElement;
-    };
-    addEventListener<K extends keyof ScrollableEventMap>(type: K, listener: ComponentEventListener<ScrollableEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof ScrollableEventMap>(type: K, listener: ComponentEventListener<ScrollableEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlScrollable extends BlComponent {
+    addEventListener<K extends keyof ScrollableEventMap>(type: K, listener: BlComponentEventListener<ScrollableEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof ScrollableEventMap>(type: K, listener: BlComponentEventListener<ScrollableEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksScrollable extends Component {
+export declare class BlScrollable extends BlComponent {
     #private;
     accessor shadow: boolean;
+    accessor $layout: HTMLElement;
+    accessor $viewport: HTMLElement;
+    accessor $horizontal: HTMLElement;
+    accessor $vertical: HTMLElement;
+    accessor $horizontalThumb: HTMLElement;
+    accessor $verticalThumb: HTMLElement;
     constructor();
     get canScrollLeft(): boolean | undefined;
     set canScrollLeft(value: boolean | undefined);

@@ -32,20 +32,20 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
+import { attr } from '../../decorators/attr/index.js';
 import { onDragMove } from '../../common/onDragMove.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { round } from '../../common/utils.js';
 import { sizeObserve } from '../../common/sizeObserve.js';
 import { style } from './style.js';
 import { template } from './template.js';
 import { Color } from './Color.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 import { reactive, subscribe, unsubscribe } from '../../common/reactive.js';
 const POINT_SIZE = 12;
-export let BlocksColor = (() => {
+export let BlColor = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-color',
             styles: [style],
@@ -84,7 +84,7 @@ export let BlocksColor = (() => {
     let _$modeContent_initializers = [];
     let _$modeSwitch_decorators;
     let _$modeSwitch_initializers = [];
-    var BlocksColor = class extends Component {
+    var BlColor = class extends BlComponent {
         static {
             _value_decorators = [attr('int', { defaults: Color.RED.value })];
             _mode_decorators = [attr('enum', { enumValues: ['hex', 'rgb', 'hsl', 'hsv'] })];
@@ -117,7 +117,7 @@ export let BlocksColor = (() => {
             __esDecorate(this, null, _$modeContent_decorators, { kind: "accessor", name: "$modeContent", static: false, private: false, access: { has: obj => "$modeContent" in obj, get: obj => obj.$modeContent, set: (obj, value) => { obj.$modeContent = value; } } }, _$modeContent_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$modeSwitch_decorators, { kind: "accessor", name: "$modeSwitch", static: false, private: false, access: { has: obj => "$modeSwitch" in obj, get: obj => obj.$modeSwitch, set: (obj, value) => { obj.$modeSwitch = value; } } }, _$modeSwitch_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksColor = _classThis = _classDescriptor.value;
+            BlColor = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
@@ -254,6 +254,8 @@ export let BlocksColor = (() => {
             this.#s.content = saturation;
             this.#v.content = value;
             this.#alpha.content = alpha;
+            if (this.value !== color.value)
+                this.value = color.value;
             const payload = { detail: { value: this.value } };
             dispatchEvent(this, 'bl:color:change', payload);
             dispatchEvent(this, 'change', payload);
@@ -292,13 +294,13 @@ export let BlocksColor = (() => {
                 const alphaX = this.#alpha.content * alphaBarWidth;
                 this.$alphaButton.style.left = alphaX + 'px';
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 subscribe(this.#h, renderHue);
                 subscribe(this.#s, renderSaturation);
                 subscribe(this.#v, renderValue);
                 subscribe(this.#alpha, renderAlpha);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 unsubscribe(this.#h, renderHue);
                 unsubscribe(this.#s, renderSaturation);
                 unsubscribe(this.#v, renderValue);
@@ -310,13 +312,13 @@ export let BlocksColor = (() => {
                 renderValue();
                 renderAlpha();
             };
-            this.onRender(render);
-            this.onConnected(render);
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
             let clear;
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 clear = sizeObserve(this.$layout, render);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 if (clear)
                     clear();
             });
@@ -405,14 +407,14 @@ export let BlocksColor = (() => {
                 const [, s, l, a] = this.hsla;
                 this.$resultBg.style.backgroundColor = `hsla(${h},${s * 100}%,${l * 100}%,${a})`;
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 subscribe(this.#h, renderHsvBg);
                 subscribe(this.#h, renderResultBg);
                 subscribe(this.#s, renderResultBg);
                 subscribe(this.#v, renderResultBg);
                 subscribe(this.#alpha, renderResultBg);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 unsubscribe(this.#h, renderHsvBg);
                 unsubscribe(this.#h, renderResultBg);
                 unsubscribe(this.#s, renderResultBg);
@@ -423,8 +425,8 @@ export let BlocksColor = (() => {
                 renderHsvBg();
                 renderResultBg();
             };
-            this.onRender(render);
-            this.onConnected(render);
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
         }
         #setupInputs() {
             const renderHex = () => {
@@ -499,32 +501,32 @@ export let BlocksColor = (() => {
                         return renderHsl();
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 subscribe(this.#h, render);
                 subscribe(this.#s, render);
                 subscribe(this.#v, render);
                 subscribe(this.#alpha, render);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 unsubscribe(this.#h, render);
                 unsubscribe(this.#s, render);
                 unsubscribe(this.#v, render);
                 unsubscribe(this.#alpha, render);
             });
-            this.onRender(render);
-            this.onConnected(render);
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
             const onClick = () => {
                 const modes = ['hex', 'rgb', 'hsl', 'hsv'];
                 const mode = modes[(modes.indexOf(this.mode) + 1) % 4];
                 this.mode = mode;
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$modeSwitch.onclick = onClick;
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$modeSwitch.onclick = null;
             });
-            this.onAttributeChangedDep('mode', render);
+            this.hook.onAttributeChangedDep('mode', render);
         }
         #setupInputEvents() {
             const onHexChange = () => {
@@ -533,7 +535,6 @@ export let BlocksColor = (() => {
                 if (/^#?(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)) {
                     this.#preventRenderInputByDataChange = true;
                     this.value = Color.fromHex(value).value;
-                    console.log(Color.fromHex(value).toString('hex'));
                     this.#preventRenderInputByDataChange = false;
                 }
             };
@@ -589,10 +590,10 @@ export let BlocksColor = (() => {
                         return;
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$modeContent.onchange = onChange;
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$modeContent.onchange = null;
             });
         }
@@ -621,11 +622,11 @@ export let BlocksColor = (() => {
             return value;
         }
         #setupValueAttr() {
-            this.onAttributeChangedDep('value', () => {
+            this.hook.onAttributeChangedDep('value', () => {
                 const newColor = new Color(this.value);
                 this.setColor(newColor);
             });
         }
     };
-    return BlocksColor = _classThis;
+    return BlColor = _classThis;
 })();

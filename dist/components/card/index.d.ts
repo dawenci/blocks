@@ -1,11 +1,10 @@
-import type { EnumAttrs, NullableEnumAttr } from '../../decorators/attr.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 import { SetupEmpty } from '../setup-empty/index.js';
-type EmptyMap<T extends Component> = Record<'$coverSlot' | '$headerSlot' | '$bodySlot' | '$footerSlot', SetupEmpty<T>>;
-export declare class BlocksCard extends Component {
+type EmptyMap<T extends BlComponent> = Record<'$coverSlot' | '$headerSlot' | '$bodySlot' | '$footerSlot', SetupEmpty<T>>;
+export declare class BlCard extends BlComponent {
     #private;
-    accessor shadow: NullableEnumAttr<['hover', 'always']>;
-    accessor size: EnumAttrs['size'];
+    accessor shadow: MaybeOneOf<['hover', 'always']>;
+    accessor size: MaybeOneOf<['small', 'large']>;
     accessor $layout: HTMLElement;
     accessor $cover: HTMLElement;
     accessor $header: HTMLElement;

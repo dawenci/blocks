@@ -1,4 +1,4 @@
-import type { Component } from '../component/Component'
+import type { BlComponent } from '../component/Component'
 export interface InitOptions<T> {
   component: T
 }
@@ -6,8 +6,8 @@ export interface InitOptions<T> {
 /**
  * 空格、回车触发 click，阻止空格滚动页面
  */
-export class SetupControlEvent<T extends Component = Component> {
-  static setup<T extends Component = Component>(options: InitOptions<T>) {
+export class SetupControlEvent<T extends BlComponent = BlComponent> {
+  static setup<T extends BlComponent = BlComponent>(options: InitOptions<T>) {
     return new SetupControlEvent(options).setup()
   }
 
@@ -65,11 +65,11 @@ export class SetupControlEvent<T extends Component = Component> {
         )
       }
     }
-    this.#component.onConnected(() => {
+    this.#component.hook.onConnected(() => {
       this.#component.addEventListener('keydown', onKeydown)
       this.#component.addEventListener('keyup', onKeyup)
     })
-    this.#component.onDisconnected(() => {
+    this.#component.hook.onDisconnected(() => {
       this.#component.removeEventListener('keydown', onKeydown)
       this.#component.removeEventListener('keyup', onKeyup)
     })

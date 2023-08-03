@@ -1,3 +1,15 @@
 import { makeTemplate } from '../../common/template.js'
 
 export const template = makeTemplate(/*html*/ `<slot></slot>`)
+
+export const popupTemplate = makeTemplate<'bl-popup'>(/*html*/ `
+<bl-popup autoflip arrow="8" origin="top-center">
+  <div class="layout" style="padding:15px;">
+    <div class="message" style="position:relative;box-sizing:border-box;margin-bottom:15px;font-size:12px;line-height:18px;"></div>
+    <div class="actions" style="box-sizing:border-box;text-align:center;">
+      <bl-button size="small" class="cancel" style="margin:0 5px;vertical-align:middle;">取消</bl-button>
+      <bl-button size="small" class="confirm" type="primary" style="margin:0 5px;vertical-align:middle;">确定</bl-button>
+    </div>
+  </div>
+</bl-popup>
+`)

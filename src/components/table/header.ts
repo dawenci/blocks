@@ -1,34 +1,34 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
 import type { RowColumn } from './RowColumn.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { setStyles } from '../../common/style.js'
 import { style } from './header.style.js'
 import { template } from './header-template.js'
-import { BlocksTable } from './table.js'
-import { Component } from '../component/Component.js'
+import { BlTable } from './table.js'
+import { BlComponent } from '../component/Component.js'
 
 export type CellElement = HTMLElement & { column: RowColumn }
 
-export interface TableHeaderEventMap extends ComponentEventMap {
+export interface TableHeaderEventMap extends BlComponentEventMap {
   'enter-cell': CustomEvent<{ $cell: CellElement; column: RowColumn }>
   sort: CustomEvent<{ column: RowColumn }>
 }
 
-export interface BlocksTableHeader extends Component {
-  $host: BlocksTable
+export interface BlTableHeader extends BlComponent {
+  $host: BlTable
   $viewport: HTMLElement
   $canvas: HTMLElement
 
   addEventListener<K extends keyof TableHeaderEventMap>(
     type: K,
-    listener: ComponentEventListener<TableHeaderEventMap[K]>,
+    listener: BlComponentEventListener<TableHeaderEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
   removeEventListener<K extends keyof TableHeaderEventMap>(
     type: K,
-    listener: ComponentEventListener<TableHeaderEventMap[K]>,
+    listener: BlComponentEventListener<TableHeaderEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -37,7 +37,11 @@ export interface BlocksTableHeader extends Component {
   customElement: 'bl-table-header',
   styles: [style],
 })
-export class BlocksTableHeader extends Component {
+export class BlTableHeader extends BlComponent {
+  static override get role() {
+    return 'rowgroup'
+  }
+
   @attr('boolean') accessor border!: boolean
 
   _columns: RowColumn[] = []

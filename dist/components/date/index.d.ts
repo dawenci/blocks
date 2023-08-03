@@ -1,11 +1,17 @@
-import type { ComponentEventListener } from '../component/Component.js';
+import type { BlComponentEventListener } from '../component/Component.js';
 import type { MaybeLeafModel, ItemModel, MaybeLeafDepth } from './type.js';
-import type { EnumAttr } from '../../decorators/attr.js';
-import type { ISelectListEventMap, ISelected } from '../../common/connectSelectable.js';
+import type { ISelectListEventMap, ISelectableListComponent, ISelected } from '../../common/connectSelectable.js';
 import '../loading/index.js';
-import { Control } from '../base-control/index.js';
+import { BlControl } from '../base-control/index.js';
 import { Depth } from './type.js';
-interface DateEventMap extends ISelectListEventMap {
+export type Badge = {
+    year: number;
+    month?: number;
+    date?: number;
+    label?: string;
+};
+export type WeekNumber = 1 | 2 | 3 | 4 | 5 | 6 | 0;
+export interface BlDateEventMap extends ISelectListEventMap {
     change: CustomEvent<{
         selected: Date[];
     }>;
@@ -55,24 +61,18 @@ interface DateEventMap extends ISelectListEventMap {
         value: Badge[];
     }>;
 }
-type Badge = {
-    year: number;
-    month?: number;
-    date?: number;
-    label?: string;
-};
-type WeekNumber = 1 | 2 | 3 | 4 | 5 | 6 | 0;
-export interface BlocksDate extends Control {
-    addEventListener<K extends keyof DateEventMap>(type: K, listener: ComponentEventListener<DateEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof DateEventMap>(type: K, listener: ComponentEventListener<DateEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlDate extends BlControl, ISelectableListComponent {
+    addEventListener<K extends keyof BlDateEventMap>(type: K, listener: BlComponentEventListener<BlDateEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlDateEventMap>(type: K, listener: BlComponentEventListener<BlDateEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksDate extends Control {
+export declare const dateEquals: (a: Date | null, b: Date | null) => boolean;
+export declare class BlDate extends BlControl implements ISelectableListComponent {
     #private;
     static get observedAttributes(): string[];
     static get Depth(): typeof Depth;
     accessor loading: boolean;
     accessor max: number | null;
-    accessor mode: EnumAttr<['single', 'multiple', 'range']>;
+    accessor mode: OneOf<['single', 'multiple', 'range']>;
     accessor depth: MaybeLeafDepth;
     accessor minDepth: Depth;
     accessor startDepth: Depth;
@@ -88,6 +88,7 @@ export declare class BlocksDate extends Control {
     accessor $content: HTMLElement;
     accessor $list: HTMLElement;
     accessor $loading: HTMLElement;
+    formatter: import("../../common/reactive.js").IReactive<(date: Date) => string>;
     constructor();
     get selected(): Date[];
     set selected(values: Date[]);
@@ -96,8 +97,10 @@ export declare class BlocksDate extends Control {
     set activeDepth(value: Depth);
     get activeCentury(): number | undefined;
     set activeCentury(value: number | undefined);
+    get activeCenturyDefault(): number;
     get activeDecade(): number | undefined;
     set activeDecade(value: number | undefined);
+    get activeDecadeDefault(): number;
     get activeYear(): number | undefined;
     set activeYear(value: number | undefined);
     get activeMonth(): number | undefined;
@@ -111,12 +114,12 @@ export declare class BlocksDate extends Control {
     get disabledDate(): ((data: ItemModel, context: {
         depth: Depth;
         viewDepth: Depth;
-        component: BlocksDate;
+        component: BlDate;
     }) => boolean) | undefined;
     set disabledDate(value: ((data: ItemModel, context: {
         depth: Depth;
         viewDepth: Depth;
-        component: BlocksDate;
+        component: BlDate;
     }) => boolean) | undefined);
     get badges(): Badge[];
     set badges(value: Badge[]);
@@ -140,4 +143,3 @@ export declare class BlocksDate extends Control {
     dateEquals(a: Date, b: Date): boolean;
     getBadges(item: ItemModel): Badge[];
 }
-export {};

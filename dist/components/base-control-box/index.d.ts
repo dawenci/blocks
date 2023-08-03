@@ -1,14 +1,14 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
-import { Control } from '../base-control/index.js';
-export interface ControlBoxEventMap extends ComponentEventMap {
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js';
+import { BlControl } from '../base-control/index.js';
+export interface BlControlBoxEventMap extends BlComponentEventMap {
     'click-prefix-icon': CustomEvent;
     'click-suffix-icon': CustomEvent;
 }
-export interface ControlBox extends Control {
-    addEventListener<K extends keyof ControlBoxEventMap>(type: K, listener: ComponentEventListener<ControlBoxEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof ControlBoxEventMap>(type: K, listener: ComponentEventListener<ControlBoxEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlControlBox extends BlControl {
+    addEventListener<K extends keyof BlControlBoxEventMap>(type: K, listener: BlComponentEventListener<BlControlBoxEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlControlBoxEventMap>(type: K, listener: BlComponentEventListener<BlControlBoxEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class ControlBox extends Control {
+export declare class BlControlBox extends BlControl {
     #private;
     accessor loading: boolean;
     accessor prefixIcon: string | null;

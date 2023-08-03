@@ -1,27 +1,24 @@
-import type { EnumAttr } from '../../decorators/attr.js';
 import '../popup/index.js';
-import { BlocksPopup } from '../popup/index.js';
-import { BlocksButton } from '../button/index.js';
-import { Component } from '../component/Component.js';
-import { PopupOrigin } from '../popup/index.js';
-declare const originArray: PopupOrigin[];
-export interface BlocksPopupConfirm extends Component {
-    $popup: BlocksPopup;
+import { BlPopup } from '../popup/index.js';
+import { BlButton } from '../button/index.js';
+import { BlComponent } from '../component/Component.js';
+export interface BlPopupConfirm extends BlComponent {
+    $popup: BlPopup;
     $message: HTMLElement;
-    $confirm: BlocksButton;
-    $cancel: BlocksButton;
-    confirm?: () => Promise<any>;
-    cancel?: () => Promise<any>;
+    $confirm: BlButton;
+    $cancel: BlButton;
+    onConfirm?: () => Promise<any>;
+    onCancel?: () => Promise<any>;
 }
-export declare class BlocksPopupConfirm extends Component {
+export declare class BlPopupConfirm extends BlComponent {
     #private;
-    static get observedAttributes(): ("message" | "origin" | "open" | "icon")[];
+    static get observedAttributes(): string[];
     accessor icon: string;
     accessor message: string;
     accessor open: boolean;
-    accessor origin: EnumAttr<typeof originArray>;
     constructor();
+    confirm(): Promise<void>;
+    cancel(): Promise<void>;
     _renderIcon(): void;
     render(): void;
 }
-export {};

@@ -12,9 +12,15 @@ import {
   __transition_duration,
   __font_size_base,
   __font_size_small,
+  __fg_base,
+  __color_primary_shadow,
+  __color_success_shadow,
+  __color_warning_shadow,
+  __color_danger_shadow,
 } from '../../theme/var-light.js'
 
 export const style = /*css*/ `
+/*<component>tag*/
 :host {
   display: inline-block;
   box-sizing: border-box;
@@ -25,8 +31,8 @@ export const style = /*css*/ `
   border-style: solid;
   cursor: default;
   text-align: center;
-  font-family: var(--font-family, ${__font_family});
-  transition: color var(--transition-duration, ${__transition_duration}), border-color var(--transition-duration, ${__transition_duration});
+  font-family: var(--bl-font-family, ${__font_family});
+  transition: color var(--bl-transition-duration, ${__transition_duration}), border-color var(--bl-transition-duration, ${__transition_duration});
   user-select: none;
 }
 :host([round]) {
@@ -51,45 +57,19 @@ export const style = /*css*/ `
   white-space: nowrap;
 }
 
-#close {
+[part="close"] {
+  --size: 14px;
+  --shadow-size: 2px;
   flex: 0 0 auto;
-  position: relative;
-  box-sizing: border-box;
-  width: 16px;
-  height: 16px;
-  margin: 0 0 0 2px;
-  padding: 0;
-  border: 1px solid transparent;
-  background: transparent;
-  transform: rotate(45deg);
-  border-radius: 50%;
-  border-width: 1px;
-  border-style: solid;
-  transition: transform var(--transition-duration, ${__transition_duration});
+  margin: 0 -2px 0 2px;
+  opacity: .8;
 }
-#close:focus {
-  outline: 0 none;
+[part="close"]:hover {
+  opacity: .9;
 }
-#close::before,
-#close::after {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: block;
-  content: '';
-  width: 2px;
-  height: 2px;
-  margin: auto;
+[part="close"]:active {
+  opacity: 1;
 }
-#close::before {
-  width: 8px;
-}
-#close::after {
-  height: 8px;
-}
-
 
 /* background */
 :host { background-color: #fff; }
@@ -120,40 +100,56 @@ export const style = /*css*/ `
 
 
 /* close color */
-#close::before,
-#close::after { background: #ddd; }
-#close:hover { border-color: #ccc; }
-#close:hover::before,
-#close:hover::after { background: #ccc; }
+[part="close"],
+[part="close"]:hover {
+  --fg: var(--bl-fg-base, ${__fg_base});
+  --fg-hover: var(--bl-fg-base, ${__fg_base});
+  --fg-active: var(--bl-fg-base, ${__fg_base});
+}
 
-:host([type="primary"]) #close::before,
-:host([type="primary"]) #close::after,
-:host([type="danger"]) #close::before,
-:host([type="danger"]) #close::after,
-:host([type="warning"]) #close::before,
-:host([type="warning"]) #close::after,
-:host([type="success"]) #close::before,
-:host([type="success"]) #close::after { background-color: #fff; }
-:host([type="primary"]) #close:hover,
-:host([type="danger"]) #close:hover,
-:host([type="warning"]) #close:hover,
-:host([type="success"]) #close:hover { border-color: #fff; }
+:host([type="primary"]) [part="close"],
+:host([type="primary"]) [part="close"]:hover,
+:host([type="danger"]) [part="close"],
+:host([type="danger"]) [part="close"]:hover,
+:host([type="warning"]) [part="close"],
+:host([type="warning"]) [part="close"]:hover,
+:host([type="success"]) [part="close"],
+:host([type="success"]) [part="close"]:hover {
+  --fg: #fff;
+  --fg-hover: #fff;
+  --fg-active: #fff;
+  --bg-hover: rgba(255,255,255,.25);
+  --bg-active: rgba(255,255,255,.35);
+}
 
-:host([type="primary"][outline]) #close::before,
-:host([type="primary"][outline]) #close::after { background-color: var(--bl-color-primary-base, ${__color_primary}) }
-:host([type="primary"][outline]) #close:hover { border-color: var(--bl-color-primary-base, ${__color_primary}) }
-
-:host([type="danger"][outline]) #close::before,
-:host([type="danger"][outline]) #close::after { background-color: var(--bl-color-danger-base, ${__color_danger}) }
-:host([type="danger"][outline]) #close:hover { border-color: var(--bl-color-danger-base, ${__color_danger}) }
-
-:host([type="warning"][outline]) #close::before,
-:host([type="warning"][outline]) #close::after { background-color: var(--bl-color-warning-base, ${__color_warning}) }
-:host([type="warning"][outline]) #close:hover { border-color: var(--bl-color-warning-base, ${__color_warning}) }
-
-:host([type="success"][outline]) #close::before,
-:host([type="success"][outline]) #close::after { background-color: var(--bl-color-success-base, ${__color_success}) }
-:host([type="success"][outline]) #close:hover { border-color: var(--bl-color-success-base, ${__color_success}) }
+:host([type="primary"][outline]) [part="close"],
+:host([type="primary"][outline]) [part="close"]:hover {
+  --fg: var(--bl-color-primary-base, ${__color_primary});
+  --fg-hover: var(--bl-color-primary-base, ${__color_primary});
+  --fg-active: var(--bl-color-primary-base, ${__color_primary});
+  --focus-shadow: var(--bl-color-primary-shadow, ${__color_primary_shadow});
+}
+:host([type="danger"][outline]) [part="close"],
+:host([type="danger"][outline]) [part="close"]:hover {
+  --fg: var(--bl-color-danger-base, ${__color_danger});
+  --fg-hover: var(--bl-color-danger-base, ${__color_danger});
+  --fg-active: var(--bl-color-danger-base, ${__color_danger});
+  --focus-shadow: var(--bl-color-danger-shadow, ${__color_danger_shadow});
+}
+:host([type="warning"][outline]) [part="close"],
+:host([type="warning"][outline]) [part="close"]:hover {
+  --fg: var(--bl-color-warning-base, ${__color_warning});
+  --fg-hover: var(--bl-color-warning-base, ${__color_warning});
+  --fg-active: var(--bl-color-warning-base, ${__color_warning});
+  --focus-shadow: var(--bl-color-warning-shadow, ${__color_warning_shadow});
+}
+:host([type="success"][outline]) [part="close"],
+:host([type="success"][outline]) [part="close"]:hover {
+  --fg: var(--bl-color-success-base, ${__color_success});
+  --fg-hover: var(--bl-color-success-base, ${__color_success});
+  --fg-active: var(--bl-color-success-base, ${__color_success});
+  --focus-shadow: var(--bl-color-success-shadow, ${__color_success_shadow});
+}
 
 
 /* size */
@@ -162,14 +158,28 @@ export const style = /*css*/ `
   --padding: calc(var(--height) / 4);
   --font-size: var(--bl-font-size-small, ${__font_size_small});
 }
+[part="close"] {
+  --size: 15px;
+  --padding: 3px;
+  --shadow-size: 1px;
+  --border-width: 0px;
+}
 :host([size="small"]) {
   --height: calc(var(--bl-height-small, ${__height_small}) - 12px);
   --padding: calc(var(--height) / 4);
   --font-size: var(--bl-font-size-small, ${__font_size_small});
 }
+:host([size="small"]) [part="close"] {
+  --size: 13px;
+  --shadow-size: 1px;
+}
 :host([size="large"]) {
   --height: calc(var(--bl-height-large, ${__height_large}) - 12px);
   --padding: calc(var(--height) / 4);
   --font-size: var(--bl-font-size-base, ${__font_size_base});
+}
+:host([size="large"]) [part="close"] {
+  --size: 19px;
+  --shadow-size: 2px;
 }
 `

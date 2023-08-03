@@ -1,25 +1,19 @@
-let templateCache;
-export function template() {
-    if (templateCache)
-        return templateCache;
-    const comTemplate = document.createElement('template');
-    comTemplate.innerHTML = `
-  <div id="layout">
-    <div id="total"></div>
-    <div id="sizes"></div>
-    <div id="pager">
-      <button id="prev"><bl-icon value="left"></button>
-      <div id="items"></div>
-      <button id="next"><bl-icon value="right"></button>
-    </div>
-    <div id="jump"></div>
-  </div>`;
-    const itemTemplate = document.createElement('button');
-    const moreTemplate = document.createElement('bl-icon');
-    moreTemplate.value = 'more';
-    return (templateCache = {
-        comTemplate,
-        itemTemplate,
-        moreTemplate,
-    });
-}
+import { makeTemplate } from '../../common/template.js';
+export const template = makeTemplate(`
+<div part="layout" id="layout">
+  <div part="total" id="total"></div>
+  <div part="sizes" id="sizes"></div>
+  <div part="pager" id="pager">
+    <button part="prev" id="prev"><bl-icon value="left"></button>
+    <div part="items" id="items"></div>
+    <button part="next" id="next"><bl-icon value="right"></button>
+  </div>
+  <div part="jump" id="jump"></div>
+</div>
+`);
+export const itemTemplate = makeTemplate(`
+<button></button>
+`);
+export const moreTemplate = makeTemplate(`
+<bl-icon value="more"></bl-icon>
+`);

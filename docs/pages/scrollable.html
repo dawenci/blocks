@@ -18,21 +18,23 @@
       <h1>scrollable</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/scrollable/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/scrollable/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>默认</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认</h2>
         <template data-codesource="html">
           <bl-scrollable style="height:200px;border: 1px solid #e8e8e8;">
             <div style="width:3000px;height:3000px;
@@ -40,13 +42,12 @@
             "></div>
           </bl-scrollable>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>滚动阴影效果</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">滚动阴影效果</h2>
         <template data-codesource="html">
           <bl-scrollable shadow style="height:200px;border: 1px solid #e8e8e8;">
             <div style="width:3000px;height:3000px;
@@ -54,80 +55,84 @@
             "></div>
           </bl-scrollable>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>API</h2>
-
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>shadow</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否在边沿显示可滚动提示阴影</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>bl:resize</td>
-            <td></td>
-            <td>尺寸变化时触发。</td>
-          </tr>
-          <tr>
-            <td>bl:scroll</td>
-            <td></td>
-            <td>发生滚动时触发。</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h3>CSS Variables</h3>
-      <table class="api-css">
-        <thead>
-          <tr>
-            <th>变量名</th>
-            <th>默认值</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>--bg-thumb</td>
-            <td>black</td>
-            <td>滚动条滑块的背景颜色（设置不透明的颜色即可，显示时会自动设置透明度）。</td>
-          </tr>
-          <tr>
-            <td>--bg-track</td>
-            <td>transparent</td>
-            <td>滚动条滑轨的背景颜色。</td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+  
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>shadow</td>
+              <td>shadow</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否在边沿显示可滚动提示阴影</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Events</h3>
+  
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>bl:resize</td>
+              <td>CustomEvent&lt;{ width: number; height: number }&gt;</td>
+              <td>尺寸变化时触发。</td>
+            </tr>
+            <tr>
+              <td>bl:scroll</td>
+              <td>CustomEvent</td>
+              <td>发生滚动时触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>CSS Variables</h3>
+  
+        <table class="api-css">
+          <thead>
+            <tr>
+              <th>变量名</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>--bg-thumb</td>
+              <td>black</td>
+              <td>滚动条滑块的背景颜色（设置不透明的颜色即可，显示时会自动设置透明度）。</td>
+            </tr>
+            <tr>
+              <td>--bg-track</td>
+              <td>transparent</td>
+              <td>滚动条滑轨的背景颜色。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

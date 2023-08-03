@@ -1,11 +1,11 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js';
 import type { RowColumn } from './RowColumn.js';
-import { BlocksTable } from './table.js';
-import { Component } from '../component/Component.js';
+import { BlTable } from './table.js';
+import { BlComponent } from '../component/Component.js';
 export type CellElement = HTMLElement & {
     column: RowColumn;
 };
-export interface TableHeaderEventMap extends ComponentEventMap {
+export interface TableHeaderEventMap extends BlComponentEventMap {
     'enter-cell': CustomEvent<{
         $cell: CellElement;
         column: RowColumn;
@@ -14,14 +14,15 @@ export interface TableHeaderEventMap extends ComponentEventMap {
         column: RowColumn;
     }>;
 }
-export interface BlocksTableHeader extends Component {
-    $host: BlocksTable;
+export interface BlTableHeader extends BlComponent {
+    $host: BlTable;
     $viewport: HTMLElement;
     $canvas: HTMLElement;
-    addEventListener<K extends keyof TableHeaderEventMap>(type: K, listener: ComponentEventListener<TableHeaderEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof TableHeaderEventMap>(type: K, listener: ComponentEventListener<TableHeaderEventMap[K]>, options?: boolean | EventListenerOptions): void;
+    addEventListener<K extends keyof TableHeaderEventMap>(type: K, listener: BlComponentEventListener<TableHeaderEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof TableHeaderEventMap>(type: K, listener: BlComponentEventListener<TableHeaderEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksTableHeader extends Component {
+export declare class BlTableHeader extends BlComponent {
+    static get role(): string;
     accessor border: boolean;
     _columns: RowColumn[];
     fixedLeftColumns: RowColumn[];

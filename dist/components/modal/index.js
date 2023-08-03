@@ -36,13 +36,13 @@ import '../button/index.js';
 import '../dialog/index.js';
 import '../input/index.js';
 import { append, prepend, unmount } from '../../common/mount.js';
-import { attr } from '../../decorators/attr.js';
+import { attr } from '../../decorators/attr/index.js';
 import { cancelButtonTemplate, confirmButtonTemplate, contentTemplate } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { style } from './style.js';
-import { BlocksDialog } from '../dialog/index.js';
-export let BlocksModal = (() => {
+import { BlDialog } from '../dialog/index.js';
+export let BlModal = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-modal',
             styles: [style],
@@ -63,7 +63,7 @@ export let BlocksModal = (() => {
     let _rich_initializers = [];
     let _content_decorators;
     let _content_initializers = [];
-    var BlocksModal = class extends BlocksDialog {
+    var BlModal = class extends BlDialog {
         static {
             _withConfirm_decorators = [attr('boolean')];
             _withCancel_decorators = [attr('boolean')];
@@ -78,7 +78,7 @@ export let BlocksModal = (() => {
             __esDecorate(this, null, _rich_decorators, { kind: "accessor", name: "rich", static: false, private: false, access: { has: obj => "rich" in obj, get: obj => obj.rich, set: (obj, value) => { obj.rich = value; } } }, _rich_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _content_decorators, { kind: "accessor", name: "content", static: false, private: false, access: { has: obj => "content" in obj, get: obj => obj.content, set: (obj, value) => { obj.content = value; } } }, _content_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksModal = _classThis = _classDescriptor.value;
+            BlModal = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #promise = (__runInitializers(this, _instanceExtraInitializers), void 0);
@@ -159,9 +159,10 @@ export let BlocksModal = (() => {
                 maybePromise = this.onCancel(cancelValue);
             }
             if (maybePromise instanceof Promise) {
-                if (this.$cancel) {
+                if (this.$cancel)
                     this.$cancel.loading = true;
-                }
+                if (this.$confirm)
+                    this.$confirm.disabled = true;
                 maybePromise
                     .then(() => {
                     if (this.#reject) {
@@ -172,6 +173,8 @@ export let BlocksModal = (() => {
                     .finally(() => {
                     if (this.$cancel)
                         this.$cancel.loading = false;
+                    if (this.$confirm)
+                        this.$confirm.disabled = false;
                 });
             }
             else {
@@ -190,9 +193,10 @@ export let BlocksModal = (() => {
                 maybePromise = this.onConfirm(confirmValue);
             }
             if (maybePromise instanceof Promise) {
-                if (this.$confirm) {
+                if (this.$confirm)
                     this.$confirm.loading = true;
-                }
+                if (this.$cancel)
+                    this.$cancel.disabled = true;
                 maybePromise
                     .then(() => {
                     if (this.#resolve) {
@@ -203,6 +207,8 @@ export let BlocksModal = (() => {
                     .finally(() => {
                     if (this.$confirm)
                         this.$confirm.loading = false;
+                    if (this.$cancel)
+                        this.$cancel.disabled = false;
                 });
             }
             else {
@@ -213,7 +219,7 @@ export let BlocksModal = (() => {
             }
         }
         #setupDialog() {
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.autofocus = true;
                 this.capturefocus = true;
                 this.mask = true;
@@ -235,9 +241,9 @@ export let BlocksModal = (() => {
                     }
                 }
             };
-            this.onRender(update);
-            this.onConnected(update);
-            this.onAttributeChangedDeps(['with-confirm', 'confirm-text'], update);
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDeps(['with-confirm', 'confirm-text'], update);
         }
         #setupCancel() {
             const update = () => {
@@ -255,9 +261,9 @@ export let BlocksModal = (() => {
                     }
                 }
             };
-            this.onRender(update);
-            this.onConnected(update);
-            this.onAttributeChangedDeps(['with-cancel', 'cancel-text'], update);
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDeps(['with-cancel', 'cancel-text'], update);
         }
         #setupContent() {
             const update = () => {
@@ -284,9 +290,9 @@ export let BlocksModal = (() => {
                     }
                 }
             };
-            this.onRender(update);
-            this.onConnected(update);
-            this.onAttributeChangedDeps(['content', 'rich'], update);
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDeps(['content', 'rich'], update);
         }
         #setupKeymap() {
             const onKeydown = (e) => {
@@ -299,15 +305,15 @@ export let BlocksModal = (() => {
                     }
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('keydown', onKeydown);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('keydown', onKeydown);
             });
         }
         #setupPromise() {
-            this.onAttributeChangedDep('open', () => {
+            this.hook.onAttributeChangedDep('open', () => {
                 if (this.open) {
                     this.#promise = new Promise((resolve, reject) => {
                         this.#resolve = resolve;
@@ -324,5 +330,5 @@ export let BlocksModal = (() => {
             });
         }
     };
-    return BlocksModal = _classThis;
+    return BlModal = _classThis;
 })();

@@ -11,5 +11,5 @@ export interface ModalOptions {
 }
 export declare function modal(text: string, options?: ModalOptions): {
     promise: Promise<any>;
-    $dialog: import("../../components/modal/index.js").BlocksModal;
+    $dialog: import("../../components/modal/index.js").BlModal;
 };

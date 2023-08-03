@@ -1,2 +1,1 @@
-import { BlocksPopup } from '../popup/index.js';
-export declare const template: () => BlocksPopup;
+export declare const template: () => import("../popup/popup").BlPopup;

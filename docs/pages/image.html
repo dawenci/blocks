@@ -18,6 +18,8 @@
       <h1>image</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <script type="module" src="../../dist/components/grid/index.js"></script>
     <script type="module" src="../../dist/components/button/index.js"></script>
     <style>
@@ -35,29 +37,28 @@
     </style>
 
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/image/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/image/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>默认</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">默认</h2>
         <template data-codesource="html">
           <bl-image src="../images/p1.jpg"></bl-image>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>fit</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">fit</h2>
         <template data-codesource="html">
           <bl-row wrap>
             <bl-col span="8">
@@ -82,24 +83,22 @@
             </bl-col>
           </bl-row>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>占位图</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">占位图</h2>
         <template data-codesource="html">
           <bl-image placeholder="../images/image-loading.png" src="../images/p1.jpg"></bl-image>
         </template>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>加载失败</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">加载失败</h2>
         <template data-codesource="html">
           <bl-row>
             <bl-col span="12">
@@ -112,113 +111,115 @@
             </bl-col>
           </bl-row>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>手工加载</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">手工加载</h2>
+        <p slot="header">使用 `manual` 属性，将图片设置为手工加载。典型用途如配合 intersection 组件实现懒加载。</p>
 
-      <p>使用 `manual` 属性，将图片设置为手工加载。典型用途如配合 intersection 组件实现懒加载。</p>
-
-      <div class="case">
         <template data-codesource="html">
           <div style="margin-bottom:15px;">
             <bl-button onclick="document.querySelector('[manual]').load()">加载</bl-button>
           </div>
-
+  
           <bl-image manual src="../images/p1.jpg"></bl-image>
         </template>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
 
-      <h3>Attrs / Props</h3>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>alt</td>
-            <td>string</td>
-            <td></td>
-            <td>img 的 alt。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>fallback</td>
-            <td>string</td>
-            <td></td>
-            <td>载入失败时显示的图片 url。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>fit</td>
-            <td>'fill' | 'contain' | 'cover' | 'none' | 'scale-down'</td>
-            <td></td>
-            <td>图片如何适应容器空间。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>manual</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否使用手动加载（手动调用 load()，而非自动加载）。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>placeholder</td>
-            <td>string</td>
-            <td></td>
-            <td>占位图片 url。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>src</td>
-            <td>string</td>
-            <td></td>
-            <td>图片的 url。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <h3>Attrs / Props</h3>
 
-      <h3>Events</h3>
-      <table class="api-events">
-        <thead>
-          <tr>
-            <th>事件名称</th>
-            <th>事件对象</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>error</td>
-            <td></td>
-            <td>加载错误时触发。</td>
-          </tr>  
-          <tr>
-            <td>loaded</td>
-            <td></td>
-            <td>加载完成时触发。</td>
-          </tr>          
-          <tr>
-            <td>loading</td>
-            <td></td>
-            <td>加载时触发。</td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>alt</td>
+              <td>alt</td>
+              <td>string</td>
+              <td>无</td>
+              <td>img 的 alt。</td>
+            </tr>
+            <tr>
+              <td>fallback</td>
+              <td>fallback</td>
+              <td>string</td>
+              <td>无</td>
+              <td>载入失败时显示的图片 url。</td>
+            </tr>
+            <tr>
+              <td>fit</td>
+              <td>fit</td>
+              <td>'fill' | 'contain' | 'cover' | 'none' | 'scale-down'</td>
+              <td>无</td>
+              <td>图片如何适应容器空间。</td>
+            </tr>
+            <tr>
+              <td>manual</td>
+              <td>manual</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否使用手动加载（手动调用 load()，而非自动加载）。</td>
+            </tr>
+            <tr>
+              <td>placeholder</td>
+              <td>placeholder</td>
+              <td>string</td>
+              <td>无</td>
+              <td>占位图片 url。</td>
+            </tr>
+            <tr>
+              <td>src</td>
+              <td>src</td>
+              <td>string</td>
+              <td>无</td>
+              <td>图片的 url。</td>
+            </tr>
+          </tbody>
+        </table>
+      
+        <h3>Events</h3>
 
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>error</td>
+              <td></td>
+              <td>加载错误时触发。</td>
+            </tr>  
+            <tr>
+              <td>loaded</td>
+              <td></td>
+              <td>加载完成时触发。</td>
+            </tr>          
+            <tr>
+              <td>loading</td>
+              <td></td>
+              <td>加载时触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

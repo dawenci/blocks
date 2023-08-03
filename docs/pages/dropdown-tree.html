@@ -17,125 +17,137 @@
     <header>
       <h1>dropdown-tree</h1>
     </header>
+
     <script type="module" src="../../dist/components/button/index.js"></script>
+    <script type="module" src="../../dist/components/card/index.js"></script>
 
     <section class="section">
-      <h2>依赖引入</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
 
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/dropdown-tree/index.js"></script>
-        <script type="module" src="../../dist/components/select-result/index.js"></script>
-      </div>
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/dropdown-tree/index.js"></script>
+          <script type="module" src="../../dist/components/select-result/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>单选</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">单选</h2>
+        <div data-codesource="html">
+          <bl-dropdown-tree
+            arrow
+            checkable
+            check-on-click-node
+            id="single">
+            <bl-select-result
+              clearable
+              max-tag-count="1"
+              placeholder="请选择"
+              style="width:200px">
+            </bl-select-result>
+          </bl-dropdown-tree>
+        </div>
 
-      <div data-codesource="html">
-        <bl-dropdown-tree
-          arrow
-          checkable
-          check-on-click-node
-          id="single">
-          <bl-select-result
-            clearable
-            max-tag-count="1"
-            placeholder="请选择">
-          </bl-select-result>
-        </bl-dropdown-tree>
-      </div>
-
-      <template data-codesource="script">
-        <script>
-          (() => {
-            function makeData(count, pid) {
-              const data = []
-              let i = -1
-              while (++i < count) {
-                const id = `${pid ? pid + '.' : ''}${i}`
-                const label = `${id} - label`
-                data.push({ label, id, pid })
+        <template data-codesource="script">
+          <script>
+            (() => {
+              function makeData(count, pid) {
+                const data = []
+                let i = -1
+                while (++i < count) {
+                  const id = `${pid ? pid + '.' : ''}${i}`
+                  const label = `${id} - label`
+                  data.push({ label, id, pid })
+                }
+                return data
               }
-              return data
-            }
-            const data = makeData(10)
-            data.forEach(data => {
-              data.children = makeData(5, data.id)
-            })
-            document.getElementById('single').data = data
-          })()
-        </script>
-      </template>
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(5, data.id)
+              })
+              document.getElementById('single').data = data
+            })()
+          </script>
+        </template>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>多选</h2>
-
-      <div data-codesource="html">
-        <bl-dropdown-tree
-          arrow
-          checkable
-          check-on-click-node
-          multiple
-          id="default">
-          <bl-select-result
+      <bl-card>
+        <h2 slot="header" class="section-title">多选</h2>
+        <div data-codesource="html">
+          <bl-dropdown-tree
+            arrow
+            checkable
+            check-on-click-node
             multiple
-            clearable
-            max-tag-count="1"
-            placeholder="请选择">
-          </bl-select-result>
-        </bl-dropdown-tree>
-      </div>
+            id="default">
+            <bl-select-result
+              multiple
+              clearable
+              max-tag-count="1"
+              placeholder="请选择"
+              style="width:200px">
+            </bl-select-result>
+          </bl-dropdown-tree>
+        </div>
 
-      <template data-codesource="script">
-        <script>
-          (() => {
-            function makeData(count, pid) {
-              const data = []
-              let i = -1
-              while (++i < count) {
-                const id = `${pid ? pid + '.' : ''}${i}`
-                const label = `${id} - label`
-                data.push({ label, id, pid })
+        <template data-codesource="script">
+          <script>
+            (() => {
+              function makeData(count, pid) {
+                const data = []
+                let i = -1
+                while (++i < count) {
+                  const id = `${pid ? pid + '.' : ''}${i}`
+                  const label = `${id} - label`
+                  data.push({ label, id, pid })
+                }
+                return data
               }
-              return data
-            }
-            const data = makeData(10)
-            data.forEach(data => {
-              data.children = makeData(5, data.id)
-            })
-            document.getElementById('default').data = data
-          })()
-        </script>
-      </template>
+              const data = makeData(10)
+              data.forEach(data => {
+                data.children = makeData(5, data.id)
+              })
+              document.getElementById('default').data = data
+            })()
+          </script>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
-      待编写
-      <table>
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+
+        待编写
+
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

@@ -34,15 +34,16 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../icon/index.js';
 import '../popup-menu/index.js';
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { template } from './menu-item.template.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './menu-item.style.js';
-import { BlocksPopupMenu } from '../popup-menu/index.js';
-import { Component } from '../component/Component.js';
+import { template } from './menu-item.template.js';
+import { BlPopupMenu } from '../popup-menu/index.js';
+import { BlComponent } from '../component/Component.js';
 import { PopupOrigin } from '../popup/index.js';
-export let BlocksNavMenuItem = (() => {
+export let BlNavMenuItem = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-nav-menu-item',
             styles: [style],
@@ -59,19 +60,38 @@ export let BlocksNavMenuItem = (() => {
     let _disabled_initializers = [];
     let _link_decorators;
     let _link_initializers = [];
-    var BlocksNavMenuItem = class extends Component {
+    let _$layout_decorators;
+    let _$layout_initializers = [];
+    let _$label_decorators;
+    let _$label_initializers = [];
+    let _$icon_decorators;
+    let _$icon_initializers = [];
+    let _$arrow_decorators;
+    let _$arrow_initializers = [];
+    var BlNavMenuItem = class extends BlComponent {
         static {
             _expand_decorators = [attr('boolean')];
             _active_decorators = [attr('boolean')];
             _disabled_decorators = [attr('boolean')];
             _link_decorators = [attr('boolean')];
+            _$layout_decorators = [shadowRef('#layout')];
+            _$label_decorators = [shadowRef('#label')];
+            _$icon_decorators = [shadowRef('#icon')];
+            _$arrow_decorators = [shadowRef('#arrow')];
             __esDecorate(this, null, _expand_decorators, { kind: "accessor", name: "expand", static: false, private: false, access: { has: obj => "expand" in obj, get: obj => obj.expand, set: (obj, value) => { obj.expand = value; } } }, _expand_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _active_decorators, { kind: "accessor", name: "active", static: false, private: false, access: { has: obj => "active" in obj, get: obj => obj.active, set: (obj, value) => { obj.active = value; } } }, _active_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _disabled_decorators, { kind: "accessor", name: "disabled", static: false, private: false, access: { has: obj => "disabled" in obj, get: obj => obj.disabled, set: (obj, value) => { obj.disabled = value; } } }, _disabled_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _link_decorators, { kind: "accessor", name: "link", static: false, private: false, access: { has: obj => "link" in obj, get: obj => obj.link, set: (obj, value) => { obj.link = value; } } }, _link_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$label_decorators, { kind: "accessor", name: "$label", static: false, private: false, access: { has: obj => "$label" in obj, get: obj => obj.$label, set: (obj, value) => { obj.$label = value; } } }, _$label_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$icon_decorators, { kind: "accessor", name: "$icon", static: false, private: false, access: { has: obj => "$icon" in obj, get: obj => obj.$icon, set: (obj, value) => { obj.$icon = value; } } }, _$icon_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$arrow_decorators, { kind: "accessor", name: "$arrow", static: false, private: false, access: { has: obj => "$arrow" in obj, get: obj => obj.$arrow, set: (obj, value) => { obj.$arrow = value; } } }, _$arrow_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksNavMenuItem = _classThis = _classDescriptor.value;
+            BlNavMenuItem = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'menuitem';
         }
         #expand_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _expand_initializers, void 0));
         get expand() { return this.#expand_accessor_storage; }
@@ -85,21 +105,24 @@ export let BlocksNavMenuItem = (() => {
         #link_accessor_storage = __runInitializers(this, _link_initializers, void 0);
         get link() { return this.#link_accessor_storage; }
         set link(value) { this.#link_accessor_storage = value; }
-        $layout;
-        $label;
-        $icon;
-        $arrow;
+        #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
+        get $layout() { return this.#$layout_accessor_storage; }
+        set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$label_accessor_storage = __runInitializers(this, _$label_initializers, void 0);
+        get $label() { return this.#$label_accessor_storage; }
+        set $label(value) { this.#$label_accessor_storage = value; }
+        #$icon_accessor_storage = __runInitializers(this, _$icon_initializers, void 0);
+        get $icon() { return this.#$icon_accessor_storage; }
+        set $icon(value) { this.#$icon_accessor_storage = value; }
+        #$arrow_accessor_storage = __runInitializers(this, _$arrow_initializers, void 0);
+        get $arrow() { return this.#$arrow_accessor_storage; }
+        set $arrow(value) { this.#$arrow_accessor_storage = value; }
         _leaveTimer;
         _enterTimer;
         _data;
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template());
-            this.$layout = shadowRoot.getElementById('layout');
-            this.$label = shadowRoot.getElementById('label');
-            this.$icon = shadowRoot.getElementById('icon');
-            this.$arrow = shadowRoot.getElementById('arrow');
+            this.appendShadowChild(template());
             const onClick = (e) => {
                 if (this.disabled)
                     return;
@@ -107,7 +130,7 @@ export let BlocksNavMenuItem = (() => {
                     if (this.isInlineMode) {
                         this.expand = !this.expand;
                     }
-                    else if (this.$submenu instanceof BlocksPopupMenu) {
+                    else if (this.$submenu instanceof BlPopupMenu) {
                         if (!document.body.contains(this.$submenu)) {
                             document.body.appendChild(this.$submenu);
                         }
@@ -129,7 +152,7 @@ export let BlocksNavMenuItem = (() => {
                     dispatchEvent(this.$rootMenu, 'active', { detail: { $item: this } });
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.render();
                 this.$layout.addEventListener('click', onClick);
                 this.onmouseenter = () => {
@@ -160,7 +183,7 @@ export let BlocksNavMenuItem = (() => {
                     }
                 };
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$layout.removeEventListener('click', onClick);
                 this.onmouseenter = null;
                 this.onmouseleave = null;
@@ -168,7 +191,7 @@ export let BlocksNavMenuItem = (() => {
                     this.$submenu.parentElement.removeChild(this.$submenu);
                 }
             });
-            this.onAttributeChangedDep('expand', () => {
+            this.hook.onAttributeChangedDep('expand', () => {
                 if (this.$submenu) {
                     ;
                     this.$submenu.expand = this.expand;
@@ -252,6 +275,9 @@ export let BlocksNavMenuItem = (() => {
                 else {
                     this.$submenu = document.createElement('bl-nav-menu');
                     this.$submenu.submenu = true;
+                    this.$submenu.collapse = this.$hostMenu.collapse;
+                    this.$submenu.inline = this.$hostMenu.inline;
+                    this.$submenu.horizontal = this.$hostMenu.horizontal;
                     this.appendChild(this.$submenu);
                 }
                 this.$submenu.$parentItem = this;
@@ -280,5 +306,5 @@ export let BlocksNavMenuItem = (() => {
                 this.$submenu.clearActive();
         }
     };
-    return BlocksNavMenuItem = _classThis;
+    return BlNavMenuItem = _classThis;
 })();

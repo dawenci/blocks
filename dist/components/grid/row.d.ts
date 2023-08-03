@@ -1,11 +1,11 @@
-import type { NullableEnumAttr } from '../../decorators/attr.js';
-import { Component } from '../component/Component.js';
-export declare class BlocksRow extends Component {
+import { BlComponent } from '../component/Component.js';
+export declare class BlRow extends BlComponent {
     #private;
+    static get role(): string;
     accessor gutter: number;
     accessor wrap: boolean;
-    accessor align: NullableEnumAttr<['top', 'middle', 'bottom']>;
-    accessor justify: NullableEnumAttr<['start', 'end', 'center', 'space-around', 'space-between']>;
+    accessor align: MaybeOneOf<['top', 'middle', 'bottom']>;
+    accessor justify: MaybeOneOf<['start', 'end', 'center', 'space-around', 'space-between']>;
     accessor $slot: HTMLSlotElement;
     constructor();
 }

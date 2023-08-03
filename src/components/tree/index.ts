@@ -1,10 +1,11 @@
-import type { ComponentEventListener } from '../component/Component.js'
+import type { BlComponentEventListener } from '../component/Component.js'
 import type { ISelectableListComponent, ISelectListEventMap } from '../../common/connectSelectable.js'
 import type { VListEventMap } from '../vlist/index.js'
-import { BlocksVList, VirtualItem } from '../vlist/index.js'
-import { attr } from '../../decorators/attr.js'
+import { BlVList, VirtualItem } from '../vlist/index.js'
+import { attr } from '../../decorators/attr/index.js'
 import { boolSetter } from '../../common/property.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { chunkIterate } from '../../common/chunkIterate.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { isEmpty, merge, uniqBy, flatten } from '../../common/utils.js'
 import { parseHighlight } from '../../common/highlight.js'
@@ -20,7 +21,9 @@ export interface TreeEventMap extends VListEventMap, ISelectListEventMap {
   change: CustomEvent
   active: CustomEvent<{ key: string; oldKey: string }>
   inactive: CustomEvent<{ key: string }>
+  // TOOD: ?
   uncheck: CustomEvent<{ key: string }>
+  // TOOD: ?
   check: CustomEvent<{ key: string }>
   expand: CustomEvent<{ key: string }>
   fold: CustomEvent<{ key: string }>
@@ -55,16 +58,16 @@ export class VirtualNode extends VirtualItem {
   }
 }
 
-export interface BLocksTree extends BlocksVList, ISelectableListComponent {
+export interface BlTree extends BlVList, ISelectableListComponent {
   addEventListener<K extends keyof TreeEventMap>(
     type: K,
-    listener: ComponentEventListener<TreeEventMap[K]>,
+    listener: BlComponentEventListener<TreeEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
   removeEventListener<K extends keyof TreeEventMap>(
     type: K,
-    listener: ComponentEventListener<TreeEventMap[K]>,
+    listener: BlComponentEventListener<TreeEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -73,7 +76,11 @@ export interface BLocksTree extends BlocksVList, ISelectableListComponent {
   customElement: 'bl-tree',
   styles: [style],
 })
-export class BlocksTree extends BlocksVList {
+export class BlTree extends BlVList implements ISelectableListComponent {
+  static override get role() {
+    return 'tree'
+  }
+
   static override get observedAttributes() {
     return [...super.observedAttributes, ...['border', 'stripe']]
   }
@@ -134,15 +141,21 @@ export class BlocksTree extends BlocksVList {
     }
     this.addEventListener('data-bound', onBound)
 
-    this.onAttributeChangedDep('search', () => {
-      this.generateViewData()
+    this.hook.onAttributeChangedDep('search', () => {
+      this.generateViewData({
+        complete: () => {
+          //
+        },
+      })
     })
 
-    this.onAttributeChangedDep('wrap', () => {
+    this.hook.onAttributeChangedDep('wrap', () => {
       this._resetCalculated()
       this.redraw()
       this.restoreAnchor()
     })
+
+    this.#setupAria()
   }
 
   get checkedData(): NodeData[] {
@@ -207,9 +220,11 @@ export class BlocksTree extends BlocksVList {
           },
         })
       }
+      dispatchEvent(this, 'select-list:after-clear')
       return
     }
     this.#batchToggleCheck(this.checked, false)
+    dispatchEvent(this, 'select-list:after-clear')
   }
 
   // 从数据中提取 label 的方法
@@ -226,8 +241,8 @@ export class BlocksTree extends BlocksVList {
     return data.id
   }
 
-  override filterMethod(data: any[]): Promise<any[]> {
-    if (!this.search) return Promise.resolve(data)
+  override filterMethod(data: any[], callback: (data: any) => any) {
+    if (!this.search) return callback(data)
 
     const len = data.length
     const results: VirtualNode[] = []
@@ -245,17 +260,15 @@ export class BlocksTree extends BlocksVList {
     }
 
     // 第二遍，提取数据，并移除标识
-    return new Promise(resolve => {
-      setTimeout(() => {
-        for (let i = 0; i < len; i += 1) {
-          const vItem = data[i]
-          if (vItem._retain) {
-            results.push(vItem)
-            vItem._retain = undefined
-          }
+    setTimeout(() => {
+      for (let i = 0; i < len; i += 1) {
+        const vItem = data[i]
+        if (vItem._retain) {
+          results.push(vItem)
+          vItem._retain = undefined
         }
-        resolve(results)
-      })
+      }
+      callback(results)
     })
   }
 
@@ -847,11 +860,54 @@ export class BlocksTree extends BlocksVList {
   }
 
   // override，根据树形数据，生成虚拟数据
-  override async virtualMap(data: NodeData[]): Promise<VirtualNode[]> {
-    const virtualData: VirtualNode[] = []
+  override virtualMap(
+    data: NodeData[],
+    options: {
+      schedule: (task: () => void) => void
+      complete: (virtualData: VirtualNode[]) => void
+    }
+  ) {
+    const dataMap = new Map<NodeData, VirtualNode>()
 
-    let index = 0
-    const convert = (data: NodeData) => {
+    let nextPop = false
+    let nextParent: NodeData | undefined = undefined
+    const parentStack: NodeData[] = []
+    const stack = data.length ? [{ list: data, index: 0 }] : []
+    const iterator: Iterator<NodeData> = {
+      next: () => {
+        if (nextPop) {
+          nextPop = false
+          parentStack.pop()
+        }
+        if (nextParent) {
+          parentStack.push(nextParent)
+          nextParent = undefined
+        }
+
+        const top = stack[stack.length - 1]
+        if (!top) {
+          return { value: undefined, done: true }
+        }
+
+        const item = top.list[top.index++]
+        const isLast = top.index === top.list.length
+        if (isLast) {
+          nextPop = true // 获取下个值的时候，弹出 parent
+          stack.pop()
+        }
+
+        const hasChildren = !!item.children?.length
+        if (hasChildren) {
+          nextParent = item // 获取下个值的时，压入 parent
+          stack.push({ list: item.children!, index: 0 })
+        }
+
+        return { value: item, done: false }
+      },
+    }
+
+    const virtualData: VirtualNode[] = []
+    const convert = (data: NodeData, index: number) => {
       const virtualKey = this.internalKeyMethod(data) ?? index
       const vnode = new VirtualNode({
         virtualKey,
@@ -861,24 +917,26 @@ export class BlocksTree extends BlocksVList {
         expanded: true,
         children: [],
       })
-      virtualData.push(vnode as VirtualNode)
-      index += 1
-
-      const len = data.children?.length
-      if (len) {
-        for (let i = 0; i < len; i += 1) {
-          const childNode = convert(data.children![i])
-          childNode.parent = vnode
-          childNode.parentKey = vnode.virtualKey
-          vnode.children.push(childNode)
+      dataMap.set(data, vnode)
+      const parent = parentStack[parentStack.length - 1] ? dataMap.get(parentStack[parentStack.length - 1]) : undefined
+      if (parent !== vnode) {
+        vnode.parent = parent
+        vnode.parentKey = parent?.parentKey ?? ''
+        if (parent) {
+          parent.children.push(vnode)
         }
       }
-
+      virtualData.push(vnode as VirtualNode)
       return vnode
     }
-
-    data.forEach(convert)
-    return virtualData
+    chunkIterate(data, convert, {
+      iterator,
+      chunkSize: 10000,
+      schedule: options.schedule,
+      complete: () => {
+        options.complete(virtualData)
+      },
+    })
   }
 
   // 获取结点的层级
@@ -1014,5 +1072,18 @@ export class BlocksTree extends BlocksVList {
     return {
       paddingLeft: `${indent}px`,
     }
+  }
+
+  #setupAria() {
+    const update = () => {
+      if (!this.checkable) {
+        this.removeAttribute('aria-multiselectable')
+      } else {
+        this.setAttribute('aria-multiselectable', this.multiple ? 'true' : 'false')
+      }
+    }
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDeps(['checkable', 'multiple'], update)
   }
 }

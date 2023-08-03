@@ -17,187 +17,194 @@
     <header>
       <h1>nav-menu</h1>
     </header>
+
     <script type="module" src="../../dist/components/switch/index.js"></script>
+    <script type="module" src="../../dist/components/card/index.js"></script>
 
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/nav-menu/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/nav-menu/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <div data-codesource="html">
-        <div style="margin-bottom: 50px;">
-          <span style="margin-right: 50px;">
-            <bl-switch onchange="document.getElementById('menu').horizontal=event.detail.value"></bl-switch> horizontal
-          </span>
-          <span>
-            <bl-switch onchange="document.getElementById('menu').collapse=event.detail.value"></bl-switch> collapse
-          </span>
-          <span>
-            <bl-switch onchange="document.getElementById('menu').inline=event.detail.value"></bl-switch> inline
-          </span>
+      <bl-card>
+        <div data-codesource="html">
+          <div style="margin-bottom: 50px;">
+            <span style="margin-right: 50px;">
+              <bl-switch onchange="document.getElementById('menu').horizontal=event.detail.value"></bl-switch> horizontal
+            </span>
+            <span>
+              <bl-switch onchange="document.getElementById('menu').collapse=event.detail.value"></bl-switch> collapse
+            </span>
+            <span>
+              <bl-switch onchange="document.getElementById('menu').inline=event.detail.value"></bl-switch> inline
+            </span>
+          </div>
+          
+          <bl-nav-menu id="menu" size="large"></bl-nav-menu>
+  
+          <script>
+            (() => {
+              function handler() {
+                console.log(this)
+              }
+  
+              const data = [
+                { icon: 'date', label: 'Menu 1', handler },
+                { icon: 'date', label: 'Menu 2', disabled: true, handler },
+  
+                {
+                  title: 'Group 1',
+                  data: [
+                    { label: 'Group1 Menu 1', handler },
+                    {
+                      label: 'Group1 Menu 2',
+                      children: [
+                        { label: 'Group1 Menu 2 > child 1' }
+                      ]
+                    }
+                  ]
+                },
+  
+                {
+                  label: 'Menu 3',
+                  children: [
+                    { label: 'Menu 3 > child 1', handler },
+                    { label: 'Menu 3 > child 2', handler },
+                    {
+                      label: 'Menu 3 > child 3',
+                      handler,
+                      children: [
+                        { label: 'Menu3 > child 3 > child 1' }
+                      ]
+                    },
+                  ]
+                },
+  
+                {
+                  label: 'Link',
+                  href: 'index.html',
+                  target: '_blank',
+                },
+  
+                { icon: 'date', label: 'Long long long long long long long', handler },
+                {
+                  icon: 'date',
+                  label: 'Long long long long long long long',
+                  handler,
+                  children: [
+                    { icon: 'date', label: 'Long long long long long long long', handler },
+                  ]
+                },
+              ]
+  
+              document.getElementById('menu').data = data
+            })()
+          </script>
         </div>
-        
-        <bl-nav-menu id="menu" size="large"></bl-nav-menu>
-
-        <script>
-          (() => {
-            function handler() {
-              console.log(this)
-            }
-
-            const data = [
-              { icon: 'date', label: 'Menu 1', handler },
-              { icon: 'date', label: 'Menu 2', disabled: true, handler },
-
-              {
-                title: 'Group 1',
-                data: [
-                  { label: 'Group1 Menu 1', handler },
-                  {
-                    label: 'Group1 Menu 2',
-                    children: [
-                      { label: 'Group1 Menu 2 > child 1' }
-                    ]
-                  }
-                ]
-              },
-
-              {
-                label: 'Menu 3',
-                children: [
-                  { label: 'Menu 3 > child 1', handler },
-                  { label: 'Menu 3 > child 2', handler },
-                  {
-                    label: 'Menu 3 > child 3',
-                    handler,
-                    children: [
-                      { label: 'Menu3 > child 3 > child 1' }
-                    ]
-                  },
-                ]
-              },
-
-              {
-                label: 'Link',
-                href: 'index.html',
-                target: '_blank',
-              },
-
-              { icon: 'date', label: 'Long long long long long long long', handler },
-              {
-                icon: 'date',
-                label: 'Long long long long long long long',
-                handler,
-                children: [
-                  { icon: 'date', label: 'Long long long long long long long', handler },
-                ]
-              },
-            ]
-
-            document.getElementById('menu').data = data
-          })()
-        </script>
-      </div>
+      </bl-card>
     </section>
     
 
     <section class="section">
-      <h2>API</h2>
-      <table class="api-props">
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>collapse</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否折叠（最小化）模式。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>dark</td>
-            <td>boolean</td>
-            <td></td>
-            <td>是否使用 dark 主题。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>data</td>
-            <td></td>
-            <td></td>
-            <td>
-              导航的数据，该属性为 prop，非 attr。接受一个 JavaScript 数组。数组中的项可以为菜单项，或者分组。其中菜单项可以有子菜单。
-              菜单项的数据结构：
-<pre>
-interface MenuItem {
-  active?: boolean
-  disabled?: boolean
-  handler?: () => void
-  href?: string
-  icon?: string
-  label: string
-}
-</pre>
-              菜单分组的的数据结构:
-<pre>
-interface MenuGroup {
-  title: string
-  data: MenuItem[]
-}
-</pre>
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>enter-delay</td>
-            <td>number</td>
-            <td></td>
-            <td>鼠标移上多少毫秒弹出子菜单。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>horizontal</td>
-            <td>boolean</td>
-            <td></td>
-            <td>是否水平模式。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>inline</td>
-            <td>boolean</td>
-            <td></td>
-            <td>（垂直模式专用）子菜单是否直接内联渲染（而非弹出菜单模式）。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>leave-delay</td>
-            <td>number</td>
-            <td></td>
-            <td>鼠标移上多少毫秒弹出子菜单。</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>size</td>
-            <td>'small'|'large'</td>
-            <td></td>
-            <td>菜单的尺寸。默认不设置为中等尺寸。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>collapse</td>
+              <td>collapse</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否折叠（最小化）模式。</td>
+            </tr>
+  
+            <tr>
+              <td>-</td>
+              <td>data</td>
+              <td>
+  (MenuItem | MenuGroup)[]
+  <hr>
+  <pre>
+  interface MenuItem {
+    active?: boolean
+    disabled?: boolean
+    handler?: () => void
+    href?: string
+    target?: string
+    icon?: string
+    label: string
+    children: (MenuItem | MenuGroup)[]
+  }
+  </pre>
+  <hr>
+  <pre>
+  interface MenuGroup {
+    title: string
+    data: MenuItem[]
+  }
+  </pre>
+              </td>
+              <td>[]</td>
+              <td>
+                导航的数据。接受一个 JavaScript 数组。数组中的项可以为菜单项，或者分组。其中菜单项可以有子菜单。
+              </td>
+            </tr>
+            <tr>
+              <td>enter-delay</td>
+              <td>enterDelay</td>
+              <td>number</td>
+              <td>150</td>
+              <td>鼠标移上多少毫秒弹出子菜单。</td>
+            </tr>
+            <tr>
+              <td>horizontal</td>
+              <td>horizontal</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否水平模式。</td>
+            </tr>
+            <tr>
+              <td>inline</td>
+              <td>inline</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>（垂直模式专用）子菜单是否直接内联渲染（而非弹出菜单模式）。</td>
+            </tr>
+            <tr>
+              <td>leave-delay</td>
+              <td>leaveDelay</td>
+              <td>number</td>
+              <td>200</td>
+              <td>鼠标移上多少毫秒弹出子菜单。</td>
+            </tr>
+            <tr>
+              <td>size</td>
+              <td>size</td>
+              <td>'small' | 'large'</td>
+              <td>无</td>
+              <td>菜单的尺寸。默认不设置为中等尺寸。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

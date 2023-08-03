@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr, attrs } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr, attrs } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { disabledSetter } from '../../common/propertyAccessor.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { ClearableControlBox } from '../base-clearable-control-box/index.js';
+import { BlClearableControlBox } from '../base-clearable-control-box/index.js';
 const INPUT_ATTRS = [
     'value',
     'type',
@@ -54,7 +54,7 @@ const INPUT_ATTRS = [
     'maxlength',
     'autocomplete',
 ];
-export let BlocksInput = (() => {
+export let BlInput = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-input',
             styles: [style],
@@ -93,7 +93,7 @@ export let BlocksInput = (() => {
     let _multiple_initializers = [];
     let _$input_decorators;
     let _$input_initializers = [];
-    var BlocksInput = class extends ClearableControlBox {
+    var BlInput = class extends BlClearableControlBox {
         static {
             _value_decorators = [attr('string')];
             _type_decorators = [attr('string')];
@@ -109,7 +109,7 @@ export let BlocksInput = (() => {
             _autofocus_decorators = [attr('boolean')];
             _size_decorators = [attrs.size];
             _multiple_decorators = [attr('boolean')];
-            _$input_decorators = [shadowRef('[part="input"]')];
+            _$input_decorators = [shadowRef('[part="content"]')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _type_decorators, { kind: "accessor", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type, set: (obj, value) => { obj.type = value; } } }, _type_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _step_decorators, { kind: "accessor", name: "step", static: false, private: false, access: { has: obj => "step" in obj, get: obj => obj.step, set: (obj, value) => { obj.step = value; } } }, _step_initializers, _instanceExtraInitializers);
@@ -126,14 +126,11 @@ export let BlocksInput = (() => {
             __esDecorate(this, null, _multiple_decorators, { kind: "accessor", name: "multiple", static: false, private: false, access: { has: obj => "multiple" in obj, get: obj => obj.multiple, set: (obj, value) => { obj.multiple = value; } } }, _multiple_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$input_decorators, { kind: "accessor", name: "$input", static: false, private: false, access: { has: obj => "$input" in obj, get: obj => obj.$input, set: (obj, value) => { obj.$input = value; } } }, _$input_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksInput = _classThis = _classDescriptor.value;
+            BlInput = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get role() {
             return 'input';
-        }
-        static get disableEventTypes() {
-            return ['click', 'keydown', 'touchstart'];
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
@@ -183,7 +180,14 @@ export let BlocksInput = (() => {
         constructor() {
             super();
             this.appendContent(template());
-            this._tabIndexFeature.withTabIndex(0).withTarget(() => [this.$input]);
+            this._tabIndexFeature
+                .withTabIndex(0)
+                .withTarget(() => [this.$input])
+                .withPostUpdate(() => {
+                if (this.$layout.hasAttribute('tabindex')) {
+                    this.$layout.removeAttribute('tabindex');
+                }
+            });
             this.#setupDisableFeature();
             this.#setupValueModify();
         }
@@ -212,15 +216,15 @@ export let BlocksInput = (() => {
                 this.value = '';
                 this.#notifyClear();
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$input.oninput = this.$input.onchange = onChange;
                 this.addEventListener('click-clear', onClear);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$input.oninput = this.$input.onchange = null;
                 this.removeEventListener('click-clear', onClear);
             });
-            this.onAttributeChangedDeps(INPUT_ATTRS, (name, _, val) => {
+            this.hook.onAttributeChangedDeps(INPUT_ATTRS, (name, _, val) => {
                 if (name === 'value') {
                     if (this.$input.value !== val) {
                         this.$input.value = val;
@@ -231,13 +235,14 @@ export let BlocksInput = (() => {
                 }
                 dispatchEvent(this, 'change', { detail: { value: this.value } });
             });
-            this.onAttributeChangedDep('value', () => {
+            this.hook.onAttributeChangedDep('value', () => {
                 this._emptyFeature.update();
             });
         }
         acceptSelected(value) {
             const label = value.map(item => item.label).join(', ');
             this.value = label;
+            dispatchEvent(this, 'select-result:after-accept-selected');
         }
         clearSearch() {
             this.#notifySearch('');
@@ -246,5 +251,5 @@ export let BlocksInput = (() => {
             this.$input.focus();
         }
     };
-    return BlocksInput = _classThis;
+    return BlInput = _classThis;
 })();

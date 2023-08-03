@@ -1,29 +1,29 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
 import { append, mountAfter, mountBefore, prepend, unmount } from '../../common/mount.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 import { loadingTemplate, prefixTemplate, suffixTemplate, template } from './template.js'
 import { style } from './style.js'
-import { Control } from '../base-control/index.js'
+import { BlControl } from '../base-control/index.js'
 
-export interface ControlBoxEventMap extends ComponentEventMap {
+export interface BlControlBoxEventMap extends BlComponentEventMap {
   'click-prefix-icon': CustomEvent
   'click-suffix-icon': CustomEvent
 }
 
-export interface ControlBox extends Control {
-  addEventListener<K extends keyof ControlBoxEventMap>(
+export interface BlControlBox extends BlControl {
+  addEventListener<K extends keyof BlControlBoxEventMap>(
     type: K,
-    listener: ComponentEventListener<ControlBoxEventMap[K]>,
+    listener: BlComponentEventListener<BlControlBoxEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof ControlBoxEventMap>(
+  removeEventListener<K extends keyof BlControlBoxEventMap>(
     type: K,
-    listener: ComponentEventListener<ControlBoxEventMap[K]>,
+    listener: BlComponentEventListener<BlControlBoxEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -35,7 +35,7 @@ export interface ControlBox extends Control {
 @defineClass({
   styles: [style],
 })
-export class ControlBox extends Control {
+export class BlControlBox extends BlControl {
   @attr('boolean') accessor loading!: boolean
 
   @attr('string') accessor prefixIcon!: string | null
@@ -57,7 +57,7 @@ export class ControlBox extends Control {
     this.#setupSuffixIconFeature()
 
     this._tabIndexFeature.withTarget(() => [this.$layout])
-    this._disabledFeature.withPredicate(() => this.disabled || this.loading)
+    this._disabledFeature.withPredicate(() => this.disabled)
   }
 
   appendContent<T extends HTMLElement | DocumentFragment>($el: T) {
@@ -71,9 +71,9 @@ export class ControlBox extends Control {
   }
 
   #setupLoadingFeature() {
-    this.onConnected(this._renderLoading)
-    this.onAttributeChangedDep('loading', this._renderLoading)
-    this.onRender(this._renderLoading)
+    this.hook.onConnected(this._renderLoading)
+    this.hook.onAttributeChangedDep('loading', this._renderLoading)
+    this.hook.onRender(this._renderLoading)
   }
   _renderLoading() {
     this.$layout.classList.toggle('with-loading', this.loading)
@@ -98,17 +98,18 @@ export class ControlBox extends Control {
         return
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this._renderPrefixIcon()
       this.$layout.addEventListener('click', onClick)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$layout.removeEventListener('click', onClick)
     })
-    this.onAttributeChangedDep('prefix-icon', this._renderPrefixIcon)
-    this.onRender(this._renderPrefixIcon)
+    this.hook.onAttributeChangedDep('prefix-icon', this._renderPrefixIcon)
+    this.hook.onRender(this._renderPrefixIcon)
   }
   _renderPrefixIcon() {
+    // TODO: 渲染优化，仅需要时才重新渲染
     const $prefixIcon = this.prefixIcon ? getRegisteredSvgIcon(this.prefixIcon) ?? parseSvg(this.prefixIcon) : null
 
     this.$layout.classList.toggle('with-prefix', !!$prefixIcon)
@@ -137,17 +138,18 @@ export class ControlBox extends Control {
         return
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this._renderSuffixIcon()
       this.$layout.addEventListener('click', onClick)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$layout.removeEventListener('click', onClick)
     })
-    this.onAttributeChangedDep('suffix-icon', this._renderSuffixIcon)
-    this.onRender(this._renderSuffixIcon)
+    this.hook.onAttributeChangedDep('suffix-icon', this._renderSuffixIcon)
+    this.hook.onRender(this._renderSuffixIcon)
   }
   _renderSuffixIcon() {
+    // TODO: 渲染优化，仅需要时才重新渲染
     const $suffixIcon = this.suffixIcon ? getRegisteredSvgIcon(this.suffixIcon) ?? parseSvg(this.suffixIcon) : null
 
     this.$layout.classList.toggle('with-suffix', !!$suffixIcon)

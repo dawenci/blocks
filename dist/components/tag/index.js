@@ -32,16 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr, attrs } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import '../close-button/index.js';
+import { attr, attrs } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
-import { getElementTarget } from '../../common/getElementTarget.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
+import { unmount } from '../../common/mount.js';
+import { BlComponent } from '../component/Component.js';
 const types = ['primary', 'danger', 'warning', 'success'];
-export let BlocksTag = (() => {
+export let BlTag = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-tag',
             styles: [style],
@@ -62,7 +63,9 @@ export let BlocksTag = (() => {
     let _size_initializers = [];
     let _$layout_decorators;
     let _$layout_initializers = [];
-    var BlocksTag = class extends Component {
+    let _$close_decorators;
+    let _$close_initializers = [];
+    var BlTag = class extends BlComponent {
         static {
             _round_decorators = [attr('boolean')];
             _type_decorators = [attr('enum', { enumValues: types })];
@@ -70,14 +73,16 @@ export let BlocksTag = (() => {
             _outline_decorators = [attr('boolean')];
             _size_decorators = [attrs.size];
             _$layout_decorators = [shadowRef('#layout')];
+            _$close_decorators = [shadowRef('[part="close"]', false)];
             __esDecorate(this, null, _round_decorators, { kind: "accessor", name: "round", static: false, private: false, access: { has: obj => "round" in obj, get: obj => obj.round, set: (obj, value) => { obj.round = value; } } }, _round_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _type_decorators, { kind: "accessor", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type, set: (obj, value) => { obj.type = value; } } }, _type_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeable_decorators, { kind: "accessor", name: "closeable", static: false, private: false, access: { has: obj => "closeable" in obj, get: obj => obj.closeable, set: (obj, value) => { obj.closeable = value; } } }, _closeable_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _outline_decorators, { kind: "accessor", name: "outline", static: false, private: false, access: { has: obj => "outline" in obj, get: obj => obj.outline, set: (obj, value) => { obj.outline = value; } } }, _outline_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$close_decorators, { kind: "accessor", name: "$close", static: false, private: false, access: { has: obj => "$close" in obj, get: obj => obj.$close, set: (obj, value) => { obj.$close = value; } } }, _$close_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksTag = _classThis = _classDescriptor.value;
+            BlTag = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #round_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _round_initializers, void 0));
@@ -98,39 +103,36 @@ export let BlocksTag = (() => {
         #$layout_accessor_storage = __runInitializers(this, _$layout_initializers, void 0);
         get $layout() { return this.#$layout_accessor_storage; }
         set $layout(value) { this.#$layout_accessor_storage = value; }
+        #$close_accessor_storage = __runInitializers(this, _$close_initializers, void 0);
+        get $close() { return this.#$close_accessor_storage; }
+        set $close(value) { this.#$close_accessor_storage = value; }
         constructor() {
             super();
             const shadowRoot = this.shadowRoot;
             shadowRoot.appendChild(template());
-            const onClick = (e) => {
-                if (getElementTarget(e)?.id === 'close') {
-                    dispatchEvent(this, 'close');
+            this.#setupClose();
+        }
+        #setupClose() {
+            const update = () => {
+                if (this.closeable) {
+                    if (!this.$close) {
+                        const $close = this.$layout.appendChild(document.createElement('bl-close-button'));
+                        $close.setAttribute('part', 'close');
+                        $close.onclick = () => {
+                            dispatchEvent(this, 'close');
+                        };
+                    }
+                }
+                else {
+                    if (this.$close) {
+                        unmount(this.$close);
+                    }
                 }
             };
-            this.onConnected(() => {
-                this.$layout.addEventListener('click', onClick);
-            });
-            this.onDisconnected(() => {
-                this.$layout.removeEventListener('click', onClick);
-            });
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
-        }
-        render() {
-            super.render();
-            if (this.closeable) {
-                if (!this.shadowRoot.getElementById('close')) {
-                    const button = this.$layout.appendChild(document.createElement('button'));
-                    button.id = 'close';
-                }
-            }
-            else {
-                const button = this.shadowRoot.getElementById('close');
-                if (button) {
-                    button.parentElement.removeChild(button);
-                }
-            }
+            this.hook.onRender(update);
+            this.hook.onConnected(update);
+            this.hook.onAttributeChangedDep('closeable', update);
         }
     };
-    return BlocksTag = _classThis;
+    return BlTag = _classThis;
 })();

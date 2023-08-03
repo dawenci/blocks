@@ -1,15 +1,15 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
-import { Component } from '../component/Component.js';
-interface CountDownEventMap extends ComponentEventMap {
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
+interface BlCountDownEventMap extends BlComponentEventMap {
     start: CustomEvent<void>;
     stop: CustomEvent<void>;
     finish: CustomEvent<void>;
 }
-export interface BlocksCountdown extends Component {
-    addEventListener<K extends keyof CountDownEventMap>(type: K, listener: ComponentEventListener<CountDownEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof CountDownEventMap>(type: K, listener: ComponentEventListener<CountDownEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlCountdown extends BlComponent {
+    addEventListener<K extends keyof BlCountDownEventMap>(type: K, listener: BlComponentEventListener<BlCountDownEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlCountDownEventMap>(type: K, listener: BlComponentEventListener<BlCountDownEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksCountdown extends Component {
+export declare class BlCountdown extends BlComponent {
     #private;
     accessor value: number;
     accessor format: string;

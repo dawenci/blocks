@@ -1,11 +1,11 @@
-import type { ComponentEventListener } from '../component/Component.js'
+import type { BlComponentEventListener } from '../component/Component.js'
 import type { WithOpenTransitionEventMap } from '../with-open-transition/index.js'
 import '../button/index.js'
 import '../icon/index.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js'
 import { getRegisteredSvgIcon } from '../../icon/store.js'
 import { onDragMove } from '../../common/onDragMove.js'
@@ -13,7 +13,7 @@ import { sizeObserve } from '../../common/sizeObserve.js'
 import { strGetter, strSetter } from '../../common/property.js'
 import { style } from './style.js'
 import { windowTemplate } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 import { SetupFocusCapture } from '../setup-focus-capture/index.js'
 import { WithOpenTransition } from '../with-open-transition/index.js'
 
@@ -21,7 +21,7 @@ export interface WinEventMap extends WithOpenTransitionEventMap {
   'bl:resize': CustomEvent<{ width: number; height: number }>
 }
 
-export interface BlocksWindow extends WithOpenTransition {
+export interface BlWindow extends WithOpenTransition {
   $header: HTMLElement
   $body: HTMLElement
   $content: HTMLElement
@@ -38,13 +38,13 @@ export interface BlocksWindow extends WithOpenTransition {
 
   addEventListener<K extends keyof WinEventMap>(
     type: K,
-    listener: ComponentEventListener<WinEventMap[K]>,
+    listener: BlComponentEventListener<WinEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
   removeEventListener<K extends keyof WinEventMap>(
     type: K,
-    listener: ComponentEventListener<WinEventMap[K]>,
+    listener: BlComponentEventListener<WinEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -54,11 +54,7 @@ export interface BlocksWindow extends WithOpenTransition {
   styles: [style],
   mixins: [WithOpenTransition],
 })
-export class BlocksWindow extends Component {
-  static get role() {
-    return 'window'
-  }
-
+export class BlWindow extends BlComponent {
   /** 捕获焦点，tab 键不会将焦点移出 Dialog */
   @attr('boolean') accessor capturefocus!: boolean
 
@@ -76,10 +72,10 @@ export class BlocksWindow extends Component {
   @attr('string') accessor name!: string | null
 
   @attr('string', {
-    get: self => {
+    get(self) {
       return strGetter('actions')(self) ?? 'minimize,maximize,close'
     },
-    set: (self, value) => {
+    set(self, value) {
       if (value !== null && typeof value !== 'string') return
       let newValue: string | null = String(value)
       if (typeof value === 'string') {
@@ -171,7 +167,7 @@ export class BlocksWindow extends Component {
     this.#setupMoveEvents()
     this.#setupResizeEvents()
 
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       // 将 tabindex 设置在 host 上，
       // 因为 tabindex 在 layout 上的话，鼠标点击 slot 里面的内容时会反复 blur
       this.setAttribute('tabindex', '-1')
@@ -181,7 +177,7 @@ export class BlocksWindow extends Component {
       }
     })
 
-    this.onAttributeChanged((attrName: string) => {
+    this.hook.onAttributeChanged((attrName: string) => {
       if (attrName === 'actions') {
         this.#renderActions()
       }
@@ -206,13 +202,13 @@ export class BlocksWindow extends Component {
       }
     }
 
-    this.onAttributeChangedDep('open', () => {
+    this.hook.onAttributeChangedDep('open', () => {
       updateVisible()
     })
   }
 
   #setupZoom() {
-    this.onAttributeChangedDep('maximized', () => {
+    this.hook.onAttributeChangedDep('maximized', () => {
       if (this.maximized) {
         doTransitionEnter(this, 'maximized', () => {
           //
@@ -249,11 +245,11 @@ export class BlocksWindow extends Component {
     }
     const onOpened = () => _focus()
     const onClosed = () => _blur()
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('opened', onOpened)
       this.addEventListener('closed', onClosed)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('opened', onOpened)
       this.removeEventListener('closed', onClosed)
     })
@@ -265,10 +261,10 @@ export class BlocksWindow extends Component {
     predicate: () => this.open,
     container: () => this.$layout,
     init: () => {
-      this.onConnected(() => {
+      this.hook.onConnected(() => {
         if (this.capturefocus) this._focusCapture.start()
       })
-      this.onAttributeChangedDep('capturefocus', () => {
+      this.hook.onAttributeChangedDep('capturefocus', () => {
         if (this.capturefocus) {
           this._focusCapture.start()
         } else {
@@ -283,7 +279,7 @@ export class BlocksWindow extends Component {
     let startLeft: number
     let startTop: number
     let clear: () => void
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       clear = onDragMove(this.$header, {
         onStart: ({ stop }) => {
           if (this.maximized) return stop()
@@ -298,7 +294,7 @@ export class BlocksWindow extends Component {
         },
       })
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       clear()
     })
   }
@@ -367,7 +363,7 @@ export class BlocksWindow extends Component {
     }
 
     let clear: () => void
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       clear = onDragMove(this.$layout, {
         onStart: ({ stop, start, $target }) => {
           if (this.maximized || this.minimized) return stop()
@@ -425,7 +421,7 @@ export class BlocksWindow extends Component {
       })
     })
 
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       clear()
     })
   }

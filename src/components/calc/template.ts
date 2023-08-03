@@ -1,7 +1,7 @@
 import { makeTemplate } from '../../common/template.js'
 
 export const template = makeTemplate(/*html*/ `
-<div id="layout" tabindex="0">
+<div id="layout">
   <div class="Calc-screen">
     <div
       ref="result"

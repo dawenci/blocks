@@ -32,12 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
+import { prop } from '../../decorators/prop/index.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
-export let BlocksIntersection = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlIntersection = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-intersection',
         })];
@@ -47,16 +48,32 @@ export let BlocksIntersection = (() => {
     let _instanceExtraInitializers = [];
     let _rootMargin_decorators;
     let _rootMargin_initializers = [];
+    let _rootSelector_decorators;
+    let _rootSelector_initializers = [];
     let _threshold_decorators;
     let _threshold_initializers = [];
-    var BlocksIntersection = class extends Component {
+    let _rootElement_decorators;
+    let _rootElement_initializers = [];
+    var BlIntersection = class extends BlComponent {
         static {
             _rootMargin_decorators = [attr('string')];
-            _threshold_decorators = [attr('string')];
+            _rootSelector_decorators = [attr('string')];
+            _threshold_decorators = [attr('number')];
+            _rootElement_decorators = [prop({
+                    get(self) {
+                        return self.#rootElement;
+                    },
+                    set(self, value) {
+                        self.#rootElement = value;
+                        self.updatePositionAndDirection();
+                    },
+                })];
             __esDecorate(this, null, _rootMargin_decorators, { kind: "accessor", name: "rootMargin", static: false, private: false, access: { has: obj => "rootMargin" in obj, get: obj => obj.rootMargin, set: (obj, value) => { obj.rootMargin = value; } } }, _rootMargin_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _rootSelector_decorators, { kind: "accessor", name: "rootSelector", static: false, private: false, access: { has: obj => "rootSelector" in obj, get: obj => obj.rootSelector, set: (obj, value) => { obj.rootSelector = value; } } }, _rootSelector_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _threshold_decorators, { kind: "accessor", name: "threshold", static: false, private: false, access: { has: obj => "threshold" in obj, get: obj => obj.threshold, set: (obj, value) => { obj.threshold = value; } } }, _threshold_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _rootElement_decorators, { kind: "accessor", name: "rootElement", static: false, private: false, access: { has: obj => "rootElement" in obj, get: obj => obj.rootElement, set: (obj, value) => { obj.rootElement = value; } } }, _rootElement_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksIntersection = _classThis = _classDescriptor.value;
+            BlIntersection = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
@@ -65,63 +82,38 @@ export let BlocksIntersection = (() => {
         #rootMargin_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _rootMargin_initializers, '0px'));
         get rootMargin() { return this.#rootMargin_accessor_storage; }
         set rootMargin(value) { this.#rootMargin_accessor_storage = value; }
-        #threshold_accessor_storage = __runInitializers(this, _threshold_initializers, '0');
+        #rootSelector_accessor_storage = __runInitializers(this, _rootSelector_initializers, void 0);
+        get rootSelector() { return this.#rootSelector_accessor_storage; }
+        set rootSelector(value) { this.#rootSelector_accessor_storage = value; }
+        #threshold_accessor_storage = __runInitializers(this, _threshold_initializers, 0);
         get threshold() { return this.#threshold_accessor_storage; }
         set threshold(value) { this.#threshold_accessor_storage = value; }
+        #rootElement;
+        #rootElement_accessor_storage = __runInitializers(this, _rootElement_initializers, void 0);
+        get rootElement() { return this.#rootElement_accessor_storage; }
+        set rootElement(value) { this.#rootElement_accessor_storage = value; }
         constructor() {
             super();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(template().content.cloneNode(true));
-            this.onConnected(() => {
+            this.appendShadowChild(template());
+            this.hook.onConnected(() => {
                 this.render();
                 this._initObserver();
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this._removeObserver();
             });
-            this.onAttributeChanged(() => {
+            this.hook.onAttributeChanged(() => {
                 this._initObserver();
             });
         }
-        _root;
-        get root() {
-            if (this._root) {
-                return this._root() ?? null;
+        _getRootElement() {
+            if (this.rootElement) {
+                return this.rootElement() ?? null;
             }
-            return this.getAttribute('root');
-        }
-        set root(value) {
-            if (typeof value === 'string' || value === null) {
-                this.setAttribute('root', value);
-                this._root = undefined;
-                return;
+            if (this.rootSelector) {
+                return document.querySelector(this.rootSelector);
             }
-            if (typeof value === 'function') {
-                this._root = value;
-            }
-            else if (value instanceof Node) {
-                this._root = () => value;
-            }
-            this.removeAttribute('root');
-        }
-        get rootElement() {
-            let root = this.root;
-            if (root instanceof Element) {
-                if (root.contains(this))
-                    return root;
-                root = null;
-            }
-            if (typeof root === 'string') {
-                try {
-                    root = document.querySelector(root);
-                    if (!root.contains(this))
-                        root = null;
-                }
-                catch (error) {
-                    root = null;
-                }
-            }
-            return root ?? undefined;
+            return null;
         }
         _flag;
         _observer;
@@ -131,6 +123,7 @@ export let BlocksIntersection = (() => {
                     if (this._observer) {
                         this._observer.disconnect();
                     }
+                    const root = this._getRootElement();
                     this._observer = new IntersectionObserver((entries, observer) => {
                         dispatchEvent(this, 'intersection', {
                             detail: {
@@ -139,7 +132,7 @@ export let BlocksIntersection = (() => {
                             },
                         });
                     }, {
-                        root: this.rootElement,
+                        root,
                         rootMargin: this.rootMargin,
                         threshold: +this.threshold,
                     });
@@ -154,5 +147,5 @@ export let BlocksIntersection = (() => {
             }
         }
     };
-    return BlocksIntersection = _classThis;
+    return BlIntersection = _classThis;
 })();

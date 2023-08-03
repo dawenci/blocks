@@ -1,5 +1,5 @@
 import '../icon/index.js';
-import { BlocksScrollable } from '../scrollable/index.js';
-export declare const contentTemplate: () => BlocksScrollable;
+import { BlScrollable } from '../scrollable/index.js';
+export declare const contentTemplate: () => BlScrollable;
 export declare const loadingTemplate: () => HTMLElement;
 export declare const itemTemplate: () => HTMLDivElement;

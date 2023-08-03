@@ -34,10 +34,10 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../button/index.js';
 import '../icon/index.js';
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { doTransitionEnter, doTransitionLeave } from '../../common/animation.js';
 import { getRegisteredSvgIcon } from '../../icon/store.js';
 import { onDragMove } from '../../common/onDragMove.js';
@@ -45,10 +45,10 @@ import { sizeObserve } from '../../common/sizeObserve.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { style } from './style.js';
 import { windowTemplate } from './template.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 import { SetupFocusCapture } from '../setup-focus-capture/index.js';
 import { WithOpenTransition } from '../with-open-transition/index.js';
-export let BlocksWindow = (() => {
+export let BlWindow = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-window',
             styles: [style],
@@ -74,7 +74,7 @@ export let BlocksWindow = (() => {
     let _actions_initializers = [];
     let _$layout_decorators;
     let _$layout_initializers = [];
-    var BlocksWindow = class extends Component {
+    var BlWindow = class extends BlComponent {
         static {
             _capturefocus_decorators = [attr('boolean')];
             _restorefocus_decorators = [attr('boolean')];
@@ -83,10 +83,10 @@ export let BlocksWindow = (() => {
             _icon_decorators = [attr('string')];
             _name_decorators = [attr('string')];
             _actions_decorators = [attr('string', {
-                    get: self => {
+                    get(self) {
                         return strGetter('actions')(self) ?? 'minimize,maximize,close';
                     },
-                    set: (self, value) => {
+                    set(self, value) {
                         if (value !== null && typeof value !== 'string')
                             return;
                         let newValue = String(value);
@@ -110,11 +110,8 @@ export let BlocksWindow = (() => {
             __esDecorate(this, null, _actions_decorators, { kind: "accessor", name: "actions", static: false, private: false, access: { has: obj => "actions" in obj, get: obj => obj.actions, set: (obj, value) => { obj.actions = value; } } }, _actions_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksWindow = _classThis = _classDescriptor.value;
+            BlWindow = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
-        }
-        static get role() {
-            return 'window';
         }
         #capturefocus_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _capturefocus_initializers, void 0));
         get capturefocus() { return this.#capturefocus_accessor_storage; }
@@ -202,13 +199,13 @@ export let BlocksWindow = (() => {
             this.#setupFocus();
             this.#setupMoveEvents();
             this.#setupResizeEvents();
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.setAttribute('tabindex', '-1');
                 if (this.parentElement !== document.body) {
                     document.body.appendChild(this);
                 }
             });
-            this.onAttributeChanged((attrName) => {
+            this.hook.onAttributeChanged((attrName) => {
                 if (attrName === 'actions') {
                     this.#renderActions();
                 }
@@ -231,12 +228,12 @@ export let BlocksWindow = (() => {
                     }
                 }
             };
-            this.onAttributeChangedDep('open', () => {
+            this.hook.onAttributeChangedDep('open', () => {
                 updateVisible();
             });
         }
         #setupZoom() {
-            this.onAttributeChangedDep('maximized', () => {
+            this.hook.onAttributeChangedDep('maximized', () => {
                 if (this.maximized) {
                     doTransitionEnter(this, 'maximized', () => {
                     });
@@ -273,11 +270,11 @@ export let BlocksWindow = (() => {
             };
             const onOpened = () => _focus();
             const onClosed = () => _blur();
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('opened', onOpened);
                 this.addEventListener('closed', onClosed);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('opened', onOpened);
                 this.removeEventListener('closed', onClosed);
             });
@@ -287,11 +284,11 @@ export let BlocksWindow = (() => {
             predicate: () => this.open,
             container: () => this.$layout,
             init: () => {
-                this.onConnected(() => {
+                this.hook.onConnected(() => {
                     if (this.capturefocus)
                         this._focusCapture.start();
                 });
-                this.onAttributeChangedDep('capturefocus', () => {
+                this.hook.onAttributeChangedDep('capturefocus', () => {
                     if (this.capturefocus) {
                         this._focusCapture.start();
                     }
@@ -305,7 +302,7 @@ export let BlocksWindow = (() => {
             let startLeft;
             let startTop;
             let clear;
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 clear = onDragMove(this.$header, {
                     onStart: ({ stop }) => {
                         if (this.maximized)
@@ -320,7 +317,7 @@ export let BlocksWindow = (() => {
                     },
                 });
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 clear();
             });
         }
@@ -376,7 +373,7 @@ export let BlocksWindow = (() => {
                 this.style.width = newWidth + 'px';
             };
             let clear;
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 clear = onDragMove(this.$layout, {
                     onStart: ({ stop, start, $target }) => {
                         if (this.maximized || this.minimized)
@@ -432,7 +429,7 @@ export let BlocksWindow = (() => {
                     },
                 });
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 clear();
             });
         }
@@ -462,5 +459,5 @@ export let BlocksWindow = (() => {
             }
         }
     };
-    return BlocksWindow = _classThis;
+    return BlWindow = _classThis;
 })();

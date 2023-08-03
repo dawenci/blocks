@@ -34,17 +34,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../icon/index.js';
 import '../loading/index.js';
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { disabledSetter } from '../../common/propertyAccessor.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { forEach } from '../../common/utils.js';
 import { onWheel } from '../../common/onWheel.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Control } from '../base-control/index.js';
+import { BlControl } from '../base-control/index.js';
 import { WithOpenTransition } from '../with-open-transition/index.js';
-export let BlocksImageViewer = (() => {
+export let BlImageViewer = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-image-viewer',
             mixins: [WithOpenTransition],
@@ -86,7 +86,7 @@ export let BlocksImageViewer = (() => {
     let _$zoomInButton_initializers = [];
     let _$zoomOutButton_decorators;
     let _$zoomOutButton_initializers = [];
-    var BlocksImageViewer = class extends Control {
+    var BlImageViewer = class extends BlControl {
         static {
             _closeOnClickMask_decorators = [attr('boolean')];
             _closeOnPressEscape_decorators = [attr('boolean')];
@@ -121,7 +121,7 @@ export let BlocksImageViewer = (() => {
             __esDecorate(this, null, _$zoomInButton_decorators, { kind: "accessor", name: "$zoomInButton", static: false, private: false, access: { has: obj => "$zoomInButton" in obj, get: obj => obj.$zoomInButton, set: (obj, value) => { obj.$zoomInButton = value; } } }, _$zoomInButton_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$zoomOutButton_decorators, { kind: "accessor", name: "$zoomOutButton", static: false, private: false, access: { has: obj => "$zoomOutButton" in obj, get: obj => obj.$zoomOutButton, set: (obj, value) => { obj.$zoomOutButton = value; } } }, _$zoomOutButton_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksImageViewer = _classThis = _classDescriptor.value;
+            BlImageViewer = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #closeOnClickMask_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _closeOnClickMask_initializers, void 0));
@@ -179,8 +179,8 @@ export let BlocksImageViewer = (() => {
             this.imgMap = new Map();
             this.#setupContent();
             this.#setupEvents();
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
         }
         #setupContent() {
             const onSlotChange = () => {
@@ -381,5 +381,5 @@ export let BlocksImageViewer = (() => {
             disabledSetter(this.$zoomOutButton, scale === 0.2);
         }
     };
-    return BlocksImageViewer = _classThis;
+    return BlImageViewer = _classThis;
 })();

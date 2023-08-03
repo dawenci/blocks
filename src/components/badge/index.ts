@@ -1,15 +1,15 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-badge',
   styles: [style],
 })
-export class BlocksBadge extends Component {
+export class BlBadge extends BlComponent {
   @attr('string') accessor value = ''
 
   @shadowRef('#badge') accessor $badge: Element | null = null
@@ -21,8 +21,8 @@ export class BlocksBadge extends Component {
     const render = () => {
       this.$badge!.textContent = this.value
     }
-    this.onConnected(render)
-    this.onAttributeChangedDep('value', render)
-    this.onRender(render)
+    this.hook.onConnected(render)
+    this.hook.onAttributeChangedDep('value', render)
+    this.hook.onRender(render)
   }
 }

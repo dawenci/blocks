@@ -18,10 +18,11 @@
       <h1>modules/Modal</h1>
     </header>
 
-    <section class="section">
-      <h2>alert</h2>
+    <script type="module" src="../../dist/components/card/index.js"></script>
 
-      <div class="case">
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">alert</h2>
         <div data-codesource="html">
           <bl-button class="alert">打开</bl-button>
           <script type="module">
@@ -31,13 +32,12 @@
             }
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>confirm</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">confirm</h2>
         <div data-codesource="html">
           <bl-button id="confirm">打开</bl-button>
 
@@ -48,14 +48,13 @@
             }
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>prompt</h2>
-
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">prompt</h2>
         <div data-codesource="html">
           <bl-button class="prompt-1">打开</bl-button>
           <bl-input class="prompt-1-value"></bl-input>
@@ -71,14 +70,14 @@
             }
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>按钮事件处理</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">按钮事件处理</h2>
+        <p slot="header">通过第二个参数，可以传入按钮事件处理函数，点击确认按钮会调用 onConfirm 回调函数，点击取消会调用 onCancel 回调函数。</p>
 
-      <p>通过第二个参数，可以传入按钮事件处理函数，点击确认按钮会调用 onConfirm 回调函数，点击取消会调用 onCancel 回调函数。</p>
-      <div class="case">
         <div data-codesource="html">
           <bl-button id="alert-callback">alert</bl-button>
           <bl-button id="confirm-callback">confirm</bl-button>
@@ -167,15 +166,14 @@
             }
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>Promise</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">Promise</h2>
+        <p slot="header">模态窗口方法调用时，本身会返回一个 Promise，在窗口关闭的时候 resolve 或 reject。</p>
 
-      <p>模态窗口方法调用时，本身会返回一个 Promise，在窗口关闭的时候 resolve 或 reject。</p>
-
-      <div class="case">
         <div data-codesource="html">
           <bl-button id="alert-promise">alert</bl-button>
           <bl-button id="confirm-promise">confirm</bl-button>
@@ -199,12 +197,12 @@
             }
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>富文本</h2>
-      <div class="case">
+      <bl-card>
+        <h2 slot="header" class="section-title">富文本</h2>
         <div data-codesource="html">
           <bl-button id="alert-rich">打开</bl-button>
           <bl-button id="confirm-rich">打开</bl-button>
@@ -224,40 +222,54 @@
             }
           </script>
         </div>
-      </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>API</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Methods</h3>
 
-      <h3>Methods</h3>
-      <table class="api-fns">
-        <thead>
-          <tr>
-            <th>函数名称</th>
-            <th>类型</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>blAlert</td>
-            <td>(text:string, options: { richMode: boolean, confirmText: string, onConfirm: (value: any) => any }) => Promise&lt;any&gt;</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>blConfirm</td>
-            <td>(text:string, options: { cancel: boolean, richMode: boolean, cancelText: string, confirmText: string, onCancel: (error: any) => any, onConfirm: (value: any) => any }) => Promise&lt;any&gt;</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>blPrompt</td>
-            <td>(text:string, options: {cancel: boolean, richMode: boolean, cancelText: string, confirmText: string, onCancel: (error: any) => any, onConfirm: (value: any) => any}) => Promise&lt;any&gt;</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+        <table class="api-fns">
+          <thead>
+            <tr>
+              <th>函数名称</th>
+              <th>类型</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>blAlert</td>
+              <td>
+                (text:string, options: ModalOptions) => Promise&lt;any&gt;
+                <hr>
+                type ModalOptions = { richMode?: boolean; confirmText?: string; onConfirm: (value: any) => any }
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>blConfirm</td>
+              <td>
+                (text:string, options: ModalOptions) => Promise&lt;any&gt;
+                <hr>
+                type ModalOptions = { cancel?: boolean, richMode?: boolean, cancelText?: string, confirmText?: string, onCancel?: (error: any) => any, onConfirm?: (value: any) => any }
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>blPrompt</td>
+              <td>
+                (text:string, options: ModalOptions) => Promise&lt;any&gt;
+                <hr>
+                type ModalOptions = {cancel?: boolean, richMode?: boolean, cancelText?: string, confirmText?: string, onCancel?: (error: any) => any, onConfirm?: (value: any) => any}
+              </td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

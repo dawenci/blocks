@@ -1,9 +1,9 @@
 import { makeTemplate } from '../../common/template.js'
-import { BlocksTag } from '../tag/index.js'
+import { BlTag } from '../tag/index.js'
 
 export const contentTemplate = makeTemplate(/*html*/ `<div part="content" id="content"></div>`)
 
-export const tagTemplate = makeTemplate<BlocksTag>(`<bl-tag></bl-tag>`)
+export const tagTemplate = makeTemplate<BlTag>(`<bl-tag></bl-tag>`)
 
 export const moreTemplate = makeTemplate(/*html*/ `<div part="more" class="more"></div>`)
 

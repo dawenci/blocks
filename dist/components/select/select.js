@@ -32,68 +32,62 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
+import '../button/index.js';
 import '../list/index.js';
-import '../input/index.js';
+import '../popup/index.js';
 import './optgroup.js';
 import './option.js';
-import '../popup/index.js';
 import '../select-result/index.js';
-import { attr } from '../../decorators/attr.js';
-import { boolGetter } from '../../common/property.js';
-import { connectSelectable } from '../../common/connectSelectable.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { onceEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
-import { onClickOutside } from '../../common/onClickOutside.js';
-import { popupTemplate, slotTemplate, resultTemplate } from './select.template.js';
+import { confirmTemplate, popupTemplate, resultTemplate, slotTemplate } from './select.template.js';
+import { PROXY_POPUP_ACCESSORS, PROXY_POPUP_ACCESSORS_KEBAB, PROXY_RESULT_ACCESSORS, PROXY_RESULT_ACCESSORS_KEBAB, } from '../../common/constants.js';
+import { connectSelectable, makeISelectableProxy } from '../../common/connectSelectable.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { dispatchEvent } from '../../common/event.js';
+import { reactive, subscribe } from '../../common/reactive.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './select.style.js';
-import { BlocksList } from '../list/index.js';
-import { BlocksOptGroup } from './optgroup.js';
-import { BlocksPopup } from '../popup/index.js';
-import { BlocksSelectResult } from '../select-result/index.js';
-import { Control } from '../base-control/index.js';
+import { BlList } from '../list/index.js';
+import { BlOptGroup } from './optgroup.js';
+import { BlPopup } from '../popup/index.js';
+import { BlSelectResult } from '../select-result/index.js';
+import { BlControl } from '../base-control/index.js';
+import { SetupClickOutside } from '../setup-click-outside/index.js';
 const isOption = ($el) => $el.tagName === 'BL-OPTION';
 const isGroup = ($el) => $el.tagName === 'BL-OPTGROUP';
-export let BlocksSelect = (() => {
+export let BlSelect = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-select',
             styles: [style],
+            proxyAccessors: [
+                { klass: BlPopup, names: PROXY_POPUP_ACCESSORS },
+                { klass: BlSelectResult, names: PROXY_RESULT_ACCESSORS },
+            ],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     let _instanceExtraInitializers = [];
-    let _open_decorators;
-    let _open_initializers = [];
     let _$result_decorators;
     let _$result_initializers = [];
     let _$optionSlot_decorators;
     let _$optionSlot_initializers = [];
-    var BlocksSelect = class extends Control {
+    var BlSelect = class extends BlControl {
         static {
-            _open_decorators = [attr('boolean')];
             _$result_decorators = [shadowRef('bl-select-result')];
             _$optionSlot_decorators = [shadowRef('[part="slot"]')];
-            __esDecorate(this, null, _open_decorators, { kind: "accessor", name: "open", static: false, private: false, access: { has: obj => "open" in obj, get: obj => obj.open, set: (obj, value) => { obj.open = value; } } }, _open_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$result_decorators, { kind: "accessor", name: "$result", static: false, private: false, access: { has: obj => "$result" in obj, get: obj => obj.$result, set: (obj, value) => { obj.$result = value; } } }, _$result_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$optionSlot_decorators, { kind: "accessor", name: "$optionSlot", static: false, private: false, access: { has: obj => "$optionSlot" in obj, get: obj => obj.$optionSlot, set: (obj, value) => { obj.$optionSlot = value; } } }, _$optionSlot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksSelect = _classThis = _classDescriptor.value;
+            BlSelect = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
-            return [...BlocksSelectResult.observedAttributes, ...BlocksPopup.observedAttributes];
+            return [...PROXY_RESULT_ACCESSORS_KEBAB, ...PROXY_POPUP_ACCESSORS_KEBAB];
         }
         static get role() {
             return 'select';
         }
-        static get disableEventTypes() {
-            return ['click', 'keydown', 'touchstart'];
-        }
-        #open_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _open_initializers, void 0));
-        get open() { return this.#open_accessor_storage; }
-        set open(value) { this.#open_accessor_storage = value; }
-        #$result_accessor_storage = __runInitializers(this, _$result_initializers, void 0);
+        #$result_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _$result_initializers, void 0));
         get $result() { return this.#$result_accessor_storage; }
         set $result(value) { this.#$result_accessor_storage = value; }
         #$optionSlot_accessor_storage = __runInitializers(this, _$optionSlot_initializers, void 0);
@@ -102,6 +96,9 @@ export let BlocksSelect = (() => {
         $list;
         $popup;
         $confirmButton;
+        _model = reactive([], (a, b) => {
+            return a.length === b.length && a.every(i => b.includes(i));
+        });
         constructor() {
             super();
             this.appendShadowChildren([resultTemplate(), slotTemplate()]);
@@ -113,42 +110,89 @@ export let BlocksSelect = (() => {
             this.#setupConfirm();
             this.#setupKeymap();
             this.#setupConnect();
+            this.#setupAria();
         }
         selected = [];
         get options() {
             return Array.prototype.slice.call(this.querySelectorAll('bl-option'));
         }
+        _clickOutside = SetupClickOutside.setup({
+            component: this,
+            target() {
+                return [this, this.$popup];
+            },
+            update() {
+                if (this.open) {
+                    this.open = false;
+                }
+            },
+            init() {
+                this.hook.onAttributeChangedDep('open', () => {
+                    if (this.open) {
+                        this._clickOutside.bind();
+                    }
+                    else {
+                        this._clickOutside.unbind();
+                    }
+                });
+            },
+        });
         #setupResult() {
-            this.$result.suffixIcon = 'down';
-            this.onAttributeChangedDeps(BlocksSelectResult.observedAttributes, (name, _, newValue) => {
+            this.hook.onAttributeChangedDeps(PROXY_RESULT_ACCESSORS_KEBAB, (name, _, newValue) => {
                 this.$result.setAttribute(name, newValue);
             });
         }
         #setupConnect() {
-            let clearConnection;
-            this.onConnected(() => {
-                clearConnection = connectSelectable(this.$result, this.$list, {
-                    afterHandleListChange: selected => {
-                        if (!this.$result.multiple) {
-                            this.open = false;
-                            this.$result.classList.remove('dropdown');
-                        }
-                        this.options.forEach($option => {
-                            $option.silentSelected(selected.some(item => item.value === $option.value));
-                        });
-                    },
-                    afterHandleResultClear: () => {
-                        this._closePopup();
-                    },
+            const $proxy = makeISelectableProxy();
+            connectSelectable(this.$result, $proxy);
+            connectSelectable($proxy, this.$list);
+            $proxy.acceptSelected = selected => {
+                this._model.content = selected.map(item => item.value);
+                if (!this.multiple) {
+                    this.open = false;
+                }
+            };
+            $proxy.deselect = selected => {
+                this._model.content = this._model.content.filter(item => item !== selected.value);
+            };
+            $proxy.clearSelected = () => {
+                this._model.content = [];
+                this.open = false;
+                this.blur();
+            };
+            subscribe(this._model, values => {
+                const selected = values.map(value => {
+                    const item = this.$list.getVirtualItemByKey(value).data;
+                    const label = item.label;
+                    return { value, label };
                 });
-            });
-            this.onDisconnected(() => {
-                clearConnection();
+                this.options.forEach($option => {
+                    const selected = values.some(item => String(item) === $option.getAttribute('value'));
+                    if ($option.silentSelected) {
+                        $option.silentSelected(selected);
+                    }
+                    else {
+                        if (selected) {
+                            $option.setAttribute('selected', '');
+                        }
+                        else {
+                            $option.removeAttribute('selected');
+                        }
+                    }
+                });
+                this.$result.acceptSelected(selected);
+                this.$list.checked = values;
+                const value = !this.multiple ? values[0] ?? null : values;
+                dispatchEvent(this, 'change', { detail: { value } });
             });
         }
         #setupPopup() {
             this.$popup = popupTemplate();
-            this.onAttributeChangedDeps(BlocksPopup.observedAttributes, (name, _, newValue) => {
+            this.$popup.anchorElement = () => this;
+            this.hook.onDisconnected(() => {
+                document.body.removeChild(this.$popup);
+            });
+            this.hook.onAttributeChangedDeps(PROXY_POPUP_ACCESSORS_KEBAB, (name, _, newValue) => {
                 if (name === 'open') {
                     if (this.open && !document.body.contains(this.$popup)) {
                         document.body.appendChild(this.$popup);
@@ -159,10 +203,6 @@ export let BlocksSelect = (() => {
                     this.$popup.setAttribute(name, newValue);
                 }
             });
-            this.$popup.anchorElement = () => this;
-            this.onDisconnected(() => {
-                document.body.removeChild(this.$popup);
-            });
             {
                 let isClickClear = false;
                 const onClearStart = () => {
@@ -170,69 +210,42 @@ export let BlocksSelect = (() => {
                 };
                 const onFocus = () => {
                     if (!isClickClear)
-                        this._openPopup();
+                        this.open = true;
                     isClickClear = false;
                 };
                 const onClearEnd = () => {
                     isClickClear = false;
                 };
-                this.onConnected(() => {
+                this.hook.onConnected(() => {
                     this.addEventListener('mousedown-clear', onClearStart);
                     this.addEventListener('focus', onFocus);
                     this.addEventListener('click-clear', onClearEnd);
                 });
-                this.onDisconnected(() => {
+                this.hook.onDisconnected(() => {
                     this.removeEventListener('mousedown-clear', onClearStart);
                     this.removeEventListener('focus', onFocus);
                     this.removeEventListener('click-clear', onClearEnd);
                 });
             }
-            let clear;
-            const initClickOutside = () => {
-                if (!clear) {
-                    clear = onClickOutside([this, this.$popup], () => {
-                        if (this.open) {
-                            this.open = false;
-                            this.$result.classList.remove('dropdown');
-                        }
-                    });
+            this.hook.onAttributeChangedDep('open', () => {
+                const { $popup } = this;
+                if (this.open) {
+                    $popup.style.minWidth = `${this.offsetWidth}px`;
+                    this.$result.classList.add('dropdown');
                 }
-            };
-            const destroyClickOutside = () => {
-                if (clear) {
-                    clear();
-                    clear = undefined;
+                else {
+                    this.$result.classList.remove('dropdown');
+                    this.blur();
                 }
-            };
-            this.$popup.addEventListener('opened', () => {
-                initClickOutside();
             });
-            this.$popup.addEventListener('closed', () => {
-                destroyClickOutside();
-            });
-            this.onDisconnected(() => {
-                destroyClickOutside();
-            });
-        }
-        _openPopup() {
-            const { $popup } = this;
-            $popup.style.minWidth = `${this.offsetWidth}px`;
-            this.open = true;
-            this.$result.classList.add('dropdown');
-        }
-        _closePopup() {
-            this.open = false;
-            this.$result.classList.remove('dropdown');
-            this.blur();
         }
         #setupSelectableList() {
             this.$list = this.$popup.querySelector('.option-list');
             const updateMultiple = () => {
-                this.$list.multiple = boolGetter('multiple')(this);
-                this.$result.multiple = boolGetter('multiple')(this);
+                this.$list.multiple = this.$result.multiple = this.multiple;
             };
             updateMultiple();
-            this.onAttributeChangedDep('multiple', updateMultiple);
+            this.hook.onAttributeChangedDep('multiple', updateMultiple);
             this.$popup.addEventListener('closed', () => {
                 this.$result.clearSearch();
             });
@@ -241,13 +254,10 @@ export let BlocksSelect = (() => {
             const render = () => {
                 if (this.$result.multiple) {
                     if (!this.$confirmButton) {
-                        this.$confirmButton = this.$popup.appendChild(document.createElement('bl-button'));
-                        this.$confirmButton.type = 'primary';
-                        this.$confirmButton.size = 'small';
-                        this.$confirmButton.innerText = '确定';
-                        this.$confirmButton.block = true;
-                        this.$confirmButton.style.cssText = `margin:8px`;
-                        this.$confirmButton.onclick = () => this._closePopup();
+                        this.$confirmButton = this.$popup.appendChild(confirmTemplate());
+                        this.$confirmButton.onclick = () => {
+                            this.open = false;
+                        };
                     }
                 }
                 else {
@@ -257,16 +267,17 @@ export let BlocksSelect = (() => {
                     }
                 }
             };
-            this.onRender(render);
-            this.onConnected(render);
-            this.onAttributeChangedDep('multiple', render);
+            this.hook.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onAttributeChangedDep('multiple', render);
         }
         #setupOptions() {
-            const _render = BlocksList.prototype.itemRender;
+            const _render = BlList.prototype.itemRender;
             this.$list.itemRender = function ($item, vitem) {
                 _render.call(this, $item, vitem);
                 if (vitem.data.value.startsWith('__group_')) {
                     $item.style.backgroundColor = 'transparent';
+                    $item.querySelector('.label').style.paddingLeft = '';
                 }
                 else {
                     $item.querySelector('.label').style.paddingLeft = '24px';
@@ -301,28 +312,35 @@ export let BlocksSelect = (() => {
                 collect($element);
                 this.$list.data = options;
                 if (selected.length) {
-                    onceEvent(this.$list, 'data-bound', () => {
-                        this.$list.checked = selected;
-                    });
+                    this._model.content = selected;
                 }
             };
-            this.onConnected(syncOptions);
+            this.hook.onConnected(syncOptions);
             this.$optionSlot.addEventListener('slotchange', syncOptions);
             const onSelectOption = (e) => {
                 const target = e.target;
-                const data = { value: target.value, label: target.label ?? target.value ?? '' };
-                this.$list.select(data);
+                const value = target.getAttribute('value');
+                if (!value)
+                    return;
+                if (this.multiple) {
+                    this._model.content = this._model.content.concat([value]);
+                }
+                else {
+                    this._model.content = [value];
+                }
             };
             const onDeselectOption = (e) => {
                 const target = e.target;
-                const data = { value: target.value, label: target.label ?? target.value ?? '' };
-                this.$list.deselect(data);
+                const value = target.getAttribute('value');
+                if (!value)
+                    return;
+                this._model.content = this._model.content.filter(item => String(item) !== value);
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('select', onSelectOption);
                 this.addEventListener('deselect', onDeselectOption);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('select', onSelectOption);
                 this.removeEventListener('deselect', onDeselectOption);
             });
@@ -330,7 +348,7 @@ export let BlocksSelect = (() => {
         #setupKeymap() {
             this.onkeydown = e => {
                 if (e.key === 'Escape') {
-                    this._closePopup();
+                    this.open = false;
                 }
                 if ((e.key === 'Tab' && !e.shiftKey) || e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                     e.preventDefault();
@@ -341,14 +359,14 @@ export let BlocksSelect = (() => {
             this.$list.onkeydown = e => {
                 if (e.key === 'Escape') {
                     this.$list.blur();
-                    this._closePopup();
+                    this.open = false;
                 }
             };
         }
         selectOption($option) {
             if ($option.disabled)
                 return;
-            if ($option.parentElement instanceof BlocksOptGroup && $option.parentElement.disabled) {
+            if ($option.parentElement instanceof BlOptGroup && $option.parentElement.disabled) {
                 return;
             }
             if (this.$result.multiple) {
@@ -362,6 +380,11 @@ export let BlocksSelect = (() => {
                 $option.selected = true;
             }
         }
+        #setupAria() {
+            this.hook.onConnected(() => {
+                this.setAttribute('aria-haspopup', 'listbox');
+            });
+        }
     };
-    return BlocksSelect = _classThis;
+    return BlSelect = _classThis;
 })();

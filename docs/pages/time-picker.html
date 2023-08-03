@@ -18,50 +18,137 @@
       <h1>time-picker</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <section class="section">
-      <h2>依赖引入</h2>
-
-      <p>根据自己项目调整 src 的路径</p>
-
-      <div data-codesource="html" data-title="依赖引入" on>
-        <script type="module" src="../../dist/components/time-picker/index.js"></script>
-      </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">依赖引入</h2>
+        <p slot="header">根据自己项目调整 src 的路径</p>
+  
+        <div data-codesource="html" data-title="依赖引入" on>
+          <script type="module" src="../../dist/components/time-picker/index.js"></script>
+        </div>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>时间选择</h2>
+      <bl-card>
+        <h2 slot="header" class="section-title">时间选择</h2>
+        <template data-codesource="html">
+          <bl-time-picker clearable placeholder="请选择"></bl-time-picker>
+        </template>
+      </bl-card>
+    </section>
 
-      <template data-codesource="html">
-        <bl-time-picker clearable></bl-time-picker>
-      </template>
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">disabled</h2>
+        <template data-codesource="html">
+          <bl-time-picker disabled placeholder="请选择"></bl-time-picker>
+        </template>
+      </bl-card>
     </section>
 
     <section class="section">
-      <h2>API</h2>
-      
-      <p>支持传入 time 组件的属性控制日期面板。</p>
-      <table>
-        <thead>
-          <tr>
-            <th>属性名</th>
-            <th>类型</th>
-            <th>默认值</th>
-            <th>说明</th>
-            <th>必须</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>clearable</td>
-            <td>boolean</td>
-            <td>false</td>
-            <td>是否可以清除值（显示清除按钮）。</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">time disabled</h2>
+        <template data-codesource="html">
+          <bl-time-picker id="time-disabled" placeholder="请选择"></bl-time-picker>
+        </template>
+  
+        <template data-codesource="script">
+          <script>
+            const $timePicker = document.getElementById('time-disabled')
+            $timePicker.disabledTime = (h, m, s) => {
+              return [!(h % 2), !(m % 2), !(s % 2)]
+            }
+          </script>
+        </template>
+      </bl-card>
     </section>
-    
+
+
+    <section class="section">
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+        <h3>Attrs / Props</h3>
+        <p>支持传入 time 组件的属性控制日期面板。</p>
+        <table class="api-props">
+          <thead>
+            <tr>
+              <th>attr 名</th>
+              <th>prop 名</th>
+              <th>类型</th>
+              <th>默认值</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>clearable</td>
+              <td>clearable</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>是否可以清除值（显示清除按钮）。</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>hour</td>
+              <td>number(0 - 23)</td>
+              <td></td>
+              <td>时</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>minute</td>
+              <td>number(0 - 59)</td>
+              <td></td>
+              <td>分</td>
+            </tr>
+            <tr>
+              <td>open</td>
+              <td>open</td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>时间面板是否展示。</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>second</td>
+              <td>number(0 - 59)</td>
+              <td></td>
+              <td>秒</td>
+            </tr>
+            <tr>
+              <td>-</td>
+              <td>value</td>
+              <td>{ hour: number; minute: number; second: number } | null</td>
+              <td>null</td>
+              <td>model 值</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Events</h3>
+        <table class="api-events">
+          <thead>
+            <tr>
+              <th>事件名称</th>
+              <th>事件对象</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>change</td>
+              <td>CustomEvent&lt;{ hour: number; minute: number; second: number }&gt;</td>
+              <td>选中的时间变化时触发。</td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
+    </section>
   </article>
 </body>
 </html>

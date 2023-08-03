@@ -1,27 +1,28 @@
-import type { EnumAttrs } from '../../decorators/attr.js'
-import { attr, attrs } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr, attrs } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { forEach } from '../../common/utils.js'
 import { itemTemplate, groupTemplate } from './menu.template.js'
 import { onClickOutside } from '../../common/onClickOutside.js'
-import { BlocksPopupMenuGroup } from './menu-group.js'
-import { BlocksPopupMenuItem } from './menu-item.js'
-import { BlocksNavMenu } from '../nav-menu/menu.js'
-import { BlocksNavMenuItem } from '../nav-menu/menu-item.js'
-import { BlocksNavMenuGroup } from '../nav-menu/menu-group.js'
-import { BlocksPopup } from '../popup/index.js'
+import { BlPopupMenuGroup } from './menu-group.js'
+import { BlPopupMenuItem } from './menu-item.js'
+import { BlNavMenu } from '../nav-menu/menu.js'
+import { BlNavMenuItem } from '../nav-menu/menu-item.js'
+import { BlNavMenuGroup } from '../nav-menu/menu-group.js'
+import { BlPopup } from '../popup/index.js'
 
-// TODO: 解决 Firefox 不支持 :host-context 样式的问题
-// TODO: 多级菜单，z-index 的问题
 @defineClass({
   customElement: 'bl-popup-menu',
 })
-export class BlocksPopupMenu extends BlocksPopup {
+export class BlPopupMenu extends BlPopup {
+  static override get role() {
+    return 'menu'
+  }
+
   @attr('number') accessor enterDelay = 150
 
   @attr('number') accessor leaveDelay = 200
 
-  @attrs.size accessor size!: EnumAttrs['size']
+  @attrs.size accessor size!: MaybeOneOf<['small', 'large']>
 
   @attr('int') accessor level = 0
 
@@ -30,8 +31,8 @@ export class BlocksPopupMenu extends BlocksPopup {
   private _enterTimer?: ReturnType<typeof setTimeout>
   private _clearClickOutside?: () => void
 
-  $parentItem?: BlocksPopupMenuItem | BlocksNavMenuItem
-  $parentMenu?: BlocksPopupMenu | BlocksNavMenu
+  $parentItem?: BlPopupMenuItem | BlNavMenuItem
+  $parentMenu?: BlPopupMenu | BlNavMenu
 
   constructor() {
     super()
@@ -77,7 +78,7 @@ export class BlocksPopupMenu extends BlocksPopup {
       this.open = true
     }, this.enterDelay)
 
-    if (this.$parentMenu instanceof BlocksPopupMenu) {
+    if (this.$parentMenu instanceof BlPopupMenu) {
       if (this.$parentMenu.enter) {
         this.$parentMenu.enter()
       }
@@ -102,7 +103,7 @@ export class BlocksPopupMenu extends BlocksPopup {
       this.open = false
     }, this.leaveDelay!)
 
-    if (this.$parentMenu instanceof BlocksPopupMenu) {
+    if (this.$parentMenu instanceof BlPopupMenu) {
       if (this.$parentMenu.leave) {
         this.$parentMenu.leave()
       }
@@ -116,14 +117,14 @@ export class BlocksPopupMenu extends BlocksPopup {
 
   closeAll() {
     this.open = false
-    if (this.$parentMenu instanceof BlocksPopupMenu) {
+    if (this.$parentMenu instanceof BlPopupMenu) {
       this.$parentMenu.closeAll()
     }
   }
 
   clearActive() {
     const children = this.children as unknown as Array<
-      BlocksNavMenuItem | BlocksNavMenuGroup | BlocksPopupMenuItem | BlocksPopupMenuGroup
+      BlNavMenuItem | BlNavMenuGroup | BlPopupMenuItem | BlPopupMenuGroup
     >
     forEach(children, child => {
       if (child.clearActive) child.clearActive()
@@ -139,6 +140,7 @@ export class BlocksPopupMenu extends BlocksPopup {
       if ((item as MenuGroup).data) {
         const $group = groupTemplate()
         $group.$hostMenu = this
+        $group.size = this.size
         fragment.appendChild($group)
         // data 赋值在后（会触发 render）
         $group.data = item as MenuGroup
@@ -147,6 +149,7 @@ export class BlocksPopupMenu extends BlocksPopup {
       // item
       const $item = itemTemplate()
       $item.$hostMenu = this
+      $item.size = this.size
       fragment.appendChild($item)
       // data 赋值在后（会触发 render）
       $item.data = item
@@ -170,7 +173,7 @@ export class BlocksPopupMenu extends BlocksPopup {
 
   override attributeChangedCallback(attrName: string, oldValue: any, newValue: any) {
     super.attributeChangedCallback(attrName, oldValue, newValue)
-    if (BlocksPopup.observedAttributes.includes(attrName)) {
+    if (BlPopup.observedAttributes.includes(attrName)) {
       super.attributeChangedCallback(attrName, oldValue, newValue)
     }
 

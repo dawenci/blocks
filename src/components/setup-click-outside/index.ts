@@ -1,14 +1,15 @@
 import { onClickOutside } from '../../common/onClickOutside.js'
-import type { Component } from '../component/Component'
+import type { BlComponent } from '../component/Component'
 
 export interface InitOptions<T> {
   component: T
   update: (this: T, e: MouseEvent) => any
   target: (this: T) => Element[]
+  init?: (this: T) => void
 }
 
-export class SetupClickOutside<T extends Component = Component> {
-  static setup<T extends Component = Component>(options: InitOptions<T>) {
+export class SetupClickOutside<T extends BlComponent = BlComponent> {
+  static setup<T extends BlComponent = BlComponent>(options: InitOptions<T>) {
     return new SetupClickOutside(options).setup()
   }
 
@@ -16,11 +17,13 @@ export class SetupClickOutside<T extends Component = Component> {
   #component: T
   #update: (this: T, e: MouseEvent) => any
   #target: (this: T) => Element[]
+  #init?: (this: T) => void
 
   constructor(options: InitOptions<T>) {
     this.#component = options.component
     this.#update = options.update
     this.#target = options.target
+    this.#init = options.init
   }
 
   withTarget(target: InitOptions<T>['target']) {
@@ -36,9 +39,10 @@ export class SetupClickOutside<T extends Component = Component> {
   setup() {
     if (this.#setup) return this
     this.#setup = true
-    this.#component.onDisconnected(() => {
+    this.#component.hook.onDisconnected(() => {
       this.unbind()
     })
+    if (this.#init) this.#init.call(this.#component)
     return this
   }
 

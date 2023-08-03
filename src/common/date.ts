@@ -31,48 +31,48 @@ export function makeDateFrom(
 ) {
   switch (type) {
     case 'year':
-      return makeDate({ year: date.getFullYear() })
+      return makeDate({ year: date.getUTCFullYear() })
     case 'month':
-      return makeDate({ year: date.getFullYear(), monthIndex: date.getMonth() })
+      return makeDate({ year: date.getUTCFullYear(), monthIndex: date.getUTCMonth() })
     case 'day':
       return makeDate({
-        year: date.getFullYear(),
-        monthIndex: date.getMonth(),
-        day: date.getDate(),
+        year: date.getUTCFullYear(),
+        monthIndex: date.getUTCMonth(),
+        day: date.getUTCDate(),
       })
     case 'hour':
       return makeDate({
-        year: date.getFullYear(),
-        monthIndex: date.getMonth(),
-        day: date.getDate(),
-        hour: date.getHours(),
+        year: date.getUTCFullYear(),
+        monthIndex: date.getUTCMonth(),
+        day: date.getUTCDate(),
+        hour: date.getUTCHours(),
       })
     case 'minute':
       return makeDate({
-        year: date.getFullYear(),
-        monthIndex: date.getMonth(),
-        day: date.getDate(),
-        hour: date.getHours(),
-        minute: date.getMinutes(),
+        year: date.getUTCFullYear(),
+        monthIndex: date.getUTCMonth(),
+        day: date.getUTCDate(),
+        hour: date.getUTCHours(),
+        minute: date.getUTCMinutes(),
       })
     case 'second':
       return makeDate({
-        year: date.getFullYear(),
-        monthIndex: date.getMonth(),
-        day: date.getDate(),
-        hour: date.getHours(),
-        minute: date.getMinutes(),
-        second: date.getSeconds(),
+        year: date.getUTCFullYear(),
+        monthIndex: date.getUTCMonth(),
+        day: date.getUTCDate(),
+        hour: date.getUTCHours(),
+        minute: date.getUTCMinutes(),
+        second: date.getUTCSeconds(),
       })
     case 'millisecond':
       return makeDate({
-        year: date.getFullYear(),
-        monthIndex: date.getMonth(),
-        day: date.getDate(),
-        hour: date.getHours(),
-        minute: date.getMinutes(),
-        second: date.getSeconds(),
-        millisecond: date.getMilliseconds(),
+        year: date.getUTCFullYear(),
+        monthIndex: date.getUTCMonth(),
+        day: date.getUTCDate(),
+        hour: date.getUTCHours(),
+        minute: date.getUTCMinutes(),
+        second: date.getUTCSeconds(),
+        millisecond: date.getUTCMilliseconds(),
       })
   }
 }
@@ -86,9 +86,9 @@ export function copyDate(date: Date) {
 export function today() {
   const date = new Date()
   return makeDate({
-    year: date.getFullYear(),
-    monthIndex: date.getMonth(),
-    day: date.getDate(),
+    year: date.getUTCFullYear(),
+    monthIndex: date.getUTCMonth(),
+    day: date.getUTCDate(),
   })
 }
 

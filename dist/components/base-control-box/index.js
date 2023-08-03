@@ -33,15 +33,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import { append, mountAfter, mountBefore, prepend, unmount } from '../../common/mount.js';
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js';
 import { loadingTemplate, prefixTemplate, suffixTemplate, template } from './template.js';
 import { style } from './style.js';
-import { Control } from '../base-control/index.js';
-export let ControlBox = (() => {
+import { BlControl } from '../base-control/index.js';
+export let BlControlBox = (() => {
     let _classDecorators = [defineClass({
             styles: [style],
         })];
@@ -63,7 +63,7 @@ export let ControlBox = (() => {
     let _$prefix_initializers = [];
     let _$suffix_decorators;
     let _$suffix_initializers = [];
-    var ControlBox = class extends Control {
+    var BlControlBox = class extends BlControl {
         static {
             _loading_decorators = [attr('boolean')];
             _prefixIcon_decorators = [attr('string')];
@@ -80,7 +80,7 @@ export let ControlBox = (() => {
             __esDecorate(this, null, _$prefix_decorators, { kind: "accessor", name: "$prefix", static: false, private: false, access: { has: obj => "$prefix" in obj, get: obj => obj.$prefix, set: (obj, value) => { obj.$prefix = value; } } }, _$prefix_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$suffix_decorators, { kind: "accessor", name: "$suffix", static: false, private: false, access: { has: obj => "$suffix" in obj, get: obj => obj.$suffix, set: (obj, value) => { obj.$suffix = value; } } }, _$suffix_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            ControlBox = _classThis = _classDescriptor.value;
+            BlControlBox = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #loading_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _loading_initializers, void 0));
@@ -111,7 +111,7 @@ export let ControlBox = (() => {
             this.#setupPrefixIconFeature();
             this.#setupSuffixIconFeature();
             this._tabIndexFeature.withTarget(() => [this.$layout]);
-            this._disabledFeature.withPredicate(() => this.disabled || this.loading);
+            this._disabledFeature.withPredicate(() => this.disabled);
         }
         appendContent($el) {
             const $suffix = this.$suffix;
@@ -124,9 +124,9 @@ export let ControlBox = (() => {
             return $el;
         }
         #setupLoadingFeature() {
-            this.onConnected(this._renderLoading);
-            this.onAttributeChangedDep('loading', this._renderLoading);
-            this.onRender(this._renderLoading);
+            this.hook.onConnected(this._renderLoading);
+            this.hook.onAttributeChangedDep('loading', this._renderLoading);
+            this.hook.onRender(this._renderLoading);
         }
         _renderLoading() {
             this.$layout.classList.toggle('with-loading', this.loading);
@@ -151,15 +151,15 @@ export let ControlBox = (() => {
                     return;
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this._renderPrefixIcon();
                 this.$layout.addEventListener('click', onClick);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$layout.removeEventListener('click', onClick);
             });
-            this.onAttributeChangedDep('prefix-icon', this._renderPrefixIcon);
-            this.onRender(this._renderPrefixIcon);
+            this.hook.onAttributeChangedDep('prefix-icon', this._renderPrefixIcon);
+            this.hook.onRender(this._renderPrefixIcon);
         }
         _renderPrefixIcon() {
             const $prefixIcon = this.prefixIcon ? getRegisteredSvgIcon(this.prefixIcon) ?? parseSvg(this.prefixIcon) : null;
@@ -189,15 +189,15 @@ export let ControlBox = (() => {
                     return;
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this._renderSuffixIcon();
                 this.$layout.addEventListener('click', onClick);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$layout.removeEventListener('click', onClick);
             });
-            this.onAttributeChangedDep('suffix-icon', this._renderSuffixIcon);
-            this.onRender(this._renderSuffixIcon);
+            this.hook.onAttributeChangedDep('suffix-icon', this._renderSuffixIcon);
+            this.hook.onRender(this._renderSuffixIcon);
         }
         _renderSuffixIcon() {
             const $suffixIcon = this.suffixIcon ? getRegisteredSvgIcon(this.suffixIcon) ?? parseSvg(this.suffixIcon) : null;
@@ -215,5 +215,5 @@ export let ControlBox = (() => {
             }
         }
     };
-    return ControlBox = _classThis;
+    return BlControlBox = _classThis;
 })();

@@ -1,2 +1,2 @@
-import { BlocksPopup } from '../popup/index.js';
-export declare const popupTemplate: () => BlocksPopup;
+import { BlPopup } from '../popup/index.js';
+export declare const popupTemplate: () => BlPopup;

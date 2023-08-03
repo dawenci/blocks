@@ -33,14 +33,15 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     return useValue ? value : void 0;
 };
 import '../icon/index.js';
-import { attr, attrs } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr, attrs } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
 import { forEach } from '../../common/utils.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
-import { template } from './template.js';
-import { Component } from '../component/Component.js';
-export let BlocksPagination = (() => {
+import { template, itemTemplate } from './template.js';
+import { BlComponent } from '../component/Component.js';
+export let BlPagination = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-pagination',
             styles: [style],
@@ -61,7 +62,21 @@ export let BlocksPagination = (() => {
     let _pageSizes_initializers = [];
     let _size_decorators;
     let _size_initializers = [];
-    var BlocksPagination = class extends Component {
+    let _$pager_decorators;
+    let _$pager_initializers = [];
+    let _$items_decorators;
+    let _$items_initializers = [];
+    let _$prev_decorators;
+    let _$prev_initializers = [];
+    let _$next_decorators;
+    let _$next_initializers = [];
+    let _$jump_decorators;
+    let _$jump_initializers = [];
+    let _$sizes_decorators;
+    let _$sizes_initializers = [];
+    let _$total_decorators;
+    let _$total_initializers = [];
+    var BlPagination = class extends BlComponent {
         static {
             _disabled_decorators = [attr('boolean')];
             _current_decorators = [attr('int')];
@@ -69,14 +84,28 @@ export let BlocksPagination = (() => {
             _total_decorators = [attr('int')];
             _pageSizes_decorators = [attr('string')];
             _size_decorators = [attrs.size];
+            _$pager_decorators = [shadowRef('#pager')];
+            _$items_decorators = [shadowRef('#items')];
+            _$prev_decorators = [shadowRef('#prev')];
+            _$next_decorators = [shadowRef('#next')];
+            _$jump_decorators = [shadowRef('#jump')];
+            _$sizes_decorators = [shadowRef('#sizes')];
+            _$total_decorators = [shadowRef('#total')];
             __esDecorate(this, null, _disabled_decorators, { kind: "accessor", name: "disabled", static: false, private: false, access: { has: obj => "disabled" in obj, get: obj => obj.disabled, set: (obj, value) => { obj.disabled = value; } } }, _disabled_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _current_decorators, { kind: "accessor", name: "current", static: false, private: false, access: { has: obj => "current" in obj, get: obj => obj.current, set: (obj, value) => { obj.current = value; } } }, _current_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _pageSize_decorators, { kind: "accessor", name: "pageSize", static: false, private: false, access: { has: obj => "pageSize" in obj, get: obj => obj.pageSize, set: (obj, value) => { obj.pageSize = value; } } }, _pageSize_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _total_decorators, { kind: "accessor", name: "total", static: false, private: false, access: { has: obj => "total" in obj, get: obj => obj.total, set: (obj, value) => { obj.total = value; } } }, _total_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _pageSizes_decorators, { kind: "accessor", name: "pageSizes", static: false, private: false, access: { has: obj => "pageSizes" in obj, get: obj => obj.pageSizes, set: (obj, value) => { obj.pageSizes = value; } } }, _pageSizes_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _size_decorators, { kind: "accessor", name: "size", static: false, private: false, access: { has: obj => "size" in obj, get: obj => obj.size, set: (obj, value) => { obj.size = value; } } }, _size_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$pager_decorators, { kind: "accessor", name: "$pager", static: false, private: false, access: { has: obj => "$pager" in obj, get: obj => obj.$pager, set: (obj, value) => { obj.$pager = value; } } }, _$pager_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$items_decorators, { kind: "accessor", name: "$items", static: false, private: false, access: { has: obj => "$items" in obj, get: obj => obj.$items, set: (obj, value) => { obj.$items = value; } } }, _$items_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$prev_decorators, { kind: "accessor", name: "$prev", static: false, private: false, access: { has: obj => "$prev" in obj, get: obj => obj.$prev, set: (obj, value) => { obj.$prev = value; } } }, _$prev_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$next_decorators, { kind: "accessor", name: "$next", static: false, private: false, access: { has: obj => "$next" in obj, get: obj => obj.$next, set: (obj, value) => { obj.$next = value; } } }, _$next_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$jump_decorators, { kind: "accessor", name: "$jump", static: false, private: false, access: { has: obj => "$jump" in obj, get: obj => obj.$jump, set: (obj, value) => { obj.$jump = value; } } }, _$jump_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$sizes_decorators, { kind: "accessor", name: "$sizes", static: false, private: false, access: { has: obj => "$sizes" in obj, get: obj => obj.$sizes, set: (obj, value) => { obj.$sizes = value; } } }, _$sizes_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$total_decorators, { kind: "accessor", name: "$total", static: false, private: false, access: { has: obj => "$total" in obj, get: obj => obj.$total, set: (obj, value) => { obj.$total = value; } } }, _$total_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksPagination = _classThis = _classDescriptor.value;
+            BlPagination = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get observedAttributes() {
@@ -100,32 +129,34 @@ export let BlocksPagination = (() => {
         #size_accessor_storage = __runInitializers(this, _size_initializers, void 0);
         get size() { return this.#size_accessor_storage; }
         set size(value) { this.#size_accessor_storage = value; }
-        _itemPool = [];
+        #$pager_accessor_storage = __runInitializers(this, _$pager_initializers, void 0);
+        get $pager() { return this.#$pager_accessor_storage; }
+        set $pager(value) { this.#$pager_accessor_storage = value; }
+        #$items_accessor_storage = __runInitializers(this, _$items_initializers, void 0);
+        get $items() { return this.#$items_accessor_storage; }
+        set $items(value) { this.#$items_accessor_storage = value; }
+        #$prev_accessor_storage = __runInitializers(this, _$prev_initializers, void 0);
+        get $prev() { return this.#$prev_accessor_storage; }
+        set $prev(value) { this.#$prev_accessor_storage = value; }
+        #$next_accessor_storage = __runInitializers(this, _$next_initializers, void 0);
+        get $next() { return this.#$next_accessor_storage; }
+        set $next(value) { this.#$next_accessor_storage = value; }
+        #$jump_accessor_storage = __runInitializers(this, _$jump_initializers, void 0);
+        get $jump() { return this.#$jump_accessor_storage; }
+        set $jump(value) { this.#$jump_accessor_storage = value; }
+        #$sizes_accessor_storage = __runInitializers(this, _$sizes_initializers, void 0);
+        get $sizes() { return this.#$sizes_accessor_storage; }
+        set $sizes(value) { this.#$sizes_accessor_storage = value; }
+        #$total_accessor_storage = __runInitializers(this, _$total_initializers, void 0);
+        get $total() { return this.#$total_accessor_storage; }
+        set $total(value) { this.#$total_accessor_storage = value; }
         constructor() {
             super();
-            const { comTemplate } = template();
-            const shadowRoot = this.shadowRoot;
-            shadowRoot.appendChild(comTemplate.content.cloneNode(true));
-            const $pager = shadowRoot.getElementById('pager');
-            const $items = shadowRoot.getElementById('items');
-            const $prev = shadowRoot.getElementById('prev');
-            const $next = shadowRoot.getElementById('next');
-            const $jump = shadowRoot.getElementById('jump');
-            const $sizes = shadowRoot.getElementById('sizes');
-            const $total = shadowRoot.getElementById('total');
-            this._ref = {
-                $pager,
-                $items,
-                $prev,
-                $next,
-                $jump,
-                $sizes,
-                $total,
-            };
-            this.onConnected(() => {
-                $prev.onclick = () => this._prev();
-                $next.onclick = () => this._next();
-                $items.onclick = e => {
+            this.appendShadowChild(template());
+            this.hook.onConnected(() => {
+                this.$prev.onclick = () => this._prev();
+                this.$next.onclick = () => this._next();
+                this.$items.onclick = e => {
                     if (this.disabled)
                         return;
                     let $button = e.target;
@@ -143,22 +174,23 @@ export let BlocksPagination = (() => {
                     this.current = +$button.textContent;
                 };
             });
-            this.onDisconnected(() => {
-                $prev.onclick = $next.onclick = $items.onclick = null;
+            this.hook.onDisconnected(() => {
+                this.$prev.onclick = this.$next.onclick = this.$items.onclick = null;
             });
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
-            this.onAttributeChangedDep('current', () => {
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
+            this.hook.onAttributeChangedDep('current', () => {
                 dispatchEvent(this, 'bl:pagination:current-change', {
                     detail: { current: this.current },
                 });
             });
-            this.onAttributeChangedDep('page-size', () => {
+            this.hook.onAttributeChangedDep('page-size', () => {
                 dispatchEvent(this, 'bl:pagination:page-size-change', {
                     detail: { pageSize: this.pageSize },
                 });
             });
         }
+        _itemPool = [];
         get showQuickJumper() {
             return;
         }
@@ -174,15 +206,15 @@ export let BlocksPagination = (() => {
         render() {
             super.render();
             this._renderPager();
-            this._ref.$prev.disabled = this.current === 1;
-            this._ref.$next.disabled = this.current === this.itemCount;
+            this.$prev.disabled = this.current === 1;
+            this.$next.disabled = this.current === this.itemCount;
         }
         _renderPager() {
             const showQuickPrev = this.current > 4;
             const showQuickNext = this.itemCount - this.current > 3;
             const count = this.itemCount < 8 ? this.itemCount : showQuickPrev && showQuickNext ? 9 : 8;
             this._ensureItem(count);
-            const children = this._ref.$items.children;
+            const children = this.$items.children;
             forEach(children, $item => {
                 if ($item.classList.contains('current')) {
                     $item.classList.remove('current');
@@ -242,12 +274,11 @@ export let BlocksPagination = (() => {
             });
         }
         _ensureItem(n) {
-            const { itemTemplate } = template();
-            while (this._ref.$items.children.length < n) {
-                this._ref.$items.appendChild(this._itemPool.pop() ?? itemTemplate.cloneNode(true));
+            while (this.$items.children.length < n) {
+                this.$items.appendChild(this._itemPool.pop() ?? itemTemplate());
             }
-            while (this._ref.$items.children.length > n) {
-                this._itemPool.push(this._ref.$items.removeChild(this._ref.$items.lastElementChild));
+            while (this.$items.children.length > n) {
+                this._itemPool.push(this.$items.removeChild(this.$items.lastElementChild));
             }
             if (this._itemPool.length > 7)
                 this._itemPool.length = 7;
@@ -271,7 +302,7 @@ export let BlocksPagination = (() => {
             this.current = num <= this.itemCount ? num : this.itemCount;
         }
     };
-    return BlocksPagination = _classThis;
+    return BlPagination = _classThis;
 })();
 function setTextContent(element, value) {
     element.textContent = value;

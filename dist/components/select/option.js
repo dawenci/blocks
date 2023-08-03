@@ -32,11 +32,11 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { selectedSetter } from '../../common/propertyAccessor.js';
-import { Component } from '../component/Component.js';
-export let BlocksOption = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlOption = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-option',
         })];
@@ -52,7 +52,7 @@ export let BlocksOption = (() => {
     let _disabled_initializers = [];
     let _selected_decorators;
     let _selected_initializers = [];
-    var BlocksOption = class extends Component {
+    var BlOption = class extends BlComponent {
         static {
             _value_decorators = [attr('string')];
             _label_decorators = [attr('string', {
@@ -67,8 +67,11 @@ export let BlocksOption = (() => {
             __esDecorate(this, null, _disabled_decorators, { kind: "accessor", name: "disabled", static: false, private: false, access: { has: obj => "disabled" in obj, get: obj => obj.disabled, set: (obj, value) => { obj.disabled = value; } } }, _disabled_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _selected_decorators, { kind: "accessor", name: "selected", static: false, private: false, access: { has: obj => "selected" in obj, get: obj => obj.selected, set: (obj, value) => { obj.selected = value; } } }, _selected_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksOption = _classThis = _classDescriptor.value;
+            BlOption = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'option';
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
@@ -85,7 +88,7 @@ export let BlocksOption = (() => {
         #silentFlag;
         constructor() {
             super();
-            this.onAttributeChangedDep('selected', (_, oldValue, newValue) => {
+            this.hook.onAttributeChangedDep('selected', (_, oldValue, newValue) => {
                 if (newValue !== oldValue) {
                     const eventType = newValue === null ? 'deselect' : 'select';
                     if (!this.#silentFlag) {
@@ -99,10 +102,12 @@ export let BlocksOption = (() => {
             });
         }
         silentSelected(value) {
-            this.#silentFlag = true;
-            selectedSetter(this, value);
-            this.#silentFlag = false;
+            this.withBlSilent(() => {
+                this.#silentFlag = true;
+                selectedSetter(this, value);
+                this.#silentFlag = false;
+            });
         }
     };
-    return BlocksOption = _classThis;
+    return BlOption = _classThis;
 })();

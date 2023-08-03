@@ -1,7 +1,8 @@
 import '../button/index.js';
-import { Component } from '../component/Component.js';
-export declare class BlocksButtonGroup extends Component {
+import { BlComponent } from '../component/Component.js';
+export declare class BlButtonGroup extends BlComponent {
     #private;
+    static get role(): string;
     accessor $slot: HTMLSlotElement;
     constructor();
 }

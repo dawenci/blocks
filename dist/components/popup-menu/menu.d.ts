@@ -1,19 +1,19 @@
-import type { EnumAttrs } from '../../decorators/attr.js';
-import { BlocksPopupMenuItem } from './menu-item.js';
-import { BlocksNavMenu } from '../nav-menu/menu.js';
-import { BlocksNavMenuItem } from '../nav-menu/menu-item.js';
-import { BlocksPopup } from '../popup/index.js';
-export declare class BlocksPopupMenu extends BlocksPopup {
+import { BlPopupMenuItem } from './menu-item.js';
+import { BlNavMenu } from '../nav-menu/menu.js';
+import { BlNavMenuItem } from '../nav-menu/menu-item.js';
+import { BlPopup } from '../popup/index.js';
+export declare class BlPopupMenu extends BlPopup {
+    static get role(): string;
     accessor enterDelay: number;
     accessor leaveDelay: number;
-    accessor size: EnumAttrs['size'];
+    accessor size: MaybeOneOf<['small', 'large']>;
     accessor level: number;
     private _data;
     private _leaveTimer?;
     private _enterTimer?;
     private _clearClickOutside?;
-    $parentItem?: BlocksPopupMenuItem | BlocksNavMenuItem;
-    $parentMenu?: BlocksPopupMenu | BlocksNavMenu;
+    $parentItem?: BlPopupMenuItem | BlNavMenuItem;
+    $parentMenu?: BlPopupMenu | BlNavMenu;
     constructor();
     get data(): (MenuItem | MenuGroup)[];
     set data(value: (MenuItem | MenuGroup)[]);

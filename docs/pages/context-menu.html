@@ -18,49 +18,66 @@
       <h1>context-menu</h1>
     </header>
 
+    <script type="module" src="../../dist/components/card/index.js"></script>
+
     <script type="module" src="../../dist/components/button/index.js"></script>
 
     <section class="section">
-      <h2>默认</h2>
-      <div data-codesource="html">
-        <div id="box" style="overflow:hidden;height:400px;border:1px solid #e8e8e8;font-size:32px;text-align:center;">
-          <div style="padding:160px 30px 0;">右键点击</div>
-        </div>
+      <bl-card>
+        <h2 slot="header" class="section-title">默认</h2>
 
-        <script type="module">
-          import { blBindContextMenu } from '../../dist/modules/context-menu/index.js'
-          blBindContextMenu(document.getElementById('box'), () => [
-            { label: '菜单1', handler() { console.log('点击菜单1') } },
-            { label: '菜单2', handler() { console.log('点击菜单2') } }
-          ])
-        </script>
-      </div>
+        <div data-codesource="html">
+          <div id="box" style="overflow:hidden;height:400px;border:1px solid #e8e8e8;font-size:32px;text-align:center;">
+            <div style="padding:160px 30px 0;">右键点击</div>
+          </div>
+  
+          <script type="module">
+            import { blBindContextMenu } from '../../dist/modules/context-menu/index.js'
+            blBindContextMenu(document.getElementById('box'), () => [
+              { label: '菜单1', handler() { console.log('点击菜单1') } },
+              { label: '菜单2', handler() { console.log('点击菜单2') } }
+            ])
+          </script>
+        </div>
+      </bl-card>
     </section>
 
 
     <section class="section">
-      <h2>API</h2>
-      <table class="api-fns">
-        <thead>
-          <tr>
-            <th>函数名称</th>
-            <th>类型</th>
-            <th>说明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>blBindContextMenu</td>
-            <td>(element: Element, menus: any[] | ((e: MouseEvent) => any[])) => () => void</td>
-            <td>
-              接受两个参数，第一个参数是需要自定义上下文菜单的元素；
-              第二个参数是菜单数据，为数组类型，或者接受事件对象并返回菜单数组的函数。
-              返回值为一个清理函数，用于解除菜单绑定。
-              菜单数据参照 `bl-popup-menu` 组件的说明。
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <bl-card>
+        <h2 slot="header" class="section-title">API</h2>
+
+        <h3>Attrs / Props</h3>
+  
+        <table class="api-fns">
+          <thead>
+            <tr>
+              <th>函数名称</th>
+              <th>类型</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>blBindContextMenu</td>
+              <td>
+  <pre>
+  (
+    element: Element,
+    menus: any[] | ((e: MouseEvent) => any[])
+  ) => () => void
+  </pre>
+              </td>
+              <td>
+                接受两个参数，第一个参数是需要自定义上下文菜单的元素；
+                第二个参数是菜单数据，为数组类型，或者接受事件对象并返回菜单数组的函数。
+                返回值为一个清理函数，用于解除菜单绑定。
+                菜单数据参照 `bl-popup-menu` 组件的说明。
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </bl-card>
     </section>
   </article>
 </body>

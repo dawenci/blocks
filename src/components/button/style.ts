@@ -21,6 +21,7 @@ import {
   __color_warning_disabled,
 } from '../../theme/var-light.js'
 
+// TODO: 按照组件命名设计 CSS 变量
 export const style = /*css*/ `
 /* <component>button */
 /* 变量 */

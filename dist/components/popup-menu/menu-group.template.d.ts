@@ -1,2 +1,2 @@
 export declare const contentTemplate: () => DocumentFragment;
-export declare const itemTemplate: () => import("./menu-item").BlocksPopupMenuItem;
+export declare const itemTemplate: () => import("./menu-item").BlPopupMenuItem;

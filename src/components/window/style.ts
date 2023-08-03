@@ -20,7 +20,7 @@ export const style = /*css*/ `
   left: 0;
   margin: auto;
   padding: 0;
-  font-family: var(--font-family, ${__font_family});
+  font-family: var(--bl-font-family, ${__font_family});
   border-radius: var(--bl-radius-base, ${__radius_base});
   color: var(--bl-fg-base, ${__fg_base});
   font-size: 14px;
@@ -380,10 +380,10 @@ export const style = /*css*/ `
 :host(.maximized-leave-transition-active) {
   pointer-events: none;
   transition:
-    top var(--transition-duration, ${__transition_duration}),
-    left var(--transition-duration, ${__transition_duration}),
-    width var(--transition-duration, ${__transition_duration}),
-    height var(--transition-duration, ${__transition_duration});
+    top var(--bl-transition-duration, ${__transition_duration}),
+    left var(--bl-transition-duration, ${__transition_duration}),
+    width var(--bl-transition-duration, ${__transition_duration}),
+    height var(--bl-transition-duration, ${__transition_duration});
 }
 :host(.maximized-enter-transition-from) {
 }

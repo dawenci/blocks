@@ -32,16 +32,17 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Control } from '../base-control/index.js';
+import { AriaFeature } from './AriaFeature.js';
+import { BlControl } from '../base-control/index.js';
 import { SetupControlEvent } from '../setup-control-event/index.js';
 import { SetupEmpty } from '../setup-empty/index.js';
-export let BlocksRadio = (() => {
+export let BlRadio = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-radio',
             styles: [style],
@@ -62,7 +63,7 @@ export let BlocksRadio = (() => {
     let _$label_initializers = [];
     let _$slot_decorators;
     let _$slot_initializers = [];
-    var BlocksRadio = class extends Control {
+    var BlRadio = class extends BlControl {
         static {
             _name_decorators = [attr('string')];
             _checked_decorators = [attr('boolean')];
@@ -77,14 +78,11 @@ export let BlocksRadio = (() => {
             __esDecorate(this, null, _$label_decorators, { kind: "accessor", name: "$label", static: false, private: false, access: { has: obj => "$label" in obj, get: obj => obj.$label, set: (obj, value) => { obj.$label = value; } } }, _$label_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$slot_decorators, { kind: "accessor", name: "$slot", static: false, private: false, access: { has: obj => "$slot" in obj, get: obj => obj.$slot, set: (obj, value) => { obj.$slot = value; } } }, _$slot_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksRadio = _classThis = _classDescriptor.value;
+            BlRadio = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         static get role() {
             return 'radio';
-        }
-        static get disableEventTypes() {
-            return ['click', 'keydown', 'touchstart'];
         }
         #name_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _name_initializers, void 0));
         get name() { return this.#name_accessor_storage; }
@@ -110,6 +108,7 @@ export let BlocksRadio = (() => {
             this._tabIndexFeature.withTabIndex(0);
             this.#setupCheck();
         }
+        _ariaFeature = AriaFeature.make('aria', this);
         _controlFeature = SetupControlEvent.setup({ component: this });
         _emptyFeature = SetupEmpty.setup({
             component: this,
@@ -126,10 +125,10 @@ export let BlocksRadio = (() => {
             target: () => this.$label,
             init: () => {
                 const toggle = () => this._emptyFeature.update();
-                this.onConnected(() => {
+                this.hook.onConnected(() => {
                     this.$slot.addEventListener('slotchange', toggle);
                 });
-                this.onDisconnected(() => {
+                this.hook.onDisconnected(() => {
                     this.$slot.removeEventListener('slotchange', toggle);
                 });
             },
@@ -139,26 +138,26 @@ export let BlocksRadio = (() => {
                 if (e.defaultPrevented)
                     return;
                 if (!this.checked && this.name) {
-                    document.getElementsByName(this.name).forEach(el => {
-                        if (el !== this && el instanceof BlocksRadio) {
-                            el.checked = false;
+                    document.getElementsByName(this.name).forEach($el => {
+                        if ($el !== this && $el instanceof BlRadio) {
+                            $el.checked = false;
                         }
                     });
                     this.checked = true;
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.addEventListener('click', onClick);
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.removeEventListener('click', onClick);
             });
-            this.onAttributeChangedDep('checked', () => {
+            this.hook.onAttributeChangedDep('checked', () => {
                 const payload = { detail: { checked: this.checked } };
                 dispatchEvent(this, 'bl:radio:change', payload);
                 dispatchEvent(this, 'change', payload);
             });
         }
     };
-    return BlocksRadio = _classThis;
+    return BlRadio = _classThis;
 })();

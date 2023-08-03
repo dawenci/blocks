@@ -1,16 +1,16 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { onDragMove } from '../../common/onDragMove.js'
 import { round } from '../../common/utils.js'
 import { setStyles } from '../../common/style.js'
 import { strGetter, strSetter } from '../../common/property.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Control } from '../base-control/index.js'
+import { BlControl } from '../base-control/index.js'
 
-export interface BlocksRangeSlider extends Control {
+export interface BlRangeSlider extends BlControl {
   ref: {
     $layout: HTMLElement
     $track: HTMLElement
@@ -26,17 +26,13 @@ export interface BlocksRangeSlider extends Control {
   customElement: 'bl-range-slider',
   styles: [style],
 })
-export class BlocksRangeSlider extends Control {
-  static get role() {
-    return 'slider'
+export class BlRangeSlider extends BlControl {
+  static override get role() {
+    return 'range'
   }
 
   static override get observedAttributes() {
     return ['step', 'value']
-  }
-
-  static override get disableEventTypes() {
-    return ['click', 'keydown', 'touchstart']
   }
 
   @attr('intRange', { min: 1, max: 10 }) accessor shadowSize = 2
@@ -70,12 +66,14 @@ export class BlocksRangeSlider extends Control {
     })
 
     this.#setupDragEvents()
-    this.onConnected(this.render)
-    this.onAttributeChangedDep('value', () => {
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChangedDep('value', () => {
       this.#renderPoint()
       this.#renderRangeLine()
       dispatchEvent(this, 'change', { detail: { value: this.value } })
     })
+
+    this.#setupAria()
   }
 
   #dragging = false
@@ -184,7 +182,7 @@ export class BlocksRangeSlider extends Control {
             stop()
             return
           }
-  
+
           // 点击轨道，则一次性移动滑块
           if ($target === this.$track) {
             const rect = this.$track.getBoundingClientRect()
@@ -193,7 +191,7 @@ export class BlocksRangeSlider extends Control {
             } else {
               positionStart = start.clientX - rect.x - 7
             }
-  
+
             // 则需要确定移动哪个控制点
             // 1. 点击的是 min 点的左侧，则移动 min 点
             // 2. 点击的是 max 点的右侧，则移动 max 点
@@ -210,15 +208,15 @@ export class BlocksRangeSlider extends Control {
                 : Math.abs(max - positionStart) > Math.abs(positionStart - min)
                 ? this.$point
                 : this.$point2
-  
+
             update(positionStart)
-  
+
             positionStart = undefined
             $active = undefined
             this.#dragging = false
             return stop()
           }
-  
+
           // 点击的是滑块，记录移动初始信息
           if ($target === this.$point || $target === this.$point2) {
             this.#dragging = true
@@ -228,12 +226,12 @@ export class BlocksRangeSlider extends Control {
             return
           }
         },
-  
+
         onMove: ({ offset, preventDefault }) => {
           preventDefault()
           const moveOffset = this.vertical ? -offset.y : offset.x
           const position = positionStart! + moveOffset
-  
+
           if ($active === this.$point && position > getPosition(this.$point2, this.vertical)) {
             this.$point.classList.remove('active')
             this.$point.blur()
@@ -247,15 +245,15 @@ export class BlocksRangeSlider extends Control {
             this.$point.focus()
             $active = this.$point
           }
-  
+
           update(position)
         },
-  
+
         onEnd: ({ offset }) => {
           const moveOffset = this.vertical ? -offset.y : offset.x
           const position = positionStart! + moveOffset
           update(position)
-  
+
           $active!.classList.remove('active')
           positionStart = undefined
           $active = undefined
@@ -263,10 +261,10 @@ export class BlocksRangeSlider extends Control {
         },
       })
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       bindEvent()
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       if (clear) {
         clear()
         clear = undefined
@@ -299,6 +297,15 @@ export class BlocksRangeSlider extends Control {
   //     strSetter('tabindex')(this.$point2, this.internalTabIndex)
   //   }
   // }
+
+  #setupAria() {
+    const update = () => {
+      this.setAttribute('aria-orientation', this.vertical ? 'vertical' : 'horizontal')
+    }
+    this.hook.onRender(update)
+    this.hook.onConnected(update)
+    this.hook.onAttributeChangedDep('vertical', update)
+  }
 }
 
 function getRatio(current: number, min: number, max: number) {

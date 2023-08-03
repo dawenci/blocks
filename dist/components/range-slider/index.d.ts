@@ -1,5 +1,5 @@
-import { Control } from '../base-control/index.js';
-export interface BlocksRangeSlider extends Control {
+import { BlControl } from '../base-control/index.js';
+export interface BlRangeSlider extends BlControl {
     ref: {
         $layout: HTMLElement;
         $track: HTMLElement;
@@ -9,11 +9,10 @@ export interface BlocksRangeSlider extends Control {
         $range: HTMLElement;
     };
 }
-export declare class BlocksRangeSlider extends Control {
+export declare class BlRangeSlider extends BlControl {
     #private;
     static get role(): string;
     static get observedAttributes(): string[];
-    static get disableEventTypes(): string[];
     accessor shadowSize: number;
     accessor size: number;
     accessor min: number;

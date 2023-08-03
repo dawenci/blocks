@@ -1,78 +1,52 @@
-import type { BlocksButton } from '../button/index.js';
-import type { ISelectResultComponent, ISelectableListComponent } from '../../common/connectSelectable.js';
+import type { BlButton } from '../button/index.js';
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js';
 import '../button/index.js';
+import '../datetime/index.js';
 import '../popup/index.js';
-import { BlocksDate } from '../date/index.js';
-import { BlocksInput } from '../input/index.js';
-import { BlocksPopup } from '../popup/index.js';
-import { BlocksTime } from '../time/index.js';
-import { Control } from '../base-control/index.js';
-export interface BlocksDateTimePicker extends Control {
-    $popup: BlocksPopup;
-    $date: BlocksDate;
-    $time: BlocksTime;
-    $timeValue: HTMLElement;
-    $confirmButton: BlocksButton;
+import '../select-result/index.js';
+import { BlPopup } from '../popup/index.js';
+import { BlSelectResult } from '../select-result/index.js';
+import { BlControl } from '../base-control/index.js';
+import { BlDateTime } from '../datetime/index.js';
+import { PROXY_POPUP_ACCESSORS, PROXY_RESULT_ACCESSORS } from '../../common/constants.js';
+import { SetupClickOutside } from '../setup-click-outside/index.js';
+interface BlDateTimePickerEventMap extends BlComponentEventMap {
+    change: CustomEvent<{
+        value: Date[];
+    }>;
+    closed: CustomEvent;
+    opened: CustomEvent;
 }
-export declare class BlocksDateTimePicker extends Control implements ISelectableListComponent {
+export interface BlDateTimePicker extends BlControl, Pick<BlPopup, OneOf<typeof PROXY_POPUP_ACCESSORS>>, Pick<BlSelectResult, OneOf<typeof PROXY_RESULT_ACCESSORS>> {
+    $popup: BlPopup;
+    $datetime: BlDateTime;
+    $confirmButton: BlButton;
+    addEventListener<K extends keyof BlDateTimePickerEventMap>(type: K, listener: BlComponentEventListener<BlDateTimePickerEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlDateTimePickerEventMap>(type: K, listener: BlComponentEventListener<BlDateTimePickerEventMap[K]>, options?: boolean | EventListenerOptions): void;
+}
+export declare class BlDateTimePicker extends BlControl {
     #private;
     static get observedAttributes(): string[];
-    static get disableEventTypes(): readonly string[];
     accessor format: string;
     accessor open: boolean;
     accessor placeholder: string;
     accessor $content: HTMLElement;
-    accessor $result: HTMLInputElement & ISelectResultComponent;
-    accessor $input: BlocksInput;
+    accessor $result: BlSelectResult;
     constructor();
     get disabledDate(): ((data: import("../date/type").ItemModel, context: {
         depth: import("../date/type").Depth;
         viewDepth: import("../date/type").Depth;
-        component: BlocksDate;
+        component: import("../date/index").BlDate;
     }) => boolean) | undefined;
     set disabledDate(value: ((data: import("../date/type").ItemModel, context: {
         depth: import("../date/type").Depth;
         viewDepth: import("../date/type").Depth;
-        component: BlocksDate;
+        component: import("../date/index").BlDate;
     }) => boolean) | undefined);
-    get disabledHour(): ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined;
-    set disabledHour(value: ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined);
-    get disabledMinute(): ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined;
-    set disabledMinute(value: ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined);
-    get disabledSecond(): ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined;
-    set disabledSecond(value: ((data: number, context: {
-        hour: number | null;
-        minute: number | null;
-        second: number | null;
-        component: BlocksTime;
-    }) => boolean) | undefined);
+    get disabledTime(): ((hour: number | null, minute: number | null, second: number | null) => [boolean, boolean, boolean]) | undefined;
+    set disabledTime(value: ((hour: number | null, minute: number | null, second: number | null) => [boolean, boolean, boolean]) | undefined);
     get value(): null | Date;
     set value(value: null | Date);
-    clearSelected(): void;
-    render(): void;
+    _clickOutside: SetupClickOutside<this>;
 }
+export {};

@@ -32,14 +32,14 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 const status = ['success', 'error', 'warning'];
-export let BlocksProgress = (() => {
+export let BlProgress = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-progress',
             styles: [style],
@@ -58,21 +58,24 @@ export let BlocksProgress = (() => {
     let _$progress_initializers = [];
     let _$value_decorators;
     let _$value_initializers = [];
-    var BlocksProgress = class extends Component {
+    var BlProgress = class extends BlComponent {
         static {
             _value_decorators = [attr('number')];
             _status_decorators = [attr('enum', { enumValues: status })];
             _percentage_decorators = [attr('boolean')];
-            _$progress_decorators = [shadowRef('#progress')];
-            _$value_decorators = [shadowRef('#value')];
+            _$progress_decorators = [shadowRef('[part="progress"]')];
+            _$value_decorators = [shadowRef('[part="value"]')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _status_decorators, { kind: "accessor", name: "status", static: false, private: false, access: { has: obj => "status" in obj, get: obj => obj.status, set: (obj, value) => { obj.status = value; } } }, _status_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _percentage_decorators, { kind: "accessor", name: "percentage", static: false, private: false, access: { has: obj => "percentage" in obj, get: obj => obj.percentage, set: (obj, value) => { obj.percentage = value; } } }, _percentage_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$progress_decorators, { kind: "accessor", name: "$progress", static: false, private: false, access: { has: obj => "$progress" in obj, get: obj => obj.$progress, set: (obj, value) => { obj.$progress = value; } } }, _$progress_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$value_decorators, { kind: "accessor", name: "$value", static: false, private: false, access: { has: obj => "$value" in obj, get: obj => obj.$value, set: (obj, value) => { obj.$value = value; } } }, _$value_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksProgress = _classThis = _classDescriptor.value;
+            BlProgress = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'progressbar';
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, void 0));
         get value() { return this.#value_accessor_storage; }
@@ -91,9 +94,9 @@ export let BlocksProgress = (() => {
         set $value(value) { this.#$value_accessor_storage = value; }
         constructor() {
             super();
-            this.shadowRoot.appendChild(template());
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
+            this.appendShadowChild(template());
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
         }
         render() {
             super.render();
@@ -107,5 +110,5 @@ export let BlocksProgress = (() => {
             }
         }
     };
-    return BlocksProgress = _classThis;
+    return BlProgress = _classThis;
 })();

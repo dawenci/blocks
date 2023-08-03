@@ -1,29 +1,30 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Control } from '../base-control/index.js'
+import { BlControl } from '../base-control/index.js'
 import { SetupControlEvent } from '../setup-control-event/index.js'
 import { SetupEmpty } from '../setup-empty/index.js'
+import { AriaFeature } from '../radio/AriaFeature.js'
 
-interface CheckboxEventMap extends ComponentEventMap {
+export interface BlCheckboxEventMap extends BlComponentEventMap {
   change: CustomEvent<{ checked: boolean }>
   'bl:checkbox:change': CustomEvent<{ checked: boolean }>
 }
 
-export interface BlocksCheckbox extends Control {
-  addEventListener<K extends keyof CheckboxEventMap>(
+export interface BlCheckbox extends BlControl {
+  addEventListener<K extends keyof BlCheckboxEventMap>(
     type: K,
-    listener: ComponentEventListener<CheckboxEventMap[K]>,
+    listener: BlComponentEventListener<BlCheckboxEventMap[K]>,
     options?: boolean | AddEventListenerOptions
   ): void
 
-  removeEventListener<K extends keyof CheckboxEventMap>(
+  removeEventListener<K extends keyof BlCheckboxEventMap>(
     type: K,
-    listener: ComponentEventListener<CheckboxEventMap[K]>,
+    listener: BlComponentEventListener<BlCheckboxEventMap[K]>,
     options?: boolean | EventListenerOptions
   ): void
 }
@@ -32,13 +33,9 @@ export interface BlocksCheckbox extends Control {
   customElement: 'bl-checkbox',
   styles: [style],
 })
-export class BlocksCheckbox extends Control {
-  static get role() {
+export class BlCheckbox extends BlControl {
+  static override get role() {
     return 'checkbox'
-  }
-
-  static override get disableEventTypes() {
-    return ['click', 'keydown', 'touchstart']
   }
 
   @attr('string') accessor name!: string | null
@@ -60,6 +57,8 @@ export class BlocksCheckbox extends Control {
     this.#setupIndeterminate()
   }
 
+  _ariaFeature = AriaFeature.make('aria', this)
+
   _controlFeature = SetupControlEvent.setup({ component: this })
 
   _emptyFeature = SetupEmpty.setup({
@@ -75,10 +74,10 @@ export class BlocksCheckbox extends Control {
     target: () => this.$label,
     init: () => {
       const toggle = () => this._emptyFeature.update()
-      this.onConnected(() => {
+      this.hook.onConnected(() => {
         this.$slot.addEventListener('slotchange', toggle)
       })
-      this.onDisconnected(() => {
+      this.hook.onDisconnected(() => {
         this.$slot.removeEventListener('slotchange', toggle)
       })
     },
@@ -92,13 +91,13 @@ export class BlocksCheckbox extends Control {
         this.$checkbox.removeAttribute('indeterminate')
       }
     }
-    this.onRender(render)
-    this.onConnected(render)
-    this.onAttributeChangedDep('indeterminate', () => {
+    this.hook.onRender(render)
+    this.hook.onConnected(render)
+    this.hook.onAttributeChangedDep('indeterminate', () => {
       if (this.indeterminate) this.checked = false
       render()
     })
-    this.onAttributeChangedDep('checked', () => {
+    this.hook.onAttributeChangedDep('checked', () => {
       if (this.checked) this.indeterminate = false
     })
   }
@@ -109,14 +108,14 @@ export class BlocksCheckbox extends Control {
         this.checked = !this.checked
       }
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('click', onClick)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('click', onClick)
     })
 
-    this.onAttributeChangedDep('checked', () => {
+    this.hook.onAttributeChangedDep('checked', () => {
       const payload = { detail: { checked: this.checked } }
       dispatchEvent(this, 'bl:checkbox:change', payload)
       dispatchEvent(this, 'change', payload)

@@ -23,15 +23,16 @@ export const style = `
 
 --focus-shadow: var(--bl-focus-shadow, ${__focus_shadow});
 
---icon-opacity: .5;
+--icon-opacity-base: .5;
 --icon-opacity-hover: .75;
 --icon-opacity-active: 1;
 --icon-opacity-disabled: 0.5;
---icon-opacity-focus: .75;
+--icon-opacity: var(--icon-opacity-base);
 
---height: var(--bl-height-base, ${__height_base});
+--height-base: var(--bl-height-base, ${__height_base});
 --height-small: var(--bl-height-small, ${__height_small});
 --height-large: var(--bl-height-large, ${__height_large});
+--height: var(--height-base);
 
 --padding: 8px;
 --padding-small: 6px;
@@ -49,7 +50,7 @@ export const style = `
 --font-size-small: var(--bl-font-size-small, ${__font_size_small});
 --font-size-large: var(--bl-font-size-large, ${__font_size_large});
 
---duration: var(--transition-duration, ${__transition_duration});
+--duration: var(--bl-transition-duration, ${__transition_duration});
 }
 
 :host([size="small"]) {
@@ -70,7 +71,7 @@ export const style = `
 --bg: var(--bg-hover);
 --fg: var(--fg-hover);
 --border-color: var(--border-color-hover);
---icon-opacity: var(--icon-opacity-focus);
+--icon-opacity: var(--icon-opacity-hover);
 }
 :host(:hover) {
 --bg: var(--bg-hover);
@@ -96,100 +97,100 @@ export const style = `
 
 /* 样式设置 */
 :host {
-box-sizing: border-box;
-overflow: hidden;
-display: inline-block;
-cursor: default;
-color: var(--fg);
-background-color: var(--bg);
-border: 1px solid var(--border-color);
-border-radius: var(--radius);
-font-size: var(--font-size);
-transition: color var(--duration), background-color var(--duration), border-color var(--duration);
+  box-sizing: border-box;
+  overflow: hidden;
+  display: inline-block;
+  cursor: default;
+  color: var(--fg);
+  background-color: var(--bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  font-size: var(--font-size);
+  transition: color var(--duration), background-color var(--duration), border-color var(--duration);
 }
 :host(:focus),
 :host(:focus-within) {
-outline: 0 none;
-box-shadow: 0 0 0 2px var(--focus-shadow);
+  outline: 0 none;
+  box-shadow: 0 0 0 2px var(--focus-shadow);
 }
 
 :host([disabled]),
 :host([disabled]):hover,
 :host([disabled]):focus,
 :host([disabled]):active {
-outline: 0 none;
-cursor: not-allowed;
+  outline: 0 none;
+  cursor: default;
 }
 
-#layout {
-box-sizing: border-box;
-display: flex;
-flex-flow: row nowrap;
-justify-content: center;
-align-items: center;
-position: relative;
-width: 100%;
-height: 100%;
-text-align: inherit;
+[part="layout"] {
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: inherit;
 }
-#layout:focus-visible {
+[part="layout"]:focus-visible {
   outline: 0 none;
 }
 .with-loading {
-padding-left: var(--padding);
+  padding-left: var(--padding);
 }
 .with-prefix {
-padding-left: var(--padding);
+  padding-left: var(--padding);
 }
 .with-suffix {
-padding-right: var(--padding);
+  padding-right: var(--padding);
 }
-#layout:focus {
-outline: 0 none;
-}
-
-#loading,
-#prefix,
-#suffix {
-box-sizing: border-box;
-flex: 0 0 auto;
-display: block;
-position: relative;
-width: var(--icon-size);
-height: var(--icon-size);
-color: var(--fg);
-fill: var(--fg);
-transition: transform var(--duration), opacity var(--duration);
-opacity: var(--icon-opacity);
-}
-#loading svg,
-#prefix svg,
-#suffix svg {
-width: 100%;
-height: 100%;
-}
-#loading {
-position: relative;
-animation: 1s linear infinite rotate360;
-}
-#loading + #prefix {
-visibility: hidden;
-}
-.with-prefix #loading {
-position: absolute;
-top: 0;
-right: auto;
-bottom: 0;
-left: var(--padding);
-margin: auto;
+[part="layout"]:focus {
+  outline: 0 none;
 }
 
-#content {
-box-sizing: border-box;
-flex: 1 1 100%;
-overflow: hidden;
-position: relative;
-text-align: inherit;
+[part="loading"],
+[part="prefix"],
+[part="suffix"] {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  display: block;
+  position: relative;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  color: var(--fg);
+  fill: var(--fg);
+  transition: transform var(--duration), opacity var(--duration);
+  opacity: var(--icon-opacity);
+}
+[part="loading"] svg,
+[part="prefix"] svg,
+[part="suffix"] svg {
+  width: 100%;
+  height: 100%;
+}
+[part="loading"] {
+  position: relative;
+  animation: 1s linear infinite rotate360;
+}
+[part="loading"] + [part="prefix"] {
+  visibility: hidden;
+}
+.with-prefix [part="loading"] {
+  position: absolute;
+  top: 0;
+  right: auto;
+  bottom: 0;
+  left: var(--padding);
+  margin: auto;
+}
+
+[part="content"] {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  overflow: hidden;
+  position: relative;
+  text-align: inherit;
 }
 
 @keyframes rotate360 {

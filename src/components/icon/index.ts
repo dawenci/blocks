@@ -1,16 +1,16 @@
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
-import { shadowRef } from '../../decorators/shadowRef.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
+import { shadowRef } from '../../decorators/shadowRef/index.js'
 import { getRegisteredSvgIcon, parseSvg } from '../../icon/index.js'
 import { style } from './style.js'
 import { template } from './template.js'
-import { Component } from '../component/Component.js'
+import { BlComponent } from '../component/Component.js'
 
 @defineClass({
   customElement: 'bl-icon',
   styles: [style],
 })
-export class BlocksIcon extends Component {
+export class BlIcon extends BlComponent {
   @attr('string') accessor value!: string | null
 
   @attr('string') accessor fill!: string | null
@@ -19,10 +19,11 @@ export class BlocksIcon extends Component {
 
   constructor() {
     super()
-    this.shadowRoot!.appendChild(template())
 
-    this.onConnected(this.render)
-    this.onAttributeChanged(this.render)
+    this.appendShadowChild(template())
+
+    this.hook.onConnected(this.render)
+    this.hook.onAttributeChanged(this.render)
   }
 
   override render() {

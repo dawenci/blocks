@@ -1,40 +1,35 @@
-import type { EnumAttr } from '../../decorators/attr.js'
 import '../popup/index.js'
 import { __color_warning } from '../../theme/var-light.js'
-import { attr } from '../../decorators/attr.js'
-import { defineClass } from '../../decorators/defineClass.js'
+import { attr } from '../../decorators/attr/index.js'
+import { defineClass } from '../../decorators/defineClass/index.js'
 import { dispatchEvent } from '../../common/event.js'
 import { getRegisteredSvgIcon } from '../../icon/index.js'
-import { popupTemplate } from './popup.template.js'
+import { popupTemplate, template } from './template.js'
 import { style } from './style.js'
-import { template } from './template.js'
-import { BlocksPopup } from '../popup/index.js'
-import { BlocksButton } from '../button/index.js'
-import { Component } from '../component/Component.js'
-import { PopupOrigin } from '../popup/index.js'
+import { unmount } from '../../common/mount.js'
+import { BlPopup } from '../popup/index.js'
+import { BlButton } from '../button/index.js'
+import { BlComponent } from '../component/Component.js'
 
-const POPUP_ATTRS = ['open', 'origin'] as const
 const CONFIRM_ATTRS = ['message', 'icon'] as const
-const originArray = Object.values(PopupOrigin)
 
-export interface BlocksPopupConfirm extends Component {
-  $popup: BlocksPopup
+export interface BlPopupConfirm extends BlComponent {
+  $popup: BlPopup
   $message: HTMLElement
-  $confirm: BlocksButton
-  $cancel: BlocksButton
+  $confirm: BlButton
+  $cancel: BlButton
 
   onConfirm?: () => Promise<any>
   onCancel?: () => Promise<any>
 }
 
-// TODO: popup 弹出后，聚焦按钮
 @defineClass({
   customElement: 'bl-popup-confirm',
   styles: [style],
 })
-export class BlocksPopupConfirm extends Component {
+export class BlPopupConfirm extends BlComponent {
   static override get observedAttributes() {
-    return [...POPUP_ATTRS, ...CONFIRM_ATTRS]
+    return [...BlPopup.observedAttributes, ...CONFIRM_ATTRS]
   }
 
   @attr('string') accessor icon = ''
@@ -43,19 +38,19 @@ export class BlocksPopupConfirm extends Component {
 
   @attr('boolean') accessor open!: boolean
 
-  @attr('enum', { enumValues: originArray })
-  accessor origin: EnumAttr<typeof originArray> = PopupOrigin.TopCenter
-
   constructor() {
     super()
 
-    this.shadowRoot!.appendChild(template())
+    this.appendShadowChild(template())
 
     this.#setupPopup()
     this.#setupActions()
     this.#setupTrigger()
 
-    this.onAttributeChangedDep('message', () => {
+    this.hook.onAttributeChangedDep('message', () => {
+      this.render()
+    })
+    this.hook.onConnected(() => {
       this.render()
     })
   }
@@ -70,7 +65,7 @@ export class BlocksPopupConfirm extends Component {
     if (maybePromise instanceof Promise) {
       this.$confirm.loading = true
       this.$cancel.disabled = true
-      maybePromise
+      return maybePromise
         .then(() => {
           this.open = false
         })
@@ -80,6 +75,7 @@ export class BlocksPopupConfirm extends Component {
         })
     } else {
       this.open = false
+      return Promise.resolve()
     }
   }
 
@@ -93,7 +89,7 @@ export class BlocksPopupConfirm extends Component {
     if (maybePromise instanceof Promise) {
       this.$confirm.disabled = true
       this.$cancel.loading = true
-      maybePromise
+      return maybePromise
         .then(() => {
           this.open = false
         })
@@ -103,33 +99,29 @@ export class BlocksPopupConfirm extends Component {
         })
     } else {
       this.open = false
+      return Promise.resolve()
     }
   }
 
   #setupPopup() {
     this.$popup = popupTemplate()!
+    this.$popup.anchorElement = () => this
     this.$message = this.$popup.querySelector('.message')!
     this.$cancel = this.$popup.querySelector('.cancel')!
     this.$confirm = this.$popup.querySelector('.confirm')!
-    this.$popup.anchorElement = () => this
-    this.$popup.arrow = 8
-    this.$popup.origin = this.origin
-    this.$popup.style.padding = '15px;'
 
-    this.onConnected(() => {
-      document.body.appendChild(this.$popup)
-      this.render()
+    this.hook.onDisconnected(() => {
+      unmount(this.$popup)
     })
-    this.onDisconnected(() => {
-      if (this.$popup.parentElement) {
-        this.$popup.parentElement.removeChild(this.$popup)
-      }
-    })
-    this.onAttributeChangedDeps(POPUP_ATTRS, (attrName, _, newValue) => {
-      if (attrName === 'open') {
+    this.hook.onAttributeChangedDeps(BlPopup.observedAttributes, (name, _, newValue) => {
+      if (name === 'open') {
+        // 首次打开的时候，挂载 $popup 的 DOM
+        if (this.open && !document.body.contains(this.$popup)) {
+          document.body.appendChild(this.$popup)
+        }
         this.$popup.open = this.open
       } else {
-        this.$popup.setAttribute(attrName, newValue as string)
+        this.$popup.setAttribute(name, newValue as string)
       }
     })
     this.$popup.addEventListener('opened', () => {
@@ -144,11 +136,11 @@ export class BlocksPopupConfirm extends Component {
     const onCancel = () => {
       this.cancel()
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.$cancel.addEventListener('click', onCancel)
       this.$confirm.addEventListener('click', onConfirm)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.$cancel.removeEventListener('click', onCancel)
       this.$confirm.removeEventListener('click', onConfirm)
     })
@@ -158,10 +150,10 @@ export class BlocksPopupConfirm extends Component {
     const onClick = () => {
       this.open = true
     }
-    this.onConnected(() => {
+    this.hook.onConnected(() => {
       this.addEventListener('click', onClick)
     })
-    this.onDisconnected(() => {
+    this.hook.onDisconnected(() => {
       this.removeEventListener('click', onClick)
     })
   }

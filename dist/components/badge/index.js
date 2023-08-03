@@ -32,13 +32,13 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
     }
     return useValue ? value : void 0;
 };
-import { attr } from '../../decorators/attr.js';
-import { defineClass } from '../../decorators/defineClass.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { attr } from '../../decorators/attr/index.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { style } from './style.js';
 import { template } from './template.js';
-import { Component } from '../component/Component.js';
-export let BlocksBadge = (() => {
+import { BlComponent } from '../component/Component.js';
+export let BlBadge = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-badge',
             styles: [style],
@@ -51,14 +51,14 @@ export let BlocksBadge = (() => {
     let _value_initializers = [];
     let _$badge_decorators;
     let _$badge_initializers = [];
-    var BlocksBadge = class extends Component {
+    var BlBadge = class extends BlComponent {
         static {
             _value_decorators = [attr('string')];
             _$badge_decorators = [shadowRef('#badge')];
             __esDecorate(this, null, _value_decorators, { kind: "accessor", name: "value", static: false, private: false, access: { has: obj => "value" in obj, get: obj => obj.value, set: (obj, value) => { obj.value = value; } } }, _value_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$badge_decorators, { kind: "accessor", name: "$badge", static: false, private: false, access: { has: obj => "$badge" in obj, get: obj => obj.$badge, set: (obj, value) => { obj.$badge = value; } } }, _$badge_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksBadge = _classThis = _classDescriptor.value;
+            BlBadge = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
         }
         #value_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _value_initializers, ''));
@@ -73,10 +73,10 @@ export let BlocksBadge = (() => {
             const render = () => {
                 this.$badge.textContent = this.value;
             };
-            this.onConnected(render);
-            this.onAttributeChangedDep('value', render);
-            this.onRender(render);
+            this.hook.onConnected(render);
+            this.hook.onAttributeChangedDep('value', render);
+            this.hook.onRender(render);
         }
     };
-    return BlocksBadge = _classThis;
+    return BlBadge = _classThis;
 })();

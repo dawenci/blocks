@@ -28,7 +28,7 @@ button {
   border: 0;
   background: none;
   cursor: pointer;
-  transition: all var(--transition-duration, ${__transition_duration});
+  transition: all var(--bl-transition-duration, ${__transition_duration});
 }
 button:first-child {
   margin-left: 0;

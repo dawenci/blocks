@@ -1,24 +1,23 @@
-import type { ComponentEventListener, ComponentEventMap } from '../component/Component.js';
-import type { EnumAttr } from '../../decorators/attr.js';
+import type { BlComponentEventListener, BlComponentEventMap } from '../component/Component.js';
 import { ISelected, ISelectListEventMap, ISelectResultComponent } from '../../common/connectSelectable.js';
-import { BlocksPopup, PopupOrigin } from '../popup/index.js';
-import { BlocksTree } from '../tree/index.js';
-import { Control } from '../base-control/index.js';
-interface BlocksDropdownTreeEventMap extends ComponentEventMap, ISelectListEventMap {
+import { BlPopup, PopupOrigin } from '../popup/index.js';
+import { BlTree } from '../tree/index.js';
+import { BlControl } from '../base-control/index.js';
+export interface BlDropdownTreeEventMap extends BlComponentEventMap, ISelectListEventMap {
     'click-item': CustomEvent<{
         id: any;
     }>;
 }
-export interface BlocksDropdownTree extends Control, ISelectResultComponent {
-    $popup: BlocksPopup;
-    $tree: BlocksTree;
-    addEventListener<K extends keyof BlocksDropdownTreeEventMap>(type: K, listener: ComponentEventListener<BlocksDropdownTreeEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
-    removeEventListener<K extends keyof BlocksDropdownTreeEventMap>(type: K, listener: ComponentEventListener<BlocksDropdownTreeEventMap[K]>, options?: boolean | EventListenerOptions): void;
+export interface BlDropdownTree extends BlControl, ISelectResultComponent {
+    $popup: BlPopup;
+    $tree: BlTree;
+    addEventListener<K extends keyof BlDropdownTreeEventMap>(type: K, listener: BlComponentEventListener<BlDropdownTreeEventMap[K]>, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof BlDropdownTreeEventMap>(type: K, listener: BlComponentEventListener<BlDropdownTreeEventMap[K]>, options?: boolean | EventListenerOptions): void;
 }
-export declare class BlocksDropdownTree extends Control implements ISelectResultComponent {
+export declare class BlDropdownTree extends BlControl implements ISelectResultComponent {
     #private;
     static get observedAttributes(): string[];
-    accessor triggerMode: EnumAttr<['hover', 'click']>;
+    accessor triggerMode: OneOf<['hover', 'click']>;
     accessor open: boolean;
     accessor origin: PopupOrigin | null;
     accessor disabledField: string;
@@ -28,7 +27,7 @@ export declare class BlocksDropdownTree extends Control implements ISelectResult
     accessor multiple: boolean;
     accessor $slot: HTMLSlotElement;
     constructor();
-    _findResultComponent(): ISelectResultComponent | undefined;
+    _findResultComponent(): ISelectResultComponent<any> | undefined;
     acceptSelected(value: ISelected[]): void;
     get data(): object[];
     set data(value: object[]);
@@ -42,4 +41,3 @@ export declare class BlocksDropdownTree extends Control implements ISelectResult
     closePopup(): void;
     redrawList(): void;
 }
-export {};

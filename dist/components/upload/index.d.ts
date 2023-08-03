@@ -1,6 +1,6 @@
 import '../button/index.js';
 import '../progress/index.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 type Options = {
     includes?: any[];
     file: any;
@@ -12,7 +12,7 @@ declare enum State {
     Error = 3,
     Abort = 4
 }
-export interface BlocksUpload extends Component {
+export interface BlUpload extends BlComponent {
     ref: {
         $layout: HTMLElement;
         $list: HTMLElement;
@@ -21,7 +21,7 @@ export interface BlocksUpload extends Component {
         $chooseButton: HTMLButtonElement;
     };
 }
-export declare class BlocksUpload extends Component {
+export declare class BlUpload extends BlComponent {
     accessor accept: string | null;
     accessor action: string;
     accessor autoUpload: boolean;

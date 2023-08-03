@@ -1,6 +1,6 @@
 import { makeTemplate } from '../../common/template.js';
 export const resultTemplate = makeTemplate(`
-<div id="layout"><bl-icon value="down"></bl-icon></div>
+<bl-select-result suffix-icon="down"></bl-select-result>
 `);
 export const popupTemplate = makeTemplate(`
 <bl-popup append-to-body class="color-picker-popup" origin="top-start" arrow="8" autoflip>

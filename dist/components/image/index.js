@@ -34,20 +34,20 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
 };
 import '../loading/index.js';
 import '../icon/index.js';
-import { attr } from '../../decorators/attr.js';
+import { attr } from '../../decorators/attr/index.js';
 import { contentTemplate, fallbackTemplate, placeholderTemplate } from './template.js';
-import { defineClass } from '../../decorators/defineClass.js';
+import { defineClass } from '../../decorators/defineClass/index.js';
 import { dispatchEvent } from '../../common/event.js';
-import { shadowRef } from '../../decorators/shadowRef.js';
+import { shadowRef } from '../../decorators/shadowRef/index.js';
 import { makeMessages } from '../../i18n/makeMessages.js';
 import { strGetter, strSetter } from '../../common/property.js';
 import { style } from './style.js';
-import { Component } from '../component/Component.js';
+import { BlComponent } from '../component/Component.js';
 const getMessage = makeMessages('image', {
     placeholderText: '加载中',
     fallbackText: '加载失败',
 });
-export let BlocksImage = (() => {
+export let BlImage = (() => {
     let _classDecorators = [defineClass({
             customElement: 'bl-image',
             styles: [style],
@@ -72,7 +72,11 @@ export let BlocksImage = (() => {
     let _$layout_initializers = [];
     let _$img_decorators;
     let _$img_initializers = [];
-    var BlocksImage = class extends Component {
+    let _$placeholder_decorators;
+    let _$placeholder_initializers = [];
+    let _$fallback_decorators;
+    let _$fallback_initializers = [];
+    var BlImage = class extends BlComponent {
         static {
             _alt_decorators = [attr('string')];
             _fallback_decorators = [attr('string')];
@@ -82,8 +86,10 @@ export let BlocksImage = (() => {
             _fit_decorators = [attr('enum', {
                     enumValues: ['none', 'fill', 'contain', 'cover', 'scale-down'],
                 })];
-            _$layout_decorators = [shadowRef('#layout')];
-            _$img_decorators = [shadowRef('#img')];
+            _$layout_decorators = [shadowRef('[part="layout"]')];
+            _$img_decorators = [shadowRef('[part="img"]')];
+            _$placeholder_decorators = [shadowRef('[part="placeholder"]', false)];
+            _$fallback_decorators = [shadowRef('[part="fallback"]', false)];
             __esDecorate(this, null, _alt_decorators, { kind: "accessor", name: "alt", static: false, private: false, access: { has: obj => "alt" in obj, get: obj => obj.alt, set: (obj, value) => { obj.alt = value; } } }, _alt_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _fallback_decorators, { kind: "accessor", name: "fallback", static: false, private: false, access: { has: obj => "fallback" in obj, get: obj => obj.fallback, set: (obj, value) => { obj.fallback = value; } } }, _fallback_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _manual_decorators, { kind: "accessor", name: "manual", static: false, private: false, access: { has: obj => "manual" in obj, get: obj => obj.manual, set: (obj, value) => { obj.manual = value; } } }, _manual_initializers, _instanceExtraInitializers);
@@ -92,9 +98,14 @@ export let BlocksImage = (() => {
             __esDecorate(this, null, _fit_decorators, { kind: "accessor", name: "fit", static: false, private: false, access: { has: obj => "fit" in obj, get: obj => obj.fit, set: (obj, value) => { obj.fit = value; } } }, _fit_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$layout_decorators, { kind: "accessor", name: "$layout", static: false, private: false, access: { has: obj => "$layout" in obj, get: obj => obj.$layout, set: (obj, value) => { obj.$layout = value; } } }, _$layout_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _$img_decorators, { kind: "accessor", name: "$img", static: false, private: false, access: { has: obj => "$img" in obj, get: obj => obj.$img, set: (obj, value) => { obj.$img = value; } } }, _$img_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$placeholder_decorators, { kind: "accessor", name: "$placeholder", static: false, private: false, access: { has: obj => "$placeholder" in obj, get: obj => obj.$placeholder, set: (obj, value) => { obj.$placeholder = value; } } }, _$placeholder_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _$fallback_decorators, { kind: "accessor", name: "$fallback", static: false, private: false, access: { has: obj => "$fallback" in obj, get: obj => obj.$fallback, set: (obj, value) => { obj.$fallback = value; } } }, _$fallback_initializers, _instanceExtraInitializers);
             __esDecorate(null, _classDescriptor = { value: this }, _classDecorators, { kind: "class", name: this.name }, null, _classExtraInitializers);
-            BlocksImage = _classThis = _classDescriptor.value;
+            BlImage = _classThis = _classDescriptor.value;
             __runInitializers(_classThis, _classExtraInitializers);
+        }
+        static get role() {
+            return 'img';
         }
         #alt_accessor_storage = (__runInitializers(this, _instanceExtraInitializers), __runInitializers(this, _alt_initializers, void 0));
         get alt() { return this.#alt_accessor_storage; }
@@ -120,13 +131,18 @@ export let BlocksImage = (() => {
         #$img_accessor_storage = __runInitializers(this, _$img_initializers, void 0);
         get $img() { return this.#$img_accessor_storage; }
         set $img(value) { this.#$img_accessor_storage = value; }
+        #$placeholder_accessor_storage = __runInitializers(this, _$placeholder_initializers, void 0);
+        get $placeholder() { return this.#$placeholder_accessor_storage; }
+        set $placeholder(value) { this.#$placeholder_accessor_storage = value; }
+        #$fallback_accessor_storage = __runInitializers(this, _$fallback_initializers, void 0);
+        get $fallback() { return this.#$fallback_accessor_storage; }
+        set $fallback(value) { this.#$fallback_accessor_storage = value; }
         constructor() {
             super();
-            this.shadowRoot.appendChild(contentTemplate());
-            this._ref = {};
+            this.appendShadowChild(contentTemplate());
             this.#setupLoad();
-            this.onConnected(this.render);
-            this.onAttributeChanged(this.render);
+            this.hook.onConnected(this.render);
+            this.hook.onAttributeChanged(this.render);
         }
         #setupLoad() {
             this._status = 'init';
@@ -144,18 +160,18 @@ export let BlocksImage = (() => {
                     dispatchEvent(this, 'error');
                 }
             };
-            this.onConnected(() => {
+            this.hook.onConnected(() => {
                 this.$img.addEventListener('load', onLoad);
                 this.$img.addEventListener('error', onError);
                 if (!this.manual) {
                     this.load();
                 }
             });
-            this.onDisconnected(() => {
+            this.hook.onDisconnected(() => {
                 this.$img.removeEventListener('load', onLoad);
                 this.$img.removeEventListener('error', onError);
             });
-            this.onAttributeChangedDep('src', () => {
+            this.hook.onAttributeChangedDep('src', () => {
                 if (!this.manual) {
                     this.load();
                 }
@@ -168,11 +184,11 @@ export let BlocksImage = (() => {
             const { $layout, $img } = this;
             $img.style.opacity = '0';
             this._removeFallback();
-            if (!this._ref.$placeholder) {
-                this._ref.$placeholder = $layout.appendChild(placeholderTemplate());
-                this._ref.$placeholder.querySelector('.placeholderText').textContent = getMessage('placeholderText');
+            if (!this.$placeholder) {
+                const $placeholder = $layout.appendChild(placeholderTemplate());
+                $placeholder.querySelector('.placeholderText').textContent = getMessage('placeholderText');
                 if (this.placeholder) {
-                    this._ref.$placeholder.querySelector('img').src = this.placeholder;
+                    $placeholder.querySelector('img').src = this.placeholder;
                 }
             }
         }
@@ -180,11 +196,11 @@ export let BlocksImage = (() => {
             const { $layout, $img } = this;
             $img.style.opacity = '0';
             this._removePlaceholder();
-            if (!this._ref.$fallback) {
-                this._ref.$fallback = $layout.appendChild(fallbackTemplate());
-                this._ref.$fallback.querySelector('.fallbackText').textContent = getMessage('fallbackText');
+            if (!this.$fallback) {
+                const $fallback = $layout.appendChild(fallbackTemplate());
+                $fallback.querySelector('.fallbackText').textContent = getMessage('fallbackText');
                 if (this.fallback) {
-                    this._ref.$fallback.querySelector('img').src = this.fallback;
+                    $fallback.querySelector('img').src = this.fallback;
                 }
             }
         }
@@ -197,15 +213,13 @@ export let BlocksImage = (() => {
             }
         }
         _removePlaceholder() {
-            if (this._ref.$placeholder) {
-                this.$layout.removeChild(this._ref.$placeholder);
-                this._ref.$placeholder = undefined;
+            if (this.$placeholder) {
+                this.$layout.removeChild(this.$placeholder);
             }
         }
         _removeFallback() {
-            if (this._ref.$fallback) {
-                this.$layout.removeChild(this._ref.$fallback);
-                this._ref.$fallback = undefined;
+            if (this.$fallback) {
+                this.$layout.removeChild(this.$fallback);
             }
         }
         _reset() {
@@ -242,5 +256,5 @@ export let BlocksImage = (() => {
             dispatchEvent(this, 'loading');
         }
     };
-    return BlocksImage = _classThis;
+    return BlImage = _classThis;
 })();
