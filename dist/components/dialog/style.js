@@ -3,33 +3,19 @@ export const style = `
 /* <component>dialog */
 :host {
   --padding: var(--bl-padding-large, ${__padding_large});
+  --z-index: var(--bl-z-index-dialog-base, ${__z_index_dialog_base});
+  --z-index-focus: var(--bl-z-index-dialog-focus, ${__z_index_dialog_focus});  
+}
 
+:host {
   max-width: calc(100vw - 20px);
   max-height: calc(100vh - 20px);
-  z-index: var(--z-index, var(--bl-z-index-dialog-base, ${__z_index_dialog_base}));
-}
-:host(:focus), :host(:focus-within), :host(:focus-visible) {
-  z-index: var(--z-index-focus, var(--bl-z-index-dialog-focus, ${__z_index_dialog_focus}));
-}
-
-[part="shadow"] {
-  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.1),
-    0px 24px 38px 3px rgba(0, 0, 0, 0.10),
-    0px 9px 46px 8px rgba(0, 0, 0, 0.10);
-}
-
-:host(:focus) [part="shadow"], :host(:focus-within) [part="shadow"], :host(:focus-visible) [part="shadow"] {
-  outline: 0 none;
-  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
-    0px 24px 38px 3px rgba(0, 0, 0, 0.14),
-    0px 9px 46px 8px rgba(0, 0, 0, 0.12);
 }
 
 
 /* 对话框 */
 [part="layout"] {
-  display:inline-flex;
-  vertical-align: top;
+  display:flex;
   flex-flow: column nowrap;
 }
 

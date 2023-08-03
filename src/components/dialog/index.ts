@@ -47,12 +47,13 @@ class BlocksDialog extends BlocksPopup {
   @attr('boolean') accessor closeable!: boolean
   /** 标题 */
   @attr('string') accessor titleText = ''
-
-  // TODO: 检查销毁逻辑
-  @attr('boolean') accessor unmountAfterClose!: boolean
-
+  /** 关闭时卸载 DOM */
+  @attr('boolean') accessor unmountOnClosed!: boolean
+  /** 点击遮罩时关闭 */
   @attr('boolean') accessor closeOnClickMask!: boolean
+  /** 点击外部时关闭 */
   @attr('boolean') accessor closeOnClickOutside!: boolean
+  /** 按 ESC 键时关闭 */
   @attr('boolean') accessor closeOnPressEscape!: boolean
 
   @shadowRef('[part="close"]') accessor $close!: HTMLButtonElement | null
@@ -95,6 +96,16 @@ class BlocksDialog extends BlocksPopup {
       if (this.parentElement !== document.body) {
         document.body.appendChild(this)
       }
+    })
+
+    const unmountDialog = () => {
+      if (this.unmountOnClosed) unmount(this)
+    }
+    this.onConnected(() => {
+      this.addEventListener('closed', unmountDialog)
+    })
+    this.onDisconnected(() => {
+      this.removeEventListener('closed', unmountDialog)
     })
   }
 

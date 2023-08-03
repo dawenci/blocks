@@ -59,8 +59,8 @@ let BlocksDialog = (() => {
     let _closeable_initializers = [];
     let _titleText_decorators;
     let _titleText_initializers = [];
-    let _unmountAfterClose_decorators;
-    let _unmountAfterClose_initializers = [];
+    let _unmountOnClosed_decorators;
+    let _unmountOnClosed_initializers = [];
     let _closeOnClickMask_decorators;
     let _closeOnClickMask_initializers = [];
     let _closeOnClickOutside_decorators;
@@ -86,7 +86,7 @@ let BlocksDialog = (() => {
             _mask_decorators = [attr('boolean')];
             _closeable_decorators = [attr('boolean')];
             _titleText_decorators = [attr('string')];
-            _unmountAfterClose_decorators = [attr('boolean')];
+            _unmountOnClosed_decorators = [attr('boolean')];
             _closeOnClickMask_decorators = [attr('boolean')];
             _closeOnClickOutside_decorators = [attr('boolean')];
             _closeOnPressEscape_decorators = [attr('boolean')];
@@ -100,7 +100,7 @@ let BlocksDialog = (() => {
             __esDecorate(this, null, _mask_decorators, { kind: "accessor", name: "mask", static: false, private: false, access: { has: obj => "mask" in obj, get: obj => obj.mask, set: (obj, value) => { obj.mask = value; } } }, _mask_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeable_decorators, { kind: "accessor", name: "closeable", static: false, private: false, access: { has: obj => "closeable" in obj, get: obj => obj.closeable, set: (obj, value) => { obj.closeable = value; } } }, _closeable_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _titleText_decorators, { kind: "accessor", name: "titleText", static: false, private: false, access: { has: obj => "titleText" in obj, get: obj => obj.titleText, set: (obj, value) => { obj.titleText = value; } } }, _titleText_initializers, _instanceExtraInitializers);
-            __esDecorate(this, null, _unmountAfterClose_decorators, { kind: "accessor", name: "unmountAfterClose", static: false, private: false, access: { has: obj => "unmountAfterClose" in obj, get: obj => obj.unmountAfterClose, set: (obj, value) => { obj.unmountAfterClose = value; } } }, _unmountAfterClose_initializers, _instanceExtraInitializers);
+            __esDecorate(this, null, _unmountOnClosed_decorators, { kind: "accessor", name: "unmountOnClosed", static: false, private: false, access: { has: obj => "unmountOnClosed" in obj, get: obj => obj.unmountOnClosed, set: (obj, value) => { obj.unmountOnClosed = value; } } }, _unmountOnClosed_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeOnClickMask_decorators, { kind: "accessor", name: "closeOnClickMask", static: false, private: false, access: { has: obj => "closeOnClickMask" in obj, get: obj => obj.closeOnClickMask, set: (obj, value) => { obj.closeOnClickMask = value; } } }, _closeOnClickMask_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeOnClickOutside_decorators, { kind: "accessor", name: "closeOnClickOutside", static: false, private: false, access: { has: obj => "closeOnClickOutside" in obj, get: obj => obj.closeOnClickOutside, set: (obj, value) => { obj.closeOnClickOutside = value; } } }, _closeOnClickOutside_initializers, _instanceExtraInitializers);
             __esDecorate(this, null, _closeOnPressEscape_decorators, { kind: "accessor", name: "closeOnPressEscape", static: false, private: false, access: { has: obj => "closeOnPressEscape" in obj, get: obj => obj.closeOnPressEscape, set: (obj, value) => { obj.closeOnPressEscape = value; } } }, _closeOnPressEscape_initializers, _instanceExtraInitializers);
@@ -127,9 +127,9 @@ let BlocksDialog = (() => {
         #titleText_accessor_storage = __runInitializers(this, _titleText_initializers, '');
         get titleText() { return this.#titleText_accessor_storage; }
         set titleText(value) { this.#titleText_accessor_storage = value; }
-        #unmountAfterClose_accessor_storage = __runInitializers(this, _unmountAfterClose_initializers, void 0);
-        get unmountAfterClose() { return this.#unmountAfterClose_accessor_storage; }
-        set unmountAfterClose(value) { this.#unmountAfterClose_accessor_storage = value; }
+        #unmountOnClosed_accessor_storage = __runInitializers(this, _unmountOnClosed_initializers, void 0);
+        get unmountOnClosed() { return this.#unmountOnClosed_accessor_storage; }
+        set unmountOnClosed(value) { this.#unmountOnClosed_accessor_storage = value; }
         #closeOnClickMask_accessor_storage = __runInitializers(this, _closeOnClickMask_initializers, void 0);
         get closeOnClickMask() { return this.#closeOnClickMask_accessor_storage; }
         set closeOnClickMask(value) { this.#closeOnClickMask_accessor_storage = value; }
@@ -188,6 +188,16 @@ let BlocksDialog = (() => {
                 if (this.parentElement !== document.body) {
                     document.body.appendChild(this);
                 }
+            });
+            const unmountDialog = () => {
+                if (this.unmountOnClosed)
+                    unmount(this);
+            };
+            this.onConnected(() => {
+                this.addEventListener('closed', unmountDialog);
+            });
+            this.onDisconnected(() => {
+                this.removeEventListener('closed', unmountDialog);
             });
         }
         #setupMask() {

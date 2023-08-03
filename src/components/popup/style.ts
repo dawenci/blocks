@@ -20,8 +20,6 @@ export const style = /*css*/ `
 }
 
 :host {
-  /* https://developers.google.com/web/updates/2016/06/css-containment */
-  contain: none;
   box-sizing: border-box;
   position: absolute;
   color: var(--fg);
@@ -33,6 +31,7 @@ export const style = /*css*/ `
 }
 
 [part="layout"] {
+  /* https://developers.google.com/web/updates/2016/06/css-containment */
   contain: paint;
   box-sizing: border-box;
   position: relative;
