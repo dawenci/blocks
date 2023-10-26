@@ -1,6 +1,6 @@
 {
   "name": "@dawenci/blocks",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Web Components",
   "main": "dist/index.js",
   "directories": {
@@ -15,7 +15,6 @@
     "serve": "http-server -c-1",
     "open:doc": "node scripts/open-in-browser.js http://localhost:8080/docs/index.html",
     "serve:doc": "pnpm run open:doc && pnpm run serve",
-
     "e2e:prepare": "pnpx nyc instrument ./dist ./tests/dist",
     "e2e:headless": "pnpx cypress run",
     "e2e:gui": "pnpx cypress open",
